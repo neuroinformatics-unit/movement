@@ -1,0 +1,35 @@
+movement.roi
+============
+
+.. rubric:: Description
+
+.. automodule:: movement.roi
+
+.. currentmodule:: movement.roi
+
+
+.. rubric:: Classes
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    BaseRegionOfInterest
+    
+    LineOfInterest
+    
+    PolygonOfInterest
+    
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    compute_region_occupancy
+    
+

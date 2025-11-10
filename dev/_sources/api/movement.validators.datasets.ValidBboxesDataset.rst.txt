@@ -1,0 +1,23 @@
+ValidBboxesDataset
+==================
+
+.. currentmodule:: movement.validators.datasets
+
+.. autoclass:: ValidBboxesDataset
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   
+
+.. minigallery:: movement.validators.datasets.ValidBboxesDataset
+   :add-heading: Examples using ``ValidBboxesDataset``

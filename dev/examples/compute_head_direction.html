@@ -1,0 +1,1068 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Compute head direction &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=ade74076" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=a8952726"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/compute_head_direction';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/contributors.js?v=4c153e30"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/examples/compute_head_direction.html" />
+    <link rel="icon" href="../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Compute distances and angles to regions of interest" href="boundary_angles.html" />
+    <link rel="prev" title="Pupil tracking" href="mouse_eye_movements.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.11.1.dev4</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="load_and_explore_poses.html">Load and explore pose tracks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter_and_interpolate.html">Drop outliers and interpolate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convert_file_formats.html">Convert pose tracks between file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="smooth.html">Smooth pose tracks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mouse_eye_movements.html">Pupil tracking</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Compute head direction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_angles.html">Compute distances and angles to regions of interest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compute_kinematics.html">Compute and visualise kinematics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_and_upsample_bboxes.html">Load and upsample bounding box tracks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_freemocap_data.html">Load and visualise FreeMoCap 3D data</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="advanced/index.html">Advanced</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/broadcasting_your_own_methods.html">Broadcast functions across multi-dimensional data</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Compute head direction</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-examples-compute-head-direction-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code. or to run this example in your browser via Binder</p>
+</div>
+<section class="sphx-glr-example-title" id="compute-head-direction">
+<span id="sphx-glr-examples-compute-head-direction-py"></span><h1>Compute head direction<a class="headerlink" href="#compute-head-direction" title="Link to this heading">#</a></h1>
+<p>Compute the head direction vector and angle using different methods.</p>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># For interactive plots: install ipympl with `pip install ipympl` and uncomment</span>
+<span class="c1"># the following line in your notebook</span>
+<span class="c1"># %matplotlib widget</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <a href="../api/movement.kinematics.compute_forward_vector.html#movement.kinematics.compute_forward_vector" title="movement.kinematics.compute_forward_vector" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_forward_vector</span></a><span class="p">,</span>
+    <a href="../api/movement.kinematics.compute_forward_vector_angle.html#movement.kinematics.compute_forward_vector_angle" title="movement.kinematics.compute_forward_vector_angle" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_forward_vector_angle</span></a><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.plots</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory" class="sphx-glr-backref-module-movement-plots sphx-glr-backref-type-py-function"><span class="n">plot_centroid_trajectory</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.vector</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.utils.vector.cart2pol.html#movement.utils.vector.cart2pol" title="movement.utils.vector.cart2pol" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">cart2pol</span></a><span class="p">,</span> <a href="../api/movement.utils.vector.pol2cart.html#movement.utils.vector.pol2cart" title="movement.utils.vector.pol2cart" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">pol2cart</span></a>
+</pre></div>
+</div>
+</section>
+<section id="load-sample-dataset">
+<h2>Load sample dataset<a class="headerlink" href="#load-sample-dataset" title="Link to this heading">#</a></h2>
+<p>In this tutorial, we will use a sample dataset with a single individual
+(a mouse) and six keypoints.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a> <span class="o">=</span> <a href="../api/movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset" title="movement.sample_data.fetch_dataset" class="sphx-glr-backref-module-movement-sample_data sphx-glr-backref-type-py-function"><span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset</span></a><span class="p">(</span><span class="s2">&quot;DLC_single-mouse_EPM.predictions.h5&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-----------------------------&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Individuals: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Keypoints: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 4MB
+Dimensions:      (time: 18485, space: 2, keypoints: 8, individuals: 1)
+Coordinates:
+  * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
+  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+  * keypoints    (keypoints) &lt;U13 416B &#39;snout&#39; &#39;left_ear&#39; ... &#39;tail_end&#39;
+  * individuals  (individuals) &lt;U12 48B &#39;individual_0&#39;
+Data variables:
+    position     (time, space, keypoints, individuals) float64 2MB 508.4 ... ...
+    confidence   (time, keypoints, individuals) float64 1MB 0.0002829 ... 0.9978
+Attributes:
+    source_software:  DeepLabCut
+    ds_type:          poses
+    fps:              30.0
+    time_unit:        seconds
+    source_file:      /home/runner/.movement/data/poses/DLC_single-mouse_EPM....
+    frame_path:       /home/runner/.movement/data/frames/single-mouse_EPM_fra...
+-----------------------------
+Individuals: [&#39;individual_0&#39;]
+Keypoints: [&#39;snout&#39; &#39;left_ear&#39; &#39;right_ear&#39; &#39;centre&#39; &#39;lateral_left&#39; &#39;lateral_right&#39;
+ &#39;tailbase&#39; &#39;tail_end&#39;]
+</pre></div>
+</div>
+<p>The loaded dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> contains two data arrays:<code class="docutils literal notranslate"><span class="pre">position</span></code> and
+<code class="docutils literal notranslate"><span class="pre">confidence</span></code>. In this tutorial, we will only use the <code class="docutils literal notranslate"><span class="pre">position</span></code> data
+array. We use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="(in xarray v2025.10.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.squeeze()</span></code></a> to remove
+the redundant <code class="docutils literal notranslate"><span class="pre">individuals</span></code> dimension, as there is only one individual
+in this dataset.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="visualise-the-head-trajectory">
+<h2>Visualise the head trajectory<a class="headerlink" href="#visualise-the-head-trajectory" title="Link to this heading">#</a></h2>
+<p>We can start by visualising the head trajectory, taking the midpoint
+between the ears as an estimate for the head centre.
+We will overlay that on a single video frame that comes
+as part of the sample dataset.</p>
+<p>The <a class="reference internal" href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_centroid_trajectory()</span></code></a>
+function can help you visualise the trajectory of any keypoint in the data.
+Passing a list of keypoints, in this case <code class="docutils literal notranslate"><span class="pre">[&quot;left_ear&quot;,</span> <span class="pre">&quot;right_ear&quot;]</span></code>,
+will plot the centroid (midpoint) of the selected keypoints.
+By default, the first individual in the dataset is shown.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create figure and axis</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Plot a single frame from the dataset (its path is stored as an attribute)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frame</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.imread.html#matplotlib.pyplot.imread" title="matplotlib.pyplot.imread" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">imread</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">frame_path</span></a><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.imshow.html#matplotlib.axes.Axes.imshow" title="matplotlib.axes.Axes.imshow" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">imshow</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frame</span></a><span class="p">)</span>
+
+<span class="c1"># Plot the trajectory of the head centre</span>
+<a href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory" class="sphx-glr-backref-module-movement-plots sphx-glr-backref-type-py-function"><span class="n">plot_centroid_trajectory</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span>
+    <span class="n">keypoints</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;left_ear&quot;</span><span class="p">,</span> <span class="s2">&quot;right_ear&quot;</span><span class="p">],</span>
+    <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span>
+    <span class="c1"># arguments forwarded to plt.scatter</span>
+    <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;viridis&quot;</span><span class="p">,</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Adjust title</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><span class="s2">&quot;Head trajectory&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylim.html#matplotlib.axes.Axes.set_ylim" title="matplotlib.axes.Axes.set_ylim" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frame</span><span class="o">.</span><span class="n">shape</span></a><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># match y-axis limits to image coordinates</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;x (pixels)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;y (pixels)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">.</span><span class="n">collections</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">colorbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s2">&quot;Time (seconds)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.show.html#matplotlib.figure.Figure.show" title="matplotlib.figure.Figure.show" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_head_direction_001.png" srcset="../_images/sphx_glr_compute_head_direction_001.png" alt="Head trajectory" class = "sphx-glr-single-img"/><p>We can see that most of the head trajectory data is within a
+cruciform shape, because the mouse is moving on an
+<a class="reference external" href="https://en.wikipedia.org/wiki/Elevated_plus_maze">Elevated Plus Maze</a>.
+The plot suggests the mouse spends most of its time in the
+covered arms of the maze (the vertical arms).</p>
+</section>
+<section id="compute-the-head-to-snout-vector">
+<h2>Compute the head-to-snout vector<a class="headerlink" href="#compute-the-head-to-snout-vector" title="Link to this heading">#</a></h2>
+<p>We can define the head direction as the vector from the midpoint between
+the ears to the snout.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute the head centre as the midpoint between the ears</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">midpoint_ears</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;left_ear&quot;</span><span class="p">,</span> <span class="s2">&quot;right_ear&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+    <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span>
+<span class="p">)</span>
+<span class="c1"># Snout position</span>
+<span class="c1"># (`drop=True` removes the keypoints dimension, which is now redundant)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">snout</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Compute the head vector as the difference vector between the snout position</span>
+<span class="c1"># and the head-centre position.</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_to_snout</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">snout</span></a> <span class="o">-</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">midpoint_ears</span></a>
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Vector subtraction</p>
+<p>Note that any position data point can be seen as a point <span class="math notranslate nohighlight">\(U\)</span> in the
+2D plane, or as a 2D vector <span class="math notranslate nohighlight">\(\vec{u}\)</span> that goes from the image
+coordinate system origin (by default, the centre of the top-left pixel)
+to the point <span class="math notranslate nohighlight">\(U\)</span> (see left subplot).</p>
+<p>The vector that goes from point <span class="math notranslate nohighlight">\(U\)</span> to point <span class="math notranslate nohighlight">\(V\)</span> can be
+computed as the difference <span class="math notranslate nohighlight">\(\vec{v} - \vec{u}\)</span>
+(see right subplot).</p>
+<a class="reference internal image-reference" href="../_images/Vector-Subtraction.png"><img alt="Schematic showing vector subtraction" src="../_images/Vector-Subtraction.png" style="width: 600px;" />
+</a>
+</div>
+<p>Let’s validate our computation by plotting the head-to-snout vector
+alongside the midpoint between the ears and the snout position.
+We will do this for a small time window to make the plot more readable.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Time window to restrict the plot</span>
+<a href="https://docs.python.org/3/library/functions.html#slice" title="builtins.slice" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">time_window</span></a> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mf">54.9</span><span class="p">,</span> <span class="mf">55.1</span><span class="p">)</span>  <span class="c1"># seconds</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">()</span>
+
+<span class="c1"># Plot the computed head-to-snout vector originating from the ears midpoint</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.quiver.html#matplotlib.axes.Axes.quiver" title="matplotlib.axes.Axes.quiver" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">quiver</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#slice" title="builtins.slice" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">time_window</span></a><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#slice" title="builtins.slice" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">time_window</span></a><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">head_to_snout</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#slice" title="builtins.slice" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">time_window</span></a><span class="p">),</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">head_to_snout</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#slice" title="builtins.slice" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">time_window</span></a><span class="p">),</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">angles</span></a><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span>
+    <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">scale_units</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span>
+    <span class="n">headwidth</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">headlength</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">headaxislength</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Head-to-snout vector&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Plot midpoint between the ears within the time window</span>
+<a href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory" class="sphx-glr-backref-module-movement-plots sphx-glr-backref-type-py-function"><span class="n">plot_centroid_trajectory</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">midpoint_ears</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">time</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#slice" title="builtins.slice" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">time_window</span></a><span class="p">),</span>
+    <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span>
+    <span class="n">s</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;ears midpoint&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Plot the snout position within the time window</span>
+<a href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory" class="sphx-glr-backref-module-movement-plots sphx-glr-backref-type-py-function"><span class="n">plot_centroid_trajectory</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">snout</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">time</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#slice" title="builtins.slice" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">time_window</span></a><span class="p">),</span>
+    <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span>
+    <span class="n">s</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Calling plot_centroid_trajectory twice will add 2 identical colorbars</span>
+<span class="c1"># so we remove 1</span>
+<a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">.</span><span class="n">collections</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">colorbar</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><span class="s2">&quot;Zoomed in head-to-snout vectors&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.invert_yaxis.html#matplotlib.axes.Axes.invert_yaxis" title="matplotlib.axes.Axes.invert_yaxis" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span></a><span class="p">()</span>  <span class="c1"># invert y-axis to match image coordinates</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="matplotlib.axes.Axes.legend" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">legend</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_head_direction_002.png" srcset="../_images/sphx_glr_compute_head_direction_002.png" alt="Zoomed in head-to-snout vectors" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7fe3a57e3b30&gt;
+</pre></div>
+</div>
+</section>
+<section id="head-to-snout-vector-in-polar-coordinates">
+<h2>Head-to-snout vector in polar coordinates<a class="headerlink" href="#head-to-snout-vector-in-polar-coordinates" title="Link to this heading">#</a></h2>
+<p>Now that we have the head-to-snout vector, we can compute its
+angle in 2D space. A convenient way to achieve that is to convert the
+vector from cartesian to polar coordinates using the
+<a class="reference internal" href="../api/movement.utils.vector.cart2pol.html#movement.utils.vector.cart2pol" title="movement.utils.vector.cart2pol"><code class="xref py py-func docutils literal notranslate"><span class="pre">cart2pol()</span></code></a> function.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_to_snout_polar</span></a> <span class="o">=</span> <a href="../api/movement.utils.vector.cart2pol.html#movement.utils.vector.cart2pol" title="movement.utils.vector.cart2pol" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">cart2pol</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_to_snout</span></a><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_to_snout_polar</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;position&#39; (time: 18485, space_pol: 2)&gt; Size: 296kB
+1.637 1.995 1.624 1.99 1.67 1.994 1.681 ... 22.11 0.937 22.12 0.9768 20.81 1.011
+Coordinates:
+  * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
+  * space_pol    (space_pol) &lt;U3 24B &#39;rho&#39; &#39;phi&#39;
+    individuals  &lt;U12 48B &#39;individual_0&#39;
+</pre></div>
+</div>
+<p>Notice how the resulting array has a <code class="docutils literal notranslate"><span class="pre">space_pol</span></code> dimension with two
+coordinates: <code class="docutils literal notranslate"><span class="pre">rho</span></code> and <code class="docutils literal notranslate"><span class="pre">phi</span></code>. These are the polar coordinates of the
+head vector.</p>
+<div class="note admonition">
+<p class="admonition-title">Polar coordinates</p>
+<p>The coordinate <code class="docutils literal notranslate"><span class="pre">rho</span></code> is the norm (i.e., magnitude, length) of the vector.
+In our case, the distance from the midpoint between the ears to the snout.</p>
+<p>The coordinate <code class="docutils literal notranslate"><span class="pre">phi</span></code> is the shortest angle (in radians) between the
+positive x-axis and the  vector, and ranges from <span class="math notranslate nohighlight">\(-\pi\)</span> to
+<span class="math notranslate nohighlight">\(\pi\)</span> (following the
+<a class="reference external" href="https://en.wikipedia.org/wiki/Atan2">atan2</a> convention).
+The <code class="docutils literal notranslate"><span class="pre">phi</span></code> angle is positive if the rotation
+from the positive x-axis to the vector is in the same direction as
+the rotation from the positive x-axis to the positive y-axis.
+In the default image coordinate system, this means  <code class="docutils literal notranslate"><span class="pre">phi</span></code> will be
+positive if the rotation is clockwise, and negative if the rotation
+is anti-clockwise.</p>
+<a class="reference internal image-reference" href="../_images/Cartesian-vs-Polar.png"><img alt="Schematic comparing cartesian and polar coordinates" src="../_images/Cartesian-vs-Polar.png" style="width: 600px;" />
+</a>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">movement</span></code> also provides a
+<a class="reference internal" href="../api/movement.utils.vector.pol2cart.html#movement.utils.vector.pol2cart" title="movement.utils.vector.pol2cart"><code class="xref py py-func docutils literal notranslate"><span class="pre">pol2cart()</span></code></a> function
+to transform data in polar coordinates to cartesian.
+Note that the resulting <code class="docutils literal notranslate"><span class="pre">head_to_snout_cart</span></code> array has a <code class="docutils literal notranslate"><span class="pre">space</span></code>
+dimension with two coordinates: <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code>.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_to_snout_cart</span></a> <span class="o">=</span> <a href="../api/movement.utils.vector.pol2cart.html#movement.utils.vector.pol2cart" title="movement.utils.vector.pol2cart" class="sphx-glr-backref-module-movement-utils-vector sphx-glr-backref-type-py-function"><span class="n">pol2cart</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_to_snout_polar</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_to_snout_cart</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;position&#39; (time: 18485, space: 2)&gt; Size: 296kB
+-0.6741 1.492 -0.661 1.484 -0.6864 1.522 ... 13.09 17.82 12.38 18.33 11.05 17.64
+Coordinates:
+  * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
+  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+    individuals  &lt;U12 48B &#39;individual_0&#39;
+</pre></div>
+</div>
+</section>
+<section id="compute-the-forward-vector">
+<h2>Compute the “forward” vector<a class="headerlink" href="#compute-the-forward-vector" title="Link to this heading">#</a></h2>
+<p>We can also estimate the head direction using the
+<a class="reference internal" href="../api/movement.kinematics.compute_forward_vector.html#movement.kinematics.compute_forward_vector" title="movement.kinematics.compute_forward_vector"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_forward_vector()</span></code></a>
+function, which takes a different approach to the one we used above:
+it accepts a pair of bilaterally symmetric keypoints and
+computes the vector that originates at the midpoint between the keypoints
+and is perpendicular to the line connecting them.</p>
+<p>Here we will use the two ears to find the head direction vector.
+We may prefer this method if we expect the snout detection to be
+unreliable (e.g., because it’s often occluded in a top-down camera view).</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_forward_vector.html#movement.kinematics.compute_forward_vector" title="movement.kinematics.compute_forward_vector" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_forward_vector</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a><span class="p">,</span>
+    <span class="n">left_keypoint</span><span class="o">=</span><span class="s2">&quot;left_ear&quot;</span><span class="p">,</span>
+    <span class="n">right_keypoint</span><span class="o">=</span><span class="s2">&quot;right_ear&quot;</span><span class="p">,</span>
+    <span class="n">camera_view</span><span class="o">=</span><span class="s2">&quot;top_down&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;forward_vector&#39; (time: 18485, space: 2)&gt; Size: 296kB
+-0.01196 0.9999 -0.01182 0.9999 -0.0153 ... 0.9058 0.4111 0.9116 0.3797 0.9251
+Coordinates:
+  * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
+  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+    individuals  &lt;U12 48B &#39;individual_0&#39;
+</pre></div>
+</div>
+<div class="note admonition">
+<p class="admonition-title">Why do we need to specify the camera view?</p>
+<p>You can think about it in this way: in order to uniquely determine which
+way is forward for an animal, we need to know the orientation of the other
+two body axes: left-right and up-down. The left-right axis is specified
+by the left and right keypoints passed to the function, while we use the
+<code class="docutils literal notranslate"><span class="pre">camera_view</span></code> parameter to determine the upward direction (see image).
+The default view is <code class="docutils literal notranslate"><span class="pre">&quot;top_down&quot;</span></code>, but it can also be <code class="docutils literal notranslate"><span class="pre">&quot;bottom_up&quot;</span></code>.
+Other camera views are not supported at the moment.</p>
+<a class="reference internal image-reference" href="../_images/Forward-Vector.png"><img alt="Schematic showing forward vector in top-down and bottom-up views" src="../_images/Forward-Vector.png" style="width: 600px;" />
+</a>
+</div>
+<p>You can use
+<a class="reference internal" href="../api/movement.kinematics.compute_forward_vector.html#movement.kinematics.compute_forward_vector" title="movement.kinematics.compute_forward_vector"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_forward_vector()</span></code></a>
+to compute the perpendicular vector to any line connecting two bilaterally
+symmetric keypoints.
+For example, you could estimate the forward direction for the pelvis given
+two keypoints at the hips.</p>
+<p>Specifically for the head direction vector, you may also use the alias
+<a class="reference internal" href="../api/movement.kinematics.compute_head_direction_vector.html#movement.kinematics.compute_head_direction_vector" title="movement.kinematics.compute_head_direction_vector"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_head_direction_vector()</span></code></a>,
+which makes the intent of the function clearer.</p>
+</section>
+<section id="compute-head-direction-angle">
+<h2>Compute head direction angle<a class="headerlink" href="#compute-head-direction-angle" title="Link to this heading">#</a></h2>
+<p>We may want to explicitly compute the orientation of the animal’s head
+as an angle, rather than as a vector.
+We can compute this angle from the forward vector as
+we did with the head-to-snout vector, i.e., by converting the vector to
+polar coordinates and extracting the <code class="docutils literal notranslate"><span class="pre">phi</span></code> coordinate. However, it’s
+more convenient to use the <a class="reference internal" href="../api/movement.kinematics.compute_forward_vector_angle.html#movement.kinematics.compute_forward_vector_angle" title="movement.kinematics.compute_forward_vector_angle"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_forward_vector_angle()</span></code></a> function, which
+by default would return the same <code class="docutils literal notranslate"><span class="pre">phi</span></code> angle.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector_angle</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_forward_vector_angle.html#movement.kinematics.compute_forward_vector_angle" title="movement.kinematics.compute_forward_vector_angle" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_forward_vector_angle</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a><span class="p">,</span>
+    <span class="n">left_keypoint</span><span class="o">=</span><span class="s2">&quot;left_ear&quot;</span><span class="p">,</span>
+    <span class="n">right_keypoint</span><span class="o">=</span><span class="s2">&quot;right_ear&quot;</span><span class="p">,</span>
+    <span class="c1"># Optional parameters:</span>
+    <span class="n">reference_vector</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>  <span class="c1"># positive x-axis</span>
+    <span class="n">camera_view</span><span class="o">=</span><span class="s2">&quot;top_down&quot;</span><span class="p">,</span>
+    <span class="n">in_degrees</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># set to True for degrees</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector_angle</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;forward_vector_angle&#39; (time: 18485)&gt; Size: 148kB
+1.583 1.583 1.586 1.588 1.585 1.585 ... 1.088 1.171 1.258 1.133 1.147 1.181
+Coordinates:
+  * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
+    individuals  &lt;U12 48B &#39;individual_0&#39;
+</pre></div>
+</div>
+<p>The resulting <code class="docutils literal notranslate"><span class="pre">forward_vector_angle</span></code> array contains the head direction
+angle in radians, with respect to the positive x-axis. This means that
+the angle is zero when the head vector is pointing to the right of the frame.
+We could have also used an alternative reference vector, such as the
+negative y-axis (pointing to the top edge of the frame) by setting
+<code class="docutils literal notranslate"><span class="pre">reference_vector=(0,</span> <span class="pre">-1)</span></code>.</p>
+</section>
+<section id="visualise-head-direction-angles">
+<h2>Visualise head direction angles<a class="headerlink" href="#visualise-head-direction-angles" title="Link to this heading">#</a></h2>
+<p>We can compare the head direction angles computed from the two methods,
+i.e. the polar angle <code class="docutils literal notranslate"><span class="pre">phi</span></code> of the head-to-snout vector and the polar angle
+of the forward vector, by plotting their histograms in polar coordinates.
+First, let’s define a custom plotting function that will help us with this.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_polar_histogram</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="n">bin_width_deg</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot a polar histogram of the data in the given DataArray.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    da : xarray.DataArray</span>
+<span class="sd">        A DataArray containing angle data in radians.</span>
+<span class="sd">    bin_width_deg : int, optional</span>
+<span class="sd">        Width of the bins in degrees.</span>
+<span class="sd">    ax : matplotlib.axes.Axes, optional</span>
+<span class="sd">        The axes on which to plot the histogram.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_bins</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">360</span> <span class="o">/</span> <span class="n">bin_width_deg</span><span class="p">)</span>
+
+    <span class="k">if</span> <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span>  <span class="c1"># initialise figure with polar projection</span>
+            <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;projection&quot;</span><span class="p">:</span> <span class="s2">&quot;polar&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">.</span><span class="n">figure</span>  <span class="c1"># or use the provided axes</span>
+
+    <span class="c1"># plot histogram using xarray&#39;s built-in histogram function</span>
+    <span class="n">da</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span>
+        <span class="n">bins</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.linspace.html#numpy.linspace" title="numpy.linspace" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">linspace</span></a><span class="p">(</span><span class="o">-</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">pi</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">pi</span></a><span class="p">,</span> <span class="n">n_bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="c1"># axes settings</span>
+    <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes.set_theta_direction" title="matplotlib.projections.polar.PolarAxes.set_theta_direction" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_theta_direction</span></a><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># theta increases in clockwise direction</span>
+    <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes.set_theta_offset" title="matplotlib.projections.polar.PolarAxes.set_theta_offset" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_theta_offset</span></a><span class="p">(</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># set zero at the right</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>  <span class="c1"># remove default x-label from xarray&#39;s plot.hist()</span>
+
+    <span class="c1"># set xticks to match the phi values in degrees</span>
+    <span class="n">n_xtick_edges</span> <span class="o">=</span> <span class="mi">9</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xticks.html#matplotlib.axes.Axes.set_xticks" title="matplotlib.axes.Axes.set_xticks" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.linspace.html#numpy.linspace" title="numpy.linspace" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">linspace</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">pi</span></a><span class="p">,</span> <span class="n">n_xtick_edges</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">xticks_in_deg</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">180</span> <span class="o">+</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">45</span><span class="p">))</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="o">-</span><span class="mi">45</span><span class="p">))[</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xticklabels.html#matplotlib.axes.Axes.set_xticklabels" title="matplotlib.axes.Axes.set_xticklabels" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span></a><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\N{DEGREE SIGN}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">xticks_in_deg</span><span class="p">])</span>
+
+    <span class="k">return</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a>
+</pre></div>
+</div>
+<p>Now we can visualise the polar <code class="docutils literal notranslate"><span class="pre">phi</span></code> angles of the <code class="docutils literal notranslate"><span class="pre">head_to_snout_polar</span></code>
+array alongside the values of the <code class="docutils literal notranslate"><span class="pre">forward_vector_angle</span></code> array.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_to_snout_angle</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">head_to_snout_polar</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;phi&quot;</span><span class="p">)</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">angle_arrays</span></a> <span class="o">=</span> <span class="p">[</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_to_snout_angle</span></a><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector_angle</span></a><span class="p">]</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">angle_titles</span></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Head-to-snout&quot;</span><span class="p">,</span> <span class="s2">&quot;Forward&quot;</span><span class="p">]</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span>
+    <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;projection&quot;</span><span class="p">:</span> <span class="s2">&quot;polar&quot;</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">angles</span></a> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">angle_arrays</span></a><span class="p">):</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">title</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">angle_titles</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span>
+    <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axes</span></a><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">i</span></a><span class="p">]</span>
+    <span class="n">plot_polar_histogram</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">angles</span></a><span class="p">,</span> <span class="n">bin_width_deg</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">)</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylim.html#matplotlib.axes.Axes.set_ylim" title="matplotlib.axes.Axes.set_ylim" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span></a><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">)</span>  <span class="c1"># force same y-scale (density) for both plots</span>
+    <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">title</span></a><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_head_direction_003.png" srcset="../_images/sphx_glr_compute_head_direction_003.png" alt="Head-to-snout, Forward" class = "sphx-glr-single-img"/><p>We see that the angle histograms are not identical,
+i.e. the two methods of computing head angle do not always yield
+the same results.
+How large are the differences between the two methods?
+We could check that by plotting a histogram of the differences.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">angles_diff</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forward_vector_angle</span></a> <span class="o">-</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">head_to_snout_angle</span></a>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/projections/polar.html#matplotlib.projections.polar.PolarAxes" title="matplotlib.projections.polar.PolarAxes" class="sphx-glr-backref-module-matplotlib-projections-polar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <span class="n">plot_polar_histogram</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">angles_diff</span></a><span class="p">,</span> <span class="n">bin_width_deg</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a><span class="p">(</span><span class="s2">&quot;Forward vector angle - head-to-snout angle&quot;</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_compute_head_direction_004.png" srcset="../_images/sphx_glr_compute_head_direction_004.png" alt="Forward vector angle - head-to-snout angle" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Text(0.5, 1.0, &#39;Forward vector angle - head-to-snout angle&#39;)
+</pre></div>
+</div>
+<p>For the majority of the time, the two methods
+differ less than 20 degrees (2 histogram bins).</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.813 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-compute-head-direction-py">
+<div class="binder-badge docutils container">
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/compute_head_direction.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
+</a>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/fc485c5d1a85931f52232d702a29fd38/compute_head_direction.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">compute_head_direction.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/47a0dd745818ab4fe04ffed2be01b336/compute_head_direction.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">compute_head_direction.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/346aef09fcb8f1940f984cd53b99afe9/compute_head_direction.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">compute_head_direction.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="mouse_eye_movements.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Pupil tracking</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="boundary_angles.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Compute distances and angles to regions of interest</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-sample-dataset">Load sample dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualise-the-head-trajectory">Visualise the head trajectory</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compute-the-head-to-snout-vector">Compute the head-to-snout vector</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#head-to-snout-vector-in-polar-coordinates">Head-to-snout vector in polar coordinates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compute-the-forward-vector">Compute the “forward” vector</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compute-head-direction-angle">Compute head direction angle</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualise-head-direction-angles">Visualise head direction angles</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples/compute_head_direction.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.16.1.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

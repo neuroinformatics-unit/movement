@@ -1,0 +1,740 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>movement.kinematics.kinetic_energy &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=ade74076" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a8952726"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/kinematics/kinetic_energy';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/contributors.js?v=4c153e30"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/kinematics/kinetic_energy.html" />
+    <link rel="icon" href="../../../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.11.1.dev4</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.kinematics.kinetic_energy</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <h1>Source code for movement.kinematics.kinetic_energy</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Functions for computing kinetic energy.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_velocity</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.vector</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_norm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.arrays</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_dims_coords</span>
+
+
+<div class="viewcode-block" id="compute_kinetic_energy">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_kinetic_energy.html#movement.kinematics.compute_kinetic_energy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_kinetic_energy</span><span class="p">(</span>
+    <span class="n">position</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">keypoints</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">masses</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">decompose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute kinetic energy per individual.</span>
+
+<span class="sd">    We consider each individual&#39;s set of keypoints (pose) as a classical</span>
+<span class="sd">    system of particles in physics (see Notes).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    position : xr.DataArray</span>
+<span class="sd">        The input data containing position information, with ``time``,</span>
+<span class="sd">        ``space`` and ``keypoints`` as required dimensions.</span>
+<span class="sd">    keypoints : list, optional</span>
+<span class="sd">        A list of keypoint names to include in the computation.</span>
+<span class="sd">        By default, all are used.</span>
+<span class="sd">    masses : dict, optional</span>
+<span class="sd">        A dictionary mapping keypoint names to masses, e.g.</span>
+<span class="sd">        {&quot;snout&quot;: 1.2, &quot;tail&quot;: 0.8}.</span>
+<span class="sd">        By default, unit mass is assumed for all keypoints.</span>
+<span class="sd">    decompose : bool, optional</span>
+<span class="sd">        If True, the kinetic energy is decomposed into &quot;translational&quot; and</span>
+<span class="sd">        &quot;internal&quot; components (see Notes). This requires at least two keypoints</span>
+<span class="sd">        per individual, but more would be desirable for a meaningful</span>
+<span class="sd">        decomposition. The default is False, meaning the total kinetic energy</span>
+<span class="sd">        is returned.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.DataArray</span>
+<span class="sd">        A data array containing the kinetic energy per individual, for every</span>
+<span class="sd">        time point. Note that the output array lacks ``space`` and</span>
+<span class="sd">        ``keypoints`` dimensions.</span>
+<span class="sd">        If ``decompose=True`` an extra ``energy`` dimension is added,</span>
+<span class="sd">        with coordinates ``translational`` and ``internal``.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Considering a given individual at time point :math:`t` as a system of</span>
+<span class="sd">    keypoint particles, its total kinetic energy :math:`T_{total}` is given by:</span>
+
+<span class="sd">    .. math::  T_{total} = \sum_{i} \frac{1}{2} m_i \| \mathbf{v}_i(t) \|^2</span>
+
+<span class="sd">    where :math:`m_i` is the mass of the :math:`i`-th keypoint and</span>
+<span class="sd">    :math:`\mathbf{v}_i(t)` is its velocity at time :math:`t`.</span>
+
+<span class="sd">    From Samuel König&#39;s second theorem, we can decompose :math:`T_{total}`</span>
+<span class="sd">    into:</span>
+
+<span class="sd">    - Translational kinetic energy: the kinetic energy of the individual&#39;s</span>
+<span class="sd">      total mass :math:`M` moving with the centre of mass velocity;</span>
+<span class="sd">    - Internal kinetic energy: the kinetic energy of the keypoints moving</span>
+<span class="sd">      relative to the individual&#39;s centre of mass.</span>
+
+<span class="sd">    We compute translational kinetic energy :math:`T_{trans}` as follows:</span>
+
+<span class="sd">    .. math:: T_{trans} = \frac{1}{2} M \| \mathbf{v}_{cm}(t) \|^2</span>
+
+<span class="sd">    where :math:`M = \sum_{i} m_i` is the total mass of the individual</span>
+<span class="sd">    and :math:`\mathbf{v}_{cm}(t) = \frac{1}{M} \sum_{i} m_i \mathbf{v}_i(t)`</span>
+<span class="sd">    is the velocity of the centre of mass at time :math:`t`</span>
+<span class="sd">    (computed as the weighted mean of keypoint velocities).</span>
+
+<span class="sd">    Internal kinetic energy :math:`T_{int}` is derived as the difference</span>
+<span class="sd">    between the total and translational components:</span>
+
+<span class="sd">    .. math:: T_{int} = T_{total} - T_{trans}</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from movement.kinematics import compute_kinetic_energy</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; import xarray as xr</span>
+
+<span class="sd">    Compute total kinetic energy:</span>
+
+<span class="sd">    &gt;&gt;&gt; position = xr.DataArray(</span>
+<span class="sd">    ...     np.random.rand(3, 2, 4, 2),</span>
+<span class="sd">    ...     coords={</span>
+<span class="sd">    ...         &quot;time&quot;: np.arange(3),</span>
+<span class="sd">    ...         &quot;individuals&quot;: [&quot;id0&quot;, &quot;id1&quot;],</span>
+<span class="sd">    ...         &quot;keypoints&quot;: [&quot;snout&quot;, &quot;spine&quot;, &quot;tail_base&quot;, &quot;tail_tip&quot;],</span>
+<span class="sd">    ...         &quot;space&quot;: [&quot;x&quot;, &quot;y&quot;],</span>
+<span class="sd">    ...     },</span>
+<span class="sd">    ...     dims=[&quot;time&quot;, &quot;individuals&quot;, &quot;keypoints&quot;, &quot;space&quot;],</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    &gt;&gt;&gt; kinetic_energy_total = compute_kinetic_energy(position)</span>
+
+<span class="sd">    &gt;&gt;&gt; kinetic_energy_total</span>
+<span class="sd">    &lt;xarray.DataArray (time: 3, individuals: 2)&gt; Size: 48B</span>
+<span class="sd">    0.6579 0.7394 0.1304 0.05152 0.2436 0.5719</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">    * time         (time) int64 24B 0 1 2</span>
+<span class="sd">    * individuals  (individuals) &lt;U3 24B &#39;id0&#39; &#39;id1&#39;</span>
+
+<span class="sd">    Compute kinetic energy decomposed into translational</span>
+<span class="sd">    and internal components:</span>
+
+<span class="sd">    &gt;&gt;&gt; kinetic_energy = compute_kinetic_energy(position, decompose=True)</span>
+
+<span class="sd">    &gt;&gt;&gt; kinetic_energy</span>
+<span class="sd">    &lt;xarray.DataArray (time: 3, individuals: 2, energy: 2)&gt; Size: 96B</span>
+<span class="sd">    0.0172 1.318 0.02069 0.6498 0.02933 ... 0.1716 0.07829 0.7942 0.06901 0.857</span>
+<span class="sd">    Coordinates:</span>
+<span class="sd">    * time         (time) int64 24B 0 1 2</span>
+<span class="sd">    * individuals  (individuals) &lt;U3 24B &#39;id0&#39; &#39;id1&#39;</span>
+<span class="sd">    * energy       (energy) &lt;U13 104B &#39;translational&#39; &#39;internal&#39;</span>
+
+<span class="sd">    Select the &#39;internal&#39; component:</span>
+
+<span class="sd">    &gt;&gt;&gt; kinetic_energy_internal = kinetic_energy.sel(energy=&quot;internal&quot;)</span>
+
+<span class="sd">    Use unequal keypoint masses and exclude an unreliable keypoint</span>
+<span class="sd">    (e.g. &quot;tail_tip&quot;):</span>
+
+<span class="sd">    &gt;&gt;&gt; masses = {&quot;snout&quot;: 1.2, &quot;spine&quot;: 0.8, &quot;tail_base&quot;: 1.0}</span>
+
+<span class="sd">    &gt;&gt;&gt; kinetic_energy = compute_kinetic_energy(</span>
+<span class="sd">    ...     position,</span>
+<span class="sd">    ...     keypoints=[&quot;snout&quot;, &quot;spine&quot;, &quot;tail_base&quot;],</span>
+<span class="sd">    ...     masses=masses,</span>
+<span class="sd">    ...     decompose=True,</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Validate required dimensions and coordinate labels</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span>
+        <span class="n">position</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="s2">&quot;keypoints&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Subset keypoints if requested</span>
+    <span class="k">if</span> <span class="n">keypoints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="n">keypoints</span><span class="p">)</span>
+
+    <span class="c1"># Validate that at least 2 keypoints exist for decomposition</span>
+    <span class="k">if</span> <span class="n">decompose</span> <span class="ow">and</span> <span class="n">position</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;keypoints&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;At least 2 keypoints are required to decompose &quot;</span>
+                <span class="s2">&quot;kinetic energy into translational and internal components.&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Compute velocity from position</span>
+    <span class="n">velocity</span> <span class="o">=</span> <span class="n">compute_velocity</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+
+    <span class="c1"># Initialise unit weights</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;keypoints&quot;</span><span class="p">]),</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;keypoints&quot;</span><span class="p">],</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;keypoints&quot;</span><span class="p">:</span> <span class="n">position</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;keypoints&quot;</span><span class="p">]},</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Update weights with keypoint masses, if provided</span>
+    <span class="k">if</span> <span class="n">masses</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">keypoint</span><span class="p">,</span> <span class="n">mass</span> <span class="ow">in</span> <span class="n">masses</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">weights</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">keypoint</span><span class="p">]</span> <span class="o">=</span> <span class="n">mass</span>
+
+    <span class="c1"># Compute total KE</span>
+    <span class="n">weighted_ke</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">weights</span> <span class="o">*</span> <span class="p">(</span><span class="n">compute_norm</span><span class="p">(</span><span class="n">velocity</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">ke_total</span> <span class="o">=</span> <span class="n">weighted_ke</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">decompose</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ke_total</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Compute translational KE based on centre of mass velocity</span>
+        <span class="n">v_cm</span> <span class="o">=</span> <span class="p">(</span><span class="n">velocity</span> <span class="o">*</span> <span class="n">weights</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">ke_trans</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">v_cm</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+
+        <span class="c1"># Internal KE</span>
+        <span class="n">ke_int</span> <span class="o">=</span> <span class="n">ke_total</span> <span class="o">-</span> <span class="n">ke_trans</span>
+
+        <span class="c1"># Format output</span>
+        <span class="n">ke</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ke_trans</span><span class="p">,</span> <span class="n">ke_int</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;energy&quot;</span><span class="p">)</span>
+        <span class="n">ke</span> <span class="o">=</span> <span class="n">ke</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;translational&quot;</span><span class="p">,</span> <span class="s2">&quot;internal&quot;</span><span class="p">])</span>
+        <span class="n">ke</span> <span class="o">=</span> <span class="n">ke</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;energy&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ke</span></div>
+
+</pre></div>
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.16.1.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../../../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../../../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../../../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../../../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

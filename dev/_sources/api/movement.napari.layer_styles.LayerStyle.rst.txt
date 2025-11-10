@@ -1,0 +1,35 @@
+LayerStyle
+==========
+
+.. currentmodule:: movement.napari.layer_styles
+
+.. autoclass:: LayerStyle
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+   
+   
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+      ~LayerStyle.as_kwargs
+   
+   
+   
+
+.. minigallery:: movement.napari.layer_styles.LayerStyle
+   :add-heading: Examples using ``LayerStyle``

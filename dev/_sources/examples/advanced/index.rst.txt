@@ -1,0 +1,49 @@
+
+
+.. _sphx_glr_examples_advanced:
+
+.. target-examples-advanced:
+
+Advanced
+~~~~~~~~
+
+These examples are intended for experienced users who want to leverage the
+full power of ``movement``.
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Use the @make_broadcastable decorator to efficiently apply functions across any data dimension.">
+
+.. only:: html
+
+  .. image:: /examples/advanced/images/thumb/sphx_glr_broadcasting_your_own_methods_thumb.png
+    :alt:
+
+  :ref:`sphx_glr_examples_advanced_broadcasting_your_own_methods.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Broadcast functions across multi-dimensional data</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /examples/advanced/broadcasting_your_own_methods
+
