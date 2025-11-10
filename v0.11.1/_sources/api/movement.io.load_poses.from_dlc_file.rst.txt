@@ -1,0 +1,9 @@
+from\_dlc\_file
+===============
+
+.. currentmodule:: movement.io.load_poses
+
+.. autofunction:: from_dlc_file
+
+.. minigallery:: movement.io.load_poses.from_dlc_file
+   :add-heading: Examples using ``from_dlc_file``

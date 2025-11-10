@@ -1,0 +1,37 @@
+..
+    This file is auto-generated.
+
+.. _target-api:
+
+API reference
+=============
+
+Information on specific functions, classes, and methods.
+
+.. rubric:: Modules
+
+.. autosummary::
+    :toctree: api
+    :recursive:
+    :nosignatures:
+
+    movement.filtering
+    movement.io.load_bboxes
+    movement.io.load_poses
+    movement.io.nwb
+    movement.io.save_bboxes
+    movement.io.save_poses
+    movement.kinematics
+    movement.napari.convert
+    movement.napari.layer_styles
+    movement.plots
+    movement.roi
+    movement.sample_data
+    movement.transforms
+    movement.utils.broadcasting
+    movement.utils.logging
+    movement.utils.reports
+    movement.utils.vector
+    movement.validators.arrays
+    movement.validators.datasets
+    movement.validators.files
