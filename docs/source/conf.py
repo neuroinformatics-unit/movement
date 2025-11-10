@@ -159,7 +159,7 @@ html_theme_options = {
     "logo": {
         "text": f"{project} v{release}",
     },
-    "navbar_end": ["version-switcher", "navbar-icon-links"],
+    "navbar_end": ["version-switcher", "navbar-icon-links", "theme-switcher"],
     "footer_start": ["footer_start"],
     "footer_end": ["footer_end"],
     "external_links": [],
