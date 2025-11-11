@@ -24,7 +24,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-      - uses: conda-incubator/setup-miniconda@v3
+      # pinning to a specific sha1 is recommended by this action's docs
+      - uses: conda-incubator/setup-miniconda@835234971496cad1653abb28a638a281cf32541f # v3.2.0
         with:
           python-version: ${{ matrix.python-version }}
           auto-update-conda: true
