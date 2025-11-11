@@ -22,14 +22,14 @@ jobs:
     strategy:
       matrix:
         # Run all supported Python versions on linux
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.12", "3.13", "3.14"]
         os: [ubuntu-latest]
         # Include 1 MacOS Silicon (latest) and 1 Windows run
         include:
         - os: macos-latest
-          python-version: "3.13"
+          python-version: "3.14"
         - os: windows-latest
-          python-version: "3.13"
+          python-version: "3.14"
 
     steps:
       # these libraries enable testing on Qt on linux

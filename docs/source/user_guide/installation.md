@@ -11,7 +11,7 @@ clean virtual environment, using tools such as
 :::{tab-item} conda
 Create and activate a new [conda environment](conda:user-guide/tasks/manage-environments.html):
 ```sh
-conda create -y -n movement-env -c conda-forge python=3.13
+conda create -y -n movement-env -c conda-forge python=3.14
 conda activate movement-env
 ```
 
@@ -22,7 +22,7 @@ We used `movement-env` as the environment name, but you can choose any name you 
 Create and activate a new [virtual environment](uv:pip/environments/) inside your project directory:
 
 ```sh
-uv venv --python=3.13
+uv venv --python=3.14
 
 source .venv/bin/activate  # On macOS and Linux
 .venv\Scripts\activate     # On Windows PowerShell
