@@ -1,4 +1,4 @@
-"""Transform and add unit attributes to ``xarray.DataArray`` datasets."""
+"""Compute and apply spatial transforms."""
 
 import itertools
 
@@ -118,21 +118,19 @@ def scale(
     return scaled_data
 
 
-def get_homography_transform(
-    srcPoints: np.ndarray, dstPoints: np.ndarray
+def compute_homography_transform(
+    src_points: np.ndarray, dst_points: np.ndarray
 ) -> np.ndarray:
     """Compute a homography transformation matrix.
 
     Parameters
     ----------
-    srcPoints : np.ndarray
+    src_points : np.ndarray
         An array of shape (N, 2) representing N source points
         in 2-dimensional space. N >= 4.
-        The data type is assumed to be float32.
-    dstPoints : np.ndarray
+    dst_points : np.ndarray
         An array of shape (N, 2) representing N destination points
         in 2-dimensional space. N >= 4.
-        The data type is assumed to be float32.
 
     Returns
     -------
@@ -161,45 +159,37 @@ def get_homography_transform(
 
     The transformation preserves straight lines but not
     necessarily parallelism or distances, making it ideal for:
+
     - Image rectification
     - Perspective warping
     - Planar object tracking
 
     Important considerations:
+
     - At least **4 non-collinear, non-degenerate points** are
-        required to compute a valid homography transformation.
+      required to compute a valid homography transformation.
     - The function internally filters invalid point pairs.
     - The computed homography is most accurate for
-        **planar scenes with perspective distortion**,
-        where the transformation can be modeled
-        as a projective mapping.
+      **planar scenes with perspective distortion**,
+      where the transformation can be modeled
+      as a projective mapping.
 
     Examples
     --------
     >>> src = np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=np.float32)
     >>> dst = np.array([[0, 0], [2, 0], [2, 2], [0, 2]], dtype=np.float32)
-    >>> H = get_homography_transform(src, dst)
+    >>> H = compute_homography_transform(src, dst)
     >>> print(H.shape)
     (3, 3)
 
     """
-    srcPoints = np.asarray(srcPoints, dtype=np.float32)
-    dstPoints = np.asarray(dstPoints, dtype=np.float32)
+    src_points = np.asarray(src_points, dtype=np.float32)
+    dst_points = np.asarray(dst_points, dtype=np.float32)
 
-    if len(srcPoints.shape) != 2 or len(dstPoints.shape) != 2:
-        raise ValueError("Points must be 2-dimensional arrays.")
+    _validate_points_shape(src_points, dst_points)
 
-    if srcPoints.shape != dstPoints.shape:
-        raise ValueError(
-            "Source and destination points must have the same shape."
-        )
-
-    dim = srcPoints.shape[1]
-    if dim != 2:
-        raise ValueError("Points must be 2-dimensional.")
-
-    srcPoints, dstPoints = _filter_invalid_points(srcPoints, dstPoints)
-    num_points = srcPoints.shape[0]
+    src_points, dst_points = _filter_invalid_points(src_points, dst_points)
+    num_points = src_points.shape[0]
 
     if num_points < 4:
         raise ValueError(
@@ -207,15 +197,38 @@ def get_homography_transform(
         )
 
     transform_matrix, _ = cv2.findHomography(
-        srcPoints, dstPoints, method=cv2.RANSAC
+        src_points, dst_points, method=cv2.RANSAC
     )
 
     return transform_matrix
 
 
+def _validate_points_shape(src_points: np.ndarray, dst_points: np.ndarray):
+    """Validate that source and destination point arrays.
+
+    The arrays should have matching 2D shapes.
+    """
+    if len(src_points.shape) != 2 or len(dst_points.shape) != 2:
+        raise ValueError("Points must be 2-dimensional arrays.")
+
+    if src_points.shape != dst_points.shape:
+        raise ValueError(
+            "Source and destination points must have the same shape."
+        )
+
+    dim = src_points.shape[1]
+    if dim != 2:
+        raise ValueError("Points must be 2-dimensional.")
+
+
 def _filter_invalid_points(
     src_pts: np.ndarray, dst_pts: np.ndarray, eps: float = 1e-6
 ):
+    """Remove invalid points.
+
+    Invalid points are duplicate, degenerate, or
+    collinear point pairs from the input sets.
+    """
     assert len(src_pts) == len(dst_pts)
     src_pts = np.asarray(src_pts)
     dst_pts = np.asarray(dst_pts)
@@ -256,6 +269,7 @@ def _filter_invalid_points(
 
 
 def _is_collinear_three(a, b, c, eps=1e-8):
+    """Check whether three 2D points are collinear cross-product method."""
     return (
         abs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]))
         <= eps
@@ -263,6 +277,11 @@ def _is_collinear_three(a, b, c, eps=1e-8):
 
 
 def _is_collinear_set(points: np.ndarray, eps: float = 1e-6):
+    """Check if a set of 2D points is collinear.
+
+    Uses singular value decomposition (SVD) to determine
+    whether all points lie on a single straight line.
+    """
     pts = np.array(points)
     pts -= pts.mean(axis=0)
     _, s, _ = np.linalg.svd(pts)
