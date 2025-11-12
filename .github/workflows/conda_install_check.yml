@@ -30,6 +30,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           auto-update-conda: true
           channels: conda-forge
+          conda-remove-defaults: true
           activate-environment: "movement-test"
       - name: Check conda installation
         run: |
