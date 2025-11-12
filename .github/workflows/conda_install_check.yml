@@ -34,4 +34,4 @@ jobs:
       - name: Check conda installation
         run: |
           conda install -c conda-forge movement napari pyqt
-          movement --info
+          movement info
