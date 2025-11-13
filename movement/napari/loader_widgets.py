@@ -116,6 +116,7 @@ class DataLoader(QWidget):
             "This just affects the displayed time when hovering over a point\n"
             "(it doesn't set the playback speed)."
         )
+        self.fps_default_tooltip = self.fps_spinbox.toolTip()
         self.layout().addRow("fps:", self.fps_spinbox)
 
     def _create_file_path_widget(self):
@@ -148,10 +149,7 @@ class DataLoader(QWidget):
                 "FPS is read directly from the netCDF file."
             )
         else:
-            self.fps_spinbox.setToolTip(
-                "Set the frames per second of the tracking data.\n"
-                "This affects the displayed time when hovering over a point\n"
-            )
+            self.fps_spinbox.setToolTip(self.fps_default_tooltip)
 
     def _create_load_button(self):
         """Create a button to load the file and add layers to the viewer."""

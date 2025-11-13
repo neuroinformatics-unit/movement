@@ -97,6 +97,24 @@ def test_button_connected_to_on_clicked(
     mock_method.assert_called_once()
 
 
+def test_source_software_combo_connected_to_handler(
+    make_napari_viewer_proxy, mocker
+):
+    """Test that changing the source software combo calls the right handler."""
+    mock_method = mocker.patch(
+        "movement.napari.loader_widgets.DataLoader._on_source_software_changed"
+    )
+    # Initializing the widget will trigger the first call in __init__
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
+
+    # Resetting the mock
+    mock_method.reset_mock()
+
+    netcdf_text = "movement (netCDF)"
+    data_loader_widget.source_software_combo.setCurrentText(netcdf_text)
+    mock_method.assert_called_once_with(netcdf_text)
+
+
 @pytest.mark.parametrize(
     "layer_type",
     [Points, Image, Tracks, Labels, Shapes, Surface, Vectors],
@@ -133,6 +151,38 @@ def test_on_layer_added_and_deleted(
 
 # ------------------- tests for widget methods--------------------------------#
 # In these tests we check if calling a widget method has the expected effects
+@pytest.mark.parametrize(
+    "choice, fps_enabled, tooltip_contains",
+    [
+        ("movement (netCDF)", False, "directly from the netCDF file"),
+        ("SLEAP", True, "Set the frames per second"),
+        ("DeepLabCut", True, "Set the frames per second"),
+    ],
+)
+def test_on_source_software_changed_sets_fps_state(
+    make_napari_viewer_proxy, choice, fps_enabled, tooltip_contains
+):
+    """Test that changing the source software updates the fps spinbox.
+    Both the enabled/disabled state and the tooltip should be updated.
+    """
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
+
+    # initial state: fps spinbox enabled with the default tooltip
+    assert data_loader_widget.fps_spinbox.isEnabled()
+    assert (
+        data_loader_widget.fps_spinbox.toolTip()
+        == data_loader_widget.fps_default_tooltip
+    )
+
+    # call the handler directly
+    data_loader_widget._on_source_software_changed(choice)
+
+    # Assert enabled state
+    assert data_loader_widget.fps_spinbox.isEnabled() is fps_enabled
+    # Assert tooltip content
+    assert tooltip_contains in data_loader_widget.fps_spinbox.toolTip()
+
+
 @pytest.mark.parametrize(
     "file_path",
     [
@@ -173,6 +223,7 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
         ("SLEAP", "*.h5 *.slp"),
         ("LightningPose", "*.csv"),
         ("VIA-tracks", "*.csv"),
+        ("movement (netCDF)", "*.nc"),
     ],
 )
 def test_on_browse_clicked_file_filters(
@@ -237,6 +288,16 @@ def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
             "SLEAP",
             (1803, 4),
         ),  # three individuals, one keypoint
+        (
+            "MOVE_two-mice_octagon.analysis.nc",
+            "movement (netCDF)",
+            (126000, 4),
+        ),
+        (
+            "MOVE_single-crab_MOCA-crab-1_linear-interp.nc",
+            "movement (netCDF)",
+            (0, 0),
+        ),
     ],
 )
 def test_on_load_clicked_with_valid_file_path(
