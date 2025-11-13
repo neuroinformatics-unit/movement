@@ -49,13 +49,6 @@ jobs:
             ~/.movement/*
           key: cached-test-data-${{ runner.os }}
           restore-keys: cached-test-data
-      - name: Set up Conda
-        uses: conda-incubator/setup-miniconda@v3
-        with:
-          python-version: ${{ matrix.python-version }}
-          auto-update-conda: true
-          channels: conda-forge,defaults
-          activate-environment: movement-env
       - uses: neuroinformatics-unit/actions/test@v2
         with:
           python-version: ${{ matrix.python-version }}
