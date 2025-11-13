@@ -7,6 +7,7 @@
 by providing a suite of **Python tools to analyse body movements**
 across space and time.
 
+(target-scope)=
 ## Scope
 
 At its core, `movement` handles the position and/or orientation
