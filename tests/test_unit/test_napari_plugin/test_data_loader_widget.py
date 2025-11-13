@@ -256,47 +256,55 @@ def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
 
 
 @pytest.mark.parametrize(
-    "filename, source_software, tracks_array_shape",
+    "filename, source_software, tracks_array_shape, is_bbox",
     [
         (
             "VIA_single-crab_MOCA-crab-1.csv",
             "VIA-tracks",
             (35, 4),
+            True,
         ),  # single individual, no keypoints (bboxes)
         (
             "VIA_multiple-crabs_5-frames_labels.csv",
             "VIA-tracks",
             (430, 4),
+            True,
         ),  # multiple individuals, no keypoints (bboxes)
         (
             "SLEAP_single-mouse_EPM.predictions.slp",
             "SLEAP",
             (110910, 4),
+            False,
         ),  # single individual, multiple keypoints
         (
             "DLC_single-wasp.predictions.h5",
             "DeepLabCut",
             (2170, 4),
+            False,
         ),  # single individual, multiple keypoints
         (
             "DLC_two-mice.predictions.csv",
             "DeepLabCut",
             (1439976, 4),
+            False,
         ),  # two individuals, multiple keypoints
         (
             "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
             "SLEAP",
             (1803, 4),
+            False,
         ),  # three individuals, one keypoint
         (
             "MOVE_two-mice_octagon.analysis.nc",
             "movement (netCDF)",
             (126000, 4),
+            False,
         ),
         (
             "MOVE_single-crab_MOCA-crab-1_linear-interp.nc",
             "movement (netCDF)",
-            (0, 0),
+            (168, 4),
+            True,
         ),
     ],
 )
@@ -304,6 +312,7 @@ def test_on_load_clicked_with_valid_file_path(
     filename,
     source_software,
     tracks_array_shape,
+    is_bbox,
     make_napari_viewer_proxy,
     caplog,
 ):
@@ -342,7 +351,8 @@ def test_on_load_clicked_with_valid_file_path(
     assert data_loader_widget.data is not None
     assert data_loader_widget.properties is not None
     assert data_loader_widget.data_not_nan is not None
-    if source_software in SUPPORTED_BBOXES_FILES:
+    # if source_software in SUPPORTED_BBOXES_FILES:
+    if is_bbox:
         assert data_loader_widget.data_bboxes is not None
     else:
         # Only bounding boxes datasets should add bboxes data
@@ -379,7 +389,8 @@ def test_on_load_clicked_with_valid_file_path(
         "Added tracked dataset as a napari Points layer.",
         "Added tracked dataset as a napari Tracks layer.",
     }
-    if source_software in SUPPORTED_BBOXES_FILES:
+    # if source_software in SUPPORTED_BBOXES_FILES:
+    if is_bbox:
         expected_log_messages.add(
             "Added tracked dataset as a napari Shapes layer."
         )

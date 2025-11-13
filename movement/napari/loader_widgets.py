@@ -69,9 +69,9 @@ class DataLoader(QWidget):
         self._create_load_button()
 
         # FPS box state
-        self.source_software_combo.currentTextChanged.connect(
-            self._on_source_software_changed
-        )
+        # self.source_software_combo.currentTextChanged.connect(
+        #     self._on_source_software_changed
+        # )
         # To set initial state of the FPS box
         self._on_source_software_changed(
             self.source_software_combo.currentText()
@@ -111,12 +111,17 @@ class DataLoader(QWidget):
         # How much we increment/decrement when the user clicks the arrows
         self.fps_spinbox.setSingleStep(1)
         # Add a tooltip
-        self.fps_spinbox.setToolTip(
+        self.fps_default_tooltip = (
             "Set the frames per second of the tracking data.\n"
             "This just affects the displayed time when hovering over a point\n"
             "(it doesn't set the playback speed)."
         )
-        self.fps_default_tooltip = self.fps_spinbox.toolTip()
+        # self.fps_default_tooltip = self.fps_spinbox.toolTip()
+        self.fps_spinbox.setToolTip(self.fps_default_tooltip)
+        # Connect fps spinbox with _on_source_software_changed
+        self.source_software_combo.currentTextChanged.connect(
+            self._on_source_software_changed,
+        )
         self.layout().addRow("fps:", self.fps_spinbox)
 
     def _create_file_path_widget(self):
