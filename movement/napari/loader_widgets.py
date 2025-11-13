@@ -199,7 +199,10 @@ class DataLoader(QWidget):
             return
 
         # Format data for napari layers
-        self._format_data_for_layers()
+        success = self._format_data_for_layers()
+        if not success:
+            return  # Stop execution if formatting/validation failed
+
         logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
         if self.data_bboxes is not None:
@@ -229,7 +232,7 @@ class DataLoader(QWidget):
                 ds = xr.open_dataset(self.file_path)
             except Exception as e:
                 show_error(f"Error opening netCDF file: {e}")
-                return
+                return False
 
             # Get the dataset type from its attributes
             ds_type = ds.attrs.get("ds_type", None)
@@ -247,13 +250,13 @@ class DataLoader(QWidget):
                         f"The netCDF file does not appear to be a valid "
                         f"movement {ds_type} dataset: {e}"
                     )
-                    return
+                    return False
             else:
                 show_error(
                     f"The netCDF file has an unknown 'ds_type' attribute:"
                     f"{ds_type}."
                 )
-                return
+                return False
         else:
             # Original Logic continue
             loader = (
@@ -270,6 +273,7 @@ class DataLoader(QWidget):
 
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)
+        return True
 
     def _set_common_color_property(self):
         """Set the color property for the Points and Tracks layers.

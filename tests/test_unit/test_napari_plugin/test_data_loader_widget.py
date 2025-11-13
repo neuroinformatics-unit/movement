@@ -398,6 +398,36 @@ def test_on_load_clicked_with_valid_file_path(
     assert expected_log_messages <= log_messages
 
 
+def test_on_load_clicked_with_invalid_netcdf(
+    make_napari_viewer_proxy,
+    mocker,
+    invalid_netcdf_file_missing_confidence,  # Our new fixture
+):
+    """Test that show_error is called when loading an invalid netCDF file."""
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
+
+    # 1. Mock the show_error function so we can check if it's called
+    mock_show_error = mocker.patch("movement.napari.loader_widgets.show_error")
+
+    # 2. Set up the widget to load the broken file
+    data_loader_widget.file_path_edit.setText(
+        invalid_netcdf_file_missing_confidence
+    )
+    data_loader_widget.source_software_combo.setCurrentText(
+        "movement (netCDF)"
+    )
+
+    # 3. Click "Load"
+    data_loader_widget._on_load_clicked()
+
+    # 4. Assert that show_error was called
+    mock_show_error.assert_called_once()
+
+    # 5. Assert the error message is correct
+    call_args = mock_show_error.call_args[0][0]  # Get the first argument
+    assert "does not appear to be a valid movement poses dataset" in call_args
+
+
 # ------------------- tests for dimension slider ----------------------------#
 # These tests check that the frame slider is set to the expected range
 @pytest.mark.parametrize(

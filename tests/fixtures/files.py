@@ -9,6 +9,7 @@ from unittest.mock import mock_open, patch
 
 import h5py
 import pytest
+import xarray as xr
 from sleap_io.io.slp import read_labels, write_labels
 from sleap_io.model.labels import LabeledFrame, Labels
 
@@ -499,3 +500,28 @@ def via_track_ids_not_unique_per_frame():
         '"{""name"":""rect"",""x"":2567.627,""y"":466.888,""width"":40,""height"":37}",'
         '"{""track"":""71""}"'  # same track ID as the previous row
     )
+
+
+@pytest.fixture(scope="session")
+def invalid_netcdf_file_missing_confidence(tmp_path_factory):
+    """Create an invalid 'poses' netCDF file missing the
+    'confidence' variable.
+    """
+    from pytest import DATA_PATHS
+
+    # 1. Get path to a VALID file (the 'poses' one)
+    valid_file = DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
+
+    # 2. Load it
+    ds = xr.open_dataset(valid_file)
+
+    # 3. Break it (our validator requires 'confidence' for 'poses')
+    del ds["confidence"]
+
+    # 4. Save to a temp file
+    temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
+    invalid_path = temp_dir / "invalid_file_missing_confidence.nc"
+    ds.to_netcdf(invalid_path)
+
+    # 5. Yield the path to the test
+    yield str(invalid_path)
