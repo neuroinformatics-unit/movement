@@ -1,6 +1,7 @@
 """``attrs`` classes for validating data structures."""
 
 import warnings
+from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from typing import Any, ClassVar
 
@@ -43,42 +44,139 @@ def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
     return fps
 
 
-def _validate_type_ndarray(value: Any) -> None:
-    """Raise ValueError the value is a not numpy array."""
-    if not isinstance(value, np.ndarray):
-        raise logger.error(
-            ValueError(f"Expected a numpy array, but got {type(value)}.")
-        )
+@define(kw_only=True)
+class _BaseValidDataset(ABC):
+    """Base class for movement dataset validators.
 
+    This abstract class centralises shared fields, validators, and default
+    assignment logic for movement datasets (e.g. poses, bounding boxes).
+    It registers the attrs validators for required fields like `position_array`
+    and optional fields like `confidence_array` and `individual_names`.
+    Dataset-specific checks are delegated to subclasses via abstract hooks
+    (with suffix `_impl`).
+    """
 
-def _validate_array_shape(
-    attribute: attrs.Attribute, value: np.ndarray, expected_shape: tuple
-):
-    """Raise ValueError if the value does not have the expected shape."""
-    if value.shape != expected_shape:
-        raise logger.error(
-            ValueError(
-                f"Expected '{attribute.name}' to have shape {expected_shape}, "
-                f"but got {value.shape}."
+    # Common fields
+    position_array: np.ndarray = field()
+    confidence_array: np.ndarray | None = field(default=None)
+    individual_names: list[str] | None = field(
+        default=None,
+        converter=converters.optional(_convert_to_list_of_str),
+    )
+    fps: float | None = field(
+        default=None,
+        converter=converters.pipe(  # type: ignore
+            converters.optional(float), _convert_fps_to_none_if_invalid
+        ),
+    )
+    source_software: str | None = field(
+        default=None,
+        validator=validators.optional(validators.instance_of(str)),
+    )
+
+    DIM_NAMES: ClassVar[tuple] = ()
+    VAR_NAMES: ClassVar[tuple] = ()
+
+    @position_array.validator
+    def _validate_position_array(self, attribute, value):
+        """Check position_array type and delegate custom checks to subclass."""
+        self._validate_type_ndarray(value)
+        self._validate_position_array_impl(attribute, value)
+
+    @confidence_array.validator
+    def _validate_confidence_array(self, attribute, value):
+        """Check confidence_array type and any expected shape."""
+        if value is not None:
+            self._validate_type_ndarray(value)
+            expected_shape = self._expected_confidence_shape()
+            self._validate_array_shape(
+                attribute, value, expected_shape=expected_shape
             )
-        )
 
+    @individual_names.validator
+    def _validate_individual_names(self, attribute, value):
+        """Delegate individual_names validation to subclass implementation."""
+        if value is not None:
+            self._validate_individual_names_impl(attribute, value)
 
-def _validate_list_length(
-    attribute: attrs.Attribute, value: list | None, expected_length: int
-):
-    """Raise a ValueError if the list does not have the expected length."""
-    if (value is not None) and (len(value) != expected_length):
-        raise logger.error(
-            ValueError(
-                f"Expected '{attribute.name}' to have "
-                f"length {expected_length}, but got {len(value)}."
+    def _expected_confidence_shape(self) -> tuple:
+        """Return expected shape for confidence_array."""
+        # confidence shape == position_array shape without the space dim
+        return self.position_array.shape[:1] + self.position_array.shape[2:]
+
+    def _default_confidence_array(self) -> np.ndarray:
+        """Create a default confidence array (NaNs) with the expected shape."""
+        shape = self._expected_confidence_shape()
+        return np.full(shape, np.nan, dtype="float32")
+
+    def _expected_individuals_count(self) -> int:
+        """Return the expected number of individuals tracked in the dataset."""
+        return self.position_array.shape[-1]
+
+    @abstractmethod
+    def _validate_individual_names_impl(self, attribute, value):
+        """Perform dataset-specific validation of individual_names."""
+
+    @abstractmethod
+    def _validate_position_array_impl(self, attribute, value):
+        """Perform dataset-specific validation of position_array."""
+
+    def __attrs_post_init__(self):
+        """Assign default values to optional attributes (if None)."""
+        # confidence_array default: array of NaNs with appropriate shape
+        if self.confidence_array is None:
+            default_conf = self._default_confidence_array()
+            self.confidence_array = default_conf
+            logger.warning(
+                "Confidence array was not provided."
+                "Setting to an array of NaNs."
             )
-        )
+        # individual_names default: id_0, id_1, ...
+        if self.individual_names is None:
+            n_inds = self._expected_individuals_count()
+            self.individual_names = [f"id_{i}" for i in range(n_inds)]
+            logger.warning(
+                "Individual names were not provided. "
+                f"Setting to {self.individual_names}."
+            )
+
+    @staticmethod
+    def _validate_type_ndarray(value: Any) -> None:
+        """Raise ValueError if the value is not a numpy array."""
+        if not isinstance(value, np.ndarray):
+            raise logger.error(
+                ValueError(f"Expected a numpy array, but got {type(value)}.")
+            )
+
+    @staticmethod
+    def _validate_array_shape(
+        attribute: attrs.Attribute, value: np.ndarray, expected_shape: tuple
+    ):
+        """Raise ValueError if the value does not have the expected shape."""
+        if value.shape != expected_shape:
+            raise logger.error(
+                ValueError(
+                    f"Expected '{attribute.name}' to have shape "
+                    f"{expected_shape}, but got {value.shape}."
+                )
+            )
+
+    @staticmethod
+    def _validate_list_length(
+        attribute: attrs.Attribute, value: list | None, expected_length: int
+    ):
+        """Raise a ValueError if the list does not have the expected length."""
+        if (value is not None) and (len(value) != expected_length):
+            raise logger.error(
+                ValueError(
+                    f"Expected '{attribute.name}' to have "
+                    f"length {expected_length}, but got {len(value)}."
+                )
+            )
 
 
 @define(kw_only=True)
-class ValidPosesDataset:
+class ValidPosesDataset(_BaseValidDataset):
     """Class for validating poses data intended for a ``movement`` dataset.
 
     The validator ensures that within the ``movement poses`` dataset:
@@ -126,38 +224,26 @@ class ValidPosesDataset:
 
     """
 
-    # Required attributes
-    position_array: np.ndarray = field()
-
-    # Optional attributes
-    confidence_array: np.ndarray | None = field(default=None)
-    individual_names: list[str] | None = field(
-        default=None,
-        converter=converters.optional(_convert_to_list_of_str),
-    )
     keypoint_names: list[str] | None = field(
         default=None,
         converter=converters.optional(_convert_to_list_of_str),
     )
-    fps: float | None = field(
-        default=None,
-        converter=converters.pipe(  # type: ignore
-            converters.optional(float), _convert_fps_to_none_if_invalid
-        ),
-    )
-    source_software: str | None = field(
-        default=None,
-        validator=validators.optional(validators.instance_of(str)),
-    )
 
-    # Class variables
     DIM_NAMES: ClassVar[tuple] = ("time", "space", "keypoints", "individuals")
     VAR_NAMES: ClassVar[tuple] = ("position", "confidence")
 
-    # Add validators
-    @position_array.validator
-    def _validate_position_array(self, attribute, value):
-        _validate_type_ndarray(value)
+    def _validate_individual_names_impl(self, attribute, value):
+        """Validate individual_names length based on source_software."""
+        if self.source_software == "LightningPose":
+            # LightningPose only supports a single individual
+            self._validate_list_length(attribute, value, 1)
+        else:
+            self._validate_list_length(
+                attribute, value, self.position_array.shape[-1]
+            )
+
+    def _validate_position_array_impl(self, attribute, value):
+        """Ensure position_array has 4 dims and space is 2D or 3D."""
         n_dims = value.ndim
         if n_dims != 4:
             raise logger.error(
@@ -175,54 +261,17 @@ class ValidPosesDataset:
                 )
             )
 
-    @confidence_array.validator
-    def _validate_confidence_array(self, attribute, value):
-        if value is not None:
-            _validate_type_ndarray(value)
-            # Expected shape is the same as position_array,
-            # but without the `space` dim
-            expected_shape = (
-                self.position_array.shape[:1] + self.position_array.shape[2:]
-            )
-            _validate_array_shape(
-                attribute, value, expected_shape=expected_shape
-            )
-
-    @individual_names.validator
-    def _validate_individual_names(self, attribute, value):
-        if self.source_software == "LightningPose":
-            # LightningPose only supports a single individual
-            _validate_list_length(attribute, value, 1)
-        else:
-            _validate_list_length(
-                attribute, value, self.position_array.shape[-1]
-            )
-
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
-        _validate_list_length(attribute, value, self.position_array.shape[2])
+        """Validate keypoint_names length."""
+        self._validate_list_length(
+            attribute, value, self.position_array.shape[2]
+        )
 
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
+        super().__attrs_post_init__()
         position_array_shape = self.position_array.shape
-        if self.confidence_array is None:
-            self.confidence_array = np.full(
-                position_array_shape[:1] + position_array_shape[2:],
-                np.nan,
-                dtype="float32",
-            )
-            logger.warning(
-                "Confidence array was not provided."
-                "Setting to an array of NaNs."
-            )
-        if self.individual_names is None:
-            self.individual_names = [
-                f"id_{i}" for i in range(position_array_shape[-1])
-            ]
-            logger.warning(
-                "Individual names were not provided. "
-                f"Setting to {self.individual_names}."
-            )
         if self.keypoint_names is None:
             self.keypoint_names = [
                 f"keypoint_{i}" for i in range(position_array_shape[2])
@@ -234,7 +283,7 @@ class ValidPosesDataset:
 
 
 @define(kw_only=True)
-class ValidBboxesDataset:
+class ValidBboxesDataset(_BaseValidDataset):
     """Class for validating bounding boxes data for a ``movement`` dataset.
 
     The validator considers 2D bounding boxes only. It ensures that
@@ -294,87 +343,61 @@ class ValidBboxesDataset:
 
     """
 
-    # Required attributes
-    position_array: np.ndarray = field()
     shape_array: np.ndarray = field()
-
-    # Optional attributes
-    confidence_array: np.ndarray | None = field(default=None)
-    individual_names: list[str] | None = field(
-        default=None,
-        converter=converters.optional(
-            _convert_to_list_of_str
-        ),  # force into list of strings if not
-    )
     frame_array: np.ndarray | None = field(default=None)
-    fps: float | None = field(
-        default=None,
-        converter=converters.pipe(  # type: ignore
-            converters.optional(float), _convert_fps_to_none_if_invalid
-        ),
-    )
-    source_software: str | None = field(
-        default=None,
-        validator=validators.optional(validators.instance_of(str)),
-    )
 
     DIM_NAMES: ClassVar[tuple] = ("time", "space", "individuals")
     VAR_NAMES: ClassVar[tuple] = ("position", "shape", "confidence")
 
-    # Validators
-    @position_array.validator
     @shape_array.validator
-    def _validate_position_and_shape_arrays(self, attribute, value):
-        _validate_type_ndarray(value)
-        # check `space` dim (at idx 1) has 2 coordinates
-        n_expected_spatial_coordinates = 2
-        n_spatial_coordinates = value.shape[1]
-        if n_spatial_coordinates != n_expected_spatial_coordinates:
+    def _validate_shape_array(self, attribute, value):
+        """Ensure shape_array is a numpy array with 2 spatial dims."""
+        self._validate_type_ndarray(value)
+        self._validate_position_array_impl(attribute, value)
+
+    def _validate_individual_names_impl(self, attribute, value):
+        """Validate individual_names length and uniqueness."""
+        self._validate_list_length(
+            attribute, value, self.position_array.shape[-1]
+        )
+        # check n_individual_names are unique
+        # NOTE: combined with the requirement above, we are enforcing
+        # unique IDs per frame
+        if len(value) != len(set(value)):
             raise logger.error(
                 ValueError(
-                    f"Expected '{attribute.name}' to have "
-                    f"{n_expected_spatial_coordinates} spatial coordinates, "
-                    f"but got {n_spatial_coordinates}."
+                    "individual_names are not unique. "
+                    f"There are {len(value)} elements in the list, but "
+                    f"only {len(set(value))} are unique."
                 )
             )
 
-    @individual_names.validator
-    def _validate_individual_names(self, attribute, value):
-        if value is not None:
-            _validate_list_length(
-                attribute, value, self.position_array.shape[-1]
-            )
-            # check n_individual_names are unique
-            # NOTE: combined with the requirement above, we are enforcing
-            # unique IDs per frame
-            if len(value) != len(set(value)):
-                raise logger.error(
-                    ValueError(
-                        "individual_names are not unique. "
-                        f"There are {len(value)} elements in the list, but "
-                        f"only {len(set(value))} are unique."
-                    )
+    def _validate_position_array_impl(self, attribute, value):
+        """Ensure position_array has 3 dims and space is 2D."""
+        n_dims = value.ndim
+        if n_dims != 3:
+            raise logger.error(
+                ValueError(
+                    f"Expected '{attribute.name}' to have 3 dimensions, "
+                    f"but got {n_dims}."
                 )
-
-    @confidence_array.validator
-    def _validate_confidence_array(self, attribute, value):
-        if value is not None:
-            _validate_type_ndarray(value)
-            # Expected shape is the same as position_array,
-            # but without the `space` dim
-            expected_shape = (
-                self.position_array.shape[:1] + self.position_array.shape[2:]
             )
-            _validate_array_shape(
-                attribute, value, expected_shape=expected_shape
+        space_dim_shape = value.shape[1]
+        if space_dim_shape != 2:
+            raise logger.error(
+                ValueError(
+                    f"Expected '{attribute.name}' to have 2 spatial "
+                    f"dimensions, but got {space_dim_shape}."
+                )
             )
 
     @frame_array.validator
     def _validate_frame_array(self, attribute, value):
+        """Validate frame_array type, shape, and monotonicity."""
         if value is not None:
-            _validate_type_ndarray(value)
+            self._validate_type_ndarray(value)
             # should be a column vector (n_frames, 1)
-            _validate_array_shape(
+            self._validate_array_shape(
                 attribute,
                 value,
                 expected_shape=(self.position_array.shape[0], 1),
@@ -388,37 +411,10 @@ class ValidBboxesDataset:
                     )
                 )
 
-    # Define defaults
     def __attrs_post_init__(self):
-        """Assign default values to optional attributes (if None).
-
-        If no confidence_array is provided, set it to an array of NaNs.
-        If no individual names are provided, assign them unique IDs per frame,
-        starting with 0 ("id_0").
-        """
+        """Assign default values to optional attributes (if None)."""
         position_array_shape = self.position_array.shape
-        # assign default confidence_array
-        if self.confidence_array is None:
-            self.confidence_array = np.full(
-                position_array_shape[:1] + position_array_shape[2:],
-                np.nan,
-                dtype="float32",
-            )
-            logger.warning(
-                "Confidence array was not provided. "
-                "Setting to an array of NaNs."
-            )
-        # assign default individual_names
-        if self.individual_names is None:
-            self.individual_names = [
-                f"id_{i}" for i in range(position_array_shape[-1])
-            ]
-            logger.warning(
-                "Individual names for the bounding boxes "
-                "were not provided. "
-                "Setting to 0-based IDs that are unique per frame: \n"
-                f"{self.individual_names}.\n"
-            )
+        super().__attrs_post_init__()
         # assign default frame_array
         if self.frame_array is None:
             n_frames = position_array_shape[0]
