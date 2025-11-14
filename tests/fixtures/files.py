@@ -509,19 +509,42 @@ def invalid_netcdf_file_missing_confidence(tmp_path_factory):
     """
     from pytest import DATA_PATHS
 
-    # 1. Get path to a VALID file (the 'poses' one)
     valid_file = DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
 
-    # 2. Load it
     ds = xr.open_dataset(valid_file)
-
-    # 3. Break it (our validator requires 'confidence' for 'poses')
     del ds["confidence"]
 
-    # 4. Save to a temp file
     temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
     invalid_path = temp_dir / "invalid_file_missing_confidence.nc"
     ds.to_netcdf(invalid_path)
+    yield str(invalid_path)
 
-    # 5. Yield the path to the test
+
+@pytest.fixture(scope="session")
+def unopenable_netcdf_file(tmp_path_factory):
+    """Create a fake .nc file that is just text, causing
+    xr.open_dataset to fail.
+    """
+    temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
+    invalid_path = temp_dir / "unopenable_file.nc"
+    with open(invalid_path, "w") as f:
+        f.write("This is not a real netCDF file")
+    yield str(invalid_path)
+
+
+@pytest.fixture(scope="session")
+def invalid_dstype_netcdf_file(tmp_path_factory):
+    """Create a valid netCDF file but with an invalid 'ds_type' attribute."""
+    import xarray as xr
+    from pytest import DATA_PATHS
+
+    valid_file = DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
+    ds = xr.open_dataset(valid_file)
+
+    ds.attrs["ds_type"] = "not_a_valid_type"
+
+    temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
+    invalid_path = temp_dir / "invalid_dstype_file.nc"
+    ds.to_netcdf(invalid_path)
+
     yield str(invalid_path)
