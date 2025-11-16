@@ -221,19 +221,15 @@ def _validate_points_shape(src_points: np.ndarray, dst_points: np.ndarray):
         raise ValueError("Points must be 2-dimensional.")
 
 
-def _filter_invalid_points(
-    src_pts: np.ndarray, dst_pts: np.ndarray, eps: float = 1e-6
-):
+def _filter_invalid_points(src_pts: np.ndarray, dst_pts: np.ndarray):
     """Remove invalid points.
 
     Invalid points are duplicate, degenerate, or
     collinear point pairs from the input sets.
     """
-    assert len(src_pts) == len(dst_pts)
-    src_pts = np.asarray(src_pts)
-    dst_pts = np.asarray(dst_pts)
     keep_idx: list[int] = []
     obtained_min_non_collinear_set = False
+    eps = 1e-6
 
     for i in range(len(src_pts)):
         # skip duplicates
@@ -268,7 +264,7 @@ def _filter_invalid_points(
     return src_pts[keep_idx], dst_pts[keep_idx]
 
 
-def _is_collinear_three(a, b, c, eps=1e-8):
+def _is_collinear_three(a, b, c, eps):
     """Check whether three 2D points are collinear cross-product method."""
     return (
         abs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]))
@@ -276,7 +272,7 @@ def _is_collinear_three(a, b, c, eps=1e-8):
     )
 
 
-def _is_collinear_set(points: np.ndarray, eps: float = 1e-6):
+def _is_collinear_set(points: np.ndarray, eps):
     """Check if a set of 2D points is collinear.
 
     Uses singular value decomposition (SVD) to determine
