@@ -265,7 +265,7 @@ def _filter_invalid_points(src_pts: np.ndarray, dst_pts: np.ndarray):
 
 
 def _is_collinear_three(a, b, c, eps):
-    """Check whether three 2D points are collinear cross-product method."""
+    """Check if three 2D points are collinear via the cross-product method."""
     return (
         abs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]))
         <= eps
