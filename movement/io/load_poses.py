@@ -191,7 +191,7 @@ def from_dlc_style_df(
     source_software : str, optional
         Name of the pose estimation software from which the data originate.
         Defaults to "DeepLabCut", but it can also be "LightningPose"
-        (because they the same DataFrame format).
+        (because they use the same DataFrame format).
 
     Returns
     -------
@@ -202,10 +202,17 @@ def from_dlc_style_df(
     Notes
     -----
     The DataFrame must have a multi-index column with the following levels:
-    "scorer", ("individuals"), "bodyparts", "coords". The "individuals"
-    level may be omitted if there is only one individual in the video.
-    The "coords" level contains the spatial coordinates "x", "y",
-    as well as "likelihood" (point-wise confidence scores).
+    "scorer", ("individuals"), "bodyparts", "coords".
+    The "individuals" level may be omitted if there is only one individual
+    in the video.
+    The "coords" level contains either:
+
+    - the spatial coordinates "x", "y", and "likelihood"
+      (point-wise confidence scores), or
+    - the spatial coordinates "x", "y", and "z" (3D poses estimated by
+      `triangulating 2D poses from multiple DeepLabCut output files\
+      <https://deeplabcut.github.io/DeepLabCut/docs/Overviewof3D.html>`__).
+
     The row index corresponds to the frame number.
 
     See Also
@@ -213,7 +220,7 @@ def from_dlc_style_df(
     movement.io.load_poses.from_dlc_file
 
     """
-    # read names of individuals and keypoints from the DataFrame
+    # Read names of individuals and keypoints from the DataFrame
     if "individuals" in df.columns.names:
         individual_names = (
             df.columns.get_level_values("individuals").unique().to_list()
@@ -223,16 +230,25 @@ def from_dlc_style_df(
     keypoint_names = (
         df.columns.get_level_values("bodyparts").unique().to_list()
     )
-    # reshape the data into (n_frames, 3, n_keypoints, n_individuals)
-    # where the second axis contains "x", "y", "likelihood"
-    tracks_with_scores = (
+    # Extract position (and confidence if present)
+    coord_names = df.columns.get_level_values("coords").unique().to_list()
+    n_coords = len(coord_names)
+    tracks = (
         df.to_numpy()
-        .reshape((-1, len(individual_names), len(keypoint_names), 3))
+        .reshape((-1, len(individual_names), len(keypoint_names), n_coords))
         .transpose(0, 3, 2, 1)
     )
+    if "likelihood" in coord_names:  # Coords: ['x', 'y', 'likelihood']
+        likelihood_index = coord_names.index("likelihood")
+        confidence_array = tracks[:, likelihood_index, :, :]
+        pos_idx = [j for j in range(n_coords) if j != likelihood_index]
+        position_array = tracks[:, pos_idx, :, :]
+    else:  # Coords: ['x', 'y', 'z']
+        position_array = tracks
+        confidence_array = None
     return from_numpy(
-        position_array=tracks_with_scores[:, :-1, :, :],
-        confidence_array=tracks_with_scores[:, -1, :, :],
+        position_array=position_array,
+        confidence_array=confidence_array,
         individual_names=individual_names,
         keypoint_names=keypoint_names,
         fps=fps,

@@ -92,3 +92,6 @@ venv/
 
 # pre-commit and pytest cache
 .*_cache/
+
+# uv related
+uv.lock

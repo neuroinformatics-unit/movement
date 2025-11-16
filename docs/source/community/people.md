@@ -125,6 +125,15 @@ This is automatically updated via GitHub Actions and should not be modified.
 		</tr>
 		<tr>
             <td align="center">
+                <a href="https://github.com/CeliaLrt">
+                    <img src="https://avatars.githubusercontent.com/u/204997762?v=4" width="100;" alt="CeliaLrt"/>
+                    <br />
+                    <sub><b>CeliaLrt</b></sub>
+                </a>
+            </td>
+		</tr>
+		<tr>
+            <td align="center">
                 <a href="https://github.com/DPWebster">
                     <img src="https://avatars.githubusercontent.com/u/185731034?v=4" width="100;" alt="DPWebster"/>
                     <br />
@@ -213,7 +222,7 @@ This section contains other manually added contributors (on GitHub) who have not
 contributed to the movement repository, but have contributed in other ways (e.g. by
 providing sample data, or by actively participating in discussions).
 =============================================================================== -->
-<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol,Mahi7828,ShigrafS,albiangela,edeno,luiztauffer -start -->
+<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol,Mahi7828,ShigrafS,albiangela,edeno,luiztauffer,Akseli-Ilmanen -start -->
 <table>
 	<tbody>
 		<tr>
@@ -322,7 +331,7 @@ providing sample data, or by actively participating in discussions).
 		</tr>
 	<tbody>
 </table>
-<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol,Mahi7828,ShigrafS,albiangela,edeno,luiztauffer -end -->
+<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol,Mahi7828,ShigrafS,albiangela,edeno,luiztauffer,Akseli-Ilmanen -end -->
 
 <!-- =================== MANUAL: OTHER NON-GITHUB CONTRIBUTORS ===================
 This section contains other manually added contributors (not on GitHub) who have not
