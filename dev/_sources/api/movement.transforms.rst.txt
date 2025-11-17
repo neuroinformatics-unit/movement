@@ -16,6 +16,8 @@
     :toctree: .
     :nosignatures:
     
+    compute_homography_transform
+    
     scale
     
 

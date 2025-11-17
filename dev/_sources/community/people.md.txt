@@ -93,6 +93,13 @@ This is automatically updated via GitHub Actions and should not be modified.
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/animeshsasan">
+                    <img src="https://avatars.githubusercontent.com/u/40558191?v=4" width="100;" alt="animeshsasan"/>
+                    <br />
+                    <sub><b>animeshsasan</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/vigji">
                     <img src="https://avatars.githubusercontent.com/u/10400212?v=4" width="100;" alt="vigji"/>
                     <br />
@@ -106,6 +113,8 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Tushar-Verma</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/CeliaLrt">
                     <img src="https://avatars.githubusercontent.com/u/204997762?v=4" width="100;" alt="CeliaLrt"/>

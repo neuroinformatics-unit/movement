@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=bdd2881d"></script>
+    <script src="../../_static/documentation_options.js?v=19aa0c04"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.11.2.dev2</p>
+    <p class="title logo__title">movement v0.11.2.dev3</p>
   
 </a></div>
     
@@ -459,8 +459,11 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.transforms</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Transform and add unit attributes to ``xarray.DataArray`` datasets.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Compute and apply spatial transforms.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">cv2</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
@@ -577,6 +580,176 @@
         <span class="n">scaled_data</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;space_unit&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">scaled_data</span></div>
 
+
+
+<div class="viewcode-block" id="compute_homography_transform">
+<a class="viewcode-back" href="../../api/movement.transforms.compute_homography_transform.html#movement.transforms.compute_homography_transform">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_homography_transform</span><span class="p">(</span>
+    <span class="n">src_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dst_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a homography transformation matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    src_points : np.ndarray</span>
+<span class="sd">        An array of shape (N, 2) representing N source points</span>
+<span class="sd">        in 2-dimensional space. N &gt;= 4.</span>
+<span class="sd">    dst_points : np.ndarray</span>
+<span class="sd">        An array of shape (N, 2) representing N destination points</span>
+<span class="sd">        in 2-dimensional space. N &gt;= 4.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        A (3, 3) transformation matrix that aligns the</span>
+<span class="sd">        source points to the destination points.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the number of source points does not match</span>
+<span class="sd">            the number of destination points,</span>
+<span class="sd">        or if there are insufficient points to</span>
+<span class="sd">            compute the transformation,</span>
+<span class="sd">        or if the points are not 2-dimensional,</span>
+<span class="sd">        or if the points are degenerate or collinear,</span>
+<span class="sd">            making it impossible to compute a valid homography.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This function estimates a 3x3 homography matrix using corresponding 2D</span>
+<span class="sd">    point pairs from two images or planes. A homography describes a</span>
+<span class="sd">    projective transformation suitable for **planar scenes** where</span>
+<span class="sd">    perspective effects are present — e.g., when the camera is tilted,</span>
+<span class="sd">    moved closer, or rotated relative to the plane.</span>
+
+<span class="sd">    The transformation preserves straight lines but not</span>
+<span class="sd">    necessarily parallelism or distances, making it ideal for:</span>
+
+<span class="sd">    - Image rectification</span>
+<span class="sd">    - Perspective warping</span>
+<span class="sd">    - Planar object tracking</span>
+
+<span class="sd">    Important considerations:</span>
+
+<span class="sd">    - At least **4 non-collinear, non-degenerate points** are</span>
+<span class="sd">      required to compute a valid homography transformation.</span>
+<span class="sd">    - The function internally filters invalid point pairs.</span>
+<span class="sd">    - The computed homography is most accurate for</span>
+<span class="sd">      **planar scenes with perspective distortion**,</span>
+<span class="sd">      where the transformation can be modeled</span>
+<span class="sd">      as a projective mapping.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; src = np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=np.float32)</span>
+<span class="sd">    &gt;&gt;&gt; dst = np.array([[0, 0], [2, 0], [2, 2], [0, 2]], dtype=np.float32)</span>
+<span class="sd">    &gt;&gt;&gt; H = compute_homography_transform(src, dst)</span>
+<span class="sd">    &gt;&gt;&gt; print(H.shape)</span>
+<span class="sd">    (3, 3)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">src_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">src_points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">dst_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">dst_points</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="n">_validate_points_shape</span><span class="p">(</span><span class="n">src_points</span><span class="p">,</span> <span class="n">dst_points</span><span class="p">)</span>
+
+    <span class="n">src_points</span><span class="p">,</span> <span class="n">dst_points</span> <span class="o">=</span> <span class="n">_filter_invalid_points</span><span class="p">(</span><span class="n">src_points</span><span class="p">,</span> <span class="n">dst_points</span><span class="p">)</span>
+    <span class="n">num_points</span> <span class="o">=</span> <span class="n">src_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">num_points</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Insufficient points to compute the homography transformation.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">transform_matrix</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">findHomography</span><span class="p">(</span>
+        <span class="n">src_points</span><span class="p">,</span> <span class="n">dst_points</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">RANSAC</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">transform_matrix</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_points_shape</span><span class="p">(</span><span class="n">src_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dst_points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that source and destination point arrays.</span>
+
+<span class="sd">    The arrays should have matching 2D shapes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">src_points</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">dst_points</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Points must be 2-dimensional arrays.&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">src_points</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">dst_points</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Source and destination points must have the same shape.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">dim</span> <span class="o">=</span> <span class="n">src_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Points must be 2-dimensional.&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_filter_invalid_points</span><span class="p">(</span><span class="n">src_pts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">dst_pts</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove invalid points.</span>
+
+<span class="sd">    Invalid points are duplicate, degenerate, or</span>
+<span class="sd">    collinear point pairs from the input sets.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">keep_idx</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">obtained_min_non_collinear_set</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="mf">1e-6</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">src_pts</span><span class="p">)):</span>
+        <span class="c1"># skip duplicates</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">src_pts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">src_pts</span><span class="p">[</span><span class="n">j</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">eps</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">keep_idx</span>
+        <span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">subset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">src_pts</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">keep_idx</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">src_pts</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+
+        <span class="k">if</span> <span class="n">subset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">keep_idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">elif</span> <span class="n">subset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">_is_collinear_set</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">eps</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># If we have at least 3 old points, check that</span>
+        <span class="c1"># new point is not collinear with any other two</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">obtained_min_non_collinear_set</span> <span class="ow">and</span> <span class="n">subset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">all_noncollinear_triples</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="ow">not</span> <span class="n">_is_collinear_three</span><span class="p">(</span>
+                    <span class="n">src_pts</span><span class="p">[</span><span class="n">a</span><span class="p">],</span> <span class="n">src_pts</span><span class="p">[</span><span class="n">b</span><span class="p">],</span> <span class="n">src_pts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">eps</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">keep_idx</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">all_noncollinear_triples</span><span class="p">:</span>
+                <span class="n">obtained_min_non_collinear_set</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">continue</span>
+        <span class="n">keep_idx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">src_pts</span><span class="p">[</span><span class="n">keep_idx</span><span class="p">],</span> <span class="n">dst_pts</span><span class="p">[</span><span class="n">keep_idx</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_collinear_three</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">eps</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if three 2D points are collinear via the cross-product method.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="nb">abs</span><span class="p">((</span><span class="n">b</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="o">&lt;=</span> <span class="n">eps</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_collinear_set</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">eps</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a set of 2D points is collinear.</span>
+
+<span class="sd">    Uses singular value decomposition (SVD) to determine</span>
+<span class="sd">    whether all points lie on a single straight line.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+    <span class="n">pts</span> <span class="o">-=</span> <span class="n">pts</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">pts</span><span class="p">)</span>
+    <span class="n">rank</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">s</span> <span class="o">&gt;</span> <span class="n">eps</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rank</span> <span class="o">&lt;</span> <span class="mi">2</span>
 </pre></div>
 <div class="section ablog__blog_comments">
    

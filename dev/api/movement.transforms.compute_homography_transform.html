@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>showwarning &#8212; movement</title>
+    <title>compute_homography_transform &#8212; movement</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.utils.logging.showwarning';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.transforms.compute_homography_transform';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
@@ -58,12 +58,12 @@
             false;
         </script>
     <script src="../_static/js/contributors.js?v=4c153e30"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.utils.logging.showwarning.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.transforms.compute_homography_transform.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="movement.utils.reports" href="movement.utils.reports.html" />
-    <link rel="prev" title="log_to_attrs" href="movement.utils.logging.log_to_attrs.html" /> 
+    <link rel="next" title="scale" href="movement.transforms.scale.html" />
+    <link rel="prev" title="movement.transforms" href="movement.transforms.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />   
@@ -503,8 +503,8 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.list_datasets.html">list_datasets</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="movement.transforms.html">movement.transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.transforms.compute_homography_transform.html">compute_homography_transform</a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.transforms.html">movement.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">compute_homography_transform</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.transforms.scale.html">scale</a></li>
 </ul>
 </details></li>
@@ -515,10 +515,10 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.broadcasting.space_broadcastable.html">space_broadcastable</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.utils.logging.html">movement.utils.logging</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.logging.html">movement.utils.logging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.MovementLogger.html">MovementLogger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_to_attrs.html">log_to_attrs</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">showwarning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.showwarning.html">showwarning</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.reports.html">movement.utils.reports</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -595,9 +595,9 @@
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="movement.utils.logging.html" class="nav-link">movement.utils.logging</a></li>
+    <li class="breadcrumb-item"><a href="movement.transforms.html" class="nav-link">movement.transforms</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">showwarning</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compute_homography_transform</span></li>
   </ul>
 </nav>
 </div>
@@ -613,14 +613,69 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="showwarning">
-<h1>showwarning<a class="headerlink" href="#showwarning" title="Link to this heading">#</a></h1>
+                   <section id="compute-homography-transform">
+<h1>compute_homography_transform<a class="headerlink" href="#compute-homography-transform" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="movement.utils.logging.showwarning">
-<span class="sig-prename descclassname"><span class="pre">movement.utils.logging.</span></span><span class="sig-name descname"><span class="pre">showwarning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineno</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/logging.html#showwarning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.showwarning" title="Link to this definition">#</a></dt>
-<dd><p>Redirect alerts from the <a class="reference external" href="https://docs.python.org/3/library/warnings.html#module-warnings" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> module to the logger.</p>
-<p>This function replaces <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.captureWarnings" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">logging.captureWarnings()</span></code></a> which redirects
-warnings issued by the <a class="reference external" href="https://docs.python.org/3/library/warnings.html#module-warnings" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> module to the logging system.</p>
+<dt class="sig sig-object py" id="movement.transforms.compute_homography_transform">
+<span class="sig-prename descclassname"><span class="pre">movement.transforms.</span></span><span class="sig-name descname"><span class="pre">compute_homography_transform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">src_points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dst_points</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/transforms.html#compute_homography_transform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.transforms.compute_homography_transform" title="Link to this definition">#</a></dt>
+<dd><p>Compute a homography transformation matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src_points</strong> (<em>np.ndarray</em>) – An array of shape (N, 2) representing N source points
+in 2-dimensional space. N &gt;= 4.</p></li>
+<li><p><strong>dst_points</strong> (<em>np.ndarray</em>) – An array of shape (N, 2) representing N destination points
+in 2-dimensional space. N &gt;= 4.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A (3, 3) transformation matrix that aligns the
+source points to the destination points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the number of source points does not match
+        the number of destination points,
+    or if there are insufficient points to
+        compute the transformation,
+    or if the points are not 2-dimensional,
+    or if the points are degenerate or collinear,
+        making it impossible to compute a valid homography.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>This function estimates a 3x3 homography matrix using corresponding 2D
+point pairs from two images or planes. A homography describes a
+projective transformation suitable for <strong>planar scenes</strong> where
+perspective effects are present — e.g., when the camera is tilted,
+moved closer, or rotated relative to the plane.</p>
+<p>The transformation preserves straight lines but not
+necessarily parallelism or distances, making it ideal for:</p>
+<ul class="simple">
+<li><p>Image rectification</p></li>
+<li><p>Perspective warping</p></li>
+<li><p>Planar object tracking</p></li>
+</ul>
+<p>Important considerations:</p>
+<ul class="simple">
+<li><p>At least <strong>4 non-collinear, non-degenerate points</strong> are
+required to compute a valid homography transformation.</p></li>
+<li><p>The function internally filters invalid point pairs.</p></li>
+<li><p>The computed homography is most accurate for
+<strong>planar scenes with perspective distortion</strong>,
+where the transformation can be modeled
+as a projective mapping.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">src</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dst</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">H</span> <span class="o">=</span> <span class="n">compute_homography_transform</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">dst</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="go">(3, 3)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
@@ -639,20 +694,20 @@ warnings issued by the <a class="reference external" href="https://docs.python.o
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.utils.logging.log_to_attrs.html"
+       href="movement.transforms.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">log_to_attrs</p>
+        <p class="prev-next-title">movement.transforms</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.utils.reports.html"
+       href="movement.transforms.scale.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">movement.utils.reports</p>
+        <p class="prev-next-title">scale</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -675,7 +730,7 @@ warnings issued by the <a class="reference external" href="https://docs.python.o
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.utils.logging.showwarning"><code class="docutils literal notranslate"><span class="pre">showwarning()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.transforms.compute_homography_transform"><code class="docutils literal notranslate"><span class="pre">compute_homography_transform()</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -683,7 +738,7 @@ warnings issued by the <a class="reference external" href="https://docs.python.o
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/api/movement.utils.logging.showwarning.rst.txt"
+      <li><a href="../_sources/api/movement.transforms.compute_homography_transform.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
