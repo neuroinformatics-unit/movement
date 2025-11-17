@@ -319,3 +319,68 @@ def test_load_from_nwb_file(input_type, kwargs, request):
     if input_type == "nwb_file":
         expected_attrs["source_file"] = nwb_file
     assert ds_from_file_path.attrs == expected_attrs
+
+
+def test_load_from_eks_file():
+    """Test that loading pose tracks from an EKS CSV file
+    returns a proper Dataset with ensemble statistics.
+    """
+    file_path = DATA_PATHS.get("EKS_IBL-paw_multicam_right.predictions.csv")
+    if file_path is None:
+        pytest.skip("EKS example file not found")
+
+    try:
+        # Load the EKS file
+        ds = load_poses.from_eks_file(file_path, fps=30)
+
+        # Check that it's a valid dataset with the expected structure
+        assert isinstance(ds, xr.Dataset)
+        assert "position" in ds.data_vars
+        assert "confidence" in ds.data_vars
+
+        # Check ensemble statistics are present
+        ensemble_vars = ["ens_median", "ens_var", "posterior_var"]
+        for var in ensemble_vars:
+            assert var in ds.data_vars
+
+        # Check dimensions
+        assert "time" in ds.dims
+        assert "individuals" in ds.dims
+        assert "keypoints" in ds.dims
+        assert "space" in ds.dims
+
+        # Check basic attributes
+        assert ds.attrs["source_software"] == "EKS"
+        assert ds.attrs["fps"] == 30
+
+        # Check shapes are consistent
+        n_time, n_space, n_keypoints, n_individuals = ds.position.shape
+        assert ds.confidence.shape == (n_time, n_keypoints, n_individuals)
+        for var in ensemble_vars:
+            assert ds[var].shape == (
+                n_time,
+                n_space,
+                n_keypoints,
+                n_individuals,
+            )
+
+    except ImportError:
+        pytest.skip("Required dependencies for EKS loading not available")
+
+
+def test_load_from_file_eks():
+    """Test that loading EKS files via from_file() works correctly."""
+    file_path = DATA_PATHS.get("EKS_IBL-paw_multicam_right.predictions.csv")
+    if file_path is None:
+        pytest.skip("EKS example file not found")
+
+    try:
+        # Test loading via from_file
+        ds = load_poses.from_file(file_path, source_software="EKS", fps=30)
+
+        # Should be identical to from_eks_file
+        ds_direct = load_poses.from_eks_file(file_path, fps=30)
+        xr.testing.assert_identical(ds, ds_direct)
+
+    except ImportError:
+        pytest.skip("Required dependencies for EKS loading not available")
