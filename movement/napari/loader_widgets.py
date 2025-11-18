@@ -133,7 +133,8 @@ class DataLoader(QWidget):
 
         if is_netcdf:
             self.fps_spinbox.setToolTip(
-                "FPS is read directly from the netCDF file."
+                "The fps (frames per second) is read directly \n"
+                "from the netCDF file attributes."
             )
         else:
             self.fps_spinbox.setToolTip(self.fps_default_tooltip)

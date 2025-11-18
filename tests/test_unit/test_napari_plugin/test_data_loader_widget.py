@@ -154,7 +154,7 @@ def test_on_layer_added_and_deleted(
 @pytest.mark.parametrize(
     "choice, fps_enabled, tooltip_contains",
     [
-        ("movement (netCDF)", False, "directly from the netCDF file"),
+        ("movement (netCDF)", False, "netCDF file attributes"),
         ("SLEAP", True, "Set the frames per second"),
         ("DeepLabCut", True, "Set the frames per second"),
     ],
