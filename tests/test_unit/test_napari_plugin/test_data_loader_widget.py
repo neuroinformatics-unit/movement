@@ -351,7 +351,7 @@ def test_on_load_clicked_with_valid_file_path(
     assert data_loader_widget.data is not None
     assert data_loader_widget.properties is not None
     assert data_loader_widget.data_not_nan is not None
-    # if source_software in SUPPORTED_BBOXES_FILES:
+
     if is_bbox:
         assert data_loader_widget.data_bboxes is not None
     else:
@@ -389,7 +389,7 @@ def test_on_load_clicked_with_valid_file_path(
         "Added tracked dataset as a napari Points layer.",
         "Added tracked dataset as a napari Tracks layer.",
     }
-    # if source_software in SUPPORTED_BBOXES_FILES:
+
     if is_bbox:
         expected_log_messages.add(
             "Added tracked dataset as a napari Shapes layer."

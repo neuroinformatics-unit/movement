@@ -507,10 +507,7 @@ def invalid_netcdf_file_missing_confidence(tmp_path_factory):
     """Create an invalid 'poses' netCDF file missing the
     'confidence' variable.
     """
-    from pytest import DATA_PATHS
-
-    valid_file = DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
-
+    valid_file = pytest.DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
     ds = xr.open_dataset(valid_file)
     del ds["confidence"]
 
@@ -535,10 +532,7 @@ def unopenable_netcdf_file(tmp_path_factory):
 @pytest.fixture(scope="session")
 def invalid_dstype_netcdf_file(tmp_path_factory):
     """Create a valid netCDF file but with an invalid 'ds_type' attribute."""
-    import xarray as xr
-    from pytest import DATA_PATHS
-
-    valid_file = DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
+    valid_file = pytest.DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
     ds = xr.open_dataset(valid_file)
 
     ds.attrs["ds_type"] = "not_a_valid_type"

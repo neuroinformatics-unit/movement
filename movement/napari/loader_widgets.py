@@ -68,29 +68,11 @@ class DataLoader(QWidget):
         self._create_file_path_widget()
         self._create_load_button()
 
-        # FPS box state
-        # self.source_software_combo.currentTextChanged.connect(
-        #     self._on_source_software_changed
-        # )
-        # To set initial state of the FPS box
-        self._on_source_software_changed(
-            self.source_software_combo.currentText()
-        )
-
-        # frame slider range update to layer events
-        for action_str in ["inserted", "removed"]:
-            getattr(self.viewer.layers.events, action_str).connect(
-                self._update_frame_slider_range,
-            )
-        self._enable_layer_tooltips()
-
         # Connect frame slider range update to layer events
         for action_str in ["inserted", "removed"]:
             getattr(self.viewer.layers.events, action_str).connect(
                 self._update_frame_slider_range,
             )
-
-        # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
     def _create_source_software_widget(self):
@@ -116,7 +98,7 @@ class DataLoader(QWidget):
             "This just affects the displayed time when hovering over a point\n"
             "(it doesn't set the playback speed)."
         )
-        # self.fps_default_tooltip = self.fps_spinbox.toolTip()
+
         self.fps_spinbox.setToolTip(self.fps_default_tooltip)
         # Connect fps spinbox with _on_source_software_changed
         self.source_software_combo.currentTextChanged.connect(
@@ -224,10 +206,9 @@ class DataLoader(QWidget):
         # Set the frame slider position
         self._set_initial_state()
 
-    def _format_data_for_layers(self):
+    def _format_data_for_layers(self) -> bool:
         """Extract data required for the creation of the napari layers."""
         if self.source_software in SUPPORTED_NETCDF_FILES:
-            # Add logic for netCDF files
             try:
                 ds = xr.open_dataset(self.file_path)
             except Exception as e:
@@ -243,7 +224,6 @@ class DataLoader(QWidget):
 
             if validator:
                 try:
-                    # Using validate_dataset function (currently Private)
                     _validate_dataset(ds, validator)
                 except (ValueError, TypeError) as e:
                     show_error(
@@ -258,7 +238,7 @@ class DataLoader(QWidget):
                 )
                 return False
         else:
-            # Original Logic continue
+            # Handle third-party files
             loader = (
                 load_poses
                 if self.source_software in SUPPORTED_POSES_FILES
