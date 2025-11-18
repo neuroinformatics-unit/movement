@@ -398,41 +398,40 @@ def test_on_load_clicked_with_valid_file_path(
     assert expected_log_messages <= log_messages
 
 
+@pytest.mark.parametrize(
+    "fixture_name, expected_error_message",
+    [
+        (
+            "invalid_netcdf_file_missing_confidence",
+            "does not appear to be a valid movement poses dataset",
+        ),
+        (
+            "unopenable_netcdf_file",
+            "Error opening netCDF file",
+        ),
+        (
+            "invalid_dstype_netcdf_file",
+            "unknown 'ds_type' attribute",
+        ),
+    ],
+    ids=["missing_confidence", "unopenable", "invalid_ds_type"],
+)
 def test_on_load_clicked_with_invalid_netcdf(
     make_napari_viewer_proxy,
     mocker,
-    invalid_netcdf_file_missing_confidence,  # Our new fixture
+    fixture_name,
+    expected_error_message,
+    request,
 ):
-    """Test that show_error is called when loading an invalid netCDF file."""
+    """Test that show_error is called when loading invalid netCDF files."""
     data_loader_widget = DataLoader(make_napari_viewer_proxy())
 
     mock_show_error = mocker.patch("movement.napari.loader_widgets.show_error")
 
-    data_loader_widget.file_path_edit.setText(
-        invalid_netcdf_file_missing_confidence
-    )
-    data_loader_widget.source_software_combo.setCurrentText(
-        "movement (netCDF)"
-    )
-    data_loader_widget._on_load_clicked()
+    # Get the fixture value dynamically
+    file_path = request.getfixturevalue(fixture_name)
 
-    mock_show_error.assert_called_once()
-
-    call_args = mock_show_error.call_args[0][0]  # Get the first argument
-    assert "does not appear to be a valid movement poses dataset" in call_args
-
-
-def test_on_load_clicked_with_unopenable_netcdf(
-    make_napari_viewer_proxy,
-    mocker,
-    unopenable_netcdf_file,
-):
-    """Test that show_error is called when loading an unopenable .nc file."""
-    data_loader_widget = DataLoader(make_napari_viewer_proxy())
-
-    mock_show_error = mocker.patch("movement.napari.loader_widgets.show_error")
-
-    data_loader_widget.file_path_edit.setText(unopenable_netcdf_file)
+    data_loader_widget.file_path_edit.setText(file_path)
     data_loader_widget.source_software_combo.setCurrentText(
         "movement (netCDF)"
     )
@@ -440,30 +439,7 @@ def test_on_load_clicked_with_unopenable_netcdf(
 
     mock_show_error.assert_called_once()
     call_args = mock_show_error.call_args[0][0]
-    assert "Error opening netCDF file" in call_args
-
-
-def test_on_load_clicked_with_invalid_dstype_netcdf(
-    make_napari_viewer_proxy,
-    mocker,
-    invalid_dstype_netcdf_file,
-):
-    """Test that show_error is called when loading a .nc file
-    with invalid ds_type.
-    """
-    data_loader_widget = DataLoader(make_napari_viewer_proxy())
-
-    mock_show_error = mocker.patch("movement.napari.loader_widgets.show_error")
-
-    data_loader_widget.file_path_edit.setText(invalid_dstype_netcdf_file)
-    data_loader_widget.source_software_combo.setCurrentText(
-        "movement (netCDF)"
-    )
-    data_loader_widget._on_load_clicked()
-
-    mock_show_error.assert_called_once()
-    call_args = mock_show_error.call_args[0][0]
-    assert "unknown 'ds_type' attribute" in call_args
+    assert expected_error_message in call_args
 
 
 # ------------------- tests for dimension slider ----------------------------#
