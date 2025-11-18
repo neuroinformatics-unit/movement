@@ -207,46 +207,16 @@ class DataLoader(QWidget):
         self._set_initial_state()
 
     def _format_data_for_layers(self) -> bool:
-        """Extract data required for the creation of the napari layers."""
-        if self.source_software in SUPPORTED_NETCDF_FILES:
-            try:
-                ds = xr.open_dataset(self.file_path)
-            except Exception as e:
-                show_error(f"Error opening netCDF file: {e}")
-                return False
+        """Extract data required for the creation of the napari layers.
 
-            # Get the dataset type from its attributes
-            ds_type = ds.attrs.get("ds_type", None)
-            validator = {
-                "poses": ValidPosesDataset,
-                "bboxes": ValidBboxesDataset,
-            }.get(ds_type)
-
-            if validator:
-                try:
-                    _validate_dataset(ds, validator)
-                except (ValueError, TypeError) as e:
-                    show_error(
-                        f"The netCDF file does not appear to be a valid "
-                        f"movement {ds_type} dataset: {e}"
-                    )
-                    return False
-            else:
-                show_error(
-                    f"The netCDF file has an unknown 'ds_type' attribute:"
-                    f"{ds_type}."
-                )
-                return False
+        Returns True if the data was successfully extracted, False otherwise.
+        """
+        if self.source_software not in SUPPORTED_NETCDF_FILES:
+            ds = self._load_third_party_file()
         else:
-            # Handle third-party files
-            loader = (
-                load_poses
-                if self.source_software in SUPPORTED_POSES_FILES
-                else load_bboxes
-            )
-            ds = loader.from_file(
-                self.file_path, self.source_software, self.fps
-            )
+            ds = self._load_netcdf_file()
+            if ds is None:
+                return False
 
         # Convert to napari arrays
         self.data, self.data_bboxes, self.properties = ds_to_napari_layers(ds)
@@ -254,6 +224,57 @@ class DataLoader(QWidget):
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)
         return True
+
+    def _load_third_party_file(self) -> xr.Dataset:
+        """Load a third-party file as a ``movement`` dataset.
+
+        Validation is handled by the loader functions.
+        """
+        loader = (
+            load_poses
+            if self.source_software in SUPPORTED_POSES_FILES
+            else load_bboxes
+        )
+        ds = loader.from_file(self.file_path, self.source_software, self.fps)
+        return ds
+
+    def _load_netcdf_file(self) -> xr.Dataset | None:
+        """Load and validate a netCDF file as a ``movement`` dataset.
+
+        If the file cannot be opened or does not contain a valid
+        ``movement`` dataset, an appropriate error message is shown
+        to the user and ``None`` is returned.
+        """
+        try:
+            ds = xr.open_dataset(self.file_path)
+        except Exception as e:
+            show_error(f"Error opening netCDF file: {e}")
+            return None
+
+        ds_type = ds.attrs.get("ds_type", None)
+        if ds_type not in {"poses", "bboxes"}:
+            show_error(
+                f"The netCDF file has an unknown 'ds_type' attribute: "
+                f"{ds_type}."
+            )
+            return None
+
+        # Validate dataset depending on its type
+        validator = {
+            "poses": ValidPosesDataset,
+            "bboxes": ValidBboxesDataset,
+        }[ds_type]
+
+        try:
+            _validate_dataset(ds, validator)
+        except (ValueError, TypeError) as e:
+            show_error(
+                f"The netCDF file does not appear to be a valid "
+                f"movement {ds_type} dataset: {e}"
+            )
+            return None
+
+        return ds
 
     def _set_common_color_property(self):
         """Set the color property for the Points and Tracks layers.
