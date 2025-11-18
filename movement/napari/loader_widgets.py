@@ -185,6 +185,9 @@ class DataLoader(QWidget):
         if not success:
             return  # Stop execution if formatting/validation failed
 
+        # Update self.fps in case the file loading changed the spinbox value
+        self.fps = self.fps_spinbox.value()
+
         logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
         if self.data_bboxes is not None:
@@ -217,6 +220,8 @@ class DataLoader(QWidget):
             ds = self._load_netcdf_file()
             if ds is None:
                 return False
+            if "fps" in ds.attrs:
+                self.fps_spinbox.setValue(ds.attrs["fps"])
 
         # Convert to napari arrays
         self.data, self.data_bboxes, self.properties = ds_to_napari_layers(ds)

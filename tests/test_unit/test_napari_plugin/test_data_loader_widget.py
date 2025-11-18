@@ -256,55 +256,63 @@ def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
 
 
 @pytest.mark.parametrize(
-    "filename, source_software, tracks_array_shape, is_bbox",
+    "filename, source_software, tracks_array_shape, is_bbox, expected_fps",
     [
         (
             "VIA_single-crab_MOCA-crab-1.csv",
             "VIA-tracks",
             (35, 4),
             True,
+            60.0,
         ),  # single individual, no keypoints (bboxes)
         (
             "VIA_multiple-crabs_5-frames_labels.csv",
             "VIA-tracks",
             (430, 4),
             True,
+            60.0,
         ),  # multiple individuals, no keypoints (bboxes)
         (
             "SLEAP_single-mouse_EPM.predictions.slp",
             "SLEAP",
             (110910, 4),
             False,
+            60.0,
         ),  # single individual, multiple keypoints
         (
             "DLC_single-wasp.predictions.h5",
             "DeepLabCut",
             (2170, 4),
             False,
+            60.0,
         ),  # single individual, multiple keypoints
         (
             "DLC_two-mice.predictions.csv",
             "DeepLabCut",
             (1439976, 4),
             False,
+            60.0,
         ),  # two individuals, multiple keypoints
         (
             "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
             "SLEAP",
             (1803, 4),
             False,
+            60.0,
         ),  # three individuals, one keypoint
         (
             "MOVE_two-mice_octagon.analysis.nc",
             "movement (netCDF)",
             (126000, 4),
             False,
+            50.0,
         ),
         (
             "MOVE_single-crab_MOCA-crab-1_linear-interp.nc",
             "movement (netCDF)",
             (168, 4),
             True,
+            24.0,
         ),
     ],
 )
@@ -313,6 +321,7 @@ def test_on_load_clicked_with_valid_file_path(
     source_software,
     tracks_array_shape,
     is_bbox,
+    expected_fps,
     make_napari_viewer_proxy,
     caplog,
 ):
@@ -342,7 +351,7 @@ def test_on_load_clicked_with_valid_file_path(
     data_loader_widget._on_load_clicked()
 
     # Check the class attributes from the input data
-    assert data_loader_widget.fps == 60
+    assert data_loader_widget.fps == expected_fps
     assert data_loader_widget.source_software == source_software
     assert Path(data_loader_widget.file_path) == file_path
     assert data_loader_widget.file_name == file_path.name
