@@ -76,8 +76,7 @@ invalid_bboxes_arrays_and_expected_log = {
         ),  # not an ndarray
         (
             np.zeros((10, 3, 2)),
-            f"Expected '{key}_array' to have 2 spatial "
-            "coordinates, but got 3.",
+            f"Expected '{key}_array' to have 2 spatial dimensions, but got 3.",
         ),  # `space` dim (at idx 1) not 2
     ]
     for key in ["position", "shape"]
