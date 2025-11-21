@@ -97,6 +97,24 @@ def test_button_connected_to_on_clicked(
     mock_method.assert_called_once()
 
 
+def test_source_software_combo_connected_to_handler(
+    make_napari_viewer_proxy, mocker
+):
+    """Test that changing the source software combo calls the right handler."""
+    mock_method = mocker.patch(
+        "movement.napari.loader_widgets.DataLoader._on_source_software_changed"
+    )
+    # Initializing the widget will trigger the first call in __init__
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
+
+    # Resetting the mock
+    mock_method.reset_mock()
+
+    netcdf_text = "movement (netCDF)"
+    data_loader_widget.source_software_combo.setCurrentText(netcdf_text)
+    mock_method.assert_called_once_with(netcdf_text)
+
+
 @pytest.mark.parametrize(
     "layer_type",
     [Points, Image, Tracks, Labels, Shapes, Surface, Vectors],
@@ -133,6 +151,38 @@ def test_on_layer_added_and_deleted(
 
 # ------------------- tests for widget methods--------------------------------#
 # In these tests we check if calling a widget method has the expected effects
+@pytest.mark.parametrize(
+    "choice, fps_enabled, tooltip_contains",
+    [
+        ("movement (netCDF)", False, "netCDF file attributes"),
+        ("SLEAP", True, "Set the frames per second"),
+        ("DeepLabCut", True, "Set the frames per second"),
+    ],
+)
+def test_on_source_software_changed_sets_fps_state(
+    make_napari_viewer_proxy, choice, fps_enabled, tooltip_contains
+):
+    """Test that changing the source software updates the fps spinbox.
+    Both the enabled/disabled state and the tooltip should be updated.
+    """
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
+
+    # initial state: fps spinbox enabled with the default tooltip
+    assert data_loader_widget.fps_spinbox.isEnabled()
+    assert (
+        data_loader_widget.fps_spinbox.toolTip()
+        == data_loader_widget.fps_default_tooltip
+    )
+
+    # call the handler directly
+    data_loader_widget._on_source_software_changed(choice)
+
+    # Assert enabled state
+    assert data_loader_widget.fps_spinbox.isEnabled() is fps_enabled
+    # Assert tooltip content
+    assert tooltip_contains in data_loader_widget.fps_spinbox.toolTip()
+
+
 @pytest.mark.parametrize(
     "file_path",
     [
@@ -173,6 +223,7 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
         ("SLEAP", "*.h5 *.slp"),
         ("LightningPose", "*.csv"),
         ("VIA-tracks", "*.csv"),
+        ("movement (netCDF)", "*.nc"),
     ],
 )
 def test_on_browse_clicked_file_filters(
@@ -205,44 +256,63 @@ def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
 
 
 @pytest.mark.parametrize(
-    "filename, source_software, tracks_array_shape",
+    "filename, source_software, tracks_array_shape, is_bbox",
     [
         (
             "VIA_single-crab_MOCA-crab-1.csv",
             "VIA-tracks",
             (35, 4),
+            True,
         ),  # single individual, no keypoints (bboxes)
         (
             "VIA_multiple-crabs_5-frames_labels.csv",
             "VIA-tracks",
             (430, 4),
+            True,
         ),  # multiple individuals, no keypoints (bboxes)
         (
             "SLEAP_single-mouse_EPM.predictions.slp",
             "SLEAP",
             (110910, 4),
+            False,
         ),  # single individual, multiple keypoints
         (
             "DLC_single-wasp.predictions.h5",
             "DeepLabCut",
             (2170, 4),
+            False,
         ),  # single individual, multiple keypoints
         (
             "DLC_two-mice.predictions.csv",
             "DeepLabCut",
             (1439976, 4),
+            False,
         ),  # two individuals, multiple keypoints
         (
             "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
             "SLEAP",
             (1803, 4),
+            False,
         ),  # three individuals, one keypoint
+        (
+            "MOVE_two-mice_octagon.analysis.nc",
+            "movement (netCDF)",
+            (126000, 4),
+            False,
+        ),
+        (
+            "MOVE_single-crab_MOCA-crab-1_linear-interp.nc",
+            "movement (netCDF)",
+            (168, 4),
+            True,
+        ),
     ],
 )
 def test_on_load_clicked_with_valid_file_path(
     filename,
     source_software,
     tracks_array_shape,
+    is_bbox,
     make_napari_viewer_proxy,
     caplog,
 ):
@@ -272,7 +342,6 @@ def test_on_load_clicked_with_valid_file_path(
     data_loader_widget._on_load_clicked()
 
     # Check the class attributes from the input data
-    assert data_loader_widget.fps == 60
     assert data_loader_widget.source_software == source_software
     assert Path(data_loader_widget.file_path) == file_path
     assert data_loader_widget.file_name == file_path.name
@@ -281,7 +350,8 @@ def test_on_load_clicked_with_valid_file_path(
     assert data_loader_widget.data is not None
     assert data_loader_widget.properties is not None
     assert data_loader_widget.data_not_nan is not None
-    if source_software in SUPPORTED_BBOXES_FILES:
+
+    if is_bbox:
         assert data_loader_widget.data_bboxes is not None
     else:
         # Only bounding boxes datasets should add bboxes data
@@ -318,12 +388,111 @@ def test_on_load_clicked_with_valid_file_path(
         "Added tracked dataset as a napari Points layer.",
         "Added tracked dataset as a napari Tracks layer.",
     }
-    if source_software in SUPPORTED_BBOXES_FILES:
+
+    if is_bbox:
         expected_log_messages.add(
             "Added tracked dataset as a napari Shapes layer."
         )
     log_messages = {record.getMessage() for record in caplog.records}
     assert expected_log_messages <= log_messages
+
+
+@pytest.mark.parametrize(
+    "filename, source_software, set_fps, expected_fps",
+    [
+        # For netCDF files, fps should be read from file metadata
+        (
+            "MOVE_two-mice_octagon.analysis.nc",
+            "movement (netCDF)",
+            1.0,
+            50.0,  # fps from file overwrites set_fps
+        ),
+        # For non-netCDF files, fps should be the value set by the user
+        (
+            "DLC_single-wasp.predictions.h5",
+            "DeepLabCut",
+            30.0,
+            30.0,  # set_fps persists
+        ),
+    ],
+    ids=["netcdf_file", "dlc_file"],
+)
+def test_fps_handling_on_load(
+    filename,
+    source_software,
+    set_fps,
+    expected_fps,
+    make_napari_viewer_proxy,
+):
+    """Test that FPS is correctly handled when loading files.
+
+    For netCDF files (.nc), the FPS should be read from file metadata.
+    For all other file types, the FPS should be the value set in the spinbox.
+    """
+    # Instantiate the napari viewer and the data loader widget
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    # Set the file path
+    file_path = pytest.DATA_PATHS.get(filename)
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+
+    # Set the source software
+    data_loader_widget.source_software_combo.setCurrentText(source_software)
+    # Set the fps spinbox to the desired value
+    data_loader_widget.fps_spinbox.setValue(set_fps)
+
+    # Load the file
+    data_loader_widget._on_load_clicked()
+
+    # Check that the fps attribute matches the expected value
+    assert data_loader_widget.fps == expected_fps
+    # Check that the value of the fps spinbox has also been updated
+    assert data_loader_widget.fps_spinbox.value() == expected_fps
+
+
+@pytest.mark.parametrize(
+    "fixture_name, expected_error_message",
+    [
+        (
+            "invalid_netcdf_file_missing_confidence",
+            "does not appear to be a valid movement poses dataset",
+        ),
+        (
+            "unopenable_netcdf_file",
+            "Error opening netCDF file",
+        ),
+        (
+            "invalid_dstype_netcdf_file",
+            "unknown 'ds_type' attribute",
+        ),
+    ],
+    ids=["missing_confidence", "unopenable", "invalid_ds_type"],
+)
+def test_on_load_clicked_with_invalid_netcdf(
+    make_napari_viewer_proxy,
+    mocker,
+    fixture_name,
+    expected_error_message,
+    request,
+):
+    """Test that show_error is called when loading invalid netCDF files."""
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
+
+    mock_show_error = mocker.patch("movement.napari.loader_widgets.show_error")
+
+    # Get the fixture value dynamically
+    file_path = request.getfixturevalue(fixture_name)
+
+    data_loader_widget.file_path_edit.setText(file_path)
+    data_loader_widget.source_software_combo.setCurrentText(
+        "movement (netCDF)"
+    )
+    data_loader_widget._on_load_clicked()
+
+    mock_show_error.assert_called_once()
+    call_args = mock_show_error.call_args[0][0]
+    assert expected_error_message in call_args
 
 
 # ------------------- tests for dimension slider ----------------------------#

@@ -9,6 +9,7 @@ from unittest.mock import mock_open, patch
 
 import h5py
 import pytest
+import xarray as xr
 from sleap_io.io.slp import read_labels, write_labels
 from sleap_io.model.labels import LabeledFrame, Labels
 
@@ -499,3 +500,45 @@ def via_track_ids_not_unique_per_frame():
         '"{""name"":""rect"",""x"":2567.627,""y"":466.888,""width"":40,""height"":37}",'
         '"{""track"":""71""}"'  # same track ID as the previous row
     )
+
+
+@pytest.fixture(scope="session")
+def invalid_netcdf_file_missing_confidence(tmp_path_factory):
+    """Create an invalid 'poses' netCDF file missing the
+    'confidence' variable.
+    """
+    valid_file = pytest.DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
+    ds = xr.open_dataset(valid_file)
+    del ds["confidence"]
+
+    temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
+    invalid_path = temp_dir / "invalid_file_missing_confidence.nc"
+    ds.to_netcdf(invalid_path)
+    yield str(invalid_path)
+
+
+@pytest.fixture(scope="session")
+def unopenable_netcdf_file(tmp_path_factory):
+    """Create a fake .nc file that is just text, causing
+    xr.open_dataset to fail.
+    """
+    temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
+    invalid_path = temp_dir / "unopenable_file.nc"
+    with open(invalid_path, "w") as f:
+        f.write("This is not a real netCDF file")
+    yield str(invalid_path)
+
+
+@pytest.fixture(scope="session")
+def invalid_dstype_netcdf_file(tmp_path_factory):
+    """Create a valid netCDF file but with an invalid 'ds_type' attribute."""
+    valid_file = pytest.DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
+    ds = xr.open_dataset(valid_file)
+
+    ds.attrs["ds_type"] = "not_a_valid_type"
+
+    temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
+    invalid_path = temp_dir / "invalid_dstype_file.nc"
+    ds.to_netcdf(invalid_path)
+
+    yield str(invalid_path)
