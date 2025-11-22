@@ -119,6 +119,57 @@ class PolygonOfInterest(BaseRegionOfInterest):
             for i, int_boundary in enumerate(self.region.interiors)
         )
 
+    def apply_homography(self, H: np.ndarray) -> PolygonOfInterest:
+        """Apply a homography transformation to this polygon.
+
+        Parameters
+        ----------
+        H : np.ndarray
+            A 3x3 homography matrix.
+
+        Returns
+        -------
+        PolygonOfInterest
+            A new PolygonOfInterest instance with the transformed coordinates.
+
+        """
+
+        def _transform_coords(coords: np.ndarray) -> np.ndarray:
+            # Convert to homogeneous coordinates
+            num_points = coords.shape[0]
+            homogeneous_coords = np.hstack(
+                [coords, np.ones((num_points, 1))]
+            )  # Shape (N, 3)
+
+            # Apply homography
+            transformed_homogeneous_coords = (
+                H @ homogeneous_coords.T
+            ).T  # Shape (N, 3)
+
+            # Convert back to 2D Cartesian coordinates
+            w_prime = transformed_homogeneous_coords[:, 2]
+            x_prime = transformed_homogeneous_coords[:, 0] / w_prime
+            y_prime = transformed_homogeneous_coords[:, 1] / w_prime
+
+            return np.vstack([x_prime, y_prime]).T  # Shape (N, 2)
+
+        # Transform exterior boundary
+        exterior_coords = np.array(self.exterior_boundary.coords)
+        transformed_exterior = _transform_coords(exterior_coords)
+
+        # Transform holes if any
+        transformed_holes = []
+        for hole in self.holes:
+            hole_coords = np.array(hole.exterior_boundary.coords)
+            transformed_hole = _transform_coords(hole_coords)
+            transformed_holes.append(transformed_hole)
+
+        return PolygonOfInterest(
+            exterior_boundary=transformed_exterior,
+            holes=transformed_holes if transformed_holes else None,
+            name=f"{self.name} (transformed)",
+        )
+
     def _plot(
         self, fig: plt.Figure, ax: plt.Axes, **matplotlib_kwargs
     ) -> tuple[plt.Figure, plt.Axes]:

@@ -21,13 +21,14 @@ from movement.transforms import compute_homography_transform
 # Define path to data
 # -----------------------
 
-data_dir = Path("/home/niko/Dropbox/NIU/data/Octagon")
+data_dir = Path("/Users/nsirmpilatze/Dropbox (Personal)/NIU/data/Octagon")
 
 target_roi_path = data_dir / "CameraColorTop_ROI.csv"
 source_roi_path = data_dir / "CameraTop_ROI.csv"
 
 assert target_roi_path.exists(), f"File not found: {target_roi_path}"
 assert source_roi_path.exists(), f"File not found: {source_roi_path}"
+
 # %%
 # Load ROIs as polygon objects
 # ----------------------------
@@ -44,7 +45,7 @@ def roi_to_polygon(roi_df: pd.DataFrame, name: str) -> PolygonOfInterest:
     # To make a polygon, we must supply vertices as a list of (x, y) pairs
     point_list = [(x, y) for x, y in points]
     # Create polygon
-    polygon = PolygonOfInterest(exterior_boundary=point_list)
+    polygon = PolygonOfInterest(exterior_boundary=point_list, name=name)
     return polygon
 
 
@@ -54,11 +55,11 @@ source_polygon = roi_to_polygon(source_roi, name="Source")
 # %%
 # Plot ROIs
 fig, ax = plt.subplots()
-target_polygon.plot(ax=ax, color="blue", alpha=0.5, label="Target ROI")
-source_polygon.plot(ax=ax, color="red", alpha=0.5, label="Source ROI")
+target_polygon.plot(ax=ax, facecolor="m", alpha=0.5, label="Target ROI")
+source_polygon.plot(ax=ax, facecolor="c", alpha=0.5, label="Source ROI")
 ax.invert_yaxis()  # Flip the y-axis to match image coordinates
 ax.legend()
-plt.show()
+fig.show()
 
 
 # %%
@@ -70,7 +71,29 @@ src_points = np.array(source_polygon.coords.xy).T  # Shape (N, 2)
 dst_points = np.array(target_polygon.coords.xy).T  # Shape (N, 2)
 
 
-transform = compute_homography_transform(src_points, dst_points)
+H = compute_homography_transform(src_points, dst_points)
 
-print("Computed homography matrix:")
-print(transform)
+print("Computed homography matrix H:")
+print(np.array2string(H, precision=6, suppress_small=True))
+
+
+# %%
+# Apply homography transform to source polygon
+# ------------------------------------------
+
+transformed_polygon = source_polygon.apply_homography(H)
+
+
+# %%
+# Plot ROIs
+fig, ax = plt.subplots()
+target_polygon.plot(ax=ax, facecolor="m", alpha=0.5)
+transformed_polygon.plot(ax=ax, facecolor="c", alpha=0.5)
+ax.invert_yaxis()  # Flip the y-axis to match image coordinates
+ax.legend()
+fig.show()
+
+
+# %%
+# Now we will apply the homography to the pose tracks
+# ------------------------------------------------------------------
