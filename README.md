@@ -65,7 +65,6 @@ Movement sits in a broader ecosystem of pose-tracking, trajectory analysis, and 
 
 - [movingpandas](https://github.com/anitagraser/movingpandas) — trajectory and movement data analysis built on pandas.
 - [traja](https://github.com/traja-team/traja) — trajectory analysis toolkit for animal and human motion.
-- [ethome](https://benlansdell.github.io/ethome/) — ML-based behavior analysis and pose-tracking tools.
 - [AutoGaitA](https://github.com/mahan-hosseini/AutoGaitA) — automated gait analysis with feature extraction.
 - [megabouts.ai](https://github.com/orger-lab/megabouts) — multi-animal behavior and movement analysis platform.
 - [DeepLabCut](https://github.com/DeepLabCut/DeepLabCut) — markerless pose estimation toolkit.
