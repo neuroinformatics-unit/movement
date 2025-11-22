@@ -58,6 +58,26 @@ Find out more on our [mission and scope](https://movement.neuroinformatics.dev/l
 
 <!-- End Admonitions -->
 
+
+## Related packages
+
+Movement sits in a broader ecosystem of pose-tracking, trajectory analysis, and behavior-analysis tools. Some relevant projects include:
+
+- [movingpandas](https://github.com/anitagraser/movingpandas) — trajectory and movement data analysis built on pandas.
+- [traja](https://github.com/traja-team/traja) — trajectory analysis toolkit for animal and human motion.
+- [ethome](https://benlandsell.github.io/ethome/) — ML-based behavior analysis and pose-tracking tools.
+- [AutoGaitA](https://github.com/mahan-hosseini/AutoGaitA) — automated gait analysis with feature extraction.
+- [megabouts.ai](https://megabouts.ai) — multi-animal behavior and movement analysis platform.
+- [DeepLabCut](https://github.com/DeepLabCut/DeepLabCut) — markerless pose estimation toolkit.
+- [SLEAP](https://github.com/talmo/sleap) — multi-animal pose tracking.
+- [OpenPose](https://github.com/CMU-Perceptual-Computing-Lab/openpose) — real-time multi-person 2D/3D human pose estimation.
+- [Biomechanical ToolKit (BTK)](https://github.com/Biomechanical-ToolKit/BTKCore) — a C++/Python library for reading, processing, and analyzing biomechanics and motion capture data (e.g., C3D, TRC).
+- [trackpy](https://github.com/soft-matter/trackpy) — particle and trajectory tracking library for analyzing trajectories in videos and time-series data; useful for movement/track-based workflows.
+
+
+There is conceptual overlap with some of these tools, especially in pose-processing workflows.
+
+
 ## Join the movement
 
 Contributions to movement are absolutely encouraged, whether to fix a bug, develop a new feature, or improve the documentation.
