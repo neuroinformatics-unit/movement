@@ -283,3 +283,40 @@ def _is_collinear_set(points: np.ndarray, eps):
     _, s, _ = np.linalg.svd(pts)
     rank = np.sum(s > eps)
     return rank < 2
+
+
+def transform_points_homography(
+    points: np.ndarray, H: np.ndarray
+) -> np.ndarray:
+    """Apply a homography transformation to a set of 2D points.
+
+    Parameters
+    ----------
+    points : np.ndarray
+        An array of shape (N, 2) representing N points in 2D space.
+    H : np.ndarray
+        A 3x3 homography matrix.
+
+    Returns
+    -------
+    np.ndarray
+        An array of shape (N, 2) representing the transformed points.
+
+    """
+    # Convert to homogeneous coordinates
+    num_points = points.shape[0]
+    homogeneous_coords = np.hstack(
+        [points, np.ones((num_points, 1))]
+    )  # Shape (N, 3)
+
+    # Apply homography
+    transformed_homogeneous_coords = (
+        H @ homogeneous_coords.T
+    ).T  # Shape (N, 3)
+
+    # Convert back to 2D Cartesian coordinates
+    w_prime = transformed_homogeneous_coords[:, 2]
+    x_prime = transformed_homogeneous_coords[:, 0] / w_prime
+    y_prime = transformed_homogeneous_coords[:, 1] / w_prime
+
+    return np.vstack([x_prime, y_prime]).T

@@ -14,8 +14,12 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
+from movement.io import load_poses, save_poses
 from movement.roi import PolygonOfInterest
-from movement.transforms import compute_homography_transform
+from movement.transforms import (
+    compute_homography_transform,
+    transform_points_homography,
+)
 
 # %%
 # Define path to data
@@ -83,7 +87,6 @@ print(np.array2string(H, precision=6, suppress_small=True))
 
 transformed_polygon = source_polygon.apply_homography(H)
 
-
 # %%
 # Plot ROIs
 fig, ax = plt.subplots()
@@ -97,3 +100,58 @@ fig.show()
 # %%
 # Now we will apply the homography to the pose tracks
 # ------------------------------------------------------------------
+
+poses_path = data_dir / "SLEAP_two-mice_octagon.analysis.h5"
+
+ds = load_poses.from_file(poses_path, source_software="SLEAP", fps=60)
+
+dims = ds.position.dims
+print(f"Original dimensions: {dims}")
+print(f"Original shape: {ds.position.shape}")
+
+# Reorder the dimensions so 'space' is the LAST dimension.
+# This ensures the final shape is (N, 2) after stacking.
+position_reordered = ds.position.transpose(
+    "time", "keypoints", "individuals", "space"
+)
+print(f"Reordered dimensions: {position_reordered.shape}")
+print(f"Reordered shape: {position_reordered.shape}")
+
+# Stack the first three dimensions into a new dimension called 'all_points'.
+# 'space' is left unstacked at the end.
+stacked_points = position_reordered.stack(
+    all_points=["time", "keypoints", "individuals"]
+)
+
+print(f"Stacked dimensions: {stacked_points.dims}")
+print(f"Stacked shape: {stacked_points.shape}")
+
+# %%
+# Apply homography transformation, input/output shapes are (N, 2)
+stacked_points.loc[:, :] = transform_points_homography(
+    stacked_points.values.T, H
+).T
+
+# Unstack to recover the original dimensions in their original order.
+transformed_position = stacked_points.unstack("all_points")
+
+# We need one final transpose to restore the *original* requested order.
+transformed_position_final = transformed_position.transpose(
+    "time", "space", "keypoints", "individuals"
+)
+
+print(f"\nFinal Transformed dimensions: {transformed_position_final.dims}")
+print(f"Final Transformed shape: {transformed_position_final.shape}")
+
+# %%
+# Create a new dataset with transformed positions
+ds_transformed = ds.copy()
+ds_transformed["position"] = transformed_position_final
+
+# %%
+# Save transformed poses
+# ----------------------------
+output_path = data_dir / "SLEAP_two-mice_octagon_color3.analysis.h5"
+save_poses.to_sleap_analysis_file(ds_transformed, output_path)
+
+# %%

@@ -12,6 +12,7 @@ from matplotlib.path import Path as PltPath
 
 from movement.roi.base import BaseRegionOfInterest, PointLikeList
 from movement.roi.line import LineOfInterest
+from movement.transforms import transform_points_homography
 
 
 class PolygonOfInterest(BaseRegionOfInterest):
@@ -133,35 +134,15 @@ class PolygonOfInterest(BaseRegionOfInterest):
             A new PolygonOfInterest instance with the transformed coordinates.
 
         """
-
-        def _transform_coords(coords: np.ndarray) -> np.ndarray:
-            # Convert to homogeneous coordinates
-            num_points = coords.shape[0]
-            homogeneous_coords = np.hstack(
-                [coords, np.ones((num_points, 1))]
-            )  # Shape (N, 3)
-
-            # Apply homography
-            transformed_homogeneous_coords = (
-                H @ homogeneous_coords.T
-            ).T  # Shape (N, 3)
-
-            # Convert back to 2D Cartesian coordinates
-            w_prime = transformed_homogeneous_coords[:, 2]
-            x_prime = transformed_homogeneous_coords[:, 0] / w_prime
-            y_prime = transformed_homogeneous_coords[:, 1] / w_prime
-
-            return np.vstack([x_prime, y_prime]).T  # Shape (N, 2)
-
         # Transform exterior boundary
         exterior_coords = np.array(self.exterior_boundary.coords)
-        transformed_exterior = _transform_coords(exterior_coords)
+        transformed_exterior = transform_points_homography(exterior_coords, H)
 
         # Transform holes if any
         transformed_holes = []
         for hole in self.holes:
             hole_coords = np.array(hole.exterior_boundary.coords)
-            transformed_hole = _transform_coords(hole_coords)
+            transformed_hole = transform_points_homography(hole_coords, H)
             transformed_holes.append(transformed_hole)
 
         return PolygonOfInterest(
