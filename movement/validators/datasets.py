@@ -56,9 +56,11 @@ class _BaseValidDataset(ABC):
     (with suffix `_impl`).
     """
 
+    # Required fields
     position_array: np.ndarray = field(
         validator=validators.instance_of(np.ndarray)
     )
+    # Optional fields
     confidence_array: np.ndarray | None = field(
         default=None,
         validator=validators.optional(validators.instance_of(np.ndarray)),
@@ -77,59 +79,19 @@ class _BaseValidDataset(ABC):
         default=None,
         validator=validators.optional(validators.instance_of(str)),
     )
-
-    # Subclasses must define these class variables
+    # Required class variables (to be defined by subclasses)
     DIM_NAMES: ClassVar[tuple[str, ...]]
     VAR_NAMES: ClassVar[tuple[str, ...]]
     _POSITION_EXPECTED_SPACE_DIM_SIZE: ClassVar[int | Iterable[int]]
     _POSITION_SPACE_AXIS: ClassVar[int] = 1  # Default axis for 'space' dim
 
-    @property
-    def _POSITION_EXPECTED_NDIM(self):
-        """Return expected number of dimensions for position_array."""
-        return len(self.DIM_NAMES)
-
-    @position_array.validator
-    def _validate_position_array(self, attribute, value):
-        """Check position_array type and dimensions."""
-        self._validate_array_dims(
-            attribute,
-            value,
-            self._POSITION_EXPECTED_NDIM,
-            self._POSITION_SPACE_AXIS,
-            self._POSITION_EXPECTED_SPACE_DIM_SIZE,
-        )
-
-    @confidence_array.validator
-    def _validate_confidence_array(self, attribute, value):
-        """Check confidence_array type and shape."""
-        if value is not None:
-            expected_shape = self._expected_confidence_shape()
-            self._validate_array_shape(
-                attribute, value, expected_shape=expected_shape
-            )
-
-    @individual_names.validator
-    def _validate_individual_names(self, attribute, value):
-        """Delegate individual_names validation to subclass implementation."""
-        if value is not None:
-            self._validate_individual_names_impl(attribute, value)
-
-    def _expected_confidence_shape(self) -> tuple:
-        """Return expected shape for confidence_array."""
-        # confidence shape == position_array shape without the space dim
-        return tuple(
-            dim
-            for i, dim in enumerate(self.position_array.shape)
-            if i != self._POSITION_SPACE_AXIS
-        )
-
+    # Lifecycle hooks
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
         # confidence_array default: array of NaNs with appropriate shape
         if self.confidence_array is None:
             self.confidence_array = np.full(
-                self._expected_confidence_shape(), np.nan, dtype="float32"
+                self._confidence_expected_shape, np.nan, dtype="float32"
             )
             logger.warning(
                 "Confidence array was not provided."
@@ -144,32 +106,51 @@ class _BaseValidDataset(ABC):
                 f"Setting to {self.individual_names}."
             )
 
+    # Properties (derived attributes)
+    @property
+    def _confidence_expected_shape(self):
+        """Return expected shape for confidence_array."""
+        # confidence shape == position_array shape without the space dim
+        return tuple(
+            dim
+            for i, dim in enumerate(self.position_array.shape)
+            if i != self._POSITION_SPACE_AXIS
+        )
+
+    # Validators
+    @position_array.validator
+    def _validate_position_array(self, attribute, value):
+        """Check position_array type and dimensions."""
+        self._validate_array_dims(attribute, value)
+
+    @confidence_array.validator
+    def _validate_confidence_array(self, attribute, value):
+        """Check confidence_array type and shape."""
+        if value is not None:
+            expected_shape = self._confidence_expected_shape
+            self._validate_array_shape(
+                attribute, value, expected_shape=expected_shape
+            )
+
+    @individual_names.validator
+    def _validate_individual_names(self, attribute, value):
+        """Delegate individual_names validation to subclass implementation."""
+        if value is not None:
+            self._validate_individual_names_impl(attribute, value)
+
+    # Abstract methods (subclass contracts)
     @abstractmethod
     def _validate_individual_names_impl(self, attribute, value):
         """Perform dataset-specific validation of individual_names."""
 
-    @staticmethod
-    def _validate_array_shape(
-        attribute: attrs.Attribute, value: np.ndarray, expected_shape: tuple
-    ):
-        """Raise ValueError if the value does not have the expected shape."""
-        if value.shape != expected_shape:
-            raise logger.error(
-                ValueError(
-                    f"Expected '{attribute.name}' to have shape "
-                    f"{expected_shape}, but got {value.shape}."
-                )
-            )
-
-    @staticmethod
+    # Utility methods
     def _validate_array_dims(
-        attribute: attrs.Attribute,
-        value: np.ndarray,
-        expected_ndim: int,
-        axis: int,
-        expected_axis_size: int | Iterable[int],
+        self, attribute: attrs.Attribute, value: np.ndarray
     ):
         """Raise ValueError if ndim and/or axis size are unexpected."""
+        expected_ndim = len(self.DIM_NAMES)
+        axis = self._POSITION_SPACE_AXIS
+        expected_axis_size = self._POSITION_EXPECTED_SPACE_DIM_SIZE
         if value.ndim != expected_ndim:
             raise logger.error(
                 ValueError(
@@ -188,6 +169,19 @@ class _BaseValidDataset(ABC):
                 ValueError(
                     f"Expected '{attribute.name}' to have {allowed_dims_str} "
                     f"spatial dimensions, but got {space_dim_size}."
+                )
+            )
+
+    @staticmethod
+    def _validate_array_shape(
+        attribute: attrs.Attribute, value: np.ndarray, expected_shape: tuple
+    ):
+        """Raise ValueError if the value does not have the expected shape."""
+        if value.shape != expected_shape:
+            raise logger.error(
+                ValueError(
+                    f"Expected '{attribute.name}' to have shape "
+                    f"{expected_shape}, but got {value.shape}."
                 )
             )
 
