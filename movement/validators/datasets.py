@@ -82,8 +82,7 @@ class _BaseValidDataset(ABC):
     # Required class variables (to be defined by subclasses)
     DIM_NAMES: ClassVar[tuple[str, ...]]
     VAR_NAMES: ClassVar[tuple[str, ...]]
-    _POSITION_EXPECTED_SPACE_DIM_SIZE: ClassVar[int | Iterable[int]]
-    _POSITION_SPACE_AXIS: ClassVar[int] = 1  # Default axis for 'space' dim
+    _POSITION_ALLOWED_SPACE_DIM_SIZE: ClassVar[int | Iterable[int]]
 
     # Lifecycle hooks
     def __attrs_post_init__(self):
@@ -98,8 +97,10 @@ class _BaseValidDataset(ABC):
                 "Setting to an array of NaNs."
             )
         # individual_names default: id_0, id_1, ...
-        if self.individual_names is None:
-            n_inds = self.position_array.shape[-1]
+        if self.individual_names is None and "individuals" in self.DIM_NAMES:
+            n_inds = self.position_array.shape[
+                self.DIM_NAMES.index("individuals")
+            ]
             self.individual_names = [f"id_{i}" for i in range(n_inds)]
             logger.warning(
                 "Individual names were not provided. "
@@ -114,7 +115,7 @@ class _BaseValidDataset(ABC):
         return tuple(
             dim
             for i, dim in enumerate(self.position_array.shape)
-            if i != self._POSITION_SPACE_AXIS
+            if i != self.DIM_NAMES.index("space")
         )
 
     # Validators
@@ -149,8 +150,7 @@ class _BaseValidDataset(ABC):
     ):
         """Raise ValueError if ndim and/or axis size are unexpected."""
         expected_ndim = len(self.DIM_NAMES)
-        axis = self._POSITION_SPACE_AXIS
-        expected_axis_size = self._POSITION_EXPECTED_SPACE_DIM_SIZE
+        expected_axis_size = self._POSITION_ALLOWED_SPACE_DIM_SIZE
         if value.ndim != expected_ndim:
             raise logger.error(
                 ValueError(
@@ -160,7 +160,7 @@ class _BaseValidDataset(ABC):
             )
         if not isinstance(expected_axis_size, Iterable):
             expected_axis_size = (expected_axis_size,)
-        space_dim_size = value.shape[axis]
+        space_dim_size = value.shape[self.DIM_NAMES.index("space")]
         if space_dim_size not in expected_axis_size:
             allowed_dims_str = " or ".join(
                 str(dim) for dim in expected_axis_size
@@ -260,7 +260,7 @@ class ValidPosesDataset(_BaseValidDataset):
         "individuals",
     )
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "confidence")
-    _POSITION_EXPECTED_SPACE_DIM_SIZE: ClassVar[Iterable[int]] = (2, 3)
+    _POSITION_ALLOWED_SPACE_DIM_SIZE: ClassVar[Iterable[int]] = (2, 3)
 
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
@@ -363,7 +363,7 @@ class ValidBboxesDataset(_BaseValidDataset):
 
     DIM_NAMES: ClassVar[tuple[str, ...]] = ("time", "space", "individuals")
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "shape", "confidence")
-    _POSITION_EXPECTED_SPACE_DIM_SIZE: ClassVar[int] = 2
+    _POSITION_ALLOWED_SPACE_DIM_SIZE: ClassVar[int] = 2
 
     @shape_array.validator
     def _validate_shape_array(self, attribute, value):
