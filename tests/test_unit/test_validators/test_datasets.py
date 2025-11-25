@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 from movement.validators.datasets import (
+    ValidBboxesDataset,
     ValidPosesDataset,
     _BaseValidDataset,
     _convert_fps_to_none_if_invalid,
@@ -286,4 +287,50 @@ def test_poses_validate_position_array_impl(
         ValidPosesDataset(
             position_array=position_array,
             source_software=source_software,
+        )
+
+
+@pytest.mark.parametrize(
+    "shape_array, expected_context",
+    [
+        (
+            np.zeros((5, 2, 3)),
+            does_not_raise(),
+        ),
+        (
+            np.zeros((5, 2, 1)),
+            pytest.raises(
+                ValueError,
+                match=re.escape("have shape (5, 2, 3), but got (5, 2, 1)"),
+            ),
+        ),
+        (
+            np.zeros((5, 2)),
+            pytest.raises(
+                ValueError,
+                match="have 3 dimensions, but got 2",
+            ),
+        ),
+        (
+            np.zeros((5, 3, 1)),
+            pytest.raises(
+                ValueError,
+                match="have 2 spatial dimensions, but got 3",
+            ),
+        ),
+    ],
+    ids=[
+        "Valid shape_array",
+        "Mismatch with position_array individuals dimension",
+        "Missing one dimension",
+        "Expect 2D (width, height) shape but got 3D",
+    ],
+)
+def test_bboxes_validate_shape_array(shape_array, expected_context):
+    """Test shape_array validation."""
+    position_array = np.zeros((5, 2, 3))  # time, space, individuals
+    with expected_context:
+        ValidBboxesDataset(
+            position_array=position_array,
+            shape_array=shape_array,
         )
