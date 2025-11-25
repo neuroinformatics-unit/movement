@@ -1,408 +1,401 @@
+import re
 from contextlib import nullcontext as does_not_raise
 
 import numpy as np
 import pytest
 
-from movement.validators.datasets import ValidBboxesDataset, ValidPosesDataset
+from movement.validators.datasets import (
+    ValidBboxesDataset,
+    ValidPosesDataset,
+    _BaseValidDataset,
+    _convert_fps_to_none_if_invalid,
+    _convert_to_list_of_str,
+)
 
-position_arrays = [
-    {
-        "names": None,
-        "array_type": "multi_individual_array",
-        "individual_names_expected_exception": does_not_raise(
-            ["id_0", "id_1"]
+
+@pytest.mark.parametrize(
+    "input, expected_context, expected_output",
+    [
+        (
+            "a",
+            pytest.warns(
+                UserWarning,
+                match="Invalid value .* Expected a list of strings",
+            ),
+            ["a"],
         ),
-        "keypoint_names_expected_exception": does_not_raise(
-            ["keypoint_0", "keypoint_1"]
+        (("a", "b", "c"), does_not_raise(), ["a", "b", "c"]),
+        ([1, 2, 3], does_not_raise(), ["1", "2", "3"]),
+        (
+            5,
+            pytest.raises(ValueError, match="Expected a list of strings"),
+            None,
         ),
-    },  # valid input, will generate default names
-    {
-        "names": ["a", "b"],
-        "array_type": "multi_individual_array",
-        "individual_names_expected_exception": does_not_raise(["a", "b"]),
-        "keypoint_names_expected_exception": does_not_raise(["a", "b"]),
-    },  # valid input
-    {
-        "names": ("a", "b"),
-        "array_type": "multi_individual_array",
-        "individual_names_expected_exception": does_not_raise(["a", "b"]),
-        "keypoint_names_expected_exception": does_not_raise(["a", "b"]),
-    },  # valid input, will be converted to ["a", "b"]
-    {
-        "names": [1, 2],
-        "array_type": "multi_individual_array",
-        "individual_names_expected_exception": does_not_raise(["1", "2"]),
-        "keypoint_names_expected_exception": does_not_raise(["1", "2"]),
-    },  # valid input, will be converted to ["1", "2"]
-    {
-        "names": "a",
-        "array_type": "single_individual_array",
-        "individual_names_expected_exception": does_not_raise(["a"]),
-        "keypoint_names_expected_exception": pytest.raises(ValueError),
-    },  # single individual array with multiple keypoints
-    {
-        "names": "a",
-        "array_type": "single_keypoint_array",
-        "individual_names_expected_exception": pytest.raises(ValueError),
-        "keypoint_names_expected_exception": does_not_raise(["a"]),
-    },  # single keypoint array with multiple individuals
-    {
-        "names": 5,
-        "array_type": "multi_individual_array",
-        "individual_names_expected_exception": pytest.raises(ValueError),
-        "keypoint_names_expected_exception": pytest.raises(ValueError),
-    },  # invalid input
-]
-
-
-@pytest.fixture(params=position_arrays)
-def position_array_params(request):
-    """Return a dictionary containing parameters for testing
-    position array keypoint and individual names.
-    """
-    return request.param
-
-
-# Fixtures bbox dataset
-invalid_bboxes_arrays_and_expected_exception = {
-    key: [
-        (
-            None,
-            pytest.raises(
-                TypeError, match=f"{type(np.array([]))}.*{type(None)}"
-            ),
-        ),  # invalid, argument is non-optional
-        (
-            [1, 2, 3],
-            pytest.raises(
-                TypeError, match=f"{type(np.array([]))}.*{type(list())}"
-            ),
-        ),  # not an ndarray
-        (
-            np.zeros((10, 3, 2)),
-            pytest.raises(ValueError, match="2 spatial dimensions, but got 3"),
-        ),  # `space` dim (at idx 1) not 2
-    ]
-    for key in ["position", "shape"]
-}
-
-
-# Tests pose dataset
-@pytest.mark.parametrize(
-    "invalid_position_array, expected_exception",
-    [
-        (
-            None,
-            pytest.raises(
-                TypeError, match=f"{type(np.array([]))}.*{type(None)}"
-            ),
-        ),  # invalid, argument is non-optional
-        (
-            [1, 2, 3],
-            pytest.raises(
-                TypeError, match=f"{type(np.array([]))}.*{type(list())}"
-            ),
-        ),  # not an ndarray
-        (
-            np.zeros((10, 2, 3)),
-            pytest.raises(ValueError, match="4 dimensions, but got 3"),
-        ),  # not 4d
-        (
-            np.zeros((10, 4, 3, 2)),
-            pytest.raises(
-                ValueError, match="2 or 3 spatial dimensions, but got 4."
-            ),
-        ),  # `space` dim (at idx 1) not 2 or 3
     ],
 )
-def test_poses_dataset_validator_with_invalid_position_array(
-    invalid_position_array, expected_exception
-):
-    """Test that invalid position arrays raise the appropriate errors."""
-    with expected_exception:
-        ValidPosesDataset(position_array=invalid_position_array)
+def test_convert_to_list_of_str(input, expected_context, expected_output):
+    """Test conversion of various inputs to list of strings."""
+    with expected_context:
+        out = _convert_to_list_of_str(input)
+        assert out == expected_output
 
 
 @pytest.mark.parametrize(
-    "confidence_array, expected_exception",
+    "input, expected_context, expected_output",
     [
         (
-            np.ones((10, 2, 2)),
-            pytest.raises(ValueError),
-        ),  # will not match position_array shape (10, 2, 3, 2)
-        (
-            [1, 2, 3],
-            pytest.raises(
-                TypeError, match=f"{type(np.array([]))}.*{type(list())}"
-            ),
-        ),  # not an ndarray, should raise ValueError
-        (
+            -1,
+            pytest.warns(UserWarning, match="Invalid .* Setting fps to None"),
             None,
-            does_not_raise(),
-        ),  # valid, should default to array of NaNs
-    ],
-)
-def test_poses_dataset_validator_confidence_array(
-    confidence_array, expected_exception, valid_poses_arrays
-):
-    """Test that invalid confidence arrays raise the appropriate errors."""
-    with expected_exception:
-        poses = ValidPosesDataset(
-            position_array=valid_poses_arrays("multi_individual_array")[
-                "position"
-            ],
-            confidence_array=confidence_array,
-        )
-        if confidence_array is None:
-            assert np.all(np.isnan(poses.confidence_array))
-
-
-@pytest.mark.filterwarnings(
-    "ignore:.*Converting to a list of length 1.:UserWarning"
-)
-def test_poses_dataset_validator_keypoint_names(
-    position_array_params, valid_poses_arrays
-):
-    """Test that invalid keypoint names raise the appropriate errors."""
-    with position_array_params.get("keypoint_names_expected_exception") as e:
-        poses = ValidPosesDataset(
-            position_array=valid_poses_arrays(
-                position_array_params.get("array_type")
-            )["position"][:, :, :2, :],  # select up to the first 2 keypoints
-            keypoint_names=position_array_params.get("names"),
-        )
-        assert poses.keypoint_names == e
-
-
-@pytest.mark.filterwarnings(
-    "ignore:.*Converting to a list of length 1.:UserWarning"
-)
-def test_poses_dataset_validator_individual_names(
-    position_array_params, valid_poses_arrays
-):
-    """Test that invalid keypoint names raise the appropriate errors."""
-    with position_array_params.get("individual_names_expected_exception") as e:
-        poses = ValidPosesDataset(
-            position_array=valid_poses_arrays(
-                position_array_params.get("array_type")
-            )["position"],
-            individual_names=position_array_params.get("names"),
-        )
-        assert poses.individual_names == e
-
-
-@pytest.mark.parametrize(
-    "source_software, expected_exception",
-    [
-        (None, does_not_raise()),
-        ("SLEAP", does_not_raise()),
-        ("DeepLabCut", does_not_raise()),
-        ("LightningPose", pytest.raises(ValueError)),
-        ("fake_software", does_not_raise()),
-        (5, pytest.raises(TypeError)),  # not a string
-    ],
-)
-def test_poses_dataset_validator_source_software(
-    valid_poses_arrays, source_software, expected_exception
-):
-    """Test that the source_software attribute is validated properly.
-    LightnigPose is incompatible with multi-individual arrays.
-    """
-    with expected_exception:
-        ds = ValidPosesDataset(
-            position_array=valid_poses_arrays("multi_individual_array")[
-                "position"
-            ],
-            source_software=source_software,
-        )
-
-        if source_software is not None:
-            assert ds.source_software == source_software
-        else:
-            assert ds.source_software is None
-
-
-# Tests bboxes dataset
-@pytest.mark.parametrize(
-    "invalid_position_array, expected_exception",
-    invalid_bboxes_arrays_and_expected_exception["position"],
-)
-def test_bboxes_dataset_validator_with_invalid_position_array(
-    invalid_position_array, expected_exception, request
-):
-    """Test that invalid centroid position arrays raise an error."""
-    with expected_exception:
-        ValidBboxesDataset(
-            position_array=invalid_position_array,
-            shape_array=request.getfixturevalue(
-                "valid_bboxes_arrays_all_zeros"
-            )["shape"],
-            individual_names=request.getfixturevalue(
-                "valid_bboxes_arrays_all_zeros"
-            )["individual_names"],
-        )
-
-
-@pytest.mark.parametrize(
-    "invalid_shape_array, expected_exception",
-    invalid_bboxes_arrays_and_expected_exception["shape"],
-)
-def test_bboxes_dataset_validator_with_invalid_shape_array(
-    invalid_shape_array, expected_exception, request
-):
-    """Test that invalid shape arrays raise an error."""
-    with expected_exception:
-        ValidBboxesDataset(
-            position_array=request.getfixturevalue(
-                "valid_bboxes_arrays_all_zeros"
-            )["position"],
-            shape_array=invalid_shape_array,
-            individual_names=request.getfixturevalue(
-                "valid_bboxes_arrays_all_zeros"
-            )["individual_names"],
-        )
-
-
-@pytest.mark.parametrize(
-    "list_individual_names, expected_exception",
-    [
-        (
-            None,
-            does_not_raise(),
-        ),  # valid, should default to unique IDs per frame
-        (
-            [1, 2, 3],
-            pytest.raises(ValueError, match="length 2, but got 3"),
-        ),  # length doesn't match position_array.shape[1]
-        # from valid_bboxes_arrays_all_zeros fixture
-        (
-            ["id_1", "id_1"],
-            pytest.raises(ValueError, match="individual_names are not unique"),
-        ),  # some IDs are not unique.
-        # Note: length of individual_names list should match
-        # n_individuals in valid_bboxes_arrays_all_zeros fixture
-    ],
-)
-def test_bboxes_dataset_validator_individual_names(
-    list_individual_names, expected_exception, request
-):
-    """Test individual_names inputs."""
-    with expected_exception:
-        ds = ValidBboxesDataset(
-            position_array=request.getfixturevalue(
-                "valid_bboxes_arrays_all_zeros"
-            )["position"],
-            shape_array=request.getfixturevalue(
-                "valid_bboxes_arrays_all_zeros"
-            )["shape"],
-            individual_names=list_individual_names,
-        )
-    if list_individual_names is None:
-        # check IDs are unique per frame
-        assert len(ds.individual_names) == len(set(ds.individual_names))
-        assert ds.position_array.shape[1] == len(ds.individual_names)
-
-
-@pytest.mark.parametrize(
-    "confidence_array, expected_exception",
-    [
-        (
-            np.ones((10, 3, 2)),
-            pytest.raises(
-                ValueError, match="shape \(10, 2\), but got \(10, 3, 2\)"
-            ),
-        ),  # will not match shape of position_array in
-        # valid_bboxes_arrays_all_zeros fixture
-        (
-            [1, 2, 3],
-            pytest.raises(
-                TypeError, match=f"{type(np.array([]))}.*{type(list())}"
-            ),
-        ),  # not an ndarray, should raise TypeError
-        (
-            None,
-            does_not_raise(),
-        ),  # valid, should default to array of NaNs
-    ],
-)
-def test_bboxes_dataset_validator_confidence_array(
-    confidence_array, expected_exception, request
-):
-    """Test that invalid confidence arrays raise the appropriate errors."""
-    with expected_exception:
-        ds = ValidBboxesDataset(
-            position_array=request.getfixturevalue(
-                "valid_bboxes_arrays_all_zeros"
-            )["position"],
-            shape_array=request.getfixturevalue(
-                "valid_bboxes_arrays_all_zeros"
-            )["shape"],
-            individual_names=request.getfixturevalue(
-                "valid_bboxes_arrays_all_zeros"
-            )["individual_names"],
-            confidence_array=confidence_array,
-        )
-    if confidence_array is None:
-        assert np.all(
-            np.isnan(ds.confidence_array)
-        )  # assert it is a NaN array
-        assert (
-            ds.confidence_array.shape == ds.position_array.shape[:-1]
-        )  # assert shape matches position array
-
-
-@pytest.mark.parametrize(
-    "frame_array, expected_exception",
-    [
-        (
-            np.arange(10).reshape(-1, 2),
-            pytest.raises(
-                ValueError, match="shape \(10, 1\), but got \(5, 2\)."
-            ),
-        ),  # frame_array should be a column vector
-        (
-            [1, 2, 3],
-            pytest.raises(
-                TypeError, match=f"{type(np.array([]))}.*{type(list())}"
-            ),
-        ),  # not an ndarray, should raise TypeError
-        (
-            np.array([1, 10, 2, 3, 4, 5, 6, 7, 8, 9]).reshape(-1, 1),
-            pytest.raises(ValueError, match="not monotonically increasing"),
         ),
         (
-            np.array([1, 2, 22, 23, 24, 25, 100, 101, 102, 103]).reshape(
-                -1, 1
-            ),
-            does_not_raise(),
-        ),  # valid, frame numbers are not continuous but are monotonically
-        # increasing
-        (
+            0,
+            pytest.warns(UserWarning, match="Invalid .* Setting fps to None"),
             None,
-            does_not_raise(),
-        ),  # valid, should return an array of frame numbers starting from 0
+        ),
+        (10.0, does_not_raise(), 10.0),
+        (10, does_not_raise(), 10.0),
+        (None, does_not_raise(), None),
     ],
 )
-def test_bboxes_dataset_validator_frame_array(
-    frame_array, expected_exception, request
+def test_convert_fps_to_none_if_invalid(
+    input, expected_context, expected_output
 ):
-    """Test that invalid frame arrays raise the appropriate errors."""
-    with expected_exception:
-        ds = ValidBboxesDataset(
-            position_array=request.getfixturevalue(
-                "valid_bboxes_arrays_all_zeros"
-            )["position"],
-            shape_array=request.getfixturevalue(
-                "valid_bboxes_arrays_all_zeros"
-            )["shape"],
-            individual_names=request.getfixturevalue(
-                "valid_bboxes_arrays_all_zeros"
-            )["individual_names"],
-            frame_array=frame_array,
-        )
+    """Test handling of valid and invalid fps values."""
+    with expected_context:
+        out = _convert_fps_to_none_if_invalid(input)
+    assert out == expected_output
 
-    if frame_array is None:
-        n_frames = ds.position_array.shape[0]
-        default_frame_array = np.arange(n_frames).reshape(-1, 1)
-        assert np.array_equal(ds.frame_array, default_frame_array)
-        assert ds.frame_array.shape == (ds.position_array.shape[0], 1)
+
+class TestBaseValidDataset:
+    """Test the _BaseValidDataset class."""
+
+    @staticmethod
+    def make_stub_dataset_class(
+        dim_names=("time", "space"), var_names=("position",)
+    ):
+        """Create a minimal concrete subclass of _BaseValidDataset."""
+
+        class StubDataset(_BaseValidDataset):
+            """Minimal concrete subclass for testing _BaseValidDataset."""
+
+            DIM_NAMES = dim_names
+            VAR_NAMES = var_names
+            _ALLOWED_SPACE_DIM_SIZE = 2  # 2D positions
+
+        return StubDataset
+
+    class StubAttr:
+        """Stub for attrs.Attribute."""
+
+        def __init__(self, name="stub_attribute"):
+            """Initialise with a name."""
+            self.name = name
+
+    def test_required_fields_missing(self):
+        """Test that TypeError is raised when required fields are missing."""
+        stub_dataset_class = self.make_stub_dataset_class()
+        with pytest.raises(
+            TypeError,
+            match="missing 1 required keyword-only argument: 'position_array'",
+        ):
+            stub_dataset_class()
+
+    @pytest.mark.parametrize(
+        "dim_names, position_array, expected_confidence, expected_ind_names",
+        [
+            (("time", "space"), np.zeros((5, 2)), np.full(5, np.nan), None),
+            (
+                ("time", "space", "individuals"),
+                np.zeros((5, 2, 1)),
+                np.full((5, 1), np.nan),
+                ["id_0"],
+            ),
+            (
+                ("time", "space", "individuals"),
+                np.zeros((5, 2, 3)),
+                np.full((5, 3), np.nan),
+                ["id_0", "id_1", "id_2"],
+            ),
+        ],
+    )
+    def test_optional_fields_defaults(
+        self,
+        dim_names,
+        position_array,
+        expected_confidence,
+        expected_ind_names,
+    ):
+        """Test default values for optional fields."""
+        stub_dataset_class = self.make_stub_dataset_class(dim_names=dim_names)
+        ds = stub_dataset_class(position_array=position_array)
+        np.testing.assert_allclose(
+            ds.confidence_array, expected_confidence, equal_nan=True
+        )
+        assert ds.individual_names == expected_ind_names
+        assert ds.fps is None
+        assert ds.source_software is None
+
+    @pytest.mark.parametrize(
+        "position_array, expected_error_message",
+        [
+            (np.zeros((5, 2, 3)), "have 2 dimensions, but got 3"),
+            (np.zeros((5, 3)), "have 2 spatial dimensions, but got 3"),
+        ],
+        ids=[
+            "Unexpected additional individuals dimension",
+            "Expect 2D positions but got 3D positions",
+        ],
+    )
+    def test_position_array_with_mismatched_dimensions(
+        self, position_array, expected_error_message
+    ):
+        """Test validation for position_array dimension mismatches."""
+        stub_dataset_class = self.make_stub_dataset_class()  # time, 2D space
+        with pytest.raises(
+            ValueError,
+            match=expected_error_message,
+        ):
+            stub_dataset_class(position_array=position_array)
+
+    @pytest.mark.parametrize(
+        "expected_shape, expected_exception",
+        [
+            ((2, 3), does_not_raise()),
+            (
+                (3, 2),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape("have shape (3, 2), but got (2, 3)"),
+                ),
+            ),
+        ],
+    )
+    def test_validate_array_shape(self, expected_shape, expected_exception):
+        """Test the _validate_array_shape static method directly."""
+        stub_dataset_class = self.make_stub_dataset_class()
+        val = np.zeros((2, 3))
+        with expected_exception:
+            stub_dataset_class._validate_array_shape(
+                self.StubAttr(), val, expected_shape
+            )
+
+    @pytest.mark.parametrize(
+        "val, expected_length, expected_exception",
+        [
+            (None, None, does_not_raise()),
+            ([0, 1, 2], 3, does_not_raise()),
+            (
+                [0, 1],
+                3,
+                pytest.raises(
+                    ValueError,
+                    match="have length 3, but got 2",
+                ),
+            ),
+        ],
+    )
+    def test_validate_list_length(
+        self, val, expected_length, expected_exception
+    ):
+        """Test the _validate_list_length method directly."""
+        stub_dataset_class = self.make_stub_dataset_class()
+        with expected_exception:
+            stub_dataset_class._validate_list_length(
+                self.StubAttr(), val, expected_length
+            )
+
+    @pytest.mark.parametrize(
+        "val, expected_exception",
+        [
+            (None, does_not_raise()),
+            (["a", "b", "c"], does_not_raise()),
+            (
+                ["a", "b", "a"],
+                pytest.raises(
+                    ValueError,
+                    match="are not unique",
+                ),
+            ),
+        ],
+    )
+    def test_validate_list_uniqueness(self, val, expected_exception):
+        """Test the _validate_list_uniqueness method directly."""
+        stub_dataset_class = self.make_stub_dataset_class()
+        with expected_exception:
+            stub_dataset_class._validate_list_uniqueness(self.StubAttr(), val)
+
+
+class TestValidPosesDataset:
+    """Test the ValidPosesDataset class."""
+
+    @pytest.mark.parametrize(
+        "position_array, keypoint_names, expected_context",
+        [
+            (np.zeros((5, 2, 1, 2)), None, does_not_raise(["keypoint_0"])),
+            (
+                np.zeros((5, 2, 3, 2)),
+                None,
+                does_not_raise(["keypoint_0", "keypoint_1", "keypoint_2"]),
+            ),
+            (
+                np.zeros((5, 2, 3, 2)),
+                ["a", "b", "c"],
+                does_not_raise(["a", "b", "c"]),
+            ),
+            (
+                np.zeros((5, 2, 3, 2)),
+                ["a", "b"],
+                pytest.raises(ValueError, match="length 3, but got 2"),
+            ),
+        ],
+        ids=[
+            "Single keypoint default name",
+            "Multiple keypoints default names",
+            "Explicit keypoint names",
+            "Explicit keypoint names length mismatch",
+        ],
+    )
+    def test_keypoint_names(
+        self, position_array, keypoint_names, expected_context
+    ):
+        """Test keypoint_names validation in ValidPosesDataset."""
+        with expected_context as expected_keypoint_names:
+            ds = ValidPosesDataset(
+                position_array=position_array,
+                keypoint_names=keypoint_names,
+            )
+            assert ds.keypoint_names == expected_keypoint_names
+
+    @pytest.mark.parametrize(
+        "source_software, position_array, expected_context",
+        [
+            ("LightningPose", np.zeros((5, 2, 3, 1)), does_not_raise()),
+            (
+                "LightningPose",
+                np.zeros((5, 2, 3, 2)),
+                pytest.raises(
+                    ValueError, match="LightningPose.*single-individual"
+                ),
+            ),
+        ],
+        ids=[
+            "Valid single-individual LightningPose dataset",
+            "Invalid multi-individual LightningPose dataset",
+        ],
+    )
+    def test_position_array(
+        self, source_software, position_array, expected_context
+    ):
+        """Test additional position_array validation for LightningPose
+        in ``_validate_position_array_impl``.
+        """
+        with expected_context:
+            ValidPosesDataset(
+                position_array=position_array,
+                source_software=source_software,
+            )
+
+
+class TestValidBboxesDataset:
+    """Test the ValidBboxesDataset class."""
+
+    @pytest.mark.parametrize(
+        "shape_array, expected_context",
+        [
+            (
+                np.zeros((5, 2, 3)),
+                does_not_raise(),
+            ),
+            (
+                np.zeros((5, 2, 1)),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape("have shape (5, 2, 3), but got (5, 2, 1)"),
+                ),
+            ),
+            (
+                np.zeros((5, 2)),
+                pytest.raises(
+                    ValueError,
+                    match="have 3 dimensions, but got 2",
+                ),
+            ),
+            (
+                np.zeros((5, 3, 1)),
+                pytest.raises(
+                    ValueError,
+                    match="have 2 spatial dimensions, but got 3",
+                ),
+            ),
+        ],
+        ids=[
+            "Valid shape_array",
+            "Mismatch with position_array individuals dimension",
+            "Missing one dimension",
+            "Expect 2D (width, height) shape but got 3D",
+        ],
+    )
+    def test_shape_array(self, shape_array, expected_context):
+        """Test shape_array validation."""
+        position_array = np.zeros((5, 2, 3))  # time, space, individuals
+        with expected_context:
+            ValidBboxesDataset(
+                position_array=position_array,
+                shape_array=shape_array,
+            )
+
+    @pytest.mark.parametrize(
+        "frame_array, expected_context",
+        [
+            (None, does_not_raise(np.arange(5)[:, None])),
+            (
+                np.arange(3, 8)[:, None],
+                does_not_raise(np.arange(3, 8)[:, None]),
+            ),
+            (
+                np.arange(3, 12, 2)[:, None],
+                does_not_raise(np.arange(3, 12, 2)[:, None]),
+            ),
+            (
+                np.arange(5)[::-1][:, None],
+                pytest.raises(
+                    ValueError,
+                    match="not monotonically increasing",
+                ),
+            ),
+            (
+                np.zeros((5, 2)),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape("have shape (5, 1), but got (5, 2)"),
+                ),
+            ),
+            (
+                np.zeros((7, 1)),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape("have shape (5, 1), but got (7, 1)"),
+                ),
+            ),
+        ],
+        ids=[
+            "Not provided, use default",
+            "Consecutive monotonically increasing",
+            "Non-consecutive but monotonically increasing",
+            "Non-monotonically increasing frame numbers",
+            "Shape mismatch: not a column vector",
+            "Shape mismatch: frame number different from position_array",
+        ],
+    )
+    def test_frame_array(self, frame_array, expected_context):
+        """Test frame_array validation."""
+        position_array = np.zeros((5, 2, 3))  # time, space, individuals
+        shape_array = np.zeros((5, 2, 3))
+        with expected_context as expected_frame_array:
+            ds = ValidBboxesDataset(
+                position_array=position_array,
+                shape_array=shape_array,
+                frame_array=frame_array,
+            )
+            np.testing.assert_array_equal(ds.frame_array, expected_frame_array)
