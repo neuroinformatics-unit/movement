@@ -172,10 +172,9 @@ class _BaseValidDataset:
 
     # --- Subclass validation hooks (optional overrides) ---
     def _validate_position_array_impl(
-        self, attribute: attrs.Attribute, value: np.ndarray
+        self, _attribute: attrs.Attribute, _value: np.ndarray
     ):
         """Perform dataset-specific validation of position_array."""
-        return
 
     # --- Utility methods ---
     @staticmethod
