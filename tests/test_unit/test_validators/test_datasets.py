@@ -78,9 +78,6 @@ def make_stub_dataset_class(
         VAR_NAMES = var_names
         _ALLOWED_SPACE_DIM_SIZE = 2  # 2D positions
 
-        def _validate_individual_names_impl(self, attribute, value):
-            pass
-
     return StubDataset
 
 

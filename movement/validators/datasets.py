@@ -1,7 +1,6 @@
 """``attrs`` classes for validating data structures."""
 
 import warnings
-from abc import ABC
 from collections.abc import Iterable
 from typing import Any, ClassVar
 
@@ -45,15 +44,16 @@ def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
 
 
 @define(kw_only=True)
-class _BaseValidDataset(ABC):
+class _BaseValidDataset:
     """Base class for movement dataset validators.
 
-    This abstract class centralises shared fields, validators, and default
+    This base class centralises shared fields, validators, and default
     assignment logic for movement datasets (e.g. poses, bounding boxes).
     It registers the attrs validators for required fields like `position_array`
     and optional fields like `confidence_array` and `individual_names`.
-    Dataset-specific checks are delegated to subclasses via abstract hooks
-    (with suffix `_impl`).
+    Dataset-specific checks are delegated to subclasses via subclass hooks
+    (with suffix `_impl`). Subclasses must also define class variables
+    `DIM_NAMES`, `VAR_NAMES`, and `_ALLOWED_SPACE_DIM_SIZE`.
     """
 
     # --- Required fields ---
