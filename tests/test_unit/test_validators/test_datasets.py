@@ -334,3 +334,43 @@ def test_bboxes_validate_shape_array(shape_array, expected_context):
             position_array=position_array,
             shape_array=shape_array,
         )
+
+
+@pytest.mark.parametrize(
+    "frame_array, expected_context",
+    [
+        (np.arange(3, 8)[:, None], does_not_raise(np.arange(3, 8)[:, None])),
+        (None, does_not_raise(np.arange(5)[:, None])),
+        (
+            np.arange(5)[::-1][:, None],
+            pytest.raises(
+                ValueError,
+                match="not monotonically increasing",
+            ),
+        ),
+        (
+            np.zeros((5, 2, 3)),
+            pytest.raises(
+                ValueError,
+                match=re.escape("have shape (5, 1), but got (5, 2, 3)"),
+            ),
+        ),
+    ],
+    ids=[
+        "Valid frame_array",
+        "Not provided, use default",
+        "Non-monotonically increasing frame numbers",
+        "Shape mismatch with position_array",
+    ],
+)
+def test_bboxes_validate_frame_array(frame_array, expected_context):
+    """Test frame_array validation."""
+    position_array = np.zeros((5, 2, 3))  # time, space, individuals
+    shape_array = np.zeros((5, 2, 3))
+    with expected_context as expected_frame_array:
+        ds = ValidBboxesDataset(
+            position_array=position_array,
+            shape_array=shape_array,
+            frame_array=frame_array,
+        )
+        np.testing.assert_array_equal(ds.frame_array, expected_frame_array)
