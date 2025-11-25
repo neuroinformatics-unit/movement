@@ -1,7 +1,7 @@
 """``attrs`` classes for validating data structures."""
 
 import warnings
-from abc import ABC, abstractmethod
+from abc import ABC
 from collections.abc import Iterable
 from typing import Any, ClassVar
 
@@ -56,11 +56,11 @@ class _BaseValidDataset(ABC):
     (with suffix `_impl`).
     """
 
-    # Required fields
+    # --- Required fields ---
     position_array: np.ndarray = field(
         validator=validators.instance_of(np.ndarray)
     )
-    # Optional fields
+    # --- Optional fields ---
     confidence_array: np.ndarray | None = field(
         default=None,
         validator=validators.optional(validators.instance_of(np.ndarray)),
@@ -79,12 +79,12 @@ class _BaseValidDataset(ABC):
         default=None,
         validator=validators.optional(validators.instance_of(str)),
     )
-    # Required class variables (to be defined by subclasses)
+    # --- Required class variables (to be defined by subclasses) ---
     DIM_NAMES: ClassVar[tuple[str, ...]]
     VAR_NAMES: ClassVar[tuple[str, ...]]
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[int | Iterable[int]]
 
-    # Lifecycle hooks
+    # --- Lifecycle hooks ---
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
         # confidence_array default: array of NaNs with appropriate shape
@@ -107,7 +107,7 @@ class _BaseValidDataset(ABC):
                 f"Setting to {self.individual_names}."
             )
 
-    # Properties (derived attributes)
+    # --- Properties (derived attributes) ---
     @property
     def _confidence_expected_shape(self):
         """Return expected shape for confidence_array."""
@@ -118,36 +118,9 @@ class _BaseValidDataset(ABC):
             if i != self.DIM_NAMES.index("space")
         )
 
-    # Validators
+    # --- Validators ---
     @position_array.validator
     def _validate_position_array(self, attribute, value):
-        """Check position_array type and dimensions."""
-        self._validate_array_dims(attribute, value)
-
-    @confidence_array.validator
-    def _validate_confidence_array(self, attribute, value):
-        """Check confidence_array type and shape."""
-        if value is not None:
-            expected_shape = self._confidence_expected_shape
-            self._validate_array_shape(
-                attribute, value, expected_shape=expected_shape
-            )
-
-    @individual_names.validator
-    def _validate_individual_names(self, attribute, value):
-        """Delegate individual_names validation to subclass implementation."""
-        if value is not None:
-            self._validate_individual_names_impl(attribute, value)
-
-    # Abstract methods (subclass contracts)
-    @abstractmethod
-    def _validate_individual_names_impl(self, attribute, value):
-        """Perform dataset-specific validation of individual_names."""
-
-    # Utility methods
-    def _validate_array_dims(
-        self, attribute: attrs.Attribute, value: np.ndarray
-    ):
         """Raise ValueError if array dimensions are unexpected."""
         # Check array dimensions match the number of DIM_NAMES
         expected_ndim = len(self.DIM_NAMES)
@@ -173,7 +146,38 @@ class _BaseValidDataset(ABC):
                     f"spatial dimensions, but got {space_dim_size}."
                 )
             )
+        # Delegate further validation to subclass
+        self._validate_position_array_impl(attribute, value)
 
+    @confidence_array.validator
+    def _validate_confidence_array(self, attribute, value):
+        """Check confidence_array type and shape."""
+        if value is not None:
+            expected_shape = self._confidence_expected_shape
+            self._validate_array_shape(
+                attribute, value, expected_shape=expected_shape
+            )
+
+    @individual_names.validator
+    def _validate_individual_names(self, attribute, value):
+        """Validate individual_names length and uniqueness."""
+        if value is not None:
+            individuals_dim_index = self.DIM_NAMES.index("individuals")
+            self._validate_list_length(
+                attribute,
+                value,
+                self.position_array.shape[individuals_dim_index],
+            )
+            self._validate_list_uniqueness(attribute, value)
+
+    # --- Subclass validation hooks (optional overrides) ---
+    def _validate_position_array_impl(
+        self, attribute: attrs.Attribute, value: np.ndarray
+    ):
+        """Perform dataset-specific validation of position_array."""
+        return
+
+    # --- Utility methods ---
     @staticmethod
     def _validate_array_shape(
         attribute: attrs.Attribute, value: np.ndarray, expected_shape: tuple
@@ -192,11 +196,25 @@ class _BaseValidDataset(ABC):
         attribute: attrs.Attribute, value: list | None, expected_length: int
     ):
         """Raise a ValueError if the list does not have the expected length."""
-        if (value is not None) and (len(value) != expected_length):
+        if value is not None and len(value) != expected_length:
             raise logger.error(
                 ValueError(
                     f"Expected '{attribute.name}' to have "
                     f"length {expected_length}, but got {len(value)}."
+                )
+            )
+
+    @staticmethod
+    def _validate_list_uniqueness(
+        attribute: attrs.Attribute, value: list | None
+    ):
+        """Raise a ValueError if the list does not have unique elements."""
+        if value is not None and len(value) != len(set(value)):
+            raise logger.error(
+                ValueError(
+                    f"Elements in '{attribute.name}' are not unique. "
+                    f"There are {len(value)} elements in the list, but "
+                    f"only {len(set(value))} are unique."
                 )
             )
 
@@ -267,26 +285,34 @@ class ValidPosesDataset(_BaseValidDataset):
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
         """Validate keypoint_names length."""
+        keypoints_dim_index = self.DIM_NAMES.index("keypoints")
         self._validate_list_length(
-            attribute, value, self.position_array.shape[2]
+            attribute, value, self.position_array.shape[keypoints_dim_index]
         )
+        self._validate_list_uniqueness(attribute, value)
 
-    def _validate_individual_names_impl(self, attribute, value):
-        """Validate individual_names length based on source_software."""
-        expected_length = (
-            1
-            if self.source_software == "LightningPose"
-            else self.position_array.shape[-1]
-        )
-        self._validate_list_length(attribute, value, expected_length)
+    def _validate_position_array_impl(
+        self, attribute: attrs.Attribute, value: np.ndarray
+    ):
+        """Ensure LightningPose single-individual constraint."""
+        ind_dim_size = value.shape[self.DIM_NAMES.index("individuals")]
+        if self.source_software == "LightningPose" and ind_dim_size != 1:
+            raise logger.error(
+                ValueError(
+                    "LightningPose only supports single-individual datasets, "
+                    f"but '{attribute.name}' has {ind_dim_size} individuals."
+                )
+            )
 
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
         super().__attrs_post_init__()
         position_array_shape = self.position_array.shape
+        keypoints_dim_index = self.DIM_NAMES.index("keypoints")
         if self.keypoint_names is None:
             self.keypoint_names = [
-                f"keypoint_{i}" for i in range(position_array_shape[2])
+                f"keypoint_{i}"
+                for i in range(position_array_shape[keypoints_dim_index])
             ]
             logger.warning(
                 "Keypoint names were not provided. "
@@ -377,10 +403,11 @@ class ValidBboxesDataset(_BaseValidDataset):
         """Validate frame_array type, shape, and monotonicity."""
         if value is not None:
             # should be a column vector (n_frames, 1)
+            time_dim_index = self.DIM_NAMES.index("time")
             self._validate_array_shape(
                 attribute,
                 value,
-                expected_shape=(self.position_array.shape[0], 1),
+                expected_shape=(self.position_array.shape[time_dim_index], 1),
             )
             # check frames are monotonically increasing
             if not np.all(np.diff(value, axis=0) >= 1):
@@ -391,29 +418,13 @@ class ValidBboxesDataset(_BaseValidDataset):
                     )
                 )
 
-    def _validate_individual_names_impl(self, attribute, value):
-        """Validate individual_names length and uniqueness."""
-        self._validate_list_length(
-            attribute, value, self.position_array.shape[-1]
-        )
-        # check n_individual_names are unique
-        # NOTE: combined with the requirement above, we are enforcing
-        # unique IDs per frame
-        if len(value) != len(set(value)):
-            raise logger.error(
-                ValueError(
-                    "individual_names are not unique. "
-                    f"There are {len(value)} elements in the list, but "
-                    f"only {len(set(value))} are unique."
-                )
-            )
-
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
         super().__attrs_post_init__()
         # assign default frame_array
         if self.frame_array is None:
-            n_frames = self.position_array.shape[0]
+            time_dim_index = self.DIM_NAMES.index("time")
+            n_frames = self.position_array.shape[time_dim_index]
             self.frame_array = np.arange(n_frames).reshape(-1, 1)
             logger.warning(
                 "Frame numbers were not provided. "
