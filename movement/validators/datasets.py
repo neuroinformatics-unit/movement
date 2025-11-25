@@ -395,8 +395,12 @@ class ValidBboxesDataset(_BaseValidDataset):
 
     @shape_array.validator
     def _validate_shape_array(self, attribute, value):
-        """Apply the same validation as position_array."""
+        """Validate shape_array dimensions and shape."""
         super()._validate_position_array(attribute, value)
+        # Shape must match that of position_array
+        self._validate_array_shape(
+            attribute, value, expected_shape=self.position_array.shape
+        )
 
     @frame_array.validator
     def _validate_frame_array(self, attribute, value):
