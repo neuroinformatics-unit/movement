@@ -45,15 +45,17 @@ def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
 
 @define(kw_only=True)
 class _BaseValidDataset:
-    """Base class for movement dataset validators.
+    """Base class for ``movement`` dataset validators.
 
     This base class centralises shared fields, validators, and default
-    assignment logic for movement datasets (e.g. poses, bounding boxes).
-    It registers the attrs validators for required fields like `position_array`
-    and optional fields like `confidence_array` and `individual_names`.
+    assignment logic for ``movement`` datasets (e.g. poses, bounding boxes).
+    It registers the attrs validators for required fields like
+    ``position_array`` and optional fields like ``confidence_array`` and
+    ``individual_names``.
     Dataset-specific checks are delegated to subclasses via subclass hooks
-    (with suffix `_impl`). Subclasses must also define class variables
-    `DIM_NAMES`, `VAR_NAMES`, and `_ALLOWED_SPACE_DIM_SIZE`.
+    (with suffix ``_impl``).
+    Subclasses must also define class variables
+    ``DIM_NAMES``, ``VAR_NAMES``, and ``_ALLOWED_SPACE_DIM_SIZE``.
     """
 
     # --- Required fields ---
@@ -216,6 +218,45 @@ class _BaseValidDataset:
                     f"only {len(set(value))} are unique."
                 )
             )
+
+    @classmethod
+    def validate(cls, ds: xr.Dataset) -> None:
+        """Validate the input as a valid ``movement`` dataset.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            Dataset to validate.
+
+        Raises
+        ------
+        TypeError
+            If the input is not an xarray Dataset.
+        ValueError
+            If the dataset is missing required data variables or dimensions
+            for a valid ``movement`` dataset.
+
+        """
+        if not isinstance(ds, xr.Dataset):
+            raise logger.error(
+                TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
+            )
+
+        missing_vars = set(cls.VAR_NAMES) - set(ds.data_vars)
+        if missing_vars:
+            raise logger.error(
+                ValueError(
+                    f"Missing required data variables: {sorted(missing_vars)}"
+                )
+            )  # sort for a reproducible error message
+
+        missing_dims = set(cls.DIM_NAMES) - set(ds.dims)
+        if missing_dims:
+            raise logger.error(
+                ValueError(
+                    f"Missing required dimensions: {sorted(missing_dims)}"
+                )
+            )  # sort for a reproducible error message
 
 
 @define(kw_only=True)
@@ -433,45 +474,3 @@ class ValidBboxesDataset(_BaseValidDataset):
                 "Frame numbers were not provided. "
                 "Setting to an array of 0-based integers."
             )
-
-
-def _validate_dataset(
-    ds: xr.Dataset,
-    dataset_validator: type[ValidBboxesDataset] | type[ValidPosesDataset],
-) -> None:
-    """Validate the input as a proper ``movement`` dataset.
-
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset to validate.
-    dataset_validator : type[ValidBboxesDataset] | type[ValidPosesDataset]
-        Validator for the dataset.
-
-    Raises
-    ------
-    TypeError
-        If the input is not an xarray Dataset.
-    ValueError
-        If the dataset is missing required data variables or dimensions
-        for a valid ``movement`` dataset.
-
-    """
-    if not isinstance(ds, xr.Dataset):
-        raise logger.error(
-            TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
-        )
-
-    missing_vars = set(dataset_validator.VAR_NAMES) - set(ds.data_vars)
-    if missing_vars:
-        raise logger.error(
-            ValueError(
-                f"Missing required data variables: {sorted(missing_vars)}"
-            )
-        )  # sort for a reproducible error message
-
-    missing_dims = set(dataset_validator.DIM_NAMES) - set(ds.dims)
-    if missing_dims:
-        raise logger.error(
-            ValueError(f"Missing required dimensions: {sorted(missing_dims)}")
-        )  # sort for a reproducible error message
