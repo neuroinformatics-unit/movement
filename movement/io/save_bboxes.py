@@ -11,7 +11,7 @@ import numpy as np
 import xarray as xr
 
 from movement.utils.logging import logger
-from movement.validators.datasets import ValidBboxesDataset, _validate_dataset
+from movement.validators.datasets import ValidBboxesDataset
 from movement.validators.files import _validate_file_path
 
 if TYPE_CHECKING:
@@ -128,7 +128,7 @@ def to_via_tracks_file(
     """
     # Validate file path and dataset
     file = _validate_file_path(file_path, expected_suffix=[".csv"])
-    _validate_dataset(ds, ValidBboxesDataset)
+    ValidBboxesDataset.validate(ds)
 
     # Check the number of digits required to represent the frame numbers
     frame_n_digits = _check_frame_required_digits(

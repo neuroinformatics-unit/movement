@@ -3,6 +3,7 @@ from contextlib import nullcontext as does_not_raise
 
 import numpy as np
 import pytest
+import xarray as xr
 
 from movement.validators.datasets import (
     ValidBboxesDataset,
@@ -70,6 +71,13 @@ def test_convert_fps_to_none_if_invalid(
 class TestBaseValidDataset:
     """Test the _BaseValidDataset class."""
 
+    class StubAttr:
+        """Stub for attrs.Attribute."""
+
+        def __init__(self, name="stub_attribute"):
+            """Initialise with a name."""
+            self.name = name
+
     @staticmethod
     def make_stub_dataset_class(
         dim_names=("time", "space"), var_names=("position",)
@@ -85,12 +93,30 @@ class TestBaseValidDataset:
 
         return StubDataset
 
-    class StubAttr:
-        """Stub for attrs.Attribute."""
+    @pytest.fixture
+    def valid_base_dataset(self):
+        """Return a minimal valid base dataset."""
+        return xr.Dataset(
+            data_vars={
+                "position": xr.DataArray(
+                    np.zeros((5, 2)), dims=("time", "space")
+                ),
+            },
+        )
 
-        def __init__(self, name="stub_attribute"):
-            """Initialise with a name."""
-            self.name = name
+    @pytest.fixture
+    def missing_var_dataset(self, valid_base_dataset):
+        """Return an invalid base dataset missing the required
+        position variable.
+        """
+        return valid_base_dataset.drop_vars("position")
+
+    @pytest.fixture
+    def missing_dim_dataset(self, valid_base_dataset):
+        """Return an invalid base dataset missing the required
+        time dimension.
+        """
+        return valid_base_dataset.rename({"time": "tame"})
 
     def test_required_fields_missing(self):
         """Test that TypeError is raised when required fields are missing."""
@@ -224,6 +250,33 @@ class TestBaseValidDataset:
         stub_dataset_class = self.make_stub_dataset_class()
         with expected_exception:
             stub_dataset_class._validate_list_uniqueness(self.StubAttr(), val)
+
+    @pytest.mark.parametrize(
+        "dataset_fixture, expected_exception",
+        [
+            (
+                "not_a_dataset",
+                pytest.raises(TypeError, match="Expected an xarray Dataset"),
+            ),
+            (
+                "missing_var_dataset",
+                pytest.raises(
+                    ValueError, match="Missing required data variables"
+                ),
+            ),
+            (
+                "missing_dim_dataset",
+                pytest.raises(ValueError, match="Missing required dimensions"),
+            ),
+        ],
+    )
+    def test_validate(self, dataset_fixture, expected_exception, request):
+        """Test the classmethod validate."""
+        stub_dataset_class = self.make_stub_dataset_class()
+        with expected_exception:
+            stub_dataset_class.validate(
+                request.getfixturevalue(dataset_fixture)
+            )
 
 
 class TestValidPosesDataset:
