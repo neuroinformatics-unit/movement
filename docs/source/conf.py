@@ -114,6 +114,8 @@ sphinx_gallery_conf = {
         "branch": "gh-pages",
         "binderhub_url": "https://mybinder.org",
         "dependencies": ["environment.yml"],
+        "filepath_prefix": doc_version,   # point to the versioned docs build folder inside the `gh-pages` branch
+        "notebooks_dir": "notebooks",     # default, but explicit is nice
     },
     "reference_url": {"movement": None},
     "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image
