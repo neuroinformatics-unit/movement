@@ -755,7 +755,7 @@ what we've done.
     [
       {
         "operation": "rolling_filter",
-        "datetime": "2025-11-27 15:25:00.693802",
+        "datetime": "2025-11-27 16:47:03.403938",
         "window": "3",
         "statistic": "'median'",
         "min_periods": "2",
@@ -763,14 +763,14 @@ what we've done.
       },
       {
         "operation": "interpolate_over_time",
-        "datetime": "2025-11-27 15:25:00.717407",
+        "datetime": "2025-11-27 16:47:03.427896",
         "method": "'linear'",
         "max_gap": "30",
         "print_report": "False"
       },
       {
         "operation": "savgol_filter",
-        "datetime": "2025-11-27 15:25:00.721333",
+        "datetime": "2025-11-27 16:47:03.431754",
         "window": "12",
         "polyorder": "2",
         "print_report": "False"
@@ -824,7 +824,7 @@ also look at other keypoints and time ranges.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.554 seconds)
+   **Total running time of the script:** (0 minutes 1.578 seconds)
 
 
 .. _sphx_glr_download_examples_smooth.py:
@@ -836,7 +836,7 @@ also look at other keypoints and time ranges.
     .. container:: binder-badge
 
       .. image:: images/binder_badge_logo.svg
-        :target: https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=notebooks/examples/smooth.ipynb
+        :target: https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=dev/notebooks/examples/smooth.ipynb
         :alt: Launch binder
         :width: 150 px
 
