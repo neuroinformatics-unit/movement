@@ -1,0 +1,9 @@
+from\_numpy
+===========
+
+.. currentmodule:: movement.io.load_poses
+
+.. autofunction:: from_numpy
+
+.. minigallery:: movement.io.load_poses.from_numpy
+   :add-heading: Examples using ``from_numpy``

@@ -1,0 +1,9 @@
+fetch\_dataset\_paths
+=====================
+
+.. currentmodule:: movement.sample_data
+
+.. autofunction:: fetch_dataset_paths
+
+.. minigallery:: movement.sample_data.fetch_dataset_paths
+   :add-heading: Examples using ``fetch_dataset_paths``

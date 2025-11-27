@@ -1,0 +1,9 @@
+﻿plot\_centroid\_trajectory
+==========================
+
+.. currentmodule:: movement.plots
+
+.. autofunction:: plot_centroid_trajectory
+
+.. minigallery:: movement.plots.plot_centroid_trajectory
+   :add-heading: Examples using ``plot_centroid_trajectory``

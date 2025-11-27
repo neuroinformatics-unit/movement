@@ -1,0 +1,9 @@
+from\_file
+==========
+
+.. currentmodule:: movement.io.load_poses
+
+.. autofunction:: from_file
+
+.. minigallery:: movement.io.load_poses.from_file
+   :add-heading: Examples using ``from_file``

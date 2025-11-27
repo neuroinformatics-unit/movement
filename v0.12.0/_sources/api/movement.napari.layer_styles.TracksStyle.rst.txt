@@ -1,0 +1,41 @@
+TracksStyle
+===========
+
+.. currentmodule:: movement.napari.layer_styles
+
+.. autoclass:: TracksStyle
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+      ~TracksStyle.as_kwargs
+   
+   
+      ~TracksStyle.set_color_by
+   
+   
+   
+
+.. minigallery:: movement.napari.layer_styles.TracksStyle
+   :add-heading: Examples using ``TracksStyle``
