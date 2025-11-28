@@ -51,7 +51,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](http
     First, create and activate a `conda` environment:
 
     ```sh
-    conda create -n movement-dev -c conda-forge python=3.13
+    conda create -n movement-dev -c conda-forge python=3.14
     conda activate movement-dev
     ```
 
@@ -67,7 +67,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](http
     First, create and activate a [virtual environment](uv:pip/environments/):
 
     ```sh
-    uv venv --python=3.13
+    uv venv --python=3.14
     source .venv/bin/activate  # On macOS and Linux
     .venv\Scripts\activate     # On Windows PowerShell
     ```
