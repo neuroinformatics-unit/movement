@@ -356,9 +356,18 @@ def from_lp_file(
     >>> ds = load_poses.from_lp_file("path/to/file.csv", fps=30)
 
     """
-    return _ds_from_lp_or_dlc_file(
+    ds = _ds_from_lp_or_dlc_file(
         file_path=file_path, source_software="LightningPose", fps=fps
     )
+    n_individuals = ds.sizes.get("individuals", 1)
+    if n_individuals > 1:
+        raise logger.error(
+            ValueError(
+                "LightningPose only supports single-individual datasets, "
+                f"but the loaded dataset has {n_individuals} individuals."
+            )
+        )
+    return ds
 
 
 def from_dlc_file(

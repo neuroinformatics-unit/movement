@@ -200,7 +200,7 @@ def test_load_multi_individual_from_lp_file_raises():
     `from_lp_file` function raises a ValueError.
     """
     file_path = DATA_PATHS.get("DLC_two-mice.predictions.csv")
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="only supports single-individual"):
         load_poses.from_lp_file(file_path)
 
 
