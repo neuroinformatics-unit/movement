@@ -52,8 +52,6 @@ class _BaseValidDataset:
     It registers the attrs validators for required fields like
     ``position_array`` and optional fields like ``confidence_array`` and
     ``individual_names``.
-    Dataset-specific checks are delegated to subclasses via subclass hooks
-    (with suffix ``_impl``).
     Subclasses must also define class variables
     ``DIM_NAMES``, ``VAR_NAMES``, and ``_ALLOWED_SPACE_DIM_SIZE``.
     """
@@ -148,8 +146,6 @@ class _BaseValidDataset:
                     f"spatial dimensions, but got {space_dim_size}."
                 )
             )
-        # Delegate further validation to subclass
-        self._validate_position_array_impl(attribute, value)
 
     @confidence_array.validator
     def _validate_confidence_array(self, attribute, value):
@@ -171,12 +167,6 @@ class _BaseValidDataset:
                 self.position_array.shape[individuals_dim_index],
             )
             self._validate_list_uniqueness(attribute, value)
-
-    # --- Subclass validation hooks (optional overrides) ---
-    def _validate_position_array_impl(
-        self, _attribute: attrs.Attribute, _value: np.ndarray
-    ):
-        """Perform dataset-specific validation of position_array."""
 
     # --- Utility methods ---
     @staticmethod
@@ -241,7 +231,6 @@ class _BaseValidDataset:
             raise logger.error(
                 TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
             )
-
         missing_vars = set(cls.VAR_NAMES) - set(ds.data_vars)
         if missing_vars:
             raise logger.error(
@@ -249,7 +238,6 @@ class _BaseValidDataset:
                     f"Missing required data variables: {sorted(missing_vars)}"
                 )
             )  # sort for a reproducible error message
-
         missing_dims = set(cls.DIM_NAMES) - set(ds.dims)
         if missing_dims:
             raise logger.error(
@@ -330,19 +318,6 @@ class ValidPosesDataset(_BaseValidDataset):
             attribute, value, self.position_array.shape[keypoints_dim_index]
         )
         self._validate_list_uniqueness(attribute, value)
-
-    def _validate_position_array_impl(
-        self, attribute: attrs.Attribute, value: np.ndarray
-    ):
-        """Ensure LightningPose single-individual constraint."""
-        ind_dim_size = value.shape[self.DIM_NAMES.index("individuals")]
-        if self.source_software == "LightningPose" and ind_dim_size != 1:
-            raise logger.error(
-                ValueError(
-                    "LightningPose only supports single-individual datasets, "
-                    f"but '{attribute.name}' has {ind_dim_size} individuals."
-                )
-            )
 
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
