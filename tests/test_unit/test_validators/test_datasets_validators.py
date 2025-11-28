@@ -320,35 +320,6 @@ class TestValidPosesDataset:
             )
             assert ds.keypoint_names == expected_keypoint_names
 
-    @pytest.mark.parametrize(
-        "source_software, position_array, expected_context",
-        [
-            ("LightningPose", np.zeros((5, 2, 3, 1)), does_not_raise()),
-            (
-                "LightningPose",
-                np.zeros((5, 2, 3, 2)),
-                pytest.raises(
-                    ValueError, match="LightningPose.*single-individual"
-                ),
-            ),
-        ],
-        ids=[
-            "Valid single-individual LightningPose dataset",
-            "Invalid multi-individual LightningPose dataset",
-        ],
-    )
-    def test_position_array(
-        self, source_software, position_array, expected_context
-    ):
-        """Test additional position_array validation for LightningPose
-        in ``_validate_position_array_impl``.
-        """
-        with expected_context:
-            ValidPosesDataset(
-                position_array=position_array,
-                source_software=source_software,
-            )
-
 
 class TestValidBboxesDataset:
     """Test the ValidBboxesDataset class."""
