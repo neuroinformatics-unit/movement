@@ -125,7 +125,7 @@ the dimension of length 1 from the data (the ``individuals`` dimension).
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7ff4bc817620>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f53203a07a0>
 
 
 
@@ -211,7 +211,7 @@ they evolve over time.
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7ff4bc8c9430>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f53214a2b40>
 
 
 
@@ -298,7 +298,7 @@ We can see that the filtering operation has introduced NaN values in the
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7ff4bd9fa1e0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f53214a3800>
 
 
 
@@ -385,7 +385,7 @@ Let's visualise the interpolated pose tracks.
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7ff4b49ab980>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f53184aa7b0>
 
 
 
@@ -431,14 +431,14 @@ applied to the data. Let's inspect the log:
     [
       {
         "operation": "filter_by_confidence",
-        "datetime": "2025-12-01 17:07:16.439973",
+        "datetime": "2025-12-01 17:28:15.769737",
         "confidence": "<xarray.DataArray 'confidence' (time: 1085, keypoints: 2, individuals: 1)> Size: 17kB\n0.05305 0.07366 0.03532 0.03293 0.01707 0.01022 ... 0.0 0.0 0.0 0.0 0.0 0.0\nCoordinates:\n  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1\n  * keypoints    (keypoints) <U7 56B 'head' 'stinger'\n  * individuals  (individuals) <U12 48B 'individual_0'",
         "threshold": "0.6",
         "print_report": "True"
       },
       {
         "operation": "interpolate_over_time",
-        "datetime": "2025-12-01 17:07:17.486600",
+        "datetime": "2025-12-01 17:28:16.825802",
         "method": "'linear'",
         "max_gap": "40",
         "print_report": "True"
@@ -519,7 +519,7 @@ with the filtered data variables.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.825 seconds)
+   **Total running time of the script:** (0 minutes 1.836 seconds)
 
 
 .. _sphx_glr_download_examples_filter_and_interpolate.py:
