@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=75c94609"></script>
+    <script src="../_static/documentation_options.js?v=4231cc63"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -137,7 +137,7 @@
     <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev1</p>
+    <p class="title logo__title">movement v0.12.1.dev2</p>
   
 </a></div>
     
@@ -506,7 +506,7 @@ because we’ve found the concept hard to convey to new users. All functions are
 </pre></div>
 </div>
 </li>
-<li><p>We have slightly modified the <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">structure of movement datasets</span></a>, by changing the order of dimensions. This should have no effect when indexing data by dimension names, i.e. using the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.sel.html#xarray.Dataset.sel" title="(in xarray v2025.10.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.sel()</span></code></a> or <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.isel.html#xarray.Dataset.isel" title="(in xarray v2025.10.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.isel()</span></code></a> methods. However, you may need to update your code if you are using Numpy-style indexing, for example:</p>
+<li><p>We have slightly modified the <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">structure of movement datasets</span></a>, by changing the order of dimensions. This should have no effect when indexing data by dimension names, i.e. using the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.sel.html#xarray.Dataset.sel" title="(in xarray v2025.11.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.sel()</span></code></a> or <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.isel.html#xarray.Dataset.isel" title="(in xarray v2025.11.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.isel()</span></code></a> methods. However, you may need to update your code if you are using Numpy-style indexing, for example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Indexing with dimension names (recommended, works always)</span>
 <span class="n">position</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
     <span class="n">individuals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keypoints</span><span class="o">=-</span><span class="mi">1</span>     <span class="c1"># first individual, last keypoint</span>
@@ -633,7 +633,7 @@ to stay updated.</p>
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
     <br/>
     </p>
     <p class="theme-version">
