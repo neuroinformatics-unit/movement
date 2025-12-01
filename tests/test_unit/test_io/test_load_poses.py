@@ -8,11 +8,11 @@ import xarray as xr
 from pytest import DATA_PATHS
 
 from movement.io import load_poses
-from movement.validators.datasets import ValidPosesDataset
+from movement.validators.datasets import PosesValidator
 
 expected_values_poses = {
     "vars_dims": {"position": 4, "confidence": 3},
-    "dim_names": ValidPosesDataset.DIM_NAMES,
+    "dim_names": PosesValidator.DIM_NAMES,
 }
 
 

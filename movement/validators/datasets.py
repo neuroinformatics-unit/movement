@@ -44,7 +44,7 @@ def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
 
 
 @define(kw_only=True)
-class _BaseValidDataset:
+class _BaseDatasetValidator:
     """Base class for ``movement`` dataset validators.
 
     This base class centralises shared fields, validators, and default
@@ -248,7 +248,7 @@ class _BaseValidDataset:
 
 
 @define(kw_only=True)
-class ValidPosesDataset(_BaseValidDataset):
+class PosesValidator(_BaseDatasetValidator):
     """Class for validating poses data intended for a ``movement`` dataset.
 
     The validator ensures that within the ``movement poses`` dataset:
@@ -336,7 +336,7 @@ class ValidPosesDataset(_BaseValidDataset):
 
 
 @define(kw_only=True)
-class ValidBboxesDataset(_BaseValidDataset):
+class BboxesValidator(_BaseDatasetValidator):
     """Class for validating bounding boxes data for a ``movement`` dataset.
 
     The validator considers 2D bounding boxes only. It ensures that
