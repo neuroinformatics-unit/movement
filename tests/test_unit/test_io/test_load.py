@@ -1,4 +1,6 @@
 import pytest
+import xarray as xr
+from pytest import DATA_PATHS
 
 from movement.io import load
 
@@ -35,3 +37,20 @@ def test_from_file_delegates_correctly(
         mock_loader.assert_called_with(*expected_call_args)
         if source_software == "NWB" and fps is not None:
             assert "fps argument is ignored" in caplog.messages[0]
+
+
+def test_from_multiview_files():
+    """Test loading pose tracks from multiple files (representing
+    different views).
+    """
+    view_names = ["view_0", "view_1"]
+    file_path_dict = {
+        view: DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+        for view in view_names
+    }
+    multi_view_ds = load.from_multiview_files(
+        file_path_dict, source_software="DeepLabCut"
+    )
+    assert isinstance(multi_view_ds, xr.Dataset)
+    assert "view" in multi_view_ds.dims
+    assert multi_view_ds.view.values.tolist() == view_names
