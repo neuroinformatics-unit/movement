@@ -100,3 +100,50 @@ def from_file(
             )
         return _REGISTRY[source_software](file_path, **kwargs)
     return _REGISTRY[source_software](file_path, fps, **kwargs)
+
+
+def from_multiview_files(
+    file_path_dict: dict[str, Path | str],
+    source_software: Literal[
+        "DeepLabCut", "SLEAP", "LightningPose", "Anipose", "NWB", "VIA-tracks"
+    ],
+    fps: float | None = None,
+    **kwargs,
+) -> xr.Dataset:
+    """Load and merge pose tracking data from multiple views (cameras).
+
+    Parameters
+    ----------
+    file_path_dict : dict[str, Union[Path, str]]
+        A dict whose keys are the view names and values are the paths to load.
+    source_software : {"DeepLabCut", "SLEAP", "LightningPose", "Anipose", \
+        "NWB", "VIA-tracks"}
+        The source software of the file.
+    fps : float, optional
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame numbers.
+    **kwargs : dict, optional
+        Additional keyword arguments to pass to the software-specific
+        loading functions that are listed under "See Also".
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata, with an additional ``views`` dimension.
+
+    """
+    views_list = list(file_path_dict.keys())
+    new_coord_views = xr.DataArray(views_list, dims="view")
+    if source_software == "NWB" and fps is not None:
+        logger.warning(
+            "The fps argument is ignored when loading from an NWB file. "
+            "The frame rate will be directly read or estimated from "
+            "metadata in the file."
+        )
+        fps = None
+    dataset_list = [
+        from_file(f, source_software=source_software, fps=fps, **kwargs)
+        for f in file_path_dict.values()
+    ]
+    return xr.concat(dataset_list, dim=new_coord_views)
