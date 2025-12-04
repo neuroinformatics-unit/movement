@@ -110,7 +110,7 @@ def from_multiview_files(
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
-    """Load and merge pose tracking data from multiple views (cameras).
+    """Load and merge data from multiple files representing different views.
 
     Parameters
     ----------
@@ -122,6 +122,9 @@ def from_multiview_files(
     fps : float, optional
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
+        This argument is ignored when ``source_software`` is "NWB", as the
+        frame rate will be directly read or estimated from metadata in
+        the NWB file.
     **kwargs : dict, optional
         Additional keyword arguments to pass to the software-specific
         loading functions that are listed under "See Also".
@@ -129,8 +132,17 @@ def from_multiview_files(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
-        and associated metadata, with an additional ``views`` dimension.
+        ``movement`` dataset containing data concatenated along a new
+        ``view`` dimension.
+
+    Notes
+    -----
+    The attributes of the resulting dataset will be taken from the first
+    dataset specified in ``file_path_dict``.
+
+    See Also
+    --------
+    xarray.concat
 
     """
     views_list = list(file_path_dict.keys())
