@@ -190,10 +190,11 @@ html_js_files = [
 html_favicon = "_static/light-logo-niu.png"
 
 # The linkcheck builder will skip verifying that anchors exist when checking
-# these URLs
+# these URLs (because they are generated dynamically)
 linkcheck_anchors_ignore_for_url = [
     "https://gin.g-node.org/G-Node/Info/wiki/",
     "https://neuroinformatics.zulipchat.com/",
+    "https://github.com/neuroinformatics-unit/movement",
     "https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py",
 ]
 # A list of regular expressions that match URIs that should not be checked
@@ -211,7 +212,7 @@ myst_url_schemes = {
     "https": None,
     "ftp": None,
     "mailto": None,
-    "movement-github": "https://github.com/neuroinformatics-unit/movement/{{path}}",
+    "movement-github": "https://github.com/neuroinformatics-unit/movement/{{path}}#{{fragment}}",
     "movement-zulip": "https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement",
     "movement-community-calls": "https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Community.20Calls",
     "conda": "https://docs.conda.io/projects/conda/en/latest/{{path}}#{{fragment}}",
