@@ -39,17 +39,24 @@ def test_from_file_delegates_correctly(
             assert "fps argument is ignored" in caplog.messages[0]
 
 
-def test_from_multiview_files():
-    """Test loading pose tracks from multiple files (representing
+@pytest.mark.parametrize(
+    "dataset_name, source_software",
+    [
+        ("DLC_single-wasp.predictions.h5", "DeepLabCut"),
+        ("VIA_multiple-crabs_5-frames_labels.csv", "VIA-tracks"),
+    ],
+    ids=["Poses", "Bboxes"],
+)
+def test_from_multiview_files(dataset_name, source_software):
+    """Test loading data from multiple files (representing
     different views).
     """
     view_names = ["view_0", "view_1"]
     file_path_dict = {
-        view: DATA_PATHS.get("DLC_single-wasp.predictions.h5")
-        for view in view_names
+        view: DATA_PATHS.get(dataset_name) for view in view_names
     }
     multi_view_ds = load.from_multiview_files(
-        file_path_dict, source_software="DeepLabCut"
+        file_path_dict, source_software=source_software
     )
     assert isinstance(multi_view_ds, xr.Dataset)
     assert "view" in multi_view_ds.dims
