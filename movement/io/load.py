@@ -138,22 +138,12 @@ def from_multiview_files(
     Notes
     -----
     The attributes of the resulting dataset will be taken from the first
-    dataset specified in ``file_path_dict``.
-
-    See Also
-    --------
-    xarray.concat
+    dataset specified in ``file_path_dict``. This is the default
+    behaviour of :func:`xarray.concat` used under the hood.
 
     """
     views_list = list(file_path_dict.keys())
     new_coord_views = xr.DataArray(views_list, dims="view")
-    if source_software == "NWB" and fps is not None:
-        logger.warning(
-            "The fps argument is ignored when loading from an NWB file. "
-            "The frame rate will be directly read or estimated from "
-            "metadata in the file."
-        )
-        fps = None
     dataset_list = [
         from_file(f, source_software=source_software, fps=fps, **kwargs)
         for f in file_path_dict.values()
