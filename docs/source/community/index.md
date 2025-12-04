@@ -9,9 +9,11 @@ developing a new feature, or improving the documentation—as long as you follow
 To help you get started, we have prepared a statement on the project's [mission and scope](target-mission),
 a [roadmap](target-roadmaps) outlining our current priorities, and a detailed [contributing guide](target-contributing).
 
-(target-get-in-touch)=
-```{include} ../snippets/get-in-touch.md
+(target-connect-with-us)=
+## Connect with us
+```{include} ../snippets/connect-with-us.md
 ```
+
 
 ```{toctree}
 :maxdepth: 2
