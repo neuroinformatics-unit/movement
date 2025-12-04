@@ -60,12 +60,12 @@ Find out more on our [mission and scope](https://movement.neuroinformatics.dev/l
 
 ## Join the movement
 
-Contributions to movement are absolutely encouraged, whether to fix a bug, develop a new feature, or improve the documentation.
-To help you get started, we have prepared a detailed [contributing guide](https://movement.neuroinformatics.dev/latest/community/contributing.html).
+`movement` is made possible by the generous contributions of many [people](https://movement.neuroinformatics.dev/latest/community/people.html).
 
-- [Chat with the team on Zulip](https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement).
-- [Open an issue](https://github.com/neuroinformatics-unit/movement/issues) to report a bug or request a new feature.
-- [Follow this Zulip topic](https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Community.20Calls) to receive updates about upcoming Community Calls. These typically run every other Friday from 11:00 to 11:45 (London, U.K. time).
+We welcome and encourage contributions in any form—whether it is fixing a bug, developing a new feature, or improving the documentation—as long as you follow our [code-of-conduct](https://github.com/neuroinformatics-unit/movement#coc-ov-file).
+
+Go to our [community page](https://movement.neuroinformatics.dev/latest/community/index.html) to find out how to connect with us and get involved.
+
 
 ## Citation
 
