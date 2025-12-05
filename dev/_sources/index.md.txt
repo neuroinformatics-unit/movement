@@ -24,7 +24,7 @@ A gallery of examples using `movement`.
 :link: community/index
 :link-type: doc
 
-How to get in touch and contribute.
+How to connect with us and contribute.
 :::
 ::::
 
