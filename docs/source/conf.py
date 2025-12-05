@@ -119,7 +119,7 @@ sphinx_gallery_conf = {
         "repo": "movement",
         "branch": binder_branch,  # Can be any branch, tag, or commit hash
         "binderhub_url": "https://mybinder.org",
-        "dependencies": ["../../.binder/requirements.txt", "../../.binder/runtime.txt"],
+        "dependencies": ["../../.binder/requirements.txt"],
     },
     "reference_url": {"movement": None},
     "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image
