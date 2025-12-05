@@ -8,8 +8,6 @@
 
 set -euo pipefail.       # fail immediately on errors and undefined vars
 
-python -m pip install .  # install movement from current checkout
-
 # Safety check: exit if not running inside a docker container.
 if [[ -z "${REPO_DIR}" ]]; then
     echo "This script was written for repo2docker and the REPO_DIR environment variable is supposed to be set."
