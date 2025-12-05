@@ -11,9 +11,9 @@ set -euo pipefail.       # fail immediately on errors and undefined vars
 python -m pip install .  # install movement from current checkout
 
 # Safety check: exit if not running inside a docker container.
-if [[ ! -f /.dockerenv ]]; then
-    echo "This script was written for repo2docker and is supposed to run inside a docker container."
-    echo "Exiting because this script can delete data if run outside of a docker container."
+if [[ -z "${REPO_DIR}" ]]; then
+    echo "This script was written for repo2docker and the REPO_DIR environment variable is supposed to be set."
+    echo "Exiting because this script can delete data if run outside of a repo2docker context."
     exit 1
 fi
 
@@ -22,7 +22,7 @@ TMP_DIR=$(mktemp -d /tmp/movement-XXXXXX)
 cp -r examples "$TMP_DIR/"
 STAGED_EXAMPLES_DIR="$TMP_DIR/examples"
 # Recursively convert all python scripts to notebooks
-find "$STAGED_EXAMPLES_DIR" -name '*.py' -exec sphx_glr_python_to_jupyter.py '{}' +
+find "$STAGED_EXAMPLES_DIR" -name '*.py' -exec sphinx_gallery_py2jupyter '{}' +
 # Remove all non-notebook files
 find "$STAGED_EXAMPLES_DIR" -type f ! -name '*.ipynb' -delete
 
