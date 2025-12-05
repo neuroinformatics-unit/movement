@@ -117,9 +117,9 @@ sphinx_gallery_conf = {
     "binder": {
         "org": "neuroinformatics-unit",
         "repo": "movement",
-        "branch": binder_branch,
+        "branch": binder_branch,  # Can be any branch, tag, or commit hash
         "binderhub_url": "https://mybinder.org",
-        "dependencies": ["binder/environment.yml"],
+        "dependencies": ["../../.binder/requirements.txt", "../../.binder/runtime.txt"],
     },
     "reference_url": {"movement": None},
     "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image
