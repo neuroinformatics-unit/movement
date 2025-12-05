@@ -62,7 +62,7 @@ Find out more on our [mission and scope](https://movement.neuroinformatics.dev/l
 
 `movement` is made possible by the generous contributions of many [people](https://movement.neuroinformatics.dev/latest/community/people.html).
 
-We welcome and encourage contributions in any form—whether it is fixing a bug, developing a new feature, or improving the documentation—as long as you follow our [code-of-conduct](https://github.com/neuroinformatics-unit/movement#coc-ov-file).
+We welcome and encourage contributions in any form—whether it is fixing a bug, developing a new feature, or improving the documentation—as long as you follow our [code of conduct](CODE_OF_CONDUCT.md).
 
 Go to our [community page](https://movement.neuroinformatics.dev/latest/community/index.html) to find out how to connect with us and get involved.
 

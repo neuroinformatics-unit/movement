@@ -4,7 +4,7 @@
 
 We welcome and encourage contributions in any form—whether it is fixing a bug,
 developing a new feature, or improving the documentation—as long as you follow our
-[code-of-conduct](movement-github:#coc-ov-file).
+[code of conduct](target-code-of-conduct).
 
 To help you get started, we have prepared a statement on the project's [mission and scope](target-mission),
 a [roadmap](target-roadmaps) outlining our current priorities, and a detailed [contributing guide](target-contributing).
@@ -24,5 +24,6 @@ mission-scope
 roadmaps
 contributing
 related-projects
+code-of-conduct
 license
 ```
