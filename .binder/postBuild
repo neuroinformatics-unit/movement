@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# This script is called in a binder context. When this script is called, we are
+# inside a git checkout of the neuroinformatics-unit/movement repo. This script
+# generates notebooks from the movement python examples.
+# The script was adapted from https://github.com/scikit-image/scikit-image/blob/v0.25.2/.binder/postBuild
+# which was in turn adapted from the scikit-learn project under BSD3 license, copyright the scikit-learn contributors
+
+set -euo pipefail.       # fail immediately on errors and undefined vars
+
+python -m pip install .  # install movement from current checkout
+
+# Safety check: exit if not running inside a docker container.
+if [[ ! -f /.dockerenv ]]; then
+    echo "This script was written for repo2docker and is supposed to run inside a docker container."
+    echo "Exiting because this script can delete data if run outside of a docker container."
+    exit 1
+fi
+
+# Stage the examples in a temporary directory
+TMP_DIR=$(mktemp -d /tmp/movement-XXXXXX)
+cp -r examples "$TMP_DIR/"
+STAGED_EXAMPLES_DIR="$TMP_DIR/examples"
+# Recursively convert all python scripts to notebooks
+find "$STAGED_EXAMPLES_DIR" -name '*.py' -exec sphx_glr_python_to_jupyter.py '{}' +
+# Remove all non-notebook files
+find "$STAGED_EXAMPLES_DIR" -type f ! -name '*.ipynb' -delete
+
+# Remove everything except the existing .binder folder to present a clean workspace
+# (the .binder folder is kept for debugging purposes)
+find . -mindepth 1 -maxdepth 1 ! -name '.binder' -exec rm -rf {} +
+
+# Move the generated notebooks where sphinx-gallery expects them by default
+mkdir -p notebooks
+mv "$STAGED_EXAMPLES_DIR" notebooks/
+
+# Clean up temporary directory
+rm -rf "$TMP_DIR"

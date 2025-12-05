@@ -1,0 +1,2 @@
+# Packages required for running the examples that are not core dependencies of movement
+networkx
