@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=89b85cae"></script>
+    <script src="../../../_static/documentation_options.js?v=be40d6c4"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev5</p>
+    <p class="title logo__title">movement v0.12.1.dev6</p>
   
 </a></div>
     
@@ -703,6 +703,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    path : pathlib.Path</span>
 <span class="sd">        Path to the .csv file.</span>
+<span class="sd">    level_names : list of str</span>
+<span class="sd">        Names of the index column levels found in the .csv file.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -713,32 +715,30 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">Path</span><span class="p">))</span>
+    <span class="n">level_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
 
     <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_expected_levels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the .csv file contains the expected index column levels.</span>
 
-<span class="sd">        These are to be found among the top 4 rows of the file.</span>
+<span class="sd">        These are to be found in the first column of the first four rows.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">expected_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scorer&quot;</span><span class="p">,</span> <span class="s2">&quot;bodyparts&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
-
+        <span class="n">expected_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scorer&quot;</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;bodyparts&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">top4_row_starts</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
-
-            <span class="k">if</span> <span class="n">top4_row_starts</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
+            <span class="n">level_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">level_names</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
                 <span class="c1"># if 4th row starts with a digit, assume single-animal DLC file</span>
-                <span class="n">expected_levels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">top4_row_starts</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># otherwise, assume multi-animal DLC file</span>
-                <span class="n">expected_levels</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">top4_row_starts</span> <span class="o">!=</span> <span class="n">expected_levels</span><span class="p">:</span>
+                <span class="c1"># and compare only first 3 rows, removing &#39;individuals&#39; level</span>
+                <span class="n">expected_levels</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="s2">&quot;individuals&quot;</span><span class="p">)</span>
+                <span class="n">level_names</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">level_names</span> <span class="o">!=</span> <span class="n">expected_levels</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                     <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="s2">&quot;.csv header rows do not match the known format for &quot;</span>
                         <span class="s2">&quot;DeepLabCut pose estimation output files.&quot;</span>
                     <span class="p">)</span>
-                <span class="p">)</span></div>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">level_names</span> <span class="o">=</span> <span class="n">level_names</span></div>
 
 
 

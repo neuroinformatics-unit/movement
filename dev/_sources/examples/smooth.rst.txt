@@ -11,7 +11,7 @@
         :class: sphx-glr-download-link-note
 
         :ref:`Go to the end <sphx_glr_download_examples_smooth.py>`
-        to download the full example code. or to run this example in your browser via Binder
+        to download the full example code or to run this example in your browser via Binder.
 
 .. rst-class:: sphx-glr-example-title
 
@@ -755,7 +755,7 @@ what we've done.
     [
       {
         "operation": "rolling_filter",
-        "datetime": "2025-12-01 22:35:32.001761",
+        "datetime": "2025-12-05 10:00:28.419649",
         "window": "3",
         "statistic": "'median'",
         "min_periods": "2",
@@ -763,14 +763,14 @@ what we've done.
       },
       {
         "operation": "interpolate_over_time",
-        "datetime": "2025-12-01 22:35:32.028435",
+        "datetime": "2025-12-05 10:00:28.443319",
         "method": "'linear'",
         "max_gap": "30",
         "print_report": "False"
       },
       {
         "operation": "savgol_filter",
-        "datetime": "2025-12-01 22:35:32.033263",
+        "datetime": "2025-12-05 10:00:28.447268",
         "window": "12",
         "polyorder": "2",
         "print_report": "False"
@@ -824,7 +824,7 @@ also look at other keypoints and time ranges.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.643 seconds)
+   **Total running time of the script:** (0 minutes 1.554 seconds)
 
 
 .. _sphx_glr_download_examples_smooth.py:

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=89b85cae"></script>
+    <script src="../../../_static/documentation_options.js?v=be40d6c4"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev5</p>
+    <p class="title logo__title">movement v0.12.1.dev6</p>
   
 </a></div>
     
@@ -1142,29 +1142,17 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">file</span> <span class="o">=</span> <span class="n">ValidDeepLabCutCSV</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
-    <span class="n">possible_level_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scorer&quot;</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;bodyparts&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="c1"># if line starts with a possible level name, split it into a list</span>
-        <span class="c1"># of strings, and add it to the list of header lines</span>
-        <span class="n">header_lines</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">possible_level_names</span>
-        <span class="p">]</span>
-    <span class="c1"># Form multi-index column names from the header lines</span>
-    <span class="n">level_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">header_lines</span><span class="p">]</span>
-    <span class="n">column_tuples</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-        <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">header_lines</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span><span class="n">column_tuples</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">level_names</span><span class="p">)</span>
-    <span class="c1"># Import the DeepLabCut poses as a DataFrame</span>
+    <span class="c1"># Deliberately avoid using pd.read_csv with index_col=0 here</span>
+    <span class="c1"># and instead set the index after reading the CSV,</span>
+    <span class="c1"># as in cases where the first data row is empty (e.g. &quot;0,,,,,&quot;),</span>
+    <span class="c1"># pandas will misinterpret that value as the index name instead of a row.</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
         <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
-        <span class="n">skiprows</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">header_lines</span><span class="p">),</span>
-        <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">names</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">columns</span><span class="p">),</span>
+        <span class="n">header</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">level_names</span><span class="p">))),</span>
     <span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">level_names</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_tuples</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">file</span><span class="o">.</span><span class="n">level_names</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
     <span class="k">return</span> <span class="n">df</span>
 
 

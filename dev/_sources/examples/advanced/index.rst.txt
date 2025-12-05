@@ -27,7 +27,7 @@ full power of ``movement``.
   .. image:: /examples/advanced/images/thumb/sphx_glr_broadcasting_your_own_methods_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_advanced_broadcasting_your_own_methods.py`
+  :doc:`/examples/advanced/broadcasting_your_own_methods`
 
 .. raw:: html
 

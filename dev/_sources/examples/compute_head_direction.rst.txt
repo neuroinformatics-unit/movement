@@ -11,7 +11,7 @@
         :class: sphx-glr-download-link-note
 
         :ref:`Go to the end <sphx_glr_download_examples_compute_head_direction.py>`
-        to download the full example code. or to run this example in your browser via Binder
+        to download the full example code or to run this example in your browser via Binder.
 
 .. rst-class:: sphx-glr-example-title
 
@@ -316,7 +316,7 @@ We will do this for a small time window to make the plot more readable.
  .. code-block:: none
 
 
-    <matplotlib.legend.Legend object at 0x7fcf54111f70>
+    <matplotlib.legend.Legend object at 0x7f7708867110>
 
 
 
@@ -694,7 +694,7 @@ differ less than 20 degrees (2 histogram bins).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.868 seconds)
+   **Total running time of the script:** (0 minutes 0.817 seconds)
 
 
 .. _sphx_glr_download_examples_compute_head_direction.py:

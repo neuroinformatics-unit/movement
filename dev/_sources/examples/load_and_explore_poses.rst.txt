@@ -11,7 +11,7 @@
         :class: sphx-glr-download-link-note
 
         :ref:`Go to the end <sphx_glr_download_examples_load_and_explore_poses.py>`
-        to download the full example code. or to run this example in your browser via Binder
+        to download the full example code or to run this example in your browser via Binder.
 
 .. rst-class:: sphx-glr-example-title
 
@@ -215,7 +215,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fcf584792b0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f7711fe4740>
 
 
 
@@ -246,7 +246,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fcf585563c0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f7710dbd640>
 
 
 
@@ -282,7 +282,7 @@ visualisations, like :func:`plot_centroid_trajectory()\
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.738 seconds)
+   **Total running time of the script:** (0 minutes 0.706 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_explore_poses.py:

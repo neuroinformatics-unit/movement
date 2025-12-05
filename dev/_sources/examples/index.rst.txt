@@ -25,7 +25,7 @@ of ``movement``.
   .. image:: /examples/images/thumb/sphx_glr_load_and_explore_poses_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_load_and_explore_poses.py`
+  :doc:`/examples/load_and_explore_poses`
 
 .. raw:: html
 
@@ -42,7 +42,7 @@ of ``movement``.
   .. image:: /examples/images/thumb/sphx_glr_filter_and_interpolate_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_filter_and_interpolate.py`
+  :doc:`/examples/filter_and_interpolate`
 
 .. raw:: html
 
@@ -59,7 +59,7 @@ of ``movement``.
   .. image:: /examples/images/thumb/sphx_glr_convert_file_formats_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_convert_file_formats.py`
+  :doc:`/examples/convert_file_formats`
 
 .. raw:: html
 
@@ -76,7 +76,7 @@ of ``movement``.
   .. image:: /examples/images/thumb/sphx_glr_smooth_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_smooth.py`
+  :doc:`/examples/smooth`
 
 .. raw:: html
 
@@ -93,7 +93,7 @@ of ``movement``.
   .. image:: /examples/images/thumb/sphx_glr_mouse_eye_movements_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_mouse_eye_movements.py`
+  :doc:`/examples/mouse_eye_movements`
 
 .. raw:: html
 
@@ -110,7 +110,7 @@ of ``movement``.
   .. image:: /examples/images/thumb/sphx_glr_compute_head_direction_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_compute_head_direction.py`
+  :doc:`/examples/compute_head_direction`
 
 .. raw:: html
 
@@ -127,7 +127,7 @@ of ``movement``.
   .. image:: /examples/images/thumb/sphx_glr_boundary_angles_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_boundary_angles.py`
+  :doc:`/examples/boundary_angles`
 
 .. raw:: html
 
@@ -144,7 +144,7 @@ of ``movement``.
   .. image:: /examples/images/thumb/sphx_glr_compute_kinematics_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_compute_kinematics.py`
+  :doc:`/examples/compute_kinematics`
 
 .. raw:: html
 
@@ -161,7 +161,7 @@ of ``movement``.
   .. image:: /examples/images/thumb/sphx_glr_load_and_upsample_bboxes_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_load_and_upsample_bboxes.py`
+  :doc:`/examples/load_and_upsample_bboxes`
 
 .. raw:: html
 
@@ -178,7 +178,7 @@ of ``movement``.
   .. image:: /examples/images/thumb/sphx_glr_load_freemocap_data_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_load_freemocap_data.py`
+  :doc:`/examples/load_freemocap_data`
 
 .. raw:: html
 
@@ -232,7 +232,7 @@ full power of ``movement``.
   .. image:: /examples/advanced/images/thumb/sphx_glr_broadcasting_your_own_methods_thumb.png
     :alt:
 
-  :ref:`sphx_glr_examples_advanced_broadcasting_your_own_methods.py`
+  :doc:`/examples/advanced/broadcasting_your_own_methods`
 
 .. raw:: html
 
