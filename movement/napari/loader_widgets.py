@@ -4,10 +4,11 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 from napari.components.dims import RangeTuple
 from napari.layers import Image, Points, Shapes, Tracks
 from napari.settings import get_settings
-from napari.utils.notifications import show_warning
+from napari.utils.notifications import show_error, show_warning
 from napari.viewer import Viewer
 from qtpy.QtWidgets import (
     QComboBox,
@@ -24,6 +25,11 @@ from movement.io import load_bboxes, load_poses
 from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.utils.logging import logger
+from movement.validators.datasets import (
+    ValidBboxesDataset,
+    ValidPosesDataset,
+    _validate_dataset,
+)
 
 # Allowed file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
@@ -36,9 +42,14 @@ SUPPORTED_BBOXES_FILES = {
     "VIA-tracks": ["csv"],
 }
 
+SUPPORTED_NETCDF_FILES = {
+    "movement (netCDF)": ["nc"],
+}
+
 SUPPORTED_DATA_FILES = {
     **SUPPORTED_POSES_FILES,
     **SUPPORTED_BBOXES_FILES,
+    **SUPPORTED_NETCDF_FILES,
 }
 
 
@@ -62,8 +73,6 @@ class DataLoader(QWidget):
             getattr(self.viewer.layers.events, action_str).connect(
                 self._update_frame_slider_range,
             )
-
-        # Enable layer tooltips from napari settings
         self._enable_layer_tooltips()
 
     def _create_source_software_widget(self):
@@ -84,10 +93,16 @@ class DataLoader(QWidget):
         # How much we increment/decrement when the user clicks the arrows
         self.fps_spinbox.setSingleStep(1)
         # Add a tooltip
-        self.fps_spinbox.setToolTip(
+        self.fps_default_tooltip = (
             "Set the frames per second of the tracking data.\n"
             "This just affects the displayed time when hovering over a point\n"
             "(it doesn't set the playback speed)."
+        )
+
+        self.fps_spinbox.setToolTip(self.fps_default_tooltip)
+        # Connect fps spinbox with _on_source_software_changed
+        self.source_software_combo.currentTextChanged.connect(
+            self._on_source_software_changed,
         )
         self.layout().addRow("fps:", self.fps_spinbox)
 
@@ -109,6 +124,20 @@ class DataLoader(QWidget):
         self.file_path_layout.addWidget(self.file_path_edit)
         self.file_path_layout.addWidget(self.browse_button)
         self.layout().addRow("file path:", self.file_path_layout)
+
+    def _on_source_software_changed(self, current_text: str):
+        """Enable/disable the fps spinbox based on source software."""
+        is_netcdf = current_text in SUPPORTED_NETCDF_FILES
+        # Disable fps box if netCDF
+        self.fps_spinbox.setEnabled(not is_netcdf)
+
+        if is_netcdf:
+            self.fps_spinbox.setToolTip(
+                "The fps (frames per second) is read directly \n"
+                "from the netCDF file attributes."
+            )
+        else:
+            self.fps_spinbox.setToolTip(self.fps_default_tooltip)
 
     def _create_load_button(self):
         """Create a button to load the file and add layers to the viewer."""
@@ -153,7 +182,13 @@ class DataLoader(QWidget):
             return
 
         # Format data for napari layers
-        self._format_data_for_layers()
+        success = self._format_data_for_layers()
+        if not success:
+            return  # Stop execution if formatting/validation failed
+
+        # Update self.fps in case the file loading changed the spinbox value
+        self.fps = self.fps_spinbox.value()
+
         logger.info("Converted dataset to a napari Tracks array.")
         logger.debug(f"Tracks array shape: {self.data.shape}")
         if self.data_bboxes is not None:
@@ -175,21 +210,77 @@ class DataLoader(QWidget):
         # Set the frame slider position
         self._set_initial_state()
 
-    def _format_data_for_layers(self):
-        """Extract data required for the creation of the napari layers."""
-        # Load data as a movement dataset
-        loader = (
-            load_poses
-            if self.source_software in SUPPORTED_POSES_FILES
-            else load_bboxes
-        )
-        ds = loader.from_file(self.file_path, self.source_software, self.fps)
+    def _format_data_for_layers(self) -> bool:
+        """Extract data required for the creation of the napari layers.
+
+        Returns True if the data was successfully extracted, False otherwise.
+        """
+        if self.source_software not in SUPPORTED_NETCDF_FILES:
+            ds = self._load_third_party_file()
+        else:
+            ds = self._load_netcdf_file()
+            if ds is None:
+                return False
+            if "fps" in ds.attrs:
+                self.fps_spinbox.setValue(ds.attrs["fps"])
 
         # Convert to napari arrays
         self.data, self.data_bboxes, self.properties = ds_to_napari_layers(ds)
 
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)
+        return True
+
+    def _load_third_party_file(self) -> xr.Dataset:
+        """Load a third-party file as a ``movement`` dataset.
+
+        Validation is handled by the loader functions.
+        """
+        loader = (
+            load_poses
+            if self.source_software in SUPPORTED_POSES_FILES
+            else load_bboxes
+        )
+        ds = loader.from_file(self.file_path, self.source_software, self.fps)
+        return ds
+
+    def _load_netcdf_file(self) -> xr.Dataset | None:
+        """Load and validate a netCDF file as a ``movement`` dataset.
+
+        If the file cannot be opened or does not contain a valid
+        ``movement`` dataset, an appropriate error message is shown
+        to the user and ``None`` is returned.
+        """
+        try:
+            ds = xr.open_dataset(self.file_path)
+        except Exception as e:
+            show_error(f"Error opening netCDF file: {e}")
+            return None
+
+        ds_type = ds.attrs.get("ds_type", None)
+        if ds_type not in {"poses", "bboxes"}:
+            show_error(
+                f"The netCDF file has an unknown 'ds_type' attribute: "
+                f"{ds_type}."
+            )
+            return None
+
+        # Validate dataset depending on its type
+        validator = {
+            "poses": ValidPosesDataset,
+            "bboxes": ValidBboxesDataset,
+        }[ds_type]
+
+        try:
+            _validate_dataset(ds, validator)
+        except (ValueError, TypeError) as e:
+            show_error(
+                f"The netCDF file does not appear to be a valid "
+                f"movement {ds_type} dataset: {e}"
+            )
+            return None
+
+        return ds
 
     def _set_common_color_property(self):
         """Set the color property for the Points and Tracks layers.
