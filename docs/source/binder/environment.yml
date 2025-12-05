@@ -3,8 +3,7 @@
 channels:
   - conda-forge
 dependencies:
-  - python=3.12
-  - pytables
+  - python=3.13
   - pip:
     - movement
-    - networkx
+    - networkx.   # not included with movement core, only comes with movement[napari]
