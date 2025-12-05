@@ -3,8 +3,7 @@
 # This script is called in a binder context. When this script is called, we are
 # inside a git checkout of the neuroinformatics-unit/movement repo. This script
 # generates notebooks from the movement python examples.
-# The script was adapted from https://github.com/scikit-image/scikit-image/blob/v0.25.2/.binder/postBuild
-# which was in turn adapted from the scikit-learn project under BSD3 license, copyright the scikit-learn contributors
+# The script was adapted from https://github.com/scikit-learn/scikit-learn/blob/1.8.0rc1/.binder/postBuild
 
 set -euo pipefail.       # fail immediately on errors and undefined vars
 
