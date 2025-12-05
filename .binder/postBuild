@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# This script is called in a binder context. When this script is called, we are
-# inside a git checkout of the neuroinformatics-unit/movement repo. This script
-# generates notebooks from the movement python examples.
+# This script runs in a Binder context within a git checkout of the
+# neuroinformatics-unit/movement repository. It generates Jupyter notebooks
+# from the movement Python examples.
 # The script was adapted from https://github.com/scikit-learn/scikit-learn/blob/1.8.0rc1/.binder/postBuild
 
 set -euo pipefail.       # fail immediately on errors and undefined vars
