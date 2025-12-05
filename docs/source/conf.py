@@ -190,7 +190,7 @@ html_js_files = [
 html_favicon = "_static/light-logo-niu.png"
 
 # The linkcheck builder will skip verifying that anchors exist when checking
-# these URLs
+# these URLs (because they are generated dynamically)
 linkcheck_anchors_ignore_for_url = [
     "https://gin.g-node.org/G-Node/Info/wiki/",
     "https://neuroinformatics.zulipchat.com/",
