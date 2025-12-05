@@ -5,7 +5,7 @@
 # from the movement Python examples.
 # The script was adapted from https://github.com/scikit-learn/scikit-learn/blob/1.8.0rc1/.binder/postBuild
 
-set -euo pipefail.       # fail immediately on errors and undefined vars
+set -euo pipefail       # fail immediately on errors and undefined vars
 
 # Safety check: exit if not running inside a docker container.
 if [[ -z "${REPO_DIR}" ]]; then
@@ -27,9 +27,9 @@ find "$STAGED_EXAMPLES_DIR" -type f ! -name '*.ipynb' -delete
 # (the .binder folder is kept for debugging purposes)
 find . -mindepth 1 -maxdepth 1 ! -name '.binder' -exec rm -rf {} +
 
-# Move the generated notebooks where sphinx-gallery expects them by default
+# Move the generated notebook files to where Binder expects
 mkdir -p notebooks
-mv "$STAGED_EXAMPLES_DIR" notebooks/
+find "$STAGED_EXAMPLES_DIR" -mindepth 1 -maxdepth 1 -exec mv {} notebooks/ \;
 
 # Clean up temporary directory
 rm -rf "$TMP_DIR"
