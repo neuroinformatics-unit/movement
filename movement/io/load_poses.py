@@ -12,7 +12,7 @@ from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
 from movement.utils.logging import logger
-from movement.validators.datasets import ValidPosesDataset
+from movement.validators.datasets import PosesValidator
 from movement.validators.files import (
     ValidAniposeCSV,
     ValidDeepLabCutCSV,
@@ -82,7 +82,7 @@ def from_numpy(
     ... )
 
     """
-    valid_data = ValidPosesDataset(
+    valid_data = PosesValidator(
         position_array=position_array,
         confidence_array=confidence_array,
         individual_names=individual_names,
@@ -353,9 +353,18 @@ def from_lp_file(
     >>> ds = load_poses.from_lp_file("path/to/file.csv", fps=30)
 
     """
-    return _ds_from_lp_or_dlc_file(
+    ds = _ds_from_lp_or_dlc_file(
         file_path=file_path, source_software="LightningPose", fps=fps
     )
+    n_individuals = ds.sizes.get("individuals", 1)
+    if n_individuals > 1:
+        raise logger.error(
+            ValueError(
+                "LightningPose only supports single-individual datasets, "
+                f"but the loaded dataset has {n_individuals} individuals."
+            )
+        )
+    return ds
 
 
 def from_dlc_file(
@@ -692,13 +701,13 @@ def _df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
     return df
 
 
-def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
+def _ds_from_valid_data(data: PosesValidator) -> xr.Dataset:
     """Create a ``movement`` poses dataset from validated pose tracking data.
 
     Parameters
     ----------
-    data : movement.io.tracks_validators.ValidPosesDataset
-        The validated data object.
+    data : movement.io.tracks_validators.PosesValidator
+        The validator object containing the validated pose tracking data.
 
     Returns
     -------
@@ -725,7 +734,7 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
 
     dataset_attrs["time_unit"] = time_unit
 
-    DIM_NAMES = ValidPosesDataset.DIM_NAMES
+    DIM_NAMES = PosesValidator.DIM_NAMES
     # Convert data to an xarray.Dataset
     return xr.Dataset(
         data_vars={
