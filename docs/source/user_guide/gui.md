@@ -130,11 +130,65 @@ as a single 2D frame without a slider.
 Now you are ready to load some motion tracks over your chosen background layer.
 
 On the right-hand side of the window you should see
-an expanded `Load tracked data` menu. To load tracked data in napari:
-1. Select one of the [supported formats](target-supported-formats) from the `source software` dropdown menu.
-2. Set the `fps`  (frames per second) of the video the data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. If the `fps` is not known, you can set it to 1, which will effectively make the time variable equal to the frame number.
-3. Select the file containing the tracked data. You can paste the path to the file directly in the text box, or you can use the file browser button.
-4. Click `Load`.
+an expanded `Load tracked data` menu. You can load data from
+one of the [supported third-party formats](target-supported-formats)
+or from a [netCDF file](target-netcdf) saved with `movement`
+(expand the dropdown below for the precise requirements).
+
+::: {dropdown} netCDF files compatible with the GUI
+:color: info
+:icon: info
+
+(target-gui-compatible-netcdf)=
+
+Only netCDF files that store a valid
+[movement dataset](target-poses-and-bboxes-dataset) can be opened in the GUI.
+Practically, this means:
+
+- The dataset's `ds_type` attribute must be set to `poses` or `bboxes`.
+- The data variables, dimensions, and coordinates must satisfy the
+  [dataset structure requirements](target-dataset-structure) for that `ds_type`.
+  For example, a `poses` dataset must provide both `position` and `confidence`.
+
+
+Below is a small example showing how to save a GUI-compatible
+netCDF file with `movement`:
+
+```python
+from movement.io import load_poses
+from movement.filtering import rolling_filter
+
+ds_orig = load_poses.from_file(
+    "path/to/my_data.h5", source_software="DeepLabCut", fps=30
+)
+
+# Create a copy to avoid modifying the original dataset
+ds_new = ds_orig.copy()
+
+# Apply some processing to the position data variable.
+# e.g. a rolling median filter
+ds_new["position"] = rolling_filter(
+  ds_orig["position"], window=5, statistic="median"
+)
+
+# Save the processed dataset to a netCDF file
+ds_new.to_netcdf("my_data_processed.nc")
+```
+
+Because `ds_new` is copied from the original dataset, it retains all required
+attributes and structure. Note that the data variable remains named `position`
+after processing, as expected.
+
+:::
+
+To load tracked data in `napari`:
+
+1. From the `source software` dropdown menu select the name of the tracking software you used to generate the data (e.g. "DeepLabCut"), or choose "movement (netCDF)".
+2. Set the `fps` (frames per second) of the video the data refers to. This only changes the time units shown when you hover over a keypoint. An unknown `fps` can be set to `1`, which makes the displayed time equal to the frame index.
+The `fps` option is disabled when loading a netCDF file because the `fps` is directly read from the file's attributes.
+1. Select the file containing the tracked data. You can paste the path to the file directly in the text box, or you can use the file browser button.
+2. Click `Load`.
+
 
 The data will be loaded into the viewer as a
 [points layer](napari:howtos/layers/points.html) and as a [tracks layer](napari:howtos/layers/tracks.html).
@@ -173,7 +227,7 @@ Hovering with your mouse over a point
 bring up a tooltip containing the properties of that point: the individual and keypoint it represents,
 the point-wise confidence score (provided by the source software),
 and the time in seconds (calculated based on the frame number and
-the `fps` value you provided).
+the `fps` value).
 
 
 ![napari points layer tooltip](../_static/napari_points_layer_tooltip.png)
