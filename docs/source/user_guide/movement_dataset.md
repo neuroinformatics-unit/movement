@@ -16,6 +16,8 @@ To discuss the specifics of both types of `movement` datasets, it is useful to c
 To learn more about `xarray` data structures in general, see the relevant
 [documentation](xarray:user-guide/data-structures.html).
 
+(target-dataset-structure)=
+
 ## Dataset structure
 
 ```{figure} ../_static/dataset_structure.png
