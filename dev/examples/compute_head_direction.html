@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=1a3852dd"></script>
+    <script src="../_static/documentation_options.js?v=f222f11f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,7 +141,7 @@
     <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev7</p>
+    <p class="title logo__title">movement v0.12.1.dev8</p>
   
 </a></div>
     
@@ -558,7 +558,7 @@ Keypoints: [&#39;snout&#39; &#39;left_ear&#39; &#39;right_ear&#39; &#39;centre&#
 </div>
 <p>The loaded dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> contains two data arrays:<code class="docutils literal notranslate"><span class="pre">position</span></code> and
 <code class="docutils literal notranslate"><span class="pre">confidence</span></code>. In this tutorial, we will only use the <code class="docutils literal notranslate"><span class="pre">position</span></code> data
-array. We use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="(in xarray v2025.11.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.squeeze()</span></code></a> to remove
+array. We use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="(in xarray v2025.12.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.squeeze()</span></code></a> to remove
 the redundant <code class="docutils literal notranslate"><span class="pre">individuals</span></code> dimension, as there is only one individual
 in this dataset.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span>
@@ -689,7 +689,7 @@ We will do this for a small time window to make the plot more readable.</p>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="matplotlib.axes.Axes.legend" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">legend</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_compute_head_direction_002.png" srcset="../_images/sphx_glr_compute_head_direction_002.png" alt="Zoomed in head-to-snout vectors" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7fe55c52af00&gt;
+<img src="../_images/sphx_glr_compute_head_direction_002.png" srcset="../_images/sphx_glr_compute_head_direction_002.png" alt="Zoomed in head-to-snout vectors" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7f11c057f1d0&gt;
 </pre></div>
 </div>
 </section>

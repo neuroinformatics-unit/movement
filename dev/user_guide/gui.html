@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=1a3852dd"></script>
+    <script src="../_static/documentation_options.js?v=f222f11f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon_512px.png" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev7</p>
+    <p class="title logo__title">movement v0.12.1.dev8</p>
   
 </a></div>
     
@@ -586,10 +586,53 @@ as a single 2D frame without a slider.</p>
 <h2>Load the tracked dataset<a class="headerlink" href="#load-the-tracked-dataset" title="Link to this heading">#</a></h2>
 <p>Now you are ready to load some motion tracks over your chosen background layer.</p>
 <p>On the right-hand side of the window you should see
-an expanded <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu. To load tracked data in napari:</p>
+an expanded <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu. You can load data from
+one of the <a class="reference internal" href="input_output.html#target-supported-formats"><span class="std std-ref">supported third-party formats</span></a>
+or from a <a class="reference internal" href="input_output.html#target-netcdf"><span class="std std-ref">netCDF file</span></a> saved with <code class="docutils literal notranslate"><span class="pre">movement</span></code>
+(expand the dropdown below for the precise requirements).</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header sd-bg-info sd-bg-text-info">
+<span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-info" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg></span><span class="sd-summary-text">netCDF files compatible with the GUI</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text" id="target-gui-compatible-netcdf">Only netCDF files that store a valid
+<a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset</span></a> can be opened in the GUI.
+Practically, this means:</p>
+<ul class="simple">
+<li><p class="sd-card-text">The dataset’s <code class="docutils literal notranslate"><span class="pre">ds_type</span></code> attribute must be set to <code class="docutils literal notranslate"><span class="pre">poses</span></code> or <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>.</p></li>
+<li><p class="sd-card-text">The data variables, dimensions, and coordinates must satisfy the
+<a class="reference internal" href="movement_dataset.html#target-dataset-structure"><span class="std std-ref">dataset structure requirements</span></a> for that <code class="docutils literal notranslate"><span class="pre">ds_type</span></code>.
+For example, a <code class="docutils literal notranslate"><span class="pre">poses</span></code> dataset must provide both <code class="docutils literal notranslate"><span class="pre">position</span></code> and <code class="docutils literal notranslate"><span class="pre">confidence</span></code>.</p></li>
+</ul>
+<p class="sd-card-text">Below is a small example showing how to save a GUI-compatible
+netCDF file with <code class="docutils literal notranslate"><span class="pre">movement</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_poses</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.filtering</span><span class="w"> </span><span class="kn">import</span> <span class="n">rolling_filter</span>
+
+<span class="n">ds_orig</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
+    <span class="s2">&quot;path/to/my_data.h5&quot;</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span>
+<span class="p">)</span>
+
+<span class="c1"># Create a copy to avoid modifying the original dataset</span>
+<span class="n">ds_new</span> <span class="o">=</span> <span class="n">ds_orig</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="c1"># Apply some processing to the position data variable.</span>
+<span class="c1"># e.g. a rolling median filter</span>
+<span class="n">ds_new</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rolling_filter</span><span class="p">(</span>
+  <span class="n">ds_orig</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">],</span> <span class="n">window</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">statistic</span><span class="o">=</span><span class="s2">&quot;median&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Save the processed dataset to a netCDF file</span>
+<span class="n">ds_new</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s2">&quot;my_data_processed.nc&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sd-card-text">Because <code class="docutils literal notranslate"><span class="pre">ds_new</span></code> is copied from the original dataset, it retains all required
+attributes and structure. Note that the data variable remains named <code class="docutils literal notranslate"><span class="pre">position</span></code>
+after processing, as expected.</p>
+</div>
+</details><p>To load tracked data in <code class="docutils literal notranslate"><span class="pre">napari</span></code>:</p>
 <ol class="arabic simple">
-<li><p>Select one of the <a class="reference internal" href="input_output.html#target-supported-formats"><span class="std std-ref">supported formats</span></a> from the <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">software</span></code> dropdown menu.</p></li>
-<li><p>Set the <code class="docutils literal notranslate"><span class="pre">fps</span></code>  (frames per second) of the video the data refers to. Note this will only affect the units of the time variable shown when hovering over a keypoint. If the <code class="docutils literal notranslate"><span class="pre">fps</span></code> is not known, you can set it to 1, which will effectively make the time variable equal to the frame number.</p></li>
+<li><p>From the <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">software</span></code> dropdown menu select the name of the tracking software you used to generate the data (e.g. “DeepLabCut”), or choose “movement (netCDF)”.</p></li>
+<li><p>Set the <code class="docutils literal notranslate"><span class="pre">fps</span></code> (frames per second) of the video the data refers to. This only changes the time units shown when you hover over a keypoint. An unknown <code class="docutils literal notranslate"><span class="pre">fps</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">1</span></code>, which makes the displayed time equal to the frame index.
+The <code class="docutils literal notranslate"><span class="pre">fps</span></code> option is disabled when loading a netCDF file because the <code class="docutils literal notranslate"><span class="pre">fps</span></code> is directly read from the file’s attributes.</p></li>
 <li><p>Select the file containing the tracked data. You can paste the path to the file directly in the text box, or you can use the file browser button.</p></li>
 <li><p>Click <code class="docutils literal notranslate"><span class="pre">Load</span></code>.</p></li>
 </ol>
@@ -618,7 +661,7 @@ dataset has no keypoint dimension, the individual name is shown instead.</p>
 bring up a tooltip containing the properties of that point: the individual and keypoint it represents,
 the point-wise confidence score (provided by the source software),
 and the time in seconds (calculated based on the frame number and
-the <code class="docutils literal notranslate"><span class="pre">fps</span></code> value you provided).</p>
+the <code class="docutils literal notranslate"><span class="pre">fps</span></code> value).</p>
 <p><img alt="napari points layer tooltip" src="../_images/napari_points_layer_tooltip.png" /></p>
 <p>Using the frame slider at the bottom of the window, you can move through
 the frames of the dataset, and the points and video (if loaded) will update

@@ -493,6 +493,13 @@ ds["speed"] = compute_speed(ds["position_smooth"])
 ds.to_netcdf("my_data_processed.nc")
 ```
 
+:::{tip}
+In some cases you may want to use our [GUI](target-gui) to inspect
+motion tracks you've processed with `movement`.
+If so, make sure to save them to a netCDF file that satisfies the
+[GUI compatibility requirements](target-gui-compatible-netcdf).
+:::
+
 (target-sample-data)=
 
 ## Sample data
