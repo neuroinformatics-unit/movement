@@ -10,7 +10,7 @@ import pandas as pd
 import pytest
 
 from movement.io import load_bboxes
-from movement.validators.datasets import ValidBboxesDataset
+from movement.validators.datasets import BboxesValidator
 
 
 @pytest.fixture()
@@ -269,7 +269,7 @@ def test_from_file(
 
 expected_values_bboxes = {
     "vars_dims": {"position": 3, "shape": 3, "confidence": 2},
-    "dim_names": ValidBboxesDataset.DIM_NAMES,
+    "dim_names": BboxesValidator.DIM_NAMES,
 }
 
 

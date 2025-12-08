@@ -11,7 +11,7 @@ import pandas as pd
 import xarray as xr
 
 from movement.utils.logging import logger
-from movement.validators.datasets import ValidBboxesDataset
+from movement.validators.datasets import BboxesValidator
 from movement.validators.files import (
     DEFAULT_FRAME_REGEXP,
     ValidFile,
@@ -136,7 +136,7 @@ def from_numpy(
     ... )
 
     """
-    valid_bboxes_data = ValidBboxesDataset(
+    valid_bboxes_data = BboxesValidator(
         position_array=position_array,
         shape_array=shape_array,
         confidence_array=confidence_array,
@@ -360,7 +360,7 @@ def from_via_tracks_file(
         ),
         fps=fps,
         source_software="VIA-tracks",
-    )  # it validates the dataset via ValidBboxesDataset
+    )  # it validates the dataset via BboxesValidator
 
     # Add metadata as attributes
     ds.attrs["source_software"] = "VIA-tracks"
@@ -650,13 +650,13 @@ def _via_attribute_column_to_numpy(
     return bbox_attr_array.squeeze()
 
 
-def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
+def _ds_from_valid_data(data: BboxesValidator) -> xr.Dataset:
     """Convert a validated bounding boxes dataset to an xarray Dataset.
 
     Parameters
     ----------
-    data : movement.validators.datasets.ValidBboxesDataset
-        The validated bounding boxes dataset object.
+    data : movement.validators.datasets.BboxesValidator
+        The validator object containing the validated bounding boxes data.
 
     Returns
     -------
@@ -678,8 +678,8 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
     # Store fps as a dataset attribute
     if data.fps:
         # Compute elapsed time from frame 0.
-        # Ignoring type error because `data.frame_array` is not None after
-        # ValidBboxesDataset.__attrs_post_init__()  # type: ignore
+        # Ignore type error as BboxesValidator ensures
+        # `data.frame_array` is not None
         time_coords = np.array(
             [frame / data.fps for frame in data.frame_array.squeeze()]  # type: ignore
         )
@@ -689,7 +689,7 @@ def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
     dataset_attrs["time_unit"] = time_unit
     # Convert data to an xarray.Dataset
     # with dimensions ('time', 'space', 'individuals')
-    DIM_NAMES = ValidBboxesDataset.DIM_NAMES
+    DIM_NAMES = BboxesValidator.DIM_NAMES
     n_space = data.position_array.shape[1]
     return xr.Dataset(
         data_vars={
