@@ -114,6 +114,8 @@ sphinx_gallery_conf = {
         "branch": "gh-pages",
         "binderhub_url": "https://mybinder.org",
         "dependencies": ["environment.yml"],
+        "filepath_prefix": doc_version,   # point to the versioned docs build folder inside the `gh-pages` branch
+        "notebooks_dir": "notebooks",     # default, but explicit is nice
     },
     "reference_url": {"movement": None},
     "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image
@@ -163,6 +165,8 @@ html_theme_options = {
     "footer_start": ["footer_start"],
     "footer_end": ["footer_end"],
     "external_links": [],
+    "announcement": "Learn more about movement at the <a href='https://neuroinformatics.dev/open-software-summer-school/index.html'>Neuroinformatics Unit Open Software Summer School</a> in London, August 2026!",
+
 }
 
 # Redirect the webpage to another URL
@@ -186,7 +190,7 @@ html_js_files = [
 html_favicon = "_static/light-logo-niu.png"
 
 # The linkcheck builder will skip verifying that anchors exist when checking
-# these URLs
+# these URLs (because they are generated dynamically)
 linkcheck_anchors_ignore_for_url = [
     "https://gin.g-node.org/G-Node/Info/wiki/",
     "https://neuroinformatics.zulipchat.com/",

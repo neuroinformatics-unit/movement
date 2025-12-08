@@ -231,6 +231,8 @@ class ValidDeepLabCutCSV:
     ----------
     path : pathlib.Path
         Path to the .csv file.
+    level_names : list of str
+        Names of the index column levels found in the .csv file.
 
     Raises
     ------
@@ -241,32 +243,30 @@ class ValidDeepLabCutCSV:
     """
 
     path: Path = field(validator=validators.instance_of(Path))
+    level_names: list[str] = field(init=False, factory=list)
 
     @path.validator
     def _file_contains_expected_levels(self, attribute, value):
         """Ensure that the .csv file contains the expected index column levels.
 
-        These are to be found among the top 4 rows of the file.
+        These are to be found in the first column of the first four rows.
         """
-        expected_levels = ["scorer", "bodyparts", "coords"]
-
+        expected_levels = ["scorer", "individuals", "bodyparts", "coords"]
         with open(value) as f:
-            top4_row_starts = [f.readline().split(",")[0] for _ in range(4)]
-
-            if top4_row_starts[3].isdigit():
+            level_names = [f.readline().split(",")[0] for _ in range(4)]
+            if level_names[3].isdigit():
                 # if 4th row starts with a digit, assume single-animal DLC file
-                expected_levels.append(top4_row_starts[3])
-            else:
-                # otherwise, assume multi-animal DLC file
-                expected_levels.insert(1, "individuals")
-
-            if top4_row_starts != expected_levels:
+                # and compare only first 3 rows, removing 'individuals' level
+                expected_levels.remove("individuals")
+                level_names.pop()
+            if level_names != expected_levels:
                 raise logger.error(
                     ValueError(
                         ".csv header rows do not match the known format for "
                         "DeepLabCut pose estimation output files."
                     )
                 )
+            self.level_names = level_names
 
 
 @define

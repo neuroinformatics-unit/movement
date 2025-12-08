@@ -657,29 +657,17 @@ def _df_from_dlc_csv(file_path: Path) -> pd.DataFrame:
 
     """
     file = ValidDeepLabCutCSV(file_path)
-    possible_level_names = ["scorer", "individuals", "bodyparts", "coords"]
-    with open(file.path) as f:
-        # if line starts with a possible level name, split it into a list
-        # of strings, and add it to the list of header lines
-        header_lines = [
-            line.strip().split(",")
-            for line in f.readlines()
-            if line.split(",")[0] in possible_level_names
-        ]
-    # Form multi-index column names from the header lines
-    level_names = [line[0] for line in header_lines]
-    column_tuples = list(
-        zip(*[line[1:] for line in header_lines], strict=False)
-    )
-    columns = pd.MultiIndex.from_tuples(column_tuples, names=level_names)
-    # Import the DeepLabCut poses as a DataFrame
+    # Deliberately avoid using pd.read_csv with index_col=0 here
+    # and instead set the index after reading the CSV,
+    # as in cases where the first data row is empty (e.g. "0,,,,,"),
+    # pandas will misinterpret that value as the index name instead of a row.
     df = pd.read_csv(
         file.path,
-        skiprows=len(header_lines),
-        index_col=0,
-        names=np.array(columns),
+        header=list(range(len(file.level_names))),
     )
-    df.columns.rename(level_names, inplace=True)
+    df = df.set_index(df.columns[0])
+    df.index.name = None
+    df.columns = pd.MultiIndex.from_tuples(df.columns, names=file.level_names)  # type: ignore[arg-type]
     return df
 
 

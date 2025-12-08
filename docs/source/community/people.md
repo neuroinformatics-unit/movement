@@ -93,13 +93,6 @@ This is automatically updated via GitHub Actions and should not be modified.
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/animeshsasan">
-                    <img src="https://avatars.githubusercontent.com/u/40558191?v=4" width="100;" alt="animeshsasan"/>
-                    <br />
-                    <sub><b>animeshsasan</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/vigji">
                     <img src="https://avatars.githubusercontent.com/u/10400212?v=4" width="100;" alt="vigji"/>
                     <br />
@@ -113,8 +106,22 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Tushar-Verma</b></sub>
                 </a>
             </td>
+            <td align="center">
+                <a href="https://github.com/animeshsasan">
+                    <img src="https://avatars.githubusercontent.com/u/40558191?v=4" width="100;" alt="animeshsasan"/>
+                    <br />
+                    <sub><b>animeshsasan</b></sub>
+                </a>
+            </td>
 		</tr>
 		<tr>
+            <td align="center">
+                <a href="https://github.com/carlocastoldi">
+                    <img src="https://avatars.githubusercontent.com/u/34198340?v=4" width="100;" alt="carlocastoldi"/>
+                    <br />
+                    <sub><b>carlocastoldi</b></sub>
+                </a>
+            </td>
             <td align="center">
                 <a href="https://github.com/CeliaLrt">
                     <img src="https://avatars.githubusercontent.com/u/204997762?v=4" width="100;" alt="CeliaLrt"/>
@@ -122,8 +129,6 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>CeliaLrt</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/DPWebster">
                     <img src="https://avatars.githubusercontent.com/u/185731034?v=4" width="100;" alt="DPWebster"/>
@@ -152,6 +157,15 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Kasra-Shirvanian</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
+            <td align="center">
+                <a href="https://github.com/LakshmiSowmya04">
+                    <img src="https://avatars.githubusercontent.com/u/112118575?v=4" width="100;" alt="LakshmiSowmya04"/>
+                    <br />
+                    <sub><b>L_Sowmya</b></sub>
+                </a>
+            </td>
             <td align="center">
                 <a href="https://github.com/lauraporta">
                     <img src="https://avatars.githubusercontent.com/u/29216006?v=4" width="100;" alt="lauraporta"/>
@@ -166,8 +180,6 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Lauraschwarz</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/yarikoptic">
                     <img src="https://avatars.githubusercontent.com/u/39889?v=4" width="100;" alt="yarikoptic"/>
@@ -183,19 +195,14 @@ This is automatically updated via GitHub Actions and should not be modified.
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/carlocastoldi">
-                    <img src="https://avatars.githubusercontent.com/u/34198340?v=4" width="100;" alt="carlocastoldi"/>
-                    <br />
-                    <sub><b>carlocastoldi</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/ivanvrlg">
                     <img src="https://avatars.githubusercontent.com/u/131998802?v=4" width="100;" alt="ivanvrlg"/>
                     <br />
                     <sub><b>Iván V</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/maxstaras">
                     <img src="https://avatars.githubusercontent.com/u/50526197?v=4" width="100;" alt="maxstaras"/>
@@ -317,6 +324,13 @@ providing sample data, or by actively participating in discussions).
                     <img src="https://avatars.githubusercontent.com/u/24541631?v=4" width="100;" alt="luiztauffer"/>
                     <br />
                     <sub><b>Luiz Tauffer</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/akseli-ilmanen">
+                    <img src="https://avatars.githubusercontent.com/u/107996462?v=4" width="100;" alt="akseli-ilmanen"/>
+                    <br />
+                    <sub><b>akseli-ilmanen</b></sub>
                 </a>
             </td>
 		</tr>
