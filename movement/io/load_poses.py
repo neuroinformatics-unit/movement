@@ -11,12 +11,12 @@ import xarray as xr
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
+from movement.io.load import register_loader
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import (
     ValidAniposeCSV,
     ValidDeepLabCutCSV,
-    ValidFile,
     ValidHDF5,
     ValidNWBFile,
 )
@@ -256,6 +256,7 @@ def from_dlc_style_df(
     )
 
 
+@register_loader("SLEAP", expected_suffix=[".h5", ".slp"])
 def from_sleap_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
@@ -312,22 +313,19 @@ def from_sleap_file(
     >>> ds = load_poses.from_sleap_file("path/to/file.analysis.h5", fps=30)
 
     """
-    file = ValidFile(
-        file_path,
-        expected_permission="r",
-        expected_suffix=[".h5", ".slp"],
-    )
+    assert isinstance(file_path, Path)
     # Load and validate data
-    if file.path.suffix == ".h5":
-        ds = _ds_from_sleap_analysis_file(file.path, fps=fps)
-    else:  # file.path.suffix == ".slp"
-        ds = _ds_from_sleap_labels_file(file.path, fps=fps)
+    if file_path.suffix == ".h5":
+        ds = _ds_from_sleap_analysis_file(file_path, fps=fps)
+    else:  # file_path.suffix == ".slp"
+        ds = _ds_from_sleap_labels_file(file_path, fps=fps)
     # Add metadata as attrs
-    ds.attrs["source_file"] = file.path.as_posix()
-    logger.info(f"Loaded pose tracks from {file.path}:\n{ds}")
+    ds.attrs["source_file"] = file_path.as_posix()
+    logger.info(f"Loaded pose tracks from {file_path}:\n{ds}")
     return ds
 
 
+@register_loader("LightningPose", expected_suffix=[".csv"])
 def from_lp_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
@@ -353,6 +351,7 @@ def from_lp_file(
     >>> ds = load_poses.from_lp_file("path/to/file.csv", fps=30)
 
     """
+    assert isinstance(file_path, Path)
     ds = _ds_from_lp_or_dlc_file(
         file_path=file_path, source_software="LightningPose", fps=fps
     )
@@ -368,6 +367,7 @@ def from_lp_file(
     return ds
 
 
+@register_loader("DeepLabCut", expected_suffix=[".h5", ".csv"])
 def from_dlc_file(
     file_path: Path | str, fps: float | None = None
 ) -> xr.Dataset:
@@ -407,6 +407,7 @@ def from_dlc_file(
     this feature is not currently supported in ``movement``.
 
     """
+    assert isinstance(file_path, Path)
     return _ds_from_lp_or_dlc_file(
         file_path=file_path, source_software="DeepLabCut", fps=fps
     )
@@ -446,7 +447,7 @@ def from_multiview_files(
 
 
 def _ds_from_lp_or_dlc_file(
-    file_path: Path | str,
+    file_path: Path,
     source_software: Literal["LightningPose", "DeepLabCut"],
     fps: float | None = None,
 ) -> xr.Dataset:
@@ -454,7 +455,7 @@ def _ds_from_lp_or_dlc_file(
 
     Parameters
     ----------
-    file_path : pathlib.Path or str
+    file_path : pathlib.Path
         Path to the file containing the predicted poses, either in .h5
         or .csv format.
     source_software : {'LightningPose', 'DeepLabCut'}
@@ -470,24 +471,18 @@ def _ds_from_lp_or_dlc_file(
         and associated metadata.
 
     """
-    expected_suffix = [".csv"]
-    if source_software == "DeepLabCut":
-        expected_suffix.append(".h5")
-    file = ValidFile(
-        file_path, expected_permission="r", expected_suffix=expected_suffix
-    )
     # Load the DeepLabCut poses into a DataFrame
     df = (
-        _df_from_dlc_csv(file.path)
-        if file.path.suffix == ".csv"
-        else _df_from_dlc_h5(file.path)
+        _df_from_dlc_csv(file_path)
+        if file_path.suffix == ".csv"
+        else _df_from_dlc_h5(file_path)
     )
-    logger.debug(f"Loaded poses from {file.path} into a DataFrame.")
+    logger.debug(f"Loaded poses from {file_path} into a DataFrame.")
     # Convert the DataFrame to an xarray dataset
     ds = from_dlc_style_df(df=df, fps=fps, source_software=source_software)
     # Add metadata as attrs
-    ds.attrs["source_file"] = file.path.as_posix()
-    logger.info(f"Loaded pose tracks from {file.path}:\n{ds}")
+    ds.attrs["source_file"] = file_path.as_posix()
+    logger.info(f"Loaded pose tracks from {file_path}:\n{ds}")
     return ds
 
 
@@ -772,6 +767,7 @@ def from_anipose_style_df(
     )
 
 
+@register_loader("Anipose", expected_suffix=[".csv"])
 def from_anipose_file(
     file_path: Path | str,
     fps: float | None = None,
@@ -802,12 +798,8 @@ def from_anipose_file(
     and error.
 
     """
-    file = ValidFile(
-        file_path,
-        expected_permission="r",
-        expected_suffix=[".csv"],
-    )
-    anipose_file = ValidAniposeCSV(file.path)
+    assert isinstance(file_path, Path)
+    anipose_file = ValidAniposeCSV(file_path)
     anipose_df = pd.read_csv(anipose_file.path)
 
     return from_anipose_style_df(

@@ -61,3 +61,43 @@ def test_from_multiview_files(dataset_name, source_software):
     assert isinstance(multi_view_ds, xr.Dataset)
     assert "view" in multi_view_ds.dims
     assert multi_view_ds.view.values.tolist() == view_names
+
+
+@pytest.mark.parametrize("source_software", ["Unknown", "VIA-tracks"])
+@pytest.mark.parametrize("fps", [None, 30, 60.0])
+@pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
+@pytest.mark.parametrize("frame_regexp", [None, r"frame_(\d+)"])
+def test_from_file_bboxes(
+    source_software, fps, use_frame_numbers_from_file, frame_regexp, mocker
+):
+    """Test that the from_file() function delegates to the correct
+    loader function according to the source_software.
+    """
+    software_to_loader = {
+        "VIA-tracks": "movement.io.load_bboxes.from_via_tracks_file",
+    }
+    if source_software == "Unknown":
+        with pytest.raises(ValueError, match="Unsupported source"):
+            load.from_file(
+                "some_file",
+                source_software,
+                fps,
+                use_frame_numbers_from_file=use_frame_numbers_from_file,
+                frame_regexp=frame_regexp,
+            )
+    else:
+        mock_loader = mocker.patch(software_to_loader[source_software])
+        mocker.patch.dict(load._REGISTRY, {source_software: mock_loader})
+        load.from_file(
+            "some_file",
+            source_software,
+            fps,
+            use_frame_numbers_from_file=use_frame_numbers_from_file,
+            frame_regexp=frame_regexp,
+        )
+        mock_loader.assert_called_with(
+            "some_file",
+            fps,
+            use_frame_numbers_from_file=use_frame_numbers_from_file,
+            frame_regexp=frame_regexp,
+        )
