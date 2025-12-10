@@ -1,29 +1,98 @@
 """Load data from various frameworks into ``movement``."""
 
 from collections.abc import Callable
+from functools import wraps
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Protocol
 
+import pynwb
 import xarray as xr
 
-from movement.io.load_bboxes import from_via_tracks_file
-from movement.io.load_poses import (
-    from_anipose_file,
-    from_dlc_file,
-    from_lp_file,
-    from_nwb_file,
-    from_sleap_file,
-)
 from movement.utils.logging import logger
+from movement.validators.files import ValidFile
 
-_REGISTRY: dict[str, Callable[..., xr.Dataset]] = {
-    "DeepLabCut": from_dlc_file,
-    "SLEAP": from_sleap_file,
-    "LightningPose": from_lp_file,
-    "Anipose": from_anipose_file,
-    "NWB": from_nwb_file,
-    "VIA-tracks": from_via_tracks_file,
-}
+
+class LoaderProtocol(Protocol):
+    """Protocol for loader functions."""
+
+    def __call__(
+        self, file_path: Path | str | pynwb.file.NWBFile, *args, **kwargs
+    ) -> xr.Dataset:
+        """Load data from a file.
+
+        Parameters
+        ----------
+        file_path : Path or pynwb.file.NWBFile
+            Path to the file or an NWBFile object.
+        *args
+            Additional positional arguments for the loader.
+        **kwargs
+            Additional keyword arguments for the loader.
+
+        Returns
+        -------
+        xarray.Dataset
+            The loaded dataset.
+
+        """
+        ...
+
+
+_REGISTRY: dict[str, LoaderProtocol] = {}
+
+
+def register_loader(
+    source_software: str,
+    *,
+    expected_suffix: list[str],
+    expected_permission: Literal["r", "w", "rw"] = "r",
+) -> Callable[[LoaderProtocol], LoaderProtocol]:
+    """Register a loader function for a given source software.
+
+    Parameters
+    ----------
+    source_software : str
+        The name of the source software.
+    expected_suffix : list of str
+        Expected suffix(es) for the file. If an empty list (default), this
+        check is skipped.
+    expected_permission : {"r", "w", "rw"}
+        Expected access permission(s) for the file. If "r", the file is
+        expected to be readable. If "w", the file is expected to be writable.
+        If "rw", the file is expected to be both readable and writable.
+        Default: "r".
+
+    Returns
+    -------
+    Callable
+        A decorator that registers the loader function.
+
+    Examples
+    --------
+    >>> from movement.io.load import register_loader
+    >>> @register_loader("DeepLabCut", expected_suffix=[".h5", ".csv"])
+    ... def from_dlc_file(file_path: str, fps=None, **kwargs):
+    ...     pass
+
+    """
+
+    def decorator(loader_fn: LoaderProtocol) -> LoaderProtocol:
+        @wraps(loader_fn)
+        def wrapper(
+            file_path: Path | str | pynwb.file.NWBFile, *args, **kwargs
+        ) -> xr.Dataset:
+            if isinstance(file_path, (str, Path)):
+                file_path = ValidFile(
+                    file_path,
+                    expected_suffix=expected_suffix,
+                    expected_permission=expected_permission,
+                ).path
+            return loader_fn(file_path, *args, **kwargs)
+
+        _REGISTRY[source_software] = wrapper
+        return wrapper
+
+    return decorator
 
 
 def from_file(

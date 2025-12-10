@@ -329,19 +329,13 @@ def test_anipose_csv_validator_with_invalid_input(
 @pytest.mark.parametrize(
     "invalid_input, expected_exception",
     [
-        ("wrong_extension_file", pytest.raises(ValueError)),
         (123, pytest.raises(TypeError)),
         (None, pytest.raises(TypeError)),
     ],
 )
 def test_nwb_file_validator_with_invalid_input(
-    invalid_input, expected_exception, request
+    invalid_input, expected_exception
 ):
     """Test that invalid NWB file inputs raise the appropriate errors."""
     with expected_exception:
-        invalid_input = (
-            request.getfixturevalue(invalid_input).get("file_path")
-            if invalid_input == "wrong_extension_file"
-            else invalid_input
-        )
         ValidNWBFile(invalid_input)

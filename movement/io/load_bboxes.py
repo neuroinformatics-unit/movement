@@ -10,13 +10,10 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from movement.io.load import register_loader
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs
-from movement.validators.files import (
-    DEFAULT_FRAME_REGEXP,
-    ValidFile,
-    ValidVIATracksCSV,
-)
+from movement.validators.files import DEFAULT_FRAME_REGEXP, ValidVIATracksCSV
 
 
 def from_numpy(
@@ -232,6 +229,7 @@ def from_file(
         )
 
 
+@register_loader("VIA-tracks", expected_suffix=[".csv"])
 def from_via_tracks_file(
     file_path: Path | str,
     fps: float | None = None,
@@ -333,13 +331,9 @@ def from_via_tracks_file(
 
 
     """
-    # General file validation
-    file = ValidFile(
-        file_path, expected_permission="r", expected_suffix=[".csv"]
-    )
-
+    assert isinstance(file_path, Path)
     # Specific VIA-tracks .csv file validation
-    via_file = ValidVIATracksCSV(file.path, frame_regexp=frame_regexp)
+    via_file = ValidVIATracksCSV(file_path, frame_regexp=frame_regexp)
     logger.info(f"Validated VIA tracks .csv file {via_file.path}.")
 
     # Create an xarray.Dataset from the data
@@ -364,7 +358,7 @@ def from_via_tracks_file(
 
     # Add metadata as attributes
     ds.attrs["source_software"] = "VIA-tracks"
-    ds.attrs["source_file"] = file.path.as_posix()
+    ds.attrs["source_file"] = file_path.as_posix()
 
     logger.info(f"Loaded bounding boxes tracks from {via_file.path}:\n{ds}")
     return ds
