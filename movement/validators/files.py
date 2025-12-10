@@ -630,14 +630,13 @@ class ValidNWBFile:
 
     The validator ensures that the file is either:
 
-    - a valid NWB file (.nwb) path, or
+    - a Path to an NWB file on disk (ending in ".nwb"), or
     - an :class:`NWBFile<pynwb.file.NWBFile>` object.
 
     Attributes
     ----------
     file : str | Path | pynwb.file.NWBFile
-        Path to the NWB file on disk (ending in ".nwb"),
-        or an NWBFile object.
+        Path to the NWB file on disk or an NWBFile object.
 
     """
 
@@ -645,9 +644,3 @@ class ValidNWBFile:
         converter=lambda f: Path(f) if isinstance(f, str | Path) else f,
         validator=validators.instance_of((Path, NWBFile)),
     )
-
-    @file.validator
-    def _file_is_valid_nwb(self, attribute, value):
-        """Ensure the file path has read permission and .nwb suffix."""
-        if isinstance(value, Path):
-            ValidFile(value, expected_permission="r", expected_suffix=[".nwb"])
