@@ -11,11 +11,13 @@ from napari.settings import get_settings
 from napari.utils.notifications import show_error, show_warning
 from napari.viewer import Viewer
 from qtpy.QtWidgets import (
+    QCheckBox,
     QComboBox,
     QDoubleSpinBox,
     QFileDialog,
     QFormLayout,
     QHBoxLayout,
+    QLabel,
     QLineEdit,
     QPushButton,
     QWidget,
@@ -36,6 +38,8 @@ SUPPORTED_POSES_FILES = {
     "DeepLabCut": ["h5", "csv"],
     "LightningPose": ["csv"],
     "SLEAP": ["h5", "slp"],
+    "Anipose": ["csv"],
+    "NWB": ["nwb"],
 }
 
 SUPPORTED_BBOXES_FILES = {
@@ -66,6 +70,7 @@ class DataLoader(QWidget):
         self._create_source_software_widget()
         self._create_fps_widget()
         self._create_file_path_widget()
+        self._create_extra_input_widgets()
         self._create_load_button()
 
         # Connect frame slider range update to layer events
@@ -126,18 +131,95 @@ class DataLoader(QWidget):
         self.layout().addRow("file path:", self.file_path_layout)
 
     def _on_source_software_changed(self, current_text: str):
-        """Enable/disable the fps spinbox based on source software."""
+        """Update widget visibility based on source software."""
         is_netcdf = current_text in SUPPORTED_NETCDF_FILES
-        # Disable fps box if netCDF
-        self.fps_spinbox.setEnabled(not is_netcdf)
+        is_nwb = current_text == "NWB"
+
+        # Disable if NetCDF OR NWB (per requirements)
+        should_disable_fps = is_netcdf or is_nwb
+        self.fps_spinbox.setEnabled(not should_disable_fps)
 
         if is_netcdf:
             self.fps_spinbox.setToolTip(
                 "The fps (frames per second) is read directly \n"
                 "from the netCDF file attributes."
             )
+        elif is_nwb:
+            self.fps_spinbox.setToolTip(
+                "The fps (frames per second) is read directly \n"
+                "from the NWB file attributes."
+            )
         else:
             self.fps_spinbox.setToolTip(self.fps_default_tooltip)
+
+        # Handle Extra Widgets (Dynamic)
+        for _, widget_rows in self.extra_widgets.items():
+            for _, widget in widget_rows:
+                widget.setVisible(False)
+                if widget.property("associated_label"):
+                    widget.property("associated_label").setVisible(False)
+
+        if current_text in self.extra_widgets:
+            for _, widget in self.extra_widgets[current_text]:
+                widget.setVisible(True)
+                if widget.property("associated_label"):
+                    widget.property("associated_label").setVisible(True)
+
+    def _create_extra_input_widgets(self):
+        """Create optional widgets that are hidden by default."""
+        self.extra_widgets = {}
+
+        # --- Anipose Widgets ---
+        self.anipose_individual_name = QLineEdit()
+        self.anipose_individual_name.setPlaceholderText("Optional: mouse1")
+        self.anipose_individual_name.setToolTip(
+            "Name of the individual to load from the Anipose file."
+        )
+        # We store the row (Label + Widget) so we can hide/show the whole row
+        self.extra_widgets["Anipose"] = [
+            ("individual name:", self.anipose_individual_name)
+        ]
+
+        # --- NWB Widgets ---
+        self.nwb_processing_key = QLineEdit()
+        self.nwb_processing_key.setPlaceholderText("Optional: behavior")
+
+        self.nwb_pose_key = QLineEdit()
+        self.nwb_pose_key.setPlaceholderText("Optional: behavior")
+
+        self.extra_widgets["NWB"] = [
+            ("processing module key:", self.nwb_processing_key),
+            ("pose estimation key:", self.nwb_pose_key),
+        ]
+
+        # --- VIA Tracks Widgets ---
+        self.via_use_frame_numbers = QCheckBox()
+        self.via_use_frame_numbers.setToolTip(
+            "If checked, use frame numbers from the file."
+        )
+
+        self.via_frame_regexp = QLineEdit()
+        self.via_frame_regexp.setPlaceholderText("Optional pattern")
+
+        self.extra_widgets["VIA-tracks"] = [
+            ("use frame numbers:", self.via_use_frame_numbers),
+            ("frame regexp:", self.via_frame_regexp),
+        ]
+
+        # Add all these to the layout but HIDE them immediately
+        for _, widget_list in self.extra_widgets.items():
+            for label_text, widget in widget_list:
+                # We need to keep a reference to the label to hide it too
+                row_label = QLabel(label_text)
+                self.layout().addRow(row_label, widget)
+
+                # Tag them so we can find them later to toggle visibility
+                widget.setVisible(False)
+                row_label.setVisible(False)
+                # Store the label with the widget tuple for easy toggling
+                # We update the list to be (widget, label_object)
+                # Actually, QFormLayout helps us, but explicit hiding is safer.
+                widget.setProperty("associated_label", row_label)
 
     def _create_load_button(self):
         """Create a button to load the file and add layers to the viewer."""
@@ -241,7 +323,39 @@ class DataLoader(QWidget):
             if self.source_software in SUPPORTED_POSES_FILES
             else load_bboxes
         )
-        ds = loader.from_file(self.file_path, self.source_software, self.fps)
+
+        kwargs = {}
+
+        if self.source_software == "Anipose":
+            val = self.anipose_individual_name.text().strip()
+            if val:
+                kwargs["individual_name"] = val
+
+        elif self.source_software == "NWB":
+            val_proc = self.nwb_processing_key.text().strip()
+            val_pose = self.nwb_pose_key.text().strip()
+            if val_proc:
+                kwargs["processing_module_key"] = val_proc
+            if val_pose:
+                kwargs["pose_estimation_key"] = val_pose
+
+        elif self.source_software == "VIA-tracks":
+            if self.via_use_frame_numbers.isChecked():
+                kwargs["use_frame_numbers_from_file"] = True
+
+            val_reg = self.via_frame_regexp.text().strip()
+            if val_reg:
+                kwargs["frame_regexp"] = val_reg
+
+        if self.source_software == "NWB":
+            ds = loader.from_file(
+                self.file_path, self.source_software, **kwargs
+            )
+        else:
+            ds = loader.from_file(
+                self.file_path, self.source_software, self.fps, **kwargs
+            )
+
         return ds
 
     def _load_netcdf_file(self) -> xr.Dataset | None:
