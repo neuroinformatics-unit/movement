@@ -38,6 +38,7 @@ repos:
       rev: v1.19.0
       hooks:
           - id: mypy
+            exclude: ^(tests|docs|examples)/
             additional_dependencies:
                 - attrs
                 - types-setuptools
@@ -45,6 +46,9 @@ repos:
                 - types-attrs
                 - types-PyYAML
                 - types-requests
+                - xarray
+                - scipy-stubs
+                - types-shapely
     - repo: https://github.com/mgedmin/check-manifest
       rev: "0.51"
       hooks:

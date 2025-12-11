@@ -74,6 +74,8 @@ dev = [
   "types-PyYAML",
   "types-requests",
   "pytest-qt",
+  "scipy-stubs",
+  "types-shapely",
   "movement[napari]",
 ]
 
@@ -108,8 +110,22 @@ ignore = [
   "docs/source/",
 ]
 
+[tool.mypy]
+exclude = ["tests/", "docs/", "examples/"]
+
 [[tool.mypy.overrides]]
-module = ["pooch.*", "h5py.*", "sleap_io.*"]
+module = [
+  "pooch.*",
+  "h5py.*",
+  "sleap_io.*",
+  "ndx_pose.*",
+  "pynwb.*",
+  "napari.*",
+  "matplotlib.*",
+  "pytest.*",
+  "loguru.*",
+  "qt_niu.*",
+]
 ignore_missing_imports = true
 
 [tool.ruff]
