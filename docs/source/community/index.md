@@ -23,6 +23,7 @@ people
 mission-scope
 roadmaps
 contributing
+resources
 related-projects
 code-of-conduct
 license
