@@ -54,11 +54,24 @@ a[class^="sphx-glr-backref-module-movement"] {
   text-decoration: underline;
 }
 
-/* For fully transparent tables */
-.table-transparent td,
-.table-transparent th {
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0.5rem;  /* optional, keeps spacing tidy */
+/* Container for colour swatches */
+.colour-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;   /* or flex-start if you prefer left-aligned */
+    margin: 1.5rem 0;
+    background: transparent;
+}
+
+/* Individual swatch card */
+.colour-card {
+    text-align: center;
+    background: transparent;
+}
+
+/* Make sure the SVGs don't get weird inline spacing */
+.colour-card svg {
+    display: block;
+    margin: 0 auto 0.5rem;
 }
