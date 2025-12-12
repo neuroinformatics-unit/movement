@@ -131,8 +131,8 @@ sphinx_gallery_conf = {
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 html_theme = "pydata_sphinx_theme"
 html_title = "movement"
-html_logo = "_static/movement_favicon_512px.png"
-html_favicon = "_static/movement_favicon_64px.png"
+html_logo = "_static/movement_logo.svg"
+html_favicon = "_static/movement_favicon.svg"
 # Customize the theme
 html_theme_options = {
     "icon_links": [
