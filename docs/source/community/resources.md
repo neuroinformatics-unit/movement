@@ -21,7 +21,7 @@ The official logos of `movement` are:
 :::
 ::::
 
-All associated files are sharedy under the [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/) on [Zenodo](https://doi.org/10.5281/zenodo.17902182).
+All associated files are shared under the [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/) on [Zenodo](https://doi.org/10.5281/zenodo.17902182).
 
 The colours appearing in the logo and in many `movement` graphics are taken from the [ColoBrewer Set2 palette](https://colorbrewer2.org/#type=qualitative&scheme=Set2&n=3):
 
