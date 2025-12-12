@@ -49,6 +49,7 @@ repos:
                 - xarray
                 - scipy-stubs
                 - types-shapely
+                - matplotlib
     - repo: https://github.com/mgedmin/check-manifest
       rev: "0.51"
       hooks:

@@ -121,7 +121,6 @@ module = [
   "ndx_pose.*",
   "pynwb.*",
   "napari.*",
-  "matplotlib.*",
   "pytest.*",
   "loguru.*",
   "qt_niu.*",
