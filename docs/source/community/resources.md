@@ -7,10 +7,21 @@
 When using the project name `movement`, please use it in lower case, even at the beginning of a sentence.
 
 The official logos of `movement` are:
-- [Primary logo](../_static/movement_logo_transparent.png): containing the full package name, suitable for most use cases.
-- [Secondary logo](../_static/movement_favicon_64px.png): a compact version featuring only the lowercase letter "m", intended for use at small sizes (e.g. website favicons).
 
-All associated files are sharedy under the [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/) at <https://doi.org/10.5281/zenodo.17902183>.
+::::{grid} 2
+:::{grid-item-card}  Primary logo
+:img-top: ../_static/movement_logo.svg
+
+[SVG](../_static/movement_logo.svg): preferred for most use cases.
+:::
+:::{grid-item-card}  Favicon
+:img-top: ../_static/movement_favicon.svg
+
+[SVG](../_static/movement_favicon.svg): use at small sizes.
+:::
+::::
+
+All associated files are sharedy under the [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/) on [Zenodo](https://doi.org/10.5281/zenodo.17902182).
 
 The colours appearing in the logo and in many `movement` graphics are taken from the [ColoBrewer Set2 palette](https://colorbrewer2.org/#type=qualitative&scheme=Set2&n=3):
 
