@@ -1,29 +1,46 @@
 (target-resources)=
 # Resources
 
+Feel free to use and share the following resources when
+communicating about `movement`, whether to promote it, teach it,
+or acknowledge it in your own work.
 
-## Brand and logo
+## Brand & logo
 
-When using the project name `movement`, please use it in lower case, even at the beginning of a sentence.
+Use the project name `movement` in lowercase, even at the beginning of a sentence.
 
-The official logos of `movement` are:
+The official graphic assets for `movement` can be found below and on [Zenodo](https://doi.org/10.5281/zenodo.17902182),
+shared under the [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/).
 
-::::{grid} 2
-:::{grid-item-card}  Primary logo
+::::{grid} 1 3 3 3
+
+:::{grid-item-card}
+:columns: 3
 :img-top: ../_static/movement_logo.svg
-
-[SVG](../_static/movement_logo.svg): preferred for most use cases.
++++
+[Primary logo](../_static/movement_logo.svg)
 :::
-:::{grid-item-card}  Favicon
+:::{grid-item-card}
+:columns: 3
 :img-top: ../_static/movement_favicon.svg
-
-[SVG](../_static/movement_favicon.svg): use at small sizes.
++++
+[Compact logo](../_static/movement_favicon.svg)
 :::
+
+:::{grid-item-card}
+:columns: 6
+:img-top: ../_static/movement_overview.png
++++
+[Overview figure](../_static/movement_overview.png)
+:::
+
 ::::
 
-All associated files are shared under the [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/) on [Zenodo](https://doi.org/10.5281/zenodo.17902182).
+## Font & colours
 
-The colours appearing in the logo and in many `movement` graphics are taken from the [ColoBrewer Set2 palette](https://colorbrewer2.org/#type=qualitative&scheme=Set2&n=3):
+The font appearing in `movement` graphics is [Barlow](https://fonts.google.com/specimen/Barlow), in various weights and styles.
+
+The colours are taken from the [ColoBrewer](https://colorbrewer2.org) **Set2** palette:
 
 <div class="colour-grid">
     <div class="colour-card">
@@ -51,3 +68,31 @@ The colours appearing in the logo and in many `movement` graphics are taken from
         HEX: #fc8d62
     </div>
 </div>
+
+
+## Presentations & media
+
+A selection of talks, posters, and blogposts about `movement`.
+
+| Type | Venue | Date | Link |
+|-------|-------|------|------|
+| Talk  | [CBIAS 2025](https://www.crick.ac.uk/whats-on/crick-bioimage-analysis-symposium-2025) | Nov 2025 | [Slides](https://neuroinformatics.dev/slides-movement-cbias2025/#/title-slide) |
+| Blogpost  | [UCL-ARC Showcase](https://www.ucl.ac.uk/advanced-research-computing/arc-showcase) | May 2025 | [URL](https://www.ucl.ac.uk/advanced-research-computing/case-studies/2025/may/movement-python-package-simplifies-analysis-animals-motion) |
+| Poster  | [ASAB Spring 2025](https://asabspring2025.github.io) | Apr 2025 | [PDF on Zenodo](https://doi.org/10.5281/zenodo.17924159) |
+| Talk  | [ABIDE](https://abide.ics.ulisboa.pt/en/) Seminar | Feb 2025 | [Video on YouTube](https://www.youtube.com/watch?v=GXBQsqqZZTg) |
+
+
+## Teaching materials
+
+`movement` is being taught as part of the
+[Animals in Motion](https://neuroinformatics.dev/open-software-summer-school/2026/animals-in-motion.html)
+workshop at the [Neuroinformatics Unit Open Software Summer School](https://neuroinformatics.dev/open-software-summer-school).
+
+:::{dropdown} Online handbook
+:open:
+:icon: book
+:color: success
+
+Check out the open workshop handbook at
+[animals-in-motion.neuroinformatics.dev](https://animals-in-motion.neuroinformatics.dev).
+:::
