@@ -38,7 +38,7 @@ shared under the [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0
 
 ## Font & colours
 
-The font appearing in `movement` graphics is [Barlow](https://fonts.google.com/specimen/Barlow), in various weights and styles.
+The typeface appearing in `movement` graphics is [Barlow](https://fonts.google.com/specimen/Barlow), in various weights and styles.
 
 The colours are taken from the [ColoBrewer](https://colorbrewer2.org) **Set2** palette:
 
