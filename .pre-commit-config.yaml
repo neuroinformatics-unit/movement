@@ -45,6 +45,11 @@ repos:
                 - types-attrs
                 - types-PyYAML
                 - types-requests
+                - numpy>=2.0.0
+                - xarray
+                - h5py
+                - types-tqdm
+                - shapely
     - repo: https://github.com/mgedmin/check-manifest
       rev: "0.51"
       hooks:
