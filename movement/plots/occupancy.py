@@ -6,8 +6,10 @@ from typing import Any, Literal, TypeAlias
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure, SubFigure
 
-HistInfoKeys: TypeAlias = Literal["counts", "xedges", "yedges"]
+HistInfoKeys: TypeAlias = Literal["h", "xedges", "yedges"]
 
 DEFAULT_HIST_ARGS = {"alpha": 1.0, "bins": 30, "cmap": "viridis"}
 
@@ -16,9 +18,9 @@ def plot_occupancy(
     da: xr.DataArray,
     individuals: Hashable | Sequence[Hashable] | None = None,
     keypoints: Hashable | Sequence[Hashable] | None = None,
-    ax: plt.Axes | None = None,
+    ax: Axes | None = None,
     **kwargs: Any,
-) -> tuple[plt.Figure, plt.Axes, dict[HistInfoKeys, np.ndarray]]:
+) -> tuple[Figure | SubFigure, Axes, dict[HistInfoKeys, np.ndarray]]:
     """Create a 2D occupancy histogram.
 
     - If there are multiple keypoints selected, the occupancy of the centroid
@@ -29,7 +31,9 @@ def plot_occupancy(
     Points whose corresponding spatial coordinates have NaN values
     are ignored.
 
-    Histogram information is returned as the third output value (see Notes).
+    This function returns the figure and axes containing the histogram,
+    as well as a dictionary containing the histogram data returned by
+    :meth:`matplotlib.axes.Axes.hist2d`.
 
     Parameters
     ----------
@@ -49,33 +53,17 @@ def plot_occupancy(
 
     Returns
     -------
-    matplotlib.pyplot.Figure
+    fig : matplotlib.figure.Figure or matplotlib.figure.SubFigure
         Plot handle containing the rendered 2D histogram. If ``ax`` is
-        supplied, this will be the figure that ``ax`` belongs to.
-    matplotlib.axes.Axes
-        Axes on which the histogram was drawn. If ``ax`` was supplied,
+        supplied, this will be the :class:`matplotlib.figure.Figure` or
+        :class:`matplotlib.figure.SubFigure` that ``ax`` belongs to.
+    ax : matplotlib.axes.Axes
+        Axes on which the histogram was drawn. If ``ax`` is supplied,
         the input will be directly modified and returned in this value.
-    dict[str, numpy.ndarray]
-        Information about the created histogram (see Notes).
-
-    Notes
-    -----
-    The third return value of this method exposes the outputs from
-    :meth:`matplotlib.axes.Axes.hist2d` that would otherwise be lost if only
-    the figure and axes handles were returned. This information is returned
-    as a dictionary.
-
-    For data with ``Nx`` bins in the 1st spatial dimension, and ``Ny`` bins in
-    the 2nd spatial dimension, the dictionary output has key-value pairs;
-    - ``xedges``, an ``(Nx+1,)`` ``numpy`` array specifying the bin edges in
-    the 1st spatial dimension.
-    - ``yedges``, an ``(Ny+1,)`` ``numpy`` array specifying the bin edges in
-    the 2nd spatial dimension.
-    - ``counts``, an ``(Nx, Ny)`` ``numpy`` array with the count for each bin.
-
-    ``counts[x, y]`` is the number of datapoints in the
-    ``(xedges[x], xedges[x+1]), (yedges[y], yedges[y+1])`` bin. These values
-    are those returned from :meth:`matplotlib.axes.Axes.hist2d`.
+    hist2d_info : dict[Literal['h', 'xedges', 'yedges'], np.ndarray]
+        Dictionary containing the ``h``, ``xedges``, and ``yedges`` outputs
+        from :meth:`matplotlib.axes.Axes.hist2d` that would otherwise be lost
+        if only the figure and axes handles were returned.
 
     Examples
     --------
@@ -161,17 +149,23 @@ def plot_occupancy(
         if key not in kwargs:
             kwargs[key] = value
     # Now it should just be a case of creating the histogram
-    if ax is not None:
-        fig = ax.get_figure()
-    else:
+    fig = ax.get_figure() if ax is not None else None
+    if fig is None:
         fig, ax = plt.subplots()
-    counts, xedges, yedges, hist_image = ax.hist2d(
+    assert ax is not None
+    h, xedges, yedges, hist_image = ax.hist2d(
         data.sel(space=x_coord), data.sel(space=y_coord), **kwargs
     )
-    colourbar = fig.colorbar(hist_image, ax=ax)
-    colourbar.solids.set(alpha=1.0)
+    hist2d_info: dict[HistInfoKeys, np.ndarray] = {
+        "h": h,
+        "xedges": xedges,
+        "yedges": yedges,
+    }
+    cbar = fig.colorbar(hist_image, ax=ax)
+    if cbar.solids is not None:
+        cbar.solids.set(alpha=1.0)
 
     ax.set_xlabel(str(x_coord))
     ax.set_ylabel(str(y_coord))
 
-    return fig, ax, {"counts": counts, "xedges": xedges, "yedges": yedges}
+    return fig, ax, hist2d_info
