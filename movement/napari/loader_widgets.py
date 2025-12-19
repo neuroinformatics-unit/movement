@@ -215,6 +215,7 @@ class DataLoader(QWidget):
 
         Returns True if the data was successfully extracted, False otherwise.
         """
+        ds: xr.Dataset | None
         if self.source_software not in SUPPORTED_NETCDF_FILES:
             ds = self._load_third_party_file()
         else:
