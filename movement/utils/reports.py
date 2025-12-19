@@ -1,5 +1,7 @@
 """Utility functions for reporting missing data."""
 
+from collections.abc import Hashable
+
 import numpy as np
 import xarray as xr
 
@@ -33,8 +35,8 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
 
     """
     validate_dims_coords(da, {"time": []})
-    label = label or da.name or "data"
-    nan_report = f"Missing points (marked as NaN) in {label}:"
+    resolved_label: Hashable = label or da.name or "data"
+    nan_report = f"Missing points (marked as NaN) in {resolved_label}:"
     nan_count = (
         da.isnull().any("space").sum("time")
         if "space" in da.dims
@@ -43,7 +45,7 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
     # Drop coord labels without NaNs
     nan_count = nan_count.where(nan_count > 0, other=0, drop=True)
     if nan_count.size == 0 or nan_count.isnull().all():
-        return f"No missing points (marked as NaN) in {label}."
+        return f"No missing points (marked as NaN) in {resolved_label}."
     total_count = da.time.size
     nan_count_str = (
         nan_count.astype(int).astype(str)
