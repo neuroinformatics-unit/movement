@@ -1,12 +1,15 @@
 """Utility functions for reporting missing data."""
 
-from collections.abc import Hashable
+from typing import TYPE_CHECKING
 
 import numpy as np
 import xarray as xr
 
 from movement.utils.logging import logger
 from movement.validators.arrays import validate_dims_coords
+
+if TYPE_CHECKING:
+    from collections.abc import Hashable
 
 
 def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:

@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from matplotlib.figure import Figure, SubFigure
     from numpy.typing import ArrayLike
 
+FloatSequence: TypeAlias = Sequence[float]
 PointLikeList: TypeAlias = Sequence[float] | np.ndarray | CoordinateSequence
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
 RegionLike: TypeAlias = shapely.Polygon
@@ -275,7 +276,7 @@ class BaseRegionOfInterest(ABC, Generic[TRegion_co]):
             False otherwise.
 
         """
-        point = shapely.Point(cast("Sequence[float]", position))
+        point = shapely.Point(cast("FloatSequence", position))
         region = self.region
         return (
             region.covers(point)
@@ -310,7 +311,7 @@ class BaseRegionOfInterest(ABC, Generic[TRegion_co]):
             self.region.boundary if boundary_only else self.region
         )
         return shapely.distance(
-            region_to_consider, shapely.Point(cast("Sequence[float]", point))
+            region_to_consider, shapely.Point(cast("FloatSequence", point))
         )
 
     @broadcastable_method(
@@ -347,7 +348,7 @@ class BaseRegionOfInterest(ABC, Generic[TRegion_co]):
         return np.array(
             shapely.shortest_line(
                 region_to_consider,
-                shapely.Point(cast("Sequence[float]", position)),
+                shapely.Point(cast("FloatSequence", position)),
             ).coords[0]
         )
 
@@ -396,7 +397,7 @@ class BaseRegionOfInterest(ABC, Generic[TRegion_co]):
 
         # "point to region" by virtue of order of arguments to shapely call
         directed_line = shapely.shortest_line(
-            shapely.Point(cast("Sequence[float]", point)), region_to_consider
+            shapely.Point(cast("FloatSequence", point)), region_to_consider
         )
 
         approach_vector = np.array(directed_line.coords[1]) - np.array(

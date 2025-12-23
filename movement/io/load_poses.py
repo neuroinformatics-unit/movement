@@ -1,14 +1,13 @@
 """Load pose tracking data from various frameworks into ``movement``."""
 
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import h5py
 import numpy as np
 import pandas as pd
 import pynwb
 import xarray as xr
-from numpy.typing import NDArray
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
@@ -21,6 +20,9 @@ from movement.validators.files import (
     ValidHDF5,
     ValidNWBFile,
 )
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 
 def from_numpy(

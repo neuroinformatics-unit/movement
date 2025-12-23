@@ -1,11 +1,11 @@
 """Save bounding boxes data from ``movement`` to VIA tracks .csv format."""
 
-import _csv
 import csv
 import json
 import re
 from collections.abc import Iterable
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 import xarray as xr
@@ -13,6 +13,9 @@ import xarray as xr
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesDataset, _validate_dataset
 from movement.validators.files import _validate_file_path
+
+if TYPE_CHECKING:
+    import _csv
 
 
 def to_via_tracks_file(
