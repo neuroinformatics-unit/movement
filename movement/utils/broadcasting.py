@@ -62,6 +62,9 @@ P = ParamSpec("P")
 ClsMethod1DTo1D: TypeAlias = Callable[
     Concatenate[Self, ArrayLike, P], ScalarOr1D
 ]
+ClsMethodDaToDa: TypeAlias = Callable[
+    Concatenate[Self, xr.DataArray, P], xr.DataArray
+]
 Function1DTo1D: TypeAlias = Callable[Concatenate[ArrayLike, P], ScalarOr1D]
 FunctionDaToDa: TypeAlias = Callable[
     Concatenate[xr.DataArray, P], xr.DataArray
@@ -140,7 +143,9 @@ def make_broadcastable(
     is_classmethod: Literal[True],
     only_broadcastable_along: str | None = None,
     new_dimension_name: str | None = None,
-) -> Callable[[ClsMethod1DTo1D[Self, P, ScalarOr1D]], FunctionDaToDa[P]]: ...
+) -> Callable[
+    [ClsMethod1DTo1D[Self, P, ScalarOr1D]], ClsMethodDaToDa[Self, P]
+]: ...
 @overload
 def make_broadcastable(
     *,
@@ -148,7 +153,7 @@ def make_broadcastable(
     only_broadcastable_along: str | None = None,
     new_dimension_name: str | None = None,
 ) -> Callable[
-    ..., FunctionDaToDa[P]
+    ..., FunctionDaToDa[P] | ClsMethodDaToDa[Self, P]
 ]: ...  # Fallback when `is_classmethod` is unknown at type-check time
 def make_broadcastable(
     *,
@@ -281,7 +286,7 @@ def space_broadcastable(
     *,
     is_classmethod: bool = False,
     new_dimension_name: str | None = None,
-) -> Callable[..., FunctionDaToDa[P]]:
+) -> Callable[..., FunctionDaToDa[P] | ClsMethodDaToDa[Self, P]]:
     """Broadcast a 1D function along the 'space' dimension.
 
     This is a convenience wrapper for
@@ -314,7 +319,9 @@ def space_broadcastable(
 def broadcastable_method(
     only_broadcastable_along: str | None = None,
     new_dimension_name: str | None = None,
-) -> Callable[[ClsMethod1DTo1D[Self, P, ScalarOr1D]], FunctionDaToDa[P]]:
+) -> Callable[
+    [ClsMethod1DTo1D[Self, P, ScalarOr1D]], ClsMethodDaToDa[Self, P]
+]:
     """Broadcast a class method along a ``xarray.DataArray`` dimension.
 
     This is a convenience wrapper for
