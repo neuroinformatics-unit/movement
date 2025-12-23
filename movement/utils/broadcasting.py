@@ -79,7 +79,7 @@ def apply_along_da_axis(
 ) -> xr.DataArray:
     """Apply a function ``f`` across ``dimension`` of ``data``.
 
-    ``f`` should be callable as ``f(input_1D)`` where ``input_1D`` is a
+    ``f`` should be callable as ``f(input_1d)`` where ``input_1d`` is a
     one-dimensional :data:`numpy.typing.ArrayLike` object. It should return
     either a scalar or one-dimensional :data:`numpy.typing.ArrayLike` object.
 
@@ -113,7 +113,7 @@ def apply_along_da_axis(
 
     """
     output: xr.DataArray = xr.apply_ufunc(
-        lambda input_1D: np.atleast_1d(f(input_1D)),
+        lambda input_1d: np.atleast_1d(f(input_1d)),
         data,
         input_core_dims=[[dimension]],
         exclude_dims=set((dimension,)),
@@ -254,13 +254,13 @@ def make_broadcastable(
             if is_classmethod:
                 self, data, *rest = args
 
-                def call_f(input_1D):
-                    return f(self, input_1D, *rest, **kwargs)
+                def call_f(input_1d):
+                    return f(self, input_1d, *rest, **kwargs)
             else:
                 data, *rest = args
 
-                def call_f(input_1D):
-                    return f(input_1D, *rest, **kwargs)
+                def call_f(input_1d):
+                    return f(input_1d, *rest, **kwargs)
 
             if not isinstance(data, xr.DataArray):
                 return f(*args, **kwargs)
