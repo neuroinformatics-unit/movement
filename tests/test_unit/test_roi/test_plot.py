@@ -1,4 +1,3 @@
-import re
 from typing import Any
 
 import matplotlib.pyplot as plt
@@ -115,14 +114,3 @@ def test_plot(
     else:
         assert len(ax.patches) == 0 and len(ax.lines) == 1
         assert type(ax.lines[0]) is Line2D
-
-
-def test_requires_explicit_implementation() -> None:
-    """Test that the BaseRegionOfInterest class cannot be plotted."""
-    base_region = BaseRegionOfInterest([(0.0, 0.0), (1.0, 0.0)], dimensions=1)
-
-    with pytest.raises(
-        NotImplementedError,
-        match=re.escape("_plot must be implemented by subclass."),
-    ):
-        base_region.plot()

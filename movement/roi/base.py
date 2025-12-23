@@ -2,29 +2,37 @@
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from collections.abc import Callable, Hashable, Sequence
-from typing import Any, Literal, TypeAlias
+from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
 import shapely
-import xarray as xr
-from numpy.typing import ArrayLike
 from shapely.coords import CoordinateSequence
 
 from movement.utils.broadcasting import broadcastable_method
-from movement.utils.logging import logger
 from movement.utils.vector import compute_signed_angle_2d
 
+if TYPE_CHECKING:
+    import xarray as xr
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure, SubFigure
+    from numpy.typing import ArrayLike
+
+PointLikeList: TypeAlias = Sequence[float] | np.ndarray | CoordinateSequence
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
-PointLike: TypeAlias = list[float] | tuple[float, ...]
-PointLikeList: TypeAlias = Sequence[PointLike] | np.ndarray
 RegionLike: TypeAlias = shapely.Polygon
 SupportedGeometry: TypeAlias = LineLike | RegionLike
+TRegion_co = TypeVar("TRegion_co", bound=SupportedGeometry, covariant=True)
 
 
-class BaseRegionOfInterest:
-    """Base class for regions of interest (RoIs).
+class BaseRegionOfInterest(ABC, Generic[TRegion_co]):
+    """Abstract base class for regions of interest (RoIs).
+
+    This class cannot be instantiated directly. Instead, use one of its
+    subclasses, such as :class:`LineOfInterest<movement.roi.LineOfInterest>` or
+    :class:`PolygonOfInterest<movement.roi.PolygonOfInterest>`.
 
     Regions of interest can be either 1 or 2 dimensional, and are represented
     by corresponding ``shapely.Geometry`` objects.
@@ -36,9 +44,6 @@ class BaseRegionOfInterest:
     class. This is accessible via the property ``region``. This also allows us
     to forbid certain operations and make the manipulation of ``shapely``
     objects more user friendly.
-
-    Although this class can be instantiated directly, it is not designed for
-    this. Its primary purpose is to reduce code duplication.
 
     Notes
     -----
@@ -61,7 +66,7 @@ class BaseRegionOfInterest:
     __default_name: str = "Un-named region"
 
     _name: str | None
-    _shapely_geometry: SupportedGeometry
+    _shapely_geometry: TRegion_co
 
     @property
     def _default_plot_args(self) -> dict[str, Any]:
@@ -96,14 +101,14 @@ class BaseRegionOfInterest:
         """
         return (
             self.region.coords
-            if self.dimensions < 2
+            if isinstance(self.region, LineLike)
             else self.region.exterior.coords
         )
 
     @property
     def dimensions(self) -> int:
         """Dimensionality of the region."""
-        return shapely.get_dimensions(self.region)
+        return int(shapely.get_dimensions(self.region))
 
     @property
     def is_closed(self) -> bool:
@@ -124,7 +129,7 @@ class BaseRegionOfInterest:
         return self._name if self._name else self.__default_name
 
     @property
-    def region(self) -> SupportedGeometry:
+    def region(self) -> TRegion_co:
         """``shapely.Geometry`` representation of the region."""
         return self._shapely_geometry
 
@@ -175,7 +180,7 @@ class BaseRegionOfInterest:
 
         angles = compute_signed_angle_2d(vec_to_segment, reference_vector)
         if in_degrees:
-            angles = np.rad2deg(angles)
+            angles = cast("xr.DataArray", np.rad2deg(angles))
         return angles
 
     @staticmethod
@@ -210,31 +215,15 @@ class BaseRegionOfInterest:
 
     def __init__(
         self,
-        points: PointLikeList,
-        dimensions: Literal[1, 2] = 2,
-        closed: bool = False,
-        holes: Sequence[PointLikeList] | None = None,
+        geometry: TRegion_co,
         name: str | None = None,
     ) -> None:
         """Initialise a region of interest.
 
         Parameters
         ----------
-        points : Sequence of (x, y) values
-            Sequence of (x, y) coordinate pairs that will form the region.
-        dimensions : Literal[1, 2], default 2
-            The dimensionality of the region to construct.
-            '1' creates a sequence of joined line segments,
-            '2' creates a polygon whose boundary is defined by ``points``.
-        closed : bool, default False
-            Whether the line to be created should be closed. That is, whether
-            the final point should also link to the first point.
-            Ignored if ``dimensions`` is 2.
-        holes : sequence of sequences of (x, y) pairs, default None
-            A sequence of items, where each item will be interpreted like
-            ``points``. These items will be used to construct internal holes
-            within the region. See the ``holes`` argument to
-            ``shapely.Polygon`` for details. Ignored if ``dimensions`` is 1.
+        geometry : shapely.Geometry
+            The ``shapely`` geometry that defines the region of interest.
         name : str, default None
             Human-readable name to assign to the given region, for
             user-friendliness. Default name given is 'Un-named region' if no
@@ -242,33 +231,7 @@ class BaseRegionOfInterest:
 
         """
         self._name = name
-        if len(points) < dimensions + 1:
-            raise logger.error(
-                ValueError(
-                    f"Need at least {dimensions + 1} points to define a "
-                    f"{dimensions}D region (got {len(points)})."
-                )
-            )
-        elif dimensions < 1 or dimensions > 2:
-            raise logger.error(
-                ValueError(
-                    "Only regions of interest of dimension 1 or 2 "
-                    f"are supported (requested {dimensions})"
-                )
-            )
-        elif dimensions == 1 and len(points) < 3 and closed:
-            raise logger.error(
-                ValueError("Cannot create a loop from a single line segment.")
-            )
-        if dimensions == 2:
-            self._shapely_geometry = shapely.Polygon(shell=points, holes=holes)
-        else:
-            self._shapely_geometry = (
-                shapely.LinearRing(coordinates=points)
-                if closed
-                else shapely.LineString(coordinates=points)
-            )
-            self._shapely_geometry = shapely.normalize(self._shapely_geometry)
+        self._shapely_geometry = geometry
 
     def __repr__(self) -> str:  # noqa: D105
         return str(self)
@@ -281,16 +244,17 @@ class BaseRegionOfInterest:
             f"({n_points}{display_type})\n"
         ) + " -> ".join(f"({c[0]}, {c[1]})" for c in self.coords)
 
+    @abstractmethod
     def _plot(
-        self, fig: plt.Figure, ax: plt.Axes, **matplotlib_kwargs
-    ) -> tuple[plt.Figure, plt.Axes]:
-        raise NotImplementedError("_plot must be implemented by subclass.")
+        self, fig: Figure | SubFigure, ax: Axes, **matplotlib_kwargs
+    ) -> tuple[Figure | SubFigure, Axes]:
+        """Plot the region. Must be implemented in subclasses."""
 
     @broadcastable_method(only_broadcastable_along="space")
     def contains_point(
         self,
-        /,
         position: ArrayLike,
+        /,
         include_boundary: bool = True,
     ) -> bool:
         """Determine if a position is inside the region of interest.
@@ -311,20 +275,13 @@ class BaseRegionOfInterest:
             False otherwise.
 
         """
-        point = shapely.Point(position)
-
-        current_region = self.region
-        point_is_inside = current_region.contains(point)
-
-        if include_boundary:
-            # 2D objects have 1D object boundaries,
-            # which in turn have point-boundaries.
-            while not current_region.boundary.is_empty:
-                current_region = current_region.boundary
-                point_is_inside = point_is_inside or current_region.contains(
-                    point
-                )
-        return point_is_inside
+        point = shapely.Point(cast("Sequence[float]", position))
+        region = self.region
+        return (
+            region.covers(point)
+            if include_boundary
+            else region.contains(point)
+        )
 
     @broadcastable_method(only_broadcastable_along="space")
     def compute_distance_to(
@@ -352,13 +309,15 @@ class BaseRegionOfInterest:
         region_to_consider = (
             self.region.boundary if boundary_only else self.region
         )
-        return shapely.distance(region_to_consider, shapely.Point(point))
+        return shapely.distance(
+            region_to_consider, shapely.Point(cast("Sequence[float]", point))
+        )
 
     @broadcastable_method(
         only_broadcastable_along="space", new_dimension_name="nearest point"
     )
     def compute_nearest_point_to(
-        self, /, position: ArrayLike, boundary_only: bool = False
+        self, position: ArrayLike, /, boundary_only: bool = False
     ) -> np.ndarray:
         """Compute (one of) the nearest point(s) in the region to ``position``.
 
@@ -387,7 +346,8 @@ class BaseRegionOfInterest:
         # therefore the point on self is the 0th coordinate
         return np.array(
             shapely.shortest_line(
-                region_to_consider, shapely.Point(position)
+                region_to_consider,
+                shapely.Point(cast("Sequence[float]", position)),
             ).coords[0]
         )
 
@@ -436,7 +396,7 @@ class BaseRegionOfInterest:
 
         # "point to region" by virtue of order of arguments to shapely call
         directed_line = shapely.shortest_line(
-            shapely.Point(point), region_to_consider
+            shapely.Point(cast("Sequence[float]", point)), region_to_consider
         )
 
         approach_vector = np.array(directed_line.coords[1]) - np.array(
@@ -454,7 +414,7 @@ class BaseRegionOfInterest:
         position: xr.DataArray,
         boundary_only: bool = False,
         in_degrees: bool = False,
-        reference_vector: np.ndarray | xr.DataArray = None,
+        reference_vector: np.ndarray | xr.DataArray | None = None,
     ) -> xr.DataArray:
         """Compute the allocentric angle to the nearest point in the region.
 
@@ -477,7 +437,7 @@ class BaseRegionOfInterest:
         in_degrees : bool
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
-        reference_vector : ArrayLike | xr.DataArray
+        reference_vector : np.ndarray or xarray.DataArray or None
             The reference vector to be used. Dimensions must be compatible with
             the argument of the same name that is passed to
             :func:`compute_signed_angle_2d`. Default ``(1., 0.)``.
@@ -566,27 +526,36 @@ class BaseRegionOfInterest:
         )
 
     def plot(
-        self, ax: plt.Axes | None = None, **matplotlib_kwargs
-    ) -> tuple[plt.Figure, plt.Axes]:
+        self, ax: Axes | None = None, **matplotlib_kwargs
+    ) -> tuple[Figure | SubFigure, Axes]:
         """Plot the region of interest on a new or existing axis.
 
         Parameters
         ----------
-        ax : plt.Axes, optional
-            ``matplotlib.pyplot.Axes`` object to draw the region on. A new
-            ``Figure`` and ``Axes`` will be created if not provided.
+        ax : matplotlib.axes.Axes or None, optional
+            Axes object on which to draw the region. If None, a new
+            figure and axes are created.
         matplotlib_kwargs : Any
             Keyword arguments passed to the :mod:`matplotlib.pyplot` plotting
             function.
+
+        Returns
+        -------
+        fig : matplotlib.figure.Figure or matplotlib.figure.SubFigure
+            If ``ax`` is provided, this is ``ax.figure``
+            (:class:`matplotlib.figure.Figure` or
+            :class:`matplotlib.figure.SubFigure`). Otherwise, a new
+            :class:`matplotlib.figure.Figure` is created and returned.
+        ax : matplotlib.axes.Axes
+            Axes on which the region was drawn. If ``ax`` is provided,
+            the input will be directly modified and returned in this value.
 
         """
         for arg, default in self._default_plot_args.items():
             if arg not in matplotlib_kwargs:
                 matplotlib_kwargs[arg] = default
 
-        if ax is None:
+        fig = ax.get_figure() if ax is not None else None
+        if fig is None or ax is None:
             fig, ax = plt.subplots(1, 1)
-        else:
-            fig = ax.get_figure()
-
         return self._plot(fig, ax, **matplotlib_kwargs)

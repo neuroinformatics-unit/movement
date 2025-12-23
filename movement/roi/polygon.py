@@ -2,19 +2,25 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-import matplotlib.pyplot as plt
 import numpy as np
+import shapely
 from matplotlib.patches import PathPatch as PltPatch
 from matplotlib.path import Path as PltPath
 
-from movement.roi.base import BaseRegionOfInterest, PointLikeList
+from movement.roi.base import BaseRegionOfInterest, PointLikeList, RegionLike
 from movement.roi.line import LineOfInterest
+from movement.utils.logging import logger
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure, SubFigure
 
 
-class PolygonOfInterest(BaseRegionOfInterest):
+class PolygonOfInterest(BaseRegionOfInterest[RegionLike]):
     """Representation of a two-dimensional region in the x-y plane.
 
     This class can be used to represent polygonal regions or subregions
@@ -67,9 +73,17 @@ class PolygonOfInterest(BaseRegionOfInterest):
             from.
 
         """
-        super().__init__(
-            points=exterior_boundary, dimensions=2, holes=holes, name=name
+        if len(exterior_boundary) < 3:
+            raise logger.error(
+                ValueError(
+                    f"Need at least 3 points to define a "
+                    f"2D region (got {len(exterior_boundary)})."
+                )
+            )
+        polygon: RegionLike = shapely.Polygon(
+            shell=exterior_boundary, holes=holes
         )
+        super().__init__(geometry=polygon, name=name)
 
     @property
     def _default_plot_args(self) -> dict[str, Any]:
@@ -120,8 +134,8 @@ class PolygonOfInterest(BaseRegionOfInterest):
         )
 
     def _plot(
-        self, fig: plt.Figure, ax: plt.Axes, **matplotlib_kwargs
-    ) -> tuple[plt.Figure, plt.Axes]:
+        self, fig: Figure | SubFigure, ax: Axes, **matplotlib_kwargs
+    ) -> tuple[Figure | SubFigure, Axes]:
         """Polygonal regions need to use patch to be plotted.
 
         In addition, ``matplotlib`` requires hole coordinates to be listed in
