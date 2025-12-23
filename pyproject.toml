@@ -145,6 +145,7 @@ select = [
   "I",      # isort
   "B",      # flake8 bugbear
   "SIM",    # flake8 simplify
+  "TC",     # flake8 type-checking
   "C90",    # McCabe complexity
   "D",      # pydocstyle
   "NPY201", # checks for syntax that was deprecated in numpy2.0
