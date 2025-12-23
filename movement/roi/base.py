@@ -157,11 +157,11 @@ class BaseRegionOfInterest:
 
         Parameters
         ----------
-        position : xarray.DataArray
+        position
             Spatial position data, that is passed to
             ``how_to_compute_vector_to_region`` and used to compute the
             "vector to the region".
-        reference_vector : xarray.DataArray | np.ndarray
+        reference_vector
             Constant or time-varying vector to take signed angle with the
             "vector to the region".
         how_to_compute_vector_to_region : Callable
@@ -193,7 +193,7 @@ class BaseRegionOfInterest:
 
         Parameters
         ----------
-        da : xarray.DataArray
+        da 
             ``DataArray`` lacking a "space" dimension, that is to be assigned.
         old_dimension : Hashable
             The dimension that should be renamed to "space", and reassigned
@@ -375,7 +375,6 @@ class BaseRegionOfInterest:
 
         Returns
         -------
-        np.ndarray
             Coordinates of the point on ``self`` that is closest to
             ``position``.
 
@@ -419,7 +418,6 @@ class BaseRegionOfInterest:
 
         Returns
         -------
-        np.ndarray
             Approach vector from the point to the region.
 
         See Also
@@ -469,7 +467,7 @@ class BaseRegionOfInterest:
 
         Parameters
         ----------
-        position : xarray.DataArray
+        position 
             ``DataArray`` of spatial positions.
         boundary_only : bool
             If ``True``, the allocentric angle to the closest boundary point of
@@ -477,7 +475,7 @@ class BaseRegionOfInterest:
         in_degrees : bool
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
-        reference_vector : ArrayLike | xr.DataArray
+        reference_vector
             The reference vector to be used. Dimensions must be compatible with
             the argument of the same name that is passed to
             :func:`compute_signed_angle_2d`. Default ``(1., 0.)``.
@@ -528,10 +526,10 @@ class BaseRegionOfInterest:
 
         Parameters
         ----------
-        direction : xarray.DataArray
+        direction :
             An array of vectors representing a given direction,
             e.g., the forward vector(s).
-        position : xarray.DataArray
+        position : 
             `DataArray` of spatial positions, considered the origin of the
             ``direction`` vector.
         boundary_only : bool

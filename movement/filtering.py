@@ -23,9 +23,9 @@ def filter_by_confidence(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data to be filtered.
-    confidence : xarray.DataArray
+    confidence
         The data array containing confidence scores to filter by.
     threshold : float
         The confidence threshold below which datapoints are filtered.
@@ -36,7 +36,6 @@ def filter_by_confidence(
 
     Returns
     -------
-    xarray.DataArray
         The data where points with a confidence value below the
         user-defined threshold have been converted to NaNs.
 
@@ -75,7 +74,7 @@ def interpolate_over_time(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data to be interpolated.
     method : str
         String indicating which method to use for interpolation.
@@ -96,7 +95,6 @@ def interpolate_over_time(
 
     Returns
     -------
-    xarray.DataArray
         The data where NaN values have been interpolated over
         using the parameters provided.
 
@@ -137,7 +135,7 @@ def rolling_filter(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data array.
     window : int
         The size of the rolling window, representing the fixed number
@@ -158,7 +156,6 @@ def rolling_filter(
 
     Returns
     -------
-    xarray.DataArray
         The filtered data array.
 
     Notes
@@ -217,7 +214,7 @@ def savgol_filter(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data to be smoothed.
     window : int
         The size of the smoothing window, representing the fixed number
@@ -237,7 +234,6 @@ def savgol_filter(
 
     Returns
     -------
-    xarray.DataArray
         The data smoothed using a Savitzky-Golay filter with the
         provided parameters.
 

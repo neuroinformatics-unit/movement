@@ -27,12 +27,12 @@ def _cdist(
 
     Parameters
     ----------
-    a : xarray.DataArray
+    a
         The first input data containing position information of a
         single individual or keypoint, with ``time``, ``space``
         (in Cartesian coordinates), and ``individuals`` or ``keypoints``
         (as specified by ``dim``) as required dimensions.
-    b : xarray.DataArray
+    b
         The second input data containing position information of a
         single individual or keypoint, with ``time``, ``space``
         (in Cartesian coordinates), and ``individuals`` or ``keypoints``
@@ -52,7 +52,6 @@ def _cdist(
 
     Returns
     -------
-    xarray.DataArray
         An xarray DataArray containing the computed distances between
         each pair of inputs.
 
@@ -125,7 +124,7 @@ def compute_pairwise_distances(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data containing position information, with ``time``,
         ``space`` (in Cartesian coordinates), and
         ``individuals`` or ``keypoints`` (as specified by ``dim``)
@@ -325,14 +324,14 @@ def _validate_labels_dimension(data: xr.DataArray, dim: str) -> xr.DataArray:
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data to validate.
     dim : str
         The dimension to validate.
 
     Returns
     -------
-    xarray.DataArray
+    xarray
         The input data with the labels dimension validated.
 
     """

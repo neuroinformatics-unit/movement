@@ -437,7 +437,7 @@ def _validate_dataset(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds 
         Dataset to validate.
     dataset_validator : type[ValidBboxesDataset] | type[ValidPosesDataset]
         Validator for the dataset.

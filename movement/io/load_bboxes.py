@@ -32,18 +32,18 @@ def from_numpy(
 
     Parameters
     ----------
-    position_array : np.ndarray
+    position_array 
         Array of shape (n_frames, n_space, n_individuals)
         containing the tracks of the bounding box centroids.
         It will be converted to a :class:`xarray.DataArray` object
         named "position".
-    shape_array : np.ndarray
+    shape_array 
         Array of shape (n_frames, n_space, n_individuals)
         containing the shape of the bounding boxes. The shape of a bounding
         box is its width (extent along the x-axis of the image) and height
         (extent along the y-axis of the image). It will be converted to a
         :class:`xarray.DataArray` object named "shape".
-    confidence_array : np.ndarray, optional
+    confidence_array
         Array of shape (n_frames, n_individuals) containing
         the confidence scores of the bounding boxes. If None (default), the
         confidence scores are set to an array of NaNs. It will be converted
@@ -54,7 +54,7 @@ def from_numpy(
         of the ``position_array``. The names will be in the format of
         ``id_<N>``, where <N>  is an integer from 0 to
         ``position_array.shape[-1]-1`` (i.e., "id_0", "id_1"...).
-    frame_array : np.ndarray, optional
+    frame_array
         Array of shape (n_frames, 1) containing the frame numbers for which
         bounding boxes are defined. If None (default), frame numbers will
         be assigned based on the first dimension of the ``position_array``,
@@ -72,7 +72,6 @@ def from_numpy(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the position, shape, and confidence
         scores of the tracked bounding boxes, and any associated metadata.
 
@@ -193,7 +192,6 @@ def from_file(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the position, shape, and confidence
         scores of the tracked bounding boxes, and any associated metadata.
 
@@ -269,7 +267,6 @@ def from_via_tracks_file(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the position, shape, and confidence
         scores of the tracked bounding boxes, and any associated metadata.
 
@@ -567,7 +564,6 @@ def _extract_frame_number_from_via_tracks_df(
 
     Returns
     -------
-    np.ndarray
         A numpy array of size (n_frames, ) containing the frame numbers.
         In the VIA tracks .csv file, the frame number is expected to be
         defined as a 'file_attribute' , or encoded in the filename as an
@@ -629,7 +625,6 @@ def _via_attribute_column_to_numpy(
 
     Returns
     -------
-    np.ndarray
         A numpy array holding the extracted values. If ``len(list_keys) > 1``
         the array is two-dimensional with shape ``(N, len(list_keys))``, where
         ``N`` is the number of rows in the input dataframe ``df``. If

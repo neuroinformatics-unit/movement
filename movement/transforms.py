@@ -21,7 +21,7 @@ def scale(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data 
         The input data to be scaled.
     factor : ArrayLike or float
         The scaling factor to apply to the data. If factor is a scalar (a
@@ -37,7 +37,6 @@ def scale(
 
     Returns
     -------
-    xarray.DataArray
         The scaled data array.
 
     Notes
@@ -125,16 +124,15 @@ def compute_homography_transform(
 
     Parameters
     ----------
-    src_points : np.ndarray
+    src_points
         An array of shape (N, 2) representing N source points
         in 2-dimensional space. N >= 4.
-    dst_points : np.ndarray
+    dst_points
         An array of shape (N, 2) representing N destination points
         in 2-dimensional space. N >= 4.
 
     Returns
     -------
-    np.ndarray
         A (3, 3) transformation matrix that aligns the
         source points to the destination points.
 

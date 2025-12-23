@@ -26,7 +26,7 @@ def to_via_tracks_file(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds 
         The ``movement`` bounding boxes dataset to export.
     file_path : str or pathlib.Path
         Path where the VIA tracks .csv file [1]_ will be saved.
@@ -209,7 +209,7 @@ def _check_frame_required_digits(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds 
         A movement dataset.
     frame_n_digits : int | None
         The proposed number of digits to use to represent the frame numbers
@@ -353,7 +353,7 @@ def _write_via_tracks_csv(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds 
         A movement bounding boxes dataset.
     file_path : str or pathlib.Path
         Path where the VIA tracks .csv file will be saved.
@@ -454,9 +454,9 @@ def _write_single_row(
     ----------
     writer : csv.writer
         CSV writer object.
-    xy_values : np.ndarray
+    xy_values 
         Array with the x, y coordinates of the bounding box centroid.
-    wh_values : np.ndarray
+    wh_values
         Array with the width and height of the bounding box.
     confidence : float | None
         Confidence score for the bounding box detection.
