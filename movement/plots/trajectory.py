@@ -27,7 +27,7 @@ def plot_centroid_trajectory(
 
     Parameters
     ----------
-    da 
+    da
         A data array containing position information, with `time` and `space`
         as required dimensions. Optionally, it may have `individuals` and/or
         `keypoints` dimensions.

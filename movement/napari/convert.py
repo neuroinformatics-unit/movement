@@ -44,7 +44,7 @@ def ds_to_napari_layers(
 
     Parameters
     ----------
-    ds 
+    ds
         ``movement`` dataset containing pose or bounding box tracks,
         confidence scores, and associated metadata.
 

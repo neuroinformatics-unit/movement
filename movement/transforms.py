@@ -21,7 +21,7 @@ def scale(
 
     Parameters
     ----------
-    data 
+    data
         The input data to be scaled.
     factor : ArrayLike or float
         The scaling factor to apply to the data. If factor is a scalar (a

@@ -33,7 +33,7 @@ def plot_occupancy(
 
     Parameters
     ----------
-    da 
+    da
         Spatial data to create histogram for. NaN values are dropped.
     individuals : Hashable, optional
         The name of the individual(s) to be aggregated and plotted. By default,

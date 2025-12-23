@@ -193,7 +193,6 @@ def from_dlc_style_df(
 
     Returns
     -------
-
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 

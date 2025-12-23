@@ -193,7 +193,7 @@ class BaseRegionOfInterest:
 
         Parameters
         ----------
-        da 
+        da
             ``DataArray`` lacking a "space" dimension, that is to be assigned.
         old_dimension : Hashable
             The dimension that should be renamed to "space", and reassigned
@@ -467,7 +467,7 @@ class BaseRegionOfInterest:
 
         Parameters
         ----------
-        position 
+        position
             ``DataArray`` of spatial positions.
         boundary_only : bool
             If ``True``, the allocentric angle to the closest boundary point of
@@ -529,7 +529,7 @@ class BaseRegionOfInterest:
         direction :
             An array of vectors representing a given direction,
             e.g., the forward vector(s).
-        position : 
+        position :
             `DataArray` of spatial positions, considered the origin of the
             ``direction`` vector.
         boundary_only : bool

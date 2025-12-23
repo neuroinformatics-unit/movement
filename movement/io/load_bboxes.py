@@ -32,12 +32,12 @@ def from_numpy(
 
     Parameters
     ----------
-    position_array 
+    position_array
         Array of shape (n_frames, n_space, n_individuals)
         containing the tracks of the bounding box centroids.
         It will be converted to a :class:`xarray.DataArray` object
         named "position".
-    shape_array 
+    shape_array
         Array of shape (n_frames, n_space, n_individuals)
         containing the shape of the bounding boxes. The shape of a bounding
         box is its width (extent along the x-axis of the image) and height
