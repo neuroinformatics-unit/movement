@@ -1,6 +1,6 @@
 """Wrappers to plot movement data."""
 
-from typing import cast
+from typing import Optional, Tuple, Union, cast
 
 import xarray as xr
 from matplotlib import pyplot as plt
@@ -16,7 +16,7 @@ DEFAULT_PLOTTING_ARGS = {
 }
 
 
-def plot_centroid_trajectory(
+def plot_centroid_trajectory(  # noqa: C901
     da: xr.DataArray,
     individual: str | None = None,
     keypoints: str | list[str] | None = None,
@@ -53,7 +53,8 @@ def plot_centroid_trajectory(
 
     Returns
     -------
-    (figure, axes) : tuple of (matplotlib.figure.Figure | SubFigure, matplotlib.axes.Axes)
+    (figure, axes) : tuple of
+        (matplotlib.figure.Figure | SubFigure, matplotlib.axes.Axes)
         The figure and axes containing the trajectory plot.
 
     """
@@ -113,10 +114,7 @@ def plot_centroid_trajectory(
     if colorbar:
         cb: Colorbar | None = fig.colorbar(sc, ax=ax, label=time_label)
         if cb is not None and hasattr(cb, "solids") and cb.solids is not None:
-            try:
+            with suppress(Exception):
                 cb.solids.set(alpha=1.0)
-            except Exception:
-                # some backends or colorbars might not support solids.set(); ignore safely
-                pass
 
     return cast(Figure | SubFigure, fig), ax
