@@ -1,7 +1,13 @@
 """Wrappers to plot movement data."""
 
+from typing import Optional, Tuple, Union, cast
+
 import xarray as xr
 from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
+from matplotlib.collections import PathCollection
+from matplotlib.colorbar import Colorbar
+from matplotlib.figure import Figure, SubFigure
 
 DEFAULT_PLOTTING_ARGS = {
     "s": 15,
@@ -14,9 +20,9 @@ def plot_centroid_trajectory(
     da: xr.DataArray,
     individual: str | None = None,
     keypoints: str | list[str] | None = None,
-    ax: plt.Axes | None = None,
+    ax: Axes | None = None,
     **kwargs,
-) -> tuple[plt.Figure, plt.Axes]:
+) -> Tuple[Union[Figure, SubFigure], Axes]:
     """Plot centroid trajectory.
 
     This function plots the trajectory of the centroid
@@ -47,9 +53,8 @@ def plot_centroid_trajectory(
 
     Returns
     -------
-    (figure, axes) : tuple of (matplotlib.pyplot.Figure, matplotlib.axes.Axes)
+    (figure, axes) : tuple of (matplotlib.figure.Figure | SubFigure, matplotlib.axes.Axes)
         The figure and axes containing the trajectory plot.
-
     """
     if isinstance(individual, list):
         raise ValueError("Only one individual can be selected.")
@@ -87,11 +92,12 @@ def plot_centroid_trajectory(
 
     colorbar = False
     if "c" not in kwargs:
+        # set color by time if not provided
         kwargs["c"] = plot_point.time
         colorbar = True
 
     # Plot the scatter, colouring by time or user-provided colour
-    sc = ax.scatter(
+    sc: PathCollection = ax.scatter(
         plot_point.sel(space="x"),
         plot_point.sel(space="y"),
         **kwargs,
@@ -103,8 +109,13 @@ def plot_centroid_trajectory(
 
     # Add 'colorbar' for time dimension if no colour was provided by user
     time_label = "Time"
-    fig.colorbar(sc, ax=ax, label=time_label).solids.set(
-        alpha=1.0
-    ) if colorbar else None
+    if colorbar:
+        cb: Optional[Colorbar] = fig.colorbar(sc, ax=ax, label=time_label)
+        if cb is not None and hasattr(cb, "solids") and cb.solids is not None:
+            try:
+                cb.solids.set(alpha=1.0)
+            except Exception:
+                # some backends or colorbars might not support solids.set(); ignore safely
+                pass
 
-    return fig, ax
+    return cast(Union[Figure, SubFigure], fig), ax
