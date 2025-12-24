@@ -1,6 +1,6 @@
 """Wrappers to plot movement data."""
 
-from typing import Optional, Tuple, Union, cast
+from typing import cast
 
 import xarray as xr
 from matplotlib import pyplot as plt
