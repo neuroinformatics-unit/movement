@@ -1,6 +1,6 @@
 """Wrappers to plot movement data."""
 
-from typing import Optional, Tuple, Union, cast
+from typing import cast
 
 import xarray as xr
 from matplotlib import pyplot as plt
@@ -22,7 +22,7 @@ def plot_centroid_trajectory(
     keypoints: str | list[str] | None = None,
     ax: Axes | None = None,
     **kwargs,
-) -> Tuple[Union[Figure, SubFigure], Axes]:
+) -> tuple[Figure | SubFigure, Axes]:
     """Plot centroid trajectory.
 
     This function plots the trajectory of the centroid
@@ -55,6 +55,7 @@ def plot_centroid_trajectory(
     -------
     (figure, axes) : tuple of (matplotlib.figure.Figure | SubFigure, matplotlib.axes.Axes)
         The figure and axes containing the trajectory plot.
+
     """
     if isinstance(individual, list):
         raise ValueError("Only one individual can be selected.")
@@ -110,7 +111,7 @@ def plot_centroid_trajectory(
     # Add 'colorbar' for time dimension if no colour was provided by user
     time_label = "Time"
     if colorbar:
-        cb: Optional[Colorbar] = fig.colorbar(sc, ax=ax, label=time_label)
+        cb: Colorbar | None = fig.colorbar(sc, ax=ax, label=time_label)
         if cb is not None and hasattr(cb, "solids") and cb.solids is not None:
             try:
                 cb.solids.set(alpha=1.0)
@@ -118,4 +119,4 @@ def plot_centroid_trajectory(
                 # some backends or colorbars might not support solids.set(); ignore safely
                 pass
 
-    return cast(Union[Figure, SubFigure], fig), ax
+    return cast(Figure | SubFigure, fig), ax
