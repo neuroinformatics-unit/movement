@@ -85,6 +85,35 @@ class PolygonOfInterest(BaseRegionOfInterest[RegionLike]):
         )
         super().__init__(geometry=polygon, name=name)
 
+    @classmethod
+    def _from_geometry(
+        cls,
+        geometry: shapely.Polygon,
+        name: str | None = None,
+    ) -> PolygonOfInterest:
+        """Construct a PolygonOfInterest from a shapely geometry.
+
+        Parameters
+        ----------
+        geometry : shapely.Polygon
+            The shapely geometry to construct from.
+        name : str, optional
+            Name for the PolygonOfInterest.
+
+        Returns
+        -------
+        PolygonOfInterest
+            A new PolygonOfInterest instance.
+
+        """
+        exterior = geometry.exterior.coords
+        holes = (
+            [interior.coords for interior in geometry.interiors]
+            if geometry.interiors
+            else None
+        )
+        return cls(exterior_boundary=exterior, holes=holes, name=name)
+
     @property
     def _default_plot_args(self) -> dict[str, Any]:
         return {
