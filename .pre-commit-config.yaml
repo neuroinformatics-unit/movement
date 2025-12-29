@@ -45,6 +45,11 @@ repos:
                 - types-attrs
                 - types-PyYAML
                 - types-requests
+                - numpy
+                - xarray
+                - shapely
+                - loguru
+                - matplotlib
     - repo: https://github.com/mgedmin/check-manifest
       rev: "0.51"
       hooks:
