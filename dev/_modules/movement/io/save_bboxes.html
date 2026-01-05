@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=565a7506"></script>
+    <script src="../../../_static/documentation_options.js?v=029739bf"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev9</p>
+    <p class="title logo__title">movement v0.12.1.dev10</p>
   
 </a></div>
     
@@ -537,15 +537,15 @@
 <span class="sd">    names and assuming the image files are PNG files. The frame numbers in the</span>
 <span class="sd">    image filenames are padded with at least one leading zero by default:</span>
 
-<span class="sd">    &gt;&gt;&gt; from movement.io import save_boxes</span>
-<span class="sd">    &gt;&gt;&gt; save_boxes.to_via_tracks_file(ds, &quot;/path/to/output.csv&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; from movement.io import save_bboxes</span>
+<span class="sd">    &gt;&gt;&gt; save_bboxes.to_via_tracks_file(ds, &quot;/path/to/output.csv&quot;)</span>
 
 <span class="sd">    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,</span>
 <span class="sd">    assigning the track IDs sequentially based on the alphabetically sorted</span>
 <span class="sd">    list of individuals&#39; names, and assuming the image files are PNG files:</span>
 
-<span class="sd">    &gt;&gt;&gt; from movement.io import save_boxes</span>
-<span class="sd">    &gt;&gt;&gt; save_boxes.to_via_tracks_file(</span>
+<span class="sd">    &gt;&gt;&gt; from movement.io import save_bboxes</span>
+<span class="sd">    &gt;&gt;&gt; save_bboxes.to_via_tracks_file(</span>
 <span class="sd">    ...     ds,</span>
 <span class="sd">    ...     &quot;/path/to/output.csv&quot;,</span>
 <span class="sd">    ...     track_ids_from_trailing_numbers=False,</span>
@@ -555,8 +555,8 @@
 <span class="sd">    deriving the track IDs from the numbers at the end of the individuals&#39;</span>
 <span class="sd">    names, and assuming the image files are JPG files:</span>
 
-<span class="sd">    &gt;&gt;&gt; from movement.io import save_boxes</span>
-<span class="sd">    &gt;&gt;&gt; save_boxes.to_via_tracks_file(</span>
+<span class="sd">    &gt;&gt;&gt; from movement.io import save_bboxes</span>
+<span class="sd">    &gt;&gt;&gt; save_bboxes.to_via_tracks_file(</span>
 <span class="sd">    ...     ds,</span>
 <span class="sd">    ...     &quot;/path/to/output.csv&quot;,</span>
 <span class="sd">    ...     image_file_suffix=&quot;.jpg&quot;,</span>
@@ -567,8 +567,8 @@
 <span class="sd">    names and with image filenames following the format</span>
 <span class="sd">    ``frame-&lt;frame_number&gt;.jpg``:</span>
 
-<span class="sd">    &gt;&gt;&gt; from movement.io import save_boxes</span>
-<span class="sd">    &gt;&gt;&gt; save_boxes.to_via_tracks_file(</span>
+<span class="sd">    &gt;&gt;&gt; from movement.io import save_bboxes</span>
+<span class="sd">    &gt;&gt;&gt; save_bboxes.to_via_tracks_file(</span>
 <span class="sd">    ...     ds,</span>
 <span class="sd">    ...     &quot;/path/to/output.csv&quot;,</span>
 <span class="sd">    ...     image_file_prefix=&quot;frame-&quot;,</span>
@@ -580,8 +580,8 @@
 <span class="sd">    names, and with frame numbers in the image filenames represented using 4</span>
 <span class="sd">    digits (i.e., image filenames would be ``0000.png``, ``0001.png``, etc.):</span>
 
-<span class="sd">    &gt;&gt;&gt; from movement.io import save_boxes</span>
-<span class="sd">    &gt;&gt;&gt; save_boxes.to_via_tracks_file(</span>
+<span class="sd">    &gt;&gt;&gt; from movement.io import save_bboxes</span>
+<span class="sd">    &gt;&gt;&gt; save_bboxes.to_via_tracks_file(</span>
 <span class="sd">    ...     ds,</span>
 <span class="sd">    ...     &quot;/path/to/output.csv&quot;,</span>
 <span class="sd">    ...     frame_n_digits=4,</span>
