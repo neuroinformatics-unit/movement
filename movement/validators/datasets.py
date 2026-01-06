@@ -329,7 +329,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
 
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
-        """Validate keypoint_names length."""
+        """Validate keypoint_names length and uniqueness."""
         keypoints_dim_index = self.DIM_NAMES.index("keypoints")
         self._validate_list_length(
             attribute, value, self.position_array.shape[keypoints_dim_index]
