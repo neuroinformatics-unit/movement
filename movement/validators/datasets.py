@@ -337,7 +337,7 @@ class PosesValidator(_BaseDatasetInputs):
 
 
 @define(kw_only=True)
-class BboxesValidator(_BaseDatasetInputs):
+class ValidBboxesInputs(_BaseDatasetInputs):
     """Class for validating bounding boxes data for a ``movement`` dataset.
 
     The validator considers 2D bounding boxes only. It ensures that
@@ -450,3 +450,56 @@ class BboxesValidator(_BaseDatasetInputs):
                 "Frame numbers were not provided. "
                 "Setting to an array of 0-based integers."
             )
+
+    def to_dataset(self) -> xr.Dataset:
+        """Convert the validated Bboxes inputs to an xarray.Dataset.
+
+        Returns
+        -------
+        xarray.Dataset
+            Bounding boxes dataset containing the boxes tracks,
+            boxes shapes, confidence scores and associated metadata.
+
+        """
+        # Create the time coordinate
+        time_coords = self.frame_array.squeeze()  # type: ignore
+        time_unit = "frames"
+
+        dataset_attrs: dict[str, str | float | None] = {
+            "source_software": self.source_software,
+            "ds_type": "bboxes",
+        }
+        # if fps is provided:
+        # time_coords is expressed in seconds, with the time origin
+        # set as frame 0 == time 0 seconds
+        # Store fps as a dataset attribute
+        if self.fps:
+            # Compute elapsed time from frame 0.
+            # Ignore type error as ValidBboxesInputs ensures
+            # `data.frame_array` is not None
+            time_coords = np.array(
+                [frame / self.fps for frame in self.frame_array.squeeze()]  # type: ignore
+            )
+            time_unit = "seconds"
+            dataset_attrs["fps"] = self.fps
+
+        dataset_attrs["time_unit"] = time_unit
+        # Convert data to an xarray.Dataset
+        # with dimensions ('time', 'space', 'individuals')
+        DIM_NAMES = self.DIM_NAMES
+        n_space = self.position_array.shape[1]
+        return xr.Dataset(
+            data_vars={
+                "position": xr.DataArray(self.position_array, dims=DIM_NAMES),
+                "shape": xr.DataArray(self.shape_array, dims=DIM_NAMES),
+                "confidence": xr.DataArray(
+                    self.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
+                ),
+            },
+            coords={
+                DIM_NAMES[0]: time_coords,
+                DIM_NAMES[1]: ["x", "y", "z"][:n_space],
+                DIM_NAMES[2]: self.individual_names,
+            },
+            attrs=dataset_attrs,
+        )

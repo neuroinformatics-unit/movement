@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 
-from movement.validators.datasets import BboxesValidator, PosesValidator
+from movement.validators.datasets import PosesValidator, ValidBboxesInputs
 
 
 # -------------------- Valid bboxes datasets and arrays --------------------
@@ -31,7 +31,7 @@ def valid_bboxes_arrays_all_zeros():
 @pytest.fixture
 def valid_bboxes_arrays():
     """Return a dictionary of valid arrays for a
-    BboxesValidator representing a uniform linear motion.
+    ValidBboxesInputs representing a uniform linear motion.
 
     It represents 2 individuals for 10 frames, in 2D space.
     - Individual 0 moves along the x=y line from the origin.
@@ -94,7 +94,7 @@ def valid_bboxes_dataset(valid_bboxes_arrays):
     - Individual 0 at frames 2, 3, 4
     - Individual 1 at frames 2, 3
     """
-    dim_names = BboxesValidator.DIM_NAMES
+    dim_names = ValidBboxesInputs.DIM_NAMES
 
     position_array = valid_bboxes_arrays["position"]
     shape_array = valid_bboxes_arrays["shape"]

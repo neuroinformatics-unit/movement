@@ -11,7 +11,7 @@ import pandas as pd
 import xarray as xr
 
 from movement.utils.logging import logger
-from movement.validators.datasets import BboxesValidator
+from movement.validators.datasets import ValidBboxesInputs
 from movement.validators.files import (
     DEFAULT_FRAME_REGEXP,
     ValidFile,
@@ -136,7 +136,7 @@ def from_numpy(
     ... )
 
     """
-    valid_bboxes_data = BboxesValidator(
+    valid_bboxes_inputs = ValidBboxesInputs(
         position_array=position_array,
         shape_array=shape_array,
         confidence_array=confidence_array,
@@ -145,7 +145,7 @@ def from_numpy(
         fps=fps,
         source_software=source_software,
     )
-    return _ds_from_valid_data(valid_bboxes_data)
+    return valid_bboxes_inputs.to_dataset()
 
 
 def from_file(
@@ -360,7 +360,7 @@ def from_via_tracks_file(
         ),
         fps=fps,
         source_software="VIA-tracks",
-    )  # it validates the dataset via BboxesValidator
+    )  # it validates the dataset via ValidBboxesInputs
 
     # Add metadata as attributes
     ds.attrs["source_software"] = "VIA-tracks"
@@ -648,61 +648,3 @@ def _via_attribute_column_to_numpy(
     bbox_attr_array = np.array(list_bbox_attr)
 
     return bbox_attr_array.squeeze()
-
-
-def _ds_from_valid_data(data: BboxesValidator) -> xr.Dataset:
-    """Convert a validated bounding boxes dataset to an xarray Dataset.
-
-    Parameters
-    ----------
-    data : movement.validators.datasets.BboxesValidator
-        The validator object containing the validated bounding boxes data.
-
-    Returns
-    -------
-    bounding boxes dataset containing the boxes tracks,
-        boxes shapes, confidence scores and associated metadata.
-
-    """
-    # Create the time coordinate
-    time_coords = data.frame_array.squeeze()  # type: ignore
-    time_unit = "frames"
-
-    dataset_attrs: dict[str, str | float | None] = {
-        "source_software": data.source_software,
-        "ds_type": "bboxes",
-    }
-    # if fps is provided:
-    # time_coords is expressed in seconds, with the time origin
-    # set as frame 0 == time 0 seconds
-    # Store fps as a dataset attribute
-    if data.fps:
-        # Compute elapsed time from frame 0.
-        # Ignore type error as BboxesValidator ensures
-        # `data.frame_array` is not None
-        time_coords = np.array(
-            [frame / data.fps for frame in data.frame_array.squeeze()]  # type: ignore
-        )
-        time_unit = "seconds"
-        dataset_attrs["fps"] = data.fps
-
-    dataset_attrs["time_unit"] = time_unit
-    # Convert data to an xarray.Dataset
-    # with dimensions ('time', 'space', 'individuals')
-    DIM_NAMES = BboxesValidator.DIM_NAMES
-    n_space = data.position_array.shape[1]
-    return xr.Dataset(
-        data_vars={
-            "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
-            "shape": xr.DataArray(data.shape_array, dims=DIM_NAMES),
-            "confidence": xr.DataArray(
-                data.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
-            ),
-        },
-        coords={
-            DIM_NAMES[0]: time_coords,
-            DIM_NAMES[1]: ["x", "y", "z"][:n_space],
-            DIM_NAMES[2]: data.individual_names,
-        },
-        attrs=dataset_attrs,
-    )

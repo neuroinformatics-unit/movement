@@ -6,8 +6,8 @@ import pytest
 import xarray as xr
 
 from movement.validators.datasets import (
-    BboxesValidator,
     PosesValidator,
+    ValidBboxesInputs,
     _BaseDatasetInputs,
     _convert_fps_to_none_if_invalid,
     _convert_to_list_of_str,
@@ -327,8 +327,8 @@ class TestPosesValidator:
             assert data.keypoint_names == expected_keypoint_names
 
 
-class TestBboxesValidator:
-    """Test the BboxesValidator class."""
+class TestValidBboxesInputs:
+    """Test the ValidBboxesInputs class."""
 
     @pytest.mark.parametrize(
         "shape_array, expected_context",
@@ -370,7 +370,7 @@ class TestBboxesValidator:
         """Test shape_array validation."""
         position_array = np.zeros((5, 2, 3))  # time, space, individuals
         with expected_context:
-            BboxesValidator(
+            ValidBboxesInputs(
                 position_array=position_array,
                 shape_array=shape_array,
             )
@@ -423,7 +423,7 @@ class TestBboxesValidator:
         position_array = np.zeros((5, 2, 3))  # time, space, individuals
         shape_array = np.zeros((5, 2, 3))
         with expected_context as expected_frame_array:
-            data = BboxesValidator(
+            data = ValidBboxesInputs(
                 position_array=position_array,
                 shape_array=shape_array,
                 frame_array=frame_array,
