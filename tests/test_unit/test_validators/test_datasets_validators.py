@@ -330,6 +330,26 @@ class TestValidPosesInputs:
             )
             assert data.keypoint_names == expected_keypoint_names
 
+    @pytest.mark.parametrize("fps", [30, None])
+    def test_to_dataset(self, fps, valid_poses_dataset):
+        """Test to_dataset creates the expected poses dataset."""
+        ds = ValidPosesInputs(
+            position_array=valid_poses_dataset.position.values,
+            confidence_array=valid_poses_dataset.confidence.values,
+            individual_names=valid_poses_dataset.individuals.values,
+            keypoint_names=valid_poses_dataset.keypoints.values,
+            fps=fps,
+            source_software=valid_poses_dataset.attrs["source_software"],
+        ).to_dataset()
+        if fps is None:
+            xr.testing.assert_equal(ds, valid_poses_dataset)
+        else:
+            expected_ds = valid_poses_dataset.assign_coords(
+                time=valid_poses_dataset.time.values / fps
+            )
+            expected_ds.time.attrs["units"] = "seconds"
+            xr.testing.assert_equal(ds, expected_ds)
+
 
 class TestValidBboxesInputs:
     """Test the ValidBboxesInputs class."""
@@ -435,3 +455,23 @@ class TestValidBboxesInputs:
             np.testing.assert_array_equal(
                 data.frame_array, expected_frame_array
             )
+
+    @pytest.mark.parametrize("fps", [30, None])
+    def test_to_dataset(self, fps, valid_bboxes_dataset):
+        """Test to_dataset creates the expected bboxes dataset."""
+        ds = ValidBboxesInputs(
+            position_array=valid_bboxes_dataset.position.values,
+            shape_array=valid_bboxes_dataset.shape.values,
+            confidence_array=valid_bboxes_dataset.confidence.values,
+            individual_names=valid_bboxes_dataset.individuals.values,
+            fps=fps,
+            source_software=valid_bboxes_dataset.attrs["source_software"],
+        ).to_dataset()
+        if fps is None:
+            xr.testing.assert_equal(ds, valid_bboxes_dataset)
+        else:
+            expected_ds = valid_bboxes_dataset.assign_coords(
+                time=valid_bboxes_dataset.time.values / fps
+            )
+            expected_ds.time.attrs["units"] = "seconds"
+            xr.testing.assert_equal(ds, expected_ds)
