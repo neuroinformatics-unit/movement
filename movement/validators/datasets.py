@@ -266,7 +266,7 @@ class _BaseDatasetInputs(ABC):
 
 @define(kw_only=True)
 class ValidPosesInputs(_BaseDatasetInputs):
-    """Class for validating poses data intended for a ``movement`` dataset.
+    """Class for validating input data for a ``movement poses`` dataset.
 
     The validator ensures that within the ``movement poses`` dataset:
 
@@ -400,7 +400,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
 
 @define(kw_only=True)
 class ValidBboxesInputs(_BaseDatasetInputs):
-    """Class for validating bounding boxes data for a ``movement`` dataset.
+    """Class for validating input data for a ``movement bboxes`` dataset.
 
     The validator considers 2D bounding boxes only. It ensures that
     within the ``movement bboxes`` dataset:
