@@ -20,7 +20,7 @@ def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
     """Try to coerce the value into a list of strings."""
     if isinstance(value, str):
         warnings.warn(
-            f"Invalid value ({value}). Expected a list of strings. "
+            f"Expected a list of strings, but got a string ({value}). "
             "Converting to a list of length 1.",
             UserWarning,
             stacklevel=2,

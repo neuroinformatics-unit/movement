@@ -21,7 +21,7 @@ from movement.validators.datasets import (
             "a",
             pytest.warns(
                 UserWarning,
-                match="Invalid value .* Expected a list of strings",
+                match="Expected a list of strings",
             ),
             ["a"],
         ),
