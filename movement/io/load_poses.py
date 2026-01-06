@@ -364,7 +364,8 @@ def from_lp_file(
         raise logger.error(
             ValueError(
                 "LightningPose only supports single-individual datasets, "
-                f"but the loaded dataset has {n_individuals} individuals."
+                f"but the loaded dataset has {n_individuals} individuals. "
+                "Did you mean to load from a DeepLabCut file instead?"
             )
         )
     return ds
