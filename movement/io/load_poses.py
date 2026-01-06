@@ -1,7 +1,7 @@
 """Load pose tracking data from various frameworks into ``movement``."""
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal
+from typing import Literal
 
 import h5py
 import numpy as np
@@ -12,7 +12,7 @@ from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
 from movement.utils.logging import logger
-from movement.validators.datasets import PosesValidator
+from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import (
     ValidAniposeCSV,
     ValidDeepLabCutCSV,
@@ -20,9 +20,6 @@ from movement.validators.files import (
     ValidHDF5,
     ValidNWBFile,
 )
-
-if TYPE_CHECKING:
-    from numpy.typing import NDArray
 
 
 def from_numpy(
@@ -85,7 +82,7 @@ def from_numpy(
     ... )
 
     """
-    valid_data = PosesValidator(
+    valid_poses_inputs = ValidPosesInputs(
         position_array=position_array,
         confidence_array=confidence_array,
         individual_names=individual_names,
@@ -93,7 +90,7 @@ def from_numpy(
         fps=fps,
         source_software=source_software,
     )
-    return _ds_from_valid_data(valid_data)
+    return valid_poses_inputs.to_dataset()
 
 
 def from_file(
@@ -703,58 +700,6 @@ def _df_from_dlc_h5(file_path: Path) -> pd.DataFrame:
     # in this case (since we know what's in the "df_with_missing" dataset)
     df = pd.DataFrame(pd.read_hdf(file.path, key="df_with_missing"))
     return df
-
-
-def _ds_from_valid_data(data: PosesValidator) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from validated pose tracking data.
-
-    Parameters
-    ----------
-    data : movement.io.tracks_validators.PosesValidator
-        The validator object containing the validated pose tracking data.
-
-    Returns
-    -------
-    xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
-        and associated metadata.
-
-    """
-    n_frames = data.position_array.shape[0]
-    n_space = data.position_array.shape[1]
-    dataset_attrs: dict[str, str | float | None] = {
-        "source_software": data.source_software,
-        "ds_type": "poses",
-    }
-    # Create the time coordinate, depending on the value of fps
-    time_coords: NDArray[np.floating] | NDArray[np.integer]
-    time_unit: Literal["seconds", "frames"]
-    if data.fps is not None:
-        time_coords = np.arange(n_frames, dtype=np.float64) / data.fps
-        time_unit = "seconds"
-        dataset_attrs["fps"] = data.fps
-    else:
-        time_coords = np.arange(n_frames, dtype=np.int64)
-        time_unit = "frames"
-    dataset_attrs["time_unit"] = time_unit
-
-    DIM_NAMES = PosesValidator.DIM_NAMES
-    # Convert data to an xarray.Dataset
-    return xr.Dataset(
-        data_vars={
-            "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
-            "confidence": xr.DataArray(
-                data.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
-            ),
-        },
-        coords={
-            DIM_NAMES[0]: time_coords,
-            DIM_NAMES[1]: ["x", "y", "z"][:n_space],
-            DIM_NAMES[2]: data.keypoint_names,
-            DIM_NAMES[3]: data.individual_names,
-        },
-        attrs=dataset_attrs,
-    )
 
 
 def from_anipose_style_df(

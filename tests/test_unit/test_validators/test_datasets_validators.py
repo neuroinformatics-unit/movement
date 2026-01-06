@@ -6,8 +6,8 @@ import pytest
 import xarray as xr
 
 from movement.validators.datasets import (
-    PosesValidator,
     ValidBboxesInputs,
+    ValidPosesInputs,
     _BaseDatasetInputs,
     _convert_fps_to_none_if_invalid,
     _convert_to_list_of_str,
@@ -285,8 +285,8 @@ class TestBaseDatasetInputs:
             )
 
 
-class TestPosesValidator:
-    """Test the PosesValidator class."""
+class TestValidPosesInputs:
+    """Test the ValidPosesInputs class."""
 
     @pytest.mark.parametrize(
         "position_array, keypoint_names, expected_context",
@@ -318,9 +318,9 @@ class TestPosesValidator:
     def test_keypoint_names(
         self, position_array, keypoint_names, expected_context
     ):
-        """Test keypoint_names validation in PosesValidator."""
+        """Test keypoint_names validation in ValidPosesInputs."""
         with expected_context as expected_keypoint_names:
-            data = PosesValidator(
+            data = ValidPosesInputs(
                 position_array=position_array,
                 keypoint_names=keypoint_names,
             )

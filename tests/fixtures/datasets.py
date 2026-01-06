@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 
-from movement.validators.datasets import PosesValidator, ValidBboxesInputs
+from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
 
 
 # -------------------- Valid bboxes datasets and arrays --------------------
@@ -173,7 +173,7 @@ def valid_poses_arrays():
     """
 
     def _valid_poses_arrays(array_type):
-        """Return a dictionary of valid arrays for a PosesValidator."""
+        """Return a dictionary of valid arrays for ValidPosesInputs."""
         # Unless specified, default is a ``multi_individual_array`` with
         # 10 frames, 3 keypoints, and 2 individuals in 2D space.
         n_frames, n_space, n_keypoints, n_individuals = (10, 2, 3, 2)
@@ -250,7 +250,7 @@ def valid_poses_dataset(valid_poses_arrays, request):
     Default is a ``multi_individual_array`` (2 individuals, 3 keypoints each).
     See the ``valid_poses_arrays`` fixture for details.
     """
-    dim_names = PosesValidator.DIM_NAMES
+    dim_names = ValidPosesInputs.DIM_NAMES
     # create a multi_individual_array by default unless overridden via param
     try:
         array_type = request.param

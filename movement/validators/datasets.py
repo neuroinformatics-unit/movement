@@ -2,7 +2,7 @@
 
 import warnings
 from collections.abc import Iterable
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 import attrs
 import numpy as np
@@ -10,6 +10,9 @@ import xarray as xr
 from attrs import converters, define, field, validators
 
 from movement.utils.logging import logger
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 
 def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
@@ -249,7 +252,7 @@ class _BaseDatasetInputs:
 
 
 @define(kw_only=True)
-class PosesValidator(_BaseDatasetInputs):
+class ValidPosesInputs(_BaseDatasetInputs):
     """Class for validating poses data intended for a ``movement`` dataset.
 
     The validator ensures that within the ``movement poses`` dataset:
@@ -334,6 +337,52 @@ class PosesValidator(_BaseDatasetInputs):
                 "Keypoint names were not provided. "
                 f"Setting to {self.keypoint_names}."
             )
+
+    def to_dataset(self) -> xr.Dataset:
+        """Convert validated poses inputs to a ``movement poses`` dataset.
+
+        Returns
+        -------
+        xarray.Dataset
+            ``movement`` dataset containing the pose tracks, confidence scores,
+            and associated metadata.
+
+        """
+        n_frames = self.position_array.shape[0]
+        n_space = self.position_array.shape[1]
+        dataset_attrs: dict[str, str | float | None] = {
+            "source_software": self.source_software,
+            "ds_type": "poses",
+        }
+        # Create the time coordinate, depending on the value of fps
+        time_coords: NDArray[np.floating] | NDArray[np.integer]
+        time_unit: Literal["seconds", "frames"]
+        if self.fps is not None:
+            time_coords = np.arange(n_frames, dtype=np.float64) / self.fps
+            time_unit = "seconds"
+            dataset_attrs["fps"] = self.fps
+        else:
+            time_coords = np.arange(n_frames, dtype=np.int64)
+            time_unit = "frames"
+        dataset_attrs["time_unit"] = time_unit
+
+        DIM_NAMES = self.DIM_NAMES
+        # Convert data to an xarray.Dataset
+        return xr.Dataset(
+            data_vars={
+                "position": xr.DataArray(self.position_array, dims=DIM_NAMES),
+                "confidence": xr.DataArray(
+                    self.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
+                ),
+            },
+            coords={
+                DIM_NAMES[0]: time_coords,
+                DIM_NAMES[1]: ["x", "y", "z"][:n_space],
+                DIM_NAMES[2]: self.keypoint_names,
+                DIM_NAMES[3]: self.individual_names,
+            },
+            attrs=dataset_attrs,
+        )
 
 
 @define(kw_only=True)
@@ -452,13 +501,13 @@ class ValidBboxesInputs(_BaseDatasetInputs):
             )
 
     def to_dataset(self) -> xr.Dataset:
-        """Convert the validated Bboxes inputs to an xarray.Dataset.
+        """Convert validated bboxes inputs to a ``movement bboxes`` dataset.
 
         Returns
         -------
         xarray.Dataset
-            Bounding boxes dataset containing the boxes tracks,
-            boxes shapes, confidence scores and associated metadata.
+            ``movement`` dataset containing the bounding boxes tracks,
+            shapes, confidence scores and associated metadata.
 
         """
         # Create the time coordinate
