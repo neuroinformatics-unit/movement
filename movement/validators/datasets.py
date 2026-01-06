@@ -211,7 +211,7 @@ class _BaseDatasetValidator:
 
     @classmethod
     def validate(cls, ds: xr.Dataset) -> None:
-        """Validate the input as a valid ``movement`` dataset.
+        """Check the input has the required variables and dimensions.
 
         Parameters
         ----------
