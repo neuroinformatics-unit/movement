@@ -160,13 +160,13 @@ class TestBaseDatasetInputs:
         stub_dataset_inputs_class = self.make_stub_dataset_inputs_class(
             dim_names=dim_names
         )
-        ds = stub_dataset_inputs_class(position_array=position_array)
+        data = stub_dataset_inputs_class(position_array=position_array)
         np.testing.assert_allclose(
-            ds.confidence_array, expected_confidence, equal_nan=True
+            data.confidence_array, expected_confidence, equal_nan=True
         )
-        assert ds.individual_names == expected_ind_names
-        assert ds.fps is None
-        assert ds.source_software is None
+        assert data.individual_names == expected_ind_names
+        assert data.fps is None
+        assert data.source_software is None
 
     @pytest.mark.parametrize(
         "position_array, expected_error_message",
