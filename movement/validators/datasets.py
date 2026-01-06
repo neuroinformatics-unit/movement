@@ -255,7 +255,8 @@ class _BaseDatasetInputs(ABC):
                     f"Missing required data variables: {sorted(missing_vars)}"
                 )
             )  # sort for a reproducible error message
-        missing_dims = set(cls.DIM_NAMES) - set(ds.dims)
+        # Ignore type error - ds.dims will soon return a set of dim names
+        missing_dims = set(cls.DIM_NAMES) - set(ds.dims)  # type: ignore[arg-type]
         if missing_dims:
             raise logger.error(
                 ValueError(
@@ -537,11 +538,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
         # Store fps as a dataset attribute
         if self.fps:
             # Compute elapsed time from frame 0.
-            # Ignore type error as ValidBboxesInputs ensures
-            # `data.frame_array` is not None
-            time_coords = np.array(
-                [frame / self.fps for frame in self.frame_array.squeeze()]  # type: ignore
-            )
+            time_coords = time_coords / self.fps
             time_unit = "seconds"
             dataset_attrs["fps"] = self.fps
 
