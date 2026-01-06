@@ -8,7 +8,7 @@ import xarray as xr
 from movement.validators.datasets import (
     BboxesValidator,
     PosesValidator,
-    _BaseDatasetValidator,
+    _BaseDatasetInputs,
     _convert_fps_to_none_if_invalid,
     _convert_to_list_of_str,
 )
@@ -68,8 +68,8 @@ def test_convert_fps_to_none_if_invalid(
     assert out == expected_output
 
 
-class TestBaseDatasetValidator:
-    """Test the _BaseDatasetValidator class."""
+class TestBaseDatasetInputs:
+    """Test the _BaseDatasetInputs class."""
 
     class StubAttr:
         """Stub for attrs.Attribute."""
@@ -79,19 +79,19 @@ class TestBaseDatasetValidator:
             self.name = name
 
     @staticmethod
-    def make_stub_validator_class(
+    def make_stub_dataset_inputs_class(
         dim_names=("time", "space"), var_names=("position",)
     ):
-        """Create a minimal concrete subclass of _BaseDatasetValidator."""
+        """Create a minimal subclass of _BaseDatasetInputs."""
 
-        class StubValidator(_BaseDatasetValidator):
-            """Minimal concrete subclass for testing _BaseDatasetValidator."""
+        class StubDatasetInputs(_BaseDatasetInputs):
+            """Minimal subclass for testing _BaseDatasetInputs."""
 
             DIM_NAMES = dim_names
             VAR_NAMES = var_names
             _ALLOWED_SPACE_DIM_SIZE = 2  # 2D positions
 
-        return StubValidator
+        return StubDatasetInputs
 
     @pytest.fixture
     def valid_base_dataset(self):
@@ -120,12 +120,12 @@ class TestBaseDatasetValidator:
 
     def test_required_fields_missing(self):
         """Test that TypeError is raised when required fields are missing."""
-        stub_validator_class = self.make_stub_validator_class()
+        stub_dataset_inputs_class = self.make_stub_dataset_inputs_class()
         with pytest.raises(
             TypeError,
             match="missing 1 required keyword-only argument: 'position_array'",
         ):
-            stub_validator_class()
+            stub_dataset_inputs_class()
 
     @pytest.mark.parametrize(
         "dim_names, position_array, expected_confidence, expected_ind_names",
@@ -153,10 +153,10 @@ class TestBaseDatasetValidator:
         expected_ind_names,
     ):
         """Test default values for optional fields."""
-        stub_validator_class = self.make_stub_validator_class(
+        stub_dataset_inputs_class = self.make_stub_dataset_inputs_class(
             dim_names=dim_names
         )
-        ds = stub_validator_class(position_array=position_array)
+        ds = stub_dataset_inputs_class(position_array=position_array)
         np.testing.assert_allclose(
             ds.confidence_array, expected_confidence, equal_nan=True
         )
@@ -179,14 +179,14 @@ class TestBaseDatasetValidator:
         self, position_array, expected_error_message
     ):
         """Test validation for position_array dimension mismatches."""
-        stub_validator_class = (
-            self.make_stub_validator_class()
+        stub_dataset_inputs_class = (
+            self.make_stub_dataset_inputs_class()
         )  # time, 2D space
         with pytest.raises(
             ValueError,
             match=expected_error_message,
         ):
-            stub_validator_class(position_array=position_array)
+            stub_dataset_inputs_class(position_array=position_array)
 
     @pytest.mark.parametrize(
         "expected_shape, expected_exception",
@@ -203,10 +203,10 @@ class TestBaseDatasetValidator:
     )
     def test_validate_array_shape(self, expected_shape, expected_exception):
         """Test the _validate_array_shape static method directly."""
-        stub_validator_class = self.make_stub_validator_class()
+        stub_dataset_inputs_class = self.make_stub_dataset_inputs_class()
         val = np.zeros((2, 3))
         with expected_exception:
-            stub_validator_class._validate_array_shape(
+            stub_dataset_inputs_class._validate_array_shape(
                 self.StubAttr(), val, expected_shape
             )
 
@@ -229,9 +229,9 @@ class TestBaseDatasetValidator:
         self, val, expected_length, expected_exception
     ):
         """Test the _validate_list_length method directly."""
-        stub_validator_class = self.make_stub_validator_class()
+        stub_dataset_inputs_class = self.make_stub_dataset_inputs_class()
         with expected_exception:
-            stub_validator_class._validate_list_length(
+            stub_dataset_inputs_class._validate_list_length(
                 self.StubAttr(), val, expected_length
             )
 
@@ -251,9 +251,9 @@ class TestBaseDatasetValidator:
     )
     def test_validate_list_uniqueness(self, val, expected_exception):
         """Test the _validate_list_uniqueness method directly."""
-        stub_validator_class = self.make_stub_validator_class()
+        stub_dataset_inputs_class = self.make_stub_dataset_inputs_class()
         with expected_exception:
-            stub_validator_class._validate_list_uniqueness(
+            stub_dataset_inputs_class._validate_list_uniqueness(
                 self.StubAttr(), val
             )
 
@@ -278,9 +278,9 @@ class TestBaseDatasetValidator:
     )
     def test_validate(self, dataset_fixture, expected_exception, request):
         """Test the classmethod validate."""
-        stub_validator_class = self.make_stub_validator_class()
+        stub_dataset_inputs_class = self.make_stub_dataset_inputs_class()
         with expected_exception:
-            stub_validator_class.validate(
+            stub_dataset_inputs_class.validate(
                 request.getfixturevalue(dataset_fixture)
             )
 

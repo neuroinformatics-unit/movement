@@ -44,15 +44,16 @@ def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
 
 
 @define(kw_only=True)
-class _BaseDatasetValidator:
-    """Base class for ``movement`` dataset validators.
+class _BaseDatasetInputs:
+    """Base class for validating ``movement`` dataset inputs.
 
     This base class centralises shared fields, validators, and default
-    assignment logic for ``movement`` datasets (e.g. poses, bounding boxes).
+    assignment logic for creating ``movement`` datasets
+    (e.g. poses, bounding boxes).
     It registers the attrs validators for required fields like
     ``position_array`` and optional fields like ``confidence_array`` and
     ``individual_names``.
-    Subclasses must also define class variables
+    Subclasses must define class variables
     ``DIM_NAMES``, ``VAR_NAMES``, and ``_ALLOWED_SPACE_DIM_SIZE``.
     """
 
@@ -248,7 +249,7 @@ class _BaseDatasetValidator:
 
 
 @define(kw_only=True)
-class PosesValidator(_BaseDatasetValidator):
+class PosesValidator(_BaseDatasetInputs):
     """Class for validating poses data intended for a ``movement`` dataset.
 
     The validator ensures that within the ``movement poses`` dataset:
@@ -336,7 +337,7 @@ class PosesValidator(_BaseDatasetValidator):
 
 
 @define(kw_only=True)
-class BboxesValidator(_BaseDatasetValidator):
+class BboxesValidator(_BaseDatasetInputs):
     """Class for validating bounding boxes data for a ``movement`` dataset.
 
     The validator considers 2D bounding boxes only. It ensures that
