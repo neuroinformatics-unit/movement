@@ -228,7 +228,7 @@ class _BaseDatasetInputs(ABC):
 
     @classmethod
     def validate(cls, ds: xr.Dataset) -> None:
-        """Check the input has the required variables and dimensions.
+        """Validate that the dataset has the required variables and dimensions.
 
         Parameters
         ----------
