@@ -91,6 +91,10 @@ class TestBaseDatasetInputs:
             VAR_NAMES = var_names
             _ALLOWED_SPACE_DIM_SIZE = 2  # 2D positions
 
+            def to_dataset(self) -> xr.Dataset:
+                """Unimplemented stub method."""
+                ...
+
         return StubDatasetInputs
 
     @pytest.fixture

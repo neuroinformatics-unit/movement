@@ -1,6 +1,7 @@
 """``attrs`` classes for validating data structures."""
 
 import warnings
+from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
@@ -47,8 +48,8 @@ def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
 
 
 @define(kw_only=True)
-class _BaseDatasetInputs:
-    """Base class for validating ``movement`` dataset inputs.
+class _BaseDatasetInputs(ABC):
+    """Abstract base class for validating ``movement`` dataset inputs.
 
     This base class centralises shared fields, validators, and default
     assignment logic for creating ``movement`` datasets
@@ -56,7 +57,7 @@ class _BaseDatasetInputs:
     It registers the attrs validators for required fields like
     ``position_array`` and optional fields like ``confidence_array`` and
     ``individual_names``.
-    Subclasses must define class variables
+    Subclasses must implement ``to_dataset()`` and define class variables
     ``DIM_NAMES``, ``VAR_NAMES``, and ``_ALLOWED_SPACE_DIM_SIZE``.
     """
 
@@ -212,6 +213,18 @@ class _BaseDatasetInputs:
                     f"only {len(set(value))} are unique."
                 )
             )
+
+    @abstractmethod
+    def to_dataset(self) -> xr.Dataset:
+        """Convert validated inputs to a ``movement`` xarray.Dataset.
+
+        Returns
+        -------
+        xarray.Dataset
+            ``movement`` dataset containing the validated data and metadata.
+
+        """
+        ...
 
     @classmethod
     def validate(cls, ds: xr.Dataset) -> None:
