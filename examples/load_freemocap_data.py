@@ -140,7 +140,9 @@ def read_freemocap_as_ds(output_data_dir):
         list_datasets.append(ds)
 
     # Merge all datasets along keypoint dimension
-    ds_all_keypoints = xr.merge(list_datasets)
+    ds_all_keypoints = xr.merge(
+        list_datasets, join="outer", compat="no_conflicts"
+    )
     return ds_all_keypoints
 
 
