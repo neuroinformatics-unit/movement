@@ -146,7 +146,7 @@ def from_numpy(
 
 
 def from_file(
-    file_path: Path | str,
+    file: Path | str,
     source_software: Literal["VIA-tracks"],
     fps: float | None = None,
     use_frame_numbers_from_file: bool = False,
@@ -158,21 +158,21 @@ def from_file(
 
     Parameters
     ----------
-    file_path : pathlib.Path or str
+    file
         Path to the file containing the tracked bounding boxes. Currently
         only VIA tracks .csv files are supported.
-    source_software : "VIA-tracks".
+    source_software
         The source software of the file. Currently only files from the
         VIA 2.0.12 annotator [1]_ ("VIA-tracks") are supported.
         See .
-    fps : float, optional
+    fps
         The video sampling rate. If None (default), the ``time`` coordinates
         of the resulting ``movement`` dataset will be in frame numbers. If
         ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
         the ``time`` coordinates are in seconds, they will indicate the
         elapsed time from the capture of the first frame (assumed to be frame
         0).
-    use_frame_numbers_from_file : bool, optional
+    use_frame_numbers_from_file
         If True, the frame numbers in the resulting dataset are
         the same as the ones specified for each tracked bounding box in the
         input file. This may be useful if the bounding boxes are tracked for a
@@ -180,7 +180,7 @@ def from_file(
         full video as the time origin. If False (default), the frame numbers
         in the VIA tracks .csv file are instead mapped to a 0-based sequence of
         consecutive integers.
-    frame_regexp : str, optional
+    frame_regexp
         Regular expression pattern to extract the frame number from the frame
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed
@@ -218,7 +218,7 @@ def from_file(
     """
     if source_software == "VIA-tracks":
         return from_via_tracks_file(
-            file_path,
+            file,
             fps,
             use_frame_numbers_from_file=use_frame_numbers_from_file,
             frame_regexp=frame_regexp,
@@ -231,7 +231,7 @@ def from_file(
 
 @register_loader("VIA-tracks", expected_suffix=[".csv"])
 def from_via_tracks_file(
-    file_path: Path | str,
+    file: Path | str,
     fps: float | None = None,
     use_frame_numbers_from_file: bool = False,
     frame_regexp: str = DEFAULT_FRAME_REGEXP,
@@ -240,25 +240,25 @@ def from_via_tracks_file(
 
     Parameters
     ----------
-    file_path : pathlib.Path or str
+    file
         Path to the VIA tracks .csv file with the tracked bounding boxes.
         For more information on the VIA tracks .csv file format, see the VIA
         tutorial for tracking [1]_.
-    fps : float, optional
+    fps
         The video sampling rate. If None (default), the ``time`` coordinates
         of the resulting ``movement`` dataset will be in frame numbers. If
         ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
         the ``time`` coordinates are in seconds, they will indicate the
         elapsed time from the capture of the first frame (assumed to be frame
         0).
-    use_frame_numbers_from_file : bool, optional
+    use_frame_numbers_from_file
         If True, the frame numbers in the resulting dataset are
         the same as the ones in the VIA tracks .csv file. This may be useful if
         the bounding boxes are tracked for a subset of frames in a video,
         but you want to maintain the start of the full video as the time
         origin. If False (default), the frame numbers in the VIA tracks .csv
         file are instead mapped to a 0-based sequence of consecutive integers.
-    frame_regexp : str, optional
+    frame_regexp
         Regular expression pattern to extract the frame number from the frame
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed
@@ -331,14 +331,14 @@ def from_via_tracks_file(
 
 
     """
-    assert isinstance(file_path, Path)
+    assert isinstance(file, Path)
     # Specific VIA-tracks .csv file validation
-    via_file = ValidVIATracksCSV(file_path, frame_regexp=frame_regexp)
-    logger.info(f"Validated VIA tracks .csv file {via_file.path}.")
-
+    valid_file = ValidVIATracksCSV(file, frame_regexp=frame_regexp)
+    file_path = valid_file.path
+    logger.info(f"Validated VIA tracks .csv file {file_path}.")
     # Create an xarray.Dataset from the data
     bboxes_arrays = _numpy_arrays_from_via_tracks_file(
-        via_file.path, via_file.frame_regexp
+        file_path, valid_file.frame_regexp
     )
     ds = from_numpy(
         position_array=bboxes_arrays["position_array"],
@@ -355,17 +355,15 @@ def from_via_tracks_file(
         fps=fps,
         source_software="VIA-tracks",
     )  # it validates the dataset via ValidBboxesInputs
-
     # Add metadata as attributes
     ds.attrs["source_software"] = "VIA-tracks"
     ds.attrs["source_file"] = file_path.as_posix()
-
-    logger.info(f"Loaded bounding boxes tracks from {via_file.path}:\n{ds}")
+    logger.info(f"Loaded bounding boxes tracks from {file_path}:\n{ds}")
     return ds
 
 
 def _numpy_arrays_from_via_tracks_file(
-    file_path: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
+    file: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
 ) -> dict:
     """Extract numpy arrays from the input VIA tracks .csv file.
 
@@ -386,10 +384,10 @@ def _numpy_arrays_from_via_tracks_file(
 
     Parameters
     ----------
-    file_path : pathlib.Path
+    file
         Path to the VIA tracks .csv file containing the bounding box tracks.
 
-    frame_regexp : str
+    frame_regexp
         Regular expression pattern to extract the frame number from the frame
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed
@@ -404,7 +402,7 @@ def _numpy_arrays_from_via_tracks_file(
     # Extract 2D dataframe from input data
     # (sort data by ID and frame number, and
     # fill empty frame-ID pairs with nans)
-    df = _df_from_via_tracks_file(file_path, frame_regexp)
+    df = _df_from_via_tracks_file(file, frame_regexp)
 
     # Compute indices of the rows where the IDs switch
     bool_id_diff_from_prev = df["ID"].ne(df["ID"].shift())  # pandas series
@@ -443,7 +441,7 @@ def _numpy_arrays_from_via_tracks_file(
 
 
 def _df_from_via_tracks_file(
-    file_path: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
+    file: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
 ) -> pd.DataFrame:
     """Load VIA tracks .csv file as a dataframe.
 
@@ -466,7 +464,7 @@ def _df_from_via_tracks_file(
     file.
     """
     # Read VIA tracks .csv file as a pandas dataframe
-    df_file = pd.read_csv(file_path, sep=",", header=0)
+    df_file = pd.read_csv(file, sep=",", header=0)
 
     # Format to a 2D dataframe
     df = pd.DataFrame(
