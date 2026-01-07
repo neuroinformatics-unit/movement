@@ -8,20 +8,18 @@
 set -euo pipefail       # fail immediately on errors and undefined vars
 
 # Safety check: exit if not running inside a docker container.
-if [[ -z "${REPO_DIR}" ]]; then
-    echo "This script was written for repo2docker and the REPO_DIR environment variable is supposed to be set."
-    echo "Exiting because this script can delete data if run outside of a repo2docker context."
-    exit 1
-fi
+: "${REPO_DIR:?This script is for repo2docker and REPO_DIR must be set. \
+Exiting because this script can delete data if run outside of a repo2docker context.}"
+
+# Create a temporary directory for staging the examples
+TMP_DIR=$(mktemp -d /tmp/movement-XXXXXX)
+# Clean up temporary directory on exit
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 # Stage the examples in a temporary directory
-TMP_DIR=$(mktemp -d /tmp/movement-XXXXXX)
-cp -r examples "$TMP_DIR/"
-STAGED_EXAMPLES_DIR="$TMP_DIR/examples"
+cp -r examples "$TMP_DIR/examples"
 # Recursively convert all python scripts to notebooks
-find "$STAGED_EXAMPLES_DIR" -name '*.py' -exec sphinx_gallery_py2jupyter '{}' +
-# Remove all non-notebook files
-find "$STAGED_EXAMPLES_DIR" -type f ! -name '*.ipynb' -delete
+find "$TMP_DIR/examples" -name '*.py' -exec sphinx_gallery_py2jupyter '{}' +
 
 # Remove everything except the existing .binder folder to present a clean workspace
 # (the .binder folder is kept for debugging purposes)
@@ -29,7 +27,4 @@ find . -mindepth 1 -maxdepth 1 ! -name '.binder' -exec rm -rf {} +
 
 # Move the generated notebook files to where Binder expects
 mkdir -p notebooks
-find "$STAGED_EXAMPLES_DIR" -mindepth 1 -maxdepth 1 -exec mv {} notebooks/ \;
-
-# Clean up temporary directory
-rm -rf "$TMP_DIR"
+find "$TMP_DIR/examples" -type f -name '*.ipynb' -maxdepth 1 -exec mv {} notebooks/ \;

@@ -31,12 +31,9 @@ except LookupError:
     # with a dummy version
     release = "0.0.0"
 
-if "dev" in release:
-    doc_version = "dev"
-    binder_branch = "main"
-else:
-    doc_version = f"v{release}"
-    binder_branch = f"v{release}"
+is_dev = "dev" in release
+doc_version = "dev" if is_dev else f"v{release}"
+binder_branch = "main" if is_dev else f"v{release}"
 
 
 # -- General configuration ---------------------------------------------------
