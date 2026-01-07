@@ -3,7 +3,7 @@
 from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
-from typing import Literal, Protocol
+from typing import Literal, Protocol, cast
 
 import pynwb
 import xarray as xr
@@ -16,14 +16,14 @@ class LoaderProtocol(Protocol):
     """Protocol for loader functions."""
 
     def __call__(
-        self, file_path: Path | str | pynwb.file.NWBFile, *args, **kwargs
+        self, file: Path | str | pynwb.file.NWBFile, *args, **kwargs
     ) -> xr.Dataset:
         """Load data from a file.
 
         Parameters
         ----------
-        file_path : Path or pynwb.file.NWBFile
-            Path to the file or an NWBFile object.
+        file
+            Path to the file or a :class:`pynwb.file.NWBFile` object.
         *args
             Additional positional arguments for the loader.
         **kwargs
@@ -51,12 +51,12 @@ def register_loader(
 
     Parameters
     ----------
-    source_software : str
+    source_software
         The name of the source software.
-    expected_suffix : list of str
+    expected_suffix
         Expected suffix(es) for the file. If an empty list (default), this
         check is skipped.
-    expected_permission : {"r", "w", "rw"}
+    expected_permission
         Expected access permission(s) for the file. If "r", the file is
         expected to be readable. If "w", the file is expected to be writable.
         If "rw", the file is expected to be both readable and writable.
@@ -89,14 +89,14 @@ def register_loader(
                 ).path
             return loader_fn(file_path, *args, **kwargs)
 
-        _REGISTRY[source_software] = wrapper
-        return wrapper
+        _REGISTRY[source_software] = cast(LoaderProtocol, wrapper)
+        return cast(LoaderProtocol, wrapper)
 
     return decorator
 
 
 def from_file(
-    file_path: Path | str,
+    file: Path | str | pynwb.file.NWBFile,
     source_software: Literal[
         "DeepLabCut",
         "SLEAP",
@@ -112,31 +112,32 @@ def from_file(
 
     Parameters
     ----------
-    file_path : pathlib.Path or str
+    file
         Path to the file containing predicted poses or tracked bounding boxes.
+        If ``source software`` is "NWB", this can also be a
+        :class:`pynwb.file.NWBFile` object.
         The file format must be among those supported by the
         :mod:`movement.io.load_poses` or
         :mod:`movement.io.load_bboxes` modules. Based on
         the value of ``source_software``, the appropriate loading function
         will be called.
-    source_software : {"DeepLabCut", "SLEAP", "LightningPose", "Anipose", \
-        "NWB", "VIA-tracks"}
+    source_software
         The source software of the file.
-    fps : float, optional
+    fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
         This argument is ignored when ``source_software`` is "NWB", as the
         frame rate will be directly read or estimated from metadata in
         the NWB file.
-    **kwargs : dict, optional
+    **kwargs
         Additional keyword arguments to pass to the software-specific
         loading functions that are listed under "See Also".
 
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
-        and associated metadata.
+        ``movement`` dataset containing the pose or bounding box tracks,
+        confidence scores, and associated metadata.
 
 
     See Also
@@ -167,12 +168,12 @@ def from_file(
                 "The frame rate will be directly read or estimated from "
                 "metadata in the file."
             )
-        return _REGISTRY[source_software](file_path, **kwargs)
-    return _REGISTRY[source_software](file_path, fps, **kwargs)
+        return _REGISTRY[source_software](file, **kwargs)
+    return _REGISTRY[source_software](file, fps, **kwargs)
 
 
 def from_multiview_files(
-    file_path_dict: dict[str, Path | str],
+    file_dict: dict[str, Path | str],
     source_software: Literal[
         "DeepLabCut", "SLEAP", "LightningPose", "Anipose", "NWB", "VIA-tracks"
     ],
@@ -183,18 +184,17 @@ def from_multiview_files(
 
     Parameters
     ----------
-    file_path_dict : dict[str, Union[Path, str]]
+    file_dict
         A dict whose keys are the view names and values are the paths to load.
-    source_software : {"DeepLabCut", "SLEAP", "LightningPose", "Anipose", \
-        "NWB", "VIA-tracks"}
+    source_software
         The source software of the file.
-    fps : float, optional
+    fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
         This argument is ignored when ``source_software`` is "NWB", as the
         frame rate will be directly read or estimated from metadata in
         the NWB file.
-    **kwargs : dict, optional
+    **kwargs
         Additional keyword arguments to pass to the software-specific
         loading functions that are listed under "See Also".
 
@@ -211,10 +211,10 @@ def from_multiview_files(
     behaviour of :func:`xarray.concat` used under the hood.
 
     """
-    views_list = list(file_path_dict.keys())
+    views_list = list(file_dict.keys())
     new_coord_views = xr.DataArray(views_list, dims="view")
     dataset_list = [
         from_file(f, source_software=source_software, fps=fps, **kwargs)
-        for f in file_path_dict.values()
+        for f in file_dict.values()
     ]
     return xr.concat(dataset_list, dim=new_coord_views)
