@@ -181,6 +181,13 @@ This is automatically updated via GitHub Actions and should not be modified.
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/Sparshr04">
+                    <img src="https://avatars.githubusercontent.com/u/154352929?v=4" width="100;" alt="Sparshr04"/>
+                    <br />
+                    <sub><b>Sparsh</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/yarikoptic">
                     <img src="https://avatars.githubusercontent.com/u/39889?v=4" width="100;" alt="yarikoptic"/>
                     <br />
@@ -194,6 +201,8 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>angkul</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/ivanvrlg">
                     <img src="https://avatars.githubusercontent.com/u/131998802?v=4" width="100;" alt="ivanvrlg"/>
@@ -201,8 +210,6 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Iván V</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/maxstaras">
                     <img src="https://avatars.githubusercontent.com/u/50526197?v=4" width="100;" alt="maxstaras"/>
