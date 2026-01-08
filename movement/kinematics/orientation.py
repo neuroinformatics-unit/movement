@@ -31,7 +31,7 @@ def compute_forward_vector(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data representing position. This must contain
         the two symmetrical keypoints located on the left and
         right sides of the body, respectively.
@@ -48,7 +48,6 @@ def compute_forward_vector(
 
     Returns
     -------
-    xarray.DataArray
         An xarray DataArray representing the forward vector, with
         dimensions matching the input data array, but without the
         ``keypoints`` dimension.
@@ -142,7 +141,7 @@ def compute_head_direction_vector(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data representing position. This must contain
         the two chosen keypoints corresponding to the left and
         right of the head.
@@ -159,7 +158,6 @@ def compute_head_direction_vector(
 
     Returns
     -------
-    xarray.DataArray
         An xarray DataArray representing the head direction vector, with
         dimensions matching the input data array, but without the
         ``keypoints`` dimension.
@@ -191,7 +189,7 @@ def compute_forward_vector_angle(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data representing position. This must contain
         the two symmetrical keypoints located on the left and
         right sides of the body, respectively.
@@ -201,7 +199,7 @@ def compute_forward_vector_angle(
     right_keypoint : Hashable
         Name of the right keypoint, e.g., "right_ear", used to compute the
         forward vector.
-    reference_vector : xr.DataArray | ArrayLike, optional
+    reference_vector
         The reference vector against which the ``forward_vector`` is
         compared to compute 2D heading. Must be a two-dimensional vector,
         in the form [x,y] - where ``reference_vector[0]`` corresponds to the
@@ -220,7 +218,6 @@ def compute_forward_vector_angle(
 
     Returns
     -------
-    xarray.DataArray
         An xarray DataArray containing the computed forward vector angles,
         with dimensions matching the input data array,
         but without the ``keypoints`` and ``space`` dimensions.
@@ -262,7 +259,7 @@ def _validate_type_data_array(data: xr.DataArray) -> None:
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data to validate.
 
     Raises

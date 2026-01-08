@@ -19,7 +19,7 @@ def report_nan_values(da: xr.DataArray, label: str | None = None) -> str:
 
     Parameters
     ----------
-    da : xarray.DataArray
+    da
         The input data with ``time`` as a required dimension.
     label : str, optional
         Label to identify the data in the report. If not provided,

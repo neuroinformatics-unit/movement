@@ -17,13 +17,12 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data array containing either ``space`` or ``space_pol``
         as a dimension.
 
     Returns
     -------
-    xarray.DataArray
          A data array holding the norm of the input vectors.
          Note that this output array has no spatial dimension but preserves
          all other dimensions of the input data array (see Notes).
@@ -62,13 +61,12 @@ def convert_to_unit(data: xr.DataArray) -> xr.DataArray:
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data array containing either ``space`` or ``space_pol``
         as a dimension.
 
     Returns
     -------
-    xarray.DataArray
         A data array holding the unit vectors of the input data array
         (all input dimensions are preserved).
 
@@ -99,13 +97,12 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data containing ``space`` as a dimension,
         with ``x`` and ``y`` in the dimension coordinate.
 
     Returns
     -------
-    xarray.DataArray
         An xarray DataArray containing the polar coordinates
         stored in the ``space_pol`` dimension, with ``rho``
         and ``phi`` in the dimension coordinate. The angles
@@ -161,13 +158,12 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data containing ``space_pol`` as a dimension,
         with ``rho`` and ``phi`` in the dimension coordinate.
 
     Returns
     -------
-    xarray.DataArray
         An xarray DataArray containing the Cartesian coordinates
         stored in the ``space`` dimension, with ``x`` and ``y``
         in the dimension coordinate.
@@ -205,10 +201,10 @@ def compute_signed_angle_2d(
 
     Parameters
     ----------
-    u : xarray.DataArray
+    u
         An array of position vectors containing the ``space``
         dimension with only ``"x"`` and ``"y"`` coordinates.
-    v : xarray.DataArray | numpy.ndarray
+    v
         A 2D vector (or array of 2D vectors) against which to
         compare ``u``. May either be an xarray
         DataArray containing the ``"space"``  dimension or a numpy
@@ -221,7 +217,6 @@ def compute_signed_angle_2d(
 
     Returns
     -------
-    xarray.DataArray :
         An xarray DataArray containing signed angle between
         ``u`` and ``v`` for every time point. Matches the dimensions of
         ``u``, but without the ``space`` dimension.

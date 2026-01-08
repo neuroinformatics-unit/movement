@@ -135,10 +135,10 @@ class LineOfInterest(BaseRegionOfInterest):
 
         Parameters
         ----------
-        direction : xarray.DataArray
+        direction
             An array of vectors representing a given direction,
             e.g., the forward vector(s).
-        position : xr.DataArray
+        position
             Spatial positions, considered the origin of the ``direction``.
         in_degrees : bool
             If ``True``, angles are returned in degrees. Otherwise angles are

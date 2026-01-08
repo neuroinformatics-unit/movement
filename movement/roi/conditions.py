@@ -25,7 +25,7 @@ def compute_region_occupancy(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         Spatial data to check for inclusion within the ``regions``. Must be
         compatible with the ``position`` argument to :func:`contains_point()\
         <movement.roi.BaseRegionOfInterest.contains_point>`.
@@ -35,7 +35,6 @@ def compute_region_occupancy(
 
     Returns
     -------
-    xarray.DataArray
         A boolean ``DataArray`` providing occupancy information.
 
     Examples

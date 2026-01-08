@@ -325,7 +325,7 @@ def plot_polar_histogram(da, bin_width_deg=15, ax=None):
 
     Parameters
     ----------
-    da : xarray.DataArray
+    da
         A DataArray containing angle data in radians.
     bin_width_deg : int, optional
         Width of the bins in degrees.

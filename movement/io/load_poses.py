@@ -34,11 +34,11 @@ def from_numpy(
 
     Parameters
     ----------
-    position_array : np.ndarray
+    position_array
         Array of shape (n_frames, n_space, n_keypoints, n_individuals)
         containing the poses. It will be converted to a
         :class:`xarray.DataArray` object named "position".
-    confidence_array : np.ndarray, optional
+    confidence_array
         Array of shape (n_frames, n_keypoints, n_individuals) containing
         the point-wise confidence scores. It will be converted to a
         :class:`xarray.DataArray` object named "confidence".
@@ -59,7 +59,6 @@ def from_numpy(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
@@ -130,7 +129,6 @@ def from_file(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
@@ -195,7 +193,6 @@ def from_dlc_style_df(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
@@ -273,7 +270,6 @@ def from_sleap_file(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
@@ -343,7 +339,6 @@ def from_lp_file(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
@@ -374,7 +369,6 @@ def from_dlc_file(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
@@ -421,7 +415,6 @@ def from_multiview_files(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata, with an additional ``views`` dimension.
 
@@ -455,7 +448,6 @@ def _ds_from_lp_or_dlc_file(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
@@ -496,7 +488,6 @@ def _ds_from_sleap_analysis_file(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
@@ -543,7 +534,6 @@ def _ds_from_sleap_labels_file(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
@@ -580,7 +570,6 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
 
     Returns
     -------
-    numpy.ndarray
         A NumPy array containing pose tracks and confidence scores,
         with shape ``(n_frames, 3, n_nodes, n_tracks)``.
 
@@ -702,7 +691,6 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
@@ -763,7 +751,6 @@ def from_anipose_style_df(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
@@ -833,7 +820,6 @@ def from_anipose_file(
 
     Returns
     -------
-    xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
@@ -887,7 +873,6 @@ def from_nwb_file(
 
     Returns
     -------
-    xarray.Dataset
         A single-individual ``movement`` dataset containing the pose tracks,
         confidence scores, and associated metadata.
 
@@ -956,7 +941,6 @@ def _ds_from_nwb_object(
 
     Returns
     -------
-    xarray.Dataset
         A single-individual ``movement`` poses dataset
 
     """

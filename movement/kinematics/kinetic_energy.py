@@ -22,7 +22,7 @@ def compute_kinetic_energy(
 
     Parameters
     ----------
-    position : xr.DataArray
+    position
         The input data containing position information, with ``time``,
         ``space`` and ``keypoints`` as required dimensions.
     keypoints : list, optional
@@ -41,7 +41,6 @@ def compute_kinetic_energy(
 
     Returns
     -------
-    xr.DataArray
         A data array containing the kinetic energy per individual, for every
         time point. Note that the output array lacks ``space`` and
         ``keypoints`` dimensions.
