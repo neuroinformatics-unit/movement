@@ -82,18 +82,21 @@ class BaseRenderer(ABC):
     def compute_skeleton_vectors(self) -> np.ndarray:
         """Compute skeleton vectors in napari format.
 
+        Returns
+        -------
+        np.ndarray
+            Skeleton vectors in napari format, shape (N, 2, D+1)
+
+        Notes
+        -----
         The output must be in napari's expected format for vectors:
+
         - Shape: (N, 2, D+1) for time-series data
         - Where N is the total number of vectors (flattened across all
           frames, individuals, and connections)
         - Each vector is [[t, y, x, ...], [dt, dy, dx, ...]]
         - For 2D+time: (N, 2, 3) with positions [t, y, x]
         - For 3D+time: (N, 2, 4) with positions [t, z, y, x]
-
-        Returns
-        -------
-        np.ndarray
-            Skeleton vectors in napari format, shape (N, 2, D+1)
 
         """
 
