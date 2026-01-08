@@ -31,7 +31,10 @@ except LookupError:
     # with a dummy version
     release = "0.0.0"
 
-doc_version = "dev" if "dev" in release else f"v{release}"
+is_dev = "dev" in release
+doc_version = "dev" if is_dev else f"v{release}"
+binder_branch = "main" if is_dev else f"v{release}"
+
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -111,11 +114,9 @@ sphinx_gallery_conf = {
     "binder": {
         "org": "neuroinformatics-unit",
         "repo": "movement",
-        "branch": "gh-pages",
+        "branch": binder_branch,  # Can be any branch, tag, or commit hash
         "binderhub_url": "https://mybinder.org",
-        "dependencies": ["environment.yml"],
-        "filepath_prefix": doc_version,   # point to the versioned docs build folder inside the `gh-pages` branch
-        "notebooks_dir": "notebooks",     # default, but explicit is nice
+        "dependencies": ["../../.binder/requirements.txt"],
     },
     "reference_url": {"movement": None},
     "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image
