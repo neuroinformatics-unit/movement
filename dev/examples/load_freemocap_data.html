@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=c91ea972"></script>
+    <script src="../_static/documentation_options.js?v=857c8ea9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev17</p>
+    <p class="title logo__title">movement v0.12.1.dev19</p>
   
 </a></div>
     
@@ -662,7 +662,7 @@ focus on the specific time window when the motion takes place, and extract
 the data for the single individual we have recorded and their
 <code class="docutils literal notranslate"><span class="pre">right_hand_0006</span></code> keypoint. This keypoint tracks the right index finger
 used for writing in the air.  Note that at the moment, FreeMoCap can only
-track <a class="reference external" href="https://freemocap.github.io/documentation/frequently-asked-questions-faq.html#can-freemocap-track-multiple-people-at-once">one individual at a time</a>.</p>
+track <a class="reference external" href="https://docs.freemocap.org/documentation/frequently-asked-questions-faq.html#can-freemocap-track-multiple-people-at-once">one individual at a time</a>.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">right_index_position_hello</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_hello</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">180</span><span class="p">))</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
     <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;right_hand_0006&quot;</span><span class="p">,</span> <span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;id_0&quot;</span>
 <span class="p">)</span>
@@ -934,7 +934,7 @@ the upper-half of the individual.</p>
 <a href="https://matplotlib.org/stable/api/_as_gen/mpl_toolkits.mplot3d.axes3d.Axes3D.invert_xaxis.html#mpl_toolkits.mplot3d.axes3d.Axes3D.invert_xaxis" title="mpl_toolkits.mplot3d.axes3d.Axes3D.invert_xaxis" class="sphx-glr-backref-module-mpl_toolkits-mplot3d-axes3d sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">invert_xaxis</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_load_freemocap_data_003.png" srcset="../_images/sphx_glr_load_freemocap_data_003.png" alt="load freemocap data" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.181 seconds)</p>
+<img src="../_images/sphx_glr_load_freemocap_data_003.png" srcset="../_images/sphx_glr_load_freemocap_data_003.png" alt="load freemocap data" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.126 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-load-freemocap-data-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/load_freemocap_data.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />

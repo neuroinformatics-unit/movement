@@ -267,7 +267,7 @@ the data for the single individual we have recorded and their
 ``right_hand_0006`` keypoint. This keypoint tracks the right index finger
 used for writing in the air.  Note that at the moment, FreeMoCap can only
 track `one individual at a time
-<https://freemocap.github.io/documentation/frequently-asked-questions-faq.html#can-freemocap-track-multiple-people-at-once>`_.
+<https://docs.freemocap.org/documentation/frequently-asked-questions-faq.html#can-freemocap-track-multiple-people-at-once>`_.
 
 .. GENERATED FROM PYTHON SOURCE LINES 174-182
 
@@ -646,7 +646,7 @@ We can now use the above graph to plot the skeleton.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.181 seconds)
+   **Total running time of the script:** (0 minutes 1.126 seconds)
 
 
 .. _sphx_glr_download_examples_load_freemocap_data.py:
