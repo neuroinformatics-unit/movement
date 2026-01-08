@@ -3,12 +3,13 @@
 import warnings
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, ClassVar, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, cast
 
 import attrs
 import numpy as np
 import xarray as xr
 from attrs import converters, define, field, validators
+from numpy.typing import NDArray
 
 from movement.utils.logging import logger
 
@@ -248,7 +249,9 @@ class _BaseDatasetInputs(ABC):
             raise logger.error(
                 TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
             )
-        missing_vars = set(cls.VAR_NAMES) - set(ds.data_vars)
+        missing_vars = set(cls.VAR_NAMES) - set(
+            cast("Iterable[str]", ds.data_vars.keys())
+        )
         if missing_vars:
             raise logger.error(
                 ValueError(
@@ -379,7 +382,6 @@ class ValidPosesInputs(_BaseDatasetInputs):
             time_coords = np.arange(n_frames, dtype=np.int64)
             time_unit = "frames"
         dataset_attrs["time_unit"] = time_unit
-
         DIM_NAMES = self.DIM_NAMES
         # Convert data to an xarray.Dataset
         return xr.Dataset(
@@ -524,14 +526,16 @@ class ValidBboxesInputs(_BaseDatasetInputs):
             shapes, confidence scores and associated metadata.
 
         """
-        # Create the time coordinate
-        time_coords = self.frame_array.squeeze()  # type: ignore
-        time_unit = "frames"
-
         dataset_attrs: dict[str, str | float | None] = {
             "source_software": self.source_software,
             "ds_type": "bboxes",
         }
+        # Ignore type error as ValidBboxesInputs ensures
+        # `frame_array` is not None
+        time_coords: NDArray[np.floating] | NDArray[np.integer] = (
+            self.frame_array.squeeze()  # type: ignore[union-attr]
+        )
+        time_unit: Literal["seconds", "frames"] = "frames"
         # if fps is provided:
         # time_coords is expressed in seconds, with the time origin
         # set as frame 0 == time 0 seconds
@@ -541,7 +545,6 @@ class ValidBboxesInputs(_BaseDatasetInputs):
             time_coords = time_coords / self.fps
             time_unit = "seconds"
             dataset_attrs["fps"] = self.fps
-
         dataset_attrs["time_unit"] = time_unit
         # Convert data to an xarray.Dataset
         # with dimensions ('time', 'space', 'individuals')
