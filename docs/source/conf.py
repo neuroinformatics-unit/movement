@@ -190,6 +190,10 @@ html_js_files = [
 ]
 html_favicon = "_static/light-logo-niu.png"
 
+# Linkcheck configuration
+linkcheck_timeout = 60  # defaut is 30
+linkcheck_retries = 3   # default is 1
+
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs (because they are generated dynamically)
 linkcheck_anchors_ignore_for_url = [
@@ -204,6 +208,12 @@ linkcheck_ignore = [
     "https://www.sainsburywellcome.org/",  # Occasional ConnectTimeoutError
     "https://www.robots.ox.ac.uk/",  # occasional 404s
     "https://silvalab.codeberg.page/BraiAn/",  # SSLError despite working link
+    "https://www.g-node.org/",  # frequent timeouts
+    "https://www.contributor-covenant.org/*",  # frequent timeouts
+    # Checking zenodo redirects (from concept doi to record) takes a long time
+    "https://zenodo.org/doi/*",
+    "https://zenodo.org/records/*",
+    "https://doi.org/10.5281/zenodo.*",
 ]
 
 
