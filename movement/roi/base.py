@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable, Hashable, Sequence
+from pathlib import Path
 from typing import Any, Literal, TypeAlias
 
 import matplotlib.pyplot as plt
@@ -161,7 +163,7 @@ class BaseRegionOfInterest:
             Spatial position data, that is passed to
             ``how_to_compute_vector_to_region`` and used to compute the
             "vector to the region".
-        reference_vector : xarray.DataArray | np.ndarray
+        reference_vector : xarray.DataArray | numpy.ndarray
             Constant or time-varying vector to take signed angle with the
             "vector to the region".
         how_to_compute_vector_to_region : Callable
@@ -375,7 +377,7 @@ class BaseRegionOfInterest:
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Coordinates of the point on ``self`` that is closest to
             ``position``.
 
@@ -419,7 +421,7 @@ class BaseRegionOfInterest:
 
         Returns
         -------
-        np.ndarray
+        numpy.ndarray
             Approach vector from the point to the region.
 
         See Also
@@ -477,7 +479,7 @@ class BaseRegionOfInterest:
         in_degrees : bool
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
-        reference_vector : ArrayLike | xr.DataArray
+        reference_vector : ArrayLike | xarray.DataArray
             The reference vector to be used. Dimensions must be compatible with
             the argument of the same name that is passed to
             :func:`compute_signed_angle_2d`. Default ``(1., 0.)``.
@@ -590,3 +592,81 @@ class BaseRegionOfInterest:
             fig = ax.get_figure()
 
         return self._plot(fig, ax, **matplotlib_kwargs)
+
+    def to_file(self, path: str | Path) -> None:
+        """Save the region of interest to a file.
+
+        Parameters
+        ----------
+        path : str | Path
+            Path to save the ROI file. The file will be saved in JSON format.
+
+        See Also
+        --------
+        from_file : Load a region of interest from a file.
+
+        Examples
+        --------
+        >>> from movement.roi import PolygonOfInterest
+        >>> roi = PolygonOfInterest([(0, 0), (1, 0), (1, 1)], name="triangle")
+        >>> roi.to_file("my_roi.json")  # doctest: +SKIP
+
+        """
+        data = {
+            "name": self._name,
+            "geometry_wkt": self.region.wkt,
+            "dimensions": self.dimensions,
+            "roi_type": self.__class__.__name__,
+        }
+        Path(path).write_text(json.dumps(data, indent=2))
+
+    @classmethod
+    def from_file(cls, path: str | Path) -> BaseRegionOfInterest:
+        """Load a region of interest from a file.
+
+        Parameters
+        ----------
+        path : str | Path
+            Path to the ROI file to load. Must be a JSON file saved by
+            :meth:`to_file`.
+
+        Returns
+        -------
+        BaseRegionOfInterest
+            The loaded region of interest object. The specific subclass
+            (LineOfInterest or PolygonOfInterest) is determined from the file.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the specified file does not exist.
+
+        See Also
+        --------
+        to_file : Save a region of interest to a file.
+
+        Examples
+        --------
+        >>> from movement.roi import PolygonOfInterest
+        >>> roi = PolygonOfInterest.from_file("my_roi.json")  # doctest: +SKIP
+
+        """
+        file_path = Path(path)
+        if not file_path.exists():
+            raise FileNotFoundError(f"ROI file not found: {path}")
+
+        data = json.loads(file_path.read_text())
+        geometry = shapely.from_wkt(data["geometry_wkt"])
+
+        # Import here to avoid circular imports
+        from movement.roi import LineOfInterest, PolygonOfInterest
+
+        roi_type = data.get("roi_type", "")
+        if roi_type == "LineOfInterest" or data["dimensions"] == 1:
+            return LineOfInterest._from_geometry(
+                geometry, name=data.get("name")
+            )
+        else:
+            return PolygonOfInterest._from_geometry(
+                geometry, name=data.get("name")
+            )

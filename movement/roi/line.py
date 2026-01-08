@@ -2,6 +2,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import shapely
 import xarray as xr
 from numpy.typing import ArrayLike
 
@@ -63,6 +64,31 @@ class LineOfInterest(BaseRegionOfInterest):
 
         """
         super().__init__(points, dimensions=1, closed=loop, name=name)
+
+    @classmethod
+    def _from_geometry(
+        cls,
+        geometry: "shapely.LineString | shapely.LinearRing",
+        name: str | None = None,
+    ) -> "LineOfInterest":
+        """Construct a LineOfInterest from a shapely geometry.
+
+        Parameters
+        ----------
+        geometry : shapely.LineString | shapely.LinearRing
+            The shapely geometry to construct from.
+        name : str, optional
+            Name for the LineOfInterest.
+
+        Returns
+        -------
+        LineOfInterest
+            A new LineOfInterest instance.
+
+        """
+        points = list(geometry.coords)
+        loop = isinstance(geometry, shapely.LinearRing)
+        return cls(points=points, loop=loop, name=name)
 
     def _plot(
         self, fig: plt.Figure, ax: plt.Axes, **matplotlib_kwargs

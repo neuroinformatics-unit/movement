@@ -7,6 +7,7 @@ from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
+import shapely
 from matplotlib.patches import PathPatch as PltPatch
 from matplotlib.path import Path as PltPath
 
@@ -69,6 +70,33 @@ class PolygonOfInterest(BaseRegionOfInterest):
         """
         super().__init__(
             points=exterior_boundary, dimensions=2, holes=holes, name=name
+        )
+
+    @classmethod
+    def _from_geometry(
+        cls,
+        geometry: shapely.Polygon,
+        name: str | None = None,
+    ) -> PolygonOfInterest:
+        """Construct a PolygonOfInterest from a shapely geometry.
+
+        Parameters
+        ----------
+        geometry : shapely.Polygon
+            The shapely geometry to construct from.
+        name : str, optional
+            Name for the PolygonOfInterest.
+
+        Returns
+        -------
+        PolygonOfInterest
+            A new PolygonOfInterest instance.
+
+        """
+        points = list(geometry.exterior.coords)
+        holes = [list(interior.coords) for interior in geometry.interiors]
+        return cls(
+            exterior_boundary=points, holes=holes if holes else None, name=name
         )
 
     @property
