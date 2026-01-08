@@ -25,10 +25,10 @@ PointLikeList: TypeAlias = Sequence[float] | np.ndarray | CoordinateSequence
 LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
 RegionLike: TypeAlias = shapely.Polygon
 SupportedGeometry: TypeAlias = LineLike | RegionLike
-TRegion_co = TypeVar("TRegion_co", bound=SupportedGeometry, covariant=True)
+TGeometry_co = TypeVar("TGeometry_co", bound=SupportedGeometry, covariant=True)
 
 
-class BaseRegionOfInterest(ABC, Generic[TRegion_co]):
+class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
     """Abstract base class for regions of interest (RoIs).
 
     This class cannot be instantiated directly. Instead, use one of its
@@ -67,7 +67,7 @@ class BaseRegionOfInterest(ABC, Generic[TRegion_co]):
     __default_name: str = "Un-named region"
 
     _name: str | None
-    _shapely_geometry: TRegion_co
+    _shapely_geometry: TGeometry_co
 
     @property
     def _default_plot_args(self) -> dict[str, Any]:
@@ -130,7 +130,7 @@ class BaseRegionOfInterest(ABC, Generic[TRegion_co]):
         return self._name if self._name else self.__default_name
 
     @property
-    def region(self) -> TRegion_co:
+    def region(self) -> TGeometry_co:
         """``shapely.Geometry`` representation of the region."""
         return self._shapely_geometry
 
@@ -216,7 +216,7 @@ class BaseRegionOfInterest(ABC, Generic[TRegion_co]):
 
     def __init__(
         self,
-        geometry: TRegion_co,
+        geometry: TGeometry_co,
         name: str | None = None,
     ) -> None:
         """Initialise a region of interest.
