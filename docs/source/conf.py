@@ -210,6 +210,10 @@ linkcheck_ignore = [
     "https://silvalab.codeberg.page/BraiAn/",  # SSLError despite working link
     "https://www.g-node.org/",  # frequent timeouts
     "https://www.contributor-covenant.org/resources",  # frequent timeouts
+    # Checking zenodo redirects (from concept doi to record) takes a long time
+    "https://zenodo.org/doi/*",
+    "https://zenodo.org/records/*",
+    "https://doi.org/10.5281/zenodo.*",
 ]
 
 
