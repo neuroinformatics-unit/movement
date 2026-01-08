@@ -209,7 +209,7 @@ linkcheck_ignore = [
     "https://www.robots.ox.ac.uk/",  # occasional 404s
     "https://silvalab.codeberg.page/BraiAn/",  # SSLError despite working link
     "https://www.g-node.org/",  # frequent timeouts
-    "https://www.contributor-covenant.org/resources",  # frequent timeouts
+    "https://www.contributor-covenant.org/*",  # frequent timeouts
     # Checking zenodo redirects (from concept doi to record) takes a long time
     "https://zenodo.org/doi/*",
     "https://zenodo.org/records/*",
