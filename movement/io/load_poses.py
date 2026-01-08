@@ -988,4 +988,6 @@ def _ds_from_nwb_object(
                 source_software=source_software,
             )
         )
-    return xr.merge(single_keypoint_datasets)
+    return xr.merge(
+        single_keypoint_datasets, join="outer", compat="no_conflicts"
+    )

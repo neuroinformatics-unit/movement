@@ -115,7 +115,7 @@ def test_save_and_load_to_nwb_file(valid_poses_dataset):
     """
     nwb_files = save_poses.to_nwb_file(valid_poses_dataset)
     ds_singles = [load_poses.from_nwb_file(nwb_file) for nwb_file in nwb_files]
-    ds = xr.merge(ds_singles)
+    ds = xr.merge(ds_singles, join="outer", compat="no_conflicts")
     # Change expected differences to match valid_poses_dataset
     ds["time"] = ds.time.astype(int)
     ds.attrs["time_unit"] = valid_poses_dataset.attrs["time_unit"]
