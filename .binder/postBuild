@@ -17,9 +17,11 @@ TMP_DIR=$(mktemp -d /tmp/movement-XXXXXX)
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 # Stage the examples in a temporary directory
-cp -r examples "$TMP_DIR/examples"
+cp -r examples "$TMP_DIR/"
 # Recursively convert all python scripts to notebooks
 find "$TMP_DIR/examples" -name '*.py' -exec sphinx_gallery_py2jupyter '{}' +
+# Remove all non-notebook files
+find "$TMP_DIR/examples" -type f ! -name '*.ipynb' -delete
 
 # Remove everything except the existing .binder folder to present a clean workspace
 # (the .binder folder is kept for debugging purposes)
@@ -27,4 +29,4 @@ find . -mindepth 1 -maxdepth 1 ! -name '.binder' -exec rm -rf {} +
 
 # Move the generated notebook files to where Binder expects
 mkdir -p notebooks
-find "$TMP_DIR/examples" -type f -name '*.ipynb' -maxdepth 1 -exec mv {} notebooks/ \;
+mv "$TMP_DIR/examples" notebooks/
