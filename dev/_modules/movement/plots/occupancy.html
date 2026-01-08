@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=6d662d6b"></script>
+    <script src="../../../_static/documentation_options.js?v=c91ea972"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev16</p>
+    <p class="title logo__title">movement v0.12.1.dev17</p>
   
 </a></div>
     
@@ -470,8 +470,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.axes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span><span class="p">,</span> <span class="n">SubFigure</span>
 
-<span class="n">HistInfoKeys</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;counts&quot;</span><span class="p">,</span> <span class="s2">&quot;xedges&quot;</span><span class="p">,</span> <span class="s2">&quot;yedges&quot;</span><span class="p">]</span>
+<span class="n">HistInfoKeys</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;xedges&quot;</span><span class="p">,</span> <span class="s2">&quot;yedges&quot;</span><span class="p">]</span>
 
 <span class="n">DEFAULT_HIST_ARGS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;bins&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;cmap&quot;</span><span class="p">:</span> <span class="s2">&quot;viridis&quot;</span><span class="p">}</span>
 
@@ -482,9 +484,9 @@
     <span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">individuals</span><span class="p">:</span> <span class="n">Hashable</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Hashable</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">keypoints</span><span class="p">:</span> <span class="n">Hashable</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Hashable</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="n">HistInfoKeys</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Figure</span> <span class="o">|</span> <span class="n">SubFigure</span><span class="p">,</span> <span class="n">Axes</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="n">HistInfoKeys</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a 2D occupancy histogram.</span>
 
 <span class="sd">    - If there are multiple keypoints selected, the occupancy of the centroid</span>
@@ -495,7 +497,9 @@
 <span class="sd">    Points whose corresponding spatial coordinates have NaN values</span>
 <span class="sd">    are ignored.</span>
 
-<span class="sd">    Histogram information is returned as the third output value (see Notes).</span>
+<span class="sd">    This function returns the figure and axes containing the histogram,</span>
+<span class="sd">    as well as a dictionary containing the histogram data returned by</span>
+<span class="sd">    :meth:`matplotlib.axes.Axes.hist2d`.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -515,33 +519,17 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    matplotlib.pyplot.Figure</span>
+<span class="sd">    fig : matplotlib.figure.Figure or matplotlib.figure.SubFigure</span>
 <span class="sd">        Plot handle containing the rendered 2D histogram. If ``ax`` is</span>
-<span class="sd">        supplied, this will be the figure that ``ax`` belongs to.</span>
-<span class="sd">    matplotlib.axes.Axes</span>
-<span class="sd">        Axes on which the histogram was drawn. If ``ax`` was supplied,</span>
+<span class="sd">        supplied, this will be the :class:`matplotlib.figure.Figure` or</span>
+<span class="sd">        :class:`matplotlib.figure.SubFigure` that ``ax`` belongs to.</span>
+<span class="sd">    ax : matplotlib.axes.Axes</span>
+<span class="sd">        Axes on which the histogram was drawn. If ``ax`` is supplied,</span>
 <span class="sd">        the input will be directly modified and returned in this value.</span>
-<span class="sd">    dict[str, numpy.ndarray]</span>
-<span class="sd">        Information about the created histogram (see Notes).</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    The third return value of this method exposes the outputs from</span>
-<span class="sd">    :meth:`matplotlib.axes.Axes.hist2d` that would otherwise be lost if only</span>
-<span class="sd">    the figure and axes handles were returned. This information is returned</span>
-<span class="sd">    as a dictionary.</span>
-
-<span class="sd">    For data with ``Nx`` bins in the 1st spatial dimension, and ``Ny`` bins in</span>
-<span class="sd">    the 2nd spatial dimension, the dictionary output has key-value pairs;</span>
-<span class="sd">    - ``xedges``, an ``(Nx+1,)`` ``numpy`` array specifying the bin edges in</span>
-<span class="sd">    the 1st spatial dimension.</span>
-<span class="sd">    - ``yedges``, an ``(Ny+1,)`` ``numpy`` array specifying the bin edges in</span>
-<span class="sd">    the 2nd spatial dimension.</span>
-<span class="sd">    - ``counts``, an ``(Nx, Ny)`` ``numpy`` array with the count for each bin.</span>
-
-<span class="sd">    ``counts[x, y]`` is the number of datapoints in the</span>
-<span class="sd">    ``(xedges[x], xedges[x+1]), (yedges[y], yedges[y+1])`` bin. These values</span>
-<span class="sd">    are those returned from :meth:`matplotlib.axes.Axes.hist2d`.</span>
+<span class="sd">    hist2d_info : dict[Literal[&#39;h&#39;, &#39;xedges&#39;, &#39;yedges&#39;], np.ndarray]</span>
+<span class="sd">        Dictionary containing the ``h``, ``xedges``, and ``yedges`` outputs</span>
+<span class="sd">        from :meth:`matplotlib.axes.Axes.hist2d` that would otherwise be lost</span>
+<span class="sd">        if only the figure and axes handles were returned.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -627,20 +615,26 @@
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
     <span class="c1"># Now it should just be a case of creating the histogram</span>
-    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
-    <span class="k">else</span><span class="p">:</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span> <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-    <span class="n">counts</span><span class="p">,</span> <span class="n">xedges</span><span class="p">,</span> <span class="n">yedges</span><span class="p">,</span> <span class="n">hist_image</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">hist2d</span><span class="p">(</span>
+    <span class="k">assert</span> <span class="n">ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="n">h</span><span class="p">,</span> <span class="n">xedges</span><span class="p">,</span> <span class="n">yedges</span><span class="p">,</span> <span class="n">hist_image</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">hist2d</span><span class="p">(</span>
         <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="n">x_coord</span><span class="p">),</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="n">y_coord</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">)</span>
-    <span class="n">colourbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">hist_image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
-    <span class="n">colourbar</span><span class="o">.</span><span class="n">solids</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">hist2d_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">HistInfoKeys</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="n">h</span><span class="p">,</span>
+        <span class="s2">&quot;xedges&quot;</span><span class="p">:</span> <span class="n">xedges</span><span class="p">,</span>
+        <span class="s2">&quot;yedges&quot;</span><span class="p">:</span> <span class="n">yedges</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">hist_image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cbar</span><span class="o">.</span><span class="n">solids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">solids</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">x_coord</span><span class="p">))</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">y_coord</span><span class="p">))</span>
 
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;counts&quot;</span><span class="p">:</span> <span class="n">counts</span><span class="p">,</span> <span class="s2">&quot;xedges&quot;</span><span class="p">:</span> <span class="n">xedges</span><span class="p">,</span> <span class="s2">&quot;yedges&quot;</span><span class="p">:</span> <span class="n">yedges</span><span class="p">}</span></div>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">hist2d_info</span></div>
 
 </pre></div>
 <div class="section ablog__blog_comments">

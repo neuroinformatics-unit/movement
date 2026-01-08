@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=6d662d6b"></script>
+    <script src="../../../_static/documentation_options.js?v=c91ea972"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev16</p>
+    <p class="title logo__title">movement v0.12.1.dev17</p>
   
 </a></div>
     
@@ -464,18 +464,21 @@
                    <h1>Source code for movement.roi.line</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;1-dimensional lines of interest.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.axes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span><span class="p">,</span> <span class="n">SubFigure</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseRegionOfInterest</span><span class="p">,</span> <span class="n">PointLikeList</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseRegionOfInterest</span><span class="p">,</span> <span class="n">LineLike</span><span class="p">,</span> <span class="n">PointLikeList</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.broadcasting</span><span class="w"> </span><span class="kn">import</span> <span class="n">broadcastable_method</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 
 
 <div class="viewcode-block" id="LineOfInterest">
 <a class="viewcode-back" href="../../../api/movement.roi.LineOfInterest.html#movement.roi.LineOfInterest">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">LineOfInterest</span><span class="p">(</span><span class="n">BaseRegionOfInterest</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LineOfInterest</span><span class="p">(</span><span class="n">BaseRegionOfInterest</span><span class="p">[</span><span class="n">LineLike</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Representation of boundaries or other lines of interest.</span>
 
 <span class="sd">    This class can be used to represent boundaries or other internal divisions</span>
@@ -520,7 +523,7 @@
 <span class="sd">        argument. However, if you want to define an enclosed region for your</span>
 <span class="sd">        analysis, we recommend you create a</span>
 <span class="sd">        :class:`PolygonOfInterest&lt;movement.roi.PolygonOfInterest&gt;`</span>
-<span class="sd">        and use its ``boundary`` property instead.</span>
+<span class="sd">        and use its ``exterior_boundary`` property instead.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -528,11 +531,28 @@
 <span class="sd">            The base class that constructor arguments are passed to.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">dimensions</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="n">loop</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Need at least 2 points to define a 1D region &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;(got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">loop</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot create a loop from a single line segment.&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">line</span><span class="p">:</span> <span class="n">LineLike</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">shapely</span><span class="o">.</span><span class="n">LinearRing</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">loop</span>
+            <span class="k">else</span> <span class="n">shapely</span><span class="o">.</span><span class="n">LineString</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_plot</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span> <span class="o">**</span><span class="n">matplotlib_kwargs</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">:</span> <span class="n">Figure</span> <span class="o">|</span> <span class="n">SubFigure</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span> <span class="o">**</span><span class="n">matplotlib_kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Figure</span> <span class="o">|</span> <span class="n">SubFigure</span><span class="p">,</span> <span class="n">Axes</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;LinesOfInterest can simply be plotted as lines.&quot;&quot;&quot;</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
             <span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">],</span>

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=6d662d6b"></script>
+    <script src="../../../_static/documentation_options.js?v=c91ea972"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev16</p>
+    <p class="title logo__title">movement v0.12.1.dev17</p>
   
 </a></div>
     
@@ -507,7 +507,14 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Concatenate</span><span class="p">,</span> <span class="n">ParamSpec</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Concatenate</span><span class="p">,</span>
+    <span class="n">Literal</span><span class="p">,</span>
+    <span class="n">ParamSpec</span><span class="p">,</span>
+    <span class="n">TypeAlias</span><span class="p">,</span>
+    <span class="n">TypeVar</span><span class="p">,</span>
+    <span class="n">overload</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
@@ -515,20 +522,17 @@
 
 <span class="n">ScalarOr1D</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ScalarOr1D&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">)</span>
 <span class="n">Self</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Self&quot;</span><span class="p">)</span>
-<span class="n">KeywordArgs</span> <span class="o">=</span> <span class="n">ParamSpec</span><span class="p">(</span><span class="s2">&quot;KeywordArgs&quot;</span><span class="p">)</span>
-<span class="n">ClsMethod1DTo1D</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
-    <span class="n">Concatenate</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">KeywordArgs</span><span class="p">],</span>
-    <span class="n">ScalarOr1D</span><span class="p">,</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">ParamSpec</span><span class="p">(</span><span class="s2">&quot;P&quot;</span><span class="p">)</span>
+<span class="n">ClsMethod1DTo1D</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="n">Concatenate</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">P</span><span class="p">],</span> <span class="n">ScalarOr1D</span>
 <span class="p">]</span>
-<span class="n">Function1DTo1D</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
-    <span class="n">Concatenate</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">,</span> <span class="n">KeywordArgs</span><span class="p">],</span>
-    <span class="n">ScalarOr1D</span><span class="p">,</span>
+<span class="n">ClsMethodDaToDa</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="n">Concatenate</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">P</span><span class="p">],</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
 <span class="p">]</span>
+<span class="n">Function1DTo1D</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span><span class="n">Concatenate</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">,</span> <span class="n">P</span><span class="p">],</span> <span class="n">ScalarOr1D</span><span class="p">]</span>
 <span class="n">FunctionDaToDa</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
-    <span class="n">Concatenate</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">KeywordArgs</span><span class="p">],</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
+    <span class="n">Concatenate</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">P</span><span class="p">],</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
 <span class="p">]</span>
-<span class="n">DecoratorInput</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Function1DTo1D</span> <span class="o">|</span> <span class="n">ClsMethod1DTo1D</span>
-<span class="n">Decorator</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">DecoratorInput</span><span class="p">],</span> <span class="n">FunctionDaToDa</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="apply_along_da_axis">
@@ -541,7 +545,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a function ``f`` across ``dimension`` of ``data``.</span>
 
-<span class="sd">    ``f`` should be callable as ``f(input_1D)`` where ``input_1D`` is a</span>
+<span class="sd">    ``f`` should be callable as ``f(input_1d)`` where ``input_1d`` is a</span>
 <span class="sd">    one-dimensional :data:`numpy.typing.ArrayLike` object. It should return</span>
 <span class="sd">    either a scalar or one-dimensional :data:`numpy.typing.ArrayLike` object.</span>
 
@@ -575,7 +579,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">output</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
-        <span class="k">lambda</span> <span class="n">input_1D</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">input_1D</span><span class="p">)),</span>
+        <span class="k">lambda</span> <span class="n">input_1d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">input_1d</span><span class="p">)),</span>
         <span class="n">data</span><span class="p">,</span>
         <span class="n">input_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="n">dimension</span><span class="p">]],</span>
         <span class="n">exclude_dims</span><span class="o">=</span><span class="nb">set</span><span class="p">((</span><span class="n">dimension</span><span class="p">,)),</span>
@@ -593,13 +597,39 @@
 
 
 
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_broadcastable</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">is_classmethod</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">],</span>
+    <span class="n">only_broadcastable_along</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Function1DTo1D</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">ScalarOr1D</span><span class="p">]],</span> <span class="n">FunctionDaToDa</span><span class="p">[</span><span class="n">P</span><span class="p">]]:</span> <span class="o">...</span>
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_broadcastable</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">is_classmethod</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
+    <span class="n">only_broadcastable_along</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="p">[</span><span class="n">ClsMethod1DTo1D</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">ScalarOr1D</span><span class="p">]],</span> <span class="n">ClsMethodDaToDa</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">P</span><span class="p">]</span>
+<span class="p">]:</span> <span class="o">...</span>
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_broadcastable</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">is_classmethod</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">only_broadcastable_along</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="o">...</span><span class="p">,</span> <span class="n">FunctionDaToDa</span><span class="p">[</span><span class="n">P</span><span class="p">]</span> <span class="o">|</span> <span class="n">ClsMethodDaToDa</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">P</span><span class="p">]</span>
+<span class="p">]:</span> <span class="o">...</span>  <span class="c1"># Fallback when `is_classmethod` is unknown at type-check time</span>
 <div class="viewcode-block" id="make_broadcastable">
 <a class="viewcode-back" href="../../../api/movement.utils.broadcasting.make_broadcastable.html#movement.utils.broadcasting.make_broadcastable">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">make_broadcastable</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">make_broadcastable</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">is_classmethod</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">only_broadcastable_along</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Decorator</span><span class="p">:</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a decorator that allows a function to be broadcast.</span>
 
 <span class="sd">    Parameters</span>
@@ -618,7 +648,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Decorator</span>
+<span class="sd">    Callable</span>
 <span class="sd">        Decorator function that can be applied with the</span>
 <span class="sd">        ``@make_broadcastable(...)`` syntax. See Notes for a description of</span>
 <span class="sd">        the action of the returned decorator.</span>
@@ -650,9 +680,6 @@
 <span class="sd">    ``fr`` is not an ``xarray.DataArray``, it will fall back on the behaviour</span>
 <span class="sd">    of ``f`` (and ignore the ``broadcast_dimension`` argument).</span>
 
-<span class="sd">    See the docstring of ``make_broadcastable_inner`` in the source code for a</span>
-<span class="sd">    more explicit explanation of the returned decorator.</span>
-
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
 <span class="sd">    broadcastable_method : Convenience alias for ``is_classmethod = True``.</span>
@@ -670,7 +697,6 @@
 <span class="sd">    ... # Call via the usual arguments, replacing the xyz_data argument with</span>
 <span class="sd">    ... # the xarray.DataArray to broadcast over</span>
 <span class="sd">    ... my_function(data_array, *args, **kwargs)</span>
-<span class="sd">    ```</span>
 
 <span class="sd">    Make a class method broadcast along any axis of an ``xarray.DataArray``.</span>
 
@@ -684,140 +710,55 @@
 <span class="sd">    ...     @make_broadcastable(is_classmethod=True)</span>
 <span class="sd">    ...     def manipulate_values(self, xyz_values, *args, **kwargs):</span>
 <span class="sd">    ...         return self.factor * sum(xyz_values) + self.offset</span>
-<span class="sd">    ...</span>
 <span class="sd">    &gt;&gt;&gt; m = MyClass(factor=5.9, offset=1.0)</span>
 <span class="sd">    &gt;&gt;&gt; m.manipulate_values(</span>
 <span class="sd">    ...     data_array, *args, broadcast_dimension=&quot;time&quot;, **kwargs</span>
 <span class="sd">    ... )</span>
-<span class="sd">    ```</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">only_broadcastable_along</span><span class="p">:</span>
-        <span class="n">only_broadcastable_along</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">make_broadcastable_inner</span><span class="p">(</span>
-        <span class="n">f</span><span class="p">:</span> <span class="n">DecoratorInput</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FunctionDaToDa</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Broadcast a 1D function along a ``xarray.DataArray`` dimension.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        f : Callable</span>
-<span class="sd">            1D function to be converted into a broadcast-able function,, that</span>
-<span class="sd">            returns either a scalar value or 1D output. If ``f`` is a class</span>
-<span class="sd">            method, it should be callable as</span>
-<span class="sd">            ``f(self, [x, y, ...], *args, **kwargs)``.</span>
-<span class="sd">            Otherwise, ``f`` should be callable as</span>
-<span class="sd">            ``f([x, y, ...], *args, **kwargs).</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Callable</span>
-<span class="sd">            Callable with signature</span>
-<span class="sd">            ``(self,) data, *args, broadcast_dimension = str, **kwargs``,</span>
-<span class="sd">            that applies ``f`` along the ``broadcast_dimension`` of ``data``.</span>
-<span class="sd">            ``*args`` and ``**kwargs`` match those passed to ``f``, and</span>
-<span class="sd">            retain the same interpretations.</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        ``mypy`` cannot handle cases where arguments are injected</span>
-<span class="sd">        into functions: https://github.com/python/mypy/issues/16402.</span>
-<span class="sd">        As such, we ignore the ``valid-type`` errors where they are flagged by</span>
-<span class="sd">        the checker in cases such as this ``typing[valid-type]``. Typehints</span>
-<span class="sd">        provided are consistent with the (expected) input and output types,</span>
-<span class="sd">        however.</span>
-
-<span class="sd">        ``mypy`` does not like when a function, that is to be returned, has its</span>
-<span class="sd">        signature changed between cases. As such, it recommends defining all</span>
-<span class="sd">        the possible signatures first, then selecting one using an</span>
-<span class="sd">        ``if...elif...else`` block. We adhere to this convention in the method</span>
-<span class="sd">        below.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">inner_clsmethod</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
-            <span class="n">broadcast_dimension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;space&quot;</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-            <span class="c1"># Preserve original functionality</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">P</span><span class="o">.</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">is_classmethod</span><span class="p">:</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">rest</span> <span class="o">=</span> <span class="n">args</span>
+
+                <span class="k">def</span><span class="w"> </span><span class="nf">call_f</span><span class="p">(</span><span class="n">input_1d</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_1d</span><span class="p">,</span> <span class="o">*</span><span class="n">rest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">rest</span> <span class="o">=</span> <span class="n">args</span>
+
+                <span class="k">def</span><span class="w"> </span><span class="nf">call_f</span><span class="p">(</span><span class="n">input_1d</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">input_1d</span><span class="p">,</span> <span class="o">*</span><span class="n">rest</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+            <span class="n">broadcast_dimension</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">only_broadcastable_along</span>
+                <span class="k">if</span> <span class="n">only_broadcastable_along</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">else</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;broadcast_dimension&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
             <span class="k">return</span> <span class="n">apply_along_da_axis</span><span class="p">(</span>
-                <span class="k">lambda</span> <span class="n">input_1D</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_1D</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+                <span class="n">call_f</span><span class="p">,</span>
                 <span class="n">data</span><span class="p">,</span>
                 <span class="n">broadcast_dimension</span><span class="p">,</span>
                 <span class="n">new_dimension_name</span><span class="o">=</span><span class="n">new_dimension_name</span><span class="p">,</span>
             <span class="p">)</span>
 
-        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">inner_clsmethod_fixeddim</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span>
-            <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">inner_clsmethod</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span>
-                <span class="n">data</span><span class="p">,</span>
-                <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-                <span class="n">broadcast_dimension</span><span class="o">=</span><span class="n">only_broadcastable_along</span><span class="p">,</span>
-                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">wrapper</span>
 
-        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">inner</span><span class="p">(</span>
-            <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
-            <span class="n">broadcast_dimension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;space&quot;</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-            <span class="c1"># Preserve original functionality</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
-                <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">apply_along_da_axis</span><span class="p">(</span>
-                <span class="k">lambda</span> <span class="n">input_1D</span><span class="p">:</span> <span class="n">f</span><span class="p">(</span><span class="n">input_1D</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
-                <span class="n">data</span><span class="p">,</span>
-                <span class="n">broadcast_dimension</span><span class="p">,</span>
-                <span class="n">new_dimension_name</span><span class="o">=</span><span class="n">new_dimension_name</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">inner_fixeddim</span><span class="p">(</span>
-            <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-            <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">KeywordArgs</span><span class="o">.</span><span class="n">kwargs</span><span class="p">,</span>  <span class="c1"># type: ignore[valid-type]</span>
-        <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">inner</span><span class="p">(</span>
-                <span class="n">data</span><span class="p">,</span>
-                <span class="o">*</span><span class="n">args</span><span class="p">,</span>
-                <span class="n">broadcast_dimension</span><span class="o">=</span><span class="n">only_broadcastable_along</span><span class="p">,</span>
-                <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">is_classmethod</span> <span class="ow">and</span> <span class="n">only_broadcastable_along</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">inner_clsmethod_fixeddim</span>
-        <span class="k">elif</span> <span class="n">is_classmethod</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">inner_clsmethod</span>
-        <span class="k">elif</span> <span class="n">only_broadcastable_along</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">inner_fixeddim</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">inner</span>
-
-    <span class="k">return</span> <span class="n">make_broadcastable_inner</span></div>
+    <span class="k">return</span> <span class="n">decorator</span></div>
 
 
 
 <div class="viewcode-block" id="space_broadcastable">
 <a class="viewcode-back" href="../../../api/movement.utils.broadcasting.space_broadcastable.html#movement.utils.broadcasting.space_broadcastable">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">space_broadcastable</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
     <span class="n">is_classmethod</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Decorator</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">FunctionDaToDa</span><span class="p">[</span><span class="n">P</span><span class="p">]</span> <span class="o">|</span> <span class="n">ClsMethodDaToDa</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">P</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Broadcast a 1D function along the &#39;space&#39; dimension.</span>
 
 <span class="sd">    This is a convenience wrapper for</span>
@@ -853,7 +794,9 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">broadcastable_method</span><span class="p">(</span>
     <span class="n">only_broadcastable_along</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Decorator</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="p">[</span><span class="n">ClsMethod1DTo1D</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">ScalarOr1D</span><span class="p">]],</span> <span class="n">ClsMethodDaToDa</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">P</span><span class="p">]</span>
+<span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Broadcast a class method along a ``xarray.DataArray`` dimension.</span>
 
 <span class="sd">    This is a convenience wrapper for</span>

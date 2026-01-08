@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=6d662d6b"></script>
+    <script src="../_static/documentation_options.js?v=c91ea972"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev16</p>
+    <p class="title logo__title">movement v0.12.1.dev17</p>
   
 </a></div>
     
@@ -630,7 +630,9 @@ aggregated.</p></li>
 </ul>
 <p>Points whose corresponding spatial coordinates have NaN values
 are ignored.</p>
-<p>Histogram information is returned as the third output value (see Notes).</p>
+<p>This function returns the figure and axes containing the histogram,
+as well as a dictionary containing the histogram data returned by
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist2d.html#matplotlib.axes.Axes.hist2d" title="(in Matplotlib v3.10.8)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.hist2d()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -645,34 +647,22 @@ figure and axes are created and returned.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'counts'</span></code>, <code class="docutils literal notranslate"><span class="pre">'xedges'</span></code>, <code class="docutils literal notranslate"><span class="pre">'yedges'</span></code>], <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a> | <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.SubFigure.html#matplotlib.figure.SubFigure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubFigure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'h'</span></code>, <code class="docutils literal notranslate"><span class="pre">'xedges'</span></code>, <code class="docutils literal notranslate"><span class="pre">'yedges'</span></code>], <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a>]]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
-<li><p><em>matplotlib.pyplot.Figure</em> – Plot handle containing the rendered 2D histogram. If <code class="docutils literal notranslate"><span class="pre">ax</span></code> is
-supplied, this will be the figure that <code class="docutils literal notranslate"><span class="pre">ax</span></code> belongs to.</p></li>
-<li><p><em>matplotlib.axes.Axes</em> – Axes on which the histogram was drawn. If <code class="docutils literal notranslate"><span class="pre">ax</span></code> was supplied,
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure or matplotlib.figure.SubFigure</em>) – Plot handle containing the rendered 2D histogram. If <code class="docutils literal notranslate"><span class="pre">ax</span></code> is
+supplied, this will be the <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> or
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.SubFigure.html#matplotlib.figure.SubFigure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.SubFigure</span></code></a> that <code class="docutils literal notranslate"><span class="pre">ax</span></code> belongs to.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – Axes on which the histogram was drawn. If <code class="docutils literal notranslate"><span class="pre">ax</span></code> is supplied,
 the input will be directly modified and returned in this value.</p></li>
-<li><p><em>dict[str, numpy.ndarray]</em> – Information about the created histogram (see Notes).</p></li>
+<li><p><strong>hist2d_info</strong> (<em>dict[Literal[‘h’, ‘xedges’, ‘yedges’], np.ndarray]</em>) – Dictionary containing the <code class="docutils literal notranslate"><span class="pre">h</span></code>, <code class="docutils literal notranslate"><span class="pre">xedges</span></code>, and <code class="docutils literal notranslate"><span class="pre">yedges</span></code> outputs
+from <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist2d.html#matplotlib.axes.Axes.hist2d" title="(in Matplotlib v3.10.8)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.hist2d()</span></code></a> that would otherwise be lost
+if only the figure and axes handles were returned.</p></li>
 </ul>
 </p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>The third return value of this method exposes the outputs from
-<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist2d.html#matplotlib.axes.Axes.hist2d" title="(in Matplotlib v3.10.8)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.hist2d()</span></code></a> that would otherwise be lost if only
-the figure and axes handles were returned. This information is returned
-as a dictionary.</p>
-<p>For data with <code class="docutils literal notranslate"><span class="pre">Nx</span></code> bins in the 1st spatial dimension, and <code class="docutils literal notranslate"><span class="pre">Ny</span></code> bins in
-the 2nd spatial dimension, the dictionary output has key-value pairs;
-- <code class="docutils literal notranslate"><span class="pre">xedges</span></code>, an <code class="docutils literal notranslate"><span class="pre">(Nx+1,)</span></code> <code class="docutils literal notranslate"><span class="pre">numpy</span></code> array specifying the bin edges in
-the 1st spatial dimension.
-- <code class="docutils literal notranslate"><span class="pre">yedges</span></code>, an <code class="docutils literal notranslate"><span class="pre">(Ny+1,)</span></code> <code class="docutils literal notranslate"><span class="pre">numpy</span></code> array specifying the bin edges in
-the 2nd spatial dimension.
-- <code class="docutils literal notranslate"><span class="pre">counts</span></code>, an <code class="docutils literal notranslate"><span class="pre">(Nx,</span> <span class="pre">Ny)</span></code> <code class="docutils literal notranslate"><span class="pre">numpy</span></code> array with the count for each bin.</p>
-<p><code class="docutils literal notranslate"><span class="pre">counts[x,</span> <span class="pre">y]</span></code> is the number of datapoints in the
-<code class="docutils literal notranslate"><span class="pre">(xedges[x],</span> <span class="pre">xedges[x+1]),</span> <span class="pre">(yedges[y],</span> <span class="pre">yedges[y+1])</span></code> bin. These values
-are those returned from <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.hist2d.html#matplotlib.axes.Axes.hist2d" title="(in Matplotlib v3.10.8)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.hist2d()</span></code></a>.</p>
 <p class="rubric">Examples</p>
 <p>Simple use-case is to plot a histogram of the centroid of all
 keypoints, aggregated over all individuals.</p>

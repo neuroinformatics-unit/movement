@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=6d662d6b"></script>
+    <script src="../../../_static/documentation_options.js?v=c91ea972"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev16</p>
+    <p class="title logo__title">movement v0.12.1.dev17</p>
   
 </a></div>
     
@@ -465,7 +465,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;Compute orientations as vectors and angles.&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hashable</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
@@ -568,13 +568,13 @@
     <span class="p">)</span> <span class="o">-</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="n">right_keypoint</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="c1"># Define upward vector</span>
     <span class="c1"># default: negative z direction in the image coordinate system</span>
-    <span class="n">upward_vector</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">upward_vector_arr</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">camera_view</span> <span class="o">==</span> <span class="s2">&quot;top_down&quot;</span>
         <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
     <span class="p">)</span>
     <span class="n">upward_vector</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">upward_vector</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="p">),</span> <span class="mi">1</span><span class="p">]),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">upward_vector_arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="p">),</span> <span class="mi">1</span><span class="p">]),</span>
         <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">],</span>
         <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">],</span>
@@ -582,8 +582,9 @@
     <span class="p">)</span>
     <span class="c1"># Compute forward direction as the cross product</span>
     <span class="c1"># (right-to-left) cross (forward) = up</span>
-    <span class="n">forward_vector</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span>
-        <span class="n">right_to_left_vector</span><span class="p">,</span> <span class="n">upward_vector</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span>
+    <span class="n">forward_vector</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="s2">&quot;xr.DataArray&quot;</span><span class="p">,</span>
+        <span class="n">xr</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">right_to_left_vector</span><span class="p">,</span> <span class="n">upward_vector</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">),</span>
     <span class="p">)</span><span class="o">.</span><span class="n">drop_sel</span><span class="p">(</span>
         <span class="n">space</span><span class="o">=</span><span class="s2">&quot;z&quot;</span>
     <span class="p">)</span>  <span class="c1"># keep only the first 2 spatal dimensions of the result</span>
@@ -723,7 +724,7 @@
 
     <span class="c1"># Convert to degrees</span>
     <span class="k">if</span> <span class="n">in_degrees</span><span class="p">:</span>
-        <span class="n">heading_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">heading_array</span><span class="p">)</span>
+        <span class="n">heading_array</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;xr.DataArray&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">heading_array</span><span class="p">))</span>
 
     <span class="n">heading_array</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;forward_vector_angle&quot;</span>
     <span class="k">return</span> <span class="n">heading_array</span></div>

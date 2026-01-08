@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=6d662d6b"></script>
+    <script src="../_static/documentation_options.js?v=c91ea972"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev16</p>
+    <p class="title logo__title">movement v0.12.1.dev17</p>
   
 </a></div>
     
@@ -621,7 +621,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.roi.LineOfInterest">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement.roi.</span></span><span class="sig-name descname"><span class="pre">LineOfInterest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/roi/line.html#LineOfInterest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.roi.LineOfInterest" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest" title="movement.roi.base.BaseRegionOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRegionOfInterest</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest" title="movement.roi.base.BaseRegionOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRegionOfInterest</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LinearRing</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">LineString</span></code>]</p>
 <p>Representation of boundaries or other lines of interest.</p>
 <p>This class can be used to represent boundaries or other internal divisions
 of the area in which the experimental data was gathered. These might
@@ -652,10 +652,10 @@ pairs of points, to form the LoI that is to be studied.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#movement.roi.LineOfInterest.compute_egocentric_angle_to_nearest_point" title="movement.roi.LineOfInterest.compute_egocentric_angle_to_nearest_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_egocentric_angle_to_nearest_point</span></code></a>(...)</p></td>
 <td><p>Compute the egocentric angle to the nearest point in the region.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement.roi.LineOfInterest.compute_nearest_point_to" title="movement.roi.LineOfInterest.compute_nearest_point_to"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_nearest_point_to</span></code></a>(position[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement.roi.LineOfInterest.compute_nearest_point_to" title="movement.roi.LineOfInterest.compute_nearest_point_to"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_nearest_point_to</span></code></a>(position, /[, ...])</p></td>
 <td><p>Compute (one of) the nearest point(s) in the region to <code class="docutils literal notranslate"><span class="pre">position</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement.roi.LineOfInterest.contains_point" title="movement.roi.LineOfInterest.contains_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contains_point</span></code></a>(position[, include_boundary])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.roi.LineOfInterest.contains_point" title="movement.roi.LineOfInterest.contains_point"><code class="xref py py-obj docutils literal notranslate"><span class="pre">contains_point</span></code></a>(position, /[, include_boundary])</p></td>
 <td><p>Determine if a position is inside the region of interest.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#movement.roi.LineOfInterest.normal" title="movement.roi.LineOfInterest.normal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">normal</span></code></a>([on_same_side_as])</p></td>
@@ -685,7 +685,7 @@ vector and a given reference vector.</p>
 the region is computed. Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>in_degrees</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, angles are returned in degrees. Otherwise angles are
 returned in radians. Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-<li><p><strong>reference_vector</strong> (<em>ArrayLike</em><em> | </em><em>xr.DataArray</em>) – The reference vector to be used. Dimensions must be compatible with
+<li><p><strong>reference_vector</strong> (<em>np.ndarray</em><em> or </em><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.12.0)"><em>xarray.DataArray</em></a><em> or </em><em>None</em>) – The reference vector to be used. Dimensions must be compatible with
 the argument of the same name that is passed to
 <code class="xref py py-func docutils literal notranslate"><span class="pre">compute_signed_angle_2d()</span></code>. Default <code class="docutils literal notranslate"><span class="pre">(1.,</span> <span class="pre">0.)</span></code>.</p></li>
 </ul>
@@ -837,7 +837,7 @@ returned in radians. Default <code class="docutils literal notranslate"><span cl
 
 <dl class="py method">
 <dt class="sig sig-object py" id="movement.roi.LineOfInterest.compute_nearest_point_to">
-<span class="sig-name descname"><span class="pre">compute_nearest_point_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.roi.LineOfInterest.compute_nearest_point_to" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">compute_nearest_point_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.roi.LineOfInterest.compute_nearest_point_to" title="Link to this definition">#</a></dt>
 <dd><p>Compute (one of) the nearest point(s) in the region to <code class="docutils literal notranslate"><span class="pre">position</span></code>.</p>
 <p>If there are multiple equidistant points, one of them is returned.</p>
 <dl class="field-list simple">
@@ -861,7 +861,7 @@ the  boundary of <code class="docutils literal notranslate"><span class="pre">se
 
 <dl class="py method">
 <dt class="sig sig-object py" id="movement.roi.LineOfInterest.contains_point">
-<span class="sig-name descname"><span class="pre">contains_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.roi.LineOfInterest.contains_point" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">contains_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.roi.LineOfInterest.contains_point" title="Link to this definition">#</a></dt>
 <dd><p>Determine if a position is inside the region of interest.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -946,21 +946,32 @@ given. By default, the origin is used.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ax</strong> (<em>plt.Axes</em><em>, </em><em>optional</em>) – <code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.Axes</span></code> object to draw the region on. A new
-<code class="docutils literal notranslate"><span class="pre">Figure</span></code> and <code class="docutils literal notranslate"><span class="pre">Axes</span></code> will be created if not provided.</p></li>
+<li><p><strong>ax</strong> (<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><em>matplotlib.axes.Axes</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Axes object on which to draw the region. If None, a new
+figure and axes are created.</p></li>
 <li><p><strong>matplotlib_kwargs</strong> (<em>Any</em>) – Keyword arguments passed to the <a class="reference external" href="https://matplotlib.org/stable/api/pyplot_summary.html#module-matplotlib.pyplot" title="(in Matplotlib v3.10.8)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib.pyplot</span></code></a> plotting
 function.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a> | <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.SubFigure.html#matplotlib.figure.SubFigure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubFigure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure or matplotlib.figure.SubFigure</em>) – If <code class="docutils literal notranslate"><span class="pre">ax</span></code> is provided, this is <code class="docutils literal notranslate"><span class="pre">ax.figure</span></code>
+(<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> or
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.SubFigure.html#matplotlib.figure.SubFigure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.SubFigure</span></code></a>). Otherwise, a new
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> is created and returned.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – Axes on which the region was drawn. If <code class="docutils literal notranslate"><span class="pre">ax</span></code> is provided,
+the input will be directly modified and returned in this value.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="movement.roi.LineOfInterest.region">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">region</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">LinearRing</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">LineString</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Polygon</span></em><a class="headerlink" href="#movement.roi.LineOfInterest.region" title="Link to this definition">#</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">region</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">TGeometry_co</span></em><a class="headerlink" href="#movement.roi.LineOfInterest.region" title="Link to this definition">#</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">shapely.Geometry</span></code> representation of the region.</p>
 </dd></dl>
 

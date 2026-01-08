@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=6d662d6b"></script>
+    <script src="../../_static/documentation_options.js?v=c91ea972"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev16</p>
+    <p class="title logo__title">movement v0.12.1.dev17</p>
   
 </a></div>
     
@@ -464,10 +464,11 @@
                    <h1>Source code for movement.filtering</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Filter and interpolate tracks in ``movement`` datasets.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">signal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xarray.core.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">InterpOptions</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_to_attrs</span><span class="p">,</span> <span class="n">logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.reports</span><span class="w"> </span><span class="kn">import</span> <span class="n">report_nan_values</span>
@@ -531,10 +532,10 @@
 <span class="nd">@log_to_attrs</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">interpolate_over_time</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">InterpOptions</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
     <span class="n">max_gap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill in NaN values by interpolating over the ``time`` dimension.</span>
 
@@ -546,7 +547,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    data : xarray.DataArray</span>
 <span class="sd">        The input data to be interpolated.</span>
-<span class="sd">    method : str</span>
+<span class="sd">    method : {&quot;linear&quot;, &quot;nearest&quot;, &quot;zero&quot;, &quot;slinear&quot;, &quot;quadratic&quot;, &quot;cubic&quot;, \</span>
+<span class="sd">        &quot;polynomial&quot;, &quot;barycentric&quot;, &quot;krogh&quot;, &quot;pchip&quot;, &quot;spline&quot;, &quot;akima&quot;}</span>
 <span class="sd">        String indicating which method to use for interpolation.</span>
 <span class="sd">        Default is ``linear``.</span>
 <span class="sd">    max_gap : int, optional</span>
@@ -558,7 +560,7 @@
 <span class="sd">    print_report : bool</span>
 <span class="sd">        Whether to print a report on the number of NaNs in the dataset</span>
 <span class="sd">        before and after interpolation. Default is ``False``.</span>
-<span class="sd">    **kwargs : dict</span>
+<span class="sd">    **kwargs : Any</span>
 <span class="sd">        Any ``**kwargs`` accepted by :meth:`xarray.DataArray.interpolate_na`,</span>
 <span class="sd">        which in turn passes them verbatim to the underlying</span>
 <span class="sd">        interpolation methods.</span>

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=6d662d6b"></script>
+    <script src="../../../_static/documentation_options.js?v=c91ea972"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev16</p>
+    <p class="title logo__title">movement v0.12.1.dev17</p>
   
 </a></div>
     
@@ -466,31 +466,40 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Hashable</span><span class="p">,</span> <span class="n">Sequence</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">TypeAlias</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">shapely.coords</span><span class="w"> </span><span class="kn">import</span> <span class="n">CoordinateSequence</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.broadcasting</span><span class="w"> </span><span class="kn">import</span> <span class="n">broadcastable_method</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.vector</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_signed_angle_2d</span>
 
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.axes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span><span class="p">,</span> <span class="n">SubFigure</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
+
+<span class="n">FloatSequence</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+<span class="n">PointLikeList</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">CoordinateSequence</span>
 <span class="n">LineLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">LinearRing</span> <span class="o">|</span> <span class="n">shapely</span><span class="o">.</span><span class="n">LineString</span>
-<span class="n">PointLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
-<span class="n">PointLikeList</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">PointLike</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 <span class="n">RegionLike</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Polygon</span>
 <span class="n">SupportedGeometry</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">LineLike</span> <span class="o">|</span> <span class="n">RegionLike</span>
+<span class="n">TGeometry_co</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;TGeometry_co&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">SupportedGeometry</span><span class="p">,</span> <span class="n">covariant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="BaseRegionOfInterest">
 <a class="viewcode-back" href="../../../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">BaseRegionOfInterest</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for regions of interest (RoIs).</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseRegionOfInterest</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">TGeometry_co</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for regions of interest (RoIs).</span>
+
+<span class="sd">    This class cannot be instantiated directly. Instead, use one of its</span>
+<span class="sd">    subclasses, such as :class:`LineOfInterest&lt;movement.roi.LineOfInterest&gt;` or</span>
+<span class="sd">    :class:`PolygonOfInterest&lt;movement.roi.PolygonOfInterest&gt;`.</span>
 
 <span class="sd">    Regions of interest can be either 1 or 2 dimensional, and are represented</span>
 <span class="sd">    by corresponding ``shapely.Geometry`` objects.</span>
@@ -502,9 +511,6 @@
 <span class="sd">    class. This is accessible via the property ``region``. This also allows us</span>
 <span class="sd">    to forbid certain operations and make the manipulation of ``shapely``</span>
 <span class="sd">    objects more user friendly.</span>
-
-<span class="sd">    Although this class can be instantiated directly, it is not designed for</span>
-<span class="sd">    this. Its primary purpose is to reduce code duplication.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -527,7 +533,7 @@
     <span class="n">__default_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Un-named region&quot;</span>
 
     <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="n">_shapely_geometry</span><span class="p">:</span> <span class="n">SupportedGeometry</span>
+    <span class="n">_shapely_geometry</span><span class="p">:</span> <span class="n">TGeometry_co</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_plot_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
@@ -562,14 +568,14 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="o">.</span><span class="n">coords</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimensions</span> <span class="o">&lt;</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">,</span> <span class="n">LineLike</span><span class="p">)</span>
             <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="o">.</span><span class="n">exterior</span><span class="o">.</span><span class="n">coords</span>
         <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Dimensionality of the region.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">get_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">shapely</span><span class="o">.</span><span class="n">get_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -590,7 +596,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">__default_name</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">region</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SupportedGeometry</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">region</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TGeometry_co</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;``shapely.Geometry`` representation of the region.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shapely_geometry</span>
 
@@ -641,7 +647,7 @@
 
         <span class="n">angles</span> <span class="o">=</span> <span class="n">compute_signed_angle_2d</span><span class="p">(</span><span class="n">vec_to_segment</span><span class="p">,</span> <span class="n">reference_vector</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">in_degrees</span><span class="p">:</span>
-            <span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span>
+            <span class="n">angles</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;xr.DataArray&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">angles</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">angles</span>
 
     <span class="nd">@staticmethod</span>
@@ -676,31 +682,15 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">points</span><span class="p">:</span> <span class="n">PointLikeList</span><span class="p">,</span>
-        <span class="n">dimensions</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
-        <span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">holes</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">PointLikeList</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">geometry</span><span class="p">:</span> <span class="n">TGeometry_co</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialise a region of interest.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        points : Sequence of (x, y) values</span>
-<span class="sd">            Sequence of (x, y) coordinate pairs that will form the region.</span>
-<span class="sd">        dimensions : Literal[1, 2], default 2</span>
-<span class="sd">            The dimensionality of the region to construct.</span>
-<span class="sd">            &#39;1&#39; creates a sequence of joined line segments,</span>
-<span class="sd">            &#39;2&#39; creates a polygon whose boundary is defined by ``points``.</span>
-<span class="sd">        closed : bool, default False</span>
-<span class="sd">            Whether the line to be created should be closed. That is, whether</span>
-<span class="sd">            the final point should also link to the first point.</span>
-<span class="sd">            Ignored if ``dimensions`` is 2.</span>
-<span class="sd">        holes : sequence of sequences of (x, y) pairs, default None</span>
-<span class="sd">            A sequence of items, where each item will be interpreted like</span>
-<span class="sd">            ``points``. These items will be used to construct internal holes</span>
-<span class="sd">            within the region. See the ``holes`` argument to</span>
-<span class="sd">            ``shapely.Polygon`` for details. Ignored if ``dimensions`` is 1.</span>
+<span class="sd">        geometry : shapely.Geometry</span>
+<span class="sd">            The ``shapely`` geometry that defines the region of interest.</span>
 <span class="sd">        name : str, default None</span>
 <span class="sd">            Human-readable name to assign to the given region, for</span>
 <span class="sd">            user-friendliness. Default name given is &#39;Un-named region&#39; if no</span>
@@ -708,33 +698,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">dimensions</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Need at least </span><span class="si">{</span><span class="n">dimensions</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> points to define a &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dimensions</span><span class="si">}</span><span class="s2">D region (got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="s2">).&quot;</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">dimensions</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">dimensions</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Only regions of interest of dimension 1 or 2 &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;are supported (requested </span><span class="si">{</span><span class="n">dimensions</span><span class="si">}</span><span class="s2">)&quot;</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">dimensions</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">closed</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot create a loop from a single line segment.&quot;</span><span class="p">)</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">dimensions</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_shapely_geometry</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Polygon</span><span class="p">(</span><span class="n">shell</span><span class="o">=</span><span class="n">points</span><span class="p">,</span> <span class="n">holes</span><span class="o">=</span><span class="n">holes</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_shapely_geometry</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">shapely</span><span class="o">.</span><span class="n">LinearRing</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">closed</span>
-                <span class="k">else</span> <span class="n">shapely</span><span class="o">.</span><span class="n">LineString</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">points</span><span class="p">)</span>
-            <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_shapely_geometry</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_shapely_geometry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shapely_geometry</span> <span class="o">=</span> <span class="n">geometry</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>  <span class="c1"># noqa: D105</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
@@ -747,18 +711,19 @@
             <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">n_points</span><span class="si">}{</span><span class="n">display_type</span><span class="si">}</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; -&gt; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
 
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_plot</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span> <span class="o">**</span><span class="n">matplotlib_kwargs</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;_plot must be implemented by subclass.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">fig</span><span class="p">:</span> <span class="n">Figure</span> <span class="o">|</span> <span class="n">SubFigure</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span><span class="p">,</span> <span class="o">**</span><span class="n">matplotlib_kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Figure</span> <span class="o">|</span> <span class="n">SubFigure</span><span class="p">,</span> <span class="n">Axes</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the region. Must be implemented in subclasses.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="BaseRegionOfInterest.contains_point">
 <a class="viewcode-back" href="../../../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.contains_point">[docs]</a>
     <span class="nd">@broadcastable_method</span><span class="p">(</span><span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">contains_point</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="o">/</span><span class="p">,</span>
         <span class="n">position</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span>
+        <span class="o">/</span><span class="p">,</span>
         <span class="n">include_boundary</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Determine if a position is inside the region of interest.</span>
@@ -779,20 +744,13 @@
 <span class="sd">            False otherwise.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">point</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
-
-        <span class="n">current_region</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">region</span>
-        <span class="n">point_is_inside</span> <span class="o">=</span> <span class="n">current_region</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">include_boundary</span><span class="p">:</span>
-            <span class="c1"># 2D objects have 1D object boundaries,</span>
-            <span class="c1"># which in turn have point-boundaries.</span>
-            <span class="k">while</span> <span class="ow">not</span> <span class="n">current_region</span><span class="o">.</span><span class="n">boundary</span><span class="o">.</span><span class="n">is_empty</span><span class="p">:</span>
-                <span class="n">current_region</span> <span class="o">=</span> <span class="n">current_region</span><span class="o">.</span><span class="n">boundary</span>
-                <span class="n">point_is_inside</span> <span class="o">=</span> <span class="n">point_is_inside</span> <span class="ow">or</span> <span class="n">current_region</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span>
-                    <span class="n">point</span>
-                <span class="p">)</span>
-        <span class="k">return</span> <span class="n">point_is_inside</span></div>
+        <span class="n">point</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;FloatSequence&quot;</span><span class="p">,</span> <span class="n">position</span><span class="p">))</span>
+        <span class="n">region</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">region</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">region</span><span class="o">.</span><span class="n">covers</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">include_boundary</span>
+            <span class="k">else</span> <span class="n">region</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BaseRegionOfInterest.compute_distance_to">
@@ -823,7 +781,9 @@
         <span class="n">region_to_consider</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">region</span><span class="o">.</span><span class="n">boundary</span> <span class="k">if</span> <span class="n">boundary_only</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">region</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">region_to_consider</span><span class="p">,</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">point</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="n">shapely</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span>
+            <span class="n">region_to_consider</span><span class="p">,</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;FloatSequence&quot;</span><span class="p">,</span> <span class="n">point</span><span class="p">))</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BaseRegionOfInterest.compute_nearest_point_to">
@@ -832,7 +792,7 @@
         <span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="n">new_dimension_name</span><span class="o">=</span><span class="s2">&quot;nearest point&quot;</span>
     <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_nearest_point_to</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">boundary_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">:</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="o">/</span><span class="p">,</span> <span class="n">boundary_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute (one of) the nearest point(s) in the region to ``position``.</span>
 
@@ -861,7 +821,8 @@
         <span class="c1"># therefore the point on self is the 0th coordinate</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
             <span class="n">shapely</span><span class="o">.</span><span class="n">shortest_line</span><span class="p">(</span>
-                <span class="n">region_to_consider</span><span class="p">,</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+                <span class="n">region_to_consider</span><span class="p">,</span>
+                <span class="n">shapely</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;FloatSequence&quot;</span><span class="p">,</span> <span class="n">position</span><span class="p">)),</span>
             <span class="p">)</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="p">)</span></div>
 
@@ -913,7 +874,7 @@
 
         <span class="c1"># &quot;point to region&quot; by virtue of order of arguments to shapely call</span>
         <span class="n">directed_line</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">shortest_line</span><span class="p">(</span>
-            <span class="n">shapely</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">point</span><span class="p">),</span> <span class="n">region_to_consider</span>
+            <span class="n">shapely</span><span class="o">.</span><span class="n">Point</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;FloatSequence&quot;</span><span class="p">,</span> <span class="n">point</span><span class="p">)),</span> <span class="n">region_to_consider</span>
         <span class="p">)</span>
 
         <span class="n">approach_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">directed_line</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
@@ -934,7 +895,7 @@
         <span class="n">position</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
         <span class="n">boundary_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">in_degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">reference_vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reference_vector</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compute the allocentric angle to the nearest point in the region.</span>
 
@@ -957,7 +918,7 @@
 <span class="sd">        in_degrees : bool</span>
 <span class="sd">            If ``True``, angles are returned in degrees. Otherwise angles are</span>
 <span class="sd">            returned in radians. Default ``False``.</span>
-<span class="sd">        reference_vector : ArrayLike | xr.DataArray</span>
+<span class="sd">        reference_vector : np.ndarray or xarray.DataArray or None</span>
 <span class="sd">            The reference vector to be used. Dimensions must be compatible with</span>
 <span class="sd">            the argument of the same name that is passed to</span>
 <span class="sd">            :func:`compute_signed_angle_2d`. Default ``(1., 0.)``.</span>
@@ -1052,29 +1013,38 @@
 <div class="viewcode-block" id="BaseRegionOfInterest.plot">
 <a class="viewcode-back" href="../../../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.plot">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">matplotlib_kwargs</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">matplotlib_kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Figure</span> <span class="o">|</span> <span class="n">SubFigure</span><span class="p">,</span> <span class="n">Axes</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the region of interest on a new or existing axis.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ax : plt.Axes, optional</span>
-<span class="sd">            ``matplotlib.pyplot.Axes`` object to draw the region on. A new</span>
-<span class="sd">            ``Figure`` and ``Axes`` will be created if not provided.</span>
+<span class="sd">        ax : matplotlib.axes.Axes or None, optional</span>
+<span class="sd">            Axes object on which to draw the region. If None, a new</span>
+<span class="sd">            figure and axes are created.</span>
 <span class="sd">        matplotlib_kwargs : Any</span>
 <span class="sd">            Keyword arguments passed to the :mod:`matplotlib.pyplot` plotting</span>
 <span class="sd">            function.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : matplotlib.figure.Figure or matplotlib.figure.SubFigure</span>
+<span class="sd">            If ``ax`` is provided, this is ``ax.figure``</span>
+<span class="sd">            (:class:`matplotlib.figure.Figure` or</span>
+<span class="sd">            :class:`matplotlib.figure.SubFigure`). Otherwise, a new</span>
+<span class="sd">            :class:`matplotlib.figure.Figure` is created and returned.</span>
+<span class="sd">        ax : matplotlib.axes.Axes</span>
+<span class="sd">            Axes on which the region was drawn. If ``ax`` is provided,</span>
+<span class="sd">            the input will be directly modified and returned in this value.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">arg</span><span class="p">,</span> <span class="n">default</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_plot_args</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">arg</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">matplotlib_kwargs</span><span class="p">:</span>
                 <span class="n">matplotlib_kwargs</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span> <span class="o">=</span> <span class="n">default</span>
 
-        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span> <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">fig</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
-
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_plot</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">matplotlib_kwargs</span><span class="p">)</span></div>
 </div>
 

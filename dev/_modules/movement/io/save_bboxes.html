@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=6d662d6b"></script>
+    <script src="../../../_static/documentation_options.js?v=c91ea972"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev16</p>
+    <p class="title logo__title">movement v0.12.1.dev17</p>
   
 </a></div>
     
@@ -464,11 +464,12 @@
                    <h1>Source code for movement.io.save_bboxes</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Save bounding boxes data from ``movement`` to VIA tracks .csv format.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">_csv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
@@ -476,6 +477,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidBboxesDataset</span><span class="p">,</span> <span class="n">_validate_dataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_file_path</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">_csv</span>
 
 
 <div class="viewcode-block" id="to_via_tracks_file">
@@ -720,14 +724,14 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_compute_individuals_to_track_ids_map</span><span class="p">(</span>
-    <span class="n">list_individuals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">individuals</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">track_ids_from_trailing_numbers</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the map from individuals&#39; names to track IDs.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    list_individuals : list[str]</span>
+<span class="sd">    individuals : Iterable[str]</span>
 <span class="sd">        List of individuals&#39; names.</span>
 <span class="sd">    track_ids_from_trailing_numbers : bool</span>
 <span class="sd">        If True, extract track ID from the last consecutive digits in</span>
@@ -744,27 +748,26 @@
     <span class="k">if</span> <span class="n">track_ids_from_trailing_numbers</span><span class="p">:</span>
         <span class="c1"># Extract track IDs from the trailing numbers in the individuals&#39; names</span>
         <span class="n">map_individual_to_track_id</span> <span class="o">=</span> <span class="n">_extract_track_ids_from_individuals_names</span><span class="p">(</span>
-            <span class="n">list_individuals</span>
+            <span class="n">individuals</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Assign track IDs sequentially based on the alphabetically sorted</span>
         <span class="c1"># list of individuals&#39; names</span>
-        <span class="n">list_individuals</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">list_individuals</span><span class="p">)</span>
         <span class="n">map_individual_to_track_id</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">individual</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">individual</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">list_individuals</span><span class="p">)</span>
+            <span class="n">individual</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">individual</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">individuals</span><span class="p">))</span>
         <span class="p">}</span>
 
     <span class="k">return</span> <span class="n">map_individual_to_track_id</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_track_ids_from_individuals_names</span><span class="p">(</span>
-    <span class="n">list_individuals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">individuals</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract track IDs as the last digits in the individuals&#39; names.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    list_individuals : list[str]</span>
+<span class="sd">    individuals : Iterable[str]</span>
 <span class="sd">        List of individuals&#39; names.</span>
 
 <span class="sd">    Returns</span>
@@ -782,7 +785,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">map_individual_to_track_id</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">for</span> <span class="n">individual</span> <span class="ow">in</span> <span class="n">list_individuals</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">individual</span> <span class="ow">in</span> <span class="n">individuals</span><span class="p">:</span>
         <span class="c1"># Match the last consecutive digits in the individual&#39;s name</span>
         <span class="c1"># even if they are not at the end of the string</span>
         <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\d+)(?=\D*$)&quot;</span>
@@ -796,13 +799,11 @@
             <span class="p">)</span>
 
     <span class="c1"># Check that all individuals have a unique track ID</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">map_individual_to_track_id</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span>
-        <span class="nb">set</span><span class="p">(</span><span class="n">list_individuals</span><span class="p">)</span>
-    <span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">map_individual_to_track_id</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">individuals</span><span class="p">)):</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Could not extract a unique track ID for all individuals. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">list_individuals</span><span class="p">))</span><span class="si">}</span><span class="s2"> unique track IDs, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">individuals</span><span class="p">))</span><span class="si">}</span><span class="s2"> unique track IDs, &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">map_individual_to_track_id</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
         <span class="p">)</span>
