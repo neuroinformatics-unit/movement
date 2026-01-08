@@ -1,12 +1,15 @@
 import re
-from collections.abc import Iterable
 from contextlib import nullcontext as does_not_raise
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
 import xarray as xr
 
 from movement.utils import vector
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 class TestVector:

@@ -1,7 +1,7 @@
 """Load pose tracking data from various frameworks into ``movement``."""
 
 from pathlib import Path
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import h5py
 import numpy as np
@@ -20,6 +20,9 @@ from movement.validators.files import (
     ValidHDF5,
     ValidNWBFile,
 )
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 
 def from_numpy(
@@ -709,22 +712,21 @@ def _ds_from_valid_data(data: ValidPosesDataset) -> xr.Dataset:
     """
     n_frames = data.position_array.shape[0]
     n_space = data.position_array.shape[1]
-
     dataset_attrs: dict[str, str | float | None] = {
         "source_software": data.source_software,
         "ds_type": "poses",
     }
     # Create the time coordinate, depending on the value of fps
+    time_coords: NDArray[np.floating] | NDArray[np.integer]
+    time_unit: Literal["seconds", "frames"]
     if data.fps is not None:
-        time_coords = np.arange(n_frames, dtype=float) / data.fps
+        time_coords = np.arange(n_frames, dtype=np.float64) / data.fps
         time_unit = "seconds"
         dataset_attrs["fps"] = data.fps
     else:
-        time_coords = np.arange(n_frames, dtype=int)
+        time_coords = np.arange(n_frames, dtype=np.int64)
         time_unit = "frames"
-
     dataset_attrs["time_unit"] = time_unit
-
     DIM_NAMES = ValidPosesDataset.DIM_NAMES
     # Convert data to an xarray.Dataset
     return xr.Dataset(
