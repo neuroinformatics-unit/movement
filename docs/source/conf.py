@@ -190,6 +190,10 @@ html_js_files = [
 ]
 html_favicon = "_static/light-logo-niu.png"
 
+# Linkcheck configuration
+linkcheck_timeout = 60  # defaut is 30
+linkcheck_retries = 3   # default is 1
+
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs (because they are generated dynamically)
 linkcheck_anchors_ignore_for_url = [
