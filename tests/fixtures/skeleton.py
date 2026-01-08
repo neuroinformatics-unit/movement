@@ -7,6 +7,54 @@ import xarray as xr
 from movement.napari.skeleton.templates import MOUSE_TEMPLATE
 
 
+def _generate_circular_motion(n_frames: int, spatial_dims: int) -> np.ndarray:
+    """Generate circular motion trajectory."""
+    angles = np.linspace(0, 4 * np.pi, n_frames)
+    x = 100 + 50 * np.cos(angles)
+    y = 100 + 50 * np.sin(angles)
+    if spatial_dims == 3:
+        z = 100 + 20 * np.sin(angles * 2)
+        return np.stack([x, y, z], axis=0)
+    return np.stack([x, y], axis=0)
+
+
+def _generate_linear_motion(n_frames: int, spatial_dims: int) -> np.ndarray:
+    """Generate linear motion trajectory."""
+    x = np.linspace(0, 200, n_frames)
+    y = np.linspace(0, 150, n_frames)
+    if spatial_dims == 3:
+        z = np.linspace(0, 100, n_frames)
+        return np.stack([x, y, z], axis=0)
+    return np.stack([x, y], axis=0)
+
+
+def _generate_random_walk(
+    n_frames: int, spatial_dims: int, rng: np.random.Generator
+) -> np.ndarray:
+    """Generate random walk trajectory."""
+    steps = rng.normal(0, 5, (spatial_dims, n_frames))
+    return np.cumsum(steps, axis=1) + 100
+
+
+def _replicate_position_for_keypoints(
+    position: np.ndarray,
+    n_frames: int,
+    spatial_dims: int,
+    n_keypoints: int,
+    n_individuals: int,
+    rng: np.random.Generator,
+) -> np.ndarray:
+    """Replicate base position for all keypoints with random offsets."""
+    position_full = np.zeros(
+        (n_frames, spatial_dims, n_keypoints, n_individuals)
+    )
+    for kp_idx in range(n_keypoints):
+        for ind_idx in range(n_individuals):
+            offset = rng.normal(0, 2, (spatial_dims, n_frames))
+            position_full[:, :, kp_idx, ind_idx] = (position + offset).T
+    return position_full
+
+
 @pytest.fixture
 def synthetic_skeleton_dataset(rng):
     """Generate synthetic pose dataset with circular motion.
@@ -46,52 +94,25 @@ def synthetic_skeleton_dataset(rng):
     ):
         time = np.arange(n_frames)
 
+        # Generate base motion trajectory
         if motion_type == "circular":
-            # Circular motion in 2D/3D
-            angles = np.linspace(0, 4 * np.pi, n_frames)
-            x = 100 + 50 * np.cos(angles)
-            y = 100 + 50 * np.sin(angles)
-            if spatial_dims == 3:
-                z = 100 + 20 * np.sin(angles * 2)
-                position = np.stack([x, y, z], axis=0)
-            else:
-                position = np.stack([x, y], axis=0)
+            position = _generate_circular_motion(n_frames, spatial_dims)
         elif motion_type == "linear":
-            # Linear motion
-            x = np.linspace(0, 200, n_frames)
-            y = np.linspace(0, 150, n_frames)
-            if spatial_dims == 3:
-                z = np.linspace(0, 100, n_frames)
-                position = np.stack([x, y, z], axis=0)
-            else:
-                position = np.stack([x, y], axis=0)
+            position = _generate_linear_motion(n_frames, spatial_dims)
         else:  # random_walk
-            # Random walk
-            steps = rng.normal(0, 5, (spatial_dims, n_frames))
-            position = np.cumsum(steps, axis=1) + 100
+            position = _generate_random_walk(n_frames, spatial_dims, rng)
 
         # Replicate for all keypoints and individuals
-        # Shape: (n_frames, n_space, n_keypoints, n_individuals)
-        position_full = np.zeros(
-            (n_frames, spatial_dims, n_keypoints, n_individuals)
+        position_full = _replicate_position_for_keypoints(
+            position, n_frames, spatial_dims, n_keypoints, n_individuals, rng
         )
 
-        for kp_idx in range(n_keypoints):
-            for ind_idx in range(n_individuals):
-                # Add small random offset for each keypoint
-                offset = rng.normal(0, 2, (spatial_dims, n_frames))
-                position_full[:, :, kp_idx, ind_idx] = (position + offset).T
-
-        # Create confidence array (all high confidence)
+        # Create confidence array
         confidence = np.full((n_frames, n_keypoints, n_individuals), 0.95)
 
-        # Create keypoint names
+        # Create coordinate names
         keypoint_names = [f"kp_{i}" for i in range(n_keypoints)]
-
-        # Create individual names
         individual_names = [f"ind_{i}" for i in range(n_individuals)]
-
-        # Create space coordinate names
         space_names = ["x", "y"] if spatial_dims == 2 else ["x", "y", "z"]
 
         # Create dataset

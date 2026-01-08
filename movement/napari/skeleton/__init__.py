@@ -30,6 +30,114 @@ __all__ = [
 ]
 
 
+def _validate_dataset(dataset: xr.Dataset) -> None:
+    """Validate that dataset is suitable for skeleton visualization."""
+    if dataset.ds_type != "poses":
+        raise ValueError(
+            "Dataset must be a poses dataset with 'position' and "
+            "'keypoints' data"
+        )
+    if "keypoints" not in dataset.coords:
+        raise ValueError("Dataset must have 'keypoints' coordinate")
+
+
+def _resolve_skeleton_state(
+    connections: dict[str, Any] | str | None, dataset: xr.Dataset
+) -> SkeletonState:
+    """Resolve skeleton configuration to SkeletonState.
+
+    Parameters
+    ----------
+    connections : dict, str, or None
+        Skeleton configuration
+    dataset : xr.Dataset
+        Movement dataset
+
+    Returns
+    -------
+    SkeletonState
+        Resolved skeleton state
+
+    Raises
+    ------
+    ValueError
+        If configuration is invalid
+    KeyError
+        If template not found
+    """
+    if connections is None:
+        # Try to load from dataset
+        skeleton_state = SkeletonState.from_dataset(dataset)
+        if skeleton_state is None:
+            raise ValueError(
+                "No skeleton configuration found. "
+                "Provide 'connections' parameter or use a dataset "
+                "with embedded skeleton configuration."
+            )
+        return skeleton_state
+
+    if isinstance(connections, str):
+        # Load template by name
+        if connections not in TEMPLATES:
+            available = ", ".join(TEMPLATES.keys())
+            raise KeyError(
+                f"Template '{connections}' not found. "
+                f"Available templates: {available}"
+            )
+        config: dict[str, Any] = dict(TEMPLATES[connections])
+        return SkeletonState.from_config(config, dataset)
+
+    if isinstance(connections, dict):
+        # Use provided configuration
+        is_valid, errors = validate_config(connections, dataset)
+        if not is_valid:
+            error_msg = "\n".join(errors)
+            raise ValueError(f"Invalid skeleton configuration:\n{error_msg}")
+        return SkeletonState.from_config(connections, dataset)
+
+    raise ValueError(
+        "connections must be a dict, str (template name), or None"
+    )
+
+
+def _build_vector_colors(
+    skeleton_state: SkeletonState, dataset: xr.Dataset, n_vectors: int
+) -> np.ndarray:
+    """Build color array for vectors.
+
+    Parameters
+    ----------
+    skeleton_state : SkeletonState
+        Skeleton state with edge colors
+    dataset : xr.Dataset
+        Dataset with dimensions
+    n_vectors : int
+        Number of actual vectors
+
+    Returns
+    -------
+    np.ndarray
+        Color array matching vectors
+    """
+    n_edges = len(skeleton_state.connections)
+    n_individuals = dataset.sizes["individuals"]
+    n_frames = dataset.sizes["time"]
+
+    # Build color array matching vectors
+    vector_colors_list: list[tuple[float, ...]] = []
+    for _ in range(n_frames):
+        for _ in range(n_individuals):
+            for edge_idx in range(n_edges):
+                color = tuple(skeleton_state.edge_colors[edge_idx])
+                vector_colors_list.append(color)
+
+    # Filter to match actual number of vectors
+    if len(vector_colors_list) > n_vectors:
+        vector_colors_list = vector_colors_list[:n_vectors]
+
+    return np.array(vector_colors_list)
+
+
 def add_skeleton_layer(
     viewer: napari.Viewer,
     dataset: xr.Dataset,
@@ -95,50 +203,10 @@ def add_skeleton_layer(
     automatically integrates with napari's time slider for playback.
     """
     # Validate dataset
-    if dataset.ds_type != "poses":
-        raise ValueError(
-            "Dataset must be a poses dataset with 'position' and "
-            "'keypoints' data"
-        )
+    _validate_dataset(dataset)
 
-    if "keypoints" not in dataset.coords:
-        raise ValueError("Dataset must have 'keypoints' coordinate")
-
-    # Get keypoint names
-    keypoint_names = list(dataset.coords["keypoints"].values)
-
-    # Resolve connections configuration
-    if connections is None:
-        # Try to load from dataset
-        skeleton_state = SkeletonState.from_dataset(dataset)
-        if skeleton_state is None:
-            raise ValueError(
-                "No skeleton configuration found. "
-                "Provide 'connections' parameter or use a dataset "
-                "with embedded skeleton configuration."
-            )
-    elif isinstance(connections, str):
-        # Load template by name
-        if connections not in TEMPLATES:
-            available = ", ".join(TEMPLATES.keys())
-            raise KeyError(
-                f"Template '{connections}' not found. "
-                f"Available templates: {available}"
-            )
-        # Cast template to dict for type checking
-        config: dict[str, Any] = dict(TEMPLATES[connections])
-        skeleton_state = SkeletonState.from_config(config, dataset)
-    elif isinstance(connections, dict):
-        # Use provided configuration
-        is_valid, errors = validate_config(connections, dataset)
-        if not is_valid:
-            error_msg = "\n".join(errors)
-            raise ValueError(f"Invalid skeleton configuration:\n{error_msg}")
-        skeleton_state = SkeletonState.from_config(connections, dataset)
-    else:
-        raise ValueError(
-            "connections must be a dict, str (template name), or None"
-        )
+    # Resolve skeleton configuration
+    skeleton_state = _resolve_skeleton_state(connections, dataset)
 
     # Validate the state
     is_valid, errors = skeleton_state.validate()
@@ -146,64 +214,37 @@ def add_skeleton_layer(
         error_msg = "\n".join(errors)
         raise ValueError(f"Invalid skeleton state:\n{error_msg}")
 
-    # Create renderer
+    # Create and prepare renderer
     renderer = PrecomputedRenderer(
         dataset=dataset,
         connections=skeleton_state.connections,
         edge_colors=skeleton_state.edge_colors,
         edge_widths=skeleton_state.edge_widths,
     )
-
-    # Prepare renderer (pre-compute vectors)
     renderer.prepare()
 
-    # Get the skeleton vectors
+    # Get vectors and validate
     vectors = renderer.vectors
-
     if vectors is None or len(vectors) == 0:
         raise ValueError(
             "No valid skeleton vectors could be computed. "
             "Check that keypoints have valid (non-NaN) positions."
         )
 
-    # Create vector properties for coloring
-    # Replicate colors for each vector (napari requires per-vector colors)
-    n_edges = len(skeleton_state.connections)
-    n_individuals = dataset.sizes["individuals"]
-    n_frames = dataset.sizes["time"]
+    # Build color array
+    vector_colors = _build_vector_colors(skeleton_state, dataset, len(vectors))
 
-    # Build color array matching vectors
-    # Each connection gets its color repeated for all frames/individuals
-    vector_colors_list: list[tuple[float, ...]] = []
-    for _ in range(n_frames):
-        for _ in range(n_individuals):
-            for edge_idx in range(n_edges):
-                # Get color for this edge
-                color = tuple(skeleton_state.edge_colors[edge_idx])
-                vector_colors_list.append(color)
-
-    # Filter to only valid vectors (those that were actually created)
-    # The renderer skips NaN keypoints, so we need matching length
-    if len(vector_colors_list) > len(vectors):
-        vector_colors_list = vector_colors_list[: len(vectors)]
-
-    vector_colors = np.array(vector_colors_list)
-
-    # Set default vector layer properties
+    # Set up layer properties
     vector_kwargs = {
         "edge_color": vector_colors,
-        "edge_width": 2.0,  # Default width, can be overridden
+        "edge_width": 2.0,
         "name": name,
         "opacity": 0.8,
     }
-
-    # Override with user-provided kwargs
     vector_kwargs.update(kwargs)
 
     # Add vectors layer to viewer
-    layer = viewer.add_vectors(vectors, **vector_kwargs)
-
-    return layer
+    return viewer.add_vectors(vectors, **vector_kwargs)
 
 
 def load_skeleton_config(path: str) -> dict[str, Any]:

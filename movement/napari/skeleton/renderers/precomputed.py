@@ -78,6 +78,74 @@ class PrecomputedRenderer(BaseRenderer):
         """Clean up resources by clearing pre-computed vectors."""
         self.vectors = None
 
+    def _convert_position_to_napari(
+        self, pos: np.ndarray, frame_idx: int, is_3d: bool
+    ) -> np.ndarray:
+        """Convert position from Movement to napari format.
+
+        Parameters
+        ----------
+        pos : np.ndarray
+            Position in Movement format [x, y] or [x, y, z]
+        frame_idx : int
+            Frame index
+        is_3d : bool
+            Whether this is 3D data
+
+        Returns
+        -------
+        np.ndarray
+            Position in napari format [t, y, x] or [t, z, y, x]
+
+        """
+        if is_3d:
+            # 3D: movement [x, y, z] -> napari [t, z, y, x]
+            return np.array([frame_idx, pos[2], pos[1], pos[0]])
+        # 2D: movement [x, y] -> napari [t, y, x]
+        return np.array([frame_idx, pos[1], pos[0]])
+
+    def _create_vector_from_positions(
+        self,
+        start_pos: np.ndarray,
+        end_pos: np.ndarray,
+        frame_idx: int,
+        is_3d: bool,
+    ) -> np.ndarray | None:
+        """Create a skeleton vector from two keypoint positions.
+
+        Parameters
+        ----------
+        start_pos : np.ndarray
+            Start keypoint position
+        end_pos : np.ndarray
+            End keypoint position
+        frame_idx : int
+            Frame index
+        is_3d : bool
+            Whether this is 3D data
+
+        Returns
+        -------
+        np.ndarray or None
+            Vector in napari format [start, direction], or None if invalid
+
+        """
+        # Skip if either keypoint has NaN values
+        if np.any(np.isnan(start_pos)) or np.any(np.isnan(end_pos)):
+            return None
+
+        # Convert positions to napari format
+        start_napari = self._convert_position_to_napari(
+            start_pos, frame_idx, is_3d
+        )
+        end_napari = self._convert_position_to_napari(
+            end_pos, frame_idx, is_3d
+        )
+
+        # Compute direction vector and create vector in napari format
+        direction = end_napari - start_napari
+        return np.array([start_napari, direction])
+
     def compute_skeleton_vectors(self) -> np.ndarray:
         """Compute skeleton vectors in napari format.
 
@@ -100,13 +168,8 @@ class PrecomputedRenderer(BaseRenderer):
 
         """
         # Get position data from dataset
-        # Shape: (n_frames, n_space, n_keypoints, n_individuals)
         position = self.dataset.position.values
-
-        # Determine if 3D based on space dimension
         is_3d = self.n_space == 3
-
-        # List to collect all valid vectors
         vectors_list = []
 
         # Iterate over all frames, individuals, and connections
@@ -115,72 +178,24 @@ class PrecomputedRenderer(BaseRenderer):
                 for _conn_idx, (start_kp, end_kp) in enumerate(
                     self.connections
                 ):
-                    # Get keypoint positions for this frame and individual
-                    # Shape: (n_space,) - values are [x, y] or [x, y, z]
+                    # Get keypoint positions
                     start_pos = position[frame_idx, :, start_kp, ind_idx]
                     end_pos = position[frame_idx, :, end_kp, ind_idx]
 
-                    # Skip if either keypoint has NaN values
-                    if np.any(np.isnan(start_pos)) or np.any(
-                        np.isnan(end_pos)
-                    ):
-                        continue
-
-                    # Convert positions to napari format
-                    # napari expects [t, y, x] for 2D or [t, z, y, x] for 3D
-                    # Movement stores as [x, y] or [x, y, z]
-                    if is_3d:
-                        # 3D: movement [x, y, z] -> napari [t, z, y, x]
-                        start_napari = np.array(
-                            [
-                                frame_idx,
-                                start_pos[2],  # z
-                                start_pos[1],  # y
-                                start_pos[0],  # x
-                            ]
-                        )
-                        end_napari = np.array(
-                            [
-                                frame_idx,
-                                end_pos[2],  # z
-                                end_pos[1],  # y
-                                end_pos[0],  # x
-                            ]
-                        )
-                    else:
-                        # 2D: movement [x, y] -> napari [t, y, x]
-                        start_napari = np.array(
-                            [
-                                frame_idx,
-                                start_pos[1],  # y
-                                start_pos[0],  # x
-                            ]
-                        )
-                        end_napari = np.array(
-                            [
-                                frame_idx,
-                                end_pos[1],  # y
-                                end_pos[0],  # x
-                            ]
-                        )
-
-                    # Compute direction vector
-                    direction = end_napari - start_napari
-
-                    # Create vector in napari format: [start, direction]
-                    vector = np.array([start_napari, direction])
-
-                    vectors_list.append(vector)
+                    # Create vector if positions are valid
+                    vector = self._create_vector_from_positions(
+                        start_pos, end_pos, frame_idx, is_3d
+                    )
+                    if vector is not None:
+                        vectors_list.append(vector)
 
         # Convert list to numpy array
-        # Shape: (N, 2, D+1) where D is 2 or 3
         if len(vectors_list) == 0:
             # No valid vectors - return empty array with correct shape
             d_plus_1 = 4 if is_3d else 3
             return np.zeros((0, 2, d_plus_1))
 
-        vectors = np.array(vectors_list)
-        return vectors
+        return np.array(vectors_list)
 
     def estimate_memory(self) -> float:
         """Estimate memory usage in megabytes.

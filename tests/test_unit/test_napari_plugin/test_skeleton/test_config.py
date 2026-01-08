@@ -32,15 +32,6 @@ def test_hex_to_rgba():
     assert rgba == (0.0, 0.0, 1.0, 0.5)
 
 
-def test_rgba_to_hex():
-    """Test RGBA to hex color conversion."""
-    hex_color = rgba_to_hex((1.0, 0.0, 0.0, 1.0))
-    assert hex_color == "#FF0000"
-
-    hex_color = rgba_to_hex((0.0, 1.0, 0.0, 1.0))
-    assert hex_color == "#00FF00"
-
-
 def test_hex_rgba_roundtrip():
     """Test that hex->rgba->hex conversion is lossless."""
     original = "#AABBCC"
@@ -89,7 +80,7 @@ def test_config_to_arrays(simple_skeleton_config):
 
     # Check widths
     assert widths.shape == (3,)
-    assert widths[0] == 2.0
+    assert widths[0] == pytest.approx(2.0)
 
     # Check labels
     assert len(labels) == 3
