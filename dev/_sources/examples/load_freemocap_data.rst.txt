@@ -141,7 +141,7 @@ data available in the output files, we set the confidence of all
 keypoints to the default NaN value. We also use the default individual
 name ``id_0``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 92-147
+.. GENERATED FROM PYTHON SOURCE LINES 92-149
 
 .. code-block:: Python
 
@@ -196,7 +196,9 @@ name ``id_0``.
             list_datasets.append(ds)
 
         # Merge all datasets along keypoint dimension
-        ds_all_keypoints = xr.merge(list_datasets)
+        ds_all_keypoints = xr.merge(
+            list_datasets, join="outer", compat="no_conflicts"
+        )
         return ds_all_keypoints
 
 
@@ -207,12 +209,12 @@ name ``id_0``.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 148-150
+.. GENERATED FROM PYTHON SOURCE LINES 150-152
 
 We can now use the helper function to read the files
 in each output directory as a ``movement`` dataset.
 
-.. GENERATED FROM PYTHON SOURCE LINES 150-154
+.. GENERATED FROM PYTHON SOURCE LINES 152-156
 
 .. code-block:: Python
 
@@ -224,32 +226,15 @@ in each output directory as a ``movement`` dataset.
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- .. code-block:: none
-
-    /home/runner/work/movement/movement/examples/load_freemocap_data.py:143: FutureWarning: In a future version of xarray the default value for join will change from join='outer' to join='exact'. This change will result in the following ValueError: cannot be aligned with join='exact' because index/labels/sizes are not equal along these coordinates (dimensions): 'keypoints' ('keypoints',) The recommendation is to set join explicitly for this case.
-      ds_all_keypoints = xr.merge(list_datasets)
-    /home/runner/work/movement/movement/examples/load_freemocap_data.py:143: FutureWarning: In a future version of xarray the default value for compat will change from compat='no_conflicts' to compat='override'. This is likely to lead to different results when combining overlapping variables with the same name. To opt in to new defaults and get rid of these warnings now use `set_options(use_new_combine_kwarg_defaults=True) or set compat explicitly.
-      ds_all_keypoints = xr.merge(list_datasets)
-    /home/runner/work/movement/movement/examples/load_freemocap_data.py:143: FutureWarning: In a future version of xarray the default value for compat will change from compat='no_conflicts' to compat='override'. This is likely to lead to different results when combining overlapping variables with the same name. To opt in to new defaults and get rid of these warnings now use `set_options(use_new_combine_kwarg_defaults=True) or set compat explicitly.
-      ds_all_keypoints = xr.merge(list_datasets)
-    /home/runner/work/movement/movement/examples/load_freemocap_data.py:143: FutureWarning: In a future version of xarray the default value for join will change from join='outer' to join='exact'. This change will result in the following ValueError: cannot be aligned with join='exact' because index/labels/sizes are not equal along these coordinates (dimensions): 'keypoints' ('keypoints',) The recommendation is to set join explicitly for this case.
-      ds_all_keypoints = xr.merge(list_datasets)
-    /home/runner/work/movement/movement/examples/load_freemocap_data.py:143: FutureWarning: In a future version of xarray the default value for compat will change from compat='no_conflicts' to compat='override'. This is likely to lead to different results when combining overlapping variables with the same name. To opt in to new defaults and get rid of these warnings now use `set_options(use_new_combine_kwarg_defaults=True) or set compat explicitly.
-      ds_all_keypoints = xr.merge(list_datasets)
-    /home/runner/work/movement/movement/examples/load_freemocap_data.py:143: FutureWarning: In a future version of xarray the default value for compat will change from compat='no_conflicts' to compat='override'. This is likely to lead to different results when combining overlapping variables with the same name. To opt in to new defaults and get rid of these warnings now use `set_options(use_new_combine_kwarg_defaults=True) or set compat explicitly.
-      ds_all_keypoints = xr.merge(list_datasets)
 
 
 
-
-.. GENERATED FROM PYTHON SOURCE LINES 155-157
+.. GENERATED FROM PYTHON SOURCE LINES 157-159
 
 Note that each ``movement`` dataset holds the data for
 all keypoints across all models used by FreeMoCap.
 
-.. GENERATED FROM PYTHON SOURCE LINES 157-162
+.. GENERATED FROM PYTHON SOURCE LINES 159-164
 
 .. code-block:: Python
 
@@ -272,7 +257,7 @@ all keypoints across all models used by FreeMoCap.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 163-172
+.. GENERATED FROM PYTHON SOURCE LINES 165-174
 
 Visualise a subset of the data
 ----------------------------------
@@ -284,7 +269,7 @@ used for writing in the air.  Note that at the moment, FreeMoCap can only
 track `one individual at a time
 <https://freemocap.github.io/documentation/frequently-asked-questions-faq.html#can-freemocap-track-multiple-people-at-once>`_.
 
-.. GENERATED FROM PYTHON SOURCE LINES 172-180
+.. GENERATED FROM PYTHON SOURCE LINES 174-182
 
 .. code-block:: Python
 
@@ -303,7 +288,7 @@ track `one individual at a time
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 181-188
+.. GENERATED FROM PYTHON SOURCE LINES 183-190
 
 We use the following helper function for plotting.
 This function is adapted from
@@ -313,7 +298,7 @@ You don't need to understand how this function works in detail, for now it
 is enough to know that we will use it to plot 3D lines with a colour
 determined by a scalar.
 
-.. GENERATED FROM PYTHON SOURCE LINES 188-235
+.. GENERATED FROM PYTHON SOURCE LINES 190-237
 
 .. code-block:: Python
 
@@ -371,14 +356,14 @@ determined by a scalar.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 236-240
+.. GENERATED FROM PYTHON SOURCE LINES 238-242
 
 We can use the above function to plot the trajectory of the right index
 finger as it writes the words "hello" and "world". We colour each
 point by the frame index of each recording within the time window of
 interest.
 
-.. GENERATED FROM PYTHON SOURCE LINES 240-282
+.. GENERATED FROM PYTHON SOURCE LINES 242-284
 
 .. code-block:: Python
 
@@ -436,13 +421,13 @@ interest.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 283-286
+.. GENERATED FROM PYTHON SOURCE LINES 285-288
 
 We can also visualise how the writing speed changes along the trajectory,
 using the above plotting function and the
 :func:`movement.kinematics.compute_speed` function.
 
-.. GENERATED FROM PYTHON SOURCE LINES 286-332
+.. GENERATED FROM PYTHON SOURCE LINES 288-334
 
 .. code-block:: Python
 
@@ -504,12 +489,12 @@ using the above plotting function and the
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 333-335
+.. GENERATED FROM PYTHON SOURCE LINES 335-337
 
 From the above plot, we can see that the speed is highest on long, straight
 strokes and lowest around kinks.
 
-.. GENERATED FROM PYTHON SOURCE LINES 338-343
+.. GENERATED FROM PYTHON SOURCE LINES 340-345
 
 Visualise the skeleton
 -----------------------
@@ -517,7 +502,7 @@ Next, we use the ``networkx`` package to define a graph based on a
 subset of keypoints. This allows us to more easily plot a skeleton of
 the upper-half of the individual.
 
-.. GENERATED FROM PYTHON SOURCE LINES 345-416
+.. GENERATED FROM PYTHON SOURCE LINES 347-418
 
 .. code-block:: Python
 
@@ -599,11 +584,11 @@ the upper-half of the individual.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 417-418
+.. GENERATED FROM PYTHON SOURCE LINES 419-420
 
 We can now use the above graph to plot the skeleton.
 
-.. GENERATED FROM PYTHON SOURCE LINES 420-459
+.. GENERATED FROM PYTHON SOURCE LINES 422-461
 
 .. code-block:: Python
 
@@ -661,7 +646,7 @@ We can now use the above graph to plot the skeleton.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.136 seconds)
+   **Total running time of the script:** (0 minutes 1.171 seconds)
 
 
 .. _sphx_glr_download_examples_load_freemocap_data.py:
@@ -673,7 +658,7 @@ We can now use the above graph to plot the skeleton.
     .. container:: binder-badge
 
       .. image:: images/binder_badge_logo.svg
-        :target: https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=dev/notebooks/examples/load_freemocap_data.ipynb
+        :target: https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/load_freemocap_data.ipynb
         :alt: Launch binder
         :width: 150 px
 

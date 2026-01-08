@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=fee62318"></script>
+    <script src="../_static/documentation_options.js?v=6d662d6b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev14</p>
+    <p class="title logo__title">movement v0.12.1.dev16</p>
   
 </a></div>
     
@@ -779,13 +779,11 @@ To add new examples, you will need to create a new <code class="docutils literal
 or in <code class="docutils literal notranslate"><span class="pre">examples/advanced/</span></code> if your example targets experienced users.
 The file should be structured as specified in the relevant
 <a class="reference external" href="https://sphinx-gallery.github.io/stable/syntax#">sphinx-gallery documentation</a>.</p>
-<p>We are using sphinx-gallery’s <a class="reference external" href="https://sphinx-gallery.github.io/stable/configuration#binder-links">integration with binder</a>
-to provide interactive versions of the examples.
+<p>We are using sphinx-gallery’s <a class="reference external" href="https://sphinx-gallery.github.io/stable/configuration#binder-links">integration with binder</a>, to provide interactive versions of the examples.
+This is configured in <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code> under the <code class="docutils literal notranslate"><span class="pre">sphinx_gallery_conf</span></code> variable,
+and further customised for our repository by the <code class="docutils literal notranslate"><span class="pre">.binder/postBuild</span></code> script.
 If your examples rely on packages that are not among <code class="docutils literal notranslate"><span class="pre">movement</span></code>’s dependencies,
-you will need to add them to the <code class="docutils literal notranslate"><span class="pre">docs/source/environment.yml</span></code> file.
-That file is used by binder to create the conda environment in which the
-examples are run. See the relevant section of the
-<a class="reference external" href="https://mybinder.readthedocs.io/en/latest/using/config_files.html">binder documentation</a>.</p>
+you will need to add them to the <code class="docutils literal notranslate"><span class="pre">.binder/requirements.txt</span></code> file.</p>
 </section>
 <section id="cross-referencing-python-objects">
 <h3>Cross-referencing Python objects<a class="headerlink" href="#cross-referencing-python-objects" title="Link to this heading">#</a></h3>

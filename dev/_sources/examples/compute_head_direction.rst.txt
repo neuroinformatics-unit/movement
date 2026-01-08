@@ -316,7 +316,7 @@ We will do this for a small time window to make the plot more readable.
  .. code-block:: none
 
 
-    <matplotlib.legend.Legend object at 0x7fa15e589ca0>
+    <matplotlib.legend.Legend object at 0x7f47ba28c470>
 
 
 
@@ -694,7 +694,7 @@ differ less than 20 degrees (2 histogram bins).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.815 seconds)
+   **Total running time of the script:** (0 minutes 0.841 seconds)
 
 
 .. _sphx_glr_download_examples_compute_head_direction.py:
@@ -706,7 +706,7 @@ differ less than 20 degrees (2 histogram bins).
     .. container:: binder-badge
 
       .. image:: images/binder_badge_logo.svg
-        :target: https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=dev/notebooks/examples/compute_head_direction.ipynb
+        :target: https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/compute_head_direction.ipynb
         :alt: Launch binder
         :width: 150 px
 

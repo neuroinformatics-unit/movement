@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=fee62318"></script>
+    <script src="../_static/documentation_options.js?v=6d662d6b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev14</p>
+    <p class="title logo__title">movement v0.12.1.dev16</p>
   
 </a></div>
     
@@ -632,7 +632,9 @@ name <code class="docutils literal notranslate"><span class="pre">id_0</span></c
         <span class="n">list_datasets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 
     <span class="c1"># Merge all datasets along keypoint dimension</span>
-    <span class="n">ds_all_keypoints</span> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.merge.html#xarray.merge" title="xarray.merge" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-function"><span class="n">xr</span><span class="o">.</span><span class="n">merge</span></a><span class="p">(</span><span class="n">list_datasets</span><span class="p">)</span>
+    <span class="n">ds_all_keypoints</span> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.merge.html#xarray.merge" title="xarray.merge" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-function"><span class="n">xr</span><span class="o">.</span><span class="n">merge</span></a><span class="p">(</span>
+        <span class="n">list_datasets</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">,</span> <span class="n">compat</span><span class="o">=</span><span class="s2">&quot;no_conflicts&quot;</span>
+    <span class="p">)</span>
     <span class="k">return</span> <span class="n">ds_all_keypoints</span>
 </pre></div>
 </div>
@@ -640,20 +642,6 @@ name <code class="docutils literal notranslate"><span class="pre">id_0</span></c
 in each output directory as a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_hello</span></a> <span class="o">=</span> <span class="n">read_freemocap_as_ds</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_data_dir_hello</span></a><span class="p">)</span>
 <a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_world</span></a> <span class="o">=</span> <span class="n">read_freemocap_as_ds</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">output_data_dir_world</span></a><span class="p">)</span>
-</pre></div>
-</div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/movement/movement/examples/load_freemocap_data.py:143: FutureWarning: In a future version of xarray the default value for join will change from join=&#39;outer&#39; to join=&#39;exact&#39;. This change will result in the following ValueError: cannot be aligned with join=&#39;exact&#39; because index/labels/sizes are not equal along these coordinates (dimensions): &#39;keypoints&#39; (&#39;keypoints&#39;,) The recommendation is to set join explicitly for this case.
-  ds_all_keypoints = xr.merge(list_datasets)
-/home/runner/work/movement/movement/examples/load_freemocap_data.py:143: FutureWarning: In a future version of xarray the default value for compat will change from compat=&#39;no_conflicts&#39; to compat=&#39;override&#39;. This is likely to lead to different results when combining overlapping variables with the same name. To opt in to new defaults and get rid of these warnings now use `set_options(use_new_combine_kwarg_defaults=True) or set compat explicitly.
-  ds_all_keypoints = xr.merge(list_datasets)
-/home/runner/work/movement/movement/examples/load_freemocap_data.py:143: FutureWarning: In a future version of xarray the default value for compat will change from compat=&#39;no_conflicts&#39; to compat=&#39;override&#39;. This is likely to lead to different results when combining overlapping variables with the same name. To opt in to new defaults and get rid of these warnings now use `set_options(use_new_combine_kwarg_defaults=True) or set compat explicitly.
-  ds_all_keypoints = xr.merge(list_datasets)
-/home/runner/work/movement/movement/examples/load_freemocap_data.py:143: FutureWarning: In a future version of xarray the default value for join will change from join=&#39;outer&#39; to join=&#39;exact&#39;. This change will result in the following ValueError: cannot be aligned with join=&#39;exact&#39; because index/labels/sizes are not equal along these coordinates (dimensions): &#39;keypoints&#39; (&#39;keypoints&#39;,) The recommendation is to set join explicitly for this case.
-  ds_all_keypoints = xr.merge(list_datasets)
-/home/runner/work/movement/movement/examples/load_freemocap_data.py:143: FutureWarning: In a future version of xarray the default value for compat will change from compat=&#39;no_conflicts&#39; to compat=&#39;override&#39;. This is likely to lead to different results when combining overlapping variables with the same name. To opt in to new defaults and get rid of these warnings now use `set_options(use_new_combine_kwarg_defaults=True) or set compat explicitly.
-  ds_all_keypoints = xr.merge(list_datasets)
-/home/runner/work/movement/movement/examples/load_freemocap_data.py:143: FutureWarning: In a future version of xarray the default value for compat will change from compat=&#39;no_conflicts&#39; to compat=&#39;override&#39;. This is likely to lead to different results when combining overlapping variables with the same name. To opt in to new defaults and get rid of these warnings now use `set_options(use_new_combine_kwarg_defaults=True) or set compat explicitly.
-  ds_all_keypoints = xr.merge(list_datasets)
 </pre></div>
 </div>
 <p>Note that each <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset holds the data for
@@ -946,10 +934,10 @@ the upper-half of the individual.</p>
 <a href="https://matplotlib.org/stable/api/_as_gen/mpl_toolkits.mplot3d.axes3d.Axes3D.invert_xaxis.html#mpl_toolkits.mplot3d.axes3d.Axes3D.invert_xaxis" title="mpl_toolkits.mplot3d.axes3d.Axes3D.invert_xaxis" class="sphx-glr-backref-module-mpl_toolkits-mplot3d-axes3d sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">invert_xaxis</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_load_freemocap_data_003.png" srcset="../_images/sphx_glr_load_freemocap_data_003.png" alt="load freemocap data" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.136 seconds)</p>
+<img src="../_images/sphx_glr_load_freemocap_data_003.png" srcset="../_images/sphx_glr_load_freemocap_data_003.png" alt="load freemocap data" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.171 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-load-freemocap-data-py">
 <div class="binder-badge docutils container">
-<a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=dev/notebooks/examples/load_freemocap_data.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/load_freemocap_data.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
 </a>
 </div>
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">

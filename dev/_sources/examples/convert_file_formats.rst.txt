@@ -355,7 +355,7 @@ the ``dest_path`` variable to your liking.
 
  .. code-block:: none
 
-    Saved modified dataset to /tmp/tmpvlxw1poo/SLEAP_single-mouse_EPM.analysis_dlc.csv.
+    Saved modified dataset to /tmp/tmpd9d21_nn/SLEAP_single-mouse_EPM.analysis_dlc.csv.
 
 
 
@@ -436,7 +436,7 @@ we've defined above, and saved to the target directory.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.359 seconds)
+   **Total running time of the script:** (0 minutes 0.383 seconds)
 
 
 .. _sphx_glr_download_examples_convert_file_formats.py:
@@ -448,7 +448,7 @@ we've defined above, and saved to the target directory.
     .. container:: binder-badge
 
       .. image:: images/binder_badge_logo.svg
-        :target: https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=dev/notebooks/examples/convert_file_formats.ipynb
+        :target: https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/convert_file_formats.ipynb
         :alt: Launch binder
         :width: 150 px
 

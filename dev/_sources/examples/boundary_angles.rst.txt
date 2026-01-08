@@ -713,7 +713,7 @@ other.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.365 seconds)
+   **Total running time of the script:** (0 minutes 1.395 seconds)
 
 
 .. _sphx_glr_download_examples_boundary_angles.py:
@@ -725,7 +725,7 @@ other.
     .. container:: binder-badge
 
       .. image:: images/binder_badge_logo.svg
-        :target: https://mybinder.org/v2/gh/neuroinformatics-unit/movement/gh-pages?filepath=dev/notebooks/examples/boundary_angles.ipynb
+        :target: https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/boundary_angles.ipynb
         :alt: Launch binder
         :width: 150 px
 
