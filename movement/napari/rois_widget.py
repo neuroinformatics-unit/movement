@@ -448,18 +448,19 @@ class RoisTableModel(QAbstractTableModel):
             return
 
         if event.action in ["added", "removed"]:
-            # Current names include the just added shapes (if any),
-            # but this could be a duplicate of an existing name.
-            current_names = [
-                n
-                for n in self.layer.properties.get("name", [])
-                if isinstance(n, str)
-            ]
-            # So we update the names to ensure they are unique.
+            # Get current names, ensuring list length matches number of shapes
+            current_names = list(self.layer.properties.get("name", []))
+            n_shapes = len(self.layer.data)
+
+            # Pad with empty strings if list is too short
+            while len(current_names) < n_shapes:
+                current_names.append("")
+
+            # Update names for added shapes to ensure uniqueness
             updated_names = (
                 self._update_roi_names(current_names)
                 if event.action == "added"
-                else current_names  # No need to update names on shape removal
+                else current_names
             )
             self.layer.properties = {"name": updated_names}
 
@@ -486,30 +487,53 @@ class RoisTableModel(QAbstractTableModel):
     def _update_roi_names(self, existing_names: list) -> list:
         """Update the names of existing ROIs.
 
-        We name ROIs in the format "ROI-<number>". The number is
-        incremented based on existing ROIs with such auto-assigned names.
+        Auto-assigns names only to shapes with empty/None names, or
+        duplicate "ROI-<number>" pattern names. User-assigned names
+        (anything that doesn't follow the ROI-<number> pattern) are
+        always preserved, even if duplicated.
+
+        Parameters
+        ----------
+        existing_names : list
+            Current list of ROI names.
+
+        Returns
+        -------
+        list
+            Updated list with auto-assigned names where needed.
+
         """
         updated_names = existing_names.copy()
 
-        # Find the maximum number of existing ROIs with auto-assigned names
-        auto_names = [
-            name for name in existing_names if name.startswith("ROI-")
-        ]
-
-        if auto_names:
-            auto_numbers = []
-            for name in auto_names:
-                # Skip names that don't follow ROI-<number> pattern
+        # Find max number from existing ROI-<number> names
+        auto_numbers = []
+        for name in existing_names:
+            if isinstance(name, str) and name.startswith("ROI-"):
                 with suppress(ValueError):
                     auto_numbers.append(int(name.split("-")[-1]))
-            max_number = max(auto_numbers) if auto_numbers else 0
-        else:
-            max_number = 0
+        max_number = max(auto_numbers) if auto_numbers else 0
 
-        # Assign the next available name
-        next_auto_name = f"ROI-{max_number + 1}"
-        if existing_names:  # to the last existing ROI
-            updated_names[-1] = next_auto_name
-        else:  # No existing ROIs, so add the first one
-            updated_names.append(next_auto_name)
+        # Track which ROI-<number> names we've seen (to detect duplicates)
+        seen_roi_names = {}  # name -> first_index
+
+        for i, name in enumerate(updated_names):
+            needs_new_name = False
+
+            if not isinstance(name, str) or not name.strip():
+                # Empty/None → auto-assign
+                needs_new_name = True
+            elif name.startswith("ROI-"):
+                # ROI-<number> pattern: check for duplicates
+                if name in seen_roi_names:
+                    needs_new_name = True  # Duplicate ROI-<number>
+                else:
+                    seen_roi_names[name] = i
+            # else: user-assigned name like "center zone" → keep as-is
+
+            if needs_new_name:
+                max_number += 1
+                new_name = f"ROI-{max_number}"
+                updated_names[i] = new_name
+                seen_roi_names[new_name] = i
+
         return updated_names
