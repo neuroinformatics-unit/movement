@@ -57,9 +57,7 @@ class RoisWidget(QWidget):
         """
         super().__init__(parent=parent)
         self.viewer = napari_viewer
-        self.color_manager = RoisColorManager(
-            cmap_name=cmap_name, max_layers=10
-        )
+        self.color_manager = RoisColorManager(cmap_name=cmap_name)
         self.roi_table_model: RoisTableModel | None = None
         self.roi_table_view = RoisTableView(self)
         self._connected_layers: set[Shapes] = set()  # Track connected layers
