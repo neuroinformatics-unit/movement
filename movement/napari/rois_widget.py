@@ -144,15 +144,32 @@ class RoisWidget(QWidget):
             layer.events.name.disconnect(self._update_layer_dropdown)
             self._connected_layers.discard(layer)
 
+    def _is_roi_layer(self, layer: Shapes) -> bool:
+        """Check if a Shapes layer is an ROI layer.
+
+        First checks for explicit metadata marker, then falls back to
+        case-insensitive name matching.
+        """
+        # Explicit metadata takes precedence
+        if layer.metadata.get("movement_roi_layer", False):
+            return True
+
+        # Fall back to case-insensitive name heuristic
+        return layer.name.upper().startswith("ROI")
+
+    def _mark_as_roi_layer(self, layer: Shapes) -> None:
+        """Mark a Shapes layer as an ROI layer via metadata."""
+        layer.metadata["movement_roi_layer"] = True
+
     def _get_roi_layers(self) -> dict[str, Shapes]:
-        """Get all ROIs layers (Shapes layers that start with 'ROI').
+        """Get all ROIs layers.
 
         Returns a dictionary with layer names as keys and layers as values.
         """
         return {
             layer.name: layer
             for layer in self.viewer.layers
-            if isinstance(layer, Shapes) and layer.name.startswith("ROI")
+            if isinstance(layer, Shapes) and self._is_roi_layer(layer)
         }
 
     def _on_layer_removed_from_viewer(self, event=None):
@@ -171,18 +188,26 @@ class RoisWidget(QWidget):
             if isinstance(layer, Shapes):
                 self._connect_layer_name_signal(layer)
 
+        # Check if a layer was renamed to an ROI name pattern
+        # and mark it with metadata if so
+        renamed_to_roi = False
+        if (
+            event is not None
+            and hasattr(event, "source")
+            and isinstance(event.source, Shapes)
+        ):
+            layer = event.source
+            if self._is_roi_layer(layer):
+                # Mark with metadata so it stays an ROI layer even if renamed
+                self._mark_as_roi_layer(layer)
+                renamed_to_roi = True
+
         current_text = self.layer_dropdown.currentText()
         roi_layer_names = list(self._get_roi_layers().keys())
 
         self.layer_dropdown.clear()
         if roi_layer_names:
             self.layer_dropdown.addItems(roi_layer_names)
-            renamed_to_roi = (  # True if a layer was renamed "ROI*"
-                event is not None
-                and hasattr(event, "source")
-                and isinstance(event.source, Shapes)
-                and event.source.name.startswith("ROI")
-            )
             # Determine which layer to select
             if renamed_to_roi:
                 # Auto-select the newly renamed ROI layer
@@ -214,6 +239,7 @@ class RoisWidget(QWidget):
     def _add_new_layer(self):
         """Create a new ROIs layer and select it."""
         new_layer = self.viewer.add_shapes(name="ROIs")
+        self._mark_as_roi_layer(new_layer)
         self.layer_dropdown.setCurrentText(new_layer.name)
 
     def _link_layer_to_model(self, roi_layer: Shapes):
