@@ -1,5 +1,7 @@
 """Dataclasses containing layer styles for napari."""
 
+import hashlib
+import re
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -280,11 +282,16 @@ class RoisColorManager:
         """Initialize the colors after the dataclass is created."""
         self.colors = _sample_colormap(self.n_colors, self.cmap_name)
 
+    # Pattern for default ROI layer names: "ROIs" or "ROIs [N]"
+    _roi_pattern = re.compile(r"^ROIs(?: \[(\d+)\])?$")
+
     def get_color_for_layer(self, layer_name: str) -> tuple:
         """Get a deterministic color for a layer based on its name.
 
-        Uses a hash of the layer name to select a color, ensuring the same
-        name always maps to the same color. Results are cached for efficiency.
+        For default ROI layer names ("ROIs", "ROIs [1]", "ROIs [2]", etc.),
+        colors are assigned sequentially to avoid collisions.
+        For custom names, uses MD5 hash for deterministic color selection
+        across Python sessions. Results are cached for efficiency.
 
         Parameters
         ----------
@@ -298,11 +305,26 @@ class RoisColorManager:
 
         """
         if layer_name not in self._color_cache:
-            # Use hash for deterministic color selection
-            color_index = hash(layer_name) % len(self.colors)
+            color_index = self._get_color_index(layer_name)
             self._color_cache[layer_name] = self.colors[color_index]
 
         return self._color_cache[layer_name]
+
+    def _get_color_index(self, layer_name: str) -> int:
+        """Get the color index for a layer name.
+
+        Sequential indices for default names, hash-based for custom names.
+        """
+        match = self._roi_pattern.match(layer_name)
+        if match:
+            # "ROIs" → 0, "ROIs [1]" → 1, "ROIs [2]" → 2, etc.
+            suffix = match.group(1)
+            index = int(suffix) if suffix else 0
+            return index % len(self.colors)
+
+        # Fall back to MD5 hash for custom names
+        hash_digest = hashlib.md5(layer_name.encode()).hexdigest()
+        return int(hash_digest, 16) % len(self.colors)
 
 
 def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:
