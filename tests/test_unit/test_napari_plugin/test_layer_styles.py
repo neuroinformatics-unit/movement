@@ -347,6 +347,93 @@ def test_rois_style_colors(color, expected_rgb):
     assert_array_equal(rois_style.face_color, expected_face_rgba)
 
 
+@pytest.mark.parametrize("n_shapes", [1, 3])
+def test_rois_style_color_all_shapes(make_napari_viewer_proxy, n_shapes):
+    """Test that color_all_shapes applies colors to all shapes in a layer."""
+    viewer = make_napari_viewer_proxy()
+
+    # Create shapes data (rectangles)
+    shapes_data = [
+        [
+            [10 * i, 10 * i],
+            [10 * i, 20 + 10 * i],
+            [20 + 10 * i, 20 + 10 * i],
+            [20 + 10 * i, 10 * i],
+        ]
+        for i in range(n_shapes)
+    ]
+    layer = viewer.add_shapes(shapes_data, shape_type="polygon")
+    layer.properties = {"name": [f"ROI-{i}" for i in range(n_shapes)]}
+
+    # Apply style
+    rois_style = RoisStyle(color="blue")
+    rois_style.color_all_shapes(layer)
+
+    # Check face and edge colors are applied to all shapes
+    assert len(layer.face_color) == n_shapes
+    assert len(layer.edge_color) == n_shapes
+    assert len(layer.edge_width) == n_shapes
+
+    # Check that text string format is set
+    assert "{name}" in str(layer.text)
+
+
+def test_rois_style_color_all_shapes_empty_layer(make_napari_viewer_proxy):
+    """Test that color_all_shapes handles empty layers gracefully."""
+    viewer = make_napari_viewer_proxy()
+    layer = viewer.add_shapes()
+
+    rois_style = RoisStyle(color="red")
+    # Should not raise an error
+    rois_style.color_all_shapes(layer)
+
+
+@pytest.mark.parametrize(
+    "selected_data",
+    [
+        pytest.param({0}, id="valid_selection"),
+        pytest.param(set(), id="no_selection"),
+    ],
+)
+def test_rois_style_color_current_shape(
+    make_napari_viewer_proxy, selected_data
+):
+    """Test that color_current_shape runs without error."""
+    viewer = make_napari_viewer_proxy()
+
+    # Create a shape
+    shapes_data = [[[0, 0], [0, 10], [10, 10], [10, 0]]]
+    layer = viewer.add_shapes(shapes_data, shape_type="polygon")
+    layer.selected_data = selected_data
+
+    rois_style = RoisStyle(color="green")
+    # Should not raise - exercises the method
+    rois_style.color_current_shape(layer)
+
+
+def test_rois_style_color_current_shape_invalid_selection():
+    """Test color_current_shape returns early for invalid selection indices."""
+
+    class MockLayer:
+        selected_data = {99}  # Invalid index
+        data = [[0, 0]]  # Only 1 shape
+        current_face_color_set = False
+
+        @property
+        def current_face_color(self):
+            return None
+
+        @current_face_color.setter
+        def current_face_color(self, _value):
+            self.current_face_color_set = True
+
+    mock_layer = MockLayer()
+    RoisStyle().color_current_shape(mock_layer)
+
+    # Should return early - current_face_color should NOT be set
+    assert not mock_layer.current_face_color_set
+
+
 @pytest.mark.parametrize(
     "layer_name",
     ["ROIs", "Arena", "Nest", "Food zone", "ROIs [1]"],
