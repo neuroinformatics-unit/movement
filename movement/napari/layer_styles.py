@@ -247,12 +247,14 @@ class RoisStyle(LayerStyle):
         """Color all shapes in a napari Shapes layer, including new ones."""
         n_shapes = len(layer.data)
         if n_shapes > 0:
-            layer.face_color = [self.face_color] * len(layer.data)
-            layer.edge_color = [self.edge_and_text_color] * len(layer.data)
-            layer.edge_width = [self.edge_width] * len(layer.data)
+            layer.face_color = [self.face_color] * n_shapes
+            layer.edge_color = [self.edge_and_text_color] * n_shapes
+            layer.edge_width = [self.edge_width] * n_shapes
 
             # Set text properties
-            layer.text = layer.text.dict().update(self.text)
+            text_dict = layer.text.dict()
+            text_dict.update(self.text)
+            layer.text = text_dict
             layer.text.color = self.edge_and_text_color
             layer.text.string = "{name}"
 
