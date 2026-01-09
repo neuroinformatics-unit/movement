@@ -269,12 +269,30 @@ class RoisWidget(QWidget):
     def _auto_assign_roi_names(self, roi_layer: Shapes) -> None:
         """Auto-assign names to ROIs if the layer has shapes without names.
 
-        This happens if shapes are drawn while the layer's name does not
-        start with "ROI".
+        This handles cases where:
+        - The "name" property doesn't exist
+        - The "name" property is empty or shorter than the number of shapes
+        - Some names are None or empty strings
         """
-        if len(roi_layer.data) > 0 and "name" not in roi_layer.properties:
-            names = [f"ROI-{i + 1}" for i in range(len(roi_layer.data))]
-            roi_layer.properties = {"name": names}
+        if len(roi_layer.data) == 0:
+            return
+
+        # Get existing names, ensure proper length
+        names = list(roi_layer.properties.get("name", []))
+        n_shapes = len(roi_layer.data)
+        while len(names) < n_shapes:  # pad with empty strings if needed
+            names.append("")
+        names = names[:n_shapes]      # trim if too long (defensive)
+
+        # Check if any names are missing/invalid
+        needs_update = any(
+            not isinstance(name, str) or not name.strip() for name in names
+        )
+        if needs_update:
+            # Let _update_roi_names logic take care of assigning names
+            names = self._update_roi_names(names)
+
+        roi_layer.properties = {"name": names}
 
     def _on_layer_renamed(self, event=None):
         """Handle layer renaming by updating the dropdown."""
