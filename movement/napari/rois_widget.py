@@ -89,9 +89,6 @@ class RoisWidget(QWidget):
 
         # Create table view group box
         table_view_group = QGroupBox("ROIs drawn in this layer")
-        table_view_group.setToolTip(
-            "Use napari layer controls (top left) to draw shapes."
-        )
         table_view_group.setLayout(self._setup_table_view_layout())
         main_layout.addWidget(table_view_group)
 
@@ -224,6 +221,7 @@ class RoisWidget(QWidget):
         if not layer_name or layer_name == "Select a layer":
             self._clear_roi_table_model()
             self.viewer.layers.selection.clear()
+            self._update_table_tooltip()
             return
 
         roi_layer = self._get_roi_layers().get(layer_name)
@@ -263,6 +261,11 @@ class RoisWidget(QWidget):
         )
         # Connect to layer name changes
         roi_layer.events.name.connect(self._on_layer_renamed)
+        # Connect to model reset to update placeholder visibility
+        self.roi_table_model.modelReset.connect(self._update_table_tooltip)
+
+        # Update placeholder visibility
+        self._update_table_tooltip()
 
     def _auto_assign_roi_names(self, roi_layer: Shapes) -> None:
         """Auto-assign names to ROIs if the layer has shapes without names.
@@ -308,7 +311,10 @@ class RoisWidget(QWidget):
                 self.roi_table_model.layer.events.name.disconnect(
                     self._on_layer_renamed
                 )
-            # Always disconnect viewer events (they don't depend on layer)
+            # Always disconnect model/viewer events (don't depend on layer)
+            self.roi_table_model.modelReset.disconnect(
+                self._update_table_tooltip
+            )
             self.viewer.layers.events.removed.disconnect(
                 self.roi_table_model._on_layer_deleted
             )
@@ -318,6 +324,39 @@ class RoisWidget(QWidget):
         self._disconnect_table_model_signals()
         self.roi_table_model = None
         self.roi_table_view.setModel(None)
+
+    def _update_table_tooltip(self):
+        """Update the table tooltip based on current state.
+
+        Shows contextual hints:
+        - How to create ROI layers when none exist
+        - How to draw shapes when layer is empty
+        - Usage tips when layer has shapes
+        """
+        layer_name = self.layer_dropdown.currentText()
+
+        if not layer_name or layer_name == "Select a layer":
+            # No ROI layers exist
+            self.roi_table_view.setToolTip(
+                "No ROI layers found.\n"
+                "Click 'Add new layer' to create one."
+            )
+        elif (
+            self.roi_table_model is None
+            or self.roi_table_model.rowCount() == 0
+        ):
+            # Layer selected but no shapes
+            self.roi_table_view.setToolTip(
+                "No ROIs in this layer.\n"
+                "Use the napari layer controls to draw shapes."
+            )
+        else:
+            # Layer has shapes - show usage tips
+            self.roi_table_view.setToolTip(
+                "Click a row to select the shape.\n"
+                "Press Delete to remove it.\n"
+                "Double-click a name to rename."
+            )
 
     def closeEvent(self, event):
         """Clean up signal connections when widget is closed."""
