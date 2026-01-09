@@ -265,25 +265,26 @@ class RoisStyle(LayerStyle):
 class RoisColorManager:
     """Manages colors for ROIs layers.
 
-    It makes sure that ROIs layers are each assigned a color cyclicly sampled
-    from a napari colormap.
+    It makes sure that ROIs layers are each assigned a color deterministically
+    based on the layer name (using a hash), sampled from a napari colormap.
+    This ensures the same layer name always gets the same color, even after
+    deletion and recreation.
     """
 
     cmap_name: str = "tab10"
-    max_layers: int = 10
-    layer_colors: dict = field(default_factory=dict)
-    next_color_index: int = 0
+    n_colors: int = 10
+    _color_cache: dict = field(default_factory=dict)
     colors: list = field(init=False)
 
     def __post_init__(self):
         """Initialize the colors after the dataclass is created."""
-        self.colors = _sample_colormap(self.max_layers, self.cmap_name)
+        self.colors = _sample_colormap(self.n_colors, self.cmap_name)
 
     def get_color_for_layer(self, layer_name: str) -> tuple:
-        """Get or assign a color for a layer.
+        """Get a deterministic color for a layer based on its name.
 
-        If the layer already has a color assigned, return it.
-        Otherwise, assign the next color from the cycle.
+        Uses a hash of the layer name to select a color, ensuring the same
+        name always maps to the same color. Results are cached for efficiency.
 
         Parameters
         ----------
@@ -296,12 +297,12 @@ class RoisColorManager:
             The RGBA color tuple for the layer.
 
         """
-        if layer_name not in self.layer_colors:
-            color = self.colors[self.next_color_index % len(self.colors)]
-            self.layer_colors[layer_name] = color
-            self.next_color_index += 1
+        if layer_name not in self._color_cache:
+            # Use hash for deterministic color selection
+            color_index = hash(layer_name) % len(self.colors)
+            self._color_cache[layer_name] = self.colors[color_index]
 
-        return self.layer_colors[layer_name]
+        return self._color_cache[layer_name]
 
 
 def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:
