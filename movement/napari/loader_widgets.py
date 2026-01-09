@@ -423,7 +423,9 @@ class DataLoader(QWidget):
             )
 
             # If the frame slider range is not set to the full range of frames,
-            # update it.
+            # update it. Skip if max_frame_idx is invalid (e.g., empty layers).
+            if max_frame_idx < 0:
+                return
             if (self.viewer.dims.range[0].stop != max_frame_idx) or (
                 int(self.viewer.dims.range[0].start) != 0
             ):
