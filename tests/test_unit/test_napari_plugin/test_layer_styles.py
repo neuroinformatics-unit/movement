@@ -9,6 +9,7 @@ from movement.napari.layer_styles import (
     BoxesStyle,
     LayerStyle,
     PointsStyle,
+    RoisColorManager,
     RoisStyle,
     TracksStyle,
     _sample_colormap,
@@ -344,3 +345,23 @@ def test_rois_style_colors(color, expected_rgb):
 
     assert_array_equal(rois_style.edge_and_text_color, expected_rgba)
     assert_array_equal(rois_style.face_color, expected_face_rgba)
+
+
+@pytest.mark.parametrize(
+    "layer_name",
+    ["ROIs", "Arena", "Nest", "Food zone", "ROIs [1]"],
+)
+def test_rois_color_manager_deterministic(layer_name):
+    """Test that the same layer name always returns the same color,
+    even across different RoisColorManager instances.
+    """
+    manager1 = RoisColorManager()
+    manager2 = RoisColorManager()
+
+    color1 = manager1.get_color_for_layer(layer_name)
+    color2 = manager2.get_color_for_layer(layer_name)
+
+    assert color1 == color2
+    assert isinstance(color1, tuple)
+    assert len(color1) == 4
+    assert all(0.0 <= c <= 1.0 for c in color1)
