@@ -435,12 +435,22 @@ def test_rois_style_color_current_shape_invalid_selection():
 
 
 @pytest.mark.parametrize(
-    "layer_name",
-    ["ROIs", "Arena", "Nest", "Food zone", "ROIs [1]"],
+    "layer_name, expected_color_index",
+    [
+        # Default names get sequential indices
+        ("ROIs", 0),
+        ("ROIs [1]", 1),
+        ("ROIs [2]", 2),
+        # Custom names use MD5 hash
+        ("Arena", 6),
+        ("Nest", 4),
+    ],
 )
-def test_rois_color_manager_deterministic(layer_name):
-    """Test that the same layer name always returns the same color,
-    even across different RoisColorManager instances.
+def test_rois_color_manager_deterministic(layer_name, expected_color_index):
+    """Test that color assignment is deterministic across manager instances.
+
+    Default ROI names ("ROIs", "ROIs [N]") get sequential color indices.
+    Custom names use MD5 hash for deterministic assignment across sessions.
     """
     manager1 = RoisColorManager()
     manager2 = RoisColorManager()
@@ -448,7 +458,11 @@ def test_rois_color_manager_deterministic(layer_name):
     color1 = manager1.get_color_for_layer(layer_name)
     color2 = manager2.get_color_for_layer(layer_name)
 
+    # Same name should return same color across instances
     assert color1 == color2
+    # Color should be a valid RGBA tuple
     assert isinstance(color1, tuple)
     assert len(color1) == 4
     assert all(0.0 <= c <= 1.0 for c in color1)
+    # Color should match expected index
+    assert color1 == manager1.colors[expected_color_index]
