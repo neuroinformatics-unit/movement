@@ -551,6 +551,8 @@ class RoisTableModel(QAbstractTableModel):
         auto_numbers = []
         for name in existing_names:
             if isinstance(name, str) and name.startswith("ROI-"):
+                # Try parsing as ROI-<number>; ignore non-numeric suffixes
+                # (e.g., "ROI-center" is a user name, not auto-assigned)
                 with suppress(ValueError):
                     auto_numbers.append(int(name.split("-")[-1]))
         max_number = max(auto_numbers) if auto_numbers else 0
