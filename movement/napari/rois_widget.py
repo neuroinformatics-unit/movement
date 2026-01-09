@@ -1,11 +1,27 @@
 """Widget for defining regions of interest (ROIs).
 
-ROIs are drawn as shapes in a napari Shapes layer
-and shown in a table view.
+ROIs are drawn as shapes in a napari Shapes layer and displayed in a table.
+The widget can handle multiple ROIs layers, allowing the user to select
+which layer to work with via a dropdown. It also auto-assigns unique names
+to ROIs (editable by the user) and applies consistent styling.
+
+This module uses Qt's Model/View architecture to separate data from display:
+
+- ``RoisTableModel`` (Model): Wraps a napari Shapes layer and exposes ROI
+  data (names, shape types) to the Qt framework. Listens to layer events
+  and emits signals when data changes.
+- ``RoisTableView`` (View): Displays the model's data as a table. Handles
+  user interactions like row selection and name editing.
+- ``RoisWidget``: Coordinates the model and view. Manages
+  layer selection, creates/links models to views, and handles layer
+  lifecycle events.
+
+Data flow:
+    napari Shapes layer <-> RoisTableModel <-> RoisTableView <-> User
 
 See the `Qt Model/View framework
 <https://doc.qt.io/qt-6/model-view-programming.html>`_
-for more background on this widget's architecture.
+for more background.
 """
 
 from contextlib import suppress
@@ -27,18 +43,21 @@ from movement.napari.layer_styles import RoisColorManager, RoisStyle
 
 
 class RoisWidget(QWidget):
-    """Widget for defining regions of interest (ROIs).
+    """Main widget for defining regions of interest (ROIs).
 
-    The widget provides a dropdown to select an existing ROIs layer, i.e.
-    a Shapes layer whose name starts with "ROIs", and a button to add a new
-    ROIs layer.
+    This widget provides a user interface managing ROIs drawn as shapes
+    in napari. It coordinates the napari viewer, the RoisTableModel,
+    and the RoisTableView.
 
-    The widget also provides a table view which displays the shapes drawn
-    in the currently selected ROIs layer. Clicking on a row in the table
-    view selects the corresponding shape in the ROIs layer. Shapes are
-    auto-named in the format "ROI-<number>" (stored in the layer's
-    text property), but this can be edited by double-clicking on the Name
-    column of the table view.
+    Features:
+
+    - Dropdown to select existing ROI layers
+    - Button to create new ROI layers
+    - Table view displaying ROIs in the selected layer
+    - Bidirectional selection sync: clicking a table row selects the
+      shape in napari, and vice versa
+    - Auto-naming of ROIs in "ROI-<number>" format (editable by user)
+    - Consistent color styling per layer
     """
 
     def __init__(self, napari_viewer: Viewer, cmap_name="tab10", parent=None):
@@ -69,7 +88,7 @@ class RoisWidget(QWidget):
     def _setup_ui(self):
         """Set up the user interface with two groupboxes.
 
-        The first groupbox contains the layer controls:
+        The first groupbox contains the ROI layer controls:
         a dropdown to select an existing ROIs layer
         and a button to add a new ROIs layer.
         The second groupbox contains the table view.
@@ -93,7 +112,13 @@ class RoisWidget(QWidget):
         main_layout.addWidget(table_view_group)
 
     def _setup_layer_controls_layout(self):
-        """Create the ROIs layer controls layout with dropdown and button."""
+        """Create the ROI layer controls layout.
+
+        Returns a QHBoxLayout containing:
+
+        - Dropdown (QComboBox) for selecting ROI layers
+        - "Add new layer" button (QPushButton)
+        """
         layer_controls_layout = QHBoxLayout()
 
         self.layer_dropdown = QComboBox()
@@ -110,13 +135,23 @@ class RoisWidget(QWidget):
         return layer_controls_layout
 
     def _setup_table_view_layout(self):
-        """Create the ROI table view layout."""
+        """Create the table view layout.
+
+        Returns a QVBoxLayout containing the RoisTableView widget.
+        """
         table_view_layout = QVBoxLayout()
         table_view_layout.addWidget(self.roi_table_view)
         return table_view_layout
 
     def _connect_signals(self):
-        """Connect layer events to update dropdown."""
+        """Connect viewer signals to widget handlers.
+
+        Handles:
+
+        - Layer insertion → update dropdown
+        - Layer removal → update dropdown and disconnect signals
+        - Layer name changes (for existing Shapes layers)
+        """
         self.viewer.layers.events.inserted.connect(self._update_layer_dropdown)
         self.viewer.layers.events.removed.connect(
             self._on_layer_removed_from_viewer
@@ -168,7 +203,11 @@ class RoisWidget(QWidget):
         }
 
     def _on_layer_removed_from_viewer(self, event=None):
-        """Handle layer removal by disconnecting signals."""
+        """Handle layer removal from viewer.
+
+        Disconnects name change signals from the removed layer and
+        updates the dropdown to reflect available layers.
+        """
         if event is not None and hasattr(event, "value"):
             layer = event.value
             if isinstance(layer, Shapes):
@@ -176,7 +215,15 @@ class RoisWidget(QWidget):
         self._update_layer_dropdown(event)
 
     def _update_layer_dropdown(self, event=None):
-        """Update the layer dropdown with current ROIs layers."""
+        """Refresh the layer dropdown with current ROI layers.
+
+        Called when layers are added, removed, or renamed. Handles:
+
+        - Connecting name change signals for new Shapes layers
+        - Auto-marking layers renamed to "ROI*" as ROI layers
+        - Preserving the current selection when possible
+        - Showing placeholder text when no ROI layers exist
+        """
         # Connect to name change events for any new Shapes layers
         if event is not None and hasattr(event, "value"):
             layer = event.value
@@ -217,7 +264,13 @@ class RoisWidget(QWidget):
             self.layer_dropdown.addItem("Select a layer")
 
     def _on_layer_selected(self, layer_name: str):
-        """Handle layer selection from dropdown."""
+        """Handle layer selection from dropdown.
+
+        - When a valid layer is selected, selects the layer in napari
+          and links it to the table model for display.
+        - When no layer is selected (placeholder text), clears the table model
+          and the napari layer selection.
+        """
         if not layer_name or layer_name == "Select a layer":
             self._clear_roi_table_model()
             self.viewer.layers.selection.clear()
@@ -239,7 +292,16 @@ class RoisWidget(QWidget):
         self.layer_dropdown.setCurrentText(new_layer.name)
 
     def _link_layer_to_model(self, roi_layer: Shapes):
-        """Link an ROIs layer to an ROIs table model."""
+        """Link an ROI layer to a new table model.
+
+        This is the core method that connects the Model-View components:
+
+        - Disconnects any previous model
+        - Auto-assigns names to unnamed shapes
+        - Applies consistent color styling
+        - Creates a new RoisTableModel for the layer
+        - Connects model signals for data/selection sync
+        """
         # Disconnect previous model if it exists
         self._disconnect_table_model_signals()
 
@@ -271,6 +333,7 @@ class RoisWidget(QWidget):
         """Auto-assign names to ROIs if the layer has shapes without names.
 
         This handles cases where:
+
         - The "name" property doesn't exist
         - The "name" property is empty or shorter than the number of shapes
         - Some names are None or empty strings
@@ -283,7 +346,7 @@ class RoisWidget(QWidget):
         n_shapes = len(roi_layer.data)
         while len(names) < n_shapes:  # pad with empty strings if needed
             names.append("")
-        names = names[:n_shapes]      # trim if too long (defensive)
+        names = names[:n_shapes]  # trim if too long (defensive)
 
         # Check if any names are missing/invalid
         needs_update = any(
@@ -301,7 +364,11 @@ class RoisWidget(QWidget):
         self.layer_dropdown.setCurrentText(event.source.name)
 
     def _disconnect_table_model_signals(self):
-        """Disconnect signals from the ROIs table model."""
+        """Disconnect all signals from the current table model.
+
+        Safely disconnects: layer data change events, layer name change events,
+        model reset signals, and viewer layer removal events.
+        """
         if self.roi_table_model is not None:
             # Only disconnect layer events if the layer still exists
             if self.roi_table_model.layer is not None:
@@ -320,7 +387,7 @@ class RoisWidget(QWidget):
             )
 
     def _clear_roi_table_model(self):
-        """Clear the ROIs table model."""
+        """Clear the current table model and disconnect from the view."""
         self._disconnect_table_model_signals()
         self.roi_table_model = None
         self.roi_table_view.setModel(None)
@@ -329,6 +396,7 @@ class RoisWidget(QWidget):
         """Update the table tooltip based on current state.
 
         Shows contextual hints:
+
         - How to create ROI layers when none exist
         - How to draw shapes when layer is empty
         - Usage tips when layer has shapes
@@ -338,8 +406,7 @@ class RoisWidget(QWidget):
         if not layer_name or layer_name == "Select a layer":
             # No ROI layers exist
             self.roi_table_view.setToolTip(
-                "No ROI layers found.\n"
-                "Click 'Add new layer' to create one."
+                "No ROI layers found.\nClick 'Add new layer' to create one."
             )
         elif (
             self.roi_table_model is None
@@ -359,7 +426,13 @@ class RoisWidget(QWidget):
             )
 
     def closeEvent(self, event):
-        """Clean up signal connections when widget is closed."""
+        """Clean up signal connections when widget is closed.
+
+        Overrides QWidget.closeEvent to ensure proper cleanup of:
+            - Layer name change signals
+            - Viewer-level layer insertion/removal signals
+            - Table model connections
+        """
         # Disconnect all layer name signals
         for layer in list(self._connected_layers):
             self._disconnect_layer_name_signal(layer)
@@ -379,10 +452,24 @@ class RoisWidget(QWidget):
 
 
 class RoisTableView(QTableView):
-    """Table view for displaying and managing ROIs."""
+    """Table view for displaying drawn ROIs.
+
+    Displays ROI data from a RoisTableModel in a two-column table
+    (Name, Shape type). Handles user interactions:
+
+    - Row selection syncs to shape selection in napari
+    - Double-click on Name column enables inline editing
+    """
 
     def __init__(self, parent=None):
-        """Initialize the ROI table view."""
+        """Initialize the table view with selection and edit settings.
+
+        Configures:
+
+        - Row-based selection (clicking selects entire row)
+        - Single selection mode (one row at a time)
+        - Double-click or key press to edit Name column
+        """
         super().__init__(parent=parent)
         self.setSelectionBehavior(QTableView.SelectRows)
         self.setSelectionMode(QTableView.SingleSelection)
@@ -392,7 +479,11 @@ class RoisTableView(QTableView):
         self.current_model: RoisTableModel | None = None
 
     def setModel(self, model):
-        """Override setModel to connect selection signals."""
+        """Set the table model and connect selection signals.
+
+        Overrides QTableView.setModel to additionally connect the
+        selection changed signal for syncing with napari layer selection.
+        """
         super().setModel(model)
         self.current_model = model
 
@@ -402,7 +493,11 @@ class RoisTableView(QTableView):
             )
 
     def _on_selection_changed(self, selected, deselected):
-        """Handle table row selection changes."""
+        """Sync table row selection to napari shape selection.
+
+        When user clicks a row in the table, selects the corresponding
+        shape in the napari Shapes layer.
+        """
         if self.current_model is None or self.current_model.layer is None:
             return
 
@@ -418,18 +513,28 @@ class RoisTableView(QTableView):
 
 
 class RoisTableModel(QAbstractTableModel):
-    """Table model for ROIs defined in a napari Shapes layer."""
+    """Table model exposing ROI data from a Shapes layer.
+
+    Wraps a napari Shapes layer and provides data to RoisTableView:
+
+    - Column 0: ROI name (from layer.properties["name"])
+    - Column 1: Shape type (e.g., "rectangle", "polygon")
+
+    Listens to layer data events and emits Qt signals when shapes are
+    added, removed, or modified. Also handles auto-naming of new shapes
+    and applies consistent styling via RoisStyle.
+    """
 
     def __init__(
         self, shapes_layer: Shapes, roi_style: RoisStyle, parent=None
     ):
-        """Initialize the ROIs table model with a Shapes layer and style.
+        """Initialize the model with a Shapes layer and style.
 
         Parameters
         ----------
         shapes_layer : Shapes
             The napari Shapes layer containing the ROIs.
-        roi_style : RoiStyle
+        roi_style : RoisStyle
             The style to apply to the ROIs.
         parent : QWidget, optional
             The parent widget.
@@ -442,15 +547,15 @@ class RoisTableModel(QAbstractTableModel):
         self.layer.events.data.connect(self._on_layer_data_changed)
 
     def rowCount(self, parent=QModelIndex()):  # noqa: B008
-        """Match the number of ROIs in the Shapes layer."""
+        """Return the number of ROIs (shapes) in the layer."""
         return len(self.layer.data) if self.layer else 0
 
     def columnCount(self, parent=QModelIndex()):  # noqa: B008
-        """Fix the number of columns in the ROIs table."""
+        """Return 2 columns: Name and Shape type."""
         return 2 if self.layer else 0
 
     def data(self, index, role=Qt.DisplayRole):
-        """Return the actual data to be shown in each cell of the table."""
+        """Return cell data for display or editing."""
         if not index.isValid():
             return None
 
@@ -474,7 +579,7 @@ class RoisTableModel(QAbstractTableModel):
         return None
 
     def flags(self, index):
-        """Return the item flags for the given index."""
+        """Return item flags (editable for Name column only)."""
         if not index.isValid():
             return Qt.NoItemFlags
 
@@ -484,9 +589,10 @@ class RoisTableModel(QAbstractTableModel):
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
     def setData(self, index, value, role=Qt.EditRole):
-        """Set the data for the given index.
+        """Update ROI name when user edits the Name column.
 
-        This allows the user to edit the name of the ROI.
+        Updates the layer.properties["name"] list and emits dataChanged.
+        Only the Name column (column 0) is editable.
         """
         if not index.isValid() or role != Qt.EditRole:
             return False
@@ -510,7 +616,7 @@ class RoisTableModel(QAbstractTableModel):
         return False
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
-        """Supply the column names for the table."""
+        """Return header labels: 'Name' and 'Shape type' for columns."""
         if role != Qt.DisplayRole:
             return None
         if orientation == Qt.Horizontal:
@@ -519,12 +625,17 @@ class RoisTableModel(QAbstractTableModel):
             return str(section)  # Return the row index as a string
 
     def _get_roi_name_for_row(self, row):
-        """Get the ROI name corresponding to a specific row."""
+        """Get the ROI name for a given row index from layer properties."""
         names = self.layer.properties.get("name", [])
         return names[row] if row < len(names) else ""
 
     def _on_layer_data_changed(self, event=None):
-        """Update the model when the ROIs Shapes layer data changes."""
+        """Handle shape addition, removal, or modification in the layer.
+
+        For "added" events: auto-assigns names and resets the model.
+        For "removed" events: resets the model.
+        For other events (e.g., shape editing): updates current shape style.
+        """
         if self.layer is None:
             return
 
@@ -556,7 +667,11 @@ class RoisTableModel(QAbstractTableModel):
             self.roi_style.color_current_shape(self.layer)
 
     def _on_layer_deleted(self, event=None):
-        """Handle the deletion of the ROIs Shapes layer."""
+        """Handle deletion of the associated Shapes layer from viewer.
+
+        Disconnects from layer events, clears the layer reference,
+        and resets the model to empty state.
+        """
         # Only reset the model if the layer being removed
         # is the one we are currently using.
         if event.value == self.layer:
