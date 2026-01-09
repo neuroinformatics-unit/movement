@@ -235,12 +235,15 @@ class RoisWidget(QWidget):
     def _disconnect_table_model_signals(self):
         """Disconnect signals from the ROIs table model."""
         if self.roi_table_model is not None:
-            self.roi_table_model.layer.events.data.disconnect(
-                self.roi_table_model._on_layer_data_changed
-            )
-            self.roi_table_model.layer.events.name.disconnect(
-                self._on_layer_renamed
-            )
+            # Only disconnect layer events if the layer still exists
+            if self.roi_table_model.layer is not None:
+                self.roi_table_model.layer.events.data.disconnect(
+                    self.roi_table_model._on_layer_data_changed
+                )
+                self.roi_table_model.layer.events.name.disconnect(
+                    self._on_layer_renamed
+                )
+            # Always disconnect viewer events (they don't depend on layer)
             self.viewer.layers.events.removed.disconnect(
                 self.roi_table_model._on_layer_deleted
             )
