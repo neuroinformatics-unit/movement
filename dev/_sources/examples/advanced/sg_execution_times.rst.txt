@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:01.100** total execution time for 1 file **from examples/advanced**:
+**00:01.128** total execution time for 1 file **from examples/advanced**:
 
 .. container::
 
@@ -33,5 +33,5 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_examples_advanced_broadcasting_your_own_methods.py` (``broadcasting_your_own_methods.py``)
-     - 00:01.100
+     - 00:01.128
      - 0.0

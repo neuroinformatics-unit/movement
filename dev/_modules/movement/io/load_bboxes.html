@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=857c8ea9"></script>
+    <script src="../../../_static/documentation_options.js?v=afc74973"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev19</p>
+    <p class="title logo__title">movement v0.12.1.dev20</p>
   
 </a></div>
     
@@ -475,7 +475,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidBboxesDataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidBboxesInputs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DEFAULT_FRAME_REGEXP</span><span class="p">,</span>
     <span class="n">ValidFile</span><span class="p">,</span>
@@ -602,7 +602,7 @@
 <span class="sd">    ... )</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">valid_bboxes_data</span> <span class="o">=</span> <span class="n">ValidBboxesDataset</span><span class="p">(</span>
+    <span class="n">valid_bboxes_inputs</span> <span class="o">=</span> <span class="n">ValidBboxesInputs</span><span class="p">(</span>
         <span class="n">position_array</span><span class="o">=</span><span class="n">position_array</span><span class="p">,</span>
         <span class="n">shape_array</span><span class="o">=</span><span class="n">shape_array</span><span class="p">,</span>
         <span class="n">confidence_array</span><span class="o">=</span><span class="n">confidence_array</span><span class="p">,</span>
@@ -611,7 +611,7 @@
         <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
         <span class="n">source_software</span><span class="o">=</span><span class="n">source_software</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">_ds_from_valid_data</span><span class="p">(</span><span class="n">valid_bboxes_data</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">valid_bboxes_inputs</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span></div>
 
 
 
@@ -832,7 +832,7 @@
         <span class="p">),</span>
         <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
         <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;VIA-tracks&quot;</span><span class="p">,</span>
-    <span class="p">)</span>  <span class="c1"># it validates the dataset via ValidBboxesDataset</span>
+    <span class="p">)</span>  <span class="c1"># it validates the dataset via ValidBboxesInputs</span>
 
     <span class="c1"># Add metadata as attributes</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source_software&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;VIA-tracks&quot;</span>
@@ -1121,64 +1121,6 @@
     <span class="n">bbox_attr_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">list_bbox_attr</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">bbox_attr_array</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_ds_from_valid_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">ValidBboxesDataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a validated bounding boxes dataset to an xarray Dataset.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data : movement.validators.datasets.ValidBboxesDataset</span>
-<span class="sd">        The validated bounding boxes dataset object.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    bounding boxes dataset containing the boxes tracks,</span>
-<span class="sd">        boxes shapes, confidence scores and associated metadata.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Create the time coordinate</span>
-    <span class="n">time_coords</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">frame_array</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>  <span class="c1"># type: ignore</span>
-    <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;frames&quot;</span>
-
-    <span class="n">dataset_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;source_software&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">source_software</span><span class="p">,</span>
-        <span class="s2">&quot;ds_type&quot;</span><span class="p">:</span> <span class="s2">&quot;bboxes&quot;</span><span class="p">,</span>
-    <span class="p">}</span>
-    <span class="c1"># if fps is provided:</span>
-    <span class="c1"># time_coords is expressed in seconds, with the time origin</span>
-    <span class="c1"># set as frame 0 == time 0 seconds</span>
-    <span class="c1"># Store fps as a dataset attribute</span>
-    <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span><span class="p">:</span>
-        <span class="c1"># Compute elapsed time from frame 0.</span>
-        <span class="c1"># Ignoring type error because `data.frame_array` is not None after</span>
-        <span class="c1"># ValidBboxesDataset.__attrs_post_init__()  # type: ignore</span>
-        <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">frame</span> <span class="o">/</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span> <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">frame_array</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()]</span>  <span class="c1"># type: ignore</span>
-        <span class="p">)</span>
-        <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span>
-        <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">&quot;fps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">fps</span>
-
-    <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">&quot;time_unit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_unit</span>
-    <span class="c1"># Convert data to an xarray.Dataset</span>
-    <span class="c1"># with dimensions (&#39;time&#39;, &#39;space&#39;, &#39;individuals&#39;)</span>
-    <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="n">ValidBboxesDataset</span><span class="o">.</span><span class="n">DIM_NAMES</span>
-    <span class="n">n_space</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
-        <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">position_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
-            <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
-            <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">confidence_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
-            <span class="p">),</span>
-        <span class="p">},</span>
-        <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
-            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">time_coords</span><span class="p">,</span>
-            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">][:</span><span class="n">n_space</span><span class="p">],</span>
-            <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="n">data</span><span class="o">.</span><span class="n">individual_names</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="n">attrs</span><span class="o">=</span><span class="n">dataset_attrs</span><span class="p">,</span>
-    <span class="p">)</span>
 </pre></div>
 <div class="section ablog__blog_comments">
    

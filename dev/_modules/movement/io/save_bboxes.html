@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=857c8ea9"></script>
+    <script src="../../../_static/documentation_options.js?v=afc74973"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev19</p>
+    <p class="title logo__title">movement v0.12.1.dev20</p>
   
 </a></div>
     
@@ -475,7 +475,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidBboxesDataset</span><span class="p">,</span> <span class="n">_validate_dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidBboxesInputs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_file_path</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -594,7 +594,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Validate file path and dataset</span>
     <span class="n">file</span> <span class="o">=</span> <span class="n">_validate_file_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">expected_suffix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.csv&quot;</span><span class="p">])</span>
-    <span class="n">_validate_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ValidBboxesDataset</span><span class="p">)</span>
+    <span class="n">ValidBboxesInputs</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 
     <span class="c1"># Check the number of digits required to represent the frame numbers</span>
     <span class="n">frame_n_digits</span> <span class="o">=</span> <span class="n">_check_frame_required_digits</span><span class="p">(</span>

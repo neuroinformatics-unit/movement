@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>ValidBboxesDataset &#8212; movement</title>
+    <title>ValidBboxesInputs &#8212; movement</title>
   
   
   
@@ -44,12 +44,12 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=857c8ea9"></script>
+    <script src="../_static/documentation_options.js?v=afc74973"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.validators.datasets.ValidBboxesDataset';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.validators.datasets.ValidBboxesInputs';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
@@ -58,11 +58,11 @@
             false;
         </script>
     <script src="../_static/js/contributors.js?v=4c153e30"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.validators.datasets.ValidBboxesDataset.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.validators.datasets.ValidBboxesInputs.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ValidPosesDataset" href="movement.validators.datasets.ValidPosesDataset.html" />
+    <link rel="next" title="ValidPosesInputs" href="movement.validators.datasets.ValidPosesInputs.html" />
     <link rel="prev" title="movement.validators.datasets" href="movement.validators.datasets.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev19</p>
+    <p class="title logo__title">movement v0.12.1.dev20</p>
   
 </a></div>
     
@@ -541,8 +541,8 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.validators.datasets.html">movement.validators.datasets</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">ValidBboxesDataset</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.validators.datasets.ValidPosesDataset.html">ValidPosesDataset</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">ValidBboxesInputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.datasets.ValidPosesInputs.html">ValidPosesInputs</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.validators.files.html">movement.validators.files</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -600,7 +600,7 @@
     
     <li class="breadcrumb-item"><a href="movement.validators.datasets.html" class="nav-link">movement.validators.datasets</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ValidBboxesDataset</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ValidBboxesInputs</span></li>
   </ul>
 </nav>
 </div>
@@ -616,13 +616,13 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="validbboxesdataset">
-<h1>ValidBboxesDataset<a class="headerlink" href="#validbboxesdataset" title="Link to this heading">#</a></h1>
+                   <section id="validbboxesinputs">
+<h1>ValidBboxesInputs<a class="headerlink" href="#validbboxesinputs" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesDataset">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement.validators.datasets.</span></span><span class="sig-name descname"><span class="pre">ValidBboxesDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_software</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/datasets.html#ValidBboxesDataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.datasets.ValidBboxesDataset" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Class for validating bounding boxes data for a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset.</p>
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement.validators.datasets.</span></span><span class="sig-name descname"><span class="pre">ValidBboxesInputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_software</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/datasets.html#ValidBboxesInputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_BaseDatasetInputs</span></code></p>
+<p>Class for validating input data for a <code class="docutils literal notranslate"><span class="pre">movement</span> <span class="pre">bboxes</span></code> dataset.</p>
 <p>The validator considers 2D bounding boxes only. It ensures that
 within the <code class="docutils literal notranslate"><span class="pre">movement</span> <span class="pre">bboxes</span></code> dataset:</p>
 <ul class="simple">
@@ -642,8 +642,8 @@ with the frame numbers; otherwise, it defaults to an array of
 None.</p></li>
 </ul>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesDataset.position_array">
-<span class="sig-name descname"><span class="pre">position_array</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesDataset.position_array" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.position_array">
+<span class="sig-name descname"><span class="pre">position_array</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.position_array" title="Link to this definition">#</a></dt>
 <dd><p>Array of shape (n_frames, n_space, n_individuals)
 containing the tracks of the bounding box centroids.</p>
 <dl class="field-list simple">
@@ -654,8 +654,8 @@ containing the tracks of the bounding box centroids.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesDataset.shape_array">
-<span class="sig-name descname"><span class="pre">shape_array</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesDataset.shape_array" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.shape_array">
+<span class="sig-name descname"><span class="pre">shape_array</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.shape_array" title="Link to this definition">#</a></dt>
 <dd><p>Array of shape (n_frames, n_space, n_individuals)
 containing the shape of the bounding boxes. The shape of a bounding
 box is its width (extent along the x-axis of the image) and height
@@ -668,8 +668,8 @@ box is its width (extent along the x-axis of the image) and height
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesDataset.confidence_array">
-<span class="sig-name descname"><span class="pre">confidence_array</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesDataset.confidence_array" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.confidence_array">
+<span class="sig-name descname"><span class="pre">confidence_array</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.confidence_array" title="Link to this definition">#</a></dt>
 <dd><p>Array of shape (n_frames, n_individuals) containing
 the confidence scores of the bounding boxes. If None (default), the
 confidence scores are set to an array of NaNs.</p>
@@ -681,8 +681,8 @@ confidence scores are set to an array of NaNs.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesDataset.individual_names">
-<span class="sig-name descname"><span class="pre">individual_names</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesDataset.individual_names" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.individual_names">
+<span class="sig-name descname"><span class="pre">individual_names</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.individual_names" title="Link to this definition">#</a></dt>
 <dd><p>List of individual names for the tracked bounding boxes in the video.
 If None (default), bounding boxes are assigned names based on the size
 of the <code class="docutils literal notranslate"><span class="pre">position_array</span></code>. The names will be in the format of
@@ -696,8 +696,8 @@ of the <code class="docutils literal notranslate"><span class="pre">position_arr
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesDataset.frame_array">
-<span class="sig-name descname"><span class="pre">frame_array</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesDataset.frame_array" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.frame_array">
+<span class="sig-name descname"><span class="pre">frame_array</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.frame_array" title="Link to this definition">#</a></dt>
 <dd><p>Array of shape (n_frames, 1) containing the frame numbers for which
 bounding boxes are defined. If None (default), frame numbers will
 be assigned based on the first dimension of the <code class="docutils literal notranslate"><span class="pre">position_array</span></code>,
@@ -710,8 +710,8 @@ starting from 0.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesDataset.fps">
-<span class="sig-name descname"><span class="pre">fps</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesDataset.fps" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.fps">
+<span class="sig-name descname"><span class="pre">fps</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.fps" title="Link to this definition">#</a></dt>
 <dd><p>Frames per second defining the sampling rate of the data.
 Defaults to None.</p>
 <dl class="field-list simple">
@@ -722,8 +722,8 @@ Defaults to None.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesDataset.source_software">
-<span class="sig-name descname"><span class="pre">source_software</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesDataset.source_software" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.source_software">
+<span class="sig-name descname"><span class="pre">source_software</span></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.source_software" title="Link to this definition">#</a></dt>
 <dd><p>Name of the software that generated the data. Defaults to None.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -738,6 +738,54 @@ Defaults to None.</p>
     requirements.</p>
 </dd>
 </dl>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#movement.validators.datasets.ValidBboxesInputs.to_dataset" title="movement.validators.datasets.ValidBboxesInputs.to_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dataset</span></code></a>()</p></td>
+<td><p>Convert validated bboxes inputs to a <code class="docutils literal notranslate"><span class="pre">movement</span> <span class="pre">bboxes</span></code> dataset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#movement.validators.datasets.ValidBboxesInputs.validate" title="movement.validators.datasets.ValidBboxesInputs.validate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate</span></code></a>(ds)</p></td>
+<td><p>Validate that the dataset has the required variables and dimensions.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.to_dataset">
+<span class="sig-name descname"><span class="pre">to_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/datasets.html#ValidBboxesInputs.to_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.to_dataset" title="Link to this definition">#</a></dt>
+<dd><p>Convert validated bboxes inputs to a <code class="docutils literal notranslate"><span class="pre">movement</span> <span class="pre">bboxes</span></code> dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset containing the bounding boxes tracks,
+shapes, confidence scores and associated metadata.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.12.0)">xarray.Dataset</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.validate">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.validate" title="Link to this definition">#</a></dt>
+<dd><p>Validate that the dataset has the required variables and dimensions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ds</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.12.0)"><em>xarray.Dataset</em></a>) – Dataset to validate.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If the input is not an xarray Dataset.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the dataset is missing required data variables or dimensions
+    for a valid <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -765,11 +813,11 @@ Defaults to None.</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.validators.datasets.ValidPosesDataset.html"
+       href="movement.validators.datasets.ValidPosesInputs.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">ValidPosesDataset</p>
+        <p class="prev-next-title">ValidPosesInputs</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -792,14 +840,16 @@ Defaults to None.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesDataset"><code class="docutils literal notranslate"><span class="pre">ValidBboxesDataset</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesDataset.position_array"><code class="docutils literal notranslate"><span class="pre">ValidBboxesDataset.position_array</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesDataset.shape_array"><code class="docutils literal notranslate"><span class="pre">ValidBboxesDataset.shape_array</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesDataset.confidence_array"><code class="docutils literal notranslate"><span class="pre">ValidBboxesDataset.confidence_array</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesDataset.individual_names"><code class="docutils literal notranslate"><span class="pre">ValidBboxesDataset.individual_names</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesDataset.frame_array"><code class="docutils literal notranslate"><span class="pre">ValidBboxesDataset.frame_array</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesDataset.fps"><code class="docutils literal notranslate"><span class="pre">ValidBboxesDataset.fps</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesDataset.source_software"><code class="docutils literal notranslate"><span class="pre">ValidBboxesDataset.source_software</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesInputs"><code class="docutils literal notranslate"><span class="pre">ValidBboxesInputs</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesInputs.position_array"><code class="docutils literal notranslate"><span class="pre">ValidBboxesInputs.position_array</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesInputs.shape_array"><code class="docutils literal notranslate"><span class="pre">ValidBboxesInputs.shape_array</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesInputs.confidence_array"><code class="docutils literal notranslate"><span class="pre">ValidBboxesInputs.confidence_array</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesInputs.individual_names"><code class="docutils literal notranslate"><span class="pre">ValidBboxesInputs.individual_names</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesInputs.frame_array"><code class="docutils literal notranslate"><span class="pre">ValidBboxesInputs.frame_array</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesInputs.fps"><code class="docutils literal notranslate"><span class="pre">ValidBboxesInputs.fps</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesInputs.source_software"><code class="docutils literal notranslate"><span class="pre">ValidBboxesInputs.source_software</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesInputs.to_dataset"><code class="docutils literal notranslate"><span class="pre">ValidBboxesInputs.to_dataset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidBboxesInputs.validate"><code class="docutils literal notranslate"><span class="pre">ValidBboxesInputs.validate()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -809,7 +859,7 @@ Defaults to None.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/api/movement.validators.datasets.ValidBboxesDataset.rst.txt"
+      <li><a href="../_sources/api/movement.validators.datasets.ValidBboxesInputs.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

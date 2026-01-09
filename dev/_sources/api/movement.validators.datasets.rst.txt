@@ -14,9 +14,9 @@
     :toctree: .
     :nosignatures:
     
-    ValidBboxesDataset
+    ValidBboxesInputs
     
-    ValidPosesDataset
+    ValidPosesInputs
     
 
 
