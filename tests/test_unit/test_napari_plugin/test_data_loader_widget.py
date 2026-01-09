@@ -782,6 +782,20 @@ def test_deletion_all_layers(make_napari_viewer_proxy):
         viewer.layers.clear()
 
 
+def test_add_empty_shapes_layer(make_napari_viewer_proxy):
+    """Test adding an empty shapes layer doesn't cause an error.
+
+    This is a regression test for the case where max_frame_idx is -1
+    because the shapes layer has no data.
+    """
+    viewer = make_napari_viewer_proxy()
+    DataLoader(viewer)
+
+    # Add an empty shapes layer (like when creating a new ROI layer)
+    with does_not_raise():
+        viewer.add_shapes(name="ROIs")
+
+
 # ------------------- tests for layers style ----------------------------#
 @pytest.mark.parametrize(
     (
