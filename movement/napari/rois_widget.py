@@ -62,6 +62,7 @@ class RoisWidget(QWidget):
         )
         self.roi_table_model: RoisTableModel | None = None
         self.roi_table_view = RoisTableView(self)
+        self._connected_layers: set[Shapes] = set()  # Track connected layers
 
         self._setup_ui()
         self._connect_signals()
@@ -122,12 +123,26 @@ class RoisWidget(QWidget):
     def _connect_signals(self):
         """Connect layer events to update dropdown."""
         self.viewer.layers.events.inserted.connect(self._update_layer_dropdown)
-        self.viewer.layers.events.removed.connect(self._update_layer_dropdown)
+        self.viewer.layers.events.removed.connect(
+            self._on_layer_removed_from_viewer
+        )
 
         # Connect to name change events for all existing shapes layers
         for layer in self.viewer.layers:
             if isinstance(layer, Shapes):
-                layer.events.name.connect(self._update_layer_dropdown)
+                self._connect_layer_name_signal(layer)
+
+    def _connect_layer_name_signal(self, layer: Shapes) -> None:
+        """Connect to layer name change signal if not already connected."""
+        if layer not in self._connected_layers:
+            layer.events.name.connect(self._update_layer_dropdown)
+            self._connected_layers.add(layer)
+
+    def _disconnect_layer_name_signal(self, layer: Shapes) -> None:
+        """Disconnect from layer name change signal."""
+        if layer in self._connected_layers:
+            layer.events.name.disconnect(self._update_layer_dropdown)
+            self._connected_layers.discard(layer)
 
     def _get_roi_layers(self) -> dict[str, Shapes]:
         """Get all ROIs layers (Shapes layers that start with 'ROI').
@@ -140,13 +155,21 @@ class RoisWidget(QWidget):
             if isinstance(layer, Shapes) and layer.name.startswith("ROI")
         }
 
+    def _on_layer_removed_from_viewer(self, event=None):
+        """Handle layer removal by disconnecting signals."""
+        if event is not None and hasattr(event, "value"):
+            layer = event.value
+            if isinstance(layer, Shapes):
+                self._disconnect_layer_name_signal(layer)
+        self._update_layer_dropdown(event)
+
     def _update_layer_dropdown(self, event=None):
         """Update the layer dropdown with current ROIs layers."""
         # Connect to name change events for any new Shapes layers
         if event is not None and hasattr(event, "value"):
             layer = event.value
             if isinstance(layer, Shapes):
-                layer.events.name.connect(self._update_layer_dropdown)
+                self._connect_layer_name_signal(layer)
 
         current_text = self.layer_dropdown.currentText()
         roi_layer_names = list(self._get_roi_layers().keys())
@@ -253,6 +276,25 @@ class RoisWidget(QWidget):
         self._disconnect_table_model_signals()
         self.roi_table_model = None
         self.roi_table_view.setModel(None)
+
+    def closeEvent(self, event):
+        """Clean up signal connections when widget is closed."""
+        # Disconnect all layer name signals
+        for layer in list(self._connected_layers):
+            self._disconnect_layer_name_signal(layer)
+
+        # Disconnect viewer-level signals
+        self.viewer.layers.events.inserted.disconnect(
+            self._update_layer_dropdown
+        )
+        self.viewer.layers.events.removed.disconnect(
+            self._on_layer_removed_from_viewer
+        )
+
+        # Clean up table model
+        self._clear_roi_table_model()
+
+        super().closeEvent(event)
 
 
 class RoisTableView(QTableView):
