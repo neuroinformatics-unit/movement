@@ -7,11 +7,9 @@ import pandas as pd
 from napari.layers import Points
 from napari.utils.colormaps import ensure_colormap
 from napari.viewer import Viewer
-from qtpy.QtCore import Qt
 from qtpy.QtGui import QColor
 from qtpy.QtWidgets import (
     QCheckBox,
-    QFormLayout,
     QHBoxLayout,
     QLabel,
     QListWidget,
@@ -36,6 +34,7 @@ class LegendWidget(QWidget):
             The napari viewer instance.
         parent : QWidget, optional
             Parent widget, by default None
+
         """
         super().__init__(parent=parent)
         self.viewer = napari_viewer
@@ -98,9 +97,11 @@ class LegendWidget(QWidget):
     def _on_layer_change(self, event=None):
         """Handle layer change events."""
         if self.auto_update_checkbox.isChecked():
-            # Use QTimer to delay update slightly, allowing layer to fully initialize
+            # Use QTimer to delay update slightly,
+            # allowing layer to fully initialize
             try:
                 from qtpy.QtCore import QTimer
+
                 # Single-shot timer with 100ms delay
                 QTimer.singleShot(100, self._update_legend)
             except Exception:
@@ -114,38 +115,42 @@ class LegendWidget(QWidget):
         """Find all Points layers that appear to be from movement.
 
         Parameters
-        -------
+        ----------
         list of Points
             List of Points layers that likely contain movement data.
+
         """
         movement_layers = []
         for layer in self.viewer.layers:
-            if isinstance(layer, Points):
-                # Check if layer has properties that suggest movement data
-                if hasattr(layer, "properties") and layer.properties is not None:
-                    props = layer.properties
-                    # Napari stores properties as dict (keys are property names)
-                    # Check for movement-specific properties
-                    if isinstance(props, dict):
-                        # Properties is a dict
-                        if (
-                            "individual" in props
-                            or "keypoint" in props
-                            or "confidence" in props
-                        ):
-                            movement_layers.append(layer)
-                    elif isinstance(props, pd.DataFrame):
-                        # Properties is a DataFrame (shouldn't happen in napari, but handle it)
-                        if (
-                            "individual" in props.columns
-                            or "keypoint" in props.columns
-                            or "confidence" in props.columns
-                        ):
-                            movement_layers.append(layer)
+            if isinstance(layer, Points) and (
+                hasattr(layer, "properties") and layer.properties is not None
+            ):
+                props = layer.properties
+                # Napari stores properties as dict (keys are property names)
+                # Check for movement-specific properties
+                if (
+                    isinstance(props, dict)
+                    and (
+                        "individual" in props
+                        or "keypoint" in props
+                        or "confidence" in props
+                    )
+                    or isinstance(props, pd.DataFrame)
+                    and (
+                        # Properties is a DataFrame
+                        # (shouldn't happen in napari, but handle it)
+                        "individual" in props.columns
+                        or "keypoint" in props.columns
+                        or "confidence" in props.columns
+                    )
+                ):
+                    movement_layers.append(layer)
         return movement_layers
 
-    def _get_color_mapping_from_layer(self, layer: Points) -> dict[str, Any]:
-        """Extract color-to-keypoint/individual mapping from a napari Points layer.
+    def _get_color_mapping_from_layer(  # noqa: C901
+        self, layer: Points
+    ) -> dict[str, Any]:
+        """Extract color mapping from a napari Points layer.
 
         Parameters
         ----------
@@ -157,8 +162,9 @@ class LegendWidget(QWidget):
         dict
             Dictionary with keys:
             - "mapping": dict mapping keypoint/individual names to RGB tuples
-            - "property": str, the property used for coloring (e.g., "keypoint")
+            - "property": str, property used for coloring (e.g., "keypoint")
             - "colormap": str, the colormap name used
+
         """
         if not hasattr(layer, "properties") or layer.properties is None:
             return {}
@@ -175,7 +181,9 @@ class LegendWidget(QWidget):
             try:
                 properties_df = pd.DataFrame(properties)
             except Exception as e:
-                logger.debug(f"Error converting properties dict to DataFrame: {e}")
+                logger.debug(
+                    f"Error converting properties dict to DataFrame: {e}"
+                )
                 return {}
         elif isinstance(properties, pd.DataFrame):
             properties_df = properties
@@ -187,7 +195,7 @@ class LegendWidget(QWidget):
         # Determine what property is used for coloring
         color_property = None
         face_color = layer.face_color
-        
+
         # Check if face_color is a string (property name) or a colormap
         if isinstance(face_color, str):
             # Color by property name
@@ -196,26 +204,33 @@ class LegendWidget(QWidget):
             # Might be a colormap name, try to infer from properties
             elif face_color in ["turbo", "viridis", "plasma", "inferno"]:
                 # This is a colormap name, try to infer property
-                if "keypoint" in properties_df.columns and len(
-                    properties_df["keypoint"].unique()
-                ) > 1:
+                if (
+                    "keypoint" in properties_df.columns
+                    and len(properties_df["keypoint"].unique()) > 1
+                ):
                     color_property = "keypoint"
-                elif "individual" in properties_df.columns and len(
-                    properties_df["individual"].unique()
-                ) > 1:
+                elif (
+                    "individual" in properties_df.columns
+                    and len(properties_df["individual"].unique()) > 1
+                ):
                     color_property = "individual"
         else:
             # Single color or array - try to infer from properties
-            if "keypoint" in properties_df.columns and len(
-                properties_df["keypoint"].unique()
-            ) > 1:
+            if (
+                "keypoint" in properties_df.columns
+                and len(properties_df["keypoint"].unique()) > 1
+            ):
                 color_property = "keypoint"
-            elif "individual" in properties_df.columns and len(
-                properties_df["individual"].unique()
-            ) > 1:
+            elif (
+                "individual" in properties_df.columns
+                and len(properties_df["individual"].unique()) > 1
+            ):
                 color_property = "individual"
 
-        if color_property is None or color_property not in properties_df.columns:
+        if (
+            color_property is None
+            or color_property not in properties_df.columns
+        ):
             return {}
 
         # Get unique values (sorted for consistent ordering)
@@ -226,7 +241,7 @@ class LegendWidget(QWidget):
         from movement.napari.layer_styles import DEFAULT_COLORMAP
 
         colormap_name = DEFAULT_COLORMAP
-        
+
         # Try to get from layer's face_colormap
         if hasattr(layer, "face_colormap") and layer.face_colormap is not None:
             try:
@@ -237,12 +252,17 @@ class LegendWidget(QWidget):
                     colormap_name = colormap_obj.name
                 else:
                     # Try to get from layer metadata (if dict) or use default
-                    if hasattr(layer, "metadata") and isinstance(layer.metadata, dict):
-                        colormap_name = layer.metadata.get("colormap", DEFAULT_COLORMAP)
+                    if hasattr(layer, "metadata") and isinstance(
+                        layer.metadata, dict
+                    ):
+                        colormap_name = layer.metadata.get(
+                            "colormap", DEFAULT_COLORMAP
+                        )
             except Exception as e:
                 logger.debug(f"Could not get colormap from layer: {e}")
 
-        # Reconstruct color cycle using the same logic as PointsStyle.set_color_by()
+        # Reconstruct color cycle using same logic as
+        # PointsStyle.set_color_by()
         # This ensures consistency with how colors were originally assigned
         try:
             from movement.napari.layer_styles import _sample_colormap
@@ -252,13 +272,17 @@ class LegendWidget(QWidget):
             # Fallback: generate colors directly using the same approach
             try:
                 cmap = ensure_colormap(colormap_name)
-                samples = np.linspace(0, len(cmap.colors) - 1, n_colors).astype(int)
+                samples = np.linspace(
+                    0, len(cmap.colors) - 1, n_colors
+                ).astype(int)
                 color_cycle = [tuple(cmap.colors[i]) for i in samples]
             except Exception as e:
                 logger.debug(f"Could not generate color cycle: {e}")
                 # Last resort: use default colormap
                 cmap = ensure_colormap(DEFAULT_COLORMAP)
-                samples = np.linspace(0, len(cmap.colors) - 1, n_colors).astype(int)
+                samples = np.linspace(
+                    0, len(cmap.colors) - 1, n_colors
+                ).astype(int)
                 color_cycle = [tuple(cmap.colors[i]) for i in samples]
 
         # Create mapping (preserve order)
@@ -287,7 +311,8 @@ class LegendWidget(QWidget):
                 self.current_layer = None
                 return
 
-            # Use the first movement layer, or the currently selected one if it's a movement layer
+            # Use the first movement layer, or the currently selected one
+            # if it's a movement layer
             selected_layers = self.viewer.layers.selection
             selected_movement_layer = None
             if selected_layers:
@@ -325,7 +350,9 @@ class LegendWidget(QWidget):
 
                 # Set background color as a small square icon
                 # Convert color to QColor (handle both 0-1 and 0-255 ranges)
-                rgb = tuple(int(c * 255) if c <= 1.0 else int(c) for c in color[:3])
+                rgb = tuple(
+                    int(c * 255) if c <= 1.0 else int(c) for c in color[:3]
+                )
                 qcolor = QColor(*rgb)
 
                 # Create a colored icon/background
@@ -335,7 +362,11 @@ class LegendWidget(QWidget):
                 brightness = (
                     0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]
                 )  # Perceived brightness
-                text_color = QColor(255, 255, 255) if brightness < 128 else QColor(0, 0, 0)
+                text_color = (
+                    QColor(255, 255, 255)
+                    if brightness < 128
+                    else QColor(0, 0, 0)
+                )
                 item.setForeground(text_color)
 
                 # Add tooltip with RGB values
@@ -343,7 +374,10 @@ class LegendWidget(QWidget):
 
                 self.legend_list.addItem(item)
 
-            logger.debug(f"Updated legend with {len(mapping)} entries from layer {layer_to_use.name}")
+            logger.debug(
+                f"Updated legend with {len(mapping)} entries "
+                f"from layer {layer_to_use.name}"
+            )
         except Exception as e:
             logger.debug(f"Error updating legend: {e}")
             self.layer_label.setText(f"Error updating legend: {str(e)}")

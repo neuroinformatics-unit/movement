@@ -19,6 +19,7 @@ def test_meta_widget_instantiation(make_napari_viewer_proxy):
     second_widget = meta_widget.collapsible_widgets[1]
     assert second_widget._text == "Color legend"
 
-    # Check that loader and legend attributes are set (they are collapsible wrappers)
+    # Check that loader and legend attributes are set
+    # (they are collapsible wrappers)
     assert meta_widget.loader is not None
     assert meta_widget.legend is not None
