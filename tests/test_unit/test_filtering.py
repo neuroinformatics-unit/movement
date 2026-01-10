@@ -6,6 +6,7 @@ import xarray as xr
 from movement.filtering import (
     filter_by_confidence,
     interpolate_over_time,
+    kalman_filter,
     rolling_filter,
     savgol_filter,
 )
@@ -242,3 +243,157 @@ def test_filter_by_confidence_on_position(
     n_low_confidence_kpts = 5
     assert isinstance(position_filtered, xr.DataArray)
     assert n_nans == valid_input_dataset.sizes["space"] * n_low_confidence_kpts
+
+
+@pytest.mark.parametrize(
+    "valid_dataset",
+    list_all_valid_datasets,
+)
+class TestKalmanFilter:
+    """Test Kalman filter on valid datasets with/without NaNs."""
+
+    def test_kalman_filter_position_output(
+        self, valid_dataset, helpers, request
+    ):
+        """Test that Kalman filter returns position with correct shape."""
+        valid_input_dataset = request.getfixturevalue(valid_dataset)
+        position_filtered = kalman_filter(
+            valid_input_dataset.position,
+            process_noise=0.01,
+            measurement_noise=1.0,
+            output="position",
+        )
+        assert isinstance(position_filtered, xr.DataArray)
+        assert position_filtered.dims == valid_input_dataset.position.dims
+        assert position_filtered.sizes == valid_input_dataset.position.sizes
+        assert position_filtered.name == "position"
+
+    def test_kalman_filter_velocity_output(
+        self, valid_dataset, helpers, request
+    ):
+        """Test that Kalman filter returns velocity with correct shape."""
+        valid_input_dataset = request.getfixturevalue(valid_dataset)
+        velocity = kalman_filter(
+            valid_input_dataset.position,
+            process_noise=0.01,
+            measurement_noise=1.0,
+            output="velocity",
+        )
+        assert isinstance(velocity, xr.DataArray)
+        assert velocity.dims == valid_input_dataset.position.dims
+        assert velocity.sizes == valid_input_dataset.position.sizes
+        assert velocity.name == "velocity"
+
+    def test_kalman_filter_acceleration_output(
+        self, valid_dataset, helpers, request
+    ):
+        """Test that Kalman filter returns acceleration with correct shape."""
+        valid_input_dataset = request.getfixturevalue(valid_dataset)
+        acceleration = kalman_filter(
+            valid_input_dataset.position,
+            process_noise=0.01,
+            measurement_noise=1.0,
+            output="acceleration",
+        )
+        assert isinstance(acceleration, xr.DataArray)
+        assert acceleration.dims == valid_input_dataset.position.dims
+        assert acceleration.sizes == valid_input_dataset.position.sizes
+        assert acceleration.name == "acceleration"
+
+    def test_kalman_filter_all_output(self, valid_dataset, helpers, request):
+        """Test that Kalman filter returns all outputs as Dataset."""
+        valid_input_dataset = request.getfixturevalue(valid_dataset)
+        results = kalman_filter(
+            valid_input_dataset.position,
+            process_noise=0.01,
+            measurement_noise=1.0,
+            output="all",
+        )
+        assert isinstance(results, xr.Dataset)
+        assert "position" in results.data_vars
+        assert "velocity" in results.data_vars
+        assert "acceleration" in results.data_vars
+        assert results.position.dims == valid_input_dataset.position.dims
+        assert results.velocity.dims == valid_input_dataset.position.dims
+        assert results.acceleration.dims == valid_input_dataset.position.dims
+
+    def test_kalman_filter_with_dt(self, valid_dataset, helpers, request):
+        """Test that Kalman filter works with explicit dt."""
+        valid_input_dataset = request.getfixturevalue(valid_dataset)
+        position_filtered = kalman_filter(
+            valid_input_dataset.position,
+            dt=0.1,
+            process_noise=0.01,
+            measurement_noise=1.0,
+        )
+        assert isinstance(position_filtered, xr.DataArray)
+
+    def test_kalman_filter_with_fps(self, valid_dataset, helpers, request):
+        """Test that Kalman filter infers dt from fps attribute."""
+        valid_input_dataset = request.getfixturevalue(valid_dataset)
+        # Add fps attribute
+        valid_input_dataset.position.attrs["fps"] = 30.0
+        position_filtered = kalman_filter(
+            valid_input_dataset.position,
+            process_noise=0.01,
+            measurement_noise=1.0,
+        )
+        assert isinstance(position_filtered, xr.DataArray)
+
+    def test_kalman_filter_handles_nans(
+        self, valid_dataset, helpers, request
+    ):
+        """Test that Kalman filter handles NaN values correctly."""
+        valid_input_dataset = request.getfixturevalue(valid_dataset)
+        position_filtered = kalman_filter(
+            valid_input_dataset.position,
+            process_noise=0.01,
+            measurement_noise=1.0,
+            print_report=True,
+        )
+        # Kalman filter should bridge small gaps, so NaNs may decrease
+        # But we don't enforce a specific behavior, just that it doesn't crash
+        assert isinstance(position_filtered, xr.DataArray)
+
+    @pytest.mark.parametrize(
+        "output, expected_type",
+        [
+            ("position", xr.DataArray),
+            ("velocity", xr.DataArray),
+            ("acceleration", xr.DataArray),
+            ("all", xr.Dataset),
+        ],
+    )
+    def test_kalman_filter_output_types(
+        self, valid_dataset, output, expected_type, request
+    ):
+        """Test that Kalman filter returns correct output types."""
+        valid_input_dataset = request.getfixturevalue(valid_dataset)
+        result = kalman_filter(
+            valid_input_dataset.position,
+            process_noise=0.01,
+            measurement_noise=1.0,
+            output=output,
+        )
+        assert isinstance(result, expected_type)
+
+    def test_kalman_filter_invalid_output(self, valid_dataset, request):
+        """Test that Kalman filter raises error for invalid output."""
+        valid_input_dataset = request.getfixturevalue(valid_dataset)
+        with pytest.raises(ValueError, match="Invalid output"):
+            kalman_filter(
+                valid_input_dataset.position,
+                output="invalid",
+            )
+
+
+def test_kalman_filter_invalid_space_dims():
+    """Test that Kalman filter raises error for unsupported space dims."""
+    # Create a dataset with 1D space (not supported)
+    position_1d = xr.DataArray(
+        [[0.0], [1.0], [2.0]],
+        dims=["time", "space"],
+        coords={"time": [0, 1, 2], "space": ["x"]},
+    )
+    with pytest.raises(ValueError, match="2D or 3D space"):
+        kalman_filter(position_1d)

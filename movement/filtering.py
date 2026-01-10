@@ -2,12 +2,14 @@
 
 from typing import Any, Literal
 
+import numpy as np
 import xarray as xr
 from scipy import signal
 from xarray.core.types import InterpOptions
 
 from movement.utils.logging import log_to_attrs, logger
 from movement.utils.reports import report_nan_values
+from movement.validators.arrays import validate_dims_coords
 
 
 @log_to_attrs
@@ -273,3 +275,467 @@ def savgol_filter(
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_smoothed, "output"))
     return data_smoothed
+
+
+def _get_transition_matrix(dt: float, n_space: int) -> np.ndarray:
+    """Construct the transition matrix for constant acceleration model.
+
+    The state vector contains [pos_x, pos_y, vel_x, vel_y, acc_x, acc_y]
+    for 2D space, or [pos_x, pos_y, pos_z, vel_x, vel_y, vel_z, acc_x, acc_y, acc_z]
+    for 3D space.
+
+    Parameters
+    ----------
+    dt : float
+        Time step between measurements.
+    n_space : int
+        Number of spatial dimensions (2 or 3).
+
+    Returns
+    -------
+    numpy.ndarray
+        Transition matrix F of shape (n_state, n_state) where
+        n_state = 3 * n_space.
+    """
+    if n_space not in [2, 3]:
+        raise logger.error(
+            ValueError(f"n_space must be 2 or 3, got {n_space}.")
+        )
+
+    n_state = 3 * n_space
+    F = np.zeros((n_state, n_state))
+
+    # For each spatial dimension, set up the constant acceleration model:
+    # pos = old_pos + vel*dt + 0.5*acc*dt^2
+    # vel = old_vel + acc*dt
+    # acc = old_acc (constant)
+    for i in range(n_space):
+        base_idx = i
+        vel_idx = n_space + i
+        acc_idx = 2 * n_space + i
+
+        # Position update
+        F[base_idx, base_idx] = 1.0  # pos = pos
+        F[base_idx, vel_idx] = dt  # pos += vel*dt
+        F[base_idx, acc_idx] = 0.5 * dt**2  # pos += 0.5*acc*dt^2
+
+        # Velocity update
+        F[vel_idx, vel_idx] = 1.0  # vel = vel
+        F[vel_idx, acc_idx] = dt  # vel += acc*dt
+
+        # Acceleration update (constant)
+        F[acc_idx, acc_idx] = 1.0  # acc = acc
+
+    return F
+
+
+def _get_measurement_matrix(n_space: int) -> np.ndarray:
+    """Construct the measurement matrix H.
+
+    We only measure position (not velocity or acceleration directly).
+
+    Parameters
+    ----------
+    n_space : int
+        Number of spatial dimensions (2 or 3).
+
+    Returns
+    -------
+    numpy.ndarray
+        Measurement matrix H of shape (n_space, n_state) where
+        n_state = 3 * n_space.
+    """
+    if n_space not in [2, 3]:
+        raise logger.error(
+            ValueError(f"n_space must be 2 or 3, got {n_space}.")
+        )
+
+    n_state = 3 * n_space
+    H = np.zeros((n_space, n_state))
+
+    # We only measure position (first n_space elements of state vector)
+    for i in range(n_space):
+        H[i, i] = 1.0
+
+    return H
+
+
+def _kalman_filter_1d(
+    measurements: np.ndarray,
+    dt: float,
+    process_noise: float = 0.01,
+    measurement_noise: float = 1.0,
+    initial_covariance: float = 0.1,
+) -> np.ndarray:
+    """Apply Kalman filter to a single 1D track (time series).
+
+    This function processes a single trajectory along the time dimension.
+    The state vector includes position, velocity, and acceleration for each
+    spatial dimension.
+
+    Parameters
+    ----------
+    measurements : numpy.ndarray
+        Measurement array of shape (n_time, n_space) containing position
+        measurements. Missing values should be NaN.
+    dt : float
+        Time step between measurements. If measurements are equally spaced
+        in time, this should be the sampling interval. If not, this should
+        be the average time step.
+    process_noise : float
+        Process noise covariance (Q matrix scaling factor). Larger values
+        indicate more uncertainty in the dynamic model. Default is 0.01.
+    measurement_noise : float
+        Measurement noise covariance (R matrix scaling factor). Larger values
+        indicate noisier measurements. Default is 1.0.
+    initial_covariance : float
+        Initial state covariance scaling factor. Default is 0.1.
+
+    Returns
+    -------
+    numpy.ndarray
+        Smoothed state estimates of shape (n_time, n_state) where
+        n_state = 3 * n_space. The state vector contains [pos, vel, acc]
+        for each spatial dimension.
+
+    Notes
+    -----
+    This implementation uses a constant acceleration model. When measurements
+    are missing (NaN), the filter predicts forward without updating, allowing
+    it to bridge gaps in the data.
+
+    """
+    n_time, n_space = measurements.shape
+
+    if n_space not in [2, 3]:
+        raise ValueError(f"n_space must be 2 or 3, got {n_space}.")
+
+    n_state = 3 * n_space
+
+    # Initialize state: [pos, vel, acc] for each spatial dimension
+    # If first measurement is available, use it; otherwise start at zero
+    state = np.zeros(n_state)
+    if not np.isnan(measurements[0]).any():
+        state[:n_space] = measurements[0]
+
+    # Initialize covariance
+    covariance = np.eye(n_state) * initial_covariance
+
+    # Get transition and measurement matrices
+    F = _get_transition_matrix(dt, n_space)
+    H = _get_measurement_matrix(n_space)
+
+    # Noise matrices
+    Q = np.eye(n_state) * process_noise  # Process noise
+    R = np.eye(n_space) * measurement_noise  # Measurement noise
+
+    # Storage for smoothed states
+    smoothed_states = np.zeros((n_time, n_state))
+
+    for t in range(n_time):
+        # --- PREDICT STEP ---
+        state_pred = F @ state
+        cov_pred = F @ covariance @ F.T + Q
+
+        # --- UPDATE STEP ---
+        z = measurements[t]  # Current measurement
+
+        # Handle missing measurements (NaN)
+        if np.isnan(z).any():
+            # If measurement is missing, use prediction only
+            state = state_pred
+            covariance = cov_pred
+        else:
+            # Standard Kalman update
+            y = z - (H @ state_pred)  # Innovation (residual)
+            S = H @ cov_pred @ H.T + R  # Innovation covariance
+            K = cov_pred @ H.T @ np.linalg.inv(S)  # Kalman gain
+            state = state_pred + (K @ y)  # Updated state
+            covariance = (np.eye(n_state) - K @ H) @ cov_pred  # Updated covariance
+
+        smoothed_states[t] = state
+
+    return smoothed_states
+
+
+@log_to_attrs
+def kalman_filter(
+    data: xr.DataArray,
+    dt: float | None = None,
+    process_noise: float = 0.01,
+    measurement_noise: float = 1.0,
+    output: Literal["position", "velocity", "acceleration", "all"] = "position",
+    print_report: bool = False,
+) -> xr.DataArray | xr.Dataset:
+    """Smooth position data using a Kalman filter.
+
+    This function applies a Kalman filter with a constant acceleration model
+    to smooth position measurements over time. The filter estimates position,
+    velocity, and acceleration while accounting for measurement noise and
+    process uncertainty.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        Input position data with dimensions including ``time`` and ``space``.
+        Missing values should be NaN.
+    dt : float, optional
+        Time step between measurements. If ``None``, the function attempts to
+        infer it from the ``time`` coordinate. If the time coordinate is in
+        frames, ``dt=1.0`` is used. If the dataset has an ``fps`` attribute,
+        ``dt = 1.0 / fps`` is used. Default is ``None``.
+    process_noise : float
+        Process noise covariance scaling factor. Larger values indicate more
+        uncertainty in the dynamic model, leading to more responsive filtering
+        but potentially less smoothing. Default is 0.01.
+    measurement_noise : float
+        Measurement noise covariance scaling factor. Larger values indicate
+        noisier measurements, causing the filter to trust the model more than
+        the measurements. Default is 1.0.
+    output : {"position", "velocity", "acceleration", "all"}
+        Which outputs to return. If ``"all"``, returns a Dataset with
+        ``position``, ``velocity``, and ``acceleration`` DataArrays.
+        Default is ``"position"``.
+    print_report : bool
+        Whether to print a report on the number of NaNs in the dataset
+        before and after filtering. Default is ``False``.
+
+    Returns
+    -------
+    xarray.DataArray or xarray.Dataset
+        If ``output`` is ``"position"``, ``"velocity"``, or ``"acceleration"``,
+        returns a DataArray with the smoothed values.
+        If ``output`` is ``"all"``, returns a Dataset containing all three
+        DataArrays with dimensions matching the input (except ``time`` is
+        preserved).
+
+    Notes
+    -----
+    The Kalman filter uses a constant acceleration dynamic model. When
+    measurements are missing (NaN), the filter predicts forward based on the
+    current velocity and acceleration estimates, allowing it to bridge gaps
+    in the data.
+
+    The filter parameters (``process_noise`` and ``measurement_noise``) may
+    need to be tuned for your specific use case:
+    - For noisier measurements, increase ``measurement_noise``.
+    - For more variable motion, increase ``process_noise``.
+    - For smoother output, decrease ``process_noise`` and/or increase
+      ``measurement_noise``.
+
+    Examples
+    --------
+    >>> import movement
+    >>> from movement.filtering import kalman_filter
+    >>> ds = movement.sample_data.fetch_dataset("DLC_single-wasp.predictions.h5")
+    >>> # Smooth position data
+    >>> position_smooth = kalman_filter(
+    ...     ds.position,
+    ...     process_noise=0.01,
+    ...     measurement_noise=1.0
+    ... )
+    >>> # Get all outputs (position, velocity, acceleration)
+    >>> results = kalman_filter(ds.position, output="all")
+    >>> ds["position"] = results.position
+    >>> ds["velocity"] = results.velocity
+    >>> ds["acceleration"] = results.acceleration
+
+    References
+    ----------
+    For an intuitive introduction to Kalman filters, see
+    `KalmanFilter.net <https://kalmanfilter.net/>`_.
+
+    """
+    # Validate input dimensions
+    validate_dims_coords(data, {"time": [], "space": []})
+
+    # Determine time step
+    if dt is None:
+        if "fps" in data.attrs:
+            dt = 1.0 / data.attrs["fps"]
+        else:
+            # Try to infer from time coordinate
+            time_coords = data.coords["time"].values
+            if len(time_coords) > 1:
+                # Use median time step for robustness
+                dt = float(np.median(np.diff(time_coords)))
+            else:
+                dt = 1.0
+                logger.warning(
+                    "Could not infer time step from data. Using dt=1.0. "
+                    "Consider providing dt explicitly."
+                )
+
+    # Get spatial dimensions
+    n_space = data.sizes["space"]
+    if n_space not in [2, 3]:
+        raise logger.error(
+            ValueError(
+                f"Kalman filter currently supports 2D or 3D space only. "
+                f"Got {n_space} spatial dimensions."
+            )
+        )
+
+    # Optional: Print NaN report
+    if print_report:
+        print(report_nan_values(data, "input"))
+
+    # Define wrapper functions for extracting different outputs
+    # Capture n_space in closure
+    n_space_captured = n_space
+
+    def kalman_filter_position(measurements, dt, process_noise, measurement_noise):
+        """Apply Kalman filter and return position only."""
+        states = _kalman_filter_1d(
+            measurements,
+            dt,
+            process_noise,
+            measurement_noise,
+        )
+        return states[:, :n_space_captured]
+
+    def kalman_filter_velocity(measurements, dt, process_noise, measurement_noise):
+        """Apply Kalman filter and return velocity only."""
+        states = _kalman_filter_1d(
+            measurements,
+            dt,
+            process_noise,
+            measurement_noise,
+        )
+        return states[:, n_space_captured : 2 * n_space_captured]
+
+    def kalman_filter_acceleration(
+        measurements, dt, process_noise, measurement_noise
+    ):
+        """Apply Kalman filter and return acceleration only."""
+        states = _kalman_filter_1d(
+            measurements,
+            dt,
+            process_noise,
+            measurement_noise,
+        )
+        return states[:, 2 * n_space_captured : 3 * n_space_captured]
+
+    def kalman_filter_all(measurements, dt, process_noise, measurement_noise):
+        """Apply Kalman filter and return all states (for Dataset output)."""
+        return _kalman_filter_1d(
+            measurements,
+            dt,
+            process_noise,
+            measurement_noise,
+        )
+
+    # Apply Kalman filter based on desired output
+    filter_kwargs = {
+        "dt": dt,
+        "process_noise": process_noise,
+        "measurement_noise": measurement_noise,
+    }
+
+    # Preserve input dimension order
+    input_dims_order = list(data.dims)
+
+    if output == "position":
+        filtered = xr.apply_ufunc(
+            kalman_filter_position,
+            data,
+            input_core_dims=[["time", "space"]],
+            output_core_dims=[["time", "space"]],
+            vectorize=True,
+            dask="allowed",
+            kwargs=filter_kwargs,
+        )
+        # Restore dimension order to match input
+        filtered = filtered.transpose(*input_dims_order)
+        filtered.name = "position"
+        result = filtered
+    elif output == "velocity":
+        filtered = xr.apply_ufunc(
+            kalman_filter_velocity,
+            data,
+            input_core_dims=[["time", "space"]],
+            output_core_dims=[["time", "space"]],
+            vectorize=True,
+            dask="allowed",
+            kwargs=filter_kwargs,
+        )
+        # Restore dimension order to match input
+        filtered = filtered.transpose(*input_dims_order)
+        filtered.name = "velocity"
+        result = filtered
+    elif output == "acceleration":
+        filtered = xr.apply_ufunc(
+            kalman_filter_acceleration,
+            data,
+            input_core_dims=[["time", "space"]],
+            output_core_dims=[["time", "space"]],
+            vectorize=True,
+            dask="allowed",
+            kwargs=filter_kwargs,
+        )
+        # Restore dimension order to match input
+        filtered = filtered.transpose(*input_dims_order)
+        filtered.name = "acceleration"
+        result = filtered
+    elif output == "all":
+        # For "all" output, we need to get all states and split them
+        filtered_states = xr.apply_ufunc(
+            kalman_filter_all,
+            data,
+            input_core_dims=[["time", "space"]],
+            output_core_dims=[["time", "state"]],
+            vectorize=True,
+            dask="allowed",
+            kwargs=filter_kwargs,
+        )
+
+        # Extract position, velocity, acceleration from state vector
+        # State vector structure: [pos_0, pos_1, ..., vel_0, vel_1, ..., acc_0, acc_1, ...]
+        position = filtered_states.isel(state=slice(0, n_space))
+        position = position.rename({"state": "space"})
+        position.name = "position"
+
+        velocity = filtered_states.isel(state=slice(n_space, 2 * n_space))
+        velocity = velocity.rename({"state": "space"})
+        velocity.name = "velocity"
+
+        acceleration = filtered_states.isel(state=slice(2 * n_space, 3 * n_space))
+        acceleration = acceleration.rename({"state": "space"})
+        acceleration.name = "acceleration"
+
+        # Ensure correct dimension order: restore original order from input
+        dims_order = list(data.dims)
+        # Transpose to match input dimension order
+        position = position.transpose(*dims_order)
+        velocity = velocity.transpose(*dims_order)
+        acceleration = acceleration.transpose(*dims_order)
+
+        # Copy coordinates to ensure consistency
+        for var in [position, velocity, acceleration]:
+            for dim in dims_order:
+                if dim in data.coords:
+                    var.coords[dim] = data.coords[dim]
+
+        result = xr.Dataset(
+            {
+                "position": position,
+                "velocity": velocity,
+                "acceleration": acceleration,
+            }
+        )
+    else:
+        raise logger.error(
+            ValueError(
+                f"Invalid output '{output}'. "
+                f"Must be one of 'position', 'velocity', 'acceleration', 'all'."
+            )
+        )
+
+    # Optional: Print NaN report
+    if print_report:
+        if isinstance(result, xr.Dataset):
+            print(report_nan_values(result.position, "output (position)"))
+        else:
+            print(report_nan_values(result, "output"))
+
+    return result
