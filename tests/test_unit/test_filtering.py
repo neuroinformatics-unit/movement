@@ -340,9 +340,7 @@ class TestKalmanFilter:
         )
         assert isinstance(position_filtered, xr.DataArray)
 
-    def test_kalman_filter_handles_nans(
-        self, valid_dataset, helpers, request
-    ):
+    def test_kalman_filter_handles_nans(self, valid_dataset, helpers, request):
         """Test that Kalman filter handles NaN values correctly."""
         valid_input_dataset = request.getfixturevalue(valid_dataset)
         position_filtered = kalman_filter(

@@ -2,7 +2,8 @@
 ===========================================
 
 Smooth pose tracks using a Kalman filter to estimate position, velocity,
-and acceleration while accounting for measurement noise and process uncertainty.
+and acceleration while accounting for measurement noise and process
+uncertainty.
 """
 
 # %%
@@ -23,11 +24,7 @@ from movement.filtering import interpolate_over_time, kalman_filter
 ds_wasp = sample_data.fetch_dataset("DLC_single-wasp.predictions.h5")
 print(ds_wasp)
 
-# %%
-# We see that the dataset contains the 2D pose tracks and confidence scores
-# for a single wasp, generated with DeepLabCut. The wasp is tracked at two
-# keypoints: "head" and "stinger" in a video that was recorded at 40 fps and
-# lasts for approximately 27 seconds.
+
 
 # %%
 # Apply Kalman filter to smooth position data
@@ -36,8 +33,8 @@ print(ds_wasp)
 # measurements. It estimates position, velocity, and acceleration while
 # accounting for measurement noise and process uncertainty.
 #
-# Let's apply the Kalman filter with default parameters to smooth the
-# position data:
+# Apply the Kalman filter with default parameters to smooth the
+# position data:)
 
 position_smooth = kalman_filter(
     ds_wasp.position,
@@ -49,7 +46,7 @@ position_smooth = kalman_filter(
 
 # %%
 # The Kalman filter has smoothed the position data. Let's compare the raw
-# and smoothed trajectories for the stinger keypoint:
+# and smoothed trajectories for the stinger keypoint:)
 
 keypoint = "stinger"
 time_range = slice(0, 5)  # First 5 seconds
@@ -65,8 +62,12 @@ for color, label, position_data in zip(
     pos_x = position_data.sel(keypoints=keypoint, space="x", time=time_range)
     pos_y = position_data.sel(keypoints=keypoint, space="y", time=time_range)
 
-    ax[0].plot(pos_x.time, pos_x, color=color, lw=2, alpha=0.7, label=f"{label} x")
-    ax[1].plot(pos_y.time, pos_y, color=color, lw=2, alpha=0.7, label=f"{label} y")
+    ax[0].plot(
+        pos_x.time, pos_x, color=color, lw=2, alpha=0.7, label=f"{label} x"
+    )
+    ax[1].plot(
+        pos_y.time, pos_y, color=color, lw=2, alpha=0.7, label=f"{label} y"
+    )
 
 ax[0].set_xlabel("Time (s)")
 ax[0].set_ylabel("X position (pixels)")
@@ -112,7 +113,7 @@ for i, (var_name, var_data) in enumerate(
         ("Acceleration", results.acceleration),
     ]
 ):
-    for j, (coord, space) in enumerate([("X", "x"), ("Y", "y")]):
+    for _j, (coord, space) in enumerate([("X", "x"), ("Y", "y")]):
         data = var_data.sel(keypoints=keypoint, space=space, time=time_range)
         ax[i].plot(
             data.time,
@@ -156,7 +157,9 @@ for color, label, position_data in zip(
     pos_interp = interpolate_over_time(pos, fill_value="extrapolate")
 
     # Compute and plot the PSD
-    freq, psd = welch(pos_interp, fs=ds_wasp.fps, nperseg=256)
+    # Convert to 1D numpy array for welch function
+    # (squeeze any extra dimensions)
+    freq, psd = welch(pos_interp.values.squeeze(), fs=ds_wasp.fps, nperseg=256)
     ax[0].semilogy(
         freq,
         psd,
@@ -209,8 +212,10 @@ time_range = slice(0, 5)
 
 fig, ax = plt.subplots(1, 1, figsize=(10, 6))
 
-# Raw data
-pos_raw = ds_wasp.position.sel(keypoints=keypoint, space=space, time=time_range)
+# Raw data - select for plotting only
+pos_raw = ds_wasp.position.sel(
+    keypoints=keypoint, space=space, time=time_range
+)
 ax.plot(pos_raw.time, pos_raw, "k-", lw=2, alpha=0.3, label="raw", zorder=1)
 
 # Different parameter combinations
@@ -227,12 +232,15 @@ colors = ["r", "b", "g", "orange", "purple"]
 for (proc_noise, meas_noise, label), color in zip(
     param_combinations, colors, strict=False
 ):
-    pos_smooth = kalman_filter(
-        ds_wasp.position.sel(keypoints=keypoint, space=space, time=time_range),
+    # Filter the full position data (keeping space dimension)
+    # then select the specific keypoint and space for plotting
+    position_filtered = kalman_filter(
+        ds_wasp.position.sel(keypoints=keypoint, time=time_range),
         process_noise=proc_noise,
         measurement_noise=meas_noise,
         output="position",
     )
+    pos_smooth = position_filtered.sel(space=space)
     ax.plot(
         pos_smooth.time,
         pos_smooth,

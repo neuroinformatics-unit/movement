@@ -281,8 +281,8 @@ def _get_transition_matrix(dt: float, n_space: int) -> np.ndarray:
     """Construct the transition matrix for constant acceleration model.
 
     The state vector contains [pos_x, pos_y, vel_x, vel_y, acc_x, acc_y]
-    for 2D space, or [pos_x, pos_y, pos_z, vel_x, vel_y, vel_z, acc_x, acc_y, acc_z]
-    for 3D space.
+    for 2D space, or [pos_x, pos_y, pos_z, vel_x, vel_y, vel_z, acc_x,
+    acc_y, acc_z] for 3D space.
 
     Parameters
     ----------
@@ -296,6 +296,7 @@ def _get_transition_matrix(dt: float, n_space: int) -> np.ndarray:
     numpy.ndarray
         Transition matrix F of shape (n_state, n_state) where
         n_state = 3 * n_space.
+
     """
     if n_space not in [2, 3]:
         raise logger.error(
@@ -344,6 +345,7 @@ def _get_measurement_matrix(n_space: int) -> np.ndarray:
     numpy.ndarray
         Measurement matrix H of shape (n_space, n_state) where
         n_state = 3 * n_space.
+
     """
     if n_space not in [2, 3]:
         raise logger.error(
@@ -451,7 +453,9 @@ def _kalman_filter_1d(
             S = H @ cov_pred @ H.T + R  # Innovation covariance
             K = cov_pred @ H.T @ np.linalg.inv(S)  # Kalman gain
             state = state_pred + (K @ y)  # Updated state
-            covariance = (np.eye(n_state) - K @ H) @ cov_pred  # Updated covariance
+            covariance = (
+                np.eye(n_state) - K @ H
+            ) @ cov_pred  # Updated covariance
 
         smoothed_states[t] = state
 
@@ -459,12 +463,14 @@ def _kalman_filter_1d(
 
 
 @log_to_attrs
-def kalman_filter(
+def kalman_filter(  # noqa: C901
     data: xr.DataArray,
     dt: float | None = None,
     process_noise: float = 0.01,
     measurement_noise: float = 1.0,
-    output: Literal["position", "velocity", "acceleration", "all"] = "position",
+    output: Literal[
+        "position", "velocity", "acceleration", "all"
+    ] = "position",
     print_report: bool = False,
 ) -> xr.DataArray | xr.Dataset:
     """Smooth position data using a Kalman filter.
@@ -527,12 +533,12 @@ def kalman_filter(
     --------
     >>> import movement
     >>> from movement.filtering import kalman_filter
-    >>> ds = movement.sample_data.fetch_dataset("DLC_single-wasp.predictions.h5")
+    >>> ds = movement.sample_data.fetch_dataset(
+    ...     "DLC_single-wasp.predictions.h5"
+    ... )
     >>> # Smooth position data
     >>> position_smooth = kalman_filter(
-    ...     ds.position,
-    ...     process_noise=0.01,
-    ...     measurement_noise=1.0
+    ...     ds.position, process_noise=0.01, measurement_noise=1.0
     ... )
     >>> # Get all outputs (position, velocity, acceleration)
     >>> results = kalman_filter(ds.position, output="all")
@@ -584,7 +590,9 @@ def kalman_filter(
     # Capture n_space in closure
     n_space_captured = n_space
 
-    def kalman_filter_position(measurements, dt, process_noise, measurement_noise):
+    def kalman_filter_position(
+        measurements, dt, process_noise, measurement_noise
+    ):
         """Apply Kalman filter and return position only."""
         states = _kalman_filter_1d(
             measurements,
@@ -594,7 +602,9 @@ def kalman_filter(
         )
         return states[:, :n_space_captured]
 
-    def kalman_filter_velocity(measurements, dt, process_noise, measurement_noise):
+    def kalman_filter_velocity(
+        measurements, dt, process_noise, measurement_noise
+    ):
         """Apply Kalman filter and return velocity only."""
         states = _kalman_filter_1d(
             measurements,
@@ -690,7 +700,8 @@ def kalman_filter(
         )
 
         # Extract position, velocity, acceleration from state vector
-        # State vector structure: [pos_0, pos_1, ..., vel_0, vel_1, ..., acc_0, acc_1, ...]
+        # State vector: [pos_0, pos_1, ..., vel_0, vel_1, ...,
+        # acc_0, acc_1, ...]
         position = filtered_states.isel(state=slice(0, n_space))
         position = position.rename({"state": "space"})
         position.name = "position"
@@ -699,7 +710,9 @@ def kalman_filter(
         velocity = velocity.rename({"state": "space"})
         velocity.name = "velocity"
 
-        acceleration = filtered_states.isel(state=slice(2 * n_space, 3 * n_space))
+        acceleration = filtered_states.isel(
+            state=slice(2 * n_space, 3 * n_space)
+        )
         acceleration = acceleration.rename({"state": "space"})
         acceleration.name = "acceleration"
 
@@ -727,7 +740,8 @@ def kalman_filter(
         raise logger.error(
             ValueError(
                 f"Invalid output '{output}'. "
-                f"Must be one of 'position', 'velocity', 'acceleration', 'all'."
+                f"Must be one of 'position', 'velocity', "
+                f"'acceleration', 'all'."
             )
         )
 
