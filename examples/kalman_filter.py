@@ -25,7 +25,6 @@ ds_wasp = sample_data.fetch_dataset("DLC_single-wasp.predictions.h5")
 print(ds_wasp)
 
 
-
 # %%
 # Apply Kalman filter to smooth position data
 # --------------------------------------------
