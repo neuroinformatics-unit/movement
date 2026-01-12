@@ -3,13 +3,17 @@
 from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
-from typing import Literal, Protocol, cast
+from typing import Concatenate, Literal, ParamSpec, Protocol, TypeVar, cast
 
+import attrs
 import pynwb
 import xarray as xr
 
 from movement.utils.logging import logger
 from movement.validators.files import ValidFile
+
+TInputFile = TypeVar("TInputFile", Path, str, pynwb.file.NWBFile)
+P = ParamSpec("P")
 
 
 class LoaderProtocol(Protocol):
@@ -38,29 +42,42 @@ class LoaderProtocol(Protocol):
         ...
 
 
-_REGISTRY: dict[str, LoaderProtocol] = {}
+_LOADER_REGISTRY: dict[str, LoaderProtocol] = {}
+
+
+def _get_validator_kwargs(
+    validator_cls: type[ValidFile],
+    *,
+    loader_kwargs: dict,
+) -> dict:
+    """Extract the relevant kwargs for a given validator class."""
+    # Only extract fields that are used in the validator's __init__
+    validator_fields = {
+        field.name for field in attrs.fields(validator_cls) if field.init
+    }
+    return {
+        field_name: loader_kwargs[field_name]
+        for field_name in validator_fields
+        if field_name in loader_kwargs
+    }
 
 
 def register_loader(
     source_software: str,
     *,
-    expected_suffix: list[str],
-    expected_permission: Literal["r", "w", "rw"] = "r",
-) -> Callable[[LoaderProtocol], LoaderProtocol]:
+    file_validators: type[ValidFile] | list[type[ValidFile]] | None = None,
+) -> Callable[
+    [Callable[Concatenate[ValidFile, P], xr.Dataset]],
+    Callable[Concatenate[TInputFile, P], xr.Dataset],
+]:
     """Register a loader function for a given source software.
 
     Parameters
     ----------
     source_software
         The name of the source software.
-    expected_suffix
-        Expected suffix(es) for the file. If an empty list (default), this
-        check is skipped.
-    expected_permission
-        Expected access permission(s) for the file. If "r", the file is
-        expected to be readable. If "w", the file is expected to be writable.
-        If "rw", the file is expected to be both readable and writable.
-        Default: "r".
+    file_validators
+        File validator(s) to validate the input file path and content.
 
     Returns
     -------
@@ -70,27 +87,60 @@ def register_loader(
     Examples
     --------
     >>> from movement.io.load import register_loader
-    >>> @register_loader("DeepLabCut", expected_suffix=[".h5", ".csv"])
-    ... def from_dlc_file(file_path: str, fps=None, **kwargs):
+    >>> from movement.validators.files import (
+    ...     ValidDeepLabCutH5,
+    ...     ValidDeepLabCutCSV,
+    ... )
+    >>> @register_loader(
+    ...     "DeepLabCut",
+    ...     file_validators=[ValidDeepLabCutH5, ValidDeepLabCutCSV],
+    ... )
+    ... def from_dlc_file(file: str, fps=None, **kwargs):
     ...     pass
 
     """
+    validators_list: list[type[ValidFile]] = (
+        [file_validators]
+        if file_validators is not None
+        and not isinstance(file_validators, list)
+        else file_validators or []
+    )
+    # Map suffixes to file validator classes
+    suffix_map: dict[str, type[ValidFile]] = {}
+    for validator_cls in validators_list:
+        for suffix in getattr(validator_cls, "suffixes", set()):
+            suffix_map[suffix] = validator_cls
 
-    def decorator(loader_fn: LoaderProtocol) -> LoaderProtocol:
+    def decorator(
+        loader_fn: Callable[Concatenate[ValidFile, P], xr.Dataset],
+    ) -> Callable[Concatenate[TInputFile, P], xr.Dataset]:
         @wraps(loader_fn)
-        def wrapper(
-            file_path: Path | str | pynwb.file.NWBFile, *args, **kwargs
-        ) -> xr.Dataset:
-            if isinstance(file_path, (str, Path)):
-                file_path = ValidFile(
-                    file_path,
-                    expected_suffix=expected_suffix,
-                    expected_permission=expected_permission,
-                ).path
-            return loader_fn(file_path, *args, **kwargs)
+        def wrapper(file: TInputFile, *args, **kwargs) -> xr.Dataset:
+            if isinstance(file, pynwb.file.NWBFile):
+                file_suffix = ".nwb"
+            else:
+                file_suffix = Path(file).suffix
+            validator_cls = suffix_map.get(file_suffix)
+            if validator_cls is None:
+                raise logger.error(
+                    ValueError(
+                        f"Unsupported format for '{source_software}': ",
+                        f"{file_suffix}.",
+                    )
+                )
+            validator_kwargs = _get_validator_kwargs(
+                validator_cls, loader_kwargs=kwargs
+            )
+            # Validate the file
+            valid_file = validator_cls(
+                file=file,
+                **validator_kwargs,  # type: ignore[call-arg]
+            )
+            return loader_fn(valid_file, *args, **kwargs)
 
-        _REGISTRY[source_software] = cast(LoaderProtocol, wrapper)
-        return cast(LoaderProtocol, wrapper)
+        # Register the loader in the global registry
+        _LOADER_REGISTRY[source_software] = cast("LoaderProtocol", wrapper)
+        return wrapper
 
     return decorator
 
@@ -157,7 +207,7 @@ def from_file(
     ... )
 
     """
-    if source_software not in _REGISTRY:
+    if source_software not in _LOADER_REGISTRY:
         raise logger.error(
             ValueError(f"Unsupported source software: {source_software}")
         )
@@ -168,8 +218,8 @@ def from_file(
                 "The frame rate will be directly read or estimated from "
                 "metadata in the file."
             )
-        return _REGISTRY[source_software](file, **kwargs)
-    return _REGISTRY[source_software](file, fps, **kwargs)
+        return _LOADER_REGISTRY[source_software](file, **kwargs)
+    return _LOADER_REGISTRY[source_software](file, fps, **kwargs)
 
 
 def from_multiview_files(

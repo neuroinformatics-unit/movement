@@ -16,7 +16,7 @@ from movement.io.nwb import (
 )
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
-from movement.validators.files import _validate_file_path
+from movement.validators.files import validate_file_path
 
 
 def _ds_to_dlc_style_df(
@@ -203,7 +203,9 @@ def to_dlc_file(
     >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
 
     """  # noqa: D301
-    file = _validate_file_path(file_path, expected_suffix=[".csv", ".h5"])
+    valid_path = validate_file_path(
+        file_path, permission="w", suffixes={".csv", ".h5"}
+    )
 
     # Sets default behaviour for the function
     if split_individuals == "auto":
@@ -223,16 +225,16 @@ def to_dlc_file(
 
         for key, df in df_dict.items():
             # the key is the individual's name
-            filepath = f"{file.path.with_suffix('')}_{key}{file.path.suffix}"
+            filepath = f"{valid_path.with_suffix('')}_{key}{valid_path.suffix}"
             if isinstance(df, pd.DataFrame):
                 _save_dlc_df(Path(filepath), df)
-            logger.info(f"Saved poses for individual {key} to {file.path}.")
+            logger.info(f"Saved poses for individual {key} to {valid_path}.")
     else:
         # convert the dataset to a single dataframe for all individuals
         df_all = to_dlc_style_df(ds, split_individuals=False)
         if isinstance(df_all, pd.DataFrame):
-            _save_dlc_df(file.path, df_all)
-        logger.info(f"Saved poses dataset to {file.path}.")
+            _save_dlc_df(valid_path, df_all)
+        logger.info(f"Saved poses dataset to {valid_path}.")
 
 
 def to_lp_file(
@@ -264,9 +266,11 @@ def to_lp_file(
     to_dlc_file : Save dataset to a DeepLabCut-style .h5 or .csv file.
 
     """
-    file = _validate_file_path(file_path=file_path, expected_suffix=[".csv"])
+    valid_path = validate_file_path(
+        file_path, permission="w", suffixes={".csv"}
+    )
     ValidPosesInputs.validate(ds)
-    to_dlc_file(ds, file.path, split_individuals=True)
+    to_dlc_file(ds, valid_path, split_individuals=True)
 
 
 def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
@@ -308,11 +312,11 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     ... )
 
     """
-    file = _validate_file_path(file_path=file_path, expected_suffix=[".h5"])
+    valid_path = validate_file_path(
+        file_path, permission="w", suffixes={".h5"}
+    )
     ValidPosesInputs.validate(ds)
-
     ds = _remove_unoccupied_tracks(ds)
-
     # Target shapes:
     # "track_occupancy"     n_frames * n_individuals
     # "tracks"              n_individuals * n_space * n_keypoints * n_frames
@@ -359,7 +363,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
         video_ind=0,
         provenance="{}",
     )
-    with h5py.File(file.path, "w") as f:
+    with h5py.File(valid_path, "w") as f:
         for key, val in data_dict.items():
             if isinstance(val, np.ndarray):
                 f.create_dataset(
@@ -370,7 +374,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
                 )
             else:
                 f.create_dataset(key, data=val)
-    logger.info(f"Saved poses dataset to {file.path}.")
+    logger.info(f"Saved poses dataset to {valid_path}.")
 
 
 def to_nwb_file(
