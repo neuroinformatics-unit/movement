@@ -354,7 +354,7 @@ class RoisWidget(QWidget):
         )
         if needs_update:
             # Let _update_roi_names logic take care of assigning names
-            names = self._update_roi_names(names)
+            names = _update_roi_names(names)
 
         roi_layer.properties = {"name": names}
 
@@ -650,7 +650,7 @@ class RoisTableModel(QAbstractTableModel):
 
             # Update names for added shapes to ensure uniqueness
             updated_names = (
-                self._update_roi_names(current_names)
+                _update_roi_names(current_names)
                 if event.action == "added"
                 else current_names
             )
@@ -680,58 +680,59 @@ class RoisTableModel(QAbstractTableModel):
             self.beginResetModel()
             self.endResetModel()
 
-    def _update_roi_names(self, existing_names: list) -> list:
-        """Update the names of existing ROIs.
 
-        Auto-assigns names only to shapes with empty/None names, or
-        duplicate "ROI-<number>" pattern names. User-assigned names
-        (anything that doesn't follow the ROI-<number> pattern) are
-        always preserved, even if duplicated.
+def _update_roi_names(existing_names: list) -> list:
+    """Update the names of existing ROIs.
 
-        Parameters
-        ----------
-        existing_names : list
-            Current list of ROI names.
+    Auto-assigns names only to shapes with empty/None names, or
+    duplicate "ROI-<number>" pattern names. User-assigned names
+    (anything that doesn't follow the ROI-<number> pattern) are
+    always preserved, even if duplicated.
 
-        Returns
-        -------
-        list
-            Updated list with auto-assigned names where needed.
+    Parameters
+    ----------
+    existing_names : list
+        Current list of ROI names.
 
-        """
-        updated_names = existing_names.copy()
+    Returns
+    -------
+    list
+        Updated list with auto-assigned names where needed.
 
-        # Find max number from existing ROI-<number> names
-        auto_numbers = []
-        for name in existing_names:
-            if isinstance(name, str) and name.startswith("ROI-"):
-                # Try parsing as ROI-<number>; ignore non-numeric suffixes
-                # (e.g., "ROI-center" is a user name, not auto-assigned)
-                with suppress(ValueError):
-                    auto_numbers.append(int(name.split("-")[-1]))
-        max_number = max(auto_numbers) if auto_numbers else 0
+    """
+    updated_names = existing_names.copy()
 
-        # Track which ROI-<number> names we've seen (to detect duplicates)
-        seen_roi_names = {}  # name -> first_index
+    # Find max number from existing ROI-<number> names
+    auto_numbers = []
+    for name in existing_names:
+        if isinstance(name, str) and name.startswith("ROI-"):
+            # Try parsing as ROI-<number>; ignore non-numeric suffixes
+            # (e.g., "ROI-center" is a user name, not auto-assigned)
+            with suppress(ValueError):
+                auto_numbers.append(int(name.split("-")[-1]))
+    max_number = max(auto_numbers) if auto_numbers else 0
 
-        for i, name in enumerate(updated_names):
-            needs_new_name = False
+    # Track which ROI-<number> names we've seen (to detect duplicates)
+    seen_roi_names = {}  # name -> first_index
 
-            if not isinstance(name, str) or not name.strip():
-                # Empty/None → auto-assign
-                needs_new_name = True
-            elif name.startswith("ROI-"):
-                # ROI-<number> pattern: check for duplicates
-                if name in seen_roi_names:
-                    needs_new_name = True  # Duplicate ROI-<number>
-                else:
-                    seen_roi_names[name] = i
-            # else: user-assigned name like "center zone" → keep as-is
+    for i, name in enumerate(updated_names):
+        needs_new_name = False
 
-            if needs_new_name:
-                max_number += 1
-                new_name = f"ROI-{max_number}"
-                updated_names[i] = new_name
-                seen_roi_names[new_name] = i
+        if not isinstance(name, str) or not name.strip():
+            # Empty/None → auto-assign
+            needs_new_name = True
+        elif name.startswith("ROI-"):
+            # ROI-<number> pattern: check for duplicates
+            if name in seen_roi_names:
+                needs_new_name = True  # Duplicate ROI-<number>
+            else:
+                seen_roi_names[name] = i
+        # else: user-assigned name like "center zone" → keep as-is
 
-        return updated_names
+        if needs_new_name:
+            max_number += 1
+            new_name = f"ROI-{max_number}"
+            updated_names[i] = new_name
+            seen_roi_names[new_name] = i
+
+    return updated_names
