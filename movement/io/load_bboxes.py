@@ -13,7 +13,11 @@ import xarray as xr
 from movement.io.load import register_loader
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs
-from movement.validators.files import DEFAULT_FRAME_REGEXP, ValidVIATracksCSV
+from movement.validators.files import (
+    DEFAULT_FRAME_REGEXP,
+    ValidFile,
+    ValidVIATracksCSV,
+)
 
 
 def from_numpy(
@@ -229,9 +233,9 @@ def from_file(
         )
 
 
-@register_loader("VIA-tracks", expected_suffix=[".csv"])
+@register_loader("VIA-tracks", file_validators=[ValidVIATracksCSV])
 def from_via_tracks_file(
-    file: Path | str,
+    file: ValidFile,
     fps: float | None = None,
     use_frame_numbers_from_file: bool = False,
     frame_regexp: str = DEFAULT_FRAME_REGEXP,
@@ -331,15 +335,12 @@ def from_via_tracks_file(
 
 
     """
-    assert isinstance(file, Path)
     # Specific VIA-tracks .csv file validation
-    valid_file = ValidVIATracksCSV(file, frame_regexp=frame_regexp)
-    file_path = valid_file.path
+    # valid_file = ValidVIATracksCSV(file, frame_regexp=frame_regexp)
+    file_path = file.file
     logger.info(f"Validated VIA tracks .csv file {file_path}.")
     # Create an xarray.Dataset from the data
-    bboxes_arrays = _numpy_arrays_from_via_tracks_file(
-        file_path, valid_file.frame_regexp
-    )
+    bboxes_arrays = _numpy_arrays_from_via_tracks_file(file_path, frame_regexp)
     ds = from_numpy(
         position_array=bboxes_arrays["position_array"],
         shape_array=bboxes_arrays["shape_array"],
