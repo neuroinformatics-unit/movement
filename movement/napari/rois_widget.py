@@ -346,7 +346,6 @@ class RoisWidget(QWidget):
         n_shapes = len(roi_layer.data)
         while len(names) < n_shapes:  # pad with empty strings if needed
             names.append("")
-        names = names[:n_shapes]  # trim if too long (defensive)
 
         # Check if any names are missing/invalid
         needs_update = any(
