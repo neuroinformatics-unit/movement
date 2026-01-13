@@ -289,6 +289,7 @@ class ValidDeepLabCutH5:
 
     suffixes: ClassVar[set[str]] = {".h5"}
     file: Path = field(
+        converter=Path,
         validator=validators.and_(
             _file_validator(permission="r", suffixes=suffixes),
             _hdf5_validator(datasets={"df_with_missing"}),
@@ -320,7 +321,8 @@ class ValidDeepLabCutCSV:
 
     suffixes: ClassVar[set[str]] = {".csv"}
     file: Path = field(
-        validator=_file_validator(permission="r", suffixes=suffixes)
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
     )
     level_names: list[str] = field(init=False, factory=list)
 
@@ -369,7 +371,8 @@ class ValidAniposeCSV:
 
     suffixes: ClassVar[set[str]] = {".csv"}
     file: Path = field(
-        validator=_file_validator(permission="r", suffixes=suffixes)
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
     )
 
     @file.validator
@@ -472,7 +475,8 @@ class ValidVIATracksCSV:
 
     suffixes: ClassVar[set[str]] = {".csv"}
     file: Path = field(
-        validator=_file_validator(permission="r", suffixes=suffixes)
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
     )
     frame_regexp: str = field(default=DEFAULT_FRAME_REGEXP)
 
