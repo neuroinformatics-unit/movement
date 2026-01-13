@@ -1,0 +1,1096 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>movement.io.save_poses &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=2f2d43a3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=1019fba8"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/io/save_poses';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.13.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../../../_static/js/contributors.js?v=4c153e30"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/io/save_poses.html" />
+    <link rel="icon" href="../../../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">Learn more about movement at the <a href='https://neuroinformatics.dev/open-software-summer-school/index.html'>Neuroinformatics Unit Open Software Summer School</a> in London, August 2026!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/movement_favicon.svg" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.13.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.io.save_poses</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <h1>Source code for movement.io.save_poses</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Save pose tracking data from ``movement`` to various file formats.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pynwb</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.io.nwb</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">NWBFileSaveConfig</span><span class="p">,</span>
+    <span class="n">_ds_to_pose_and_skeletons</span><span class="p">,</span>
+    <span class="n">_write_processing_module</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidPosesInputs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_file_path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ds_to_dlc_style_df</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a ``movement`` dataset to a DeepLabCut-style DataFrame.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
+<span class="sd">    columns : pandas.MultiIndex</span>
+<span class="sd">        DeepLabCut-style multi-index columns</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Keep position data as is, if data is 3D (i.e. contains &#39;z&#39; coordinate)</span>
+    <span class="c1"># Otherwise, concatenate position and confidence scores into one array</span>
+    <span class="n">tracks</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">data</span>
+        <span class="k">if</span> <span class="s2">&quot;z&quot;</span> <span class="ow">in</span> <span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;coords&quot;</span><span class="p">)</span>
+        <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+                <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+            <span class="p">),</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># Reverse the order of the dimensions except for the time dimension</span>
+    <span class="n">transpose_order</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">tracks</span><span class="o">.</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">tracks</span> <span class="o">=</span> <span class="n">tracks</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">transpose_order</span><span class="p">)</span>
+    <span class="c1"># Create DataFrame with multi-index columns</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">tracks</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
+        <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_auto_split_individuals</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True if there is only one individual in the dataset.&quot;&quot;&quot;</span>
+    <span class="n">n_individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">n_individuals</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_save_dlc_df</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the dataframe as either a .h5 or .csv depending on the file path.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filepath : pathlib.Path</span>
+<span class="sd">        Path of the file to save the dataframe to. The file extension</span>
+<span class="sd">        must be either .h5 (recommended) or .csv.</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">        Pandas Dataframe to save</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.csv&quot;</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># at this point it can only be .h5 (because of validation)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;df_with_missing&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="to_dlc_style_df">
+<a class="viewcode-back" href="../../../api/movement.io.save_poses.to_dlc_style_df.html#movement.io.save_poses.to_dlc_style_df">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_dlc_style_df</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">split_individuals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a ``movement`` dataset to DeepLabCut-style DataFrame(s).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
+<span class="sd">    split_individuals : bool, optional</span>
+<span class="sd">        If True, return a dictionary of DataFrames per individual, with</span>
+<span class="sd">        individual names as keys. If False (default), return a single</span>
+<span class="sd">        DataFrame for all individuals (see Notes).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame or dict</span>
+<span class="sd">        DeepLabCut-style pandas DataFrame or dictionary of DataFrames.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The DataFrame(s) will have a multi-index column with the following levels:</span>
+<span class="sd">    &quot;scorer&quot;, &quot;bodyparts&quot;, &quot;coords&quot; (if split_individuals is True),</span>
+<span class="sd">    or &quot;scorer&quot;, &quot;individuals&quot;, &quot;bodyparts&quot;, &quot;coords&quot;</span>
+<span class="sd">    (if split_individuals is False).</span>
+
+<span class="sd">    For 2D data, regardless of the provenance of the points-wise confidence</span>
+<span class="sd">    scores, they will be referred to as &quot;likelihood&quot;, and stored in</span>
+<span class="sd">    the &quot;coords&quot; level as DeepLabCut expects.</span>
+
+<span class="sd">    For 3D data, the &quot;coords&quot; level will only contain &quot;x&quot;, &quot;y&quot;, and &quot;z&quot;,</span>
+<span class="sd">    as DeepLabCut does not currently provide 3D likelihoods.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    to_dlc_file : Save dataset directly to a DeepLabCut-style .h5 or .csv file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ValidPosesInputs</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="n">scorer</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;movement&quot;</span><span class="p">]</span>
+    <span class="n">bodyparts</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;keypoints&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">base_coords</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;space&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">base_coords</span>
+        <span class="k">if</span> <span class="s2">&quot;z&quot;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;space&quot;</span><span class="p">]</span>
+        <span class="k">else</span> <span class="n">base_coords</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;likelihood&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">split_individuals</span><span class="p">:</span>
+        <span class="n">df_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">individual</span> <span class="ow">in</span> <span class="n">individuals</span><span class="p">:</span>
+            <span class="n">individual_data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">individual</span><span class="p">)</span>
+            <span class="n">index_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scorer&quot;</span><span class="p">,</span> <span class="s2">&quot;bodyparts&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">scorer</span><span class="p">,</span> <span class="n">bodyparts</span><span class="p">,</span> <span class="n">coords</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">index_levels</span>
+            <span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">_ds_to_dlc_style_df</span><span class="p">(</span><span class="n">individual_data</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
+            <span class="n">df_dict</span><span class="p">[</span><span class="n">individual</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Converted poses dataset to DeepLabCut-style DataFrames &quot;</span>
+            <span class="s2">&quot;per individual.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">df_dict</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">index_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scorer&quot;</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;bodyparts&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">scorer</span><span class="p">,</span> <span class="n">individuals</span><span class="p">,</span> <span class="n">bodyparts</span><span class="p">,</span> <span class="n">coords</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">index_levels</span>
+        <span class="p">)</span>
+        <span class="n">df_all</span> <span class="o">=</span> <span class="n">_ds_to_dlc_style_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Converted poses dataset to DeepLabCut-style DataFrame.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df_all</span></div>
+
+
+
+<div class="viewcode-block" id="to_dlc_file">
+<a class="viewcode-back" href="../../../api/movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_dlc_file</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">split_individuals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a ``movement`` dataset to DeepLabCut file(s).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
+<span class="sd">    file_path : pathlib.Path or str</span>
+<span class="sd">        Path to the file to save the poses to. The file extension</span>
+<span class="sd">        must be either .h5 (recommended) or .csv.</span>
+<span class="sd">    split_individuals : bool or &quot;auto&quot;, optional</span>
+<span class="sd">        Whether to save individuals to separate files or to the same file</span>
+<span class="sd">        (see Notes). Defaults to &quot;auto&quot;.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    If ``split_individuals`` is True, each individual will be saved to a</span>
+<span class="sd">    separate file, formatted as in a single-animal DeepLabCut project</span>
+<span class="sd">    (without the &quot;individuals&quot; column level). The individual&#39;s name will be</span>
+<span class="sd">    appended to the file path, just before the file extension, e.g.</span>
+<span class="sd">    &quot;/path/to/filename_individual1.h5&quot;. If False, all individuals will be</span>
+<span class="sd">    saved to the same file, formatted as in a multi-animal DeepLabCut project</span>
+<span class="sd">    (with the &quot;individuals&quot; column level). The file path will not be modified.</span>
+<span class="sd">    If &quot;auto&quot;, the argument&#39;s value is determined based on the number of</span>
+<span class="sd">    individuals in the dataset: True if there is only one, False otherwise.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    to_dlc_style_df : Convert dataset to DeepLabCut-style DataFrame(s).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from movement.io import save_poses, load_poses</span>
+<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_sleap_file(&quot;/path/to/file_sleap.analysis.h5&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; save_poses.to_dlc_file(ds, &quot;/path/to/file_dlc.h5&quot;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: D301</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="n">_validate_file_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">expected_suffix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.h5&quot;</span><span class="p">])</span>
+
+    <span class="c1"># Sets default behaviour for the function</span>
+    <span class="k">if</span> <span class="n">split_individuals</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+        <span class="n">split_individuals</span> <span class="o">=</span> <span class="n">_auto_split_individuals</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">split_individuals</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Expected &#39;split_individuals&#39; to be a boolean or &#39;auto&#39;, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">split_individuals</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">split_individuals</span><span class="p">:</span>
+        <span class="c1"># split the dataset into a dictionary of dataframes per individual</span>
+        <span class="n">df_dict</span> <span class="o">=</span> <span class="n">to_dlc_style_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">df_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># the key is the individual&#39;s name</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">key</span><span class="si">}{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="n">_save_dlc_df</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">),</span> <span class="n">df</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved poses for individual </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># convert the dataset to a single dataframe for all individuals</span>
+        <span class="n">df_all</span> <span class="o">=</span> <span class="n">to_dlc_style_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">_save_dlc_df</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved poses dataset to </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="to_lp_file">
+<a class="viewcode-back" href="../../../api/movement.io.save_poses.to_lp_file.html#movement.io.save_poses.to_lp_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_lp_file</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a ``movement`` dataset to a LightningPose file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
+<span class="sd">    file_path : pathlib.Path or str</span>
+<span class="sd">        Path to the file to save the poses to. File extension must be .csv.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    LightningPose saves pose estimation outputs as .csv files, using the same</span>
+<span class="sd">    format as single-animal DeepLabCut projects. Therefore, under the hood,</span>
+<span class="sd">    this function calls :func:`movement.io.save_poses.to_dlc_file`</span>
+<span class="sd">    with ``split_individuals=True``. This setting means that each individual</span>
+<span class="sd">    is saved to a separate file, with the individual&#39;s name appended to the</span>
+<span class="sd">    file path, just before the file extension,</span>
+<span class="sd">    i.e. &quot;/path/to/filename_individual1.csv&quot;.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    to_dlc_file : Save dataset to a DeepLabCut-style .h5 or .csv file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="n">_validate_file_path</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span> <span class="n">expected_suffix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.csv&quot;</span><span class="p">])</span>
+    <span class="n">ValidPosesInputs</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="to_sleap_analysis_file">
+<a class="viewcode-back" href="../../../api/movement.io.save_poses.to_sleap_analysis_file.html#movement.io.save_poses.to_sleap_analysis_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_sleap_analysis_file</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a ``movement`` dataset to a SLEAP analysis file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
+<span class="sd">    file_path : pathlib.Path or str</span>
+<span class="sd">        Path to the file to save the poses to. File extension must be .h5.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The output file will contain the following keys (as in SLEAP .h5 analysis</span>
+<span class="sd">    files):</span>
+<span class="sd">    &quot;track_names&quot;, &quot;node_names&quot;, &quot;tracks&quot;, &quot;track_occupancy&quot;, &quot;point_scores&quot;,</span>
+<span class="sd">    &quot;instance_scores&quot;, &quot;tracking_scores&quot;, &quot;labels_path&quot;, &quot;edge_names&quot;,</span>
+<span class="sd">    &quot;edge_inds&quot;, &quot;video_path&quot;, &quot;video_ind&quot;, &quot;provenance&quot; [1]_.</span>
+<span class="sd">    However, only &quot;track_names&quot;, &quot;node_names&quot;, &quot;tracks&quot;, &quot;track_occupancy&quot;</span>
+<span class="sd">    and &quot;point_scores&quot; will contain data extracted from the input dataset.</span>
+<span class="sd">    &quot;labels_path&quot; will contain the path to the input file only if the source</span>
+<span class="sd">    file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty</span>
+<span class="sd">    string.</span>
+<span class="sd">    The other attributes and data variables that are not present in the input</span>
+<span class="sd">    dataset will contain default (empty) values.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] https://docs.sleap.ai/latest/api/info/write_tracking_h5/#sleap.info.write_tracking_h5</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from movement.io import save_poses, load_poses</span>
+<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_dlc_file(&quot;path/to/file.h5&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; save_poses.to_sleap_analysis_file(</span>
+<span class="sd">    ...     ds, &quot;/path/to/file_sleap.analysis.h5&quot;</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file</span> <span class="o">=</span> <span class="n">_validate_file_path</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">,</span> <span class="n">expected_suffix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.h5&quot;</span><span class="p">])</span>
+    <span class="n">ValidPosesInputs</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">_remove_unoccupied_tracks</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+
+    <span class="c1"># Target shapes:</span>
+    <span class="c1"># &quot;track_occupancy&quot;     n_frames * n_individuals</span>
+    <span class="c1"># &quot;tracks&quot;              n_individuals * n_space * n_keypoints * n_frames</span>
+    <span class="c1"># &quot;track_names&quot;         n_individuals</span>
+    <span class="c1"># &quot;point_scores&quot;        n_individuals * n_keypoints * n_frames</span>
+    <span class="c1"># &quot;instance_scores&quot;     n_individuals * n_frames</span>
+    <span class="c1"># &quot;tracking_scores&quot;     n_individuals * n_frames</span>
+    <span class="n">individual_names</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">n_individuals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">individual_names</span><span class="p">)</span>
+    <span class="n">keypoint_names</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="c1"># Compute frame indices from fps, if set</span>
+    <span class="n">fps</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;fps&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">frame_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">fps</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">frame_idxs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">n_frames</span> <span class="o">=</span> <span class="n">frame_idxs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">frame_idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">pos_x</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="c1"># Mask denoting which individuals are present in each frame</span>
+    <span class="n">track_occupancy</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">pos_x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">tracks</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">point_scores</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">instance_scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_individuals</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">tracking_scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_individuals</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="n">source_file</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;source_file&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">labels_path</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">source_file</span>
+        <span class="k">if</span> <span class="n">source_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">source_file</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.slp&quot;</span>
+        <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="p">)</span>
+    <span class="n">data_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">track_names</span><span class="o">=</span><span class="n">individual_names</span><span class="p">,</span>
+        <span class="n">node_names</span><span class="o">=</span><span class="n">keypoint_names</span><span class="p">,</span>
+        <span class="n">tracks</span><span class="o">=</span><span class="n">tracks</span><span class="p">,</span>
+        <span class="n">track_occupancy</span><span class="o">=</span><span class="n">track_occupancy</span><span class="p">,</span>
+        <span class="n">point_scores</span><span class="o">=</span><span class="n">point_scores</span><span class="p">,</span>
+        <span class="n">instance_scores</span><span class="o">=</span><span class="n">instance_scores</span><span class="p">,</span>
+        <span class="n">tracking_scores</span><span class="o">=</span><span class="n">tracking_scores</span><span class="p">,</span>
+        <span class="n">labels_path</span><span class="o">=</span><span class="n">labels_path</span><span class="p">,</span>
+        <span class="n">edge_names</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">edge_inds</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">video_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">video_ind</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">provenance</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
+                    <span class="n">key</span><span class="p">,</span>
+                    <span class="n">data</span><span class="o">=</span><span class="n">val</span><span class="p">,</span>
+                    <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                    <span class="n">compression_opts</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">val</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved poses dataset to </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="to_nwb_file">
+<a class="viewcode-back" href="../../../api/movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_nwb_file</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">NWBFileSaveConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a ``movement`` dataset to one or more NWBFile objects.</span>
+
+<span class="sd">    The data will be written to :class:`pynwb.file.NWBFile` object(s)</span>
+<span class="sd">    in the &quot;behavior&quot; processing module, formatted according to the</span>
+<span class="sd">    ``ndx-pose`` NWB extension [1]_.</span>
+<span class="sd">    Each individual in the dataset will be written to a separate NWBFile,</span>
+<span class="sd">    as required by the NWB format.</span>
+<span class="sd">    Note that the NWBFile(s) are not automatically saved to disk.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        ``movement`` poses dataset containing the data to be converted to</span>
+<span class="sd">        NWBFile(s).</span>
+<span class="sd">    config : NWBFileSaveConfig, optional</span>
+<span class="sd">        Configuration object containing keyword arguments to customise the</span>
+<span class="sd">        :class:`pynwb.file.NWBFile` (s) that will be created</span>
+<span class="sd">        for each individual.</span>
+<span class="sd">        If None (default), default values will be used.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pynwb.file.NWBFile or list[pynwb.file.NWBFile]</span>
+<span class="sd">        If the dataset contains only one individual, a single NWBFile object</span>
+<span class="sd">        will be returned. If the dataset contains multiple individuals,</span>
+<span class="sd">        a list of NWBFile objects will be returned, one for each individual.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] https://github.com/rly/ndx-pose</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Create :class:`pynwb.file.NWBFile` objects for each individual in</span>
+<span class="sd">    a ``movement`` poses dataset ``ds`` and save them to disk:</span>
+
+<span class="sd">    &gt;&gt;&gt; from movement.sample_data import fetch_dataset</span>
+<span class="sd">    &gt;&gt;&gt; from movement.io import save_poses</span>
+<span class="sd">    &gt;&gt;&gt; from pynwb import NWBHDF5IO</span>
+<span class="sd">    &gt;&gt;&gt; ds = fetch_dataset(&quot;DLC_two-mice.predictions.csv&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; nwb_files = save_poses.to_nwb_file(ds)</span>
+<span class="sd">    &gt;&gt;&gt; for file in nwb_files:</span>
+<span class="sd">    ...     with NWBHDF5IO(f&quot;{file.identifier}.nwb&quot;, &quot;w&quot;) as io:</span>
+<span class="sd">    ...         io.write(file)</span>
+
+<span class="sd">    Create NWBFiles with custom metadata shared across individuals.</span>
+<span class="sd">    Specifically, we add metadata for :class:`pynwb.file.NWBFile`,</span>
+<span class="sd">    :class:`pynwb.base.ProcessingModule`, and :class:`pynwb.file.Subject`</span>
+<span class="sd">    via the :class:`NWBFileSaveConfig&lt;movement.io.nwb.NWBFileSaveConfig&gt;`</span>
+<span class="sd">    object.</span>
+
+<span class="sd">    &gt;&gt;&gt; from movement.io.nwb import NWBFileSaveConfig</span>
+<span class="sd">    &gt;&gt;&gt; config = NWBFileSaveConfig(</span>
+<span class="sd">    ...     nwbfile_kwargs={&quot;session_description&quot;: &quot;test session&quot;},</span>
+<span class="sd">    ...     processing_module_kwargs={&quot;description&quot;: &quot;processed behav data&quot;},</span>
+<span class="sd">    ...     subject_kwargs={&quot;age&quot;: &quot;P90D&quot;, &quot;species&quot;: &quot;Mus musculus&quot;},</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; nwb_files = save_poses.to_nwb_file(ds, config)</span>
+
+<span class="sd">    Create NWBFiles with different :class:`pynwb.file.NWBFile`</span>
+<span class="sd">    and :class:`pynwb.file.Subject` metadata for each individual</span>
+<span class="sd">    (e.g. ``individual1``, ``individual2``) in the dataset:</span>
+
+<span class="sd">    &gt;&gt;&gt; config = NWBFileSaveConfig(</span>
+<span class="sd">    ...     nwbfile_kwargs={</span>
+<span class="sd">    ...         &quot;individual1&quot;: {</span>
+<span class="sd">    ...             &quot;experimenter&quot;: &quot;experimenter1&quot;,</span>
+<span class="sd">    ...             &quot;session_description&quot;: &quot;subj1 session&quot;,</span>
+<span class="sd">    ...         },</span>
+<span class="sd">    ...         &quot;individual2&quot;: {</span>
+<span class="sd">    ...             &quot;experimenter&quot;: &quot;experimenter2&quot;,</span>
+<span class="sd">    ...             &quot;session_description&quot;: &quot;subj2 session&quot;,</span>
+<span class="sd">    ...         },</span>
+<span class="sd">    ...     },</span>
+<span class="sd">    ...     subject_kwargs={</span>
+<span class="sd">    ...         &quot;individual1&quot;: {&quot;age&quot;: &quot;P90D&quot;, &quot;sex&quot;: &quot;M&quot;},</span>
+<span class="sd">    ...         &quot;individual2&quot;: {&quot;age&quot;: &quot;P91D&quot;, &quot;sex&quot;: &quot;F&quot;},</span>
+<span class="sd">    ...     },</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; nwb_files = save_poses.to_nwb_file(ds, config)</span>
+
+<span class="sd">    Create NWBFiles with different ``ndx_pose.PoseEstimationSeries``</span>
+<span class="sd">    metadata for different keypoints (e.g. ``leftear``, ``rightear``):</span>
+
+<span class="sd">    &gt;&gt;&gt; config = NWBFileSaveConfig(</span>
+<span class="sd">    ...     pose_estimation_series_kwargs={</span>
+<span class="sd">    ...         &quot;leftear&quot;: {</span>
+<span class="sd">    ...             &quot;description&quot;: &quot;left ear&quot;,</span>
+<span class="sd">    ...         },</span>
+<span class="sd">    ...         &quot;rightear&quot;: {</span>
+<span class="sd">    ...             &quot;description&quot;: &quot;right ear&quot;,</span>
+<span class="sd">    ...         },</span>
+<span class="sd">    ...     },</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; nwb_files = save_poses.to_nwb_file(ds, config)</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    movement.io.nwb.NWBFileSaveConfig :</span>
+<span class="sd">        For further details on the configuration object and its parameters.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">NWBFileSaveConfig</span><span class="p">()</span>
+    <span class="n">individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">individuals</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">individuals</span> <span class="o">=</span> <span class="p">[</span><span class="n">individuals</span><span class="p">]</span>
+    <span class="n">is_multi_ind</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">individuals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+    <span class="n">subjects</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">Subject</span><span class="p">(</span>
+            <span class="o">**</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">_resolve_subject_kwargs</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">is_multi_ind</span><span class="p">))</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">individuals</span>
+    <span class="p">}</span>
+    <span class="n">nwb_files</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">pynwb</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">(</span>
+            <span class="n">subject</span><span class="o">=</span><span class="n">subjects</span><span class="p">[</span><span class="nb">id</span><span class="p">],</span>
+            <span class="o">**</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">_resolve_nwbfile_kwargs</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">is_multi_ind</span><span class="p">)),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">individuals</span>
+    <span class="p">]</span>
+    <span class="n">pose_estimation_skeletons</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">id</span><span class="p">:</span> <span class="n">_ds_to_pose_and_skeletons</span><span class="p">(</span>
+            <span class="n">ds</span>
+            <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;individuals&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">else</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="nb">id</span><span class="p">),</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="n">subjects</span><span class="p">[</span><span class="nb">id</span><span class="p">],</span>
+            <span class="n">is_multi_ind</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">individuals</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">nwb_file</span><span class="p">,</span> <span class="nb">id</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nwb_files</span><span class="p">,</span> <span class="n">individuals</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">pose_estimation</span><span class="p">,</span> <span class="n">skeletons</span> <span class="o">=</span> <span class="n">pose_estimation_skeletons</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        <span class="n">processing_module_kwargs</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">_resolve_processing_module_kwargs</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+        <span class="n">_write_processing_module</span><span class="p">(</span>
+            <span class="n">nwb_file</span><span class="p">,</span> <span class="n">processing_module_kwargs</span><span class="p">,</span> <span class="n">pose_estimation</span><span class="p">,</span> <span class="n">skeletons</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">nwb_files</span> <span class="k">if</span> <span class="n">is_multi_ind</span> <span class="k">else</span> <span class="n">nwb_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_remove_unoccupied_tracks</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove tracks that are completely unoccupied from the dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
+<span class="sd">        and associated metadata.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        The input dataset without the unoccupied tracks.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">all_nan</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">all_nan</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.16.1.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../../../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../../../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../../../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../../../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

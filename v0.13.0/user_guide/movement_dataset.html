@@ -1,0 +1,905 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>The movement datasets &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=2f2d43a3" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=1019fba8"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/movement_dataset';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.13.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/contributors.js?v=4c153e30"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/user_guide/movement_dataset.html" />
+    <link rel="icon" href="../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Graphical User Interface" href="gui.html" />
+    <link rel="prev" title="Input/Output" href="input_output.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">Learn more about movement at the <a href='https://neuroinformatics.dev/open-software-summer-school/index.html'>Neuroinformatics Unit Open Software Summer School</a> in London, August 2026!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.13.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input_output.html">Input/Output</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">The movement datasets</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">Graphical User Interface</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">The movement datasets</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <section class="tex2jax_ignore mathjax_ignore" id="the-movement-datasets">
+<span id="target-poses-and-bboxes-dataset"></span><h1>The movement datasets<a class="headerlink" href="#the-movement-datasets" title="Link to this heading">#</a></h1>
+<p>In <code class="docutils literal notranslate"><span class="pre">movement</span></code>, poses or bounding box tracks are represented
+as an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> object.</p>
+<p>An <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> object is a container for multiple arrays. Each array is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object holding different aspects of the collected data (position, time, confidence scores…). You can think of a <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object as a multi-dimensional <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a>
+with pandas-style indexing and labelling.</p>
+<p>So a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset is simply an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> with a specific
+structure to represent pose tracks or bounding box tracks. Because pose data and bounding box data are somewhat different, <code class="docutils literal notranslate"><span class="pre">movement</span></code> provides two types of datasets: <code class="docutils literal notranslate"><span class="pre">poses</span></code> datasets and <code class="docutils literal notranslate"><span class="pre">bboxes</span></code> datasets.</p>
+<p>To discuss the specifics of both types of <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets, it is useful to clarify some concepts such as <strong>data variables</strong>, <strong>dimensions</strong>,
+<strong>coordinates</strong> and <strong>attributes</strong>. In the next section, we will describe these concepts and the <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets’ structure in some detail.</p>
+<p>To learn more about <code class="docutils literal notranslate"><span class="pre">xarray</span></code> data structures in general, see the relevant
+<a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/data-structures.html#">documentation</a>.</p>
+<section id="dataset-structure">
+<span id="target-dataset-structure"></span><h2>Dataset structure<a class="headerlink" href="#dataset-structure" title="Link to this heading">#</a></h2>
+<figure class="align-default" id="id1">
+<img alt="movement dataset structure" src="../_images/dataset_structure.png" />
+<figcaption>
+<p><span class="caption-text">An <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> is a collection of several data arrays that share some dimensions. The schematic shows the data arrays that make up the <code class="docutils literal notranslate"><span class="pre">poses</span></code> and <code class="docutils literal notranslate"><span class="pre">bboxes</span></code> datasets in <code class="docutils literal notranslate"><span class="pre">movement</span></code>.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>The structure of a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> can be easily inspected by simply
+printing it.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-0">
+Poses dataset</label><div class="sd-tab-content docutils">
+<p>To inspect a sample poses dataset, we can run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
+
+<span class="n">ds</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset</span><span class="p">(</span>
+    <span class="s2">&quot;SLEAP_three-mice_Aeon_proofread.analysis.h5&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>and we would obtain an output such as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="o">&gt;</span> <span class="n">Size</span><span class="p">:</span> <span class="mi">27</span><span class="n">kB</span>
+<span class="n">Dimensions</span><span class="p">:</span>      <span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="mi">601</span><span class="p">,</span> <span class="n">space</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="n">keypoints</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="n">individuals</span><span class="p">:</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">Coordinates</span><span class="p">:</span>
+  <span class="o">*</span> <span class="n">time</span>         <span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">5</span><span class="n">kB</span> <span class="mf">0.0</span> <span class="mf">0.02</span> <span class="mf">0.04</span> <span class="mf">0.06</span> <span class="o">...</span> <span class="mf">11.96</span> <span class="mf">11.98</span> <span class="mf">12.0</span>
+  <span class="o">*</span> <span class="n">space</span>        <span class="p">(</span><span class="n">space</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U1</span> <span class="mi">8</span><span class="n">B</span> <span class="s1">&#39;x&#39;</span> <span class="s1">&#39;y&#39;</span>
+  <span class="o">*</span> <span class="n">keypoints</span>    <span class="p">(</span><span class="n">keypoints</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U8</span> <span class="mi">32</span><span class="n">B</span> <span class="s1">&#39;centroid&#39;</span>
+  <span class="o">*</span> <span class="n">individuals</span>  <span class="p">(</span><span class="n">individuals</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U10</span> <span class="mi">120</span><span class="n">B</span> <span class="s1">&#39;AEON3B_NTP&#39;</span> <span class="s1">&#39;AEON3B_TP1&#39;</span> <span class="s1">&#39;AEON3B_TP2&#39;</span>
+<span class="n">Data</span> <span class="n">variables</span><span class="p">:</span>
+    <span class="n">position</span>     <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">keypoints</span><span class="p">,</span> <span class="n">individuals</span><span class="p">)</span> <span class="n">float32</span> <span class="mi">14</span><span class="n">kB</span> <span class="mf">770.3</span> <span class="o">......</span>
+    <span class="n">confidence</span>   <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">keypoints</span><span class="p">,</span> <span class="n">individuals</span><span class="p">)</span> <span class="n">float32</span> <span class="mi">7</span><span class="n">kB</span> <span class="n">nan</span> <span class="n">nan</span> <span class="o">...</span> <span class="n">nan</span> <span class="n">nan</span>
+<span class="n">Attributes</span><span class="p">:</span>
+    <span class="n">fps</span><span class="p">:</span>              <span class="mf">50.0</span>
+    <span class="n">time_unit</span><span class="p">:</span>        <span class="n">seconds</span>
+    <span class="n">source_software</span><span class="p">:</span>  <span class="n">SLEAP</span>
+    <span class="n">source_file</span><span class="p">:</span>      <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">user</span><span class="o">/.</span><span class="n">movement</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">poses</span><span class="o">/</span><span class="n">SLEAP_three</span><span class="o">-</span><span class="n">mice_Aeon</span><span class="o">...</span>
+    <span class="n">ds_type</span><span class="p">:</span>          <span class="n">poses</span>
+    <span class="n">frame_path</span><span class="p">:</span>       <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">user</span><span class="o">/.</span><span class="n">movement</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">frames</span><span class="o">/</span><span class="n">three</span><span class="o">-</span><span class="n">mice_Aeon_fram</span><span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<input id="sd-tab-item-1" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-1">
+Bounding boxes dataset</label><div class="sd-tab-content docutils">
+<p>To inspect a sample bounding boxes dataset, we can run:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
+
+<span class="n">ds</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset</span><span class="p">(</span>
+    <span class="s2">&quot;VIA_multiple-crabs_5-frames_labels.csv&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>and the last command would print out:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="o">&gt;</span> <span class="n">Size</span><span class="p">:</span> <span class="mi">19</span><span class="n">kB</span>
+<span class="n">Dimensions</span><span class="p">:</span>      <span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="n">space</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="n">individuals</span><span class="p">:</span> <span class="mi">86</span><span class="p">)</span>
+<span class="n">Coordinates</span><span class="p">:</span>
+  <span class="o">*</span> <span class="n">time</span>         <span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="n">int64</span> <span class="mi">40</span><span class="n">B</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span>
+  <span class="o">*</span> <span class="n">space</span>        <span class="p">(</span><span class="n">space</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U1</span> <span class="mi">8</span><span class="n">B</span> <span class="s1">&#39;x&#39;</span> <span class="s1">&#39;y&#39;</span>
+  <span class="o">*</span> <span class="n">individuals</span>  <span class="p">(</span><span class="n">individuals</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U5</span> <span class="mi">2</span><span class="n">kB</span> <span class="s1">&#39;id_1&#39;</span> <span class="s1">&#39;id_2&#39;</span> <span class="s1">&#39;id_3&#39;</span> <span class="o">...</span> <span class="s1">&#39;id_89&#39;</span> <span class="s1">&#39;id_90&#39;</span>
+<span class="n">Data</span> <span class="n">variables</span><span class="p">:</span>
+    <span class="n">position</span>     <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">individuals</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">7</span><span class="n">kB</span> <span class="mf">901.8</span> <span class="o">...</span> <span class="mf">923.3</span>
+    <span class="n">shape</span>        <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">individuals</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">7</span><span class="n">kB</span> <span class="mf">60.0</span> <span class="mf">30.0</span> <span class="o">...</span> <span class="mf">72.0</span> <span class="mf">36.0</span>
+    <span class="n">confidence</span>   <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">individuals</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">3</span><span class="n">kB</span> <span class="n">nan</span> <span class="n">nan</span> <span class="n">nan</span> <span class="n">nan</span> <span class="o">...</span> <span class="n">nan</span> <span class="n">nan</span> <span class="n">nan</span>
+<span class="n">Attributes</span><span class="p">:</span>
+    <span class="n">time_unit</span><span class="p">:</span>        <span class="n">frames</span>
+    <span class="n">source_software</span><span class="p">:</span>  <span class="n">VIA</span><span class="o">-</span><span class="n">tracks</span>
+    <span class="n">source_file</span><span class="p">:</span>      <span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">user</span><span class="o">/.</span><span class="n">movement</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">bboxes</span><span class="o">/</span><span class="n">VIA_multiple</span><span class="o">-</span><span class="n">crabs_5</span><span class="o">...</span>
+    <span class="n">ds_type</span><span class="p">:</span>          <span class="n">bboxes</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>In both cases, we can see that the description of the dataset structure refers to <strong>dimensions</strong>, <strong>coordinates</strong>, <strong>data variables</strong>, and <strong>attributes</strong>.</p>
+<p>If you are working in a Jupyter notebook, you can view an interactive
+representation of the dataset by typing its variable name - e.g. <code class="docutils literal notranslate"><span class="pre">ds</span></code> - in a cell.</p>
+<section id="dimensions-and-coordinates">
+<h3>Dimensions and coordinates<a class="headerlink" href="#dimensions-and-coordinates" title="Link to this heading">#</a></h3>
+<p>In <code class="docutils literal notranslate"><span class="pre">xarray</span></code> <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/terminology.html#">terminology</a>,
+each axis of the dataset is called a <strong>dimension</strong> (<code class="docutils literal notranslate"><span class="pre">dim</span></code>), while
+the labelled “ticks” along each axis are called <strong>coordinates</strong> (<code class="docutils literal notranslate"><span class="pre">coords</span></code>).</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-2" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-2">
+Poses dataset</label><div class="sd-tab-content docutils">
+<p>A <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset has the following <strong>dimensions</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>, with size equal to the number of frames in the video.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">space</span></code>, which is the number of spatial dimensions. Currently, we support only 2D poses.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keypoints</span></code>, with size equal to the number of tracked keypoints per individual.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">individuals</span></code>, with size equal to the number of tracked individuals/instances.</p></li>
+</ul>
+</div>
+<input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-3">
+Bounding boxes dataset</label><div class="sd-tab-content docutils">
+<p>A <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset has the following <strong>dimensions</strong>s:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>, with size equal to the number of frames in the video.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">space</span></code>, which is the number of spatial dimensions. Currently, we support only 2D bounding boxes data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">individuals</span></code>, with size equal to the number of tracked individuals/instances.
+Notice that these are the same dimensions as for a poses dataset, except for the <code class="docutils literal notranslate"><span class="pre">keypoints</span></code> dimension.</p></li>
+</ul>
+</div>
+</div>
+<p>In both cases, appropriate <strong>coordinates</strong> are assigned to each <strong>dimension</strong>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">time</span></code> is labelled in seconds if <code class="docutils literal notranslate"><span class="pre">fps</span></code> is provided, otherwise the <strong>coordinates</strong> are expressed in frames (ascending 0-indexed integers).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">space</span></code> is labelled with either <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code> (2D) or <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">z</span></code> (3D). Note that bounding boxes datasets are restricted to 2D space.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keypoints</span></code> are likewise labelled with a list of unique body part names, e.g. <code class="docutils literal notranslate"><span class="pre">snout</span></code>, <code class="docutils literal notranslate"><span class="pre">right_ear</span></code>, etc. Note that this dimension only exists in the poses dataset.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">individuals</span></code> are labelled with a list of unique names (e.g. <code class="docutils literal notranslate"><span class="pre">mouse1</span></code>, <code class="docutils literal notranslate"><span class="pre">mouse2</span></code>, etc. or <code class="docutils literal notranslate"><span class="pre">id_0</span></code>, <code class="docutils literal notranslate"><span class="pre">id_1</span></code>, etc.).</p></li>
+</ul>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header sd-bg-info sd-bg-text-info">
+<span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-info" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg></span><span class="sd-summary-text">Additional dimensions</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">The above <strong>dimensions</strong> and <strong>coordinates</strong> are created
+by default when loading a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset from a single
+file containing pose or bounding box tracks.</p>
+<p class="sd-card-text">In some cases, you may encounter or create datasets with extra
+<strong>dimensions</strong>. For example, the
+<a class="reference internal" href="../api/movement.io.load_poses.from_multiview_files.html#movement.io.load_poses.from_multiview_files" title="movement.io.load_poses.from_multiview_files"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.load_poses.from_multiview_files()</span></code></a> function
+creates an additional <code class="docutils literal notranslate"><span class="pre">views</span></code> <strong>dimension</strong>,
+with the <strong>coordinates</strong> being the names given to each camera view.</p>
+</div>
+</details></section>
+<section id="data-variables">
+<h3>Data variables<a class="headerlink" href="#data-variables" title="Link to this heading">#</a></h3>
+<p>The data variables in a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset are the arrays that hold the actual data, as <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> objects.</p>
+<p>The specific data variables stored are slightly different between a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset and a <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset.</p>
+<div class="sd-tab-set docutils">
+<input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-4">
+Poses dataset</label><div class="sd-tab-content docutils">
+<p>A <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset contains two <strong>data variables</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">position</span></code>: the 2D or 3D locations of the keypoints over time, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">confidence</span></code>: the confidence scores associated with each predicted keypoint (as reported by the pose estimation model), with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>).</p></li>
+</ul>
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
+Bounding boxes dataset</label><div class="sd-tab-content docutils">
+<p>A <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset contains three <strong>data variables</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">position</span></code>: the 2D locations of the bounding box centroids over time, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">shape</span></code>: the width and height of the bounding boxes over time, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">confidence</span></code>: the confidence scores associated with each predicted bounding box, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>).</p></li>
+</ul>
+</div>
+</div>
+<p>Grouping <strong>data variables</strong> together in a single dataset makes it easier to
+keep track of the relationships between them, and makes sense when they
+share some common <strong>dimensions</strong>.</p>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h3>
+<p>Both poses and bounding boxes datasets in <code class="docutils literal notranslate"><span class="pre">movement</span></code> have associated metadata. These can be stored as dataset <strong>attributes</strong> (i.e. inside the specially designated <code class="docutils literal notranslate"><span class="pre">attrs</span></code> dictionary) in the form of key-value pairs.</p>
+<p>Right after loading a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset, the following <strong>attributes</strong> are created:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fps</span></code>: the number of frames per second in the video (absent if not provided by the user during loading).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">time_unit</span></code>: the unit of the <code class="docutils literal notranslate"><span class="pre">time</span></code> <strong>coordinates</strong> (either <code class="docutils literal notranslate"><span class="pre">frames</span></code> or <code class="docutils literal notranslate"><span class="pre">seconds</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">source_software</span></code>: the software that produced the pose or bounding box tracks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">source_file</span></code>: the path to the file from which the data were loaded (absent if the dataset was not loaded from a file).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ds_type</span></code>: the type of dataset loaded (either <code class="docutils literal notranslate"><span class="pre">poses</span></code> or <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>).</p></li>
+</ul>
+<p>Some of the <a class="reference internal" href="input_output.html#target-sample-data"><span class="std std-ref">sample datasets</span></a> provided with
+the <code class="docutils literal notranslate"><span class="pre">movement</span></code> package have additional <strong>attributes</strong>, such as:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">video_path</span></code>: the path to the video file corresponding to the pose tracks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">frame_path</span></code>: the path to a single still frame from the video.</p></li>
+</ul>
+<p>You can also add your own custom <strong>attributes</strong> to the dataset, as long as
+their values are of <a class="reference internal" href="#target-attrs-data-type-warning"><span class="std std-ref">simple data types</span></a>.
+For example, if you would like to record the frame of the full video at which
+the loaded tracking data starts, you could add a <code class="docutils literal notranslate"><span class="pre">frame_offset</span></code> variable
+to the attributes of the dataset:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;frame_offset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">142</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="working-with-movement-datasets">
+<h2>Working with movement datasets<a class="headerlink" href="#working-with-movement-datasets" title="Link to this heading">#</a></h2>
+<section id="using-xarrays-built-in-functionality">
+<h3>Using xarray’s built-in functionality<a class="headerlink" href="#using-xarrays-built-in-functionality" title="Link to this heading">#</a></h3>
+<p>Since a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>, you can use all of <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s intuitive interface
+and rich built-in functionalities for data manipulation and analysis.</p>
+<p>Among other things, you can:</p>
+<ul class="simple">
+<li><p>access the <strong>data variables</strong> and <strong>attributes</strong> of a dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> using dot notation (e.g. <code class="docutils literal notranslate"><span class="pre">ds.position</span></code>, <code class="docutils literal notranslate"><span class="pre">ds.fps</span></code>),</p></li>
+<li><p><a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/indexing.html#">index and select data</a> by <strong>coordinate</strong> label
+(e.g. <code class="docutils literal notranslate"><span class="pre">ds.sel(individuals=[&quot;individual1&quot;,</span> <span class="pre">&quot;individual2&quot;])</span></code>) or by integer index (e.g. <code class="docutils literal notranslate"><span class="pre">ds.isel(time=slice(0,50))</span></code>),</p></li>
+<li><p>use <strong>dimension</strong> names for
+<a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/computation.html#">data aggregation and broadcasting</a>, and</p></li>
+<li><p>use <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s built-in <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/plotting.html#">plotting methods</a>.</p></li>
+<li><p>save and load datasets to/from <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/io.html#">netCDF files</a>, which is our recommended format for <a class="reference internal" href="input_output.html#target-netcdf"><span class="std std-ref">natively storing movement datasets</span></a>.</p></li>
+<li><p>export data into other data structures, such as <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/pandas.html#">Pandas DataFrames</a> or <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/duckarrays.html#">NumPy arrays</a>.</p></li>
+</ul>
+<p>As an example, here’s how you can use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.sel.html#xarray.Dataset.sel" title="(in xarray v2025.12.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.sel()</span></code></a> to select subsets of
+data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># select the first 100 seconds of data</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+
+<span class="c1"># select specific individuals or keypoints</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span> <span class="s2">&quot;individual2&quot;</span><span class="p">])</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span>
+
+<span class="c1"># combine selections</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+    <span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
+    <span class="n">individuals</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span> <span class="s2">&quot;individual2&quot;</span><span class="p">],</span>
+    <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The same selections can be applied to the <strong>data variables</strong> inside a dataset. In that case the selection operations will
+return an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> rather than an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">position</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+    <span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span>
+    <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span>
+<span class="p">)</span>  <span class="c1"># the output is a data array</span>
+</pre></div>
+</div>
+</section>
+<section id="modifying-movement-datasets">
+<h3>Modifying movement datasets<a class="headerlink" href="#modifying-movement-datasets" title="Link to this heading">#</a></h3>
+<p>Datasets can be modified by adding new <strong>data variables</strong> and <strong>attributes</strong>,
+or updating existing ones.</p>
+<p>Let’s imagine we want to compute the instantaneous velocity of all tracked
+points and store the results within the same dataset, for convenience.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_velocity</span>
+
+<span class="c1"># compute velocity from position</span>
+<span class="n">velocity</span> <span class="o">=</span> <span class="n">compute_velocity</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+<span class="c1"># add it to the dataset as a new data variable</span>
+<span class="n">ds</span><span class="p">[</span><span class="s2">&quot;velocity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">velocity</span>
+
+<span class="c1"># we could have also done both steps in a single line</span>
+<span class="n">ds</span><span class="p">[</span><span class="s2">&quot;velocity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_velocity</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+
+<span class="c1"># we can now access velocity like any other data variable</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">velocity</span>
+</pre></div>
+</div>
+<p>The output of <a class="reference internal" href="../api/movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity" title="movement.kinematics.compute_velocity"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.kinematics.compute_velocity()</span></code></a> is an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object,
+with the same <strong>dimensions</strong> as the original <code class="docutils literal notranslate"><span class="pre">position</span></code> <strong>data variable</strong>,
+so adding it to the existing <code class="docutils literal notranslate"><span class="pre">ds</span></code> makes sense and works seamlessly.</p>
+<p>We can also update existing <strong>data variables</strong> in-place, using <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2025.12.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a>. For example, if we wanted to update the <code class="docutils literal notranslate"><span class="pre">position</span></code>
+and <code class="docutils literal notranslate"><span class="pre">velocity</span></code> arrays in our dataset, we could do:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">position_filtered</span><span class="p">,</span> <span class="s2">&quot;velocity&quot;</span><span class="p">:</span> <span class="n">velocity_filtered</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>Custom <strong>attributes</strong> can be added to the dataset with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;my_custom_attribute&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;my_custom_value&quot;</span>
+
+<span class="c1"># we can now access this value using dot notation on the dataset</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">my_custom_attribute</span>
+</pre></div>
+</div>
+<div class="admonition warning" id="target-attrs-data-type-warning">
+<p class="admonition-title">Warning</p>
+<p>Keep in mind that only certain attribute data types are compatible with the <a class="reference external" href="https://docs.unidata.ucar.edu/nug/current/">netCDF format</a>.
+If you plan to <a class="reference internal" href="input_output.html#target-netcdf"><span class="std std-ref">save your dataset to a netCDF file</span></a>, make sure to only use
+attributes that are scalars, strings, or 1D arrays. Complex data types
+and arbitrary Python objects will likely lead to errors when saving.
+The error message will include the term “illegal data type for attribute…”.</p>
+</div>
+</section>
+</section>
+</section>
+
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="input_output.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Input/Output</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="gui.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Graphical User Interface</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset-structure">Dataset structure</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dimensions-and-coordinates">Dimensions and coordinates</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-variables">Data variables</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-movement-datasets">Working with movement datasets</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-xarrays-built-in-functionality">Using xarray’s built-in functionality</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#modifying-movement-datasets">Modifying movement datasets</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/movement_dataset.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.16.1.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

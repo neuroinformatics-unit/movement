@@ -1,0 +1,877 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Graphical User Interface &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=2f2d43a3" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=1019fba8"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/gui';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v0.13.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/contributors.js?v=4c153e30"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/user_guide/gui.html" />
+    <link rel="icon" href="../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Examples" href="../examples/index.html" />
+    <link rel="prev" title="The movement datasets" href="movement_dataset.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">Learn more about movement at the <a href='https://neuroinformatics.dev/open-software-summer-school/index.html'>Neuroinformatics Unit Open Software Summer School</a> in London, August 2026!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.13.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="input_output.html">Input/Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="movement_dataset.html">The movement datasets</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Graphical User Interface</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">User guide</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Graphical User Interface</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <section class="tex2jax_ignore mathjax_ignore" id="graphical-user-interface">
+<span id="target-gui"></span><h1>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Link to this heading">#</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">movement</span></code> graphical user interface (GUI), powered by our custom plugin for
+<a class="reference external" href="https://napari.org/stable/">napari</a>, makes it easy to view and explore <code class="docutils literal notranslate"><span class="pre">movement</span></code>
+motion tracks. Currently, you can use it to
+visualise 2D <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a>
+as points, tracks, and rectangular bounding boxes (if defined) overlaid on video frames.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The GUI is still in early stages of development but we are working on ironing
+out the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/issues">kinks</a>.
+Please <a class="reference internal" href="../community/index.html#target-connect-with-us"><span class="std std-ref">get in touch</span></a>
+if you find any bugs or have suggestions for improvements!</p>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">napari</span></code> plugin is shipped with the <code class="docutils literal notranslate"><span class="pre">movement</span></code> package starting from
+version <code class="docutils literal notranslate"><span class="pre">0.1.0</span></code>.  To use it, you need to
+<a class="reference internal" href="installation.html#target-installation"><span class="std std-ref">install the package</span></a> with a method that
+includes the <code class="docutils literal notranslate"><span class="pre">napari</span></code> dependency.</p>
+<section id="launch-the-gui">
+<h2>Launch the GUI<a class="headerlink" href="#launch-the-gui" title="Link to this heading">#</a></h2>
+<p>To launch the <code class="docutils literal notranslate"><span class="pre">movement</span></code> GUI, type the following command in your terminal:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>movement<span class="w"> </span>launch
+</pre></div>
+</div>
+<p>This is equivalent to running <code class="docutils literal notranslate"><span class="pre">napari</span> <span class="pre">-w</span> <span class="pre">movement</span></code> and will open the <code class="docutils literal notranslate"><span class="pre">napari</span></code>
+window with the <code class="docutils literal notranslate"><span class="pre">movement</span></code> widget docked on the
+right-hand side, as in the <a class="reference internal" href="#target-widget-screenshot"><span class="std std-ref">screenshot</span></a> below.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">napari</span></code>, data is typically loaded into <a class="reference external" href="https://napari.org/stable/guides/layers.html">layers</a>,
+which can be reordered and toggled for visibility in the layers list panel.
+For example, keypoint data can be added as a
+<a class="reference external" href="https://napari.org/stable/howtos/layers/points.html">points layer</a> or a <a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">tracks layer</a>,
+while image stacks (including videos) can be added as
+<a class="reference external" href="https://napari.org/stable/howtos/layers/image.html">image layers</a>.
+Below, we’ll explain how to do this.</p>
+</section>
+<section id="load-a-background-layer">
+<h2>Load a background layer<a class="headerlink" href="#load-a-background-layer" title="Link to this heading">#</a></h2>
+<p>Though this is not strictly necessary, it is usually informative to
+view the keypoints overlaid on a background that provides
+some spatial context. You can either <a class="reference internal" href="#target-load-video"><span class="std std-ref">load the video</span></a>
+corresponding to the dataset, or <a class="reference internal" href="#target-load-frame"><span class="std std-ref">load a single image</span></a> (e.g., a still frame derived from that video).
+You can do this by dragging and dropping the corresponding video or image file onto the
+<code class="docutils literal notranslate"><span class="pre">napari</span></code> window or by using the <code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">&gt;</span> <span class="pre">Open</span> <span class="pre">File(s)</span></code> menu option.</p>
+<section id="load-a-video">
+<span id="target-load-video"></span><h3>Load a video<a class="headerlink" href="#load-a-video" title="Link to this heading">#</a></h3>
+<p>Upon loading a video file into <code class="docutils literal notranslate"><span class="pre">napari</span></code>, you will be prompted
+via a pop-up dialog to select the reader.
+Choose the <code class="docutils literal notranslate"><span class="pre">video</span></code> reader—corresponding to the
+<a class="reference external" href="https://github.com/janclemenslab/napari-video"><code class="docutils literal notranslate"><span class="pre">napari-video</span></code></a>
+plugin—and click <code class="docutils literal notranslate"><span class="pre">OK</span></code>. You can optionally select to remember this reader
+for all files with the same extension.</p>
+<p><img alt="napari widget video reader" src="../_images/napari_plugin_video_reader.png" /></p>
+<p><code class="docutils literal notranslate"><span class="pre">napari-video</span></code> will load the video as an image stack with a slider
+at the bottom that you can use to navigate through frames.
+You may also use the left and right arrow keys to navigate
+frame-by-frame.</p>
+<p><img alt="napari widget video slider" src="../_images/napari_plugin_video_slider.png" /></p>
+<p>Clicking on the play button will start the video playback at a default
+rate of 10 frames per second. You can adjust the playback speed by right-clicking on the
+play button, or by opening the <code class="docutils literal notranslate"><span class="pre">napari</span> <span class="pre">&gt;</span> <span class="pre">Preferences</span></code> menu
+(<code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">&gt;</span> <span class="pre">Preferences</span></code> on Windows) and changing
+the <code class="docutils literal notranslate"><span class="pre">Playback</span> <span class="pre">frames</span> <span class="pre">per</span> <span class="pre">second</span></code> setting.</p>
+<div class="warning admonition" id="target-video-playback-limitations">
+<p class="admonition-title">Video playback limitations</p>
+<ul class="simple">
+<li><p>The video playback may freeze or stutter if you jump
+to a specific frame while the video is playing. We recommended pausing the playback first.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">napari-video</span></code> may struggle to play videos at a high frame rate, depending
+on your hardware, the video resolution and codec. If you experience
+performance issues, such as the video freezing or skipping frames,
+try reducing the playback speed or fall back to
+using a <a class="reference internal" href="#target-load-frame"><span class="std std-ref">single image</span></a> as a background.</p></li>
+</ul>
+</div>
+</section>
+<section id="load-an-image">
+<span id="target-load-frame"></span><h3>Load an image<a class="headerlink" href="#load-an-image" title="Link to this heading">#</a></h3>
+<p>This usually means using a still frame extracted from the video, but in theory
+you could use any image that’s in the same coordinate system as the
+tracking data. For example, you could use a schematic diagram of the arena,
+as long as it has the same width and height as the video and is
+properly aligned with the tracking data.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header sd-bg-info sd-bg-text-info">
+<span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-info" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg></span><span class="sd-summary-text">Extracting a still frame from a video</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">You can use the command line tool <a class="reference external" href="https://www.ffmpeg.org/"><code class="docutils literal notranslate"><span class="pre">ffmpeg</span></code></a>
+to extract a still frame from a video.</p>
+<p class="sd-card-text">To extract the first frame of a video:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ffmpeg<span class="w"> </span>-i<span class="w"> </span>video.mp4<span class="w"> </span>-frames:v<span class="w"> </span><span class="m">1</span><span class="w"> </span>first-frame.png
+</pre></div>
+</div>
+<p class="sd-card-text">To extract a frame at a specific time stamp (e.g. at 2 seconds):</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>ffmpeg<span class="w"> </span>-i<span class="w"> </span>video.mp4<span class="w"> </span>-ss<span class="w"> </span><span class="m">00</span>:00:02<span class="w"> </span>-frames:v<span class="w"> </span><span class="m">1</span><span class="w"> </span>frame-2sec.png
+</pre></div>
+</div>
+</div>
+</details><p>Dragging and dropping the image file onto the <code class="docutils literal notranslate"><span class="pre">napari</span></code> window
+(or opening it via the <code class="docutils literal notranslate"><span class="pre">File</span></code> menu) will load the image
+as a single 2D frame without a slider.</p>
+</section>
+</section>
+<section id="load-the-tracked-dataset">
+<h2>Load the tracked dataset<a class="headerlink" href="#load-the-tracked-dataset" title="Link to this heading">#</a></h2>
+<p>Now you are ready to load some motion tracks over your chosen background layer.</p>
+<p>On the right-hand side of the window you should see
+an expanded <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">tracked</span> <span class="pre">data</span></code> menu. You can load data from
+one of the <a class="reference internal" href="input_output.html#target-supported-formats"><span class="std std-ref">supported third-party formats</span></a>
+or from a <a class="reference internal" href="input_output.html#target-netcdf"><span class="std std-ref">netCDF file</span></a> saved with <code class="docutils literal notranslate"><span class="pre">movement</span></code>
+(expand the dropdown below for the precise requirements).</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header sd-bg-info sd-bg-text-info">
+<span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-info" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg></span><span class="sd-summary-text">netCDF files compatible with the GUI</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text" id="target-gui-compatible-netcdf">Only netCDF files that store a valid
+<a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset</span></a> can be opened in the GUI.
+Practically, this means:</p>
+<ul class="simple">
+<li><p class="sd-card-text">The dataset’s <code class="docutils literal notranslate"><span class="pre">ds_type</span></code> attribute must be set to <code class="docutils literal notranslate"><span class="pre">poses</span></code> or <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>.</p></li>
+<li><p class="sd-card-text">The data variables, dimensions, and coordinates must satisfy the
+<a class="reference internal" href="movement_dataset.html#target-dataset-structure"><span class="std std-ref">dataset structure requirements</span></a> for that <code class="docutils literal notranslate"><span class="pre">ds_type</span></code>.
+For example, a <code class="docutils literal notranslate"><span class="pre">poses</span></code> dataset must provide both <code class="docutils literal notranslate"><span class="pre">position</span></code> and <code class="docutils literal notranslate"><span class="pre">confidence</span></code>.</p></li>
+</ul>
+<p class="sd-card-text">Below is a small example showing how to save a GUI-compatible
+netCDF file with <code class="docutils literal notranslate"><span class="pre">movement</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_poses</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.filtering</span><span class="w"> </span><span class="kn">import</span> <span class="n">rolling_filter</span>
+
+<span class="n">ds_orig</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
+    <span class="s2">&quot;path/to/my_data.h5&quot;</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span>
+<span class="p">)</span>
+
+<span class="c1"># Create a copy to avoid modifying the original dataset</span>
+<span class="n">ds_new</span> <span class="o">=</span> <span class="n">ds_orig</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="c1"># Apply some processing to the position data variable.</span>
+<span class="c1"># e.g. a rolling median filter</span>
+<span class="n">ds_new</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rolling_filter</span><span class="p">(</span>
+  <span class="n">ds_orig</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">],</span> <span class="n">window</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">statistic</span><span class="o">=</span><span class="s2">&quot;median&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Save the processed dataset to a netCDF file</span>
+<span class="n">ds_new</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s2">&quot;my_data_processed.nc&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sd-card-text">Because <code class="docutils literal notranslate"><span class="pre">ds_new</span></code> is copied from the original dataset, it retains all required
+attributes and structure. Note that the data variable remains named <code class="docutils literal notranslate"><span class="pre">position</span></code>
+after processing, as expected.</p>
+</div>
+</details><p>To load tracked data in <code class="docutils literal notranslate"><span class="pre">napari</span></code>:</p>
+<ol class="arabic simple">
+<li><p>From the <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">software</span></code> dropdown menu select the name of the tracking software you used to generate the data (e.g. “DeepLabCut”), or choose “movement (netCDF)”.</p></li>
+<li><p>Set the <code class="docutils literal notranslate"><span class="pre">fps</span></code> (frames per second) of the video the data refers to. This only changes the time units shown when you hover over a keypoint. An unknown <code class="docutils literal notranslate"><span class="pre">fps</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">1</span></code>, which makes the displayed time equal to the frame index.
+The <code class="docutils literal notranslate"><span class="pre">fps</span></code> option is disabled when loading a netCDF file because the <code class="docutils literal notranslate"><span class="pre">fps</span></code> is directly read from the file’s attributes.</p></li>
+<li><p>Select the file containing the tracked data. You can paste the path to the file directly in the text box, or you can use the file browser button.</p></li>
+<li><p>Click <code class="docutils literal notranslate"><span class="pre">Load</span></code>.</p></li>
+</ol>
+<p>The data will be loaded into the viewer as a
+<a class="reference external" href="https://napari.org/stable/howtos/layers/points.html">points layer</a> and as a <a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">tracks layer</a>.
+If the input file is a bounding boxes dataset, an additional napari <a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">shapes layer</a> is loaded.
+By default, the data is added at the top of the layer list and the points layer is selected.</p>
+<p>For a poses dataset, you will see a view similar to this:</p>
+<p id="target-widget-screenshot"><img alt="napari widget with poses dataset loaded" src="../_images/napari_plugin_data_tracks.png" /></p>
+<p>And for a bounding boxes dataset, you will see a view more like the one below:</p>
+<p><img alt="napari widget with shapes loaded" src="../_images/napari_bboxes_layer.png" /></p>
+<p>Note the additional bounding boxes layer that is loaded for bounding boxes datasets. For both poses and bounding boxes datasets, you can toggle the visibility of any of these layers by clicking on the eye icon.</p>
+<section id="the-points-layer">
+<h3>The points layer<a class="headerlink" href="#the-points-layer" title="Link to this heading">#</a></h3>
+<p>The points layer shows the data for the current frame.</p>
+<p>The keypoints are represented as points, colour-coded by
+keypoint for single-individual datasets, or by individual for
+multi-individual datasets. In datasets with one keypoint per individual, or no keypoint dimension,
+the points are always colour-coded by individual.</p>
+<p>With the <a class="reference external" href="https://napari.org/stable/howtos/layers/points.html">points layer</a> selected,
+if we enable the <code class="docutils literal notranslate"><span class="pre">display_text</span></code> option in the
+layer controls panel, the keypoint name will be displayed on the lower right corner of each point. If the
+dataset has no keypoint dimension, the individual name is shown instead.</p>
+<p>Hovering with your mouse over a point
+(with the points layer selected) will
+bring up a tooltip containing the properties of that point: the individual and keypoint it represents,
+the point-wise confidence score (provided by the source software),
+and the time in seconds (calculated based on the frame number and
+the <code class="docutils literal notranslate"><span class="pre">fps</span></code> value).</p>
+<p><img alt="napari points layer tooltip" src="../_images/napari_points_layer_tooltip.png" /></p>
+<p>Using the frame slider at the bottom of the window, you can move through
+the frames of the dataset, and the points and video (if loaded) will update
+in sync.</p>
+<div class="tip admonition">
+<p class="admonition-title">Changing markers size, colour and shape</p>
+<p>You can change the size, the colour and the shape of any selected markers using the
+<a class="reference external" href="https://napari.org/stable/howtos/layers/points.html">points layer</a> controls panel.</p>
+<p>You can use the following keyboard shortcuts to toggle the markers selection:</p>
+<ul class="simple">
+<li><p>To select all the markers in the current frame, press <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p></li>
+<li><p>To select all the markers in all the loaded frames, press <code class="docutils literal notranslate"><span class="pre">Shift</span> <span class="pre">+</span> <span class="pre">A</span></code>.</p></li>
+<li><p>To unselect the currently selected markers, press the relevant keyboard shortcut again.</p></li>
+</ul>
+<p>You can find all the <a class="reference external" href="https://napari.org/stable/guides/preferences.html">keyboard shortcuts</a> in the top menu of the
+<code class="docutils literal notranslate"><span class="pre">napari</span></code> window, under <code class="docutils literal notranslate"><span class="pre">Preferences</span> <span class="pre">&gt;</span> <span class="pre">Shortcuts</span></code>.</p>
+</div>
+</section>
+<section id="the-tracks-layer">
+<h3>The tracks layer<a class="headerlink" href="#the-tracks-layer" title="Link to this heading">#</a></h3>
+<p>The tracks layer allows us to visualise data before and after the current frame.
+Remember that the current frame is determined by the position of the frame slider.</p>
+<p>The trajectory made up of all positions of a keypoint on all frames before the current frame is called <em>tail</em>.
+Similarly, its trajectory on all frames after the current frame is called <em>head</em>.</p>
+<p>Both tail and head tracks are represented as lines connecting a single keypoint across frames. The colour of the tracks follows
+the colour of the markers, and the length of the tracks can be adjusted in the
+<a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">tracks layer</a> controls panel, with the <code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">length</span></code> and <code class="docutils literal notranslate"><span class="pre">head</span> <span class="pre">length</span></code> sliders.</p>
+<p>When the <code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">length</span></code> slider is at its maximum position, the tail track show the trajectory of the
+keypoints from the start of the video until the current frame. When the <code class="docutils literal notranslate"><span class="pre">head</span> <span class="pre">length</span></code> slider is at its maximum position,
+the head track shows the trajectory of the keypoints from the current frame until the end of the video.</p>
+<p>For example, in the screenshot below, we can see from the tracks layer control panel that the
+selected layer shows the trajectories of the keypoints from the current frame until the
+end of the video.</p>
+<p><img alt="napari tracks layer head length" src="../_images/napari_tracks_layer_head_length.png" /></p>
+<p>You can also use the <a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">tracks layer</a> controls panel to
+change the colormap of a selected tracks layer.</p>
+<div class="warning admonition">
+<p class="admonition-title">Some caveats regarding the  <a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">tracks layer</a></p>
+<ul>
+<li><p>Currently there is no support in <code class="docutils literal notranslate"><span class="pre">napari</span></code> for fine control
+over the length of the tail and head tracks. However, we are
+working on a workaround, stay tuned!</p></li>
+<li><p>You may occasionally see a warning message in the GUI upon loading a datafile, that says:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>UserWarning:<span class="w"> </span>Previous<span class="w"> </span>color_by<span class="w"> </span>key<span class="w"> </span><span class="s1">&#39;keypoint_factorized&#39;</span>
+not<span class="w"> </span>present<span class="w"> </span><span class="k">in</span><span class="w"> </span>features.<span class="w"> </span>Falling<span class="w"> </span>back<span class="w"> </span>to<span class="w"> </span>track_id!
+</pre></div>
+</div>
+<p>This is a known issue and can be safely ignored. It does not currently affect the functionality of the GUI.</p>
+</li>
+<li><p>Also note that currently the <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">ID</span></code> checkbox in the <a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">tracks layer</a> controls panel refers to
+an internal napari track ID, rather than the individual or the keypoint ID. This is a known issue and we are working on a fix or workaround.</p></li>
+</ul>
+</div>
+</section>
+<section id="the-boxes-layer">
+<h3>The boxes layer<a class="headerlink" href="#the-boxes-layer" title="Link to this heading">#</a></h3>
+<p>The boxes layer is loaded for bounding boxes datasets only. It shows the bounding boxes for the current frame, as rectangles color-coded by individual.</p>
+<p>The name of the individual is shown in the lower left of the bounding box by default. This can be toggled by selecting the <a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">shapes layer</a> in the layer list and clicking the <code class="docutils literal notranslate"><span class="pre">display</span> <span class="pre">text</span></code> checkbox in the layer controls panel.</p>
+<p>As with tracks and points, you can use the frame slider at the bottom of the viewer to move through the frames of the dataset. This will update the bounding boxes and the rest of the loaded data in sync.</p>
+<div class="tip admonition">
+<p class="admonition-title">Changing bounding box size, colour and shape</p>
+<p>You can change edge and face colour as well as the positions of a bounding box’s corner vertices using the
+<a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">shapes layer</a> controls panel.</p>
+<p>You can use the following keyboard shortcuts to toggle the bounding boxes selection:</p>
+<ul class="simple">
+<li><p>To select all the bounding boxes in the current frame, enable the select shapes tool (<code class="docutils literal notranslate"><span class="pre">5</span></code> or <code class="docutils literal notranslate"><span class="pre">S</span></code>) and press <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p></li>
+<li><p>To deselect, click off of the bounding boxes.</p></li>
+<li><p>Individual vertices can be selected instead of the entire rectangle using the select vertex tool: <code class="docutils literal notranslate"><span class="pre">4</span></code> or <code class="docutils literal notranslate"><span class="pre">D</span></code>.</p></li>
+</ul>
+<p>You can find all the <a class="reference external" href="https://napari.org/stable/guides/preferences.html">keyboard shortcuts</a> in the top menu of the
+<code class="docutils literal notranslate"><span class="pre">napari</span></code> window, under <code class="docutils literal notranslate"><span class="pre">Preferences</span> <span class="pre">&gt;</span> <span class="pre">Shortcuts</span></code>.</p>
+</div>
+</section>
+</section>
+</section>
+
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="movement_dataset.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">The movement datasets</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../examples/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Examples</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#launch-the-gui">Launch the GUI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-a-background-layer">Load a background layer</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#load-a-video">Load a video</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#load-an-image">Load an image</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-tracked-dataset">Load the tracked dataset</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-points-layer">The points layer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-tracks-layer">The tracks layer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-boxes-layer">The boxes layer</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/user_guide/gui.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.16.1.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+apply\_along\_da\_axis
+======================
+
+.. currentmodule:: movement.utils.broadcasting
+
+.. autofunction:: apply_along_da_axis
+
+.. minigallery:: movement.utils.broadcasting.apply_along_da_axis
+   :add-heading: Examples using ``apply_along_da_axis``

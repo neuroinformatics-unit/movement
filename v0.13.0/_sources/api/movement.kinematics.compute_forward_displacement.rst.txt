@@ -1,0 +1,9 @@
+﻿compute\_forward\_displacement
+==============================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_forward_displacement
+
+.. minigallery:: movement.kinematics.compute_forward_displacement
+   :add-heading: Examples using ``compute_forward_displacement``
