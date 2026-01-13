@@ -230,7 +230,7 @@ myst_url_schemes = {
     "gin": "https://gin.g-node.org/{{path}}#{{fragment}}",
     "github-docs": "https://docs.github.com/en/{{path}}#{{fragment}}",
     "myst-parser": "https://myst-parser.readthedocs.io/en/latest/{{path}}#{{fragment}}",
-    "napari": "https://napari.org/dev/{{path}}",
+    "napari": "https://napari.org/stable/{{path}}",
     "setuptools-scm": "https://setuptools-scm.readthedocs.io/en/latest/{{path}}#{{fragment}}",
     "sleap": "https://sleap.ai/{{path}}#{{fragment}}",
     "sleap-docs": "https://docs.sleap.ai/latest/{{path}}#{{fragment}}",
