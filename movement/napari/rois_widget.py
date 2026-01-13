@@ -2,9 +2,8 @@
 
 ROIs are drawn as shapes in a napari Shapes layer and displayed in a table.
 The widget can handle multiple ROIs layers, allowing the user to select
-which layer to work with via a dropdown. It also auto-assigns unique names
-to ROIs (editable by the user, with uniqueness enforced) and applies
-consistent styling.
+which layer to work with via a dropdown. It also auto-assigns names
+to ROIs (editable by the user) and applies consistent styling.
 
 This module uses Qt's Model/View architecture to separate data from display:
 
@@ -40,6 +39,8 @@ from qtpy.QtWidgets import (
 
 from movement.napari.layer_styles import RoisColorManager, RoisStyle
 
+DEFAULT_ROI_NAME = "Un-named"
+
 
 class RoisWidget(QWidget):
     """Main widget for defining regions of interest (ROIs).
@@ -55,7 +56,7 @@ class RoisWidget(QWidget):
     - Table view displaying ROIs in the selected layer
     - Bidirectional selection sync: clicking a table row selects the
       shape in napari, and vice versa
-    - Auto-naming of ROIs with unique names
+    - Auto-naming of ROIs
     - Consistent color styling per layer
     """
 
@@ -455,8 +456,7 @@ class RoisTableView(QTableView):
     (Name, Shape type). Handles user interactions:
 
     - Row selection syncs to shape selection in napari
-    - Double-click on Name column enables inline editing (duplicate
-      names are automatically renamed to stay unique)
+    - Double-click on Name column enables inline editing
     """
 
     def __init__(self, parent=None):
@@ -519,9 +519,8 @@ class RoisTableModel(QAbstractTableModel):
     - Column 1: Shape type (e.g., "rectangle", "polygon")
 
     Listens to layer data events and emits Qt signals when shapes are
-    added, removed, or modified. Also handles auto-naming of new shapes,
-    enforces unique ROI names within a layer, and applies consistent
-    styling via RoisStyle.
+    added, removed, or modified. Also handles auto-naming of new shapes
+    and applies consistent styling via RoisStyle.
     """
 
     def __init__(
@@ -542,6 +541,8 @@ class RoisTableModel(QAbstractTableModel):
         super().__init__(parent)
         self.layer = shapes_layer
         self.roi_style = roi_style
+        # Track shape count to detect new shapes
+        self._last_shape_count = len(shapes_layer.data)
         # The model will listen to napari layer data changes
         self.layer.events.data.connect(self._on_layer_data_changed)
 
@@ -591,9 +592,7 @@ class RoisTableModel(QAbstractTableModel):
         """Update ROI name when user edits the Name column.
 
         Updates the layer.properties["name"] list and emits dataChanged.
-        Only the Name column (column 0) is editable. If the new name
-        duplicates an existing ROI name in the layer, a numeric suffix
-        [1], [2], etc. is appended to ensure uniqueness.
+        Only the Name column (column 0) is editable.
         """
         if not index.isValid() or role != Qt.EditRole:
             return False
@@ -610,10 +609,8 @@ class RoisTableModel(QAbstractTableModel):
             while len(names) <= row:
                 names.append("")  # Ensure we have enough names
 
-            # Make the name unique within the layer
-            unique_name = _make_roi_name_unique(str(value), names, row)
-            names[row] = unique_name
-            self.layer.properties = {"name": names}  # Update layer properties
+            names[row] = str(value)
+            self.layer.properties = {"name": names}
             self.dataChanged.emit(index, index)
             return True
 
@@ -636,7 +633,7 @@ class RoisTableModel(QAbstractTableModel):
     def _on_layer_data_changed(self, event=None):
         """Handle shape addition, removal, or modification in the layer.
 
-        For "added" events: auto-assigns names and resets the model.
+        For "added" events: assigns default name to new shapes and resets.
         For "removed" events: resets the model.
         For other events (e.g., shape editing): updates current shape style.
         """
@@ -653,23 +650,15 @@ class RoisTableModel(QAbstractTableModel):
                 current_names.append("")
 
             if event.action == "added":
-                # Clear duplicate names created by napari's property copying.
-                # Since setData enforces uniqueness, any duplicates here must
-                # be from napari copying the last value when adding shapes.
-                seen: set[str] = set()
-                for i, name in enumerate(current_names):
-                    if name and name in seen:
-                        current_names[i] = ""
-                    elif name:
-                        seen.add(name)
+                # Force new shapes to have default name
+                # (napari copies properties from last shape, we override this)
+                for i in range(self._last_shape_count, n_shapes):
+                    current_names[i] = DEFAULT_ROI_NAME
 
-            # Update names for added shapes to ensure uniqueness
-            updated_names = (
-                _fill_empty_roi_names(current_names)
-                if event.action == "added"
-                else current_names
-            )
-            self.layer.properties = {"name": updated_names}
+            self.layer.properties = {"name": current_names}
+
+            # Update shape count tracker
+            self._last_shape_count = n_shapes
 
             # Reapply the style to all shapes in the layer
             self.roi_style.color_all_shapes(self.layer)
@@ -696,52 +685,10 @@ class RoisTableModel(QAbstractTableModel):
             self.endResetModel()
 
 
-def _make_roi_name_unique(
-    name: str, existing_names: list, current_index: int
-) -> str:
-    """Make an ROI name unique within its layer by appending a suffix.
-
-    If the proposed ROI name already exists in the layer (at a different
-    index), appends [1], [2], etc. until a unique name is found. This
-    follows napari's convention for auto-naming layers.
-
-    Parameters
-    ----------
-    name : str
-        The proposed ROI name.
-    existing_names : list
-        Current list of ROI names in the layer.
-    current_index : int
-        The index of the ROI being renamed (excluded from duplicate check).
-
-    Returns
-    -------
-    str
-        The original name if unique, or name with [N] suffix if duplicate.
-
-    """
-    # Build set of names at other indices (excluding current)
-    other_names = {
-        n for i, n in enumerate(existing_names) if i != current_index
-    }
-
-    if name not in other_names:
-        return name
-
-    # Find the next available suffix
-    suffix = 1
-    while True:
-        candidate = f"{name} [{suffix}]"
-        if candidate not in other_names:
-            return candidate
-        suffix += 1
-
-
 def _fill_empty_roi_names(existing_names: list) -> list:
-    """Auto-assign unique names to unnamed ROIs.
+    """Fill empty ROI names with a default placeholder.
 
-    Replaces empty/None names with unique auto-generated names using the
-    format "ROI", "ROI [1]", "ROI [2]", etc. Existing names are preserved.
+    Replaces empty/None names with DEFAULT_ROI_NAME.
 
     Parameters
     ----------
@@ -751,11 +698,10 @@ def _fill_empty_roi_names(existing_names: list) -> list:
     Returns
     -------
     list
-        Updated list with auto-assigned names where needed.
+        Updated list with default names where needed.
 
     """
-    updated_names = existing_names.copy()
-    for i, name in enumerate(updated_names):
-        if not isinstance(name, str) or not name.strip():
-            updated_names[i] = _make_roi_name_unique("ROI", updated_names, i)
-    return updated_names
+    return [
+        name if isinstance(name, str) and name.strip() else DEFAULT_ROI_NAME
+        for name in existing_names
+    ]

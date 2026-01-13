@@ -12,9 +12,9 @@ from qtpy.QtWidgets import (
 )
 
 from movement.napari.rois_widget import (
+    DEFAULT_ROI_NAME,
     RoisTableView,
     RoisWidget,
-    _make_roi_name_unique,
 )
 
 pytestmark = pytest.mark.filterwarnings(
@@ -49,7 +49,7 @@ def rois_widget_with_layer(make_napari_viewer_proxy, sample_shapes_data):
         shape_type="polygon",
         name="ROIs",
     )
-    layer.properties = {"name": ["ROI", "ROI [1]"]}
+    layer.properties = {"name": [DEFAULT_ROI_NAME, DEFAULT_ROI_NAME]}
     widget = RoisWidget(viewer)
     return widget, layer
 
@@ -276,7 +276,7 @@ def test_close_cleans_up(rois_widget_with_layer):
 # ------------------- Tests for ROI auto-naming ------------------------------#
 @pytest.mark.parametrize("empty_value", ["", None])
 def test_fills_empty_or_none_names(make_napari_viewer_proxy, empty_value):
-    """Test that empty/None names are filled with auto-generated names."""
+    """Test that empty/None names are filled with default name."""
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes(
         [[[0, 0], [0, 10], [10, 10], [10, 0]]],
@@ -287,7 +287,7 @@ def test_fills_empty_or_none_names(make_napari_viewer_proxy, empty_value):
 
     RoisWidget(viewer)
     names = list(layer.properties.get("name", []))
-    assert names[0] == "ROI"
+    assert names[0] == DEFAULT_ROI_NAME
 
 
 def test_preserves_user_names(make_napari_viewer_proxy):
@@ -306,40 +306,18 @@ def test_preserves_user_names(make_napari_viewer_proxy):
     RoisWidget(viewer)
     names = list(layer.properties.get("name", []))
     assert names[0] == "Arena"
-    assert names[1] == "ROI"
+    assert names[1] == DEFAULT_ROI_NAME
 
 
-def test_new_shape_gets_auto_name(rois_widget_with_layer):
-    """Test that new shapes get auto-assigned names continuing sequence."""
+def test_new_shape_gets_default_name(rois_widget_with_layer):
+    """Test that new shapes get the default name."""
     _, layer = rois_widget_with_layer
     layer.add([[60, 60], [60, 70], [70, 70], [70, 60]])
 
     names = list(layer.properties.get("name", []))
     assert len(names) == 3
-    assert names[2] == "ROI [2]"
-
-
-def test_new_shape_after_user_rename_gets_auto_name(rois_widget_with_layer):
-    """Test that new shapes get auto-names even after user renames last shape.
-
-    This guards against napari's behavior of copying the last property value
-    when a shape is added. The new shape should get an auto-generated name,
-    not a copy of the user-assigned name.
-    """
-    widget, layer = rois_widget_with_layer
-    # Rename the last shape to a custom name
-    index = widget.roi_table_model.index(1, 0)
-    widget.roi_table_model.setData(index, "Arena", Qt.EditRole)
-    assert layer.properties["name"][1] == "Arena"
-
-    # Add a new shape - should get auto-name, not "Arena"
-    layer.add([[60, 60], [60, 70], [70, 70], [70, 60]])
-
-    names = list(layer.properties.get("name", []))
-    assert len(names) == 3
-    assert names[0] == "ROI"
-    assert names[1] == "Arena"
-    assert names[2] == "ROI [1]"  # Should be auto-named, not "Arena"
+    # New shapes always get the default name (overriding napari property copy)
+    assert names[2] == DEFAULT_ROI_NAME
 
 
 # ------------------- Tests for RoisTableModel -------------------------------#
@@ -359,7 +337,7 @@ def test_model_header_labels(rois_widget_with_layer):
 
 @pytest.mark.parametrize(
     "column, expected",
-    [(0, "ROI"), (1, "polygon")],
+    [(0, DEFAULT_ROI_NAME), (1, "polygon")],
     ids=["name_column", "shape_type_column"],
 )
 def test_model_data_returns_correct_values(
@@ -379,20 +357,6 @@ def test_model_setData_updates_roi_name(rois_widget_with_layer):
 
     assert result is True
     assert layer.properties["name"][0] == "New Name"
-
-
-def test_model_setData_makes_duplicate_name_unique(rois_widget_with_layer):
-    """Test that setData appends suffix to duplicate names."""
-    widget, layer = rois_widget_with_layer
-    # Try to rename first ROI to same name as second ROI ("ROI [1]")
-    index = widget.roi_table_model.index(0, 0)
-    result = widget.roi_table_model.setData(index, "ROI [1]", Qt.EditRole)
-
-    assert result is True
-    # Should get suffixed to avoid duplicate
-    assert layer.properties["name"][0] == "ROI [1] [1]"
-    # Second ROI should remain unchanged
-    assert layer.properties["name"][1] == "ROI [1]"
 
 
 def test_model_setData_rejects_shape_type_edit(rois_widget_with_layer):
@@ -552,27 +516,3 @@ def test_model_header_data_edge_cases(
     widget, _ = rois_widget_with_layer
     header = widget.roi_table_model.headerData(0, orientation, role)
     assert header == expected
-
-
-# ------------------- Tests for _make_roi_name_unique ------------------------#
-@pytest.mark.parametrize(
-    "name, existing_names, current_index, expected",
-    [
-        ("ROI", ["", ""], 0, "ROI"),  # unique name
-        ("ROI", ["ROI", ""], 1, "ROI [1]"),  # duplicate, gets suffix
-        ("ROI", ["ROI", "ROI [1]"], 2, "ROI [2]"),  # finds next suffix
-        ("Arena", ["Arena", "ROI"], 0, "Arena"),  # renaming to same name
-        ("Arena", ["ROI", "Arena"], 2, "Arena [1]"),  # duplicate at diff index
-    ],
-    ids=[
-        "unique_name",
-        "duplicate_gets_suffix",
-        "finds_next_available_suffix",
-        "renaming_to_same_name",
-        "duplicate_other_index_suffixed",
-    ],
-)
-def test_make_roi_name_unique(name, existing_names, current_index, expected):
-    """Test _make_roi_name_unique returns correct unique names."""
-    result = _make_roi_name_unique(name, existing_names, current_index)
-    assert result == expected
