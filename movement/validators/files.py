@@ -30,7 +30,7 @@ class ValidFile(Protocol):
 # --- Composable attrs validators --- #
 
 
-def file_validator(
+def _file_validator(
     *,
     permission: Literal["r", "w", "rw"] = "r",
     suffixes: set[str] | None = None,
@@ -106,6 +106,10 @@ def _file_is_accessible(
 
     def _validator(_, __, value: Path) -> None:
         if "r" in expected_permission:
+            if not value.exists():
+                raise logger.error(
+                    FileNotFoundError(f"File {value} does not exist.")
+                )
             if not os.access(value, os.R_OK):
                 raise logger.error(
                     PermissionError(
@@ -113,21 +117,17 @@ def _file_is_accessible(
                         "Make sure that you have read permissions."
                     )
                 )
-            if not value.exists():
-                raise logger.error(
-                    FileNotFoundError(f"File {value} does not exist.")
-                )
         if "w" in expected_permission:
+            if value.exists():
+                raise logger.error(
+                    FileExistsError(f"File {value} already exists.")
+                )
             if not os.access(value.parent, os.W_OK):
                 raise logger.error(
                     PermissionError(
                         f"Unable to write to file: {value}. "
                         "Make sure that you have write permissions."
                     )
-                )
-            if value.exists():
-                raise logger.error(
-                    FileExistsError(f"File {value} already exists.")
                 )
 
     return _validator
@@ -150,7 +150,7 @@ def _file_has_expected_suffix(
     return _validator
 
 
-def hdf5_validator(
+def _hdf5_validator(
     expected_datasets: set[str],
 ) -> Callable[[Any, Any, Path], None]:
     """Return a validator for HDF5 files.
@@ -173,21 +173,30 @@ def hdf5_validator(
     """
 
     def _validator(_, __, value: Path) -> None:
-        with h5py.File(value, "r") as f:
-            diff = set(expected_datasets).difference(set(f.keys()))
-            if len(diff) > 0:
-                raise logger.error(
-                    ValueError(
-                        f"Could not find the expected dataset(s) {diff} "
-                        f"in file: {value}. Make sure that the file "
-                        "matches the expected source software format."
+        try:
+            with h5py.File(value, "r") as f:
+                diff = set(expected_datasets).difference(set(f.keys()))
+                if len(diff) > 0:
+                    raise logger.error(
+                        ValueError(
+                            f"Could not find the expected dataset(s) {diff} "
+                            f"in file: {value}. Make sure that the file "
+                            "matches the expected source software format."
+                        )
                     )
+        except OSError as e:
+            raise logger.error(
+                ValueError(
+                    f"Could not open file as HDF5: {value}. "
+                    f"Make sure that the file is a valid HDF5 file. "
+                    f"Error: {e}"
                 )
+            ) from e
 
     return _validator
 
 
-def if_instance_of(
+def _if_instance_of(
     cls: type, validator: Callable[[Any, Attribute, Any], None]
 ) -> Callable[[Any, Attribute, Any], None]:
     """Return a validator that conditionally applies based on type.
@@ -231,7 +240,7 @@ def validate_file_path(
         class _TempValidator:
             file: Path = field(
                 converter=Path,
-                validator=file_validator(
+                validator=_file_validator(
                     permission=permission, suffixes=suffixes
                 ),
             )
@@ -254,8 +263,8 @@ class ValidSleapAnalysis:
     file: Path = field(
         converter=Path,
         validator=validators.and_(
-            file_validator(permission="r", suffixes=suffixes),
-            hdf5_validator(expected_datasets={"tracks"}),
+            _file_validator(permission="r", suffixes=suffixes),
+            _hdf5_validator(expected_datasets={"tracks"}),
         ),
     )
 
@@ -268,8 +277,8 @@ class ValidSleapLabels:
     file: Path = field(
         converter=Path,
         validator=validators.and_(
-            file_validator(permission="r", suffixes=suffixes),
-            hdf5_validator(expected_datasets={"pred_points", "metadata"}),
+            _file_validator(permission="r", suffixes=suffixes),
+            _hdf5_validator(expected_datasets={"pred_points", "metadata"}),
         ),
     )
 
@@ -281,8 +290,8 @@ class ValidDeepLabCutH5:
     suffixes: ClassVar[set[str]] = {".h5"}
     file: Path = field(
         validator=validators.and_(
-            file_validator(permission="r", suffixes=suffixes),
-            hdf5_validator(expected_datasets={"df_with_missing"}),
+            _file_validator(permission="r", suffixes=suffixes),
+            _hdf5_validator(expected_datasets={"df_with_missing"}),
         ),
     )
 
@@ -311,7 +320,7 @@ class ValidDeepLabCutCSV:
 
     suffixes: ClassVar[set[str]] = {".csv"}
     file: Path = field(
-        validator=file_validator(permission="r", suffixes=suffixes)
+        validator=_file_validator(permission="r", suffixes=suffixes)
     )
     level_names: list[str] = field(init=False, factory=list)
 
@@ -360,7 +369,7 @@ class ValidAniposeCSV:
 
     suffixes: ClassVar[set[str]] = {".csv"}
     file: Path = field(
-        validator=file_validator(permission="r", suffixes=suffixes)
+        validator=_file_validator(permission="r", suffixes=suffixes)
     )
 
     @file.validator
@@ -463,7 +472,7 @@ class ValidVIATracksCSV:
 
     suffixes: ClassVar[set[str]] = {".csv"}
     file: Path = field(
-        validator=file_validator(permission="r", suffixes=suffixes)
+        validator=_file_validator(permission="r", suffixes=suffixes)
     )
     frame_regexp: str = field(default=DEFAULT_FRAME_REGEXP)
 
@@ -722,9 +731,9 @@ class ValidNWBFile:
         converter=lambda f: Path(f) if isinstance(f, str | Path) else f,
         validator=validators.and_(
             validators.instance_of((Path, NWBFile)),
-            if_instance_of(
+            _if_instance_of(
                 Path,
-                file_validator(permission="r", suffixes=suffixes),
+                _file_validator(permission="r", suffixes=suffixes),
             ),
         ),
     )
