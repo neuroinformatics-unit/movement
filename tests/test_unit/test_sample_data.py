@@ -184,7 +184,7 @@ def test_fetch_dataset(sample_dataset, with_video):
 @pytest.mark.parametrize(
     "sample_name, expected_exception",
     [
-        ("nonexistent_file", ValueError),
+        ("nonexistent-dataset", ValueError),
         ("TRex_five-locusts.zip", NotImplementedError),
     ],
     ids=["invalid_file", "TRex_folder_zip"],
