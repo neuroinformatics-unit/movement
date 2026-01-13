@@ -198,6 +198,19 @@ def spurious_column_anipose_csv_file(tmp_path):
     return file_path
 
 
+# ---------------- DeepLabCut file fixtures ----------------------------
+@pytest.fixture
+def dlc_h5_file():
+    """Return the path to a DeepLabCut .h5 file."""
+    return pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+
+
+@pytest.fixture
+def dlc_csv_file():
+    """Return the path to a DeepLabCut .csv file."""
+    return pytest.DATA_PATHS.get("DLC_single-wasp.predictions.csv")
+
+
 # ---------------- SLEAP file fixtures ----------------------------
 @pytest.fixture(
     params=[
@@ -212,6 +225,20 @@ def spurious_column_anipose_csv_file(tmp_path):
 def sleap_file(request):
     """Return the path to a SLEAP .h5 or .slp file."""
     return pytest.DATA_PATHS.get(request.param)
+
+
+@pytest.fixture
+def sleap_slp_file():
+    """Return the path to a SLEAP .slp file."""
+    return pytest.DATA_PATHS.get(
+        "SLEAP_three-mice_Aeon_proofread.predictions.slp"
+    )
+
+
+@pytest.fixture
+def sleap_analysis_file():
+    """Return the path to a SLEAP analysis .h5 file."""
+    return pytest.DATA_PATHS.get("SLEAP_three-mice_Aeon_proofread.analysis.h5")
 
 
 @pytest.fixture
@@ -275,6 +302,12 @@ via_tracks_csv_file_valid_header = (
     "filename,file_size,file_attributes,region_count,"
     "region_id,region_shape_attributes,region_attributes\n"
 )
+
+
+@pytest.fixture
+def via_tracks_csv():
+    """Return the path to a VIA tracks .csv file."""
+    return pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv")
 
 
 @pytest.fixture
@@ -471,6 +504,16 @@ def via_track_ids_not_unique_per_frame():
     )
 
 
+# ---------------- Anipose file fixtures ----------------------------
+@pytest.fixture
+def anipose_csv_file():
+    """Return the path to an Anipose .csv file."""
+    return pytest.DATA_PATHS.get(
+        "anipose_mouse-paw_anipose-paper.triangulation.csv"
+    )
+
+
+# ---------------- netCDF file fixtures ----------------------------
 @pytest.fixture(scope="session")
 def invalid_netcdf_file_missing_confidence(tmp_path_factory):
     """Create an invalid 'poses' netCDF file missing the
