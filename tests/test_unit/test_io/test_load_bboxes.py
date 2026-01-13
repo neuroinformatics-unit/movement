@@ -244,7 +244,7 @@ def test_from_via_tracks_file(
     a valid VIA tracks .csv file returns a proper Dataset.
     """
     kwargs = {
-        "file_path": via_file_path,
+        "file": via_file_path,
         "fps": fps,
         "use_frame_numbers_from_file": use_frame_numbers_from_file,
         **({"frame_regexp": frame_regexp} if frame_regexp is not None else {}),

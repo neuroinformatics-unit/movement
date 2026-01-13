@@ -151,7 +151,7 @@ def _file_has_expected_suffix(
 
 
 def _hdf5_validator(
-    expected_datasets: set[str],
+    datasets: set[str],
 ) -> Callable[[Any, Any, Path], None]:
     """Return a validator for HDF5 files.
 
@@ -162,7 +162,7 @@ def _hdf5_validator(
 
     Parameters
     ----------
-    expected_datasets
+    datasets
         Set of names of the expected datasets in the HDF5 file.
 
     Raises
@@ -175,7 +175,7 @@ def _hdf5_validator(
     def _validator(_, __, value: Path) -> None:
         try:
             with h5py.File(value, "r") as f:
-                diff = set(expected_datasets).difference(set(f.keys()))
+                diff = set(datasets).difference(set(f.keys()))
                 if len(diff) > 0:
                     raise logger.error(
                         ValueError(
@@ -264,7 +264,7 @@ class ValidSleapAnalysis:
         converter=Path,
         validator=validators.and_(
             _file_validator(permission="r", suffixes=suffixes),
-            _hdf5_validator(expected_datasets={"tracks"}),
+            _hdf5_validator(datasets={"tracks"}),
         ),
     )
 
@@ -278,7 +278,7 @@ class ValidSleapLabels:
         converter=Path,
         validator=validators.and_(
             _file_validator(permission="r", suffixes=suffixes),
-            _hdf5_validator(expected_datasets={"pred_points", "metadata"}),
+            _hdf5_validator(datasets={"pred_points", "metadata"}),
         ),
     )
 
@@ -291,7 +291,7 @@ class ValidDeepLabCutH5:
     file: Path = field(
         validator=validators.and_(
             _file_validator(permission="r", suffixes=suffixes),
-            _hdf5_validator(expected_datasets={"df_with_missing"}),
+            _hdf5_validator(datasets={"df_with_missing"}),
         ),
     )
 

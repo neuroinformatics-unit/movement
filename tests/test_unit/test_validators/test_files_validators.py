@@ -1,168 +1,130 @@
-import stat
+from contextlib import nullcontext as does_not_raise
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
+from attrs import define, field
 
 from movement.validators.files import (
     ValidAniposeCSV,
     ValidDeepLabCutCSV,
-    ValidFile,
-    ValidHDF5,
     ValidNWBFile,
     ValidVIATracksCSV,
-    _validate_file_path,
+    _hdf5_validator,
+    _if_instance_of,
+    validate_file_path,
 )
-
-
-@pytest.fixture
-def sample_file_path():
-    """Return a factory of file paths with a given file extension suffix."""
-
-    def _sample_file_path(tmp_path: Path, suffix: str):
-        """Return a path for a file under the pytest temporary directory
-        with the given file extension.
-        """
-        file_path = tmp_path / f"test.{suffix}"
-        return file_path
-
-    return _sample_file_path
-
-
-@pytest.mark.parametrize("suffix", [".txt", ".csv"])
-def test_validate_file_path_valid_file(sample_file_path, tmp_path, suffix):
-    """Test file path validation with a correct file."""
-    file_path = sample_file_path(tmp_path, suffix)
-    validated_file = _validate_file_path(file_path, [suffix])
-
-    assert isinstance(validated_file, ValidFile)
-    assert validated_file.path == file_path
-
-
-@pytest.mark.parametrize("suffix", [".txt", ".csv"])
-def test_validate_file_path_invalid_permission(
-    sample_file_path, tmp_path, suffix
-):
-    """Test file path validation with a file that has invalid permissions.
-
-    We use the following permissions:
-    - S_IRUSR: Read permission for owner
-    - S_IRGRP: Read permission for group
-    - S_IROTH: Read permission for others
-    """
-    # Create a sample file with read-only permission
-    file_path = sample_file_path(tmp_path, suffix)
-    file_path.touch()
-    file_path.chmod(stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
-
-    # Try to validate the file path
-    # (should raise an OSError since we require write permissions)
-    with pytest.raises(OSError):
-        _validate_file_path(file_path, [suffix])
-
-
-@pytest.mark.parametrize("suffix", [".txt", ".csv"])
-def test_validate_file_path_file_exists(sample_file_path, tmp_path, suffix):
-    """Test file path validation with a file that already exists.
-
-    We use the following permissions to create a file with the right
-    permissions:
-    - S_IRUSR: Read permission for owner
-    - S_IWUSR: Write permission for owner
-    - S_IRGRP: Read permission for group
-    - S_IWGRP: Write permission for group
-    - S_IROTH: Read permission for others
-    - S_IWOTH: Write permission for others
-
-    We include both read and write permissions because in real-world
-    scenarios it's very rare to have a file that is writable but not readable.
-    """
-    # Create a sample file with read and write permissions
-    file_path = sample_file_path(tmp_path, suffix)
-    file_path.touch()
-    file_path.chmod(
-        stat.S_IRUSR
-        | stat.S_IWUSR
-        | stat.S_IRGRP
-        | stat.S_IWGRP
-        | stat.S_IROTH
-        | stat.S_IWOTH
-    )
-
-    # Try to validate the file path
-    # (should raise an OSError since the file already exists)
-    with pytest.raises(OSError):
-        _validate_file_path(file_path, [suffix])
-
-
-@pytest.mark.parametrize("invalid_suffix", [".foo", "", None])
-def test_validate_file_path_invalid_suffix(
-    sample_file_path, tmp_path, invalid_suffix
-):
-    """Test file path validation with an invalid file suffix."""
-    # Create a file path with an invalid suffix
-    file_path = sample_file_path(tmp_path, invalid_suffix)
-
-    # Try to validate using a .txt suffix
-    with pytest.raises(ValueError):
-        _validate_file_path(file_path, [".txt"])
-
-
-@pytest.mark.parametrize("suffix", [".txt", ".csv"])
-def test_validate_file_path_multiple_suffixes(
-    sample_file_path, tmp_path, suffix
-):
-    """Test file path validation with multiple valid suffixes."""
-    # Create a valid txt file path
-    file_path = sample_file_path(tmp_path, suffix)
-
-    # Validate using multiple valid suffixes
-    validated_file = _validate_file_path(file_path, [".txt", ".csv"])
-
-    assert isinstance(validated_file, ValidFile)
-    assert validated_file.path == file_path
 
 
 @pytest.mark.parametrize(
-    "invalid_input, expected_exception",
+    "input, permission, suffixes, expected_context",
     [
-        ("unreadable_file", pytest.raises(PermissionError)),
-        ("unwriteable_file", pytest.raises(PermissionError)),
-        ("fake_h5_file", pytest.raises(FileExistsError)),
-        ("wrong_extension_file", pytest.raises(ValueError)),
-        ("nonexistent_file", pytest.raises(FileNotFoundError)),
-        ("directory", pytest.raises(IsADirectoryError)),
+        ("readable_csv_file", "r", None, does_not_raise()),
+        ("readable_csv_file", "r", {".csv"}, does_not_raise()),
+        ("readable_csv_file", "r", {".csv", ".h5"}, does_not_raise()),
+        ("new_csv_file", "w", None, does_not_raise()),
+        ("unreadable_file", "r", None, pytest.raises(PermissionError)),
+        ("unwriteable_file", "w", None, pytest.raises(PermissionError)),
+        ("fake_h5_file", "w", None, pytest.raises(FileExistsError)),
+        (
+            "wrong_extension_file",
+            "r",
+            {".h5", ".csv"},
+            pytest.raises(ValueError),
+        ),
+        ("nonexistent_file", "r", None, pytest.raises(FileNotFoundError)),
+        ("directory", "r", None, pytest.raises(IsADirectoryError)),
+        ("new_csv_file", "x", None, pytest.raises(ValueError)),
+    ],
+    ids=[
+        "has read permission, exists, and is not a directory",
+        "has expected suffix",
+        "has one of the expected suffixes",
+        "has write permission and does not exist",
+        "lacks read permission",
+        "lacks write permission",
+        "write permission is expected, but file already exists",
+        "invalid file suffix",
+        "read permission is expected, but file does not exist",
+        "path is a directory",
+        "invalid expected permission",
     ],
 )
-def test_file_validator_with_invalid_input(
-    invalid_input, expected_exception, request
+def test_validate_file_path(
+    input, permission, suffixes, expected_context, request
 ):
-    """Test that invalid files raise the appropriate errors."""
-    invalid_dict = request.getfixturevalue(invalid_input)
-    with expected_exception:
-        ValidFile(
-            invalid_dict.get("file_path"),
-            expected_permission=invalid_dict.get("expected_permission"),
-            expected_suffix=invalid_dict.get("expected_suffix", []),
+    """Test `validate_file_path` and the underlying `_file_validator`.
+    If input is valid, the returned value is a Path object, otherwise
+    the appropriate error is raised.
+    """
+    file_path = request.getfixturevalue(input)
+    with expected_context:
+        validated_file = validate_file_path(
+            file_path,
+            permission=permission,
+            suffixes=suffixes,
         )
+        assert isinstance(validated_file, Path)
 
 
 @pytest.mark.parametrize(
-    "invalid_input, expected_exception",
+    "input, expected_datasets, expected_context",
     [
-        ("no_dataframe_h5_file", pytest.raises(ValueError)),
-        ("fake_h5_file", pytest.raises(ValueError)),
+        (
+            "data_as_list_h5_file",
+            {"dataframe"},
+            pytest.raises(
+                ValueError, match="Could not find the expected dataset"
+            ),
+        ),
+        (
+            "fake_h5_file",
+            set(),
+            pytest.raises(ValueError, match="Could not open file as HDF5"),
+        ),
+        ("data_as_list_h5_file", {"data_as_list"}, does_not_raise()),
     ],
 )
-def test_hdf5_validator_with_invalid_input(
-    invalid_input, expected_exception, request
-):
-    """Test that invalid HDF5 files raise the appropriate errors."""
-    invalid_dict = request.getfixturevalue(invalid_input)
-    with expected_exception:
-        ValidHDF5(
-            invalid_dict.get("file_path"),
-            expected_datasets=invalid_dict.get("expected_datasets"),
+def test_hdf5_validator(input, expected_datasets, expected_context, request):
+    """Test `_hdf5_validator` with valid and invalid inputs."""
+
+    @define
+    class _StubValidator:
+        file: Path = field(
+            converter=Path,
+            validator=_hdf5_validator(datasets=expected_datasets),
         )
+
+    with expected_context:
+        _StubValidator(file=request.getfixturevalue(input))
+
+
+@pytest.mark.parametrize(
+    "value, validator_should_be_called",
+    [
+        (1, True),
+        (1.00, False),
+    ],
+)
+def test_if_instance_of(value, validator_should_be_called):
+    """Test the `_if_instance_of` validator.
+
+    The validator should only apply the mocked validator if the value
+    is an instance of the specified type (int in this case).
+    """
+    mock_validator = Mock()
+
+    @define
+    class _StubValidator:
+        value: int | float = field(
+            validator=_if_instance_of(int, mock_validator)
+        )
+
+    _StubValidator(value=value)
+    if validator_should_be_called:
+        mock_validator.assert_called_once()
+    else:
+        mock_validator.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -287,7 +249,6 @@ def test_via_tracks_csv_validator_with_invalid_input(
     file_path = invalid_via_tracks_csv_file(invalid_input)
     with pytest.raises(error_type) as excinfo:
         ValidVIATracksCSV(file_path)
-
     assert str(excinfo.value) == log_message
 
 
