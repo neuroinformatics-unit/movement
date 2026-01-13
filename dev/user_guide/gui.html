@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=afc74973"></script>
+    <script src="../_static/documentation_options.js?v=3c474700"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev20</p>
+    <p class="title logo__title">movement v0.12.1.dev22</p>
   
 </a></div>
     
@@ -484,7 +484,7 @@
                    <section class="tex2jax_ignore mathjax_ignore" id="graphical-user-interface">
 <span id="target-gui"></span><h1>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Link to this heading">#</a></h1>
 <p>The <code class="docutils literal notranslate"><span class="pre">movement</span></code> graphical user interface (GUI), powered by our custom plugin for
-<a class="reference external" href="https://napari.org/dev/">napari</a>, makes it easy to view and explore <code class="docutils literal notranslate"><span class="pre">movement</span></code>
+<a class="reference external" href="https://napari.org/stable/">napari</a>, makes it easy to view and explore <code class="docutils literal notranslate"><span class="pre">movement</span></code>
 motion tracks. Currently, you can use it to
 visualise 2D <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a>
 as points, tracks, and rectangular bounding boxes (if defined) overlaid on video frames.</p>
@@ -508,12 +508,12 @@ includes the <code class="docutils literal notranslate"><span class="pre">napari
 <p>This is equivalent to running <code class="docutils literal notranslate"><span class="pre">napari</span> <span class="pre">-w</span> <span class="pre">movement</span></code> and will open the <code class="docutils literal notranslate"><span class="pre">napari</span></code>
 window with the <code class="docutils literal notranslate"><span class="pre">movement</span></code> widget docked on the
 right-hand side, as in the <a class="reference internal" href="#target-widget-screenshot"><span class="std std-ref">screenshot</span></a> below.</p>
-<p>In <code class="docutils literal notranslate"><span class="pre">napari</span></code>, data is typically loaded into <a class="reference external" href="https://napari.org/dev/guides/layers.html">layers</a>,
+<p>In <code class="docutils literal notranslate"><span class="pre">napari</span></code>, data is typically loaded into <a class="reference external" href="https://napari.org/stable/guides/layers.html">layers</a>,
 which can be reordered and toggled for visibility in the layers list panel.
 For example, keypoint data can be added as a
-<a class="reference external" href="https://napari.org/dev/howtos/layers/points.html">points layer</a> or a <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a>,
+<a class="reference external" href="https://napari.org/stable/howtos/layers/points.html">points layer</a> or a <a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">tracks layer</a>,
 while image stacks (including videos) can be added as
-<a class="reference external" href="https://napari.org/dev/howtos/layers/image.html">image layers</a>.
+<a class="reference external" href="https://napari.org/stable/howtos/layers/image.html">image layers</a>.
 Below, we’ll explain how to do this.</p>
 </section>
 <section id="load-a-background-layer">
@@ -637,8 +637,8 @@ The <code class="docutils literal notranslate"><span class="pre">fps</span></cod
 <li><p>Click <code class="docutils literal notranslate"><span class="pre">Load</span></code>.</p></li>
 </ol>
 <p>The data will be loaded into the viewer as a
-<a class="reference external" href="https://napari.org/dev/howtos/layers/points.html">points layer</a> and as a <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a>.
-If the input file is a bounding boxes dataset, an additional napari <a class="reference external" href="https://napari.org/dev/howtos/layers/shapes.html">shapes layer</a> is loaded.
+<a class="reference external" href="https://napari.org/stable/howtos/layers/points.html">points layer</a> and as a <a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">tracks layer</a>.
+If the input file is a bounding boxes dataset, an additional napari <a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">shapes layer</a> is loaded.
 By default, the data is added at the top of the layer list and the points layer is selected.</p>
 <p>For a poses dataset, you will see a view similar to this:</p>
 <p id="target-widget-screenshot"><img alt="napari widget with poses dataset loaded" src="../_images/napari_plugin_data_tracks.png" /></p>
@@ -652,7 +652,7 @@ By default, the data is added at the top of the layer list and the points layer 
 keypoint for single-individual datasets, or by individual for
 multi-individual datasets. In datasets with one keypoint per individual, or no keypoint dimension,
 the points are always colour-coded by individual.</p>
-<p>With the <a class="reference external" href="https://napari.org/dev/howtos/layers/points.html">points layer</a> selected,
+<p>With the <a class="reference external" href="https://napari.org/stable/howtos/layers/points.html">points layer</a> selected,
 if we enable the <code class="docutils literal notranslate"><span class="pre">display_text</span></code> option in the
 layer controls panel, the keypoint name will be displayed on the lower right corner of each point. If the
 dataset has no keypoint dimension, the individual name is shown instead.</p>
@@ -669,14 +669,14 @@ in sync.</p>
 <div class="tip admonition">
 <p class="admonition-title">Changing markers size, colour and shape</p>
 <p>You can change the size, the colour and the shape of any selected markers using the
-<a class="reference external" href="https://napari.org/dev/howtos/layers/points.html">points layer</a> controls panel.</p>
+<a class="reference external" href="https://napari.org/stable/howtos/layers/points.html">points layer</a> controls panel.</p>
 <p>You can use the following keyboard shortcuts to toggle the markers selection:</p>
 <ul class="simple">
 <li><p>To select all the markers in the current frame, press <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p></li>
 <li><p>To select all the markers in all the loaded frames, press <code class="docutils literal notranslate"><span class="pre">Shift</span> <span class="pre">+</span> <span class="pre">A</span></code>.</p></li>
 <li><p>To unselect the currently selected markers, press the relevant keyboard shortcut again.</p></li>
 </ul>
-<p>You can find all the <a class="reference external" href="https://napari.org/dev/guides/preferences.html">keyboard shortcuts</a> in the top menu of the
+<p>You can find all the <a class="reference external" href="https://napari.org/stable/guides/preferences.html">keyboard shortcuts</a> in the top menu of the
 <code class="docutils literal notranslate"><span class="pre">napari</span></code> window, under <code class="docutils literal notranslate"><span class="pre">Preferences</span> <span class="pre">&gt;</span> <span class="pre">Shortcuts</span></code>.</p>
 </div>
 </section>
@@ -688,7 +688,7 @@ Remember that the current frame is determined by the position of the frame slide
 Similarly, its trajectory on all frames after the current frame is called <em>head</em>.</p>
 <p>Both tail and head tracks are represented as lines connecting a single keypoint across frames. The colour of the tracks follows
 the colour of the markers, and the length of the tracks can be adjusted in the
-<a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a> controls panel, with the <code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">length</span></code> and <code class="docutils literal notranslate"><span class="pre">head</span> <span class="pre">length</span></code> sliders.</p>
+<a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">tracks layer</a> controls panel, with the <code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">length</span></code> and <code class="docutils literal notranslate"><span class="pre">head</span> <span class="pre">length</span></code> sliders.</p>
 <p>When the <code class="docutils literal notranslate"><span class="pre">tail</span> <span class="pre">length</span></code> slider is at its maximum position, the tail track show the trajectory of the
 keypoints from the start of the video until the current frame. When the <code class="docutils literal notranslate"><span class="pre">head</span> <span class="pre">length</span></code> slider is at its maximum position,
 the head track shows the trajectory of the keypoints from the current frame until the end of the video.</p>
@@ -696,10 +696,10 @@ the head track shows the trajectory of the keypoints from the current frame unti
 selected layer shows the trajectories of the keypoints from the current frame until the
 end of the video.</p>
 <p><img alt="napari tracks layer head length" src="../_images/napari_tracks_layer_head_length.png" /></p>
-<p>You can also use the <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a> controls panel to
+<p>You can also use the <a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">tracks layer</a> controls panel to
 change the colormap of a selected tracks layer.</p>
 <div class="warning admonition">
-<p class="admonition-title">Some caveats regarding the  <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a></p>
+<p class="admonition-title">Some caveats regarding the  <a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">tracks layer</a></p>
 <ul>
 <li><p>Currently there is no support in <code class="docutils literal notranslate"><span class="pre">napari</span></code> for fine control
 over the length of the tail and head tracks. However, we are
@@ -711,7 +711,7 @@ not<span class="w"> </span>present<span class="w"> </span><span class="k">in</sp
 </div>
 <p>This is a known issue and can be safely ignored. It does not currently affect the functionality of the GUI.</p>
 </li>
-<li><p>Also note that currently the <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">ID</span></code> checkbox in the <a class="reference external" href="https://napari.org/dev/howtos/layers/tracks.html">tracks layer</a> controls panel refers to
+<li><p>Also note that currently the <code class="docutils literal notranslate"><span class="pre">show</span> <span class="pre">ID</span></code> checkbox in the <a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">tracks layer</a> controls panel refers to
 an internal napari track ID, rather than the individual or the keypoint ID. This is a known issue and we are working on a fix or workaround.</p></li>
 </ul>
 </div>
@@ -719,19 +719,19 @@ an internal napari track ID, rather than the individual or the keypoint ID. This
 <section id="the-boxes-layer">
 <h3>The boxes layer<a class="headerlink" href="#the-boxes-layer" title="Link to this heading">#</a></h3>
 <p>The boxes layer is loaded for bounding boxes datasets only. It shows the bounding boxes for the current frame, as rectangles color-coded by individual.</p>
-<p>The name of the individual is shown in the lower left of the bounding box by default. This can be toggled by selecting the <a class="reference external" href="https://napari.org/dev/howtos/layers/shapes.html">shapes layer</a> in the layer list and clicking the <code class="docutils literal notranslate"><span class="pre">display</span> <span class="pre">text</span></code> checkbox in the layer controls panel.</p>
+<p>The name of the individual is shown in the lower left of the bounding box by default. This can be toggled by selecting the <a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">shapes layer</a> in the layer list and clicking the <code class="docutils literal notranslate"><span class="pre">display</span> <span class="pre">text</span></code> checkbox in the layer controls panel.</p>
 <p>As with tracks and points, you can use the frame slider at the bottom of the viewer to move through the frames of the dataset. This will update the bounding boxes and the rest of the loaded data in sync.</p>
 <div class="tip admonition">
 <p class="admonition-title">Changing bounding box size, colour and shape</p>
 <p>You can change edge and face colour as well as the positions of a bounding box’s corner vertices using the
-<a class="reference external" href="https://napari.org/dev/howtos/layers/shapes.html">shapes layer</a> controls panel.</p>
+<a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">shapes layer</a> controls panel.</p>
 <p>You can use the following keyboard shortcuts to toggle the bounding boxes selection:</p>
 <ul class="simple">
 <li><p>To select all the bounding boxes in the current frame, enable the select shapes tool (<code class="docutils literal notranslate"><span class="pre">5</span></code> or <code class="docutils literal notranslate"><span class="pre">S</span></code>) and press <code class="docutils literal notranslate"><span class="pre">A</span></code>.</p></li>
 <li><p>To deselect, click off of the bounding boxes.</p></li>
 <li><p>Individual vertices can be selected instead of the entire rectangle using the select vertex tool: <code class="docutils literal notranslate"><span class="pre">4</span></code> or <code class="docutils literal notranslate"><span class="pre">D</span></code>.</p></li>
 </ul>
-<p>You can find all the <a class="reference external" href="https://napari.org/dev/guides/preferences.html">keyboard shortcuts</a> in the top menu of the
+<p>You can find all the <a class="reference external" href="https://napari.org/stable/guides/preferences.html">keyboard shortcuts</a> in the top menu of the
 <code class="docutils literal notranslate"><span class="pre">napari</span></code> window, under <code class="docutils literal notranslate"><span class="pre">Preferences</span> <span class="pre">&gt;</span> <span class="pre">Shortcuts</span></code>.</p>
 </div>
 </section>
