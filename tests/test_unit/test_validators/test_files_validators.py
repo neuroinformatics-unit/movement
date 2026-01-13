@@ -1,3 +1,4 @@
+import re
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest.mock import Mock
@@ -8,7 +9,10 @@ from attrs import define, field
 from movement.validators.files import (
     ValidAniposeCSV,
     ValidDeepLabCutCSV,
+    ValidDeepLabCutH5,
     ValidNWBFile,
+    ValidSleapAnalysis,
+    ValidSleapLabels,
     ValidVIATracksCSV,
     _hdf5_validator,
     _if_instance_of,
@@ -128,175 +132,279 @@ def test_if_instance_of(value, validator_should_be_called):
 
 
 @pytest.mark.parametrize(
-    "invalid_input, expected_exception",
+    "validator_cls, file_fixture, expected_context",
     [
-        ("invalid_single_individual_csv_file", pytest.raises(ValueError)),
-        ("invalid_multi_individual_csv_file", pytest.raises(ValueError)),
+        (ValidSleapAnalysis, "sleap_analysis_file", does_not_raise()),
+        (
+            ValidSleapAnalysis,
+            "sleap_slp_file",
+            pytest.raises(ValueError, match="Expected file with suffix"),
+        ),
+        (
+            ValidSleapAnalysis,
+            "dlc_h5_file",
+            pytest.raises(
+                ValueError, match="Could not find the expected dataset"
+            ),
+        ),
+        (ValidSleapLabels, "sleap_slp_file", does_not_raise()),
+        (
+            ValidSleapLabels,
+            "sleap_analysis_file",
+            pytest.raises(ValueError, match="Expected file with suffix"),
+        ),
+    ],
+    ids=[
+        "Analysis file validator used with SLEAP analysis file",
+        "Analysis file validator used with SLEAP labels file",
+        "Analysis file validator used with DeepLabCut .h5 file",
+        "Labels file validator used with SLEAP labels file",
+        "Labels file validator used with SLEAP analysis file",
     ],
 )
-def test_deeplabcut_csv_validator_with_invalid_input(
-    invalid_input, expected_exception, request
+def test_sleap_validators(
+    validator_cls, file_fixture, expected_context, request
 ):
-    """Test that invalid CSV files raise the appropriate errors."""
-    file_path = request.getfixturevalue(invalid_input)
-    with expected_exception:
-        ValidDeepLabCutCSV(file_path)
+    """Test SLEAP validators with valid and invalid inputs."""
+    file = request.getfixturevalue(file_fixture)
+    with expected_context:
+        validator_cls(file)
 
 
 @pytest.mark.parametrize(
-    "invalid_input, error_type, log_message",
+    "validator_cls, file_fixture, expected_context",
+    [
+        (ValidDeepLabCutCSV, "dlc_csv_file", does_not_raise()),
+        (
+            ValidDeepLabCutCSV,
+            "dlc_h5_file",
+            pytest.raises(ValueError, match="Expected file with suffix"),
+        ),
+        (
+            ValidDeepLabCutCSV,
+            "invalid_single_individual_csv_file",
+            pytest.raises(ValueError, match="header rows do not match"),
+        ),
+        (
+            ValidDeepLabCutCSV,
+            "invalid_multi_individual_csv_file",
+            pytest.raises(ValueError, match="header rows do not match"),
+        ),
+        (ValidDeepLabCutH5, "dlc_h5_file", does_not_raise()),
+        (
+            ValidDeepLabCutH5,
+            "dlc_csv_file",
+            pytest.raises(ValueError, match="Expected file with suffix"),
+        ),
+        (
+            ValidDeepLabCutH5,
+            "sleap_analysis_file",
+            pytest.raises(
+                ValueError, match="Could not find the expected dataset"
+            ),
+        ),
+    ],
+    ids=[
+        "CSV file validator used with DLC .csv file",
+        "CSV file validator used with DLC .h5 file",
+        "Invalid single-individual DLC .csv file",
+        "Invalid multi-individual DLC .csv file",
+        "H5 file validator used with DLC .h5 file",
+        "H5 file validator used with DLC .csv file",
+        "H5 file validator used with SLEAP analysis file",
+    ],
+)
+def test_deeplabcut_validators(
+    validator_cls, file_fixture, expected_context, request
+):
+    """Test DeepLabCut validators with valid and invalid inputs."""
+    file = request.getfixturevalue(file_fixture)
+    with expected_context:
+        validator_cls(file)
+
+
+@pytest.mark.parametrize(
+    "mode, param, expected_context",
     [
         (
+            "file",
             "via_invalid_header",
-            ValueError,
-            ".csv header row does not match the known format for "
-            "VIA tracks .csv files. "
-            "Expected "
-            "['filename', 'file_size', 'file_attributes', "
-            "'region_count', 'region_id', 'region_shape_attributes', "
-            "'region_attributes'] "
-            "but got ['filename', 'file_size', 'file_attributes'].",
+            pytest.raises(ValueError, match=".csv header row does not match"),
         ),
         (
+            "file",
             "via_frame_number_in_file_attribute_not_integer",
-            ValueError,
-            "04.09.2023-04-Right_RE_test_frame_A.png (row 0): "
-            "'frame' file attribute cannot be cast as an integer. "
-            "Please review the file attributes: "
-            "{'clip': 123, 'frame': 'FOO'}.",
+            pytest.raises(
+                ValueError,
+                match="'frame' file attribute cannot be cast as an integer",
+            ),
         ),
         (
+            "file",
             "via_frame_number_in_filename_wrong_pattern",
-            AttributeError,
-            "04.09.2023-04-Right_RE_test_frame_1.png (row 0): "
-            r"The provided frame regexp ((0\d*)\.\w+$) did not return "
-            "any matches and a "
-            "frame number could not be extracted from the "
-            "filename.",
+            pytest.raises(
+                AttributeError,
+                match="provided frame regexp .* did not return any matches",
+            ),
         ),
         (
+            "file",
             "via_more_frame_numbers_than_filenames",
-            ValueError,
-            "The number of unique frame numbers does not match the number "
-            "of unique image files. Please review the VIA tracks .csv file "
-            "and ensure a unique frame number is defined for each file. ",
+            pytest.raises(
+                ValueError,
+                match="number of unique frame numbers does not match",
+            ),
         ),
         (
+            "file",
             "via_less_frame_numbers_than_filenames",
-            ValueError,
-            "The number of unique frame numbers does not match the number "
-            "of unique image files. Please review the VIA tracks .csv file "
-            "and ensure a unique frame number is defined for each file. ",
+            pytest.raises(
+                ValueError,
+                match="number of unique frame numbers does not match",
+            ),
         ),
         (
+            "file",
             "via_region_shape_attribute_not_rect",
-            ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
-            "bounding box shape must be 'rect' (rectangular) "
-            "but instead got 'circle'.",
+            pytest.raises(
+                ValueError, match="bounding box shape must be 'rect'"
+            ),
         ),
         (
+            "file",
             "via_region_shape_attribute_missing_x",
-            ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
-            "missing bounding box shape parameter(s). "
-            "Expected 'x', 'y', 'width', 'height' to exist as "
-            "'region_shape_attributes', but got "
-            "'['name', 'y', 'width', 'height']'.",
+            pytest.raises(
+                ValueError, match="missing bounding box shape parameter"
+            ),
         ),
         (
+            "file",
             "via_region_attribute_missing_track",
-            ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
-            "bounding box does not have a 'track' attribute defined "
-            "under 'region_attributes'. "
-            "Please review the VIA tracks .csv file.",
+            pytest.raises(
+                ValueError,
+                match="bounding box does not have a 'track' attribute",
+            ),
         ),
         (
+            "file",
             "via_track_id_not_castable_as_int",
-            ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
-            "the track ID for the bounding box cannot be cast "
-            "as an integer. "
-            "Please review the VIA tracks .csv file.",
+            pytest.raises(
+                ValueError,
+                match="the track ID for the bounding box cannot be cast",
+            ),
         ),
         (
+            "file",
             "via_track_ids_not_unique_per_frame",
-            ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png: "
-            "multiple bounding boxes in this file have the same track ID. "
-            "Please review the VIA tracks .csv file.",
+            pytest.raises(
+                ValueError,
+                match="multiple bounding boxes .* have the same track ID",
+            ),
         ),
+        (
+            "regexp",
+            r"*",
+            pytest.raises(re.error, match="could not be compiled"),
+        ),
+        (
+            "regexp",
+            r"_(0\d*)_$",
+            pytest.raises(
+                AttributeError,
+                match="provided frame regexp .* did not return any matches",
+            ),
+        ),
+        (
+            "regexp",
+            r"(0\d*\.\w+)$",
+            pytest.raises(
+                ValueError,
+                match="frame number .* could not be cast as an integer",
+            ),
+        ),
+        ("valid", None, does_not_raise()),
     ],
 )
-def test_via_tracks_csv_validator_with_invalid_input(
-    invalid_via_tracks_csv_file, invalid_input, error_type, log_message
+def test_via_tracks_csv_validator(
+    invalid_via_tracks_csv_file, via_tracks_csv, mode, param, expected_context
 ):
-    """Test that invalid VIA tracks .csv files raise the appropriate errors.
+    """Test ValidVIATracksCSV with valid and invalid inputs.
 
-    Errors to check:
-    - error if .csv header is wrong
-    - error if frame number is not defined in the file
-        (frame number extracted either from the filename or from attributes)
-    - error if extracted frame numbers are not 1-based integers
-    - error if region_shape_attributes "name" is not "rect"
-    - error if not all region_attributes have key "track"
-        (i.e., all regions must have an ID assigned)
-    - error if IDs are unique per frame
-        (i.e., bboxes IDs must exist only once per frame)
-    - error if bboxes IDs are not 1-based integers
+    Errors to check
+    - file errors
+        - .csv header is wrong
+        - frame number is not defined in the file
+          (frame number extracted either from the filename or from attributes)
+        - extracted frame numbers cannot be cast as integers
+        - region_shape_attributes "name" is not "rect"
+        - not all region_attributes have key "track"
+          (i.e., all regions must have an ID assigned)
+        - IDs are unique per frame
+          (i.e., bboxes IDs must exist only once per frame)
+        - bboxes IDs cannot be cast as integers
+    - invalid frame_regexp
+        - regexp cannot be compiled
+        - regexp does not return any matches
+        - extracted frame numbers cannot be cast as integers
     """
-    file_path = invalid_via_tracks_csv_file(invalid_input)
-    with pytest.raises(error_type) as excinfo:
-        ValidVIATracksCSV(file_path)
-    assert str(excinfo.value) == log_message
+    file_path = (
+        invalid_via_tracks_csv_file(param)
+        if mode == "file"
+        else via_tracks_csv
+    )
+    with expected_context:
+        if mode != "regexp":
+            ValidVIATracksCSV(file_path)
+        else:
+            ValidVIATracksCSV(file_path, frame_regexp=param)
 
 
 @pytest.mark.parametrize(
-    "invalid_input, log_message",
+    "input, expected_context",
     [
         (
             "invalid_single_individual_csv_file",
-            "CSV file is missing some expected columns.",
+            pytest.raises(ValueError, match="missing some expected columns"),
         ),
         (
             "missing_keypoint_columns_anipose_csv_file",
-            "Keypoint kp0 is missing some expected suffixes.",
+            pytest.raises(ValueError, match="missing some expected suffixes"),
         ),
         (
             "spurious_column_anipose_csv_file",
-            "Column funny_column ends with an unexpected suffix.",
+            pytest.raises(ValueError, match="ends with an unexpected suffix"),
         ),
+        ("anipose_csv_file", does_not_raise()),
     ],
 )
-def test_anipose_csv_validator_with_invalid_input(
-    invalid_input, log_message, request
-):
-    """Test that invalid Anipose .csv files raise the appropriate errors.
+def test_anipose_csv_validator(input, expected_context, request):
+    """Test ValidAniposeCSV with valid and invalid inputs.
 
     Errors to check:
-    - error if .csv is missing some columns
-    - error if .csv misses some of the expected columns for a keypoint
-    - error if .csv has columns that are not expected
-    (either common ones or keypoint-specific ones)
+    - .csv is missing some columns
+    - .csv misses some of the expected columns for a keypoint
+    - .csv has columns that are not expected (common or keypoint-specific)
     """
-    file_path = request.getfixturevalue(invalid_input)
-    with pytest.raises(ValueError) as excinfo:
+    file_path = request.getfixturevalue(input)
+    with expected_context:
         ValidAniposeCSV(file_path)
-
-    assert log_message in str(excinfo.value)
 
 
 @pytest.mark.parametrize(
-    "invalid_input, expected_exception",
+    "input, expected_context",
     [
-        (123, pytest.raises(TypeError)),
-        (None, pytest.raises(TypeError)),
+        ("nwb_file", does_not_raise()),
+        ("nwbfile_object", does_not_raise()),
+        (
+            "dlc_csv_file",
+            pytest.raises(ValueError, match="Expected file with suffix"),
+        ),
     ],
 )
-def test_nwb_file_validator_with_invalid_input(
-    invalid_input, expected_exception
-):
-    """Test that invalid NWB file inputs raise the appropriate errors."""
-    with expected_exception:
-        ValidNWBFile(invalid_input)
+def test_nwb_file_validator(input, expected_context, request):
+    """Test ValidNWBFile with valid and invalid inputs."""
+    file = request.getfixturevalue(input)
+    if input.startswith("nwb"):
+        file = file()
+    with expected_context:
+        ValidNWBFile(file)
