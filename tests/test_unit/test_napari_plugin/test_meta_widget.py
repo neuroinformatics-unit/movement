@@ -15,5 +15,5 @@ def test_meta_widget_instantiation(make_napari_viewer_proxy):
     assert first_widget.isExpanded()
 
     second_widget = meta_widget.collapsible_widgets[1]
-    assert second_widget._text == "Define ROIs"
+    assert second_widget._text == "Define regions of interest"
     assert not second_widget.isExpanded()
