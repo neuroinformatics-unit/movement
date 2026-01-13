@@ -9,8 +9,8 @@ from movement.napari.layer_styles import (
     BoxesStyle,
     LayerStyle,
     PointsStyle,
-    RoisColorManager,
-    RoisStyle,
+    RegionsColorManager,
+    RegionsStyle,
     TracksStyle,
     _sample_colormap,
 )
@@ -83,7 +83,7 @@ def default_style_attributes():
             },
         },
         # Additional attributes for RoiStyle
-        RoisStyle: {
+        RegionsStyle: {
             "color": "red",
             "edge_width": 5.0,
             "opacity": 1.0,
@@ -97,7 +97,7 @@ def default_style_attributes():
 
 @pytest.mark.parametrize(
     "layer_class",
-    [LayerStyle, PointsStyle, TracksStyle, BoxesStyle, RoisStyle],
+    [LayerStyle, PointsStyle, TracksStyle, BoxesStyle, RegionsStyle],
 )
 def test_layer_style_initialization(
     sample_layer_style, layer_class, default_style_attributes
@@ -330,25 +330,25 @@ def test_boxes_style_set_color_by(
         ),
     ],
 )
-def test_rois_style_colors(color, expected_rgb):
+def test_regions_style_colors(color, expected_rgb):
     """Test that setting the color attribute updates the face, edge,
     and text colors. The face color must be transparent, while edges and
     text must be opaque.
     """
-    # Create a ROIs style object
-    rois_style = RoisStyle()
-    rois_style.color = color
+    # Create a Regions style object
+    regions_style = RegionsStyle()
+    regions_style.color = color
 
     # Convert expected_rgb to RGBA for comparison
     expected_rgba = expected_rgb + (1.0,)
     expected_face_rgba = expected_rgb + (0.25,)
 
-    assert_array_equal(rois_style.edge_and_text_color, expected_rgba)
-    assert_array_equal(rois_style.face_color, expected_face_rgba)
+    assert_array_equal(regions_style.edge_and_text_color, expected_rgba)
+    assert_array_equal(regions_style.face_color, expected_face_rgba)
 
 
 @pytest.mark.parametrize("n_shapes", [1, 3])
-def test_rois_style_color_all_shapes(make_napari_viewer_proxy, n_shapes):
+def test_regions_style_color_all_shapes(make_napari_viewer_proxy, n_shapes):
     """Test that color_all_shapes applies colors to all shapes in a layer."""
     viewer = make_napari_viewer_proxy()
 
@@ -366,8 +366,8 @@ def test_rois_style_color_all_shapes(make_napari_viewer_proxy, n_shapes):
     layer.properties = {"name": [f"ROI-{i}" for i in range(n_shapes)]}
 
     # Apply style
-    rois_style = RoisStyle(color="blue")
-    rois_style.color_all_shapes(layer)
+    regions_style = RegionsStyle(color="blue")
+    regions_style.color_all_shapes(layer)
 
     # Check face and edge colors are applied to all shapes
     assert len(layer.face_color) == n_shapes
@@ -378,14 +378,14 @@ def test_rois_style_color_all_shapes(make_napari_viewer_proxy, n_shapes):
     assert "{name}" in str(layer.text)
 
 
-def test_rois_style_color_all_shapes_empty_layer(make_napari_viewer_proxy):
+def test_regions_style_color_all_shapes_empty_layer(make_napari_viewer_proxy):
     """Test that color_all_shapes handles empty layers gracefully."""
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes()
 
-    rois_style = RoisStyle(color="red")
+    regions_style = RegionsStyle(color="red")
     # Should not raise an error
-    rois_style.color_all_shapes(layer)
+    regions_style.color_all_shapes(layer)
 
 
 @pytest.mark.parametrize(
@@ -395,7 +395,7 @@ def test_rois_style_color_all_shapes_empty_layer(make_napari_viewer_proxy):
         pytest.param(set(), id="no_selection"),
     ],
 )
-def test_rois_style_color_current_shape(
+def test_regions_style_color_current_shape(
     make_napari_viewer_proxy, selected_data
 ):
     """Test that color_current_shape runs without error."""
@@ -406,12 +406,12 @@ def test_rois_style_color_current_shape(
     layer = viewer.add_shapes(shapes_data, shape_type="polygon")
     layer.selected_data = selected_data
 
-    rois_style = RoisStyle(color="green")
+    regions_style = RegionsStyle(color="green")
     # Should not raise - exercises the method
-    rois_style.color_current_shape(layer)
+    regions_style.color_current_shape(layer)
 
 
-def test_rois_style_color_current_shape_invalid_selection():
+def test_regions_style_color_current_shape_invalid_selection():
     """Test color_current_shape returns early for invalid selection indices."""
 
     class MockLayer:
@@ -428,7 +428,7 @@ def test_rois_style_color_current_shape_invalid_selection():
             self.current_face_color_set = True
 
     mock_layer = MockLayer()
-    RoisStyle().color_current_shape(mock_layer)
+    RegionsStyle().color_current_shape(mock_layer)
 
     # Should return early - current_face_color should NOT be set
     assert not mock_layer.current_face_color_set
@@ -438,22 +438,22 @@ def test_rois_style_color_current_shape_invalid_selection():
     "layer_name, expected_color_index",
     [
         # Default names get sequential indices
-        ("ROIs", 0),
-        ("ROIs [1]", 1),
-        ("ROIs [2]", 2),
+        ("Regions", 0),
+        ("Regions [1]", 1),
+        ("Regions [2]", 2),
         # Custom names use MD5 hash
         ("Arena", 6),
         ("Nest", 4),
     ],
 )
-def test_rois_color_manager_deterministic(layer_name, expected_color_index):
+def test_regions_color_manager_deterministic(layer_name, expected_color_index):
     """Test that color assignment is deterministic across manager instances.
 
-    Default ROI names ("ROIs", "ROIs [N]") get sequential color indices.
+    Default region names ("Regions", "Regions [N]") get sequential indices.
     Custom names use MD5 hash for deterministic assignment across sessions.
     """
-    manager1 = RoisColorManager()
-    manager2 = RoisColorManager()
+    manager1 = RegionsColorManager()
+    manager2 = RegionsColorManager()
 
     color1 = manager1.get_color_for_layer(layer_name)
     color2 = manager2.get_color_for_layer(layer_name)
