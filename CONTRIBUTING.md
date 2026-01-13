@@ -191,7 +191,7 @@ We aim to adhere to the [When to use logging guide](inv:python#logging-basic-tut
 In general:
 * Use {func}`print` for simple, non-critical messages that do not need to be logged.
 * Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within `movement`, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesDataset<movement.validators.datasets.ValidPosesDataset>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
-* Use {meth}`logger.warning()<loguru._logger.Logger.warning>` for non-critical issues where default values are assigned to optional parameters, e.g. `individual_names`, `keypoint_names` in {class}`ValidPosesDataset<movement.validators.datasets.ValidPosesDataset>`.
+* Use {meth}`logger.info()<loguru._logger.Logger.info>` for informational messages where default values are assigned to optional parameters, e.g. `individual_names`, `keypoint_names` in {class}`ValidPosesDataset<movement.validators.datasets.ValidPosesDataset>`. These are expected behaviors, not indications of problems.
 
 ### Continuous integration
 All pushes and pull requests will be built by [GitHub actions](github-docs:actions).

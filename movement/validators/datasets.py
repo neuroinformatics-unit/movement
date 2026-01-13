@@ -211,7 +211,7 @@ class ValidPosesDataset:
                 np.nan,
                 dtype="float32",
             )
-            logger.warning(
+            logger.info(
                 "Confidence array was not provided."
                 "Setting to an array of NaNs."
             )
@@ -219,7 +219,7 @@ class ValidPosesDataset:
             self.individual_names = [
                 f"id_{i}" for i in range(position_array_shape[-1])
             ]
-            logger.warning(
+            logger.info(
                 "Individual names were not provided. "
                 f"Setting to {self.individual_names}."
             )
@@ -227,7 +227,7 @@ class ValidPosesDataset:
             self.keypoint_names = [
                 f"keypoint_{i}" for i in range(position_array_shape[2])
             ]
-            logger.warning(
+            logger.info(
                 "Keypoint names were not provided. "
                 f"Setting to {self.keypoint_names}."
             )
@@ -404,7 +404,7 @@ class ValidBboxesDataset:
                 np.nan,
                 dtype="float32",
             )
-            logger.warning(
+            logger.info(
                 "Confidence array was not provided. "
                 "Setting to an array of NaNs."
             )
@@ -413,7 +413,7 @@ class ValidBboxesDataset:
             self.individual_names = [
                 f"id_{i}" for i in range(position_array_shape[-1])
             ]
-            logger.warning(
+            logger.info(
                 "Individual names for the bounding boxes "
                 "were not provided. "
                 "Setting to 0-based IDs that are unique per frame: \n"
@@ -423,7 +423,7 @@ class ValidBboxesDataset:
         if self.frame_array is None:
             n_frames = position_array_shape[0]
             self.frame_array = np.arange(n_frames).reshape(-1, 1)
-            logger.warning(
+            logger.info(
                 "Frame numbers were not provided. "
                 "Setting to an array of 0-based integers."
             )

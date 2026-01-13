@@ -412,3 +412,73 @@ def test_bboxes_dataset_validator_frame_array(
         default_frame_array = np.arange(n_frames).reshape(-1, 1)
         assert np.array_equal(ds.frame_array, default_frame_array)
         assert ds.frame_array.shape == (ds.position_array.shape[0], 1)
+
+
+def test_poses_default_assignment_logs_at_info_level(
+    valid_poses_arrays, caplog
+):
+    """Test that default value assignment messages log at INFO level."""
+    import logging
+
+    with caplog.at_level(logging.DEBUG):
+        ValidPosesDataset(
+            position_array=valid_poses_arrays("multi_individual_array")[
+                "position"
+            ],
+            # Omit optional parameters to trigger defaults
+        )
+
+    # Check that INFO-level messages were logged for defaults
+    info_messages = [
+        r.message for r in caplog.records if r.levelno == logging.INFO
+    ]
+    assert any(
+        "Confidence array was not provided" in msg for msg in info_messages
+    )
+    assert any(
+        "Individual names were not provided" in msg for msg in info_messages
+    )
+    assert any(
+        "Keypoint names were not provided" in msg for msg in info_messages
+    )
+
+    # Ensure no WARNING-level messages for default assignments
+    warning_messages = [
+        r.message for r in caplog.records if r.levelno == logging.WARNING
+    ]
+    assert not any("was not provided" in msg for msg in warning_messages)
+
+
+def test_bboxes_default_assignment_logs_at_info_level(
+    valid_bboxes_arrays_all_zeros, caplog
+):
+    """Test that default value assignment messages log at INFO level."""
+    import logging
+
+    with caplog.at_level(logging.DEBUG):
+        ValidBboxesDataset(
+            position_array=valid_bboxes_arrays_all_zeros["position"],
+            shape_array=valid_bboxes_arrays_all_zeros["shape"],
+            # Omit optional parameters to trigger defaults
+        )
+
+    # Check that INFO-level messages were logged for defaults
+    info_messages = [
+        r.message for r in caplog.records if r.levelno == logging.INFO
+    ]
+    assert any(
+        "Confidence array was not provided" in msg for msg in info_messages
+    )
+    assert any(
+        "Individual names" in msg and "were not provided" in msg
+        for msg in info_messages
+    )
+    assert any(
+        "Frame numbers were not provided" in msg for msg in info_messages
+    )
+
+    # Ensure no WARNING-level messages for default assignments
+    warning_messages = [
+        r.message for r in caplog.records if r.levelno == logging.WARNING
+    ]
+    assert not any("was not provided" in msg for msg in warning_messages)
