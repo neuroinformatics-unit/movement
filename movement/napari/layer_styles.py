@@ -195,15 +195,15 @@ class BoxesStyle(LayerStyle):
 
 
 @dataclass
-class RoisStyle(LayerStyle):
-    """Style properties for a napari Shapes layer containing ROIs.
+class RegionsStyle(LayerStyle):
+    """Style properties for a napari Shapes layer containing regions.
 
     The same ``color`` is applied to faces, edges, and text.
     The face color opacity is hardcoded to 0.25, while edges and text
     colors are opaque.
     """
 
-    name: str = "ROIs"
+    name: str = "Regions"
     color: str | tuple = "red"
     edge_width: float = 5.0
     opacity: float = 1.0  # applies to the whole layer
@@ -264,13 +264,13 @@ class RoisStyle(LayerStyle):
 
 
 @dataclass
-class RoisColorManager:
-    """Manages colors for ROIs layers.
+class RegionsColorManager:
+    """Manages colors for Regions layers.
 
-    It makes sure that ROIs layers are each assigned a color deterministically
-    based on the layer name (using a hash), sampled from a napari colormap.
-    This ensures the same layer name always gets the same color, even after
-    deletion and recreation.
+    It makes sure that Regions layers are each assigned a color
+    deterministically based on the layer name (using a hash), sampled
+    from a napari colormap. This ensures the same layer name always gets
+    the same color, even after deletion and recreation.
     """
 
     cmap_name: str = "tab10"
@@ -282,13 +282,13 @@ class RoisColorManager:
         """Initialize the colors after the dataclass is created."""
         self.colors = _sample_colormap(self.n_colors, self.cmap_name)
 
-    # Pattern for default ROI layer names: "ROIs" or "ROIs [N]"
-    _roi_pattern = re.compile(r"^ROIs(?: \[(\d+)\])?$")
+    # Pattern for default region layer names: "Regions" or "Regions [N]"
+    _region_pattern = re.compile(r"^Regions(?: \[(\d+)\])?$")
 
     def get_color_for_layer(self, layer_name: str) -> tuple:
         """Get a deterministic color for a layer based on its name.
 
-        For default ROI layer names ("ROIs", "ROIs [1]", "ROIs [2]", etc.),
+        For default region layer names ("Regions", "Regions [1]", etc.),
         colors are assigned sequentially to avoid collisions.
         For custom names, uses MD5 hash for deterministic color selection
         across Python sessions. Results are cached for efficiency.
@@ -315,9 +315,9 @@ class RoisColorManager:
 
         Sequential indices for default names, hash-based for custom names.
         """
-        match = self._roi_pattern.match(layer_name)
+        match = self._region_pattern.match(layer_name)
         if match:
-            # "ROIs" → 0, "ROIs [1]" → 1, "ROIs [2]" → 2, etc.
+            # "Regions" → 0, "Regions [1]" → 1, "Regions [2]" → 2, etc.
             suffix = match.group(1)
             index = int(suffix) if suffix else 0
             return index % len(self.colors)
