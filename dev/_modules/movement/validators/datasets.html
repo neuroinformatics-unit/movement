@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=3c474700"></script>
+    <script src="../../../_static/documentation_options.js?v=983fc319"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.12.1.dev22</p>
+    <p class="title logo__title">movement v0.12.1.dev23</p>
   
 </a></div>
     
@@ -562,7 +562,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">confidence_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_confidence_expected_shape</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span>
             <span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">&quot;Confidence array was not provided.&quot;</span>
                 <span class="s2">&quot;Setting to an array of NaNs.&quot;</span>
             <span class="p">)</span>
@@ -572,7 +572,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;individuals&quot;</span><span class="p">)</span>
             <span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;id_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_inds</span><span class="p">)]</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">&quot;Individual names were not provided. &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;Setting to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
@@ -816,7 +816,7 @@
                 <span class="sa">f</span><span class="s2">&quot;keypoint_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">position_array_shape</span><span class="p">[</span><span class="n">keypoints_dim_index</span><span class="p">])</span>
             <span class="p">]</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">&quot;Keypoint names were not provided. &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;Setting to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">keypoint_names</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
@@ -983,7 +983,7 @@
             <span class="n">time_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
             <span class="n">n_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_dim_index</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">frame_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">&quot;Frame numbers were not provided. &quot;</span>
                 <span class="s2">&quot;Setting to an array of 0-based integers.&quot;</span>
             <span class="p">)</span>
