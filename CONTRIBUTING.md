@@ -186,12 +186,12 @@ raise logger.error(ValueError("message"))
 raise logger.exception(ValueError("message")) # with traceback
 ```
 
-#### When to use `print`, `warnings.warn`, and `logger.warning`
+#### When to use `print`, `warnings.warn`, `logger.warning` and `logger.info`
 We aim to adhere to the [When to use logging guide](inv:python#logging-basic-tutorial) to ensure consistency in our logging practices.
 In general:
 * Use {func}`print` for simple, non-critical messages that do not need to be logged.
 * Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within `movement`, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesInputs<movement.validators.datasets.ValidPosesInputs>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
-* Use {meth}`logger.warning()<loguru._logger.Logger.warning>` for non-critical issues where default values are assigned to optional parameters, e.g. `individual_names`, `keypoint_names` in {class}`ValidPosesInputs<movement.validators.datasets.ValidPosesInputs>`.
+* Use {meth}`logger.info()<loguru._logger.Logger.info>` for informational messages about expected behaviours that do not indicate problems, e.g. where default values are assigned to optional parameters.
 
 ### Continuous integration
 All pushes and pull requests will be built by [GitHub actions](github-docs:actions).
