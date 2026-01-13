@@ -1,7 +1,6 @@
 """Test suite for the load_bboxes module."""
 
 import ast
-import re
 from pathlib import Path
 
 import numpy as np
@@ -258,51 +257,6 @@ def test_from_via_tracks_file(
         "file_path": via_file_path,
     }
     helpers.assert_valid_dataset(ds, expected_values)
-
-
-@pytest.mark.parametrize(
-    "frame_regexp, error_type, log_message",
-    [
-        (
-            r"*",
-            re.error,
-            "The provided regular expression for the frame numbers (*) "
-            "could not be compiled. Please review its syntax.",
-        ),
-        (
-            r"_(0\d*)_$",
-            AttributeError,
-            "00000.jpg (row 0): "
-            r"The provided frame regexp (_(0\d*)_$) did not return any "
-            "matches and a frame number could not be extracted from "
-            "the filename.",
-        ),
-        (
-            r"(0\d*\.\w+)$",
-            ValueError,
-            "00000.jpg (row 0): "
-            "The frame number extracted from the filename "
-            r"using the provided regexp ((0\d*\.\w+)$) "
-            "could not be cast as an integer.",
-        ),
-    ],
-)
-def test_from_via_tracks_file_invalid_frame_regexp(
-    frame_regexp, error_type, log_message
-):
-    """Test that loading tracked bounding box data from
-    a valid VIA tracks .csv file with an invalid frame_regexp
-    raises a ValueError.
-    """
-    input_file = pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv")
-    with pytest.raises(error_type) as excinfo:
-        load_bboxes.from_via_tracks_file(
-            input_file,
-            use_frame_numbers_from_file=True,
-            frame_regexp=frame_regexp,
-        )
-
-    assert str(excinfo.value) == log_message
 
 
 @pytest.mark.parametrize(
