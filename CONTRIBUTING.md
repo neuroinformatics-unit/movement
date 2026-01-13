@@ -186,7 +186,7 @@ raise logger.error(ValueError("message"))
 raise logger.exception(ValueError("message")) # with traceback
 ```
 
-#### When to use `print`, `warnings.warn`, and `logger.warning`
+#### When to use `print`, `warnings.warn`, `logger.warning` and `logger.info`
 We aim to adhere to the [When to use logging guide](inv:python#logging-basic-tutorial) to ensure consistency in our logging practices.
 In general:
 * Use {func}`print` for simple, non-critical messages that do not need to be logged.
