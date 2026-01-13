@@ -98,7 +98,7 @@ class _BaseDatasetInputs(ABC):
             self.confidence_array = np.full(
                 self._confidence_expected_shape, np.nan, dtype="float32"
             )
-            logger.warning(
+            logger.info(
                 "Confidence array was not provided."
                 "Setting to an array of NaNs."
             )
@@ -108,7 +108,7 @@ class _BaseDatasetInputs(ABC):
                 self.DIM_NAMES.index("individuals")
             ]
             self.individual_names = [f"id_{i}" for i in range(n_inds)]
-            logger.warning(
+            logger.info(
                 "Individual names were not provided. "
                 f"Setting to {self.individual_names}."
             )
@@ -350,7 +350,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
                 f"keypoint_{i}"
                 for i in range(position_array_shape[keypoints_dim_index])
             ]
-            logger.warning(
+            logger.info(
                 "Keypoint names were not provided. "
                 f"Setting to {self.keypoint_names}."
             )
@@ -511,7 +511,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
             time_dim_index = self.DIM_NAMES.index("time")
             n_frames = self.position_array.shape[time_dim_index]
             self.frame_array = np.arange(n_frames).reshape(-1, 1)
-            logger.warning(
+            logger.info(
                 "Frame numbers were not provided. "
                 "Setting to an array of 0-based integers."
             )
