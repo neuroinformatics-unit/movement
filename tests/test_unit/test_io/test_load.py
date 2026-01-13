@@ -1,3 +1,5 @@
+from contextlib import nullcontext as does_not_raise
+
 import pytest
 import xarray as xr
 from pytest import DATA_PATHS
@@ -42,6 +44,47 @@ def test_from_file_delegates_correctly(
 
 
 @pytest.mark.parametrize(
+    "file_fixture, source_software, params, expected_context",
+    [
+        (
+            "via_tracks_csv",
+            "VIA-tracks",
+            {
+                "fps": 30,
+                "use_frame_numbers_from_file": True,
+                "frame_regexp": r"(0\d*)\.\w+$",
+            },
+            does_not_raise(),
+        ),
+        ("sleap_slp_file", "SLEAP", None, does_not_raise()),
+        ("dlc_h5_file", "DeepLabCut", None, does_not_raise()),
+        ("anipose_csv_file", "Anipose", None, does_not_raise()),
+        ("nwbfile_object", "NWB", None, does_not_raise()),
+        (
+            "dlc_csv_file",
+            "SLEAP",
+            None,
+            pytest.raises(ValueError, match="Unsupported format"),
+        ),
+    ],
+)
+def test_from_file(
+    file_fixture, source_software, params, expected_context, request
+):
+    """Test from_file() with different actual files and parameters."""
+    file_path = request.getfixturevalue(file_fixture)
+    if file_fixture.startswith("nwb"):
+        file_path = file_path()
+    with expected_context:
+        ds = load.from_file(
+            file_path,
+            source_software,
+            **(params or {}),
+        )
+        assert isinstance(ds, xr.Dataset)
+
+
+@pytest.mark.parametrize(
     "dataset_name, source_software",
     [
         ("DLC_single-wasp.predictions.h5", "DeepLabCut"),
@@ -63,45 +106,3 @@ def test_from_multiview_files(dataset_name, source_software):
     assert isinstance(multi_view_ds, xr.Dataset)
     assert "view" in multi_view_ds.dims
     assert multi_view_ds.view.values.tolist() == view_names
-
-
-@pytest.mark.parametrize("source_software", ["Unknown", "VIA-tracks"])
-@pytest.mark.parametrize("fps", [None, 30, 60.0])
-@pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
-@pytest.mark.parametrize("frame_regexp", [None, r"frame_(\d+)"])
-def test_from_file_bboxes(
-    source_software, fps, use_frame_numbers_from_file, frame_regexp, mocker
-):
-    """Test that the from_file() function delegates to the correct
-    loader function according to the source_software.
-    """
-    software_to_loader = {
-        "VIA-tracks": "movement.io.load_bboxes.from_via_tracks_file",
-    }
-    if source_software == "Unknown":
-        with pytest.raises(ValueError, match="Unsupported source"):
-            load.from_file(
-                "some_file",
-                source_software,
-                fps,
-                use_frame_numbers_from_file=use_frame_numbers_from_file,
-                frame_regexp=frame_regexp,
-            )
-    else:
-        mock_loader = mocker.patch(software_to_loader[source_software])
-        mocker.patch.dict(
-            load._LOADER_REGISTRY, {source_software: mock_loader}
-        )
-        load.from_file(
-            "some_file",
-            source_software,
-            fps,
-            use_frame_numbers_from_file=use_frame_numbers_from_file,
-            frame_regexp=frame_regexp,
-        )
-        mock_loader.assert_called_with(
-            "some_file",
-            fps,
-            use_frame_numbers_from_file=use_frame_numbers_from_file,
-            frame_regexp=frame_regexp,
-        )
