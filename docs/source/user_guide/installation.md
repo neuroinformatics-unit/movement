@@ -45,7 +45,7 @@ If you wish to use the GUI, which requires [napari](napari:), run instead:
 conda install -c conda-forge movement napari pyqt
 ```
 You may exchange `pyqt` for `pyside6` if you prefer a different Qt backend.
-See [napari's installation guide](https://napari.org/stable/tutorials/fundamentals/installation_bundle_conda.html)
+See [napari's installation guide](napari:tutorials/fundamentals/installation_bundle_conda.html)
 for more details on available backends.
 
 :::
