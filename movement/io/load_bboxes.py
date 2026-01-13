@@ -4,7 +4,6 @@ import ast
 import re
 from collections.abc import Callable
 from pathlib import Path
-from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -147,90 +146,6 @@ def from_numpy(
         source_software=source_software,
     )
     return valid_bboxes_inputs.to_dataset()
-
-
-def from_file(
-    file: Path | str,
-    source_software: Literal["VIA-tracks"],
-    fps: float | None = None,
-    use_frame_numbers_from_file: bool = False,
-    frame_regexp: str = DEFAULT_FRAME_REGEXP,
-) -> xr.Dataset:
-    """Create a ``movement`` bounding boxes dataset from a supported file.
-
-    At the moment, we only support VIA tracks .csv files.
-
-    Parameters
-    ----------
-    file
-        Path to the file containing the tracked bounding boxes. Currently
-        only VIA tracks .csv files are supported.
-    source_software
-        The source software of the file. Currently only files from the
-        VIA 2.0.12 annotator [1]_ ("VIA-tracks") are supported.
-        See .
-    fps
-        The video sampling rate. If None (default), the ``time`` coordinates
-        of the resulting ``movement`` dataset will be in frame numbers. If
-        ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
-        the ``time`` coordinates are in seconds, they will indicate the
-        elapsed time from the capture of the first frame (assumed to be frame
-        0).
-    use_frame_numbers_from_file
-        If True, the frame numbers in the resulting dataset are
-        the same as the ones specified for each tracked bounding box in the
-        input file. This may be useful if the bounding boxes are tracked for a
-        subset of frames in a video, but you want to maintain the start of the
-        full video as the time origin. If False (default), the frame numbers
-        in the VIA tracks .csv file are instead mapped to a 0-based sequence of
-        consecutive integers.
-    frame_regexp
-        Regular expression pattern to extract the frame number from the frame
-        filename. By default, the frame number is expected to be encoded in
-        the filename as an integer number led by at least one zero, followed
-        by the file extension. Only used if ``use_frame_numbers_from_file`` is
-        True.
-
-
-    Returns
-    -------
-    xarray.Dataset
-        ``movement`` dataset containing the position, shape, and confidence
-        scores of the tracked bounding boxes, and any associated metadata.
-
-    See Also
-    --------
-    movement.io.load_bboxes.from_via_tracks_file
-
-    References
-    ----------
-    .. [1] https://www.robots.ox.ac.uk/~vgg/software/via/
-
-    Examples
-    --------
-    Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with
-    the time coordinates in seconds, and assuming t = 0 seconds corresponds to
-    the first tracked frame in the file.
-
-    >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_file(
-    >>>     "path/to/file.csv",
-    >>>     source_software="VIA-tracks",
-    >>>     fps=30,
-    >>> )
-
-    """
-    if source_software == "VIA-tracks":
-        return from_via_tracks_file(
-            file,
-            fps,
-            use_frame_numbers_from_file=use_frame_numbers_from_file,
-            frame_regexp=frame_regexp,
-        )
-    else:
-        raise logger.error(
-            ValueError(f"Unsupported source software: {source_software}")
-        )
 
 
 @register_loader("VIA-tracks", file_validators=[ValidVIATracksCSV])
