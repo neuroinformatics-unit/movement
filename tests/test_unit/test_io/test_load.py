@@ -29,7 +29,9 @@ def test_from_file_delegates_correctly(
             load.from_file("some_file", source_software)
     else:
         mock_loader = mocker.patch(loader_fn)
-        mocker.patch.dict(load._REGISTRY, {source_software: mock_loader})
+        mocker.patch.dict(
+            load._LOADER_REGISTRY, {source_software: mock_loader}
+        )
         load.from_file("some_file", source_software, fps)
         expected_call_args = (
             ("some_file", fps) if source_software != "NWB" else ("some_file",)
@@ -87,7 +89,9 @@ def test_from_file_bboxes(
             )
     else:
         mock_loader = mocker.patch(software_to_loader[source_software])
-        mocker.patch.dict(load._REGISTRY, {source_software: mock_loader})
+        mocker.patch.dict(
+            load._LOADER_REGISTRY, {source_software: mock_loader}
+        )
         load.from_file(
             "some_file",
             source_software,
