@@ -25,11 +25,7 @@ from movement.io import load_bboxes, load_poses
 from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.utils.logging import logger
-from movement.validators.datasets import (
-    ValidBboxesDataset,
-    ValidPosesDataset,
-    _validate_dataset,
-)
+from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
 
 # Allowed file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
@@ -267,13 +263,16 @@ class DataLoader(QWidget):
             return None
 
         # Validate dataset depending on its type
-        validator = {
-            "poses": ValidPosesDataset,
-            "bboxes": ValidBboxesDataset,
-        }[ds_type]
+        validators: dict[
+            str, type[ValidPosesInputs] | type[ValidBboxesInputs]
+        ] = {
+            "poses": ValidPosesInputs,
+            "bboxes": ValidBboxesInputs,
+        }
+        validator = validators[ds_type]
 
         try:
-            _validate_dataset(ds, validator)
+            validator.validate(ds)
         except (ValueError, TypeError) as e:
             show_error(
                 f"The netCDF file does not appear to be a valid "

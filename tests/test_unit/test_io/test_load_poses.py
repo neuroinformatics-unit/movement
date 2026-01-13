@@ -8,11 +8,11 @@ import xarray as xr
 from pytest import DATA_PATHS
 
 from movement.io import load_poses
-from movement.validators.datasets import ValidPosesDataset
+from movement.validators.datasets import ValidPosesInputs
 
 expected_values_poses = {
     "vars_dims": {"position": 4, "confidence": 3},
-    "dim_names": ValidPosesDataset.DIM_NAMES,
+    "dim_names": ValidPosesInputs.DIM_NAMES,
 }
 
 
@@ -200,7 +200,7 @@ def test_load_multi_individual_from_lp_file_raises():
     `from_lp_file` function raises a ValueError.
     """
     file_path = DATA_PATHS.get("DLC_two-mice.predictions.csv")
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="only supports single-individual"):
         load_poses.from_lp_file(file_path)
 
 

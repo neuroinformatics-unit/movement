@@ -15,7 +15,7 @@ from movement.io.nwb import (
     _write_processing_module,
 )
 from movement.utils.logging import logger
-from movement.validators.datasets import ValidPosesDataset, _validate_dataset
+from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import _validate_file_path
 
 
@@ -126,7 +126,7 @@ def to_dlc_style_df(
     to_dlc_file : Save dataset directly to a DeepLabCut-style .h5 or .csv file.
 
     """
-    _validate_dataset(ds, ValidPosesDataset)
+    ValidPosesInputs.validate(ds)
     scorer = ["movement"]
     bodyparts = ds.coords["keypoints"].data.tolist()
     base_coords = ds.coords["space"].data.tolist()
@@ -265,7 +265,7 @@ def to_lp_file(
 
     """
     file = _validate_file_path(file_path=file_path, expected_suffix=[".csv"])
-    _validate_dataset(ds, ValidPosesDataset)
+    ValidPosesInputs.validate(ds)
     to_dlc_file(ds, file.path, split_individuals=True)
 
 
@@ -309,7 +309,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
 
     """
     file = _validate_file_path(file_path=file_path, expected_suffix=[".h5"])
-    _validate_dataset(ds, ValidPosesDataset)
+    ValidPosesInputs.validate(ds)
 
     ds = _remove_unoccupied_tracks(ds)
 
