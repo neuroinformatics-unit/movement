@@ -60,8 +60,8 @@ class TestFilteringValidDataset:
         )
         # Compute n nans in position after filtering per individual
         n_nans_after_filtering_per_indiv = [
-            helpers.count_nans(position_filtered.isel(individuals=i))
-            for i in range(valid_input_dataset.sizes["individuals"])
+            helpers.count_nans(position_filtered.isel(individual=i))
+            for i in range(valid_input_dataset.sizes["individual"])
         ]
         # Check number of nans per indiv is as expected
         assert (
