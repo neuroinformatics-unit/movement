@@ -66,26 +66,28 @@ class BaseRenderer(ABC):
     @property
     @abstractmethod
     def name(self) -> str:
-        """Return the name of this renderer."""
+        """Renderer name."""
 
     @property
     @abstractmethod
     def supports_3d(self) -> bool:
-        """Return whether this renderer supports 3D visualization."""
+        """Whether renderer supports 3D."""
 
     @property
     @abstractmethod
     def requires_gpu(self) -> bool:
-        """Return whether this renderer requires GPU acceleration."""
+        """Whether renderer requires GPU."""
 
     @abstractmethod
-    def compute_skeleton_vectors(self) -> np.ndarray:
+    def compute_skeleton_vectors(self) -> tuple[np.ndarray, np.ndarray]:
         """Compute skeleton vectors in napari format.
 
         Returns
         -------
-        np.ndarray
-            Skeleton vectors in napari format, shape (N, 2, D+1)
+        tuple[np.ndarray, np.ndarray]
+            Tuple of (vectors, edge_indices) where:
+            - vectors have shape (N, 2, D+1)
+            - edge_indices have shape (N,)
 
         Notes
         -----

@@ -101,41 +101,33 @@ def _resolve_skeleton_state(
 
 
 def _build_vector_colors(
-    skeleton_state: SkeletonState, dataset: xr.Dataset, n_vectors: int
+    skeleton_state: SkeletonState, edge_indices: np.ndarray
 ) -> np.ndarray:
-    """Build color array for vectors.
+    """Build color array for vectors using edge indices.
 
     Parameters
     ----------
     skeleton_state : SkeletonState
         Skeleton state with edge colors
-    dataset : xr.Dataset
-        Dataset with dimensions
-    n_vectors : int
-        Number of actual vectors
+    edge_indices : np.ndarray
+        Array of edge indices for each vector, shape (N,)
 
     Returns
     -------
     np.ndarray
-        Color array matching vectors
+        Color array matching vectors, shape (N, 4)
+
+    Notes
+    -----
+    This function uses the edge_indices returned by the renderer to ensure
+    that colors are correctly mapped to vectors, even when NaN values cause
+    some connections to be skipped.
     """
-    n_edges = len(skeleton_state.connections)
-    n_individuals = dataset.sizes["individuals"]
-    n_frames = dataset.sizes["time"]
-
-    # Build color array matching vectors
-    vector_colors_list: list[tuple[float, ...]] = []
-    for _ in range(n_frames):
-        for _ in range(n_individuals):
-            for edge_idx in range(n_edges):
-                color = tuple(skeleton_state.edge_colors[edge_idx])
-                vector_colors_list.append(color)
-
-    # Filter to match actual number of vectors
-    if len(vector_colors_list) > n_vectors:
-        vector_colors_list = vector_colors_list[:n_vectors]
-
-    return np.array(vector_colors_list)
+    # Build colors by looking up the color for each edge index
+    vector_colors = np.array(
+        [skeleton_state.edge_colors[idx] for idx in edge_indices]
+    )
+    return vector_colors
 
 
 def add_skeleton_layer(
@@ -231,8 +223,12 @@ def add_skeleton_layer(
             "Check that keypoints have valid (non-NaN) positions."
         )
 
-    # Build color array
-    vector_colors = _build_vector_colors(skeleton_state, dataset, len(vectors))
+    # Build color array using edge indices from renderer
+    if renderer.edge_indices is None:
+        raise ValueError("Renderer edge_indices is None after preparation")
+    vector_colors = _build_vector_colors(
+        skeleton_state, renderer.edge_indices
+    )
 
     # Set up layer properties
     vector_kwargs = {

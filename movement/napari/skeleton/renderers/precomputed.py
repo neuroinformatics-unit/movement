@@ -50,6 +50,7 @@ class PrecomputedRenderer(BaseRenderer):
         """
         super().__init__(dataset, connections, edge_colors, edge_widths)
         self.vectors: np.ndarray | None = None
+        self.edge_indices: np.ndarray | None = None
 
     @property
     def name(self) -> str:
@@ -72,11 +73,12 @@ class PrecomputedRenderer(BaseRenderer):
         This method computes skeleton vectors for all frames, individuals,
         and connections, and stores them in the napari-expected format.
         """
-        self.vectors = self.compute_skeleton_vectors()
+        self.vectors, self.edge_indices = self.compute_skeleton_vectors()
 
     def cleanup(self) -> None:
         """Clean up resources by clearing pre-computed vectors."""
         self.vectors = None
+        self.edge_indices = None
 
     def _convert_position_to_napari(
         self, pos: np.ndarray, frame_idx: int, is_3d: bool
@@ -146,17 +148,15 @@ class PrecomputedRenderer(BaseRenderer):
         direction = end_napari - start_napari
         return np.array([start_napari, direction])
 
-    def compute_skeleton_vectors(self) -> np.ndarray:
+    def compute_skeleton_vectors(self) -> tuple[np.ndarray, np.ndarray]:
         """Compute skeleton vectors in napari format.
 
         Returns
         -------
-        np.ndarray
-            Skeleton vectors in napari format.
-            Shape: (N, 2, D+1) where:
-            - N = total number of valid vectors
-            - D = spatial dimensions (2 for 2D, 3 for 3D)
-            - Each vector is [[t, y, x, ...], [dt, dy, dx, ...]]
+        tuple[np.ndarray, np.ndarray]
+            Tuple of (vectors, edge_indices) where:
+            - vectors: Skeleton vectors in napari format, shape (N, 2, D+1)
+            - edge_indices: Index of the connection for each vector, shape (N,)
 
         Notes
         -----
@@ -165,17 +165,19 @@ class PrecomputedRenderer(BaseRenderer):
         - For 3D+time: shape is (N, 2, 4) with coords [t, z, y, x]
         - Vectors with NaN keypoints are skipped
         - All values are flattened into a single list of N vectors
+        - edge_indices tracks which connection each vector corresponds to
 
         """
         # Get position data from dataset
         position = self.dataset.position.values
         is_3d = self.n_space == 3
         vectors_list = []
+        edge_indices_list = []
 
         # Iterate over all frames, individuals, and connections
         for frame_idx in range(self.n_frames):
             for ind_idx in range(self.n_individuals):
-                for _conn_idx, (start_kp, end_kp) in enumerate(
+                for conn_idx, (start_kp, end_kp) in enumerate(
                     self.connections
                 ):
                     # Get keypoint positions
@@ -188,14 +190,15 @@ class PrecomputedRenderer(BaseRenderer):
                     )
                     if vector is not None:
                         vectors_list.append(vector)
+                        edge_indices_list.append(conn_idx)
 
-        # Convert list to numpy array
+        # Convert lists to numpy arrays
         if len(vectors_list) == 0:
-            # No valid vectors - return empty array with correct shape
+            # No valid vectors - return empty arrays with correct shape
             d_plus_1 = 4 if is_3d else 3
-            return np.zeros((0, 2, d_plus_1))
+            return np.zeros((0, 2, d_plus_1)), np.array([], dtype=int)
 
-        return np.array(vectors_list)
+        return np.array(vectors_list), np.array(edge_indices_list)
 
     def estimate_memory(self) -> float:
         """Estimate memory usage in megabytes.
