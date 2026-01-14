@@ -71,10 +71,10 @@ def sample_position_array() -> xr.DataArray:
     points[:, :, 2] = np.mean(points[:, :, 0:2], axis=2)
     return xr.DataArray(
         data=points,
-        dims=["time", "space", "keypoints"],
+        dims=["time", "space", "keypoint"],
         coords={
             "space": ["x", "y"],
-            "keypoints": ["left", "right", "midpt", "wild"],
+            "keypoint": ["left", "right", "midpt", "wild"],
         },
     )
 
@@ -88,7 +88,7 @@ def sample_position_array() -> xr.DataArray:
                 compute_forward_vector(
                     sample_position_array(), "left", "right"
                 ),
-                sample_position_array().sel(keypoints="midpt", drop=True),
+                sample_position_array().sel(keypoint="midpt", drop=True),
             ],
             {"in_degrees": True},
             np.array(
@@ -109,7 +109,7 @@ def sample_position_array() -> xr.DataArray:
                 compute_forward_vector(
                     sample_position_array(), "left", "right"
                 ),
-                sample_position_array().sel(keypoints="wild", drop=True),
+                sample_position_array().sel(keypoint="wild", drop=True),
             ],
             {"in_degrees": True},
             np.array(
@@ -130,7 +130,7 @@ def sample_position_array() -> xr.DataArray:
                 compute_forward_vector(
                     sample_position_array(), "left", "right"
                 ),
-                sample_position_array().sel(keypoints="midpt", drop=True),
+                sample_position_array().sel(keypoint="midpt", drop=True),
             ],
             {"in_degrees": True},
             np.array(
@@ -151,7 +151,7 @@ def sample_position_array() -> xr.DataArray:
                 compute_forward_vector(
                     sample_position_array(), "left", "right"
                 ),
-                sample_position_array().sel(keypoints="midpt", drop=True),
+                sample_position_array().sel(keypoint="midpt", drop=True),
             ],
             {
                 "boundary_only": True,
@@ -171,7 +171,7 @@ def sample_position_array() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square_with_hole",
-            [sample_position_array().sel(keypoints="midpt", drop=True)],
+            [sample_position_array().sel(keypoint="midpt", drop=True)],
             {},
             np.deg2rad(
                 np.array(
@@ -189,7 +189,7 @@ def sample_position_array() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square",
-            [sample_position_array().sel(keypoints="midpt", drop=True)],
+            [sample_position_array().sel(keypoint="midpt", drop=True)],
             {},
             np.deg2rad(
                 np.array(
@@ -207,7 +207,7 @@ def sample_position_array() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square",
-            [sample_position_array().sel(keypoints="midpt", drop=True)],
+            [sample_position_array().sel(keypoint="midpt", drop=True)],
             {"boundary_only": True},
             np.deg2rad(
                 np.array(
@@ -286,10 +286,10 @@ def points_around_segment() -> xr.DataArray:
     ]
     return xr.DataArray(
         data=points,
-        dims=["time", "space", "keypoints"],
+        dims=["time", "space", "keypoint"],
         coords={
             "space": ["x", "y"],
-            "keypoints": ["left", "right"],
+            "keypoint": ["left", "right"],
         },
     )
 
@@ -316,7 +316,7 @@ def test_angle_to_normal(
     )
 
     fwd_vector = compute_forward_vector(points_around_segment, "left", "right")
-    positions = points_around_segment.mean(dim="keypoints")
+    positions = points_around_segment.mean(dim="keypoint")
     angles_to_support = segment_of_y_equals_x.compute_angle_to_normal(
         fwd_vector, positions
     )

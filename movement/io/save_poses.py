@@ -65,7 +65,7 @@ def _ds_to_dlc_style_df(
 
 def _auto_split_individuals(ds: xr.Dataset) -> bool:
     """Return True if there is only one individual in the dataset."""
-    n_individuals = ds.sizes["individuals"]
+    n_individuals = ds.sizes["individual"]
     return n_individuals == 1
 
 
@@ -128,18 +128,18 @@ def to_dlc_style_df(
     """
     ValidPosesInputs.validate(ds)
     scorer = ["movement"]
-    bodyparts = ds.coords["keypoints"].data.tolist()
+    bodyparts = ds.coords["keypoint"].data.tolist()
     base_coords = ds.coords["space"].data.tolist()
     coords = (
         base_coords
         if "z" in ds.coords["space"]
         else base_coords + ["likelihood"]
     )
-    individuals = ds.coords["individuals"].data.tolist()
+    individuals = ds.coords["individual"].data.tolist()
     if split_individuals:
         df_dict = {}
         for individual in individuals:
-            individual_data = ds.sel(individuals=individual)
+            individual_data = ds.sel(individual=individual)
             index_levels = ["scorer", "bodyparts", "coords"]
             columns = pd.MultiIndex.from_product(
                 [scorer, bodyparts, coords], names=index_levels
@@ -320,9 +320,9 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     # "point_scores"        n_individuals * n_keypoints * n_frames
     # "instance_scores"     n_individuals * n_frames
     # "tracking_scores"     n_individuals * n_frames
-    individual_names = ds.individuals.values.tolist()
+    individual_names = ds.individual.values.tolist()
     n_individuals = len(individual_names)
-    keypoint_names = ds.keypoints.values.tolist()
+    keypoint_names = ds.keypoint.values.tolist()
     # Compute frame indices from fps, if set
     fps = getattr(ds, "fps", None)
     if fps is not None:
@@ -479,7 +479,7 @@ def to_nwb_file(
 
     """
     config = config or NWBFileSaveConfig()
-    individuals = ds.individuals.values.tolist()
+    individuals = ds.individual.values.tolist()
     if isinstance(individuals, str):
         individuals = [individuals]
     is_multi_ind = len(individuals) > 1
@@ -499,8 +499,8 @@ def to_nwb_file(
     pose_estimation_skeletons = {
         id: _ds_to_pose_and_skeletons(
             ds
-            if ds.sizes.get("individuals") is None
-            else ds.sel(individuals=id),
+            if ds.sizes.get("individual") is None
+            else ds.sel(individual=id),
             config,
             subjects[id],
             is_multi_ind,
@@ -531,5 +531,5 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
         The input dataset without the unoccupied tracks.
 
     """
-    all_nan = ds.position.isnull().all(dim=["keypoints", "space", "time"])
+    all_nan = ds.position.isnull().all(dim=["keypoint", "space", "time"])
     return ds.where(~all_nan, drop=True)

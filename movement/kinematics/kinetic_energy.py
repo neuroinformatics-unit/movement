@@ -24,7 +24,7 @@ def compute_kinetic_energy(
     ----------
     position : xr.DataArray
         The input data containing position information, with ``time``,
-        ``space`` and ``keypoints`` as required dimensions.
+        ``space`` and ``keypoint`` as required dimensions.
     keypoints : list, optional
         A list of keypoint names to include in the computation.
         By default, all are used.
@@ -44,7 +44,7 @@ def compute_kinetic_energy(
     xr.DataArray
         A data array containing the kinetic energy per individual, for every
         time point. Note that the output array lacks ``space`` and
-        ``keypoints`` dimensions.
+        ``keypoint`` dimensions.
         If ``decompose=True`` an extra ``energy`` dimension is added,
         with coordinates ``translational`` and ``internal``.
 
@@ -93,10 +93,10 @@ def compute_kinetic_energy(
     ...     coords={
     ...         "time": np.arange(3),
     ...         "individuals": ["id0", "id1"],
-    ...         "keypoints": ["snout", "spine", "tail_base", "tail_tip"],
+    ...         "keypoint": ["snout", "spine", "tail_base", "tail_tip"],
     ...         "space": ["x", "y"],
     ...     },
-    ...     dims=["time", "individuals", "keypoints", "space"],
+    ...     dims=["time", "individuals", "keypoint", "space"],
     ... )
 
     >>> kinetic_energy_total = compute_kinetic_energy(position)
@@ -140,15 +140,15 @@ def compute_kinetic_energy(
     """
     # Validate required dimensions and coordinate labels
     validate_dims_coords(
-        position, {"time": [], "space": ["x", "y"], "keypoints": []}
+        position, {"time": [], "space": ["x", "y"], "keypoint": []}
     )
 
     # Subset keypoints if requested
     if keypoints is not None:
-        position = position.sel(keypoints=keypoints)
+        position = position.sel(keypoint=keypoints)
 
     # Validate that at least 2 keypoints exist for decomposition
-    if decompose and position.sizes["keypoints"] < 2:
+    if decompose and position.sizes["keypoint"] < 2:
         raise logger.error(
             ValueError(
                 "At least 2 keypoints are required to decompose "
@@ -161,9 +161,9 @@ def compute_kinetic_energy(
 
     # Initialise unit weights
     weights = xr.DataArray(
-        np.ones(position.sizes["keypoints"]),
-        dims=["keypoints"],
-        coords={"keypoints": position.coords["keypoints"]},
+        np.ones(position.sizes["keypoint"]),
+        dims=["keypoint"],
+        coords={"keypoint": position.coords["keypoint"]},
     )
 
     # Update weights with keypoint masses, if provided
@@ -173,14 +173,14 @@ def compute_kinetic_energy(
 
     # Compute total KE
     weighted_ke = 0.5 * weights * (compute_norm(velocity) ** 2)
-    ke_total = weighted_ke.sum(dim="keypoints")
+    ke_total = weighted_ke.sum(dim="keypoint")
 
     if not decompose:
         return ke_total
     else:
         # Compute translational KE based on centre of mass velocity
         v_cm = (velocity * weights.expand_dims(space=["x", "y"])).sum(
-            dim="keypoints"
+            dim="keypoint"
         ) / weights.sum()
         ke_trans = 0.5 * weights.sum() * compute_norm(v_cm) ** 2
 

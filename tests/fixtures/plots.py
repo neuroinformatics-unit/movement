@@ -47,12 +47,12 @@ def one_individual():
     da = xr.DataArray(
         position_data,
         name="position",
-        dims=["time", "space", "keypoints", "individuals"],
+        dims=["time", "space", "keypoint", "individual"],
         coords={
             "time": time,
             "space": space,
-            "keypoints": keypoints,
-            "individuals": individuals,
+            "keypoint": keypoints,
+            "individual": individuals,
         },
     )
     return da
@@ -71,5 +71,5 @@ def two_individuals(one_individual):
     """
     da_id1 = one_individual.copy()
     da_id1.loc[dict(space="y")] = da_id1.sel(space="y") * -1
-    da_id1 = da_id1.assign_coords(individuals=["id_1"])
-    return xr.concat([one_individual.copy(), da_id1], "individuals")
+    da_id1 = da_id1.assign_coords(individual=["id_1"])
+    return xr.concat([one_individual.copy(), da_id1], "individual")
