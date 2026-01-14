@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Manual test script for poses_to_bboxes function."""
 
-import numpy as np
-import xarray as xr
 import sys
 
+import numpy as np
+import xarray as xr
+
 # Add movement to path
-sys.path.insert(0, '/home/eduardo/Projetos/Blockchain/movement')
+sys.path.insert(0, "/home/eduardo/Projetos/Blockchain/movement")
 
 from movement.transforms import poses_to_bboxes
 
@@ -71,37 +72,61 @@ def test_basic():
     print("=" * 60)
 
     ds = create_simple_poses_dataset()
-    print(f"\nInput poses dataset:")
+    print("\nInput poses dataset:")
     print(f"  Dimensions: {ds.dims}")
     print(f"  Data variables: {list(ds.data_vars)}")
 
     result = poses_to_bboxes(ds)
 
-    print(f"\nOutput bboxes dataset:")
+    print("\nOutput bboxes dataset:")
     print(f"  Dimensions: {result.dims}")
     print(f"  Data variables: {list(result.data_vars)}")
     print(f"  ds_type: {result.attrs.get('ds_type')}")
 
     # Verify bbox calculations for individual 0
     # Keypoints: (0,0), (10,0), (10,10) -> bbox centroid (5, 5), shape (10, 10)
-    print(f"\nIndividual 0 (frame 0):")
-    print(f"  Centroid: ({result.position.values[0, 0, 0]:.1f}, {result.position.values[0, 1, 0]:.1f}) - Expected: (5.0, 5.0)")
-    print(f"  Shape: ({result.shape.values[0, 0, 0]:.1f}, {result.shape.values[0, 1, 0]:.1f}) - Expected: (10.0, 10.0)")
-    print(f"  Confidence: {result.confidence.values[0, 0]:.1f} - Expected: 0.9")
+    print("\nIndividual 0 (frame 0):")
+    print(
+        f"  Centroid: ({result.position.values[0, 0, 0]:.1f}, {result.position.values[0, 1, 0]:.1f}) - Expected: (5.0, 5.0)"
+    )
+    print(
+        f"  Shape: ({result.shape.values[0, 0, 0]:.1f}, {result.shape.values[0, 1, 0]:.1f}) - Expected: (10.0, 10.0)"
+    )
+    print(
+        f"  Confidence: {result.confidence.values[0, 0]:.1f} - Expected: 0.9"
+    )
 
     # Verify bbox calculations for individual 1
-    print(f"\nIndividual 1 (frame 0):")
-    print(f"  Centroid: ({result.position.values[0, 0, 1]:.1f}, {result.position.values[0, 1, 1]:.1f}) - Expected: (25.0, 25.0)")
-    print(f"  Shape: ({result.shape.values[0, 0, 1]:.1f}, {result.shape.values[0, 1, 1]:.1f}) - Expected: (10.0, 10.0)")
-    print(f"  Confidence: {result.confidence.values[0, 1]:.1f} - Expected: 0.9")
+    print("\nIndividual 1 (frame 0):")
+    print(
+        f"  Centroid: ({result.position.values[0, 0, 1]:.1f}, {result.position.values[0, 1, 1]:.1f}) - Expected: (25.0, 25.0)"
+    )
+    print(
+        f"  Shape: ({result.shape.values[0, 0, 1]:.1f}, {result.shape.values[0, 1, 1]:.1f}) - Expected: (10.0, 10.0)"
+    )
+    print(
+        f"  Confidence: {result.confidence.values[0, 1]:.1f} - Expected: 0.9"
+    )
 
     # Check assertions
-    assert np.allclose(result.position.values[0, 0, 0], 5.0), "Individual 0 x centroid failed"
-    assert np.allclose(result.position.values[0, 1, 0], 5.0), "Individual 0 y centroid failed"
-    assert np.allclose(result.shape.values[0, 0, 0], 10.0), "Individual 0 width failed"
-    assert np.allclose(result.shape.values[0, 1, 0], 10.0), "Individual 0 height failed"
-    assert np.allclose(result.position.values[0, 0, 1], 25.0), "Individual 1 x centroid failed"
-    assert np.allclose(result.position.values[0, 1, 1], 25.0), "Individual 1 y centroid failed"
+    assert np.allclose(result.position.values[0, 0, 0], 5.0), (
+        "Individual 0 x centroid failed"
+    )
+    assert np.allclose(result.position.values[0, 1, 0], 5.0), (
+        "Individual 0 y centroid failed"
+    )
+    assert np.allclose(result.shape.values[0, 0, 0], 10.0), (
+        "Individual 0 width failed"
+    )
+    assert np.allclose(result.shape.values[0, 1, 0], 10.0), (
+        "Individual 0 height failed"
+    )
+    assert np.allclose(result.position.values[0, 0, 1], 25.0), (
+        "Individual 1 x centroid failed"
+    )
+    assert np.allclose(result.position.values[0, 1, 1], 25.0), (
+        "Individual 1 y centroid failed"
+    )
 
     print("\n✓ Test 1 PASSED!\n")
 
@@ -120,11 +145,17 @@ def test_with_padding():
     expected_height = 10.0 + 2 * padding_px
 
     print(f"\nPadding: {padding_px} pixels")
-    print(f"Individual 0 (frame 0):")
-    print(f"  Shape: ({result.shape.values[0, 0, 0]:.1f}, {result.shape.values[0, 1, 0]:.1f}) - Expected: ({expected_width:.1f}, {expected_height:.1f})")
+    print("Individual 0 (frame 0):")
+    print(
+        f"  Shape: ({result.shape.values[0, 0, 0]:.1f}, {result.shape.values[0, 1, 0]:.1f}) - Expected: ({expected_width:.1f}, {expected_height:.1f})"
+    )
 
-    assert np.allclose(result.shape.values[0, 0, 0], expected_width), "Width with padding failed"
-    assert np.allclose(result.shape.values[0, 1, 0], expected_height), "Height with padding failed"
+    assert np.allclose(result.shape.values[0, 0, 0], expected_width), (
+        "Width with padding failed"
+    )
+    assert np.allclose(result.shape.values[0, 1, 0], expected_height), (
+        "Height with padding failed"
+    )
 
     print("\n✓ Test 2 PASSED!\n")
 
@@ -144,14 +175,26 @@ def test_with_nan():
 
     # Frame 0, individual 0: only 2 keypoints valid
     # Remaining keypoints: (10,0), (10,10) -> centroid (10, 5), shape (0, 10)
-    print(f"\nIndividual 0 (frame 0) with first keypoint as NaN:")
-    print(f"  Centroid: ({result.position.values[0, 0, 0]:.1f}, {result.position.values[0, 1, 0]:.1f}) - Expected: (10.0, 5.0)")
-    print(f"  Shape: ({result.shape.values[0, 0, 0]:.1f}, {result.shape.values[0, 1, 0]:.1f}) - Expected: (0.0, 10.0)")
+    print("\nIndividual 0 (frame 0) with first keypoint as NaN:")
+    print(
+        f"  Centroid: ({result.position.values[0, 0, 0]:.1f}, {result.position.values[0, 1, 0]:.1f}) - Expected: (10.0, 5.0)"
+    )
+    print(
+        f"  Shape: ({result.shape.values[0, 0, 0]:.1f}, {result.shape.values[0, 1, 0]:.1f}) - Expected: (0.0, 10.0)"
+    )
 
-    assert np.allclose(result.position.values[0, 0, 0], 10.0), "x centroid with NaN failed"
-    assert np.allclose(result.position.values[0, 1, 0], 5.0), "y centroid with NaN failed"
-    assert np.allclose(result.shape.values[0, 0, 0], 0.0), "width with NaN failed"
-    assert np.allclose(result.shape.values[0, 1, 0], 10.0), "height with NaN failed"
+    assert np.allclose(result.position.values[0, 0, 0], 10.0), (
+        "x centroid with NaN failed"
+    )
+    assert np.allclose(result.position.values[0, 1, 0], 5.0), (
+        "y centroid with NaN failed"
+    )
+    assert np.allclose(result.shape.values[0, 0, 0], 0.0), (
+        "width with NaN failed"
+    )
+    assert np.allclose(result.shape.values[0, 1, 0], 10.0), (
+        "height with NaN failed"
+    )
 
     print("\n✓ Test 3 PASSED!\n")
 
@@ -228,5 +271,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\n✗ TEST FAILED with exception: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
