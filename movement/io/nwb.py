@@ -553,7 +553,7 @@ def _ds_to_pose_and_skeletons(
         Skeletons object containing all Skeleton objects.
 
     """
-    if ds.individuals.size != 1:
+    if ds.individual.size != 1:
         raise logger.error(
             ValueError(
                 "Dataset must contain only one individual to create "
@@ -561,8 +561,12 @@ def _ds_to_pose_and_skeletons(
             )
         )
     config = config or NWBFileSaveConfig()
-    individual = ds.individuals.values.item()
-    keypoints = ds.keypoints.values.tolist()
+    individuals = ds.individual.values.tolist()
+    if isinstance(individuals, str):
+        individual = individuals
+    else:
+        individual = individuals[0]
+    keypoints = ds.keypoint.values.tolist()
     # Convert timestamps to seconds if necessary
     timestamps = (
         ds.time.values
@@ -571,8 +575,8 @@ def _ds_to_pose_and_skeletons(
     )
     pose_estimation_series = [
         ndx_pose.PoseEstimationSeries(
-            data=ds.sel(keypoints=keypoint).position.values,
-            confidence=ds.sel(keypoints=keypoint).confidence.values,
+            data=ds.sel(keypoint=keypoint).position.values,
+            confidence=ds.sel(keypoint=keypoint).confidence.values,
             timestamps=timestamps,
             **(
                 config._resolve_pose_estimation_series_kwargs(
