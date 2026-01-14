@@ -5,14 +5,14 @@ import pandas as pd
 import pytest
 import xarray as xr
 
-from movement.validators.datasets import ValidBboxesDataset, ValidPosesDataset
+from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
 
 
 # -------------------- Valid bboxes datasets and arrays --------------------
 @pytest.fixture
 def valid_bboxes_arrays_all_zeros():
     """Return a dictionary of valid zero arrays (in terms of shape) for a
-    ValidBboxesDataset.
+    valid bboxes dataset.
     """
     # define the shape of the arrays
     n_frames, n_space, n_individuals = (10, 2, 2)
@@ -31,7 +31,7 @@ def valid_bboxes_arrays_all_zeros():
 @pytest.fixture
 def valid_bboxes_arrays():
     """Return a dictionary of valid arrays for a
-    ValidBboxesDataset representing a uniform linear motion.
+    ValidBboxesInputs representing a uniform linear motion.
 
     It represents 2 individuals for 10 frames, in 2D space.
     - Individual 0 moves along the x=y line from the origin.
@@ -94,7 +94,7 @@ def valid_bboxes_dataset(valid_bboxes_arrays):
     - Individual 0 at frames 2, 3, 4
     - Individual 1 at frames 2, 3
     """
-    dim_names = ValidBboxesDataset.DIM_NAMES
+    dim_names = ValidBboxesInputs.DIM_NAMES
 
     position_array = valid_bboxes_arrays["position"]
     shape_array = valid_bboxes_arrays["shape"]
@@ -152,7 +152,7 @@ def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
 @pytest.fixture
 def valid_poses_arrays():
     """Return a dictionary of valid arrays for a
-    ValidPosesDataset representing a uniform linear motion.
+    valid poses dataset representing a uniform linear motion.
 
     This fixture is a factory of fixtures.
     Depending on the ``array_type`` requested (``multi_individual_array``,
@@ -173,7 +173,7 @@ def valid_poses_arrays():
     """
 
     def _valid_poses_arrays(array_type):
-        """Return a dictionary of valid arrays for a ValidPosesDataset."""
+        """Return a dictionary of valid arrays for ValidPosesInputs."""
         # Unless specified, default is a ``multi_individual_array`` with
         # 10 frames, 3 keypoints, and 2 individuals in 2D space.
         n_frames, n_space, n_keypoints, n_individuals = (10, 2, 3, 2)
@@ -250,7 +250,7 @@ def valid_poses_dataset(valid_poses_arrays, request):
     Default is a ``multi_individual_array`` (2 individuals, 3 keypoints each).
     See the ``valid_poses_arrays`` fixture for details.
     """
-    dim_names = ValidPosesDataset.DIM_NAMES
+    dim_names = ValidPosesInputs.DIM_NAMES
     # create a multi_individual_array by default unless overridden via param
     try:
         array_type = request.param

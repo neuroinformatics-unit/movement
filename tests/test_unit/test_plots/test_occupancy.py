@@ -255,4 +255,4 @@ def test_keypoints_and_individuals_behaviour(
     # This just helps suppress a warning about open plots
     plt.close(fig)
 
-    assert np.allclose(expected_output, hist_info["counts"])
+    assert np.allclose(expected_output, hist_info["h"])

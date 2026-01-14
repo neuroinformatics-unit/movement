@@ -15,6 +15,7 @@ license = { text = "BSD-3-Clause" }
 dependencies = [
   "numpy>=2.0.0",
   "pandas",
+  "scipy<1.17.0",
   "h5py",
   "netCDF4<1.7.3",
   "tables>=3.10.1",
@@ -74,6 +75,8 @@ dev = [
   "types-PyYAML",
   "types-requests",
   "pytest-qt",
+  "scipy-stubs",
+  "types-shapely",
   "movement[napari]",
 ]
 
@@ -108,8 +111,21 @@ ignore = [
   "docs/source/",
 ]
 
+[tool.mypy]
+exclude = ["tests/", "docs/", "examples/"]
+
 [[tool.mypy.overrides]]
-module = ["pooch.*", "h5py.*", "sleap_io.*"]
+module = [
+  "pooch.*",
+  "h5py.*",
+  "sleap_io.*",
+  "ndx_pose.*",
+  "pynwb.*",
+  "napari.*",
+  "pytest.*",
+  "loguru.*",
+  "qt_niu.*",
+]
 ignore_missing_imports = true
 
 [tool.ruff]
@@ -130,6 +146,7 @@ select = [
   "I",      # isort
   "B",      # flake8 bugbear
   "SIM",    # flake8 simplify
+  "TC",     # flake8 type-checking
   "C90",    # McCabe complexity
   "D",      # pydocstyle
   "NPY201", # checks for syntax that was deprecated in numpy2.0

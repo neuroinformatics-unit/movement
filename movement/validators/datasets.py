@@ -1,22 +1,27 @@
 """``attrs`` classes for validating data structures."""
 
 import warnings
+from abc import ABC, abstractmethod
 from collections.abc import Iterable
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, cast
 
 import attrs
 import numpy as np
 import xarray as xr
 from attrs import converters, define, field, validators
+from numpy.typing import NDArray
 
 from movement.utils.logging import logger
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 
 def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
     """Try to coerce the value into a list of strings."""
     if isinstance(value, str):
         warnings.warn(
-            f"Invalid value ({value}). Expected a list of strings. "
+            f"Expected a list of strings, but got a string ({value}). "
             "Converting to a list of length 1.",
             UserWarning,
             stacklevel=2,
@@ -43,43 +48,229 @@ def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
     return fps
 
 
-def _validate_type_ndarray(value: Any) -> None:
-    """Raise ValueError the value is a not numpy array."""
-    if not isinstance(value, np.ndarray):
-        raise logger.error(
-            ValueError(f"Expected a numpy array, but got {type(value)}.")
-        )
+@define(kw_only=True)
+class _BaseDatasetInputs(ABC):
+    """Abstract base class for validating ``movement`` dataset inputs.
 
+    This base class centralises shared fields, validators, and default
+    assignment logic for creating ``movement`` datasets
+    (e.g. poses, bounding boxes).
+    It registers the attrs validators for required fields like
+    ``position_array`` and optional fields like ``confidence_array`` and
+    ``individual_names``.
+    Subclasses must implement ``to_dataset()`` and define class variables
+    ``DIM_NAMES``, ``VAR_NAMES``, and ``_ALLOWED_SPACE_DIM_SIZE``.
+    """
 
-def _validate_array_shape(
-    attribute: attrs.Attribute, value: np.ndarray, expected_shape: tuple
-):
-    """Raise ValueError if the value does not have the expected shape."""
-    if value.shape != expected_shape:
-        raise logger.error(
-            ValueError(
-                f"Expected '{attribute.name}' to have shape {expected_shape}, "
-                f"but got {value.shape}."
+    # --- Required fields ---
+    position_array: np.ndarray = field(
+        validator=validators.instance_of(np.ndarray)
+    )
+    # --- Optional fields ---
+    confidence_array: np.ndarray | None = field(
+        default=None,
+        validator=validators.optional(validators.instance_of(np.ndarray)),
+    )
+    individual_names: list[str] | None = field(
+        default=None,
+        converter=converters.optional(_convert_to_list_of_str),
+    )
+    fps: float | None = field(
+        default=None,
+        converter=converters.pipe(  # type: ignore
+            converters.optional(float), _convert_fps_to_none_if_invalid
+        ),
+    )
+    source_software: str | None = field(
+        default=None,
+        validator=validators.optional(validators.instance_of(str)),
+    )
+    # --- Required class variables (to be defined by subclasses) ---
+    DIM_NAMES: ClassVar[tuple[str, ...]]
+    VAR_NAMES: ClassVar[tuple[str, ...]]
+    _ALLOWED_SPACE_DIM_SIZE: ClassVar[int | Iterable[int]]
+
+    # --- Lifecycle hooks ---
+    def __attrs_post_init__(self):
+        """Assign default values to optional attributes (if None)."""
+        # confidence_array default: array of NaNs with appropriate shape
+        if self.confidence_array is None:
+            self.confidence_array = np.full(
+                self._confidence_expected_shape, np.nan, dtype="float32"
             )
-        )
-
-
-def _validate_list_length(
-    attribute: attrs.Attribute, value: list | None, expected_length: int
-):
-    """Raise a ValueError if the list does not have the expected length."""
-    if (value is not None) and (len(value) != expected_length):
-        raise logger.error(
-            ValueError(
-                f"Expected '{attribute.name}' to have "
-                f"length {expected_length}, but got {len(value)}."
+            logger.info(
+                "Confidence array was not provided."
+                "Setting to an array of NaNs."
             )
+        # individual_names default: id_0, id_1, ...
+        if self.individual_names is None and "individuals" in self.DIM_NAMES:
+            n_inds = self.position_array.shape[
+                self.DIM_NAMES.index("individuals")
+            ]
+            self.individual_names = [f"id_{i}" for i in range(n_inds)]
+            logger.info(
+                "Individual names were not provided. "
+                f"Setting to {self.individual_names}."
+            )
+
+    # --- Properties (derived attributes) ---
+    @property
+    def _confidence_expected_shape(self):
+        """Return expected shape for confidence_array."""
+        # confidence shape == position_array shape without the space dim
+        return tuple(
+            dim
+            for i, dim in enumerate(self.position_array.shape)
+            if i != self.DIM_NAMES.index("space")
         )
+
+    # --- Validators ---
+    @position_array.validator
+    def _validate_position_array(self, attribute, value):
+        """Raise ValueError if array dimensions are unexpected."""
+        # Check array dimensions match the number of DIM_NAMES
+        expected_ndim = len(self.DIM_NAMES)
+        if value.ndim != expected_ndim:
+            raise logger.error(
+                ValueError(
+                    f"Expected '{attribute.name}' to have "
+                    f"{expected_ndim} dimensions, but got {value.ndim}."
+                )
+            )
+        # Check size of 'space' dimension
+        allowed_axis_size = self._ALLOWED_SPACE_DIM_SIZE
+        space_dim_size = value.shape[self.DIM_NAMES.index("space")]
+        if not isinstance(allowed_axis_size, Iterable):
+            allowed_axis_size = (allowed_axis_size,)
+        if space_dim_size not in allowed_axis_size:
+            allowed_dims_str = " or ".join(
+                str(dim) for dim in allowed_axis_size
+            )
+            raise logger.error(
+                ValueError(
+                    f"Expected '{attribute.name}' to have {allowed_dims_str} "
+                    f"spatial dimensions, but got {space_dim_size}."
+                )
+            )
+
+    @confidence_array.validator
+    def _validate_confidence_array(self, attribute, value):
+        """Check confidence_array type and shape."""
+        if value is not None:
+            expected_shape = self._confidence_expected_shape
+            self._validate_array_shape(
+                attribute, value, expected_shape=expected_shape
+            )
+
+    @individual_names.validator
+    def _validate_individual_names(self, attribute, value):
+        """Validate individual_names length and uniqueness."""
+        if value is not None:
+            individuals_dim_index = self.DIM_NAMES.index("individuals")
+            self._validate_list_length(
+                attribute,
+                value,
+                self.position_array.shape[individuals_dim_index],
+            )
+            self._validate_list_uniqueness(attribute, value)
+
+    # --- Utility methods ---
+    @staticmethod
+    def _validate_array_shape(
+        attribute: attrs.Attribute, value: np.ndarray, expected_shape: tuple
+    ):
+        """Raise ValueError if the value does not have the expected shape."""
+        if value.shape != expected_shape:
+            raise logger.error(
+                ValueError(
+                    f"Expected '{attribute.name}' to have shape "
+                    f"{expected_shape}, but got {value.shape}."
+                )
+            )
+
+    @staticmethod
+    def _validate_list_length(
+        attribute: attrs.Attribute, value: list | None, expected_length: int
+    ):
+        """Raise a ValueError if the list does not have the expected length."""
+        if value is not None and len(value) != expected_length:
+            raise logger.error(
+                ValueError(
+                    f"Expected '{attribute.name}' to have "
+                    f"length {expected_length}, but got {len(value)}."
+                )
+            )
+
+    @staticmethod
+    def _validate_list_uniqueness(
+        attribute: attrs.Attribute, value: list | None
+    ):
+        """Raise a ValueError if the list does not have unique elements."""
+        if value is not None and len(value) != len(set(value)):
+            raise logger.error(
+                ValueError(
+                    f"Elements in '{attribute.name}' are not unique. "
+                    f"There are {len(value)} elements in the list, but "
+                    f"only {len(set(value))} are unique."
+                )
+            )
+
+    @abstractmethod
+    def to_dataset(self) -> xr.Dataset:
+        """Convert validated inputs to a ``movement`` xarray.Dataset.
+
+        Returns
+        -------
+        xarray.Dataset
+            ``movement`` dataset containing the validated data and metadata.
+
+        """
+        ...
+
+    @classmethod
+    def validate(cls, ds: xr.Dataset) -> None:
+        """Validate that the dataset has the required variables and dimensions.
+
+        Parameters
+        ----------
+        ds : xarray.Dataset
+            Dataset to validate.
+
+        Raises
+        ------
+        TypeError
+            If the input is not an xarray Dataset.
+        ValueError
+            If the dataset is missing required data variables or dimensions
+            for a valid ``movement`` dataset.
+
+        """
+        if not isinstance(ds, xr.Dataset):
+            raise logger.error(
+                TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
+            )
+        missing_vars = set(cls.VAR_NAMES) - set(
+            cast("Iterable[str]", ds.data_vars.keys())
+        )
+        if missing_vars:
+            raise logger.error(
+                ValueError(
+                    f"Missing required data variables: {sorted(missing_vars)}"
+                )
+            )  # sort for a reproducible error message
+        # Ignore type error - ds.dims will soon return a set of dim names
+        missing_dims = set(cls.DIM_NAMES) - set(ds.dims)  # type: ignore[arg-type]
+        if missing_dims:
+            raise logger.error(
+                ValueError(
+                    f"Missing required dimensions: {sorted(missing_dims)}"
+                )
+            )  # sort for a reproducible error message
 
 
 @define(kw_only=True)
-class ValidPosesDataset:
-    """Class for validating poses data intended for a ``movement`` dataset.
+class ValidPosesInputs(_BaseDatasetInputs):
+    """Class for validating input data for a ``movement poses`` dataset.
 
     The validator ensures that within the ``movement poses`` dataset:
 
@@ -126,116 +317,93 @@ class ValidPosesDataset:
 
     """
 
-    # Required attributes
-    position_array: np.ndarray = field()
-
-    # Optional attributes
-    confidence_array: np.ndarray | None = field(default=None)
-    individual_names: list[str] | None = field(
-        default=None,
-        converter=converters.optional(_convert_to_list_of_str),
-    )
     keypoint_names: list[str] | None = field(
         default=None,
         converter=converters.optional(_convert_to_list_of_str),
     )
-    fps: float | None = field(
-        default=None,
-        converter=converters.pipe(  # type: ignore
-            converters.optional(float), _convert_fps_to_none_if_invalid
-        ),
+
+    DIM_NAMES: ClassVar[tuple[str, ...]] = (
+        "time",
+        "space",
+        "keypoints",
+        "individuals",
     )
-    source_software: str | None = field(
-        default=None,
-        validator=validators.optional(validators.instance_of(str)),
-    )
-
-    # Class variables
-    DIM_NAMES: ClassVar[tuple] = ("time", "space", "keypoints", "individuals")
-    VAR_NAMES: ClassVar[tuple] = ("position", "confidence")
-
-    # Add validators
-    @position_array.validator
-    def _validate_position_array(self, attribute, value):
-        _validate_type_ndarray(value)
-        n_dims = value.ndim
-        if n_dims != 4:
-            raise logger.error(
-                ValueError(
-                    f"Expected '{attribute.name}' to have 4 dimensions, "
-                    f"but got {n_dims}."
-                )
-            )
-        space_dim_shape = value.shape[1]
-        if space_dim_shape not in [2, 3]:
-            raise logger.error(
-                ValueError(
-                    f"Expected '{attribute.name}' to have 2 or 3 spatial "
-                    f"dimensions, but got {space_dim_shape}."
-                )
-            )
-
-    @confidence_array.validator
-    def _validate_confidence_array(self, attribute, value):
-        if value is not None:
-            _validate_type_ndarray(value)
-            # Expected shape is the same as position_array,
-            # but without the `space` dim
-            expected_shape = (
-                self.position_array.shape[:1] + self.position_array.shape[2:]
-            )
-            _validate_array_shape(
-                attribute, value, expected_shape=expected_shape
-            )
-
-    @individual_names.validator
-    def _validate_individual_names(self, attribute, value):
-        if self.source_software == "LightningPose":
-            # LightningPose only supports a single individual
-            _validate_list_length(attribute, value, 1)
-        else:
-            _validate_list_length(
-                attribute, value, self.position_array.shape[-1]
-            )
+    VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "confidence")
+    _ALLOWED_SPACE_DIM_SIZE: ClassVar[Iterable[int]] = (2, 3)
 
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
-        _validate_list_length(attribute, value, self.position_array.shape[2])
+        """Validate keypoint_names length and uniqueness."""
+        keypoints_dim_index = self.DIM_NAMES.index("keypoints")
+        self._validate_list_length(
+            attribute, value, self.position_array.shape[keypoints_dim_index]
+        )
+        self._validate_list_uniqueness(attribute, value)
 
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
+        super().__attrs_post_init__()
         position_array_shape = self.position_array.shape
-        if self.confidence_array is None:
-            self.confidence_array = np.full(
-                position_array_shape[:1] + position_array_shape[2:],
-                np.nan,
-                dtype="float32",
-            )
-            logger.warning(
-                "Confidence array was not provided."
-                "Setting to an array of NaNs."
-            )
-        if self.individual_names is None:
-            self.individual_names = [
-                f"id_{i}" for i in range(position_array_shape[-1])
-            ]
-            logger.warning(
-                "Individual names were not provided. "
-                f"Setting to {self.individual_names}."
-            )
+        keypoints_dim_index = self.DIM_NAMES.index("keypoints")
         if self.keypoint_names is None:
             self.keypoint_names = [
-                f"keypoint_{i}" for i in range(position_array_shape[2])
+                f"keypoint_{i}"
+                for i in range(position_array_shape[keypoints_dim_index])
             ]
-            logger.warning(
+            logger.info(
                 "Keypoint names were not provided. "
                 f"Setting to {self.keypoint_names}."
             )
 
+    def to_dataset(self) -> xr.Dataset:
+        """Convert validated poses inputs to a ``movement poses`` dataset.
+
+        Returns
+        -------
+        xarray.Dataset
+            ``movement`` dataset containing the pose tracks, confidence scores,
+            and associated metadata.
+
+        """
+        n_frames = self.position_array.shape[0]
+        n_space = self.position_array.shape[1]
+        dataset_attrs: dict[str, str | float | None] = {
+            "source_software": self.source_software,
+            "ds_type": "poses",
+        }
+        # Create the time coordinate, depending on the value of fps
+        time_coords: NDArray[np.floating] | NDArray[np.integer]
+        time_unit: Literal["seconds", "frames"]
+        if self.fps is not None:
+            time_coords = np.arange(n_frames, dtype=np.float64) / self.fps
+            time_unit = "seconds"
+            dataset_attrs["fps"] = self.fps
+        else:
+            time_coords = np.arange(n_frames, dtype=np.int64)
+            time_unit = "frames"
+        dataset_attrs["time_unit"] = time_unit
+        DIM_NAMES = self.DIM_NAMES
+        # Convert data to an xarray.Dataset
+        return xr.Dataset(
+            data_vars={
+                "position": xr.DataArray(self.position_array, dims=DIM_NAMES),
+                "confidence": xr.DataArray(
+                    self.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
+                ),
+            },
+            coords={
+                DIM_NAMES[0]: time_coords,
+                DIM_NAMES[1]: ["x", "y", "z"][:n_space],
+                DIM_NAMES[2]: self.keypoint_names,
+                DIM_NAMES[3]: self.individual_names,
+            },
+            attrs=dataset_attrs,
+        )
+
 
 @define(kw_only=True)
-class ValidBboxesDataset:
-    """Class for validating bounding boxes data for a ``movement`` dataset.
+class ValidBboxesInputs(_BaseDatasetInputs):
+    """Class for validating input data for a ``movement bboxes`` dataset.
 
     The validator considers 2D bounding boxes only. It ensures that
     within the ``movement bboxes`` dataset:
@@ -294,90 +462,37 @@ class ValidBboxesDataset:
 
     """
 
-    # Required attributes
-    position_array: np.ndarray = field()
-    shape_array: np.ndarray = field()
-
-    # Optional attributes
-    confidence_array: np.ndarray | None = field(default=None)
-    individual_names: list[str] | None = field(
-        default=None,
-        converter=converters.optional(
-            _convert_to_list_of_str
-        ),  # force into list of strings if not
+    shape_array: np.ndarray = field(
+        validator=validators.instance_of(np.ndarray)
     )
-    frame_array: np.ndarray | None = field(default=None)
-    fps: float | None = field(
+    frame_array: np.ndarray | None = field(
         default=None,
-        converter=converters.pipe(  # type: ignore
-            converters.optional(float), _convert_fps_to_none_if_invalid
-        ),
-    )
-    source_software: str | None = field(
-        default=None,
-        validator=validators.optional(validators.instance_of(str)),
+        validator=validators.optional(validators.instance_of(np.ndarray)),
     )
 
-    DIM_NAMES: ClassVar[tuple] = ("time", "space", "individuals")
-    VAR_NAMES: ClassVar[tuple] = ("position", "shape", "confidence")
+    DIM_NAMES: ClassVar[tuple[str, ...]] = ("time", "space", "individuals")
+    VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "shape", "confidence")
+    _ALLOWED_SPACE_DIM_SIZE: ClassVar[int] = 2
 
-    # Validators
-    @position_array.validator
     @shape_array.validator
-    def _validate_position_and_shape_arrays(self, attribute, value):
-        _validate_type_ndarray(value)
-        # check `space` dim (at idx 1) has 2 coordinates
-        n_expected_spatial_coordinates = 2
-        n_spatial_coordinates = value.shape[1]
-        if n_spatial_coordinates != n_expected_spatial_coordinates:
-            raise logger.error(
-                ValueError(
-                    f"Expected '{attribute.name}' to have "
-                    f"{n_expected_spatial_coordinates} spatial coordinates, "
-                    f"but got {n_spatial_coordinates}."
-                )
-            )
-
-    @individual_names.validator
-    def _validate_individual_names(self, attribute, value):
-        if value is not None:
-            _validate_list_length(
-                attribute, value, self.position_array.shape[-1]
-            )
-            # check n_individual_names are unique
-            # NOTE: combined with the requirement above, we are enforcing
-            # unique IDs per frame
-            if len(value) != len(set(value)):
-                raise logger.error(
-                    ValueError(
-                        "individual_names are not unique. "
-                        f"There are {len(value)} elements in the list, but "
-                        f"only {len(set(value))} are unique."
-                    )
-                )
-
-    @confidence_array.validator
-    def _validate_confidence_array(self, attribute, value):
-        if value is not None:
-            _validate_type_ndarray(value)
-            # Expected shape is the same as position_array,
-            # but without the `space` dim
-            expected_shape = (
-                self.position_array.shape[:1] + self.position_array.shape[2:]
-            )
-            _validate_array_shape(
-                attribute, value, expected_shape=expected_shape
-            )
+    def _validate_shape_array(self, attribute, value):
+        """Validate shape_array dimensions and shape."""
+        super()._validate_position_array(attribute, value)
+        # Shape must match that of position_array
+        self._validate_array_shape(
+            attribute, value, expected_shape=self.position_array.shape
+        )
 
     @frame_array.validator
     def _validate_frame_array(self, attribute, value):
+        """Validate frame_array type, shape, and monotonicity."""
         if value is not None:
-            _validate_type_ndarray(value)
             # should be a column vector (n_frames, 1)
-            _validate_array_shape(
+            time_dim_index = self.DIM_NAMES.index("time")
+            self._validate_array_shape(
                 attribute,
                 value,
-                expected_shape=(self.position_array.shape[0], 1),
+                expected_shape=(self.position_array.shape[time_dim_index], 1),
             )
             # check frames are monotonically increasing
             if not np.all(np.diff(value, axis=0) >= 1):
@@ -388,84 +503,65 @@ class ValidBboxesDataset:
                     )
                 )
 
-    # Define defaults
     def __attrs_post_init__(self):
-        """Assign default values to optional attributes (if None).
-
-        If no confidence_array is provided, set it to an array of NaNs.
-        If no individual names are provided, assign them unique IDs per frame,
-        starting with 0 ("id_0").
-        """
-        position_array_shape = self.position_array.shape
-        # assign default confidence_array
-        if self.confidence_array is None:
-            self.confidence_array = np.full(
-                position_array_shape[:1] + position_array_shape[2:],
-                np.nan,
-                dtype="float32",
-            )
-            logger.warning(
-                "Confidence array was not provided. "
-                "Setting to an array of NaNs."
-            )
-        # assign default individual_names
-        if self.individual_names is None:
-            self.individual_names = [
-                f"id_{i}" for i in range(position_array_shape[-1])
-            ]
-            logger.warning(
-                "Individual names for the bounding boxes "
-                "were not provided. "
-                "Setting to 0-based IDs that are unique per frame: \n"
-                f"{self.individual_names}.\n"
-            )
+        """Assign default values to optional attributes (if None)."""
+        super().__attrs_post_init__()
         # assign default frame_array
         if self.frame_array is None:
-            n_frames = position_array_shape[0]
+            time_dim_index = self.DIM_NAMES.index("time")
+            n_frames = self.position_array.shape[time_dim_index]
             self.frame_array = np.arange(n_frames).reshape(-1, 1)
-            logger.warning(
+            logger.info(
                 "Frame numbers were not provided. "
                 "Setting to an array of 0-based integers."
             )
 
+    def to_dataset(self) -> xr.Dataset:
+        """Convert validated bboxes inputs to a ``movement bboxes`` dataset.
 
-def _validate_dataset(
-    ds: xr.Dataset,
-    dataset_validator: type[ValidBboxesDataset] | type[ValidPosesDataset],
-) -> None:
-    """Validate the input as a proper ``movement`` dataset.
+        Returns
+        -------
+        xarray.Dataset
+            ``movement`` dataset containing the bounding boxes tracks,
+            shapes, confidence scores and associated metadata.
 
-    Parameters
-    ----------
-    ds : xarray.Dataset
-        Dataset to validate.
-    dataset_validator : type[ValidBboxesDataset] | type[ValidPosesDataset]
-        Validator for the dataset.
-
-    Raises
-    ------
-    TypeError
-        If the input is not an xarray Dataset.
-    ValueError
-        If the dataset is missing required data variables or dimensions
-        for a valid ``movement`` dataset.
-
-    """
-    if not isinstance(ds, xr.Dataset):
-        raise logger.error(
-            TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
+        """
+        dataset_attrs: dict[str, str | float | None] = {
+            "source_software": self.source_software,
+            "ds_type": "bboxes",
+        }
+        # Ignore type error as ValidBboxesInputs ensures
+        # `frame_array` is not None
+        time_coords: NDArray[np.floating] | NDArray[np.integer] = (
+            self.frame_array.squeeze()  # type: ignore[union-attr]
         )
-
-    missing_vars = set(dataset_validator.VAR_NAMES) - set(ds.data_vars)
-    if missing_vars:
-        raise logger.error(
-            ValueError(
-                f"Missing required data variables: {sorted(missing_vars)}"
-            )
-        )  # sort for a reproducible error message
-
-    missing_dims = set(dataset_validator.DIM_NAMES) - set(ds.dims)
-    if missing_dims:
-        raise logger.error(
-            ValueError(f"Missing required dimensions: {sorted(missing_dims)}")
-        )  # sort for a reproducible error message
+        time_unit: Literal["seconds", "frames"] = "frames"
+        # if fps is provided:
+        # time_coords is expressed in seconds, with the time origin
+        # set as frame 0 == time 0 seconds
+        # Store fps as a dataset attribute
+        if self.fps:
+            # Compute elapsed time from frame 0.
+            time_coords = time_coords / self.fps
+            time_unit = "seconds"
+            dataset_attrs["fps"] = self.fps
+        dataset_attrs["time_unit"] = time_unit
+        # Convert data to an xarray.Dataset
+        # with dimensions ('time', 'space', 'individuals')
+        DIM_NAMES = self.DIM_NAMES
+        n_space = self.position_array.shape[1]
+        return xr.Dataset(
+            data_vars={
+                "position": xr.DataArray(self.position_array, dims=DIM_NAMES),
+                "shape": xr.DataArray(self.shape_array, dims=DIM_NAMES),
+                "confidence": xr.DataArray(
+                    self.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
+                ),
+            },
+            coords={
+                DIM_NAMES[0]: time_coords,
+                DIM_NAMES[1]: ["x", "y", "z"][:n_space],
+                DIM_NAMES[2]: self.individual_names,
+            },
+            attrs=dataset_attrs,
+        )

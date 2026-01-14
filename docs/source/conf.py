@@ -31,7 +31,10 @@ except LookupError:
     # with a dummy version
     release = "0.0.0"
 
-doc_version = "dev" if "dev" in release else f"v{release}"
+is_dev = "dev" in release
+doc_version = "dev" if is_dev else f"v{release}"
+binder_branch = "main" if is_dev else f"v{release}"
+
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -111,11 +114,9 @@ sphinx_gallery_conf = {
     "binder": {
         "org": "neuroinformatics-unit",
         "repo": "movement",
-        "branch": "gh-pages",
+        "branch": binder_branch,  # Can be any branch, tag, or commit hash
         "binderhub_url": "https://mybinder.org",
-        "dependencies": ["environment.yml"],
-        "filepath_prefix": doc_version,   # point to the versioned docs build folder inside the `gh-pages` branch
-        "notebooks_dir": "notebooks",     # default, but explicit is nice
+        "dependencies": ["../../.binder/requirements.txt"],
     },
     "reference_url": {"movement": None},
     "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image
@@ -189,6 +190,10 @@ html_js_files = [
 ]
 html_favicon = "_static/light-logo-niu.png"
 
+# Linkcheck configuration
+linkcheck_timeout = 60  # defaut is 30
+linkcheck_retries = 3   # default is 1
+
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs (because they are generated dynamically)
 linkcheck_anchors_ignore_for_url = [
@@ -203,6 +208,12 @@ linkcheck_ignore = [
     "https://www.sainsburywellcome.org/",  # Occasional ConnectTimeoutError
     "https://www.robots.ox.ac.uk/",  # occasional 404s
     "https://silvalab.codeberg.page/BraiAn/",  # SSLError despite working link
+    "https://www.g-node.org/",  # frequent timeouts
+    "https://www.contributor-covenant.org/*",  # frequent timeouts
+    # Checking zenodo redirects (from concept doi to record) takes a long time
+    "https://zenodo.org/doi/*",
+    "https://zenodo.org/records/*",
+    "https://doi.org/10.5281/zenodo.*",
 ]
 
 
@@ -219,7 +230,7 @@ myst_url_schemes = {
     "gin": "https://gin.g-node.org/{{path}}#{{fragment}}",
     "github-docs": "https://docs.github.com/en/{{path}}#{{fragment}}",
     "myst-parser": "https://myst-parser.readthedocs.io/en/latest/{{path}}#{{fragment}}",
-    "napari": "https://napari.org/dev/{{path}}",
+    "napari": "https://napari.org/stable/{{path}}",
     "setuptools-scm": "https://setuptools-scm.readthedocs.io/en/latest/{{path}}#{{fragment}}",
     "sleap": "https://sleap.ai/{{path}}#{{fragment}}",
     "sleap-docs": "https://docs.sleap.ai/latest/{{path}}#{{fragment}}",
