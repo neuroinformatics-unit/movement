@@ -118,6 +118,249 @@ def scale(
     return scaled_data
 
 
+@log_to_attrs
+def poses_to_bboxes(
+    ds: xr.Dataset,
+    padding_px: float = 0.0,
+) -> xr.Dataset:
+    """Convert a poses dataset to a bounding boxes dataset.
+
+    This function computes bounding boxes from pose estimation keypoints by
+    finding the minimum and maximum coordinates across all keypoints for each
+    individual at each time point. The resulting bounding box is represented
+    by its centroid (center point) and shape (width and height).
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A ``movement`` poses dataset with dimensions
+        (time, space, keypoints, individuals). The dataset must contain
+        2D poses only (space dimension size = 2).
+    padding_px : float, optional
+        Number of pixels to add as padding around the bounding box in all
+        directions. The padding increases both width and height by
+        ``2 * padding_px``. Default is 0.0 (no padding).
+
+    Returns
+    -------
+    xarray.Dataset
+        A ``movement`` bboxes dataset with dimensions (time, space, individuals).
+        The dataset contains:
+
+        - ``position``: (n_frames, 2, n_individuals) array representing
+          the centroid (x, y) of each bounding box.
+        - ``shape``: (n_frames, 2, n_individuals) array representing
+          the width and height of each bounding box.
+        - ``confidence``: (n_frames, n_individuals) array with the mean
+          confidence across all keypoints for each individual.
+
+    Raises
+    ------
+    ValueError
+        If the input dataset does not have the required 'position' data variable.
+    ValueError
+        If the input dataset contains 3D poses (space dimension size = 3).
+        Only 2D poses are supported as bounding boxes are inherently 2D.
+    ValueError
+        If padding_px is negative.
+
+    Notes
+    -----
+    - Keypoints with NaN coordinates are excluded from bounding box calculation.
+      If all keypoints for an individual at a given time are NaN, the resulting
+      bounding box position, shape, and confidence will all be NaN.
+    - The confidence value for each bounding box is computed as the mean of
+      the confidence values of all valid (non-NaN) keypoints for that
+      individual at that time point.
+    - The bounding box centroid is calculated as the midpoint between the
+      minimum and maximum coordinates: ``(min + max) / 2``.
+    - The bounding box shape is calculated as the span of coordinates plus
+      padding: ``width = max_x - min_x + 2*padding_px`` and
+      ``height = max_y - min_y + 2*padding_px``.
+    - When there is only one valid keypoint, the bounding box will have
+      zero width and/or height (before padding is applied).
+    - The function preserves dataset attributes (time_unit, fps, source_software)
+      from the input poses dataset, but updates the ``ds_type`` to "bboxes".
+    - This function makes changes to the resulting dataset's attributes
+      (:attr:`xarray.Dataset.attrs`):
+
+        - It sets the ``ds_type`` attribute to "bboxes".
+        - It adds a new entry to the ``log`` attribute, which contains
+          a record of the operation performed, including parameters used
+          and the datetime of the function call.
+
+    Examples
+    --------
+    Convert a poses dataset to bounding boxes:
+
+    >>> from movement.transforms import poses_to_bboxes
+    >>> bboxes_ds = poses_to_bboxes(poses_ds)
+
+    Add 10 pixels of padding around each bounding box:
+
+    >>> bboxes_ds = poses_to_bboxes(poses_ds, padding_px=10)
+
+    The resulting bounding boxes can be accessed via:
+
+    >>> bboxes_ds.position  # centroids
+    >>> bboxes_ds.shape     # widths and heights
+    >>> bboxes_ds.confidence  # mean keypoint confidences
+
+    See Also
+    --------
+    movement.filtering.filter_by_confidence : Filter data by confidence threshold
+    movement.transforms.scale : Scale spatial coordinates
+
+    """
+    # Validate input type
+    if not isinstance(ds, xr.Dataset):
+        raise TypeError(
+            f"Input must be an xarray.Dataset, got {type(ds).__name__}"
+        )
+
+    # Validate required data variable exists
+    if "position" not in ds.data_vars:
+        raise ValueError(
+            "Input dataset must contain 'position' data variable. "
+            f"Found data variables: {list(ds.data_vars)}"
+        )
+
+    # Validate dimensions and coordinates
+    validate_dims_coords(ds.position, {"space": ["x", "y"]})
+
+    # Check for 3D poses (not supported)
+    if len(ds.coords["space"]) != 2:
+        raise ValueError(
+            "Input dataset must contain 2D poses only. "
+            "Bounding boxes are inherently 2D and cannot be computed from 3D poses. "
+            f"Found space dimension with coordinates: {list(ds.coords['space'].values)}"
+        )
+
+    # Validate padding parameter
+    if not isinstance(padding_px, (int, float)):
+        raise TypeError(
+            f"padding_px must be a number, got {type(padding_px).__name__}"
+        )
+    if padding_px < 0:
+        raise ValueError(f"padding_px must be non-negative, got {padding_px}")
+
+    # Check required dimensions exist
+    required_dims = ["time", "space", "keypoints", "individuals"]
+    missing_dims = [dim for dim in required_dims if dim not in ds.position.dims]
+    if missing_dims:
+        raise ValueError(
+            f"position data variable must have dimensions {required_dims}. "
+            f"Missing: {missing_dims}"
+        )
+
+    # Extract data
+    position = ds.position  # shape: (time, space, keypoints, individuals)
+
+    # Handle confidence - may or may not exist
+    if "confidence" in ds.data_vars:
+        confidence_kpts = ds.confidence  # shape: (time, keypoints, individuals)
+    else:
+        # Create NaN confidence array if not present
+        confidence_kpts = xr.full_like(
+            ds.position.isel(space=0), fill_value=np.nan
+        )
+
+    # Get dimensions
+    n_frames = len(ds.coords["time"])
+    n_individuals = len(ds.coords["individuals"])
+
+    # Initialize output arrays with NaN
+    bbox_position = np.full((n_frames, 2, n_individuals), np.nan)
+    bbox_shape = np.full((n_frames, 2, n_individuals), np.nan)
+    bbox_confidence = np.full((n_frames, n_individuals), np.nan)
+
+    # Compute bounding boxes
+    # Iterate over time and individuals
+    for t_idx in range(n_frames):
+        for ind_idx in range(n_individuals):
+            # Extract keypoint positions for this individual at this time
+            # Shape: (space=2, keypoints=N)
+            keypoints = position.isel(
+                time=t_idx, individuals=ind_idx
+            ).values
+
+            # Extract x and y coordinates
+            x_coords = keypoints[0, :]  # All x values across keypoints
+            y_coords = keypoints[1, :]  # All y values across keypoints
+
+            # Filter out NaN values
+            valid_x = x_coords[~np.isnan(x_coords)]
+            valid_y = y_coords[~np.isnan(y_coords)]
+
+            # Check if we have any valid keypoints
+            if len(valid_x) > 0 and len(valid_y) > 0:
+                # Compute bounding box
+                x_min, x_max = valid_x.min(), valid_x.max()
+                y_min, y_max = valid_y.min(), valid_y.max()
+
+                # Centroid (center of bbox)
+                centroid_x = (x_min + x_max) / 2
+                centroid_y = (y_min + y_max) / 2
+
+                # Shape (width, height) with padding
+                width = x_max - x_min + 2 * padding_px
+                height = y_max - y_min + 2 * padding_px
+
+                # Store results
+                bbox_position[t_idx, 0, ind_idx] = centroid_x
+                bbox_position[t_idx, 1, ind_idx] = centroid_y
+                bbox_shape[t_idx, 0, ind_idx] = width
+                bbox_shape[t_idx, 1, ind_idx] = height
+
+                # Compute mean confidence from valid keypoints
+                # A keypoint is valid if BOTH x and y are not NaN
+                valid_kpt_mask = ~np.isnan(x_coords) & ~np.isnan(y_coords)
+                kpt_conf = confidence_kpts.isel(
+                    time=t_idx, individuals=ind_idx
+                ).values
+                valid_confidences = kpt_conf[valid_kpt_mask]
+
+                # Mean of valid confidences (handles NaN in confidence array too)
+                if len(valid_confidences) > 0:
+                    bbox_confidence[t_idx, ind_idx] = np.nanmean(
+                        valid_confidences
+                    )
+
+            # else: all values remain NaN (already initialized)
+
+    # Create output dataset
+    dim_names = ("time", "space", "individuals")
+
+    bboxes_ds = xr.Dataset(
+        data_vars={
+            "position": xr.DataArray(
+                bbox_position,
+                dims=dim_names,
+                attrs=ds.position.attrs.copy(),  # Preserve attributes
+            ),
+            "shape": xr.DataArray(
+                bbox_shape,
+                dims=dim_names,
+            ),
+            "confidence": xr.DataArray(
+                bbox_confidence,
+                dims=(dim_names[0], dim_names[2]),  # (time, individuals)
+            ),
+        },
+        coords={
+            "time": ds.coords["time"],  # Preserve time coordinates
+            "space": ["x", "y"],  # Always 2D for bboxes
+            "individuals": ds.coords["individuals"],  # Preserve individual names
+        },
+        attrs=ds.attrs.copy(),  # Copy original attributes
+    )
+
+    # Update ds_type to indicate this is now a bboxes dataset
+    bboxes_ds.attrs["ds_type"] = "bboxes"
+
+    return bboxes_ds
+
+
 def compute_homography_transform(
     src_points: np.ndarray, dst_points: np.ndarray
 ) -> np.ndarray:
