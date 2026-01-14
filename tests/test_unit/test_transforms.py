@@ -472,6 +472,7 @@ def create_poses_dataset(
 
     Returns:
         xarray.Dataset with pose data
+
     """
     n_space = 2
     position = np.zeros((n_frames, n_space, n_keypoints, n_individuals))
@@ -533,7 +534,9 @@ def create_poses_dataset(
     return ds
 
 
-def verify_bbox_result(result, expected_position, expected_shape, ind_id=0, frame_id=0):
+def verify_bbox_result(
+    result, expected_position, expected_shape, ind_id=0, frame_id=0
+):
     """Helper to verify bbox position and shape values.
 
     Args:
@@ -542,11 +545,20 @@ def verify_bbox_result(result, expected_position, expected_shape, ind_id=0, fram
         expected_shape: Tuple of (width, height)
         ind_id: Individual index to check
         frame_id: Frame index to check
+
     """
-    assert np.allclose(result.position.values[frame_id, 0, ind_id], expected_position[0])
-    assert np.allclose(result.position.values[frame_id, 1, ind_id], expected_position[1])
-    assert np.allclose(result.shape.values[frame_id, 0, ind_id], expected_shape[0])
-    assert np.allclose(result.shape.values[frame_id, 1, ind_id], expected_shape[1])
+    assert np.allclose(
+        result.position.values[frame_id, 0, ind_id], expected_position[0]
+    )
+    assert np.allclose(
+        result.position.values[frame_id, 1, ind_id], expected_position[1]
+    )
+    assert np.allclose(
+        result.shape.values[frame_id, 0, ind_id], expected_shape[0]
+    )
+    assert np.allclose(
+        result.shape.values[frame_id, 1, ind_id], expected_shape[1]
+    )
 
 
 @pytest.fixture
@@ -635,7 +647,9 @@ def test_poses_to_bboxes_with_nan(simple_poses_dataset):
 
     # Set some keypoints to NaN
     ds.position.values[0, :, 0, 0] = np.nan  # First keypoint of ind 0, frame 0
-    ds.position.values[1, :, 1, 1] = np.nan  # Second keypoint of ind 1, frame 1
+    ds.position.values[1, :, 1, 1] = (
+        np.nan
+    )  # Second keypoint of ind 1, frame 1
 
     result = poses_to_bboxes(ds)
 
@@ -680,7 +694,11 @@ def test_poses_to_bboxes_partial_nan_keypoints():
         [
             [
                 [[1.0], [2.0], [3.0]],  # x coords frame 0
-                [[1.0], [np.nan], [3.0]],  # y coords frame 0 - middle keypoint has NaN y
+                [
+                    [1.0],
+                    [np.nan],
+                    [3.0],
+                ],  # y coords frame 0 - middle keypoint has NaN y
             ],
             [
                 [[1.0], [2.0], [3.0]],  # x coords frame 1
@@ -788,7 +806,8 @@ def test_poses_to_bboxes_preserves_coords(simple_poses_dataset):
 
     # Check time coordinates
     np.testing.assert_array_equal(
-        result.coords["time"].values, simple_poses_dataset.coords["time"].values
+        result.coords["time"].values,
+        simple_poses_dataset.coords["time"].values,
     )
 
     # Check individual names
@@ -895,7 +914,9 @@ def test_poses_to_bboxes_degenerate_bbox():
 
     # Centroid should be at (5, 5), shape should be zero
     for frame_id in range(2):
-        verify_bbox_result(result, (5.0, 5.0), (0.0, 0.0), ind_id=0, frame_id=frame_id)
+        verify_bbox_result(
+            result, (5.0, 5.0), (0.0, 0.0), ind_id=0, frame_id=frame_id
+        )
 
 
 def test_poses_to_bboxes_log_attribute(simple_poses_dataset):
