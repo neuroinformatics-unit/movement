@@ -182,6 +182,16 @@ class DataLoader(QWidget):
         if not success:
             return  # Stop execution if formatting/validation failed
 
+        if self.source_software in SUPPORTED_NETCDF_FILES:
+            # Check if the fps is in the file attributes
+            # and update the spinbox if so
+            try:
+                ds = self._load_netcdf_file()
+                if ds and "fps" in ds.attrs:
+                    self.fps_spinbox.setValue(ds.attrs["fps"])
+            except Exception:
+                pass  # Ignore errors here, they will be caught later
+
         # Update self.fps in case the file loading changed the spinbox value
         self.fps = self.fps_spinbox.value()
 
@@ -217,12 +227,20 @@ class DataLoader(QWidget):
         else:
             ds = self._load_netcdf_file()
             if ds is None:
+                self.data = None
                 return False
             if "fps" in ds.attrs:
                 self.fps_spinbox.setValue(ds.attrs["fps"])
 
         # Convert to napari arrays
-        self.data, self.data_bboxes, self.properties = ds_to_napari_layers(ds)
+        try:
+            self.data, self.data_bboxes, self.properties = ds_to_napari_layers(
+                ds
+            )
+        except Exception as e:
+            show_error(f"Error converting dataset to napari layers: {e}")
+            self.data = None
+            return False
 
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)
@@ -253,6 +271,16 @@ class DataLoader(QWidget):
         except Exception as e:
             show_error(f"Error opening netCDF file: {e}")
             return None
+
+        # Rename dimensions if they are in the old format (plural)
+        # to the new format (singular)
+        rename_dict = {}
+        if "individuals" in ds.dims:
+            rename_dict["individuals"] = "individual"
+        if "keypoints" in ds.dims:
+            rename_dict["keypoints"] = "keypoint"
+        if rename_dict:
+            ds = ds.rename(rename_dict)
 
         ds_type = ds.attrs.get("ds_type", None)
         if ds_type not in {"poses", "bboxes"}:
