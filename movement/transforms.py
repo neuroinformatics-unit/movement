@@ -134,6 +134,7 @@ def _validate_poses_dataset(ds: xr.Dataset, padding_px: float) -> None:
         If inputs are not of the expected types.
     ValueError
         If dataset structure or parameter values are invalid.
+
     """
     # Validate input type
     if not isinstance(ds, xr.Dataset):
@@ -169,7 +170,9 @@ def _validate_poses_dataset(ds: xr.Dataset, padding_px: float) -> None:
 
     # Check required dimensions exist
     required_dims = ["time", "space", "keypoints", "individuals"]
-    missing_dims = [dim for dim in required_dims if dim not in ds.position.dims]
+    missing_dims = [
+        dim for dim in required_dims if dim not in ds.position.dims
+    ]
     if missing_dims:
         raise ValueError(
             f"position data variable must have dimensions {required_dims}. "
@@ -198,6 +201,7 @@ def _compute_bbox_for_keypoints(
     tuple[float, float, float, float]
         A tuple of (centroid_x, centroid_y, width, height).
         Returns NaN values if no valid keypoints exist.
+
     """
     # Filter out NaN values
     valid_x = x_coords[~np.isnan(x_coords)]
@@ -242,6 +246,7 @@ def _compute_bbox_confidence(
     -------
     float
         Mean confidence of valid keypoints, or NaN if no valid keypoints exist.
+
     """
     # A keypoint is valid if BOTH x and y are not NaN
     valid_kpt_mask = ~np.isnan(x_coords) & ~np.isnan(y_coords)
@@ -265,6 +270,7 @@ def _get_confidence_data(ds: xr.Dataset) -> xr.DataArray:
     -------
     xarray.DataArray
         Confidence data array with shape (time, keypoints, individuals).
+
     """
     if "confidence" in ds.data_vars:
         return ds.confidence
@@ -295,6 +301,7 @@ def _create_bboxes_dataset(
     -------
     xarray.Dataset
         The bboxes dataset.
+
     """
     dim_names = ("time", "space", "individuals")
 
@@ -317,7 +324,9 @@ def _create_bboxes_dataset(
         coords={
             "time": ds.coords["time"],  # Preserve time coordinates
             "space": ["x", "y"],  # Always 2D for bboxes
-            "individuals": ds.coords["individuals"],  # Preserve individual names
+            "individuals": ds.coords[
+                "individuals"
+            ],  # Preserve individual names
         },
         attrs=ds.attrs.copy(),  # Copy original attributes
     )
@@ -413,7 +422,7 @@ def poses_to_bboxes(
     The resulting bounding boxes can be accessed via:
 
     >>> bboxes_ds.position  # centroids
-    >>> bboxes_ds.shape     # widths and heights
+    >>> bboxes_ds.shape  # widths and heights
     >>> bboxes_ds.confidence  # mean keypoint confidences
 
     See Also
@@ -449,8 +458,8 @@ def poses_to_bboxes(
             y_coords = keypoints[1, :]  # All y values across keypoints
 
             # Compute bounding box
-            centroid_x, centroid_y, width, height = _compute_bbox_for_keypoints(
-                x_coords, y_coords, padding_px
+            centroid_x, centroid_y, width, height = (
+                _compute_bbox_for_keypoints(x_coords, y_coords, padding_px)
             )
 
             # Store position and shape results
@@ -460,7 +469,9 @@ def poses_to_bboxes(
             bbox_shape[t_idx, 1, ind_idx] = height
 
             # Compute and store confidence
-            kpt_conf = confidence_kpts.isel(time=t_idx, individuals=ind_idx).values
+            kpt_conf = confidence_kpts.isel(
+                time=t_idx, individuals=ind_idx
+            ).values
             bbox_confidence[t_idx, ind_idx] = _compute_bbox_confidence(
                 x_coords, y_coords, kpt_conf
             )
