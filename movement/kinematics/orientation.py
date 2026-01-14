@@ -51,7 +51,7 @@ def compute_forward_vector(
     xarray.DataArray
         An xarray DataArray representing the forward vector, with
         dimensions matching the input data array, but without the
-        ``keypoints`` dimension.
+        ``keypoint`` dimension.
 
     Notes
     -----
@@ -80,7 +80,7 @@ def compute_forward_vector(
         data,
         {
             "time": [],
-            "keypoints": [left_keypoint, right_keypoint],
+            "keypoint": [left_keypoint, right_keypoint],
             "space": [],
         },
     )
@@ -98,8 +98,8 @@ def compute_forward_vector(
         )
     # Define right-to-left vector
     right_to_left_vector = data.sel(
-        keypoints=left_keypoint, drop=True
-    ) - data.sel(keypoints=right_keypoint, drop=True)
+        keypoint=left_keypoint, drop=True
+    ) - data.sel(keypoint=right_keypoint, drop=True)
     # Define upward vector
     # default: negative z direction in the image coordinate system
     upward_vector_arr = (
@@ -163,7 +163,7 @@ def compute_head_direction_vector(
     xarray.DataArray
         An xarray DataArray representing the head direction vector, with
         dimensions matching the input data array, but without the
-        ``keypoints`` dimension.
+        ``keypoint`` dimension.
 
     """
     result = compute_forward_vector(
@@ -224,7 +224,7 @@ def compute_forward_vector_angle(
     xarray.DataArray
         An xarray DataArray containing the computed forward vector angles,
         with dimensions matching the input data array,
-        but without the ``keypoints`` and ``space`` dimensions.
+        but without the ``keypoint`` and ``space`` dimensions.
 
     See Also
     --------

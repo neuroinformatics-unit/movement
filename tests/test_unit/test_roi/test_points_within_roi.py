@@ -130,11 +130,11 @@ def test_points_within_polygon(
         pytest.param(
             xr.DataArray(
                 np.zeros((2, 2, 2, 5)),
-                dims=["time", "points", "space", "individuals"],
+                dims=["time", "points", "space", "individual"],
             ),
             (2, 2, 5),
-            ("time", "points", "individuals"),
-            id="time (2), points (2), individuals (5)",
+            ("time", "points", "individual"),
+            id="time (2), points (2), individual (5)",
         ),
     ],
 )

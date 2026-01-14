@@ -15,22 +15,42 @@ from movement.io.nwb import (
 )
 
 
-def test_ds_to_pose_and_skeletons(valid_poses_dataset):
+@pytest.mark.parametrize(
+    "selection_fn, expected_subject_id",
+    [
+        (lambda ds: ds.sel(individual="id_0"), "id_0"),
+        (
+            lambda ds: ds.sel(individual=ds.individual[0]),
+            "id_0",
+        ),  # Should still work if only one individual
+    ],
+    ids=["single_individual_selected", "single_individual_implicit"],
+)
+def test_ds_to_pose_and_skeletons(
+    valid_poses_dataset, selection_fn, expected_subject_id
+):
     """Test the conversion of a valid poses dataset to
     ``ndx_pose`` PoseEstimation and Skeletons.
     """
+    # Use single-individual dataset for simplicity
+    ds = selection_fn(valid_poses_dataset)
     pose_estimation, skeletons = _ds_to_pose_and_skeletons(
-        valid_poses_dataset.sel(individuals="id_0"),
-        subject=Subject(subject_id="id_0"),
+        ds,
+        subject=Subject(subject_id=expected_subject_id),
     )
     assert isinstance(pose_estimation, ndx_pose.PoseEstimation)
     assert isinstance(skeletons, ndx_pose.Skeletons)
     assert (
-        set(valid_poses_dataset.keypoints.values)
+        set(valid_poses_dataset.keypoint.values)
         == pose_estimation.pose_estimation_series.keys()
     )
-    assert {"skeleton_id_0"} == skeletons.skeletons.keys()
-    assert skeletons.skeletons["skeleton_id_0"].subject.subject_id == "id_0"
+    assert {f"skeleton_{expected_subject_id}"} == skeletons.skeletons.keys()
+    assert (
+        skeletons.skeletons[
+            f"skeleton_{expected_subject_id}"
+        ].subject.subject_id
+        == expected_subject_id
+    )
 
 
 def test_ds_to_pose_and_skeletons_invalid(valid_poses_dataset):
