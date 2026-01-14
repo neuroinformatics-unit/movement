@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Verification script for poses_to_bboxes() implementation.
+"""Verification script for poses_to_bboxes() implementation.
 Tests against Issue #102 requirements.
 
 Run this script after setting up the conda environment:
@@ -27,13 +26,16 @@ def verify_core_requirements():
     }
 
     try:
-        from movement.transforms import poses_to_bboxes
         import numpy as np
         import xarray as xr
 
+        from movement.transforms import poses_to_bboxes
+
         # Create simple test dataset
         n_frames, n_space, n_keypoints, n_individuals = 3, 2, 3, 2
-        position = np.random.rand(n_frames, n_space, n_keypoints, n_individuals) * 100
+        position = (
+            np.random.rand(n_frames, n_space, n_keypoints, n_individuals) * 100
+        )
 
         ds = xr.Dataset(
             data_vars={
@@ -69,17 +71,20 @@ def verify_core_requirements():
 
         # Requirement 3: Use min/max x,y coordinates
         # Verify algorithm by checking specific case
-        test_keypoints = np.array([[[0, 10], [5, 15], [10, 20]]])  # x, y for 3 keypoints
+        test_keypoints = np.array(
+            [[[0, 10], [5, 15], [10, 20]]]
+        )  # x, y for 3 keypoints
         if True:  # Algorithm uses min/max as verified in code review
             requirements["Use min/max x,y coordinates"] = True
             print("✓ Uses min/max x,y coordinate algorithm")
 
         # Requirement 4: Output valid movement bboxes dataset
         valid_structure = (
-            bboxes.attrs.get("ds_type") == "bboxes" and
-            set(bboxes.data_vars.keys()) == {"position", "shape", "confidence"} and
-            "individuals" in bboxes.coords and
-            "time" in bboxes.coords
+            bboxes.attrs.get("ds_type") == "bboxes"
+            and set(bboxes.data_vars.keys())
+            == {"position", "shape", "confidence"}
+            and "individuals" in bboxes.coords
+            and "time" in bboxes.coords
         )
         if valid_structure:
             requirements["Output valid movement bboxes dataset"] = True
@@ -111,9 +116,10 @@ def verify_implementation_completeness():
     }
 
     try:
-        from movement.transforms import poses_to_bboxes
         import numpy as np
         import xarray as xr
+
+        from movement.transforms import poses_to_bboxes
 
         # Check 1: Function exists
         if callable(poses_to_bboxes):
@@ -197,7 +203,9 @@ def verify_implementation_completeness():
         ds_pad = xr.Dataset(
             data_vars={
                 "position": xr.DataArray(
-                    np.array([[[[0], [10]], [[0], [10]]]]),  # 2 keypoints at (0,0) and (10,10)
+                    np.array(
+                        [[[[0], [10]], [[0], [10]]]]
+                    ),  # 2 keypoints at (0,0) and (10,10)
                     dims=("time", "space", "keypoints", "individuals"),
                 ),
             },
@@ -251,7 +259,7 @@ def test_with_sample_data():
         )["poses"]
         ds = load_poses.from_sleap_file(file_path, fps=50)
 
-        print(f"\nInput poses dataset:")
+        print("\nInput poses dataset:")
         print(f"  Shape: {ds.position.shape}")
         print(f"  Dimensions: {dict(ds.dims)}")
         print(f"  Individuals: {list(ds.coords['individuals'].values)}")
@@ -260,11 +268,13 @@ def test_with_sample_data():
         print("\nConverting to bounding boxes...")
         bboxes = poses_to_bboxes(ds, padding_px=5)
 
-        print(f"\nOutput bboxes dataset:")
+        print("\nOutput bboxes dataset:")
         print(f"  Position shape: {bboxes.position.shape}")
         print(f"  Shape shape: {bboxes.shape.shape}")
         print(f"  Confidence shape: {bboxes.confidence.shape}")
-        print(f"  Individuals preserved: {list(bboxes.coords['individuals'].values)}")
+        print(
+            f"  Individuals preserved: {list(bboxes.coords['individuals'].values)}"
+        )
         print(f"  ds_type: {bboxes.attrs.get('ds_type')}")
 
         # Verify structure
@@ -334,9 +344,13 @@ def generate_final_report(results):
         print("  • Bugs found: None")
         print("  • Ready for PR: YES ✓")
         print("\n🚀 NEXT STEPS:")
-        print("  1. Run full pytest suite: pytest tests/test_unit/test_transforms.py -v")
+        print(
+            "  1. Run full pytest suite: pytest tests/test_unit/test_transforms.py -v"
+        )
         print("  2. Create commit with message:")
-        print("     'Add poses_to_bboxes() function to convert poses to bounding boxes'")
+        print(
+            "     'Add poses_to_bboxes() function to convert poses to bounding boxes'"
+        )
         print("  3. Open Pull Request for Issue #102")
         return True
     else:

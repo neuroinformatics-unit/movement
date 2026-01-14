@@ -33,13 +33,15 @@ assert set(bboxes.coords["space"].values) == {"x", "y"}, "Space should be 2D"
 assert "keypoints" not in bboxes.dims, "Bboxes should not have keypoints dim"
 
 # Verify individual IDs preserved
-assert list(bboxes.coords["individuals"].values) == list(ds.coords["individuals"].values), "Individual IDs not preserved"
+assert list(bboxes.coords["individuals"].values) == list(
+    ds.coords["individuals"].values
+), "Individual IDs not preserved"
 
 # Verify time dimension preserved
 assert bboxes.dims["time"] == ds.dims["time"], "Time dimension changed"
 
 # Verify metadata preserved
-print(f"\n=== METADATA ===")
+print("\n=== METADATA ===")
 print(f"fps: {bboxes.attrs.get('fps', 'MISSING')}")
 print(f"source_software: {bboxes.attrs.get('source_software', 'MISSING')}")
 print(f"source_file: {bboxes.attrs.get('source_file', 'MISSING')}")
