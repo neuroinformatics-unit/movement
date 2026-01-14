@@ -65,18 +65,18 @@ class BaseRenderer(ABC):
 
     @property
     @abstractmethod
-    def name(self) -> str:
-        """Renderer name."""
+    def name(self) -> str:  # noqa: D102
+        ...
 
     @property
     @abstractmethod
-    def supports_3d(self) -> bool:
-        """Whether renderer supports 3D."""
+    def supports_3d(self) -> bool:  # noqa: D102
+        ...
 
     @property
     @abstractmethod
-    def requires_gpu(self) -> bool:
-        """Whether renderer requires GPU."""
+    def requires_gpu(self) -> bool:  # noqa: D102
+        ...
 
     @abstractmethod
     def compute_skeleton_vectors(self) -> tuple[np.ndarray, np.ndarray]:
