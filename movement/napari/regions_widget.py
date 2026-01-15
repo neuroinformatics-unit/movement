@@ -2,8 +2,8 @@
 
 Regions are drawn as shapes in a napari Shapes layer and displayed in a table.
 The widget can handle multiple region layers, allowing the user to select
-which layer to work with via a dropdown. It also auto-assigns names
-to regions (editable by the user) and applies consistent styling.
+which layer to work with via a dropdown. It also allows users to edit
+the region names and applies consistent styling.
 
 This module uses Qt's Model/View architecture to separate data from display:
 
@@ -45,9 +45,9 @@ DEFAULT_REGION_NAME = "Un-named"
 class RegionsWidget(QWidget):
     """Main widget for defining regions of interest.
 
-    This widget provides a user interface for managing regions drawn as shapes
-    in napari. It coordinates the napari viewer, the RegionsTableModel,
-    and the RegionsTableView.
+    This widget provides a user interface for managing regions of interest
+    drawn as shapes in napari. It coordinates the napari viewer,
+    the RegionsTableModel, and the RegionsTableView.
 
     Features:
 
@@ -56,7 +56,7 @@ class RegionsWidget(QWidget):
     - Table view displaying regions in the selected layer
     - Bidirectional selection sync: clicking a table row selects the
       shape in napari, and vice versa
-    - Auto-naming of regions
+    - Allows renaming regions via inline table editing
     - Consistent color styling per layer
     """
 
@@ -79,10 +79,10 @@ class RegionsWidget(QWidget):
         self.color_manager = RegionsColorManager(cmap_name=cmap_name)
         self.region_table_model: RegionsTableModel | None = None
         self.region_table_view = RegionsTableView(self)
-        self._connected_layers: set[Shapes] = set()  # Track connected layers
+        self._connected_layers: set[Shapes] = set()
 
         self._setup_ui()
-        self._connect_signals()
+        self._connect_layer_signals()
         self._update_layer_dropdown()
 
     def _setup_ui(self):
@@ -91,7 +91,7 @@ class RegionsWidget(QWidget):
         The first groupbox contains the region layer controls:
         a dropdown to select an existing Regions layer
         and a button to add a new Regions layer.
-        The second groupbox contains the table view.
+        The second groupbox contains the regions table view.
         """
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
@@ -143,19 +143,13 @@ class RegionsWidget(QWidget):
         table_view_layout.addWidget(self.region_table_view)
         return table_view_layout
 
-    def _connect_signals(self):
-        """Connect viewer signals to widget handlers.
+    def _connect_layer_signals(self):
+        """Connect layer lifecycle signals to widget handlers.
 
-        Handles:
-
-        - Layer insertion -> update dropdown
-        - Layer removal -> update dropdown and disconnect signals
-        - Layer name changes (for existing Shapes layers)
+        Handles layer insertion, removal, and name changes.
         """
         self.viewer.layers.events.inserted.connect(self._update_layer_dropdown)
-        self.viewer.layers.events.removed.connect(
-            self._on_layer_removed_from_viewer
-        )
+        self.viewer.layers.events.removed.connect(self._on_layer_removed)
 
         # Connect to name change events for all existing shapes layers
         for layer in self.viewer.layers:
@@ -180,11 +174,8 @@ class RegionsWidget(QWidget):
         First checks for explicit metadata marker, then falls back to
         case-insensitive name matching.
         """
-        # Explicit metadata takes precedence
         if layer.metadata.get("movement_region_layer", False):
             return True
-
-        # Fall back to case-insensitive name heuristic
         return layer.name.upper().startswith("REGION")
 
     def _mark_as_region_layer(self, layer: Shapes) -> None:
@@ -202,7 +193,7 @@ class RegionsWidget(QWidget):
             if isinstance(layer, Shapes) and self._is_region_layer(layer)
         }
 
-    def _on_layer_removed_from_viewer(self, event=None):
+    def _on_layer_removed(self, event=None):
         """Handle layer removal from viewer.
 
         Disconnects name change signals from the removed layer and
@@ -285,6 +276,11 @@ class RegionsWidget(QWidget):
             # Connect the region layer to the table model
             self._link_layer_to_model(region_layer)
 
+    def _on_layer_renamed(self, event=None):
+        """Handle layer renaming by updating the dropdown."""
+        self._update_layer_dropdown()
+        self.layer_dropdown.setCurrentText(event.source.name)
+
     def _add_new_layer(self):
         """Create a new Regions layer and select it."""
         new_layer = self.viewer.add_shapes(name="Regions")
@@ -317,16 +313,16 @@ class RegionsWidget(QWidget):
         self.region_table_model = RegionsTableModel(region_layer, region_style)
         self.region_table_view.setModel(self.region_table_model)
 
-        # The model will listen to napari layer removal events
+        # The model will listen to napari layer removal and renaming events
         self.viewer.layers.events.removed.connect(
             self.region_table_model._on_layer_deleted
         )
         # Connect to layer name changes
         region_layer.events.name.connect(self._on_layer_renamed)
-        # Connect to model reset to update placeholder visibility
+        # Connect model reset signal to tooltip updater
         self.region_table_model.modelReset.connect(self._update_table_tooltip)
 
-        # Update placeholder visibility
+        # Update the tooltip based on the new model state
         self._update_table_tooltip()
 
     def _auto_assign_region_names(self, region_layer: Shapes) -> None:
@@ -356,22 +352,21 @@ class RegionsWidget(QWidget):
 
         region_layer.properties = {"name": names}
 
-    def _on_layer_renamed(self, event=None):
-        """Handle layer renaming by updating the dropdown."""
-        self._update_layer_dropdown()
-        self.layer_dropdown.setCurrentText(event.source.name)
-
     def _disconnect_table_model_signals(self):
         """Disconnect all signals from the current table model.
 
-        Safely disconnects: layer data change events, layer name change events,
-        model reset signals, and viewer layer removal events.
+        Safely disconnects: layer data change events, layer set_data events,
+        layer name change events, model reset signals, and viewer layer
+        removal events.
         """
         if self.region_table_model is not None:
             # Only disconnect layer events if the layer still exists
             if self.region_table_model.layer is not None:
                 self.region_table_model.layer.events.data.disconnect(
                     self.region_table_model._on_layer_data_changed
+                )
+                self.region_table_model.layer.events.set_data.disconnect(
+                    self.region_table_model._on_layer_set_data
                 )
                 self.region_table_model.layer.events.name.disconnect(
                     self._on_layer_renamed
@@ -439,9 +434,7 @@ class RegionsWidget(QWidget):
         self.viewer.layers.events.inserted.disconnect(
             self._update_layer_dropdown
         )
-        self.viewer.layers.events.removed.disconnect(
-            self._on_layer_removed_from_viewer
-        )
+        self.viewer.layers.events.removed.disconnect(self._on_layer_removed)
 
         # Clean up table model
         self._clear_region_table_model()
@@ -450,7 +443,7 @@ class RegionsWidget(QWidget):
 
 
 class RegionsTableView(QTableView):
-    """Table view for displaying drawn regions.
+    """Table view for displaying drawn regions of interest.
 
     Displays region data from a RegionsTableModel in a two-column table
     (Name, Shape type). Handles user interactions:
@@ -543,8 +536,10 @@ class RegionsTableModel(QAbstractTableModel):
         self.region_style = region_style
         # Track shape count to detect new shapes
         self._last_shape_count = len(shapes_layer.data)
-        # The model will listen to napari layer data changes
+        # Listen to layer data changes (drawing, editing, deleting shapes)
         self.layer.events.data.connect(self._on_layer_data_changed)
+        # Listen to set_data events (copy-paste emits this, not data)
+        self.layer.events.set_data.connect(self._on_layer_set_data)
 
     def rowCount(self, parent=QModelIndex()):  # noqa: B008
         """Return the number of regions (shapes) in the layer."""
@@ -631,44 +626,79 @@ class RegionsTableModel(QAbstractTableModel):
         return names[row] if row < len(names) else ""
 
     def _on_layer_data_changed(self, event=None):
-        """Handle shape addition, removal, or modification in the layer.
+        """Handle data events from drawing, editing, or deleting shapes.
 
-        For "added" events: assigns default name to new shapes and resets.
-        For "removed" events: resets the model.
-        For other events (e.g., shape editing): updates current shape style.
+        For "added" events (drawing new shapes): assigns default name.
+        For "removed" events: syncs model with remaining shapes.
+        For other events (e.g., moving/resizing): updates current shape style.
         """
         if self.layer is None:
             return
 
-        if event.action in ["added", "removed"]:
-            # Get current names, ensuring list length matches number of shapes
-            current_names = list(self.layer.properties.get("name", []))
-            n_shapes = len(self.layer.data)
+        n_shapes = len(self.layer.data)
 
-            # Pad with empty strings if list is too short
-            while len(current_names) < n_shapes:
-                current_names.append("")
-
-            if event.action == "added":
-                # Force new shapes to have default name
-                # (napari copies properties from last shape, we override this)
-                for i in range(self._last_shape_count, n_shapes):
-                    current_names[i] = DEFAULT_REGION_NAME
-
-            self.layer.properties = {"name": current_names}
-
-            # Update shape count tracker
-            self._last_shape_count = n_shapes
-
-            # Reapply the style to all shapes in the layer
-            self.region_style.color_all_shapes(self.layer)
-
-            # Update the model
-            self.beginResetModel()
-            self.endResetModel()
+        if event.action == "added":
+            # New shape drawn - assign default name to override napari's
+            # property copying behavior
+            self._sync_names_on_shape_change(
+                n_shapes, assign_default_to_new=True
+            )
+        elif event.action == "removed":
+            # Shape deleted - just sync names list
+            self._sync_names_on_shape_change(n_shapes)
         else:
-            # Ensure currently edited shape maintains the correct style
+            # Shape edited (moved, resized) - just update styling
             self.region_style.color_current_shape(self.layer)
+
+    def _on_layer_set_data(self, event=None):
+        """Handle set_data events from copy-paste operations.
+
+        Copy-paste in napari emits set_data (not data) events.
+        We preserve the copied name (as is napari's default behavior).
+        """
+        if self.layer is None:
+            return
+
+        n_shapes = len(self.layer.data)
+        if n_shapes != self._last_shape_count:
+            # Shape count changed via copy-paste - sync without overriding name
+            self._sync_names_on_shape_change(n_shapes)
+
+    def _sync_names_on_shape_change(
+        self, n_shapes: int, assign_default_to_new: bool = False
+    ):
+        """Sync names list with current shape count and update model.
+
+        Parameters
+        ----------
+        n_shapes : int
+            Current number of shapes in the layer.
+        assign_default_to_new : bool, optional
+            If True, assigns DEFAULT_REGION_NAME to newly added shapes.
+            Use for drawn shapes (not copy-pasted ones). Default is False.
+
+        """
+        current_names = list(self.layer.properties.get("name", []))
+
+        # Pad if list is too short
+        while len(current_names) < n_shapes:
+            current_names.append(DEFAULT_REGION_NAME)
+
+        # Truncate if list is too long (shapes were removed)
+        current_names = current_names[:n_shapes]
+
+        # Override names for newly drawn shapes
+        if assign_default_to_new and n_shapes > self._last_shape_count:
+            for i in range(self._last_shape_count, n_shapes):
+                current_names[i] = DEFAULT_REGION_NAME
+
+        self.layer.properties = {"name": current_names}
+        self._last_shape_count = n_shapes
+
+        # Reapply styling and update model
+        self.region_style.color_all_shapes(self.layer)
+        self.beginResetModel()
+        self.endResetModel()
 
     def _on_layer_deleted(self, event=None):
         """Handle deletion of the associated Shapes layer from viewer.
@@ -680,15 +710,14 @@ class RegionsTableModel(QAbstractTableModel):
         # is the one we are currently using.
         if event.value == self.layer:
             self.layer.events.data.disconnect(self._on_layer_data_changed)
+            self.layer.events.set_data.disconnect(self._on_layer_set_data)
             self.layer = None
             self.beginResetModel()
             self.endResetModel()
 
 
 def _fill_empty_region_names(existing_names: list) -> list:
-    """Fill empty region names with a default placeholder.
-
-    Replaces empty/None names with DEFAULT_REGION_NAME.
+    """Fill empty/None region names with DEFAULT_REGION_NAME.
 
     Parameters
     ----------
