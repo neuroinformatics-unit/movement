@@ -15,6 +15,7 @@ license-files = ["LICENSE"]
 
 dependencies = [
   "numpy>=2.0.0",
+  "matplotlib>=3.9.2",
   "pandas",
   "h5py",
   "netCDF4<1.7.3",
