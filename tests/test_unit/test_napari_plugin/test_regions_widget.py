@@ -170,6 +170,16 @@ def test_shape_data_change_triggers_model_update(
     mock_method.assert_called()
 
 
+def test_set_data_event_triggers_handler(regions_widget_with_layer, mocker):
+    """Test that set_data event triggers the handler."""
+    widget, layer = regions_widget_with_layer
+    mock_method = mocker.patch.object(
+        widget.region_table_model, "_on_layer_set_data"
+    )
+    layer.events.set_data()
+    mock_method.assert_called()
+
+
 # ------------------- Tests for widget methods -------------------------------#
 def test_add_new_layer(regions_widget):
     """Test that _add_new_layer creates a properly configured region layer."""
@@ -259,7 +269,7 @@ def test_renaming_layer_updates_dropdown(regions_widget_with_layer):
 def test_renaming_to_region_pattern_marks_as_region_layer(
     make_napari_viewer_proxy,
 ):
-    """Test that renaming a layer to Region pattern marks it as region layer."""
+    """Test that renaming to Region pattern marks it as a region layer."""
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes(name="Other shapes")
     widget = RegionsWidget(viewer)
@@ -315,14 +325,14 @@ def test_preserves_user_names(make_napari_viewer_proxy):
     assert names[1] == DEFAULT_REGION_NAME
 
 
-def test_new_shape_gets_default_name(regions_widget_with_layer):
-    """Test that new shapes get the default name."""
+def test_new_drawn_shape_gets_default_name(regions_widget_with_layer):
+    """Test that newly drawn shapes get the default name."""
     _, layer = regions_widget_with_layer
     layer.add([[60, 60], [60, 70], [70, 70], [70, 60]])
 
     names = list(layer.properties.get("name", []))
     assert len(names) == 3
-    # New shapes always get the default name (overriding napari property copy)
+    # Drawn shapes get default name (layer.add emits "added" event)
     assert names[2] == DEFAULT_REGION_NAME
 
 
@@ -407,6 +417,34 @@ def test_model_updates_on_shape_removed(regions_widget_with_layer):
     layer.remove_selected()
 
     assert widget.region_table_model.rowCount() == initial_count - 1
+
+
+def test_set_data_handler_updates_model_and_preserves_names(
+    regions_widget_with_layer,
+):
+    """Test that _on_layer_set_data updates model and preserves names.
+
+    This handler is triggered by copy-paste operations. It should detect
+    shape count changes and update the model without overwriting names.
+    """
+    widget, layer = regions_widget_with_layer
+    model = widget.region_table_model
+
+    # Add a third shape with a custom copied name directly to the layer
+    layer.add([[60, 60], [60, 70], [70, 70], [70, 60]])
+    layer.properties = {"name": ["Region-A", "Region-B", "Region-B"]}
+
+    # Simulate the state before a "paste" by resetting the shape count tracker
+    model._last_shape_count = 2
+
+    # Call the handler (as would happen on set_data event)
+    model._on_layer_set_data()
+
+    # Verify model updated and all names preserved
+    assert model.rowCount() == 3
+    assert model._last_shape_count == 3
+    expected_names = ["Region-A", "Region-B", "Region-B"]
+    assert list(layer.properties["name"]) == expected_names
 
 
 def test_model_cleared_on_layer_deletion(regions_widget_with_layer):
