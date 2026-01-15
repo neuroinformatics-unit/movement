@@ -1,7 +1,6 @@
 """Load bounding boxes tracking data into ``movement``."""
 
 import ast
-import re
 from collections.abc import Callable
 from pathlib import Path
 from typing import Literal
@@ -14,8 +13,6 @@ from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs
 from movement.validators.files import (
     DEFAULT_FRAME_REGEXP,
-    ValidFile,
-    ValidVIATracksCSV,
 )
 
 
@@ -334,18 +331,18 @@ def from_via_tracks_file(
 
     """
     # General file validation
-    file = ValidFile(
-        file_path, expected_permission="r", expected_suffix=[".csv"]
-    )
+    # file = ValidFile(
+    #     file_path,
+    #     expected_permission="r",
+    #     expected_suffix=[".csv", ".parquet"],
+    # )
 
-    # Specific VIA-tracks .csv file validation
-    via_file = ValidVIATracksCSV(file.path, frame_regexp=frame_regexp)
-    logger.info(f"Validated VIA tracks .csv file {via_file.path}.")
+    # # Specific VIA-tracks .csv file validation
+    # via_file = ValidVIATracksCSV(file.path, frame_regexp=frame_regexp)
+    # logger.info(f"Validated VIA tracks .csv file {via_file.path}.")
 
     # Create an xarray.Dataset from the data
-    bboxes_arrays = _numpy_arrays_from_via_tracks_file(
-        via_file.path, via_file.frame_regexp
-    )
+    bboxes_arrays = _numpy_arrays_from_via_tracks_file(file_path, frame_regexp)
     ds = from_numpy(
         position_array=bboxes_arrays["position_array"],
         shape_array=bboxes_arrays["shape_array"],
@@ -364,9 +361,9 @@ def from_via_tracks_file(
 
     # Add metadata as attributes
     ds.attrs["source_software"] = "VIA-tracks"
-    ds.attrs["source_file"] = file.path.as_posix()
+    ds.attrs["source_file"] = file_path.as_posix()
 
-    logger.info(f"Loaded bounding boxes tracks from {via_file.path}:\n{ds}")
+    logger.info(f"Loaded bounding boxes tracks from {file_path}:\n{ds}")
     return ds
 
 
@@ -472,7 +469,8 @@ def _df_from_via_tracks_file(
     file.
     """
     # Read VIA tracks .csv file as a pandas dataframe
-    df_file = pd.read_csv(file_path, sep=",", header=0)
+    # df_file = pd.read_csv(file_path, sep=",", header=0)
+    df_file = pd.read_parquet(file_path)  # engine
 
     # Format to a 2D dataframe
     df = pd.DataFrame(
@@ -499,12 +497,26 @@ def _df_from_via_tracks_file(
         }
     )
 
-    # Define desired index: all combinations of ID and frame number
-    multi_index = pd.MultiIndex.from_product(
-        [df["ID"].unique().tolist(), df["frame_number"].unique().tolist()],
-        # these unique lists may not be sorted!
-        names=["ID", "frame_number"],
-    )
+    # # Define desired index: all combinations of ID and frame number
+    # multi_index = pd.MultiIndex.from_product(
+    #     [df["ID"].unique().tolist(), df["frame_number"].unique().tolist()],
+    #     # these unique lists may not be sorted!
+    #     names=["ID", "frame_number"],
+    # )
+    # ----
+    # Check if reindexing is needed
+    if len(df) == len(df["ID"].unique()) * len(df["frame_number"].unique()):
+        # Data is complete, just sort
+        df = df.sort_values(by=["ID", "frame_number"], axis=0)
+    else:
+        # Do the full reindex
+        multi_index = pd.MultiIndex.from_product(...)
+        df = (
+            df.set_index(["ID", "frame_number"])
+            .reindex(multi_index)
+            .reset_index()
+        )
+    # ----------
 
     # Set index to (ID, frame number), fill in values with nans,
     # sort by ID and frame_number and reset to new index
@@ -533,19 +545,29 @@ def _extract_confidence_from_via_tracks_df(df: pd.DataFrame) -> np.ndarray:
         confidence scores.
 
     """
-    region_attributes_dicts = [
-        ast.literal_eval(d) for d in df.region_attributes
-    ]
+    # region_attributes_dicts = [
+    #     ast.literal_eval(d) for d in df.region_attributes
+    # ]
 
-    # Check if confidence is defined as a region attribute, else set to NaN
-    if all(["confidence" in d for d in region_attributes_dicts]):
-        bbox_confidence = _via_attribute_column_to_numpy(
-            df, "region_attributes", ["confidence"], float
-        )
+    # # Check if confidence is defined as a region attribute, else set to NaN
+    # if all(["confidence" in d for d in region_attributes_dicts]):
+    #     bbox_confidence = _via_attribute_column_to_numpy(
+    #         df, "region_attributes", ["confidence"], float
+    #     )
+    # else:
+    #     bbox_confidence = np.full((df.shape[0], 1), np.nan).squeeze()
+
+    # return bbox_confidence
+
+    # -----------
+    # Parse once
+    parsed = df.region_attributes.apply(ast.literal_eval)
+
+    # Check if confidence exists
+    if parsed.iloc[0].get("confidence") is not None:
+        return parsed.apply(lambda d: float(d["confidence"])).to_numpy()
     else:
-        bbox_confidence = np.full((df.shape[0], 1), np.nan).squeeze()
-
-    return bbox_confidence
+        return np.full(df.shape[0], np.nan)
 
 
 def _extract_frame_number_from_via_tracks_df(
@@ -575,27 +597,40 @@ def _extract_frame_number_from_via_tracks_df(
         extension.
 
     """
-    # Extract frame number from file_attributes if exists
-    file_attributes_dicts = [ast.literal_eval(d) for d in df.file_attributes]
-    if all(["frame" in d for d in file_attributes_dicts]):
-        frame_array = _via_attribute_column_to_numpy(
-            df,
-            via_column_name="file_attributes",
-            list_keys=["frame"],
-            cast_fn=int,
-        )
-    # Else extract from filename
+    # # Extract frame number from file_attributes if exists
+    # file_attributes_dicts = [ast.literal_eval(d) for d in df.file_attributes]
+    # if all(["frame" in d for d in file_attributes_dicts]):
+    #     frame_array = _via_attribute_column_to_numpy(
+    #         df,
+    #         via_column_name="file_attributes",
+    #         list_keys=["frame"],
+    #         cast_fn=int,
+    #     )
+    # # Else extract from filename
+    # else:
+    #     list_frame_numbers = [
+    #         int(re.search(frame_regexp, f).group(1))  # type: ignore
+    #         if re.search(frame_regexp, f)
+    #         else np.nan
+    #         for f in df["filename"]
+    #     ]
+
+    #     frame_array = np.array(list_frame_numbers)
+
+    # return frame_array
+
+    # ------
+    # Parse once
+    # Parse once
+    parsed = df.file_attributes.apply(ast.literal_eval)
+
+    # Check first row
+    if "frame" in parsed.iloc[0]:
+        return parsed.apply(lambda d: int(d["frame"])).to_numpy()
     else:
-        list_frame_numbers = [
-            int(re.search(frame_regexp, f).group(1))  # type: ignore
-            if re.search(frame_regexp, f)
-            else np.nan
-            for f in df["filename"]
-        ]
-
-        frame_array = np.array(list_frame_numbers)
-
-    return frame_array
+        # Use pandas vectorized string operations instead of list comp
+        extracted = df["filename"].str.extract(frame_regexp, expand=False)
+        return pd.to_numeric(extracted, errors="coerce").to_numpy()
 
 
 def _via_attribute_column_to_numpy(
@@ -638,13 +673,24 @@ def _via_attribute_column_to_numpy(
         returning.
 
     """
-    list_bbox_attr = []
-    for _, row in df.iterrows():
-        row_dict_data = ast.literal_eval(row[via_column_name])
-        list_bbox_attr.append(
-            tuple(cast_fn(row_dict_data[reg]) for reg in list_keys)
+    # list_bbox_attr = []
+    # for _, row in df.iterrows():
+    #     row_dict_data = ast.literal_eval(row[via_column_name])
+    #     list_bbox_attr.append(
+    #         tuple(cast_fn(row_dict_data[reg]) for reg in list_keys)
+    #     )
+
+    # bbox_attr_array = np.array(list_bbox_attr)
+
+    # return bbox_attr_array.squeeze()
+
+    # Parse once using vectorized apply
+    parsed = df[via_column_name].apply(ast.literal_eval)
+
+    # Extract values vectorized
+    if len(list_keys) == 1:
+        return parsed.apply(lambda d: cast_fn(d[list_keys[0]])).to_numpy()
+    else:
+        return np.array(
+            [[cast_fn(d[key]) for key in list_keys] for d in parsed]
         )
-
-    bbox_attr_array = np.array(list_bbox_attr)
-
-    return bbox_attr_array.squeeze()
