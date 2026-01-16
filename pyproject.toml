@@ -16,7 +16,6 @@ license-files = ["LICENSE"]
 dependencies = [
   "numpy>=2.0.0",
   "pandas",
-  "scipy<1.17.0",
   "h5py",
   "netCDF4<1.7.3",
   "tables>=3.10.1",
