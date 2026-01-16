@@ -2,12 +2,20 @@
 
 from typing import Any, Literal
 
+import numpy as np
 import xarray as xr
 from scipy import signal
 from xarray.core.types import InterpOptions
 
 from movement.utils.logging import log_to_attrs, logger
 from movement.utils.reports import report_nan_values
+
+
+def _has_edge_nans(data: xr.DataArray, window: int) -> bool:
+    """Check if there are NaNs in the edge windows along the time dimension."""
+    head = data.isel(time=slice(0, window)).values
+    tail = data.isel(time=slice(-window, None)).values
+    return np.isnan(head).any() or np.isnan(tail).any()
 
 
 @log_to_attrs
@@ -234,7 +242,8 @@ def savgol_filter(
     **kwargs : dict
         Additional keyword arguments are passed to
         :func:`scipy.signal.savgol_filter`.
-        Note that the ``axis`` keyword argument may not be overridden.
+        Note that the ``axis`` keyword argument may not be overridden,
+        as the filter is always applied over the ``time`` dimension.
 
 
     Returns
@@ -248,6 +257,7 @@ def savgol_filter(
     Uses the :func:`scipy.signal.savgol_filter` function to apply a
     Savitzky-Golay filter to the input data.
     See the SciPy documentation for more information on that function.
+
     Whenever one or more NaNs are present in a smoothing window of the
     input data, a NaN is returned to the output array. As a result, any
     stretch of NaNs present in the input data will be propagated
@@ -256,17 +266,35 @@ def savgol_filter(
     :func:`movement.filtering.rolling_filter`, there is no ``min_periods``
     option to control this behaviour.
 
+    If  NaNs are present in the edge windows and ``mode`` is not specified,
+    this function uses ``mode='nearest'`` to avoid an interpolation
+    error triggered by the default ``mode='interp'``.
+
     """
     if "axis" in kwargs:
         raise logger.error(
             ValueError("The 'axis' argument may not be overridden.")
         )
+
+    if _has_edge_nans(data, window):
+        if "mode" not in kwargs:
+            kwargs["mode"] = "nearest"
+        elif kwargs["mode"] == "interp":
+            raise logger.error(
+                ValueError(
+                    "mode='interp' does not support NaNs in edge windows "
+                    "with SciPy >= 1.17; use mode='nearest'/'mirror' or "
+                    "fill edge NaNs before filtering."
+                )
+            )
+
+    time_axis = data.get_axis_num("time")
     data_smoothed = data.copy()
     data_smoothed.values = signal.savgol_filter(
         data,
         window,
         polyorder,
-        axis=0,
+        axis=time_axis,
         **kwargs,
     )
     if print_report:
