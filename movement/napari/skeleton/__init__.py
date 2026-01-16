@@ -177,7 +177,7 @@ def add_skeleton_layer(
     Notes
     -----
     The skeleton is rendered as a Vectors layer which displays lines
-    connecting the specified keypoints. The layer automatically 
+    connecting the specified keypoints. The layer automatically
     integrates with napari's time slider for playback.
     """
     # Validate dataset
