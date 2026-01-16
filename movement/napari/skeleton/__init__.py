@@ -174,25 +174,11 @@ def add_skeleton_layer(
     KeyError
         If template name is not found in TEMPLATES
 
-    Examples
-    --------
-    >>> import napari
-    >>> from movement.sample_data import fetch_dataset
-    >>> from movement.napari.skeleton import add_skeleton_layer, TEMPLATES
-    >>> ds = fetch_dataset("DLC_single-wasp.predictions.h5")
-    >>> viewer = napari.Viewer()
-    >>> skeleton_layer = add_skeleton_layer(
-    ...     viewer,
-    ...     ds,
-    ...     connections="mouse",  # Use mouse template
-    ...     name="mouse_skeleton"
-    ... )
-
     Notes
     -----
     The skeleton is rendered as a Vectors layer which displays lines
-    (not solid shapes) connecting the specified keypoints. The layer
-    automatically integrates with napari's time slider for playback.
+    connecting the specified keypoints. The layer automatically 
+    integrates with napari's time slider for playback.
     """
     # Validate dataset
     _validate_dataset(dataset)
@@ -255,10 +241,6 @@ def load_skeleton_config(path: str) -> dict[str, Any]:
     -------
     dict
         Skeleton configuration dictionary
-
-    See Also
-    --------
-    save_skeleton_config : Save configuration to YAML file
     """
     return load_yaml_config(path)
 
