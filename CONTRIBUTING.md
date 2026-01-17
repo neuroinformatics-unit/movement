@@ -186,12 +186,12 @@ raise logger.error(ValueError("message"))
 raise logger.exception(ValueError("message")) # with traceback
 ```
 
-#### When to use `print`, `warnings.warn`, and `logger.warning`
+#### When to use `print`, `warnings.warn`, `logger.warning` and `logger.info`
 We aim to adhere to the [When to use logging guide](inv:python#logging-basic-tutorial) to ensure consistency in our logging practices.
 In general:
 * Use {func}`print` for simple, non-critical messages that do not need to be logged.
-* Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within `movement`, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesDataset<movement.validators.datasets.ValidPosesDataset>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
-* Use {meth}`logger.warning()<loguru._logger.Logger.warning>` for non-critical issues where default values are assigned to optional parameters, e.g. `individual_names`, `keypoint_names` in {class}`ValidPosesDataset<movement.validators.datasets.ValidPosesDataset>`.
+* Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within `movement`, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesInputs<movement.validators.datasets.ValidPosesInputs>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
+* Use {meth}`logger.info()<loguru._logger.Logger.info>` for informational messages about expected behaviours that do not indicate problems, e.g. where default values are assigned to optional parameters.
 
 ### Continuous integration
 All pushes and pull requests will be built by [GitHub actions](github-docs:actions).
@@ -300,13 +300,11 @@ or in `examples/advanced/` if your example targets experienced users.
 The file should be structured as specified in the relevant
 [sphinx-gallery documentation](sphinx-gallery:syntax).
 
-We are using sphinx-gallery's [integration with binder](sphinx-gallery:configuration#binder-links)
-to provide interactive versions of the examples.
+We are using sphinx-gallery's [integration with binder](sphinx-gallery:configuration#binder-links), to provide interactive versions of the examples.
+This is configured in `docs/source/conf.py` under the `sphinx_gallery_conf` variable,
+and further customised for our repository by the `.binder/postBuild` script.
 If your examples rely on packages that are not among `movement`'s dependencies,
-you will need to add them to the `docs/source/environment.yml` file.
-That file is used by binder to create the conda environment in which the
-examples are run. See the relevant section of the
-[binder documentation](https://mybinder.readthedocs.io/en/latest/using/config_files.html).
+you will need to add them to the `.binder/requirements.txt` file.
 
 ### Cross-referencing Python objects
 :::{note}
@@ -444,7 +442,7 @@ make clean html linkcheck
 :::
 
 ### Previewing the documentation in continuous integration
-We use [artifact.ci](https://artifact.ci/) to preview the documentation that is built as part of our GitHub Actions workflow. To do so:
+We use [artifact.ci](https://www.artifact.ci/) to preview the documentation that is built as part of our GitHub Actions workflow. To do so:
 1. Go to the "Checks" tab in the GitHub PR.
 2. Click on the "Docs" section on the left.
 3. If the "Build Sphinx Docs" action is successful, a summary section will appear under the block diagram with a link to preview the built documentation.

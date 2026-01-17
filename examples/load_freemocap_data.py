@@ -140,7 +140,9 @@ def read_freemocap_as_ds(output_data_dir):
         list_datasets.append(ds)
 
     # Merge all datasets along keypoint dimension
-    ds_all_keypoints = xr.merge(list_datasets)
+    ds_all_keypoints = xr.merge(
+        list_datasets, join="outer", compat="no_conflicts"
+    )
     return ds_all_keypoints
 
 
@@ -168,7 +170,7 @@ print(f"Number of keypoints in 'world' dataset: {len(ds_world.keypoints)}")
 # ``right_hand_0006`` keypoint. This keypoint tracks the right index finger
 # used for writing in the air.  Note that at the moment, FreeMoCap can only
 # track `one individual at a time
-# <https://freemocap.github.io/documentation/frequently-asked-questions-faq.html#can-freemocap-track-multiple-people-at-once>`_.
+# <https://docs.freemocap.org/documentation/frequently-asked-questions-faq.html#can-freemocap-track-multiple-people-at-once>`_.
 
 right_index_position_hello = ds_hello.position.sel(time=range(30, 180)).sel(
     keypoints="right_hand_0006", individuals="id_0"

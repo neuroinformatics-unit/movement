@@ -1,9 +1,10 @@
 """Filter and interpolate tracks in ``movement`` datasets."""
 
-from typing import Literal
+from typing import Any, Literal
 
 import xarray as xr
 from scipy import signal
+from xarray.core.types import InterpOptions
 
 from movement.utils.logging import log_to_attrs, logger
 from movement.utils.reports import report_nan_values
@@ -62,10 +63,10 @@ def filter_by_confidence(
 @log_to_attrs
 def interpolate_over_time(
     data: xr.DataArray,
-    method: str = "linear",
+    method: InterpOptions = "linear",
     max_gap: int | None = None,
     print_report: bool = False,
-    **kwargs: dict | None,
+    **kwargs: Any,
 ) -> xr.DataArray:
     """Fill in NaN values by interpolating over the ``time`` dimension.
 
@@ -77,7 +78,8 @@ def interpolate_over_time(
     ----------
     data : xarray.DataArray
         The input data to be interpolated.
-    method : str
+    method : {"linear", "nearest", "zero", "slinear", "quadratic", "cubic", \
+        "polynomial", "barycentric", "krogh", "pchip", "spline", "akima"}
         String indicating which method to use for interpolation.
         Default is ``linear``.
     max_gap : int, optional
@@ -89,7 +91,7 @@ def interpolate_over_time(
     print_report : bool
         Whether to print a report on the number of NaNs in the dataset
         before and after interpolation. Default is ``False``.
-    **kwargs : dict
+    **kwargs : Any
         Any ``**kwargs`` accepted by :meth:`xarray.DataArray.interpolate_na`,
         which in turn passes them verbatim to the underlying
         interpolation methods.

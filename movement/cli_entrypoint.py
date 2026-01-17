@@ -7,6 +7,7 @@ import sys
 
 import numpy as np
 import pandas as pd
+import scipy as sp
 import xarray as xr
 
 import movement
@@ -71,6 +72,7 @@ def info() -> None:
         f"     movement: {movement.__version__}\n"
         f"     Python: {platform.python_version()}\n"
         f"     NumPy: {np.__version__}\n"
+        f"     SciPy: {sp.__version__}\n"
         f"     xarray: {xr.__version__}\n"
         f"     pandas: {pd.__version__}\n"
     )

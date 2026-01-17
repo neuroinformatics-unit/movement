@@ -1,17 +1,21 @@
 """Save bounding boxes data from ``movement`` to VIA tracks .csv format."""
 
-import _csv
 import csv
 import json
 import re
+from collections.abc import Iterable
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 import xarray as xr
 
 from movement.utils.logging import logger
-from movement.validators.datasets import ValidBboxesDataset, _validate_dataset
+from movement.validators.datasets import ValidBboxesInputs
 from movement.validators.files import _validate_file_path
+
+if TYPE_CHECKING:
+    import _csv
 
 
 def to_via_tracks_file(
@@ -124,7 +128,7 @@ def to_via_tracks_file(
     """
     # Validate file path and dataset
     file = _validate_file_path(file_path, expected_suffix=[".csv"])
-    _validate_dataset(ds, ValidBboxesDataset)
+    ValidBboxesInputs.validate(ds)
 
     # Check the number of digits required to represent the frame numbers
     frame_n_digits = _check_frame_required_digits(
@@ -253,14 +257,14 @@ def _check_frame_required_digits(
 
 
 def _compute_individuals_to_track_ids_map(
-    list_individuals: list[str],
+    individuals: Iterable[str],
     track_ids_from_trailing_numbers: bool,
 ) -> dict[str, int]:
     """Compute the map from individuals' names to track IDs.
 
     Parameters
     ----------
-    list_individuals : list[str]
+    individuals : Iterable[str]
         List of individuals' names.
     track_ids_from_trailing_numbers : bool
         If True, extract track ID from the last consecutive digits in
@@ -277,27 +281,26 @@ def _compute_individuals_to_track_ids_map(
     if track_ids_from_trailing_numbers:
         # Extract track IDs from the trailing numbers in the individuals' names
         map_individual_to_track_id = _extract_track_ids_from_individuals_names(
-            list_individuals
+            individuals
         )
     else:
         # Assign track IDs sequentially based on the alphabetically sorted
         # list of individuals' names
-        list_individuals = sorted(list_individuals)
         map_individual_to_track_id = {
-            individual: i for i, individual in enumerate(list_individuals)
+            individual: i for i, individual in enumerate(sorted(individuals))
         }
 
     return map_individual_to_track_id
 
 
 def _extract_track_ids_from_individuals_names(
-    list_individuals: list[str],
+    individuals: Iterable[str],
 ) -> dict[str, int]:
     """Extract track IDs as the last digits in the individuals' names.
 
     Parameters
     ----------
-    list_individuals : list[str]
+    individuals : Iterable[str]
         List of individuals' names.
 
     Returns
@@ -315,7 +318,7 @@ def _extract_track_ids_from_individuals_names(
     """
     map_individual_to_track_id = {}
 
-    for individual in list_individuals:
+    for individual in individuals:
         # Match the last consecutive digits in the individual's name
         # even if they are not at the end of the string
         pattern = r"(\d+)(?=\D*$)"
@@ -329,13 +332,11 @@ def _extract_track_ids_from_individuals_names(
             )
 
     # Check that all individuals have a unique track ID
-    if len(set(map_individual_to_track_id.values())) != len(
-        set(list_individuals)
-    ):
+    if len(set(map_individual_to_track_id.values())) != len(set(individuals)):
         raise logger.error(
             ValueError(
                 "Could not extract a unique track ID for all individuals. "
-                f"Expected {len(set(list_individuals))} unique track IDs, "
+                f"Expected {len(set(individuals))} unique track IDs, "
                 f"but got {len(set(map_individual_to_track_id.values()))}."
             )
         )
