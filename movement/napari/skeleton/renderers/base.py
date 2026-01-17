@@ -11,16 +11,6 @@ class BaseRenderer(ABC):
 
     All skeleton renderers must implement this interface to ensure
     compatibility with the skeleton visualization system.
-
-    Attributes
-    ----------
-    name : str
-        Human-readable name of the renderer
-    supports_3d : bool
-        Whether this renderer supports 3D visualization
-    requires_gpu : bool
-        Whether this renderer requires GPU acceleration
-
     """
 
     def __init__(
