@@ -25,25 +25,35 @@ These are especially suitable if you're new to the project, and we recommend sta
 
 ## Contributing code
 
-### Creating a development environment
+### Forking the repository
 
-In order to make changes to `movement`, you will need to fork the [repository](movement-github:).
+If you want to contribute to someone else's project but don’t have permission to make changes directly, you can create your own copy of the project, make updates, and then suggest those updates for inclusion in the main project. This process is often called a "fork and pull request" workflow.
+
 If you are not familiar with `git`, we recommend reading up on [this guide](https://docs.github.com/en/get-started/using-git/about-git#basic-git-commands).
 
-1. Clone the forked repository to your local machine and change directory:
+1. Fork the repository on GitHub.
+   In order to make changes to `movement`, you will need to fork the [repository](movement-github:). When you create your own copy (or "fork") of a project, it’s like making a new workspace that shares code with the original project. This is useful for open-source projects or anytime you don’t have write access to the original project.
+   [Read more about forking in the GitHub docs](https://docs.github.com/en/get-started/quickstart/fork-a-repo).
+
+2. Clone your fork to your local machine and change directory:
 
     ```sh
-    git clone https://github.com/<your-github-username>/movement.git
+    git clone [https://github.com/](https://github.com/)<your-github-username>/movement.git
     cd movement
     ```
 
-2. Set the upstream remote to the base `movement` repository:
+3. Set the upstream remote to the base `movement` repository:
+   This links your local copy to the original project so you can pull the latest changes.
 
     ```sh
-    git remote add upstream https://github.com/neuroinformatics-unit/movement.git
+    git remote add upstream [https://github.com/neuroinformatics-unit/movement.git](https://github.com/neuroinformatics-unit/movement.git)
     ```
 
-3. Create an environment using [conda](conda:) or [uv](uv:getting-started/installation/) and install `movement` in editable mode, including development dependencies.
+### Creating a development environment
+
+Now that you have the repository locally, you need to set up a Python environment and install the project dependencies.
+
+1. Create an environment using [conda](conda:) or [uv](uv:getting-started/installation/) and install `movement` in editable mode, including development dependencies.
 
     ::::{tab-set}
 
@@ -82,7 +92,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](http
     ::::
     If you also want to edit the documentation and preview the changes locally, you will additionally need the `docs` extra dependencies. See [Editing the documentation](#editing-the-documentation) for more details.
 
-4. Finally, initialise the [pre-commit hooks](#formatting-and-pre-commit-hooks):
+2. Finally, initialise the [pre-commit hooks](#formatting-and-pre-commit-hooks):
 
     ```sh
     pre-commit install
@@ -109,6 +119,9 @@ A typical PR workflow would be:
 * You may also run the pre-commit hooks manually, at any time, with `pre-commit run -a`.
 * Make sure to write tests for any new features or bug fixes. See [testing](#testing) below.
 * Don't forget to update the documentation, if necessary. See [contributing documentation](#contributing-documentation) below.
+* Push your changes to your fork on GitHub(`git push origin <branch-name>`).
+* Open a draft pull request from your fork to the upstream `movement` repository.
+  * **Note:** When creating the PR, ensure the base repository is `neuroinformatics-unit/movement` (the upstream) and the head repository is your fork. GitHub sometimes defaults to comparing against your own fork.
 * Push your changes to GitHub and open a draft pull request, with a meaningful title and a thorough description of the changes.
 * If all checks (e.g. linting, type checking, testing) run successfully, you may mark the pull request as ready for review.
 * Respond to review comments and implement any requested changes.
