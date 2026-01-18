@@ -7,7 +7,7 @@ from pathlib import Path
 DOCS_DIR = Path(__file__).resolve().parents[3] / "docs"
 sys.path.insert(0, str(DOCS_DIR))
 
-from check_self_references import (
+from check_self_references import (  # noqa: E402
     BASE_URL,
     find_self_references,
     is_allowed,
@@ -21,9 +21,8 @@ class TestFindSelfReferences:
     def test_detects_full_url(self, tmp_path):
         """Full URLs to movement docs are detected."""
         test_file = tmp_path / "test.md"
-        test_file.write_text(
-            f"Check out the [docs]({BASE_URL}/latest/user_guide/installation.html)."
-        )
+        url = f"{BASE_URL}/latest/user_guide/installation.html"
+        test_file.write_text(f"Check out the [docs]({url}).")
 
         violations = find_self_references(test_file, BASE_URL)
 
@@ -34,9 +33,10 @@ class TestFindSelfReferences:
     def test_detects_multiple_urls_same_line(self, tmp_path):
         """Multiple URLs on the same line are all detected."""
         test_file = tmp_path / "test.md"
+        url1 = f"{BASE_URL}/latest"
+        url2 = f"{BASE_URL}/latest/examples/index.html"
         test_file.write_text(
-            f"See [{BASE_URL}/latest]({BASE_URL}/latest) "
-            f"and [{BASE_URL}/latest/examples]({BASE_URL}/latest/examples/index.html)."
+            f"See [{url1}]({url1}) and [{BASE_URL}/latest/examples]({url2})."
         )
 
         violations = find_self_references(test_file, BASE_URL)
@@ -47,9 +47,8 @@ class TestFindSelfReferences:
     def test_detects_url_with_anchor(self, tmp_path):
         """URLs with anchors are detected."""
         test_file = tmp_path / "test.md"
-        test_file.write_text(
-            f"See [section]({BASE_URL}/latest/user_guide/gui.html#target-load-video)."
-        )
+        url = f"{BASE_URL}/latest/user_guide/gui.html#target-load-video"
+        test_file.write_text(f"See [section]({url}).")
 
         violations = find_self_references(test_file, BASE_URL)
 
@@ -59,9 +58,10 @@ class TestFindSelfReferences:
     def test_ignores_different_domain(self, tmp_path):
         """URLs to other domains are not flagged."""
         test_file = tmp_path / "test.md"
+        github_url = "https://github.com/neuroinformatics-unit/movement"
         test_file.write_text(
             "See [napari](https://napari.org/stable/) "
-            "and [GitHub](https://github.com/neuroinformatics-unit/movement)."
+            f"and [GitHub]({github_url})."
         )
 
         violations = find_self_references(test_file, BASE_URL)
@@ -71,14 +71,16 @@ class TestFindSelfReferences:
     def test_returns_correct_line_numbers(self, tmp_path):
         """Line numbers in violations are correct."""
         test_file = tmp_path / "test.md"
+        url1 = f"{BASE_URL}/latest"
+        url2 = f"{BASE_URL}/latest/api_index.html"
         test_file.write_text(
             "# Header\n"
             "\n"
             "Some text.\n"
             "\n"
-            f"A link to [{BASE_URL}/latest]({BASE_URL}/latest).\n"
+            f"A link to [{url1}]({url1}).\n"
             "\n"
-            f"Another link to [{BASE_URL}/latest/api]({BASE_URL}/latest/api_index.html).\n"
+            f"Another link to [{BASE_URL}/latest/api]({url2}).\n"
         )
 
         violations = find_self_references(test_file, BASE_URL)
@@ -167,11 +169,12 @@ class TestIntegration:
     def test_mixed_file_detects_only_violations(self, tmp_path):
         """Files with mixed content only flag violations."""
         test_file = tmp_path / "mixed.md"
+        ext_url = f"{BASE_URL}/latest/examples/index.html"
         test_file.write_text(
             "# Mixed Content\n"
             "\n"
             "Internal ref: [guide](target-installation)\n"
-            f"External ref: [docs]({BASE_URL}/latest/examples/index.html)\n"
+            f"External ref: [docs]({ext_url})\n"
             "External other: [napari](https://napari.org/)\n"
         )
 

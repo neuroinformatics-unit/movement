@@ -31,7 +31,9 @@ URL_TO_TARGET = {
     "/latest/user_guide/installation.html": "target-installation",
     "/latest/user_guide/input_output.html": "target-io",
     "/latest/user_guide/gui.html": "target-gui",
-    "/latest/user_guide/movement_dataset.html": "target-poses-and-bboxes-dataset",
+    "/latest/user_guide/movement_dataset.html": (
+        "target-poses-and-bboxes-dataset"
+    ),
     "/latest/examples/index.html": "target-examples",
     "/latest/community/index.html": "target-connect-with-us",
     "/latest/community/mission-scope.html": "target-mission",
@@ -91,10 +93,7 @@ def is_allowed(url: str) -> bool:
         True if the URL is allowed, False otherwise.
 
     """
-    for pattern in ALLOWLIST_PATTERNS:
-        if re.search(pattern, url):
-            return True
-    return False
+    return any(re.search(pattern, url) for pattern in ALLOWLIST_PATTERNS)
 
 
 def suggest_target(url: str) -> str | None:
