@@ -24,6 +24,10 @@ api_index.rst:
 admonitions.md:
 	python convert_admonitions.py
 
+# Check for external self-references that should use internal cross-refs
+selfcheck:
+	python check_self_references.py
+
 # Remove all generated files
 clean:
 	rm -rf ./build
