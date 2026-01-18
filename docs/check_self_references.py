@@ -46,7 +46,9 @@ URL_TO_TARGET = {
 FILE_EXTENSIONS = {".md", ".rst"}
 
 
-def find_self_references(file_path: Path, base_url: str) -> list[tuple[int, str]]:
+def find_self_references(
+    file_path: Path, base_url: str
+) -> list[tuple[int, str]]:
     """Find external self-references in a file.
 
     Parameters
@@ -180,7 +182,9 @@ def format_output(
 
     for file_path, line_num, url, target in violations:
         rel_path = file_path.relative_to(docs_dir.parent)
-        lines.append(f"{rel_path}:{line_num}: External URL should use internal ref")
+        lines.append(
+            f"{rel_path}:{line_num}: External URL should use internal ref"
+        )
         lines.append(f"  URL: {url}")
         if target:
             lines.append(f"  Use: [link text]({target})")

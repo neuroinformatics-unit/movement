@@ -3,8 +3,6 @@
 import sys
 from pathlib import Path
 
-import pytest
-
 # Add docs directory to path so we can import the module
 DOCS_DIR = Path(__file__).resolve().parents[3] / "docs"
 sys.path.insert(0, str(DOCS_DIR))
