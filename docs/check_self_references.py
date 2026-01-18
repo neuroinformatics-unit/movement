@@ -1,4 +1,4 @@
-"""Check for external self-references that should use internal cross-references.
+"""Check for external self-references in docs.
 
 This script scans documentation files for URLs pointing to the project's own
 documentation site (movement.neuroinformatics.dev) and suggests using internal
