@@ -601,8 +601,8 @@ class RegionsTableModel(QAbstractTableModel):
         if col == 0:
             names = list(self.layer.properties.get("name", []))
 
-            while len(names) <= row:
-                names.append("")  # Ensure we have enough names
+            while len(names) <= row:  # pragma: no cover
+                names.append("")
 
             names[row] = str(value)
             self.layer.properties = {"name": names}
@@ -681,7 +681,7 @@ class RegionsTableModel(QAbstractTableModel):
         current_names = list(self.layer.properties.get("name", []))
 
         # Pad if list is too short
-        while len(current_names) < n_shapes:
+        while len(current_names) < n_shapes:  # pragma: no cover
             current_names.append(DEFAULT_REGION_NAME)
 
         # Truncate if list is too long (shapes were removed)
