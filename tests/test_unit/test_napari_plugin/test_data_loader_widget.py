@@ -786,14 +786,19 @@ def test_add_empty_shapes_layer(make_napari_viewer_proxy):
     """Test adding an empty shapes layer doesn't cause an error.
 
     This is a regression test for the case where max_frame_idx is -1
-    because the shapes layer has no data.
+    because the shapes layer has no data. The _update_frame_slider_range
+    method should return early without error.
     """
     viewer = make_napari_viewer_proxy()
-    DataLoader(viewer)
+    loader = DataLoader(viewer)
 
-    # Add an empty shapes layer (like when creating a new ROI layer)
+    # Add an empty shapes layer
+    viewer.add_shapes(name="Empty Shapes Layer")
+
+    # Explicitly call _update_frame_slider_range to ensure it handles
+    # the empty layer case (max_frame_idx = -1) without error
     with does_not_raise():
-        viewer.add_shapes(name="ROIs")
+        loader._update_frame_slider_range()
 
 
 # ------------------- tests for layers style ----------------------------#
