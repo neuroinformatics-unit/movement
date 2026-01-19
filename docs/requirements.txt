@@ -5,7 +5,7 @@ myst-parser
 nbsphinx
 pydata-sphinx-theme
 setuptools-scm
-sphinx
+sphinx<9
 sphinx-autodoc-typehints
 sphinx-design
 sphinx-gallery
