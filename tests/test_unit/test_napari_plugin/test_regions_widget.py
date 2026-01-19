@@ -4,7 +4,7 @@ from contextlib import nullcontext as does_not_raise
 
 import pytest
 from napari.layers import Shapes
-from qtpy.QtCore import QModelIndex, Qt
+from qtpy.QtCore import QItemSelection, QModelIndex, Qt
 from qtpy.QtWidgets import (
     QComboBox,
     QGroupBox,
@@ -95,6 +95,19 @@ def test_dropdown_populated_with_existing_region_layer(
     widget = RegionsWidget(viewer)
     assert widget.layer_dropdown.count() == 1
     assert widget.layer_dropdown.currentText() == "Regions"
+
+
+def test_auto_assign_names_pads_missing_name_property(
+    make_napari_viewer_proxy, sample_shapes_data
+):
+    """Test that missing name property gets created and filled."""
+    viewer = make_napari_viewer_proxy()
+    # Create layer with shapes but no "name" property
+    layer = viewer.add_shapes(sample_shapes_data[:2], name="Regions")
+    # Creating widget triggers _auto_assign_region_names which pads names
+    RegionsWidget(viewer)
+    # Names should be created and filled to match shape count
+    assert len(layer.properties["name"]) == 2
 
 
 # ------------------- Tests for signal/event connections ---------------------#
@@ -354,17 +367,33 @@ def test_model_header_labels(regions_widget_with_layer):
 
 
 @pytest.mark.parametrize(
-    "column, expected",
-    [(0, DEFAULT_REGION_NAME), (1, "polygon")],
-    ids=["name_column", "shape_type_column"],
+    "row, column, role, expected",
+    [
+        (0, 0, Qt.DisplayRole, DEFAULT_REGION_NAME),
+        (0, 1, Qt.DisplayRole, "polygon"),
+        (0, 0, Qt.EditRole, DEFAULT_REGION_NAME),
+        (0, 1, Qt.EditRole, None),  # EditRole only supported for col 0
+    ],
+    ids=["display_name", "display_shape", "edit_name", "edit_shape_col"],
 )
 def test_model_data_returns_correct_values(
-    regions_widget_with_layer, column, expected
+    regions_widget_with_layer, row, column, role, expected
 ):
-    """Test that model returns correct data for each column."""
+    """Test that model returns correct data for each column and role."""
     widget, _ = regions_widget_with_layer
-    index = widget.region_table_model.index(0, column)
-    assert widget.region_table_model.data(index, Qt.DisplayRole) == expected
+    index = widget.region_table_model.index(row, column)
+    assert widget.region_table_model.data(index, role) == expected
+
+
+def test_model_data_returns_none_for_stale_index(regions_widget_with_layer):
+    """Test that data returns None when index row exceeds layer data."""
+    widget, layer = regions_widget_with_layer
+    # Get valid index for row 1 (layer has 2 shapes)
+    index = widget.region_table_model.index(1, 0)
+    # Remove all shapes, making the index stale
+    layer.data = []
+    # Index is still structurally valid but row >= len(layer.data)
+    assert widget.region_table_model.data(index, Qt.DisplayRole) is None
 
 
 def test_model_setData_updates_region_name(regions_widget_with_layer):
@@ -382,6 +411,15 @@ def test_model_setData_rejects_shape_type_edit(regions_widget_with_layer):
     widget, _ = regions_widget_with_layer
     index = widget.region_table_model.index(0, 1)
     result = widget.region_table_model.setData(index, "rectangle", Qt.EditRole)
+    assert result is False
+
+
+def test_model_setData_rejects_stale_index(regions_widget_with_layer):
+    """Test that setData returns False when index row exceeds layer data."""
+    widget, layer = regions_widget_with_layer
+    index = widget.region_table_model.index(1, 0)
+    layer.data = []
+    result = widget.region_table_model.setData(index, "Name", Qt.EditRole)
     assert result is False
 
 
@@ -407,6 +445,20 @@ def test_model_updates_on_shape_added(regions_widget_with_layer):
     layer.add([[60, 60], [60, 70], [70, 70], [70, 60]])
 
     assert widget.region_table_model.rowCount() == initial_count + 1
+
+
+def test_sync_names_assigns_default_to_new_shapes(regions_widget_with_layer):
+    """Test that _sync_names_on_shape_change assigns default name to new."""
+    widget, layer = regions_widget_with_layer
+    model = widget.region_table_model
+    # Add a shape so layer has 3 shapes
+    layer.add([[60, 60], [60, 70], [70, 70], [70, 60]])
+    # Reset _last_shape_count to simulate state before shape was added
+    model._last_shape_count = 2
+    # Call sync with assign_default_to_new=True
+    model._sync_names_on_shape_change(n_shapes=3, assign_default_to_new=True)
+    # New shape should have default name
+    assert layer.properties["name"][2] == DEFAULT_REGION_NAME
 
 
 def test_model_updates_on_shape_removed(regions_widget_with_layer):
@@ -466,6 +518,35 @@ def test_model_ignores_other_layer_deletion(
 
     assert widget.region_table_model is not None
     assert widget.region_table_model.layer == layer
+
+
+@pytest.mark.parametrize(
+    "method_name",
+    ["_on_layer_data_changed", "_on_layer_set_data"],
+)
+def test_layer_event_handlers_return_early_when_no_layer(
+    regions_widget_with_layer, method_name
+):
+    """Test that layer event handlers return early when layer is None."""
+    widget, _ = regions_widget_with_layer
+    model = widget.region_table_model
+    model.layer = None
+    method = getattr(model, method_name)
+    with does_not_raise():
+        method(event=None)
+
+
+def test_on_layer_deleted_cleans_up_model(regions_widget_with_layer, mocker):
+    """Test that _on_layer_deleted disconnects and clears the model."""
+    widget, layer = regions_widget_with_layer
+    model = widget.region_table_model
+    # Create mock event with the layer as value
+    mock_event = mocker.Mock()
+    mock_event.value = layer
+    # Call _on_layer_deleted directly
+    model._on_layer_deleted(mock_event)
+    # Model should have cleared its layer reference
+    assert model.layer is None
 
 
 # ------------------- Tests for RegionsTableView -----------------------------#
@@ -547,6 +628,14 @@ def test_table_view_selection_with_no_model(regions_widget):
     """Test table view handles selection when model is None."""
     with does_not_raise():
         regions_widget.region_table_view._on_selection_changed(None, None)
+
+
+def test_table_view_selection_with_empty_indexes(regions_widget_with_layer):
+    """Test table view handles empty selection indexes."""
+    widget, _ = regions_widget_with_layer
+    empty_selection = QItemSelection()
+    with does_not_raise():
+        widget.region_table_view._on_selection_changed(empty_selection, None)
 
 
 @pytest.mark.parametrize(
