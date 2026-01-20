@@ -83,10 +83,13 @@ def register_loader(
     *,
     file_validators: type[ValidFile] | list[type[ValidFile]] | None = None,
 ) -> Callable[
-    [Callable[Concatenate[ValidFile, P], xr.Dataset]],
+    [Callable[Concatenate[TInputFile, P], xr.Dataset]],
     Callable[Concatenate[TInputFile, P], xr.Dataset],
 ]:
     """Register a loader function for a given source software.
+
+    The decorator also handles file validation using any provided
+    file validator(s).
 
     Parameters
     ----------
@@ -100,6 +103,13 @@ def register_loader(
     Callable
         A decorator that registers the loader function.
 
+    Notes
+    -----
+    If file validators are provided, the ``file`` argument passed to the
+    decorated loader function will be an instance of the appropriate
+    :class:`movement.validators.files.ValidFile` subclass, instead of the
+    original file path or :class:`pynwb.file.NWBFile` object.
+
     Examples
     --------
     >>> from movement.io.load import register_loader
@@ -111,7 +121,7 @@ def register_loader(
     ...     "DeepLabCut",
     ...     file_validators=[ValidDeepLabCutH5, ValidDeepLabCutCSV],
     ... )
-    ... def from_dlc_file(file: str, fps=None, **kwargs):
+    ... def from_dlc_file(file: str | Path, fps=None, **kwargs):
     ...     pass
 
     """
@@ -128,7 +138,7 @@ def register_loader(
             suffix_map[suffix] = validator_cls
 
     def decorator(
-        loader_fn: Callable[Concatenate[ValidFile, P], xr.Dataset],
+        loader_fn: Callable[Concatenate[TInputFile, P], xr.Dataset],
     ) -> Callable[Concatenate[TInputFile, P], xr.Dataset]:
         @wraps(loader_fn)
         def wrapper(file: TInputFile, *args, **kwargs) -> xr.Dataset:
@@ -152,7 +162,7 @@ def register_loader(
                 file=file,
                 **validator_kwargs,  # type: ignore[call-arg]
             )
-            return loader_fn(valid_file, *args, **kwargs)
+            return loader_fn(valid_file, *args, **kwargs)  # type: ignore[arg-type]
 
         # Register the loader in the global registry
         _LOADER_REGISTRY[source_software] = cast("LoaderProtocol", wrapper)

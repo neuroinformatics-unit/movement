@@ -202,7 +202,7 @@ def to_dlc_file(
     >>> ds = load_poses.from_sleap_file("/path/to/file_sleap.analysis.h5")
     >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
 
-    """  # noqa: D301
+    """
     valid_path = validate_file_path(
         file_path, permission="w", suffixes={".csv", ".h5"}
     )

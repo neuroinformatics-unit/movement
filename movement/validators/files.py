@@ -227,6 +227,8 @@ def _if_instance_of(
 
 
 # --- Helper functions --- #
+
+
 def validate_file_path(
     file: Path | str,
     *,
