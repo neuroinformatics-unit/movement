@@ -7,10 +7,6 @@ import pytest
 import xarray as xr
 
 from movement.io import load_bboxes, save_bboxes
-from movement.io.load_bboxes import (
-    _df_from_via_tracks_file,
-    _df_from_via_tracks_file_old,
-)
 from movement.io.save_bboxes import (
     _compute_individuals_to_track_ids_map,
     _write_single_row,
@@ -151,42 +147,6 @@ def test_to_via_tracks_file_valid_dataset(
         np.nan
     )
     xr.testing.assert_equal(ds, input_dataset)
-
-
-@pytest.mark.parametrize(
-    "valid_dataset",
-    [
-        "valid_bboxes_dataset",
-        "valid_bboxes_dataset_in_seconds",
-        "valid_bboxes_dataset_with_nan",  # nans in position array
-        "valid_bboxes_dataset_with_late_id0",
-    ],
-)
-def test_foo(
-    valid_dataset,
-    tmp_path,
-    request,
-):
-    # Save dataset as VIA tracks
-    input_dataset = request.getfixturevalue(valid_dataset)
-    output_path = tmp_path / "test_valid_dataset.csv"
-    save_bboxes.to_via_tracks_file(input_dataset, output_path)
-
-    # Load with old method
-    df_old = _df_from_via_tracks_file_old(output_path)  # frame_regexp)
-
-    # Change df_old dtype to match new approach
-    df_old["ID"] = df_old["ID"].astype(int)
-    df_old["frame_number"] = df_old["frame_number"].astype(int)
-    df_old[["x", "y", "w", "h", "confidence"]] = df_old[
-        ["x", "y", "w", "h", "confidence"]
-    ].astype(np.float32)
-
-    # Load with new method
-    df_new = _df_from_via_tracks_file(output_path)
-
-    # Compare pandas dataframes
-    pd.testing.assert_frame_equal(df_old, df_new)
 
 
 @pytest.mark.parametrize(
