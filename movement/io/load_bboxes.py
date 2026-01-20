@@ -409,7 +409,6 @@ def _numpy_arrays_from_via_tracks_file(
     # (sort data by ID and frame number, and
     # fill empty frame-ID pairs with nans)
     df = _df_from_via_tracks_file(file_path, frame_regexp)
-    # breakpoint()
 
     # Compute indices of the rows where the IDs switch
     bool_id_diff_from_prev = df["ID"].ne(df["ID"].shift())  # pandas series
@@ -473,14 +472,13 @@ def _df_from_via_tracks_file(
     # Read VIA tracks .csv file as a pandas dataframe
     df_input = pd.read_csv(file_path, sep=",", header=0)
 
-    # Pre-parse dataframe if not already
-    if "region_shape_attributes_x" not in df_input.columns:
-        logger.info(
-            "Converting to optimized format "
-            "(this may take a few minutes for large files)..."
-        )
-        df_input = _pre_parse_df_columns(df_input, frame_regexp)
-        logger.info("Conversion complete.")
+    # Pre-parse dataframe
+    logger.info(
+        "Pre-parsing dataframe "
+        "(this may take a few minutes for large files)..."
+    )
+    df_input = _pre_parse_df_columns(df_input, frame_regexp)
+    logger.info("Pre-parsing complete.")
 
     # Map columns to desired names
     map_input_to_output_cols = {
