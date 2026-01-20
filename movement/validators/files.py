@@ -92,6 +92,32 @@ def _file_is_not_dir(_, __, value: Path) -> None:
         )
 
 
+def _file_is_readable(value: Path) -> None:
+    """Ensure the file exists and is readable."""
+    if not value.exists():
+        raise logger.error(FileNotFoundError(f"File {value} does not exist."))
+    if not os.access(value, os.R_OK):
+        raise logger.error(
+            PermissionError(
+                f"Unable to read file: {value}. "
+                "Make sure that you have read permissions."
+            )
+        )
+
+
+def _file_is_writable(value: Path) -> None:
+    """Ensure the file does not exist and parent directory is writable."""
+    if value.exists():
+        raise logger.error(FileExistsError(f"File {value} already exists."))
+    if not os.access(value.parent, os.W_OK):
+        raise logger.error(
+            PermissionError(
+                f"Unable to write to file: {value}. "
+                "Make sure that you have write permissions."
+            )
+        )
+
+
 def _file_is_accessible(
     expected_permission: Literal["r", "w", "rw"],
 ) -> Callable[[Any, Any, Path], None]:
@@ -106,29 +132,9 @@ def _file_is_accessible(
 
     def _validator(_, __, value: Path) -> None:
         if "r" in expected_permission:
-            if not value.exists():
-                raise logger.error(
-                    FileNotFoundError(f"File {value} does not exist.")
-                )
-            if not os.access(value, os.R_OK):
-                raise logger.error(
-                    PermissionError(
-                        f"Unable to read file: {value}. "
-                        "Make sure that you have read permissions."
-                    )
-                )
+            _file_is_readable(value)
         if "w" in expected_permission:
-            if value.exists():
-                raise logger.error(
-                    FileExistsError(f"File {value} already exists.")
-                )
-            if not os.access(value.parent, os.W_OK):
-                raise logger.error(
-                    PermissionError(
-                        f"Unable to write to file: {value}. "
-                        "Make sure that you have write permissions."
-                    )
-                )
+            _file_is_writable(value)
 
     return _validator
 
