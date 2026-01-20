@@ -184,9 +184,9 @@ To run all tests, including those marked as `benchmark`:
 pytest -m ""  # all tests, including 'benchmark' ones
 ```
 
-### Comparing benchmarks across branches
+### Comparing benchmark runs across branches
 
-To compare performance between branches (e.g., `main` and a PR branch), use [pytest-benchmark](https://pytest-benchmark.readthedocs.io/en/stable/)'s save and compare functionality:
+To compare performance between branches (e.g., `main` and a PR branch), we use [pytest-benchmark](https://pytest-benchmark.readthedocs.io/en/stable/)'s save and compare functionality:
 
 1. Run benchmarks on the `main` branch and save the results:
 
@@ -194,36 +194,31 @@ To compare performance between branches (e.g., `main` and a PR branch), use [pyt
     git checkout main
     pytest -m benchmark --benchmark-save=main
     ```
-    The results are saved as JSON files `.benchmarks/<machine-identifier>/xxxx_<save-name>.json`, where `xxxx` is the identifier for the benchmark run, `<machine-identifier>` is a unique identifier for your machine, and `<save-name>` is the name you gave to the benchmark run. Benchmark results are saved to `.benchmarks/` (a directory by default ignored by git).
+    The results are saved as JSON files with the format `.benchmarks/<machine-identifier>/0001_main.json` by default, where `<machine-identifier>` is a string with the machine specifications, `0001` is generally a counter for the benchmark run, and `main` corresponds to the string passed in the `--benchmark-save` option. Benchmark results are saved to `.benchmarks/` (a directory by default ignored by git).
 
-2. Switch to your PR branch and run benchmarks again:
+2. Switch to your PR branch and run the benchmarks again:
 
     ```sh
-    git checkout your-pr-branch
+    git checkout pr-branch
     pytest -m benchmark --benchmark-save=pr
     ```
 
 3. Show the results from both runs together:
 
     ```sh
-    pytest-benchmark compare <path-to-main-results> <path-to-pr-results> --group-by=name
+    pytest-benchmark compare <path-to-main-result.json> <path-to-pr-result.json> --group-by=name
     ```
-  Instead of providing the paths to the results, you can also provide the identifiers of the runs (e.g. `0001_main` and `0002_pr`), or use glob patterns to match the results (e.g. `*main*` and `*pr*`). You can sort the results by the name of the run using the `--sort='name'`, or group them with the `--group-by=<label>` option (e.g. `group-by=name` to group by the name of the run, `group-by=func` to group by the name of the test function, or `group-by=param` to group by the parameters used to test the function). For further options, check the [comparison CLI documentation](https://pytest-benchmark.readthedocs.io/en/latest/usage.html#comparison-cli).
+    Instead of providing the paths to the results, you can also provide the identifiers of the runs (e.g. `0001_main` and `0002_pr`), or use glob patterns to match the results (e.g. `*main*` and `*pr*`).
 
-Check the [pytest-benchmark documentation](https://pytest-benchmark.readthedocs.io/en/stable/) for more information on the available options. Some useful options are:
+    You can sort the results by the name of the run using the `--sort='name'`, or group them with the `--group-by=<label>` option (e.g. `group-by=name` to group by the name of the run, `group-by=func` to group by the name of the test function, or `group-by=param` to group by the parameters used to test the function). For further options, check the [comparison CLI documentation](https://pytest-benchmark.readthedocs.io/en/latest/usage.html#comparison-cli).
 
-- `--benchmark-compare=main`: Run benchmarks and compare against a saved run.
-- `--benchmark-min-rounds=10`: Run more rounds for stable results.
+We recommend reading the [pytest-benchmark documentation](https://pytest-benchmark.readthedocs.io/en/stable/) for more information on the available [CLI arguments](https://pytest-benchmark.readthedocs.io/en/latest/usage.html#commandline-options). Some useful options are:
+- `--benchmark-warmup=on`: to enable warmup to prime caches and reduce variability between runs. This is recommended for tests involving I/O or external resources.
+- `--benchmark-warmup-iterations=N`: to set the number of warmup iterations.
+- `--benchmark-compare`: to run benchmarks and compare against the last saved run.
+- `--benchmark-min-rounds=10`: to run more rounds for stable results.
 
 :::{note}
-For tests involving I/O or external resources, consider enabling warmup to prime caches and reduce variability between runs:
-
-```sh
-pytest -m benchmark --benchmark-warmup=on
-```
-
-You can also increase the number of warmup iterations appending `--benchmark-warmup-iterations=N` to the command.
-
 High standard deviation in benchmark results often indicates bad isolation or non-deterministic behaviour (I/O, side-effects, garbage collection overhead). Before comparing past runs, it is advisable to make the benchmark runs as consistent as possible. See the [pytest-benchmark guidance on comparing runs](https://pytest-benchmark.readthedocs.io/en/latest/comparing.html) and the [pytest-benchmark FAQ](https://pytest-benchmark.readthedocs.io/en/latest/faq.html) for troubleshooting tips.
 :::
 
