@@ -478,9 +478,8 @@ def _df_from_via_tracks_file(
     df = _parsed_df_from_file(file_path, frame_regexp)
     logger.info("Pre-parsing complete.")
 
-    # Fill in missing rows if required
-    # If some combinations of ID and frame number are missing:
-    # fill with nan
+    # Fill in missing combinations of ID and
+    # frame number if required
     df = _fill_in_missing_rows(df)
 
     return df
@@ -556,7 +555,7 @@ def _parsed_df_from_file(
         df_dicts = df["file_attributes"].apply(ast.literal_eval)
 
         # Check if frame is in `file_attributes` for all files,
-        # otherwise extract from filename
+        # otherwise extract from filename. Result is a str.
         if all("frame" in d for d in df_dicts):
             df["frame_number"] = df_dicts.apply(lambda d: d.get("frame"))
         else:
@@ -569,13 +568,10 @@ def _parsed_df_from_file(
 
     # Apply type conversions
     df["ID"] = df["ID"].astype(int)
-    df["frame_number"] = pd.to_numeric(
-        df["frame_number"],
-        errors="coerce",
-    )  # why not int?
-    df[["x", "y", "w", "h"]] = df[["x", "y", "w", "h"]].astype(
-        float
-    )  # specify float type?
+    df["frame_number"] = df["frame_number"].astype(int)
+    df[["x", "y", "w", "h", "confidence"]] = df[
+        ["x", "y", "w", "h", "confidence"]
+    ].astype(np.float32)
 
     # Return relevant subset of columns as copy
     return df[["ID", "frame_number", "x", "y", "w", "h", "confidence"]].copy()
