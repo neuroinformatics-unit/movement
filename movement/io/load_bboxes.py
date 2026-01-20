@@ -4,6 +4,7 @@ import ast
 import re
 from collections.abc import Callable
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -32,42 +33,42 @@ def from_numpy(
 
     Parameters
     ----------
-    position_array : np.ndarray
+    position_array
         Array of shape (n_frames, n_space, n_individuals)
         containing the tracks of the bounding box centroids.
         It will be converted to a :class:`xarray.DataArray` object
         named "position".
-    shape_array : np.ndarray
+    shape_array
         Array of shape (n_frames, n_space, n_individuals)
         containing the shape of the bounding boxes. The shape of a bounding
         box is its width (extent along the x-axis of the image) and height
         (extent along the y-axis of the image). It will be converted to a
         :class:`xarray.DataArray` object named "shape".
-    confidence_array : np.ndarray, optional
+    confidence_array
         Array of shape (n_frames, n_individuals) containing
         the confidence scores of the bounding boxes. If None (default), the
         confidence scores are set to an array of NaNs. It will be converted
         to a :class:`xarray.DataArray` object named "confidence".
-    individual_names : list of str, optional
+    individual_names
         List of individual names for the tracked bounding boxes in the video.
         If None (default), bounding boxes are assigned names based on the size
         of the ``position_array``. The names will be in the format of
         ``id_<N>``, where <N>  is an integer from 0 to
         ``position_array.shape[-1]-1`` (i.e., "id_0", "id_1"...).
-    frame_array : np.ndarray, optional
+    frame_array
         Array of shape (n_frames, 1) containing the frame numbers for which
         bounding boxes are defined. If None (default), frame numbers will
         be assigned based on the first dimension of the ``position_array``,
         starting from 0. If a specific array of frame numbers is provided,
         these need to be integers sorted in increasing order.
-    fps : float, optional
+    fps
         The video sampling rate. If None (default), the ``time`` coordinates
         of the resulting ``movement`` dataset will be in frame numbers. If
         ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
         the ``time`` coordinates are in seconds, they will indicate the
         elapsed time from the capture of the first frame (assumed to be frame
         0).
-    source_software : str, optional
+    source_software
         Name of the software that generated the data. Defaults to None.
 
     Returns
@@ -150,7 +151,7 @@ def from_numpy(
 
 @register_loader("VIA-tracks", file_validators=[ValidVIATracksCSV])
 def from_via_tracks_file(
-    file: ValidFile,
+    file: str | Path,
     fps: float | None = None,
     use_frame_numbers_from_file: bool = False,
     frame_regexp: str = DEFAULT_FRAME_REGEXP,
@@ -250,11 +251,7 @@ def from_via_tracks_file(
 
 
     """
-    # Specific VIA-tracks .csv file validation
-    # valid_file = ValidVIATracksCSV(file, frame_regexp=frame_regexp)
-    file_path = file.file
-    logger.info(f"Validated VIA tracks .csv file {file_path}.")
-    # Create an xarray.Dataset from the data
+    file_path = cast("ValidFile", file).file
     bboxes_arrays = _numpy_arrays_from_via_tracks_file(file_path, frame_regexp)
     ds = from_numpy(
         position_array=bboxes_arrays["position_array"],
@@ -430,7 +427,7 @@ def _extract_confidence_from_via_tracks_df(df: pd.DataFrame) -> np.ndarray:
 
     Parameters
     ----------
-    df : pd.DataFrame
+    df
         The VIA tracks input dataframe is the one obtained from
         ``df = pd.read_csv(file_path, sep=",", header=0)``.
 
@@ -463,11 +460,11 @@ def _extract_frame_number_from_via_tracks_df(
 
     Parameters
     ----------
-    df : pd.DataFrame
+    df
         The VIA tracks input dataframe is the one obtained from
         ``df = pd.read_csv(file_path, sep=",", header=0)``.
 
-    frame_regexp : str
+    frame_regexp
         Regular expression pattern to extract the frame number from the frame
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed by
@@ -521,15 +518,15 @@ def _via_attribute_column_to_numpy(
 
     Parameters
     ----------
-    df : pd.DataFrame
+    df
         The pandas DataFrame containing the data from the VIA tracks .csv file.
         This is the dataframe obtained from running
         ``df = pd.read_csv(file_path, sep=",", header=0)``.
-    via_column_name : str
+    via_column_name
         The name of a column in the VIA tracks .csv file whose values are
         literal dictionaries (i.e. ``file_attributes``,
         ``region_shape_attributes`` or ``region_attributes``).
-    list_keys : list[str]
+    list_keys
         The list of keys whose values we want to extract from the literal
         dictionaries in the ``via_column_name`` column.
     cast_fn : type, optional

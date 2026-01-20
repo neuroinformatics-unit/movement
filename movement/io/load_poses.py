@@ -1,7 +1,7 @@
 """Load pose tracking data from various frameworks into ``movement``."""
 
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 import h5py
 import numpy as np
@@ -37,26 +37,26 @@ def from_numpy(
 
     Parameters
     ----------
-    position_array : np.ndarray
+    position_array
         Array of shape (n_frames, n_space, n_keypoints, n_individuals)
         containing the poses. It will be converted to a
         :class:`xarray.DataArray` object named "position".
-    confidence_array : np.ndarray, optional
+    confidence_array
         Array of shape (n_frames, n_keypoints, n_individuals) containing
         the point-wise confidence scores. It will be converted to a
         :class:`xarray.DataArray` object named "confidence".
         If None (default), the scores will be set to an array of NaNs.
-    individual_names : list of str, optional
+    individual_names
         List of unique names for the individuals in the video. If None
         (default), the individuals will be named "id_0", "id_1", etc.
-    keypoint_names : list of str, optional
+    keypoint_names
         List of unique names for the keypoints in the skeleton. If None
         (default), the keypoints will be named "keypoint_0", "keypoint_1",
         etc.
-    fps : float, optional
+    fps
         Frames per second of the video. Defaults to None, in which case
         the time coordinates will be in frame numbers.
-    source_software : str, optional
+    source_software
         Name of the pose estimation software from which the data originate.
         Defaults to None.
 
@@ -105,13 +105,13 @@ def from_dlc_style_df(
 
     Parameters
     ----------
-    df : pandas.DataFrame
+    df
         DataFrame containing the pose tracks and confidence scores. Must
         be formatted as in DeepLabCut output files (see Notes).
-    fps : float, optional
+    fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
-    source_software : str, optional
+    source_software
         Name of the pose estimation software from which the data originate.
         Defaults to "DeepLabCut", but it can also be "LightningPose"
         (because they use the same DataFrame format).
@@ -182,7 +182,7 @@ def from_dlc_style_df(
 @register_loader(
     "SLEAP", file_validators=[ValidSleapLabels, ValidSleapAnalysis]
 )
-def from_sleap_file(file: ValidFile, fps: float | None = None) -> xr.Dataset:
+def from_sleap_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a SLEAP file.
 
     Parameters
@@ -236,8 +236,8 @@ def from_sleap_file(file: ValidFile, fps: float | None = None) -> xr.Dataset:
     >>> ds = load_poses.from_sleap_file("path/to/file.analysis.h5", fps=30)
 
     """
-    # Load and validate data
-    file_path = file.file
+    valid_file = cast("ValidFile", file)
+    file_path = valid_file.file
     if file_path.suffix == ".h5":
         ds = _ds_from_sleap_analysis_file(file_path, fps=fps)
     else:  # file.suffix == ".slp"
@@ -249,7 +249,7 @@ def from_sleap_file(file: ValidFile, fps: float | None = None) -> xr.Dataset:
 
 
 @register_loader("LightningPose", file_validators=[ValidDeepLabCutCSV])
-def from_lp_file(file: ValidFile, fps: float | None = None) -> xr.Dataset:
+def from_lp_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a LightningPose file.
 
     Parameters
@@ -272,8 +272,9 @@ def from_lp_file(file: ValidFile, fps: float | None = None) -> xr.Dataset:
     >>> ds = load_poses.from_lp_file("path/to/file.csv", fps=30)
 
     """
+    valid_file = cast("ValidFile", file)
     ds = _ds_from_lp_or_dlc_file(
-        file=file, source_software="LightningPose", fps=fps
+        valid_file=valid_file, source_software="LightningPose", fps=fps
     )
     n_individuals = ds.sizes.get("individuals", 1)
     if n_individuals > 1:
@@ -290,7 +291,7 @@ def from_lp_file(file: ValidFile, fps: float | None = None) -> xr.Dataset:
 @register_loader(
     "DeepLabCut", file_validators=[ValidDeepLabCutH5, ValidDeepLabCutCSV]
 )
-def from_dlc_file(file: ValidFile, fps: float | None = None) -> xr.Dataset:
+def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a DeepLabCut file.
 
     Parameters
@@ -328,12 +329,14 @@ def from_dlc_file(file: ValidFile, fps: float | None = None) -> xr.Dataset:
 
     """
     return _ds_from_lp_or_dlc_file(
-        file=file, source_software="DeepLabCut", fps=fps
+        valid_file=cast("ValidFile", file),
+        source_software="DeepLabCut",
+        fps=fps,
     )
 
 
 def _ds_from_lp_or_dlc_file(
-    file: ValidFile,
+    valid_file: ValidFile,
     source_software: Literal["LightningPose", "DeepLabCut"],
     fps: float | None = None,
 ) -> xr.Dataset:
@@ -341,9 +344,8 @@ def _ds_from_lp_or_dlc_file(
 
     Parameters
     ----------
-    file
-        Path to the file containing the predicted poses, either in .h5
-        or .csv format.
+    valid_file
+        The validated LightningPose or DeepLabCut file object.
     source_software
         The source software of the file.
     fps
@@ -358,11 +360,13 @@ def _ds_from_lp_or_dlc_file(
 
     """
     # Load the DeepLabCut poses into a DataFrame
-    file_path = file.file
+    file_path = valid_file.file
     df = (
-        _df_from_dlc_csv(file)
-        if isinstance(file, ValidDeepLabCutCSV)
-        else _df_from_dlc_h5(file_path)
+        _df_from_dlc_csv(valid_file)
+        if isinstance(valid_file, ValidDeepLabCutCSV)
+        else pd.DataFrame(pd.read_hdf(file_path, key="df_with_missing"))
+        # pd.read_hdf does not always return a DataFrame but we assume it does
+        # in this case (since we know what's in the "df_with_missing" dataset)
     )
     logger.debug(f"Loaded poses from {file_path} into a DataFrame.")
     # Convert the DataFrame to an xarray dataset
@@ -378,9 +382,9 @@ def _ds_from_sleap_analysis_file(file: Path, fps: float | None) -> xr.Dataset:
 
     Parameters
     ----------
-    file : pathlib.Path
+    file
         Path to the SLEAP analysis file containing predicted pose tracks.
-    fps : float, optional
+    fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame units.
 
@@ -391,7 +395,6 @@ def _ds_from_sleap_analysis_file(file: Path, fps: float | None) -> xr.Dataset:
         and associated metadata.
 
     """
-    # file_path = ValidHDF5(file, expected_datasets=["tracks"]).path
     with h5py.File(file, "r") as f:
         # Transpose to shape: (n_frames, n_space, n_keypoints, n_tracks)
         tracks = f["tracks"][:].transpose(3, 1, 2, 0)
@@ -462,7 +465,7 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
 
     Parameters
     ----------
-    labels : Labels
+    labels
         A SLEAP `Labels` object.
 
     Returns
@@ -535,7 +538,7 @@ def _df_from_dlc_csv(valid_file: ValidDeepLabCutCSV) -> pd.DataFrame:
     Parameters
     ----------
     valid_file
-        Path to the DeepLabCut-style .csv file containing pose tracks.
+        The validated DeepLabCut-style CSV file object.
 
     Returns
     -------
@@ -558,25 +561,6 @@ def _df_from_dlc_csv(valid_file: ValidDeepLabCutCSV) -> pd.DataFrame:
     return df
 
 
-def _df_from_dlc_h5(file: Path) -> pd.DataFrame:
-    """Create a DeepLabCut-style DataFrame from a .h5 file.
-
-    Parameters
-    ----------
-    file
-        Path to the DeepLabCut-style HDF5 file containing pose tracks.
-
-    Returns
-    -------
-    pandas.DataFrame
-        DeepLabCut-style DataFrame with multi-index columns.
-
-    """
-    # pd.read_hdf does not always return a DataFrame but we assume it does
-    # in this case (since we know what's in the "df_with_missing" dataset)
-    return pd.DataFrame(pd.read_hdf(file, key="df_with_missing"))
-
-
 def from_anipose_style_df(
     df: pd.DataFrame,
     fps: float | None = None,
@@ -586,12 +570,12 @@ def from_anipose_style_df(
 
     Parameters
     ----------
-    df : pd.DataFrame
+    df
         Anipose triangulation dataframe
-    fps : float, optional
+    fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame units.
-    individual_name : str, optional
+    individual_name
         Name of the individual, by default "id_0"
 
     Returns
@@ -599,7 +583,6 @@ def from_anipose_style_df(
     xarray.Dataset
         ``movement`` dataset containing the pose tracks, confidence scores,
         and associated metadata.
-
 
     Notes
     -----
@@ -649,7 +632,7 @@ def from_anipose_style_df(
 
 @register_loader("Anipose", file_validators=[ValidAniposeCSV])
 def from_anipose_file(
-    file: ValidFile,
+    file: str | Path,
     fps: float | None = None,
     individual_name: str = "id_0",
 ) -> xr.Dataset:
@@ -678,8 +661,8 @@ def from_anipose_file(
     and error.
 
     """
-    anipose_df = pd.read_csv(file.file)
-
+    valid_file = cast("ValidFile", file)
+    anipose_df = pd.read_csv(valid_file.file)
     return from_anipose_style_df(
         anipose_df, fps=fps, individual_name=individual_name
     )
@@ -687,7 +670,7 @@ def from_anipose_file(
 
 @register_loader("NWB", file_validators=[ValidNWBFile])
 def from_nwb_file(
-    file: ValidFile,
+    file: str | Path | pynwb.file.NWBFile,
     processing_module_key: str = "behavior",
     pose_estimation_key: str = "PoseEstimation",
 ) -> xr.Dataset:
@@ -749,17 +732,20 @@ def from_nwb_file(
     >>> ds_multi = xr.merge(ds_singles)
 
     """
-    valid_file = file.file
-    if isinstance(valid_file, Path):
-        with pynwb.NWBHDF5IO(valid_file, mode="r") as io:
+    valid_file = cast("ValidFile", file)
+    file_path_or_nwbfile_obj = valid_file.file
+    if isinstance(file_path_or_nwbfile_obj, Path):
+        with pynwb.NWBHDF5IO(file_path_or_nwbfile_obj, mode="r") as io:
             nwbfile_object = io.read()
             ds = _ds_from_nwb_object(
                 nwbfile_object, processing_module_key, pose_estimation_key
             )
-            ds.attrs["source_file"] = valid_file
+            ds.attrs["source_file"] = file_path_or_nwbfile_obj
     else:  # file is an NWBFile object
         ds = _ds_from_nwb_object(
-            valid_file, processing_module_key, pose_estimation_key
+            file_path_or_nwbfile_obj,
+            processing_module_key,
+            pose_estimation_key,
         )
     return ds
 
@@ -773,12 +759,12 @@ def _ds_from_nwb_object(
 
     Parameters
     ----------
-    nwb_file : pynwb.file.NWBFile
+    nwb_file
         An NWBFile object.
-    processing_module_key : str, optional
+    processing_module_key
         Name of the :class:`pynwb.base.ProcessingModule` in the NWB file that
         contains the pose estimation data. Default is "behavior".
-    pose_estimation_key: str, optional
+    pose_estimation_key
         Name of the ``ndx_pose.PoseEstimation`` object in the processing
         module (specified by ``processing_module_key``).
         Default is "PoseEstimation".
