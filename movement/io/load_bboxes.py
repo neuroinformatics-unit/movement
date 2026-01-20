@@ -469,51 +469,143 @@ def _df_from_via_tracks_file(
     regexp if it is not defined as a 'file_attribute' in the VIA tracks .csv
     file.
     """
-    # Read VIA tracks .csv file as a pandas dataframe
-    df_input = pd.read_csv(file_path, sep=",", header=0)
-
-    # Pre-parse dataframe
+    # Pre-parse input dataframe
     logger.info(
-        "Pre-parsing dataframe "
-        "(this may take a few minutes for large files)..."
+        "Parsing dataframe (this may take a few minutes for large files)..."
     )
-    df_input = _pre_parse_df_columns(df_input, frame_regexp)
+    df = _parsed_df_from_file(file_path, frame_regexp)
     logger.info("Pre-parsing complete.")
 
-    # Map columns to desired names
-    map_input_to_output_cols = {
-        "region_attributes_track": "ID",
-        "frame": "frame_number",
-        "region_shape_attributes_x": "x",
-        "region_shape_attributes_y": "y",
-        "region_shape_attributes_width": "w",
-        "region_shape_attributes_height": "h",
-    }
-    df = (
-        df_input[list(map_input_to_output_cols.keys())]
-        .rename(columns=map_input_to_output_cols)
-        .copy()
-    )
+    # Fill in missing rows if required
+    # If some combinations of ID and frame number are missing:
+    # fill with nan
+    df = _fill_in_missing_rows(df)
+
+    return df
+
+
+def _parsed_df_from_file(
+    file_path: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
+) -> pd.DataFrame:
+    """Compute parsed dataframe from input VIA tracks .csv file.
+
+    Parses dictionary-like string columns in input file.
+    Casts types of columns to the expected types.
+    Returns a copy of the relevant subset of columns.
+
+    Note that this runs after validation with ValidVIATracksCSV
+
+    Parameters
+    ----------
+    file_path : pathlib.Path
+        Path to the VIA tracks .csv file containing the bounding box tracks.
+
+    frame_regexp : str, optional
+        The regular expression to extract the frame number from the filename.
+
+    Returns
+    -------
+    pd.DataFrame
+        The parsed dataframe with the following columns:
+        - ID: the integer ID of the tracked bounding box.
+        - frame_number: the frame number of the tracked bounding box.
+        - x: the x-coordinate of the tracked bounding box's top-left corner.
+        - y: the y-coordinate of the tracked bounding box's top-left corner.
+        - w: the width of the tracked bounding box.
+        - h: the height of the tracked bounding box.
+        - confidence: the confidence score of the tracked bounding box, filled
+        with NaN where not defined.
+
+    """
+    # Read VIA tracks .csv file as a pandas dataframe
+    df = pd.read_csv(file_path, sep=",", header=0)
+
+    # Parse region_shape_attributes: x, y, width, height (all required)
+    # (renames width --> w, height --> h)
+    if "region_shape_attributes" in df.columns:
+        df_dicts = df["region_shape_attributes"].apply(ast.literal_eval)
+
+        # Get region shape data
+        df["x"] = df_dicts.apply(lambda d: d.get("x"))
+        df["y"] = df_dicts.apply(lambda d: d.get("y"))
+        df["w"] = df_dicts.apply(lambda d: d.get("width"))
+        df["h"] = df_dicts.apply(lambda d: d.get("height"))
+
+        # Remove string column to free memory
+        df = df.drop(columns=["region_shape_attributes"])
+
+    # Parse region_attributes: track (required), confidence (optional)
+    # (renames track --> ID)
+    if "region_attributes" in df.columns:
+        df_dicts = df["region_attributes"].apply(ast.literal_eval)
+
+        # Get region attribute data
+        df["ID"] = df_dicts.apply(lambda d: d.get("track"))
+        df["confidence"] = df_dicts.apply(
+            lambda d: d.get("confidence", np.nan)
+            # fill with nan if confidence not defined
+        )
+        # Remove string column to free memory
+        df = df.drop(columns=["region_attributes"])
+
+    # Parse file_attributes: frame is in either file_attributes or in filename
+    # (renames frame --> frame_number)
+    if "file_attributes" in df.columns:
+        df_dicts = df["file_attributes"].apply(ast.literal_eval)
+
+        # Check if frame is in `file_attributes` for all files,
+        # otherwise extract from filename
+        if all("frame" in d for d in df_dicts):
+            df["frame_number"] = df_dicts.apply(lambda d: d.get("frame"))
+        else:
+            df["frame_number"] = df["filename"].str.extract(
+                frame_regexp, expand=False
+            )
+
+        # Remove string column to free memory
+        df = df.drop(columns=["file_attributes"])
 
     # Apply type conversions
     df["ID"] = df["ID"].astype(int)
-    df["frame_number"] = pd.to_numeric(df["frame_number"], errors="coerce")
-    df[["x", "y", "w", "h"]] = df[["x", "y", "w", "h"]].astype(float)
+    df["frame_number"] = pd.to_numeric(
+        df["frame_number"],
+        errors="coerce",
+    )  # why not int?
+    df[["x", "y", "w", "h"]] = df[["x", "y", "w", "h"]].astype(
+        float
+    )  # specify float type?
 
-    # Get confidence column (already filled with nan if not defined)
-    df["confidence"] = df_input.get("region_attributes_confidence")
+    # Return relevant subset of columns as copy
+    return df[["ID", "frame_number", "x", "y", "w", "h", "confidence"]].copy()
 
-    # ----
-    # Check if every ID is defined for every frame
-    # If data is complete: just sort and reindex (does not add rows)
+
+def _fill_in_missing_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Fill in missing (ID, frame_number) combinations with NaNs.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The dataframe to fill in missing rows in.
+
+    Returns
+    -------
+    pd.DataFrame
+        The filled-in dataframe.
+
+    """
+    # Fill in missing rows if required
+    # If every ID is defined for every frame:
+    # just sort and reindex (does not add rows)
     if len(df) == len(df["ID"].unique()) * len(df["frame_number"].unique()):
         df = df.sort_values(
             by=["ID", "frame_number"],
             axis=0,
         ).reset_index(drop=True)
-    # If some combinations of ID and frame number are missing
+
+    # If some combinations of ID and frame number are missing:
+    # fill with nan
     else:
-        # Define desired index (all combinations of ID and frame number)
+        # Desired index: all combinations of ID and frame number
         multi_index = pd.MultiIndex.from_product(
             [df["ID"].unique().tolist(), df["frame_number"].unique().tolist()],
             # these unique lists may not be sorted!
@@ -521,14 +613,13 @@ def _df_from_via_tracks_file(
         )
 
         # Set index to (ID, frame number), fill in values with nans,
-        # sort by ID and frame_number and reset to new index
+        # sort by ID and frame_number, and reset to new index
         df = (
             df.set_index(["ID", "frame_number"])
-            .reindex(multi_index)  # adds missing rows and fills them with nan
+            .reindex(multi_index)  # fills missing rows with nan
             .sort_values(by=["ID", "frame_number"], axis=0)
             .reset_index()
         )
-    # ----------
     return df
 
 
