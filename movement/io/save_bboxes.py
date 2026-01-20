@@ -496,13 +496,16 @@ def _write_single_row(
     file_attributes = json.dumps({"shot": 0})
 
     # Define region shape attributes
+    # Note: float() converts float32 to float64,
+    # which is json-serializable
+    n_decimals = 6
     region_shape_attributes = json.dumps(
         {
             "name": "rect",
-            "x": float(x_top_left),
-            "y": float(y_top_left),
-            "width": float(width),
-            "height": float(height),
+            "x": round(float(x_top_left), n_decimals),
+            "y": round(float(y_top_left), n_decimals),
+            "width": round(float(width), n_decimals),
+            "height": round(float(height), n_decimals),
         }
     )
 
@@ -510,7 +513,9 @@ def _write_single_row(
     region_attributes_dict: dict[str, float | int] = {"track": int(track_id)}
     if confidence is not None:
         # convert to float to ensure it is json-serializable
-        region_attributes_dict["confidence"] = float(confidence)
+        region_attributes_dict["confidence"] = round(
+            float(confidence), n_decimals
+        )
     region_attributes = json.dumps(region_attributes_dict)
 
     # Set image size
