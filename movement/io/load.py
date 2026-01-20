@@ -78,8 +78,71 @@ def _get_validator_kwargs(
     }
 
 
+def _build_suffix_map(
+    validators_list: list[type[ValidFile]],
+) -> dict[str, type[ValidFile]]:
+    """Build a mapping of file suffixes to validator classes."""
+    suffix_map: dict[str, type[ValidFile]] = {}
+    for validator_cls in validators_list:
+        for suffix in getattr(validator_cls, "suffixes", set()):
+            suffix_map[suffix] = validator_cls
+    return suffix_map
+
+
+def _validate_file(
+    file: TInputFile,
+    suffix_map: dict[str, type[ValidFile]],
+    source_software: SourceSoftware,
+    loader_kwargs: dict | None = None,
+) -> ValidFile:
+    """Validate the input file using the appropriate validator.
+
+    Parameters
+    ----------
+    file
+        The file path or NWBFile object to validate.
+    suffix_map
+        Mapping of file suffixes to validator classes.
+    source_software
+        The source software name (for error messages).
+    loader_kwargs
+        Additional arguments from the loader function to pass to
+        the validator.
+
+    Returns
+    -------
+    ValidFile
+        A validated file instance.
+
+    Raises
+    ------
+    ValueError
+        If the file format is not supported.
+
+    """
+    if isinstance(file, pynwb.file.NWBFile):
+        file_suffix = ".nwb"
+    else:
+        file_suffix = Path(file).suffix
+    validator_cls = suffix_map.get(file_suffix)
+    if validator_cls is None:
+        raise logger.error(
+            ValueError(
+                f"Unsupported format for '{source_software}': {file_suffix}."
+            )
+        )
+
+    validator_kwargs = _get_validator_kwargs(
+        validator_cls, loader_kwargs=loader_kwargs or {}
+    )
+    return validator_cls(
+        file=file,
+        **validator_kwargs,  # type: ignore[call-arg]
+    )
+
+
 def register_loader(
-    source_software: str,
+    source_software: SourceSoftware,
     *,
     file_validators: type[ValidFile] | list[type[ValidFile]] | None = None,
 ) -> Callable[
@@ -131,38 +194,19 @@ def register_loader(
         and not isinstance(file_validators, list)
         else file_validators or []
     )
-    # Map suffixes to file validator classes
-    suffix_map: dict[str, type[ValidFile]] = {}
-    for validator_cls in validators_list:
-        for suffix in getattr(validator_cls, "suffixes", set()):
-            suffix_map[suffix] = validator_cls
+    # Map suffixes to validator classes
+    suffix_map = _build_suffix_map(validators_list)
 
     def decorator(
         loader_fn: Callable[Concatenate[TInputFile, P], xr.Dataset],
     ) -> Callable[Concatenate[TInputFile, P], xr.Dataset]:
         @wraps(loader_fn)
         def wrapper(file: TInputFile, *args, **kwargs) -> xr.Dataset:
-            if len(validators_list) == 0:
+            if not validators_list:
                 return loader_fn(file, *args, **kwargs)
-            if isinstance(file, pynwb.file.NWBFile):
-                file_suffix = ".nwb"
-            else:
-                file_suffix = Path(file).suffix
-            validator_cls = suffix_map.get(file_suffix)
-            if validator_cls is None:
-                raise logger.error(
-                    ValueError(
-                        f"Unsupported format for '{source_software}': ",
-                        f"{file_suffix}.",
-                    )
-                )
-            validator_kwargs = _get_validator_kwargs(
-                validator_cls, loader_kwargs=kwargs
-            )
-            # Validate the file
-            valid_file = validator_cls(
-                file=file,
-                **validator_kwargs,  # type: ignore[call-arg]
+
+            valid_file = _validate_file(
+                file, suffix_map, source_software, kwargs
             )
             return loader_fn(valid_file, *args, **kwargs)  # type: ignore[arg-type]
 
