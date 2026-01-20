@@ -742,14 +742,18 @@ def test_position_numpy_array_from_via_tracks_file(via_file_path):
     )
 
 
+@pytest.mark.skip(
+    reason=(
+        "Waiting on [PR #772](https://github.com/movement-project/movement/pull/772)"
+        " to be reviewed and merged."
+    )
+)
 @pytest.mark.benchmark
 @pytest.mark.parametrize(
     "via_file_path",
     [
         pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-        # multiple individuals present in all 5 frames
         pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
-        # single individual present in 35 non-consecutive frames
     ],
 )
 def test_benchmark_from_via_tracks_file(via_file_path, benchmark):
@@ -757,14 +761,20 @@ def test_benchmark_from_via_tracks_file(via_file_path, benchmark):
     benchmark(load_bboxes.from_via_tracks_file, via_file_path)
 
 
+@pytest.mark.skip(
+    reason=(
+        "Waiting on [PR #772](https://github.com/movement-project/movement/pull/772)"
+        " to be reviewed and merged."
+    )
+)
 @pytest.mark.benchmark
 @pytest.mark.parametrize(
     "via_file_path",
     [
         pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-        # multiple individuals present in all 5 frames
+        # multiple crabs present in all 5 frames
         pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
-        # single individual present in 35 non-consecutive frames
+        # single crab present in 35 non-consecutive frames
     ],
 )
 def test_benchmark_df_from_via_tracks_file(via_file_path, benchmark):
