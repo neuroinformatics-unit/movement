@@ -169,8 +169,8 @@ These datasets are accessible through the `pytest.DATA_PATHS` dictionary, popula
 Avoid including large data files directly in the GitHub repository.
 
 #### Running benchmark tests
-Some tests are marked as 'benchmark' because we use them along with [pytest-benchmark](https://pytest-benchmark.readthedocs.io/en/stable/) to measure the performance of a section of the code. These tests are excluded from the default test run to keep CI and local test running fast.
-This applies to all `pytest` runs (CLI, VS Code, tox, CI).
+Some tests are marked as `benchmark` because we use them along with [pytest-benchmark](https://pytest-benchmark.readthedocs.io/en/stable/) to measure the performance of a section of the code. These tests are excluded from the default test run to keep CI and local test running fast.
+This applies to all `pytest` runs (from the command line, VS Code, tox or in CI).
 
 If you wish to run only the benchmark tests locally, you can do so by running:
 
@@ -178,11 +178,53 @@ If you wish to run only the benchmark tests locally, you can do so by running:
 pytest -m benchmark  # only those marked as 'benchmark'
 ```
 
-To run all tests, including those marked as 'benchmark':
+To run all tests, including those marked as `benchmark`:
 
 ```sh
-pytest -m ""
+pytest -m ""  # all tests, including 'benchmark' ones
 ```
+
+### Comparing benchmarks across branches
+
+To compare performance between branches (e.g., `main` and a PR branch), use [pytest-benchmark](https://pytest-benchmark.readthedocs.io/en/stable/)'s save and compare functionality:
+
+1. Run benchmarks on the `main` branch and save the results:
+
+    ```sh
+    git checkout main
+    pytest -m benchmark --benchmark-save=main
+    ```
+    The results are saved as JSON files `.benchmarks/<machine-identifier>/xxxx_<save-name>.json`, where `xxxx` is the identifier for the benchmark run, `<machine-identifier>` is a unique identifier for your machine, and `<save-name>` is the name you gave to the benchmark run. Benchmark results are saved to `.benchmarks/` (a directory by default ignored by git).
+
+2. Switch to your PR branch and run benchmarks again:
+
+    ```sh
+    git checkout your-pr-branch
+    pytest -m benchmark --benchmark-save=pr
+    ```
+
+3. Compare the saved results:
+
+    ```sh
+    pytest-benchmark compare main pr
+    ```
+
+Check the [pytest-benchmark documentation](https://pytest-benchmark.readthedocs.io/en/stable/) for more information on the available options. Some useful options are:
+
+- `--benchmark-compare=main`: Run benchmarks and compare against a saved run.
+- `--benchmark-min-rounds=10`: Run more rounds for stable results.
+
+:::{note}
+For tests involving I/O or external resources, consider enabling warmup to prime caches and reduce variability between runs:
+
+```sh
+pytest -m benchmark --benchmark-warmup=on
+```
+
+You can also increase the number of warmup iterations appending `--benchmark-warmup-iterations=N` to the command.
+
+High standard deviation in benchmark results often indicates bad isolation or non-deterministic behaviour (I/O, side-effects, garbage collection overhead). Before comparing past runs, it is advisable to make the benchmark runs as consistent as possible. See the [pytest-benchmark guidance on comparing runs](https://pytest-benchmark.readthedocs.io/en/latest/comparing.html) and the [pytest-benchmark FAQ](https://pytest-benchmark.readthedocs.io/en/latest/faq.html) for troubleshooting tips.
+:::
 
 ### Logging
 We use the {mod}`loguru<loguru._logger>`-based {class}`MovementLogger<movement.utils.logging.MovementLogger>` for logging.
