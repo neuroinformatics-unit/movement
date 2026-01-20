@@ -460,13 +460,14 @@ def create_poses_dataset(
     confidence_values=None,
     ds_attrs=None,
 ):
-    """Helper to create poses datasets with configurable parameters.
+    """Create poses datasets with configurable parameters.
 
     Args:
         n_frames: Number of time frames
         n_keypoints: Number of keypoints per individual
         n_individuals: Number of individuals
-        keypoint_positions: Dict mapping (individual_id, keypoint_id) to (x, y) tuples
+        keypoint_positions: Dict mapping (individual_id, keypoint_id) to
+            (x, y) tuples
         confidence_values: Array of confidence values or None
         ds_attrs: Dictionary of dataset attributes
 
@@ -537,7 +538,7 @@ def create_poses_dataset(
 def verify_bbox_result(
     result, expected_position, expected_shape, ind_id=0, frame_id=0
 ):
-    """Helper to verify bbox position and shape values.
+    """Verify bbox position and shape values.
 
     Args:
         result: The result dataset from poses_to_bboxes
@@ -563,7 +564,10 @@ def verify_bbox_result(
 
 @pytest.fixture
 def simple_poses_dataset():
-    """Create a simple poses dataset with 2 individuals, 3 keypoints, 5 frames."""
+    """Create a simple poses dataset.
+
+    Creates a dataset with 2 individuals, 3 keypoints, 5 frames.
+    """
     confidence = np.full((5, 3, 2), 0.9)
     return create_poses_dataset(
         n_frames=5,
@@ -595,11 +599,13 @@ def test_poses_to_bboxes_basic(simple_poses_dataset):
     assert result.attrs["fps"] == 30
 
     # Verify bbox calculations for individual 0
-    # Keypoints: (0,0), (10,0), (10,10) -> bbox centroid (5, 5), shape (10, 10)
+    # Keypoints: (0,0), (10,0), (10,10)
+    # -> bbox centroid (5, 5), shape (10, 10)
     verify_bbox_result(result, (5.0, 5.0), (10.0, 10.0), ind_id=0)
 
     # Verify bbox calculations for individual 1
-    # Keypoints: (20,20), (30,20), (30,30) -> bbox centroid (25, 25), shape (10, 10)
+    # Keypoints: (20,20), (30,20), (30,30)
+    # -> bbox centroid (25, 25), shape (10, 10)
     verify_bbox_result(result, (25.0, 25.0), (10.0, 10.0), ind_id=1)
 
     # Verify confidence (should be mean of keypoint confidences = 0.9)
@@ -621,7 +627,10 @@ def test_poses_to_bboxes_with_padding(simple_poses_dataset, padding_px):
 
 
 def test_poses_to_bboxes_single_keypoint():
-    """Test conversion with single keypoint per individual (zero width/height)."""
+    """Test conversion with single keypoint per individual.
+
+    With a single keypoint, the bbox should have zero width/height.
+    """
     # Single keypoint at (5, 10)
     ds = create_poses_dataset(
         n_frames=3,
@@ -653,12 +662,15 @@ def test_poses_to_bboxes_with_nan(simple_poses_dataset):
 
     result = poses_to_bboxes(ds)
 
-    # Frame 0, individual 0: only 2 keypoints valid -> bbox should still be computed
-    # Remaining keypoints: (10,0), (10,10) -> centroid (10, 5), shape (0, 10)
+    # Frame 0, individual 0: only 2 keypoints valid
+    # -> bbox should still be computed
+    # Remaining keypoints: (10,0), (10,10)
+    # -> centroid (10, 5), shape (0, 10)
     verify_bbox_result(result, (10.0, 5.0), (0.0, 10.0), ind_id=0, frame_id=0)
 
     # Frame 1, individual 1: only 2 keypoints valid
-    # Remaining keypoints: (20,20), (30,30) -> centroid (25, 25), shape (10, 10)
+    # Remaining keypoints: (20,20), (30,30)
+    # -> centroid (25, 25), shape (10, 10)
     assert np.allclose(result.position.values[1, 0, 1], 25.0)
     assert np.allclose(result.position.values[1, 1, 1], 25.0)
 
@@ -683,7 +695,8 @@ def test_poses_to_bboxes_all_nan_frame():
     assert np.isnan(result.shape.values[1, 1, 0])
     assert np.isnan(result.confidence.values[1, 0])
 
-    # Other frames should be valid (all keypoints at 5,5 -> bbox at 5,5 with 0 size)
+    # Other frames should be valid
+    # (all keypoints at 5,5 -> bbox at 5,5 with 0 size)
     assert np.allclose(result.position.values[0, 0, 0], 5.0)
     assert np.allclose(result.position.values[2, 0, 0], 5.0)
 
