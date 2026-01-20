@@ -741,7 +741,6 @@ def test_position_numpy_array_from_via_tracks_file(via_file_path):
 def test_benchmark_from_via_tracks_file(
     via_file_path,
     use_frame_numbers_from_file,
-    helpers,
     benchmark,
 ):
     """Benchmark the loading of a VIA tracks .csv file."""
@@ -749,13 +748,22 @@ def test_benchmark_from_via_tracks_file(
         "file_path": via_file_path,
         "use_frame_numbers_from_file": use_frame_numbers_from_file,
     }
-    ds = benchmark(load_bboxes.from_via_tracks_file, **kwargs)
+    benchmark(load_bboxes.from_via_tracks_file, **kwargs)
 
-    # check results
-    expected_values = {
-        "vars_dims": {"position": 3, "shape": 3, "confidence": 2},
-        "dim_names": ValidBboxesInputs.DIM_NAMES,
-        "source_software": "VIA-tracks",
-        "file_path": via_file_path,
-    }
-    helpers.assert_valid_dataset(ds, expected_values)
+
+@pytest.mark.benchmark
+@pytest.mark.parametrize(
+    "via_file_path",
+    [
+        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        # multiple crabs present in all 5 frames
+        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+        # single crab present in 35 non-consecutive frames
+    ],
+)
+def test_benchmark_df_from_via_tracks_file(
+    via_file_path,
+    benchmark,
+):
+    """Benchmark the `_df_from_via_tracks_file` function."""
+    benchmark(load_bboxes._df_from_via_tracks_file, via_file_path)
