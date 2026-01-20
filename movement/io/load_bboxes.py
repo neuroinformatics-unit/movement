@@ -518,50 +518,44 @@ def _parsed_df_from_file(
     # Read VIA tracks .csv file as a pandas dataframe
     df = pd.read_csv(file_path, sep=",", header=0)
 
+    # Extract columns holding dict-like data
+    df_region_shapes = df["region_shape_attributes"].apply(ast.literal_eval)
+    df_region_attrs = df["region_attributes"].apply(ast.literal_eval)
+    df_file_attrs = df["file_attributes"].apply(ast.literal_eval)
+
     # Parse region_shape_attributes: x, y, width, height (all required)
     # (renames width --> w, height --> h)
-    if "region_shape_attributes" in df.columns:
-        df_dicts = df["region_shape_attributes"].apply(ast.literal_eval)
-
-        # Get region shape data
-        df["x"] = df_dicts.apply(lambda d: d.get("x"))
-        df["y"] = df_dicts.apply(lambda d: d.get("y"))
-        df["w"] = df_dicts.apply(lambda d: d.get("width"))
-        df["h"] = df_dicts.apply(lambda d: d.get("height"))
-
-        # Remove string column to free memory
-        df = df.drop(columns=["region_shape_attributes"])
+    df["x"] = df_region_shapes.apply(lambda d: d.get("x"))
+    df["y"] = df_region_shapes.apply(lambda d: d.get("y"))
+    df["w"] = df_region_shapes.apply(lambda d: d.get("width"))
+    df["h"] = df_region_shapes.apply(lambda d: d.get("height"))
 
     # Parse region_attributes: track (required), confidence (optional)
     # (renames track --> ID)
-    if "region_attributes" in df.columns:
-        df_dicts = df["region_attributes"].apply(ast.literal_eval)
+    df["ID"] = df_region_attrs.apply(lambda d: d.get("track"))
+    df["confidence"] = df_region_attrs.apply(
+        lambda d: d.get("confidence", np.nan)
+        # fill with nan if confidence not defined
+    )
 
-        # Get region attribute data
-        df["ID"] = df_dicts.apply(lambda d: d.get("track"))
-        df["confidence"] = df_dicts.apply(
-            lambda d: d.get("confidence", np.nan)
-            # fill with nan if confidence not defined
-        )
-        # Remove string column to free memory
-        df = df.drop(columns=["region_attributes"])
+    # Check if frame is in `file_attributes` for all files,
+    # otherwise extract from filename.
+    if all("frame" in d for d in df_file_attrs):
+        df["frame_number"] = df_file_attrs.apply(lambda d: d.get("frame"))
+        # returns a str
+    else:
+        df["frame_number"] = df["filename"].str.extract(
+            frame_regexp, expand=False
+        )  # returns as str
 
-    # Parse file_attributes: frame is in either file_attributes or in filename
-    # (renames frame --> frame_number)
-    if "file_attributes" in df.columns:
-        df_dicts = df["file_attributes"].apply(ast.literal_eval)
-
-        # Check if frame is in `file_attributes` for all files,
-        # otherwise extract from filename. Result is a str.
-        if all("frame" in d for d in df_dicts):
-            df["frame_number"] = df_dicts.apply(lambda d: d.get("frame"))
-        else:
-            df["frame_number"] = df["filename"].str.extract(
-                frame_regexp, expand=False
-            )
-
-        # Remove string column to free memory
-        df = df.drop(columns=["file_attributes"])
+    # Remove string columns to free memory
+    df = df.drop(
+        columns=[
+            "region_shape_attributes",
+            "region_attributes",
+            "file_attributes",
+        ]
+    )
 
     # Apply type conversions
     df["ID"] = df["ID"].astype(int)
