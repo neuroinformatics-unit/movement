@@ -168,6 +168,22 @@ For tests requiring experimental data, you can use [sample data](#sample-data) f
 These datasets are accessible through the `pytest.DATA_PATHS` dictionary, populated in `conftest.py`.
 Avoid including large data files directly in the GitHub repository.
 
+#### Running benchmark tests
+Some tests are marked as 'benchmark' because we use them along with [pytest-benchmark](https://pytest-benchmark.readthedocs.io/en/stable/) to measure the performance of a section of the code. These tests are excluded from the default test run to keep CI and local test running fast.
+This applies to all `pytest` runs (CLI, VS Code, tox, CI).
+
+If you wish to run only the benchmark tests locally, you can do so by running:
+
+```sh
+pytest -m benchmark  # only those marked as 'benchmark'
+```
+
+To run all tests, including those marked as 'benchmark':
+
+```sh
+pytest -m ""
+```
+
 ### Logging
 We use the {mod}`loguru<loguru._logger>`-based {class}`MovementLogger<movement.utils.logging.MovementLogger>` for logging.
 The logger is configured to write logs to a rotating log file at the `DEBUG` level and to {obj}`sys.stderr` at the `WARNING` level.

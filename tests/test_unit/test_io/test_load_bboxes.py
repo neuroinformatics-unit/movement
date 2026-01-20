@@ -267,12 +267,6 @@ def test_from_file(
             )
 
 
-expected_values_bboxes = {
-    "vars_dims": {"position": 3, "shape": 3, "confidence": 2},
-    "dim_names": ValidBboxesInputs.DIM_NAMES,
-}
-
-
 @pytest.mark.parametrize(
     "via_file_path",
     [
@@ -297,7 +291,8 @@ def test_from_via_tracks_file(
     }
     ds = load_bboxes.from_via_tracks_file(**kwargs)
     expected_values = {
-        **expected_values_bboxes,
+        "vars_dims": {"position": 3, "shape": 3, "confidence": 2},
+        "dim_names": ValidBboxesInputs.DIM_NAMES,
         "source_software": "VIA-tracks",
         "fps": fps,
         "file_path": via_file_path,
@@ -375,7 +370,8 @@ def test_from_numpy(
         source_software=source_software,
     )
     expected_values = {
-        **expected_values_bboxes,
+        "vars_dims": {"position": 3, "shape": 3, "confidence": 2},
+        "dim_names": ValidBboxesInputs.DIM_NAMES,
         "source_software": source_software,
         "fps": fps,
     }
@@ -731,3 +727,35 @@ def test_position_numpy_array_from_via_tracks_file(via_file_path):
         bboxes_arrays["position_array"],  # frames, xy, individuals
         np.stack(list_derived_centroids, axis=-1),
     )
+
+
+@pytest.mark.benchmark
+@pytest.mark.parametrize(
+    "via_file_path",
+    [
+        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+    ],
+)
+@pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
+def test_benchmark_from_via_tracks_file(
+    via_file_path,
+    use_frame_numbers_from_file,
+    helpers,
+    benchmark,
+):
+    """Benchmark the loading of a VIA tracks .csv file."""
+    kwargs = {
+        "file_path": via_file_path,
+        "use_frame_numbers_from_file": use_frame_numbers_from_file,
+    }
+    ds = benchmark(load_bboxes.from_via_tracks_file, **kwargs)
+
+    # check results
+    expected_values = {
+        "vars_dims": {"position": 3, "shape": 3, "confidence": 2},
+        "dim_names": ValidBboxesInputs.DIM_NAMES,
+        "source_software": "VIA-tracks",
+        "file_path": via_file_path,
+    }
+    helpers.assert_valid_dataset(ds, expected_values)
