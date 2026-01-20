@@ -1,6 +1,8 @@
 """Load bounding boxes tracking data into ``movement``."""
 
 import ast
+import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Literal
 
@@ -368,69 +370,6 @@ def from_via_tracks_file(
     return ds
 
 
-def _pre_parse_df_columns(
-    df: pd.DataFrame, frame_regexp: str = DEFAULT_FRAME_REGEXP
-) -> pd.DataFrame:
-    """Pre-parse dataframe columns to improve performance.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        The dataframe to pre-parse.
-    frame_regexp : str, optional
-        The regular expression to extract the frame number from the filename.
-
-    """
-    # Do I need to copy?
-    # df = df.copy()
-
-    # Parse region_shape_attributes: x, y, width, height
-    if "region_shape_attributes" in df.columns:
-        df_dicts = df["region_shape_attributes"].apply(ast.literal_eval)
-        df["region_shape_attributes_x"] = df_dicts.apply(lambda d: d.get("x"))
-        df["region_shape_attributes_y"] = df_dicts.apply(lambda d: d.get("y"))
-        df["region_shape_attributes_width"] = df_dicts.apply(
-            lambda d: d.get("width")
-        )
-        df["region_shape_attributes_height"] = df_dicts.apply(
-            lambda d: d.get("height")
-        )
-        df = df.drop(columns=["region_shape_attributes"])
-
-    # Parse region_attributes: track, confidence
-    if "region_attributes" in df.columns:
-        df_dicts = df["region_attributes"].apply(ast.literal_eval)
-        df["region_attributes_track"] = df_dicts.apply(
-            lambda d: d.get("track")
-        )
-        df["region_attributes_confidence"] = df_dicts.apply(
-            lambda d: d.get("confidence")
-        )
-        df = df.drop(columns=["region_attributes"])
-
-    # Parse file_attributes: frame may be in file_attributes or in filename
-    if "file_attributes" in df.columns:
-        # Convert file_attributes data to dictionaries
-        df_dicts = df["file_attributes"].apply(ast.literal_eval)
-
-        # Check if frame is in file_attributes for all files
-        if all(["frame" in d for d in df_dicts]):
-            df["frame"] = df_dicts.apply(lambda d: d.get("frame"))
-        # Else extract frame number from filename
-        else:
-            df["frame"] = df["filename"].str.extract(
-                frame_regexp, expand=False
-            )
-            # df["frame"] = df["filename"].apply(
-            #     lambda f: int(re.search(frame_regexp, f).group(1))
-            #     if re.search(frame_regexp, f)
-            #     else np.nan
-            # )
-        df = df.drop(columns=["file_attributes"])
-
-    return df
-
-
 def _numpy_arrays_from_via_tracks_file(
     file_path: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
 ) -> dict:
@@ -472,6 +411,7 @@ def _numpy_arrays_from_via_tracks_file(
     # (sort data by ID and frame number, and
     # fill empty frame-ID pairs with nans)
     df = _df_from_via_tracks_file(file_path, frame_regexp)
+    # breakpoint()
 
     # Compute indices of the rows where the IDs switch
     bool_id_diff_from_prev = df["ID"].ne(df["ID"].shift())  # pandas series
@@ -565,16 +505,20 @@ def _df_from_via_tracks_file(
     df["frame_number"] = pd.to_numeric(df["frame_number"], errors="coerce")
     df[["x", "y", "w", "h"]] = df[["x", "y", "w", "h"]].astype(float)
 
-    # Handle confidence column and fill with nan if empty
-    df["confidence"] = df_input.get("region_attributes_confidence", np.nan)
+    # Get confidence column (already filled with nan if not defined)
+    df["confidence"] = df_input.get("region_attributes_confidence")
 
     # ----
-    # Check if reindexing is needed
+    # Check if every ID is defined for every frame
+    # If data is complete: just sort and reindex (does not add rows)
     if len(df) == len(df["ID"].unique()) * len(df["frame_number"].unique()):
-        # Data is complete, just sort
-        df = df.sort_values(by=["ID", "frame_number"], axis=0)
+        df = df.sort_values(
+            by=["ID", "frame_number"],
+            axis=0,
+        ).reset_index(drop=True)
+    # If some combinations of ID and frame number are missing
     else:
-        # Define desired index: all combinations of ID and frame number
+        # Define desired index (all combinations of ID and frame number)
         multi_index = pd.MultiIndex.from_product(
             [df["ID"].unique().tolist(), df["frame_number"].unique().tolist()],
             # these unique lists may not be sorted!
@@ -585,8 +529,187 @@ def _df_from_via_tracks_file(
         # sort by ID and frame_number and reset to new index
         df = (
             df.set_index(["ID", "frame_number"])
-            .reindex(multi_index)
+            .reindex(multi_index)  # adds missing rows and fills them with NaN
+            .sort_values(by=["ID", "frame_number"], axis=0)
             .reset_index()
         )
     # ----------
     return df
+
+
+def _pre_parse_df_columns(
+    df: pd.DataFrame, frame_regexp: str = DEFAULT_FRAME_REGEXP
+) -> pd.DataFrame:
+    """Pre-parse dataframe columns to improve performance.
+
+    Note that this runs after validation with ValidVIATracksCSV
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The dataframe to pre-parse.
+    frame_regexp : str, optional
+        The regular expression to extract the frame number from the filename.
+
+    """
+    # Parse region_shape_attributes: x, y, width, height (all required)
+    if "region_shape_attributes" in df.columns:
+        key = "region_shape_attributes"
+        df_dicts = df[key].apply(ast.literal_eval)
+
+        # Get region shape data
+        df[f"{key}_x"] = df_dicts.apply(lambda d: d.get("x"))
+        df[f"{key}_y"] = df_dicts.apply(lambda d: d.get("y"))
+        df[f"{key}_width"] = df_dicts.apply(lambda d: d.get("width"))
+        df[f"{key}_height"] = df_dicts.apply(lambda d: d.get("height"))
+
+        # Remove column
+        df = df.drop(columns=[key])
+
+    # Parse region_attributes: track (required), confidence (optional)
+    if "region_attributes" in df.columns:
+        key = "region_attributes"
+        df_dicts = df[key].apply(ast.literal_eval)
+
+        # Get region attribute data
+        df[f"{key}_track"] = df_dicts.apply(lambda d: d.get("track"))
+        df[f"{key}_confidence"] = df_dicts.apply(
+            lambda d: d.get(
+                "confidence",
+                np.nan,
+            )
+        )
+        # Remove column
+        df = df.drop(columns=[key])
+
+    # Parse file_attributes: frame is in either file_attributes or in filename
+    if "file_attributes" in df.columns:
+        key = "file_attributes"
+        df_dicts = df[key].apply(ast.literal_eval)
+
+        # Check if frame is in `file_attributes` for all files,
+        # otherwise extract from filename
+        if all(["frame" in d for d in df_dicts]):
+            df["frame"] = df_dicts.apply(lambda d: d.get("frame"))
+        else:
+            df["frame"] = df["filename"].str.extract(
+                frame_regexp, expand=False
+            )
+
+        # Remove column
+        df = df.drop(columns=["file_attributes"])
+
+    return df
+
+
+#############################
+def _df_from_via_tracks_file_old(
+    file_path: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
+):
+    # Read VIA tracks .csv file as a pandas dataframe
+    df_file = pd.read_csv(file_path, sep=",", header=0)
+
+    # Format to a 2D dataframe
+    df = pd.DataFrame(
+        {
+            "ID": _via_attribute_column_to_numpy(
+                df_file, "region_attributes", ["track"], int
+            ),
+            "frame_number": _extract_frame_number_from_via_tracks_df(
+                df_file, frame_regexp
+            ),
+            "x": _via_attribute_column_to_numpy(
+                df_file, "region_shape_attributes", ["x"], float
+            ),
+            "y": _via_attribute_column_to_numpy(
+                df_file, "region_shape_attributes", ["y"], float
+            ),
+            "w": _via_attribute_column_to_numpy(
+                df_file, "region_shape_attributes", ["width"], float
+            ),
+            "h": _via_attribute_column_to_numpy(
+                df_file, "region_shape_attributes", ["height"], float
+            ),
+            "confidence": _extract_confidence_from_via_tracks_df(df_file),
+        }
+    )
+
+    # Define desired index: all combinations of ID and frame number
+    multi_index = pd.MultiIndex.from_product(
+        [df["ID"].unique().tolist(), df["frame_number"].unique().tolist()],
+        # these unique lists may not be sorted!
+        names=["ID", "frame_number"],
+    )
+
+    # Set index to (ID, frame number), fill in values with nans,
+    # sort by ID and frame_number and reset to new index
+    df = (
+        df.set_index(["ID", "frame_number"])
+        .reindex(multi_index)  # fill in empty frame-ID pairs with nans
+        .sort_values(by=["ID", "frame_number"], axis=0)  # sort by ID and frame
+        .reset_index()
+    )
+    return df
+
+
+def _via_attribute_column_to_numpy(
+    df: pd.DataFrame,
+    via_column_name: str,
+    list_keys: list[str],
+    cast_fn: Callable = float,
+) -> np.ndarray:
+    """Convert values from VIA attribute-type column to a numpy array."""
+    list_bbox_attr = []
+    for _, row in df.iterrows():
+        row_dict_data = ast.literal_eval(row[via_column_name])
+        list_bbox_attr.append(
+            tuple(cast_fn(row_dict_data[reg]) for reg in list_keys)
+        )
+
+    bbox_attr_array = np.array(list_bbox_attr)
+
+    return bbox_attr_array.squeeze()
+
+
+def _extract_confidence_from_via_tracks_df(df: pd.DataFrame) -> np.ndarray:
+    """Extract confidence scores from the VIA tracks input dataframe."""
+    region_attributes_dicts = [
+        ast.literal_eval(d) for d in df.region_attributes
+    ]
+
+    # Check if confidence is defined as a region attribute, else set to NaN
+    if all(["confidence" in d for d in region_attributes_dicts]):
+        bbox_confidence = _via_attribute_column_to_numpy(
+            df, "region_attributes", ["confidence"], float
+        )
+    else:
+        bbox_confidence = np.full((df.shape[0], 1), np.nan).squeeze()
+
+    return bbox_confidence
+
+
+def _extract_frame_number_from_via_tracks_df(
+    df: pd.DataFrame, frame_regexp: str = DEFAULT_FRAME_REGEXP
+) -> np.ndarray:
+    """Extract frame numbers from the VIA tracks input dataframe."""
+    # Extract frame number from file_attributes if exists
+    file_attributes_dicts = [ast.literal_eval(d) for d in df.file_attributes]
+    if all(["frame" in d for d in file_attributes_dicts]):
+        frame_array = _via_attribute_column_to_numpy(
+            df,
+            via_column_name="file_attributes",
+            list_keys=["frame"],
+            cast_fn=int,
+        )
+    # Else extract from filename
+    else:
+        list_frame_numbers = [
+            int(re.search(frame_regexp, f).group(1))  # type: ignore
+            if re.search(frame_regexp, f)
+            else np.nan
+            for f in df["filename"]
+        ]
+
+        frame_array = np.array(list_frame_numbers)
+
+    return frame_array
