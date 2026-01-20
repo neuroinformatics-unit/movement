@@ -1,10 +1,41 @@
 from contextlib import nullcontext as does_not_raise
+from typing import ClassVar
 
 import pytest
 import xarray as xr
+from attrs import define, field
 from pytest import DATA_PATHS
+from requests_cache import Path
 
 from movement.io import load
+
+
+@define
+class StubValidFile:
+    """A stub file validator for testing purposes."""
+
+    suffixes: ClassVar[set[str]] = {".txt"}
+    file: Path = field(converter=Path)
+
+
+@pytest.mark.parametrize(
+    "file_validators, expected_file_type",
+    [(None, str), (StubValidFile, StubValidFile)],
+)
+def test_register_loader_decorator(file_validators, expected_file_type):
+    """Test the register_loader decorator with and without file validators."""
+
+    @load.register_loader("StubSoftware", file_validators=file_validators)
+    def stub_loader_fn(file: str) -> xr.Dataset:
+        """Stub loader function for testing."""
+        ds = xr.Dataset()
+        ds.attrs["file"] = file
+        return ds
+
+    ds = stub_loader_fn("dummy_file.txt")
+    assert "StubSoftware" in load._LOADER_REGISTRY
+    assert load._LOADER_REGISTRY["StubSoftware"] is stub_loader_fn
+    assert isinstance(ds.attrs["file"], expected_file_type)
 
 
 @pytest.mark.parametrize(

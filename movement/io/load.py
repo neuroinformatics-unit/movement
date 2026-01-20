@@ -142,6 +142,8 @@ def register_loader(
     ) -> Callable[Concatenate[TInputFile, P], xr.Dataset]:
         @wraps(loader_fn)
         def wrapper(file: TInputFile, *args, **kwargs) -> xr.Dataset:
+            if len(validators_list) == 0:
+                return loader_fn(file, *args, **kwargs)
             if isinstance(file, pynwb.file.NWBFile):
                 file_suffix = ".nwb"
             else:
