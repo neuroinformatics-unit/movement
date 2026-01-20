@@ -156,8 +156,9 @@ def _validate_poses_dataset(ds: xr.Dataset, padding_px: float) -> None:
     if len(ds.coords["space"]) != 2:
         raise ValueError(
             "Input dataset must contain 2D poses only. "
-            "Bounding boxes are inherently 2D and cannot be computed from 3D poses. "
-            f"Found space dimension with coordinates: {list(ds.coords['space'].values)}"
+            "Bounding boxes are inherently 2D and cannot be computed "
+            "from 3D poses. Found space dimension with coordinates: "
+            f"{list(ds.coords['space'].values)}"
         )
 
     # Validate padding parameter
@@ -363,8 +364,8 @@ def poses_to_bboxes(
     Returns
     -------
     xarray.Dataset
-        A ``movement`` bboxes dataset with dimensions (time, space, individuals).
-        The dataset contains:
+        A ``movement`` bboxes dataset with dimensions
+        (time, space, individuals). The dataset contains:
 
         - ``position``: (n_frames, 2, n_individuals) array representing
           the centroid (x, y) of each bounding box.
@@ -376,7 +377,8 @@ def poses_to_bboxes(
     Raises
     ------
     ValueError
-        If the input dataset does not have the required 'position' data variable.
+        If the input dataset does not have the required 'position'
+        data variable.
     ValueError
         If the input dataset contains 3D poses (space dimension size = 3).
         Only 2D poses are supported as bounding boxes are inherently 2D.
@@ -385,9 +387,10 @@ def poses_to_bboxes(
 
     Notes
     -----
-    - Keypoints with NaN coordinates are excluded from bounding box calculation.
-      If all keypoints for an individual at a given time are NaN, the resulting
-      bounding box position, shape, and confidence will all be NaN.
+    - Keypoints with NaN coordinates are excluded from bounding box
+      calculation. If all keypoints for an individual at a given time are
+      NaN, the resulting bounding box position, shape, and confidence
+      will all be NaN.
     - The confidence value for each bounding box is computed as the mean of
       the confidence values of all valid (non-NaN) keypoints for that
       individual at that time point.
@@ -398,8 +401,9 @@ def poses_to_bboxes(
       ``height = max_y - min_y + 2*padding_px``.
     - When there is only one valid keypoint, the bounding box will have
       zero width and/or height (before padding is applied).
-    - The function preserves dataset attributes (time_unit, fps, source_software)
-      from the input poses dataset, but updates the ``ds_type`` to "bboxes".
+    - The function preserves dataset attributes (time_unit, fps,
+      source_software) from the input poses dataset, but updates the
+      ``ds_type`` to "bboxes".
     - This function makes changes to the resulting dataset's attributes
       (:attr:`xarray.Dataset.attrs`):
 
@@ -427,7 +431,8 @@ def poses_to_bboxes(
 
     See Also
     --------
-    movement.filtering.filter_by_confidence : Filter data by confidence threshold
+    movement.filtering.filter_by_confidence : Filter data by confidence
+        threshold
     movement.transforms.scale : Scale spatial coordinates
 
     """
