@@ -11,6 +11,7 @@ import pytest
 
 from movement.io import load_bboxes
 from movement.validators.datasets import ValidBboxesInputs
+from movement.validators.files import ValidVIATracksCSV
 
 
 @pytest.fixture()
@@ -385,6 +386,77 @@ def test_from_numpy(
     assert_time_coordinates(ds, fps, start_frame)
 
 
+def test_parsed_df_from_file(tmp_path):
+    """Test the parsed dataframe is as expected."""
+    # Create minimal VIA tracks CSV with one row
+    header = (
+        "filename,file_size,file_attributes,region_count,"
+        "region_id,region_shape_attributes,region_attributes\n"
+    )
+    row = (
+        "frame_001.png,"
+        "12345,"
+        '"{""frame"":42}",'
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":10,""y"":20,""width"":30,""height"":40}",'
+        '"{""track"":""1"",""confidence"":0.9}"'
+    )
+    file_path = tmp_path / "test_via.csv"
+    file_path.write_text(header + row)
+
+    # Ensure it is a valid VIA tracks .csv file
+    via_file = ValidVIATracksCSV(file_path)
+
+    # Compute parsed dataframe
+    df = load_bboxes._parsed_df_from_file(via_file.path)
+
+    # Check column names
+    assert df.columns.tolist() == [
+        "ID",
+        "frame_number",
+        "x",
+        "y",
+        "w",
+        "h",
+        "confidence",
+    ]
+
+    # Check column types
+    assert df["ID"].dtype == int
+    assert df["frame_number"].dtype == int
+    assert all(
+        df[col].dtype == np.float32
+        for col in [
+            "x",
+            "y",
+            "w",
+            "h",
+            "confidence",
+        ]
+    )
+
+    # Check string columns are removed
+    assert all(
+        x not in df.columns.tolist()
+        for x in [
+            "region_shape_attributes",
+            "region_attributes",
+            "file_attributes",
+        ]
+    )
+
+    # Check values match strings above
+    assert len(df) == 1
+    assert df["ID"].iloc[0] == 1
+    assert df["frame_number"].iloc[0] == 42
+    assert df["x"].iloc[0] == 10.0
+    assert df["y"].iloc[0] == 20.0
+    assert df["w"].iloc[0] == 30.0
+    assert df["h"].iloc[0] == 40.0
+    assert df["confidence"].iloc[0] == pytest.approx(0.9)
+
+
 @pytest.mark.parametrize(
     "region_attributes, expected_confidence",
     [
@@ -418,8 +490,11 @@ def test_parsed_df_from_file_confidence(
     file_path = tmp_path / "test_via_one_row.csv"
     file_path.write_text(header + row)
 
+    # Ensure it is a valid VIA tracks .csv file
+    via_file = ValidVIATracksCSV(file_path)
+
     # Compute parsed dataframe
-    df = load_bboxes._parsed_df_from_file(file_path)
+    df = load_bboxes._parsed_df_from_file(via_file.path)
 
     # Check confidence value in df are as expected
     if np.isnan(expected_confidence):
@@ -433,7 +508,6 @@ def test_parsed_df_from_file_confidence(
     [
         ("any_filename.png", '"{""frame"": 42}"', 42),
         ("frame_0275.png", '"{""foo"": 123}"', 275),
-        ("f0275.png", '"{""foo"": 123}"', 275),
         ("0275.png", '"{""foo"": 123}"', 275),
     ],
 )
@@ -462,11 +536,61 @@ def test_parsed_df_from_file_frame_number(
     file_path = tmp_path / "test_via_one_row.csv"
     file_path.write_text(header + row)
 
+    # Ensure it is a valid VIA tracks .csv file
+    via_file = ValidVIATracksCSV(file_path)
+
     # Compute parsed dataframe
-    df = load_bboxes._parsed_df_from_file(file_path)
+    df = load_bboxes._parsed_df_from_file(via_file.path)
 
     # Check frame number is as expected
     assert all(df["frame_number"] == expected_frame_number)
+
+
+@pytest.mark.parametrize(
+    "input_df, expected_df",
+    [
+        # Case 1: all IDs are defined for all frames
+        # expected_df is just sorted (no nan rows added)
+        (
+            pd.DataFrame(
+                {
+                    "ID": [1, 2, 1, 2],
+                    "frame_number": [1, 1, 0, 0],
+                    "foo": [10, 20, 30, 40],
+                }
+            ),  # input
+            pd.DataFrame(
+                {
+                    "ID": [1, 1, 2, 2],
+                    "frame_number": [0, 1, 0, 1],
+                    "foo": [30, 10, 40, 20],
+                }
+            ),  # expected
+        ),
+        # Case 2: ID=2 is not defined for frame 1
+        # expected_df has nan rows added and sorted
+        (
+            pd.DataFrame(
+                {
+                    "ID": [1, 1, 2],
+                    "frame_number": [0, 1, 0],
+                    "foo": [10.0, 20.0, 30.0],
+                }
+            ),
+            pd.DataFrame(
+                {
+                    "ID": [1, 1, 2, 2],
+                    "frame_number": [0, 1, 0, 1],
+                    "foo": [10.0, 20.0, 30.0, np.nan],
+                }
+            ),
+        ),
+    ],
+)
+def test_fill_in_missing_rows(input_df, expected_df):
+    """Test sorting and gap-filling of ID/frame combinations."""
+    df = load_bboxes._fill_in_missing_rows(input_df)
+    pd.testing.assert_frame_equal(df, expected_df)
 
 
 @pytest.mark.filterwarnings(
