@@ -1,6 +1,8 @@
 """Load bounding boxes tracking data into ``movement``."""
 
 import ast
+import re
+from collections.abc import Callable
 from pathlib import Path
 from typing import Literal
 
@@ -623,66 +625,184 @@ def _fill_in_missing_rows(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _pre_parse_df_columns(
-    df: pd.DataFrame, frame_regexp: str = DEFAULT_FRAME_REGEXP
+###############################
+def _df_from_via_tracks_file_old(
+    file_path: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
 ) -> pd.DataFrame:
-    """Pre-parse dataframe columns to improve performance.
+    # Read VIA tracks .csv file as a pandas dataframe
+    df_file = pd.read_csv(file_path, sep=",", header=0)
 
-    Note that this runs after validation with ValidVIATracksCSV
+    # Format to a 2D dataframe
+    df = pd.DataFrame(
+        {
+            "ID": _via_attribute_column_to_numpy(
+                df_file, "region_attributes", ["track"], int
+            ),
+            "frame_number": _extract_frame_number_from_via_tracks_df(
+                df_file, frame_regexp
+            ),
+            "x": _via_attribute_column_to_numpy(
+                df_file, "region_shape_attributes", ["x"], float
+            ),
+            "y": _via_attribute_column_to_numpy(
+                df_file, "region_shape_attributes", ["y"], float
+            ),
+            "w": _via_attribute_column_to_numpy(
+                df_file, "region_shape_attributes", ["width"], float
+            ),
+            "h": _via_attribute_column_to_numpy(
+                df_file, "region_shape_attributes", ["height"], float
+            ),
+            "confidence": _extract_confidence_from_via_tracks_df(df_file),
+        }
+    )
+
+    # Define desired index: all combinations of ID and frame number
+    multi_index = pd.MultiIndex.from_product(
+        [df["ID"].unique().tolist(), df["frame_number"].unique().tolist()],
+        # these unique lists may not be sorted!
+        names=["ID", "frame_number"],
+    )
+
+    # Set index to (ID, frame number), fill in values with nans,
+    # sort by ID and frame_number and reset to new index
+    df = (
+        df.set_index(["ID", "frame_number"])
+        .reindex(multi_index)  # fill in empty frame-ID pairs with nans
+        .sort_values(by=["ID", "frame_number"], axis=0)  # sort by ID and frame
+        .reset_index()
+    )
+    return df
+
+
+def _extract_confidence_from_via_tracks_df(df: pd.DataFrame) -> np.ndarray:
+    """Extract confidence scores from the VIA tracks input dataframe.
 
     Parameters
     ----------
     df : pd.DataFrame
-        The dataframe to pre-parse.
-    frame_regexp : str, optional
-        The regular expression to extract the frame number from the filename.
+        The VIA tracks input dataframe is the one obtained from
+        ``df = pd.read_csv(file_path, sep=",", header=0)``.
+
+    Returns
+    -------
+    np.ndarray
+        A numpy array of size (n_bboxes, ) containing the bounding boxes
+        confidence scores.
 
     """
-    # Parse region_shape_attributes: x, y, width, height (all required)
-    if "region_shape_attributes" in df.columns:
-        key = "region_shape_attributes"
-        df_dicts = df[key].apply(ast.literal_eval)
+    region_attributes_dicts = [
+        ast.literal_eval(d) for d in df.region_attributes
+    ]
 
-        # Get region shape data
-        df[f"{key}_x"] = df_dicts.apply(lambda d: d.get("x"))
-        df[f"{key}_y"] = df_dicts.apply(lambda d: d.get("y"))
-        df[f"{key}_width"] = df_dicts.apply(lambda d: d.get("width"))
-        df[f"{key}_height"] = df_dicts.apply(lambda d: d.get("height"))
-
-        # Remove column
-        df = df.drop(columns=[key])
-
-    # Parse region_attributes: track (required), confidence (optional)
-    if "region_attributes" in df.columns:
-        key = "region_attributes"
-        df_dicts = df[key].apply(ast.literal_eval)
-
-        # Get region attribute data
-        df[f"{key}_track"] = df_dicts.apply(lambda d: d.get("track"))
-        df[f"{key}_confidence"] = df_dicts.apply(
-            lambda d: d.get(
-                "confidence",
-                np.nan,
-            )
+    # Check if confidence is defined as a region attribute, else set to NaN
+    if all(["confidence" in d for d in region_attributes_dicts]):
+        bbox_confidence = _via_attribute_column_to_numpy(
+            df, "region_attributes", ["confidence"], float
         )
-        # Remove column
-        df = df.drop(columns=[key])
+    else:
+        bbox_confidence = np.full((df.shape[0], 1), np.nan).squeeze()
 
-    # Parse file_attributes: frame is in either file_attributes or in filename
-    if "file_attributes" in df.columns:
-        key = "file_attributes"
-        df_dicts = df[key].apply(ast.literal_eval)
+    return bbox_confidence
 
-        # Check if frame is in `file_attributes` for all files,
-        # otherwise extract from filename
-        if all(["frame" in d for d in df_dicts]):
-            df["frame"] = df_dicts.apply(lambda d: d.get("frame"))
-        else:
-            df["frame"] = df["filename"].str.extract(
-                frame_regexp, expand=False
-            )
 
-        # Remove column
-        df = df.drop(columns=["file_attributes"])
+def _extract_frame_number_from_via_tracks_df(
+    df: pd.DataFrame, frame_regexp: str = DEFAULT_FRAME_REGEXP
+) -> np.ndarray:
+    """Extract frame numbers from the VIA tracks input dataframe.
 
-    return df
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The VIA tracks input dataframe is the one obtained from
+        ``df = pd.read_csv(file_path, sep=",", header=0)``.
+
+    frame_regexp : str
+        Regular expression pattern to extract the frame number from the frame
+        filename. By default, the frame number is expected to be encoded in
+        the filename as an integer number led by at least one zero, followed by
+        the file extension.
+
+    Returns
+    -------
+    np.ndarray
+        A numpy array of size (n_frames, ) containing the frame numbers.
+        In the VIA tracks .csv file, the frame number is expected to be
+        defined as a 'file_attribute' , or encoded in the filename as an
+        integer number led by at least one zero, followed by the file
+        extension.
+
+    """
+    # Extract frame number from file_attributes if exists
+    file_attributes_dicts = [ast.literal_eval(d) for d in df.file_attributes]
+    if all(["frame" in d for d in file_attributes_dicts]):
+        frame_array = _via_attribute_column_to_numpy(
+            df,
+            via_column_name="file_attributes",
+            list_keys=["frame"],
+            cast_fn=int,
+        )
+    # Else extract from filename
+    else:
+        list_frame_numbers = [
+            int(re.search(frame_regexp, f).group(1))  # type: ignore
+            if re.search(frame_regexp, f)
+            else np.nan
+            for f in df["filename"]
+        ]
+
+        frame_array = np.array(list_frame_numbers)
+
+    return frame_array
+
+
+def _via_attribute_column_to_numpy(
+    df: pd.DataFrame,
+    via_column_name: str,
+    list_keys: list[str],
+    cast_fn: Callable = float,
+) -> np.ndarray:
+    """Convert values from VIA attribute-type column to a numpy array.
+
+    In the VIA tracks .csv file, the attribute-type columns are the columns
+    whose name includes the word ``attributes`` (i.e. ``file_attributes``,
+    ``region_shape_attributes`` or ``region_attributes``). These columns hold
+    dictionary data.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The pandas DataFrame containing the data from the VIA tracks .csv file.
+        This is the dataframe obtained from running
+        ``df = pd.read_csv(file_path, sep=",", header=0)``.
+    via_column_name : str
+        The name of a column in the VIA tracks .csv file whose values are
+        literal dictionaries (i.e. ``file_attributes``,
+        ``region_shape_attributes`` or ``region_attributes``).
+    list_keys : list[str]
+        The list of keys whose values we want to extract from the literal
+        dictionaries in the ``via_column_name`` column.
+    cast_fn : type, optional
+        The type function to cast the values to. By default ``float``.
+
+    Returns
+    -------
+    np.ndarray
+        A numpy array holding the extracted values. If ``len(list_keys) > 1``
+        the array is two-dimensional with shape ``(N, len(list_keys))``, where
+        ``N`` is the number of rows in the input dataframe ``df``. If
+        ``len(list_keys) == 1``, the resulting array will be one-dimensional,
+        with shape (N, ). Note that the computed array is squeezed before
+        returning.
+
+    """
+    list_bbox_attr = []
+    for _, row in df.iterrows():
+        row_dict_data = ast.literal_eval(row[via_column_name])
+        list_bbox_attr.append(
+            tuple(cast_fn(row_dict_data[reg]) for reg in list_keys)
+        )
+
+    bbox_attr_array = np.array(list_bbox_attr)
+
+    return bbox_attr_array.squeeze()
