@@ -175,6 +175,13 @@ def test_foo(
     # Load with old method
     df_old = _df_from_via_tracks_file_old(output_path)  # frame_regexp)
 
+    # Change df_old dtype to match new approach
+    df_old["ID"] = df_old["ID"].astype(int)
+    df_old["frame_number"] = df_old["frame_number"].astype(int)
+    df_old[["x", "y", "w", "h", "confidence"]] = df_old[
+        ["x", "y", "w", "h", "confidence"]
+    ].astype(np.float32)
+
     # Load with new method
     df_new = _df_from_via_tracks_file(output_path)
 

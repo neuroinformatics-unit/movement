@@ -56,7 +56,7 @@ def valid_bboxes_arrays():
         position[:, 1, i] = (-1) ** i * np.arange(n_frames)
 
     # build a valid array for constant bbox shape (60, 40)
-    constant_shape = float(60), float(40)  # width, height in pixels
+    constant_shape = np.array([60.0, 40.0])  # width, height
     shape = np.tile(constant_shape, (n_frames, n_individuals, 1)).transpose(
         0, 2, 1
     )
@@ -72,9 +72,9 @@ def valid_bboxes_arrays():
     confidence[idx_start : idx_start + 2, 1] = 0.1
 
     return {
-        "position": position,
-        "shape": shape,
-        "confidence": confidence,
+        "position": position.astype(np.float32),
+        "shape": shape.astype(np.float32),
+        "confidence": confidence.astype(np.float32),
     }
 
 
