@@ -202,11 +202,12 @@ To compare performance between branches (e.g., `main` and a PR branch), use [pyt
     pytest -m benchmark --benchmark-save=pr
     ```
 
-3. Compare the saved results:
+3. Show the results from both runs together:
 
     ```sh
-    pytest-benchmark compare main pr
+    pytest-benchmark compare <path-to-main-results> <path-to-pr-results> --group-by=name
     ```
+  Instead of providing the paths to the results, you can also provide the identifiers of the runs (e.g. `0001_main` and `0002_pr`), or use glob patterns to match the results (e.g. `*main*` and `*pr*`). You can sort the results by the name of the run using the `--sort='name'`, or group them with the `--group-by=<label>` option (e.g. `group-by=name` to group by the name of the run, `group-by=func` to group by the name of the test function, or `group-by=param` to group by the parameters used to test the function). For further options, check the [comparison CLI documentation](https://pytest-benchmark.readthedocs.io/en/latest/usage.html#comparison-cli).
 
 Check the [pytest-benchmark documentation](https://pytest-benchmark.readthedocs.io/en/stable/) for more information on the available options. Some useful options are:
 
