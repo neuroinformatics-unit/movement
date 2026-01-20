@@ -450,10 +450,10 @@ def test_parsed_df_from_file(tmp_path):
     assert len(df) == 1
     assert df["ID"].iloc[0] == 1
     assert df["frame_number"].iloc[0] == 42
-    assert df["x"].iloc[0] == 10.0
-    assert df["y"].iloc[0] == 20.0
-    assert df["w"].iloc[0] == 30.0
-    assert df["h"].iloc[0] == 40.0
+    assert df["x"].iloc[0] == pytest.approx(10.0)
+    assert df["y"].iloc[0] == pytest.approx(20.0)
+    assert df["w"].iloc[0] == pytest.approx(30.0)
+    assert df["h"].iloc[0] == pytest.approx(40.0)
     assert df["confidence"].iloc[0] == pytest.approx(0.9)
 
 
