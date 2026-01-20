@@ -3,7 +3,15 @@
 from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
-from typing import Concatenate, Literal, ParamSpec, Protocol, TypeVar, cast
+from typing import (
+    Concatenate,
+    Literal,
+    ParamSpec,
+    Protocol,
+    TypeAlias,
+    TypeVar,
+    cast,
+)
 
 import attrs
 import pynwb
@@ -14,6 +22,14 @@ from movement.validators.files import ValidFile
 
 TInputFile = TypeVar("TInputFile", Path, str, pynwb.file.NWBFile)
 P = ParamSpec("P")
+SourceSoftware: TypeAlias = Literal[
+    "DeepLabCut",
+    "SLEAP",
+    "LightningPose",
+    "Anipose",
+    "NWB",
+    "VIA-tracks",
+]
 
 
 class LoaderProtocol(Protocol):
@@ -147,14 +163,7 @@ def register_loader(
 
 def from_file(
     file: Path | str | pynwb.file.NWBFile,
-    source_software: Literal[
-        "DeepLabCut",
-        "SLEAP",
-        "LightningPose",
-        "Anipose",
-        "NWB",
-        "VIA-tracks",
-    ],
+    source_software: SourceSoftware,
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
@@ -224,9 +233,7 @@ def from_file(
 
 def from_multiview_files(
     file_dict: dict[str, Path | str],
-    source_software: Literal[
-        "DeepLabCut", "SLEAP", "LightningPose", "Anipose", "NWB", "VIA-tracks"
-    ],
+    source_software: SourceSoftware,
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
