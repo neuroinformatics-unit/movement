@@ -137,6 +137,59 @@ class TestSingleROISerialization:
         loaded_roi = PolygonOfInterest.from_file(file_path)
         assert loaded_roi.region.equals(unit_square.region)
 
+    @pytest.mark.parametrize(
+        ["roi_class", "raw_geometry"],
+        [
+            pytest.param(
+                LineOfInterest,
+                '{"type": "LineString", "coordinates": [[0, 0], [1, 1]]}',
+                id="LineString",
+            ),
+            pytest.param(
+                PolygonOfInterest,
+                '{"type": "Polygon", '
+                '"coordinates": [[[0,0],[1,0],[1,1],[0,0]]]}',
+                id="Polygon",
+            ),
+        ],
+    )
+    def test_from_file_raw_geometry(self, roi_class, raw_geometry, tmp_path):
+        """Test from_file can load raw geometry (not wrapped in Feature)."""
+        file_path = tmp_path / "raw.geojson"
+        file_path.write_text(raw_geometry)
+
+        roi = roi_class.from_file(file_path)
+        assert roi is not None
+        assert roi.name == "Un-named region"
+
+    @pytest.mark.parametrize(
+        ["roi_class", "raw_geometry", "expected_error"],
+        [
+            pytest.param(
+                LineOfInterest,
+                '{"type": "Polygon", '
+                '"coordinates": [[[0,0],[1,0],[1,1],[0,0]]]}',
+                "Expected LineString or LinearRing",
+                id="Line from Polygon",
+            ),
+            pytest.param(
+                PolygonOfInterest,
+                '{"type": "LineString", "coordinates": [[0, 0], [1, 1]]}',
+                "Expected Polygon geometry",
+                id="Polygon from LineString",
+            ),
+        ],
+    )
+    def test_from_file_wrong_geometry_type(
+        self, roi_class, raw_geometry, expected_error, tmp_path
+    ):
+        """Test that from_file raises error for wrong geometry type."""
+        file_path = tmp_path / "wrong_type.geojson"
+        file_path.write_text(raw_geometry)
+
+        with pytest.raises(TypeError, match=expected_error):
+            roi_class.from_file(file_path)
+
 
 class TestROISequenceSerialization:
     """Tests for saving and loading collections of ROIs."""
@@ -255,3 +308,62 @@ class TestROISequenceSerialization:
         assert isinstance(loaded_rois[2], LineOfInterest)
         assert isinstance(loaded_rois[3], LineOfInterest)
         assert loaded_rois[3].is_closed
+
+    def test_load_rois_invalid_type(self, tmp_path):
+        """Test that load_rois raises error for non-FeatureCollection."""
+        from movement.roi import load_rois
+
+        file_path = tmp_path / "invalid.geojson"
+        file_path.write_text('{"type": "Feature", "geometry": null}')
+
+        with pytest.raises(ValueError, match="Expected FeatureCollection"):
+            load_rois(file_path)
+
+    def test_load_rois_unsupported_geometry(self, tmp_path):
+        """Test that load_rois raises error for unsupported geometry types."""
+        from movement.roi import load_rois
+
+        file_path = tmp_path / "point.geojson"
+        file_path.write_text(
+            '{"type": "FeatureCollection", "features": ['
+            '{"type": "Feature", "geometry": {"type": "Point", '
+            '"coordinates": [0, 0]}, "properties": {}}'
+            "]}"
+        )
+
+        with pytest.raises(ValueError, match="Unsupported geometry type"):
+            load_rois(file_path)
+
+    @pytest.mark.parametrize(
+        ["geometry_json", "roi_type", "expected_error"],
+        [
+            pytest.param(
+                '{"type": "Point", "coordinates": [0, 0]}',
+                "PolygonOfInterest",
+                "Expected Polygon geometry",
+                id="PolygonOfInterest with Point",
+            ),
+            pytest.param(
+                '{"type": "Point", "coordinates": [0, 0]}',
+                "LineOfInterest",
+                "Expected LineString or LinearRing",
+                id="LineOfInterest with Point",
+            ),
+        ],
+    )
+    def test_load_rois_mismatched_roi_type(
+        self, geometry_json, roi_type, expected_error, tmp_path
+    ):
+        """Test error when roi_type doesn't match geometry."""
+        from movement.roi import load_rois
+
+        file_path = tmp_path / "mismatch.geojson"
+        file_path.write_text(
+            f'{{"type": "FeatureCollection", "features": ['
+            f'{{"type": "Feature", "geometry": {geometry_json}, '
+            f'"properties": {{"roi_type": "{roi_type}"}}}}'
+            f"]}}"
+        )
+
+        with pytest.raises(TypeError, match=expected_error):
+            load_rois(file_path)
