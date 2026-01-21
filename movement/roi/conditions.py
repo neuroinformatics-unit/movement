@@ -1,17 +1,16 @@
 """Functions for computing condition arrays involving RoIs."""
 
 from collections import defaultdict
-from collections.abc import Sequence
 
 import numpy as np
 import xarray as xr
 
-from movement.roi.base import BaseRegionOfInterest
+from movement.roi.base import ROISequence
 
 
 def compute_region_occupancy(
     data,
-    regions: Sequence[BaseRegionOfInterest],
+    regions: ROISequence,
 ) -> xr.DataArray:
     """Return a condition array indicating if points were inside regions.
 
