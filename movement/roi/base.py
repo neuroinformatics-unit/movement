@@ -29,7 +29,6 @@ LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
 RegionLike: TypeAlias = shapely.Polygon
 SupportedGeometry: TypeAlias = LineLike | RegionLike
 TGeometry_co = TypeVar("TGeometry_co", bound=SupportedGeometry, covariant=True)
-ROISequence: TypeAlias = "Sequence[BaseRegionOfInterest]"
 
 
 class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
@@ -593,3 +592,7 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         }
         with open(path, "w") as f:
             json.dump(feature, f, indent=2)
+
+
+# Type alias for sequences of ROIs (defined after class to avoid forward ref)
+ROISequence: TypeAlias = Sequence[BaseRegionOfInterest]
