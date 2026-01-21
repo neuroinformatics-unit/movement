@@ -138,7 +138,7 @@ class TestSingleROISerialization:
         assert loaded_roi.region.equals(unit_square.region)
 
 
-class TestROICollectionSerialization:
+class TestROISequenceSerialization:
     """Tests for saving and loading collections of ROIs."""
 
     def test_save_rois_creates_feature_collection(
