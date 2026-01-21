@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Hashable, Sequence
 from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar, cast
@@ -15,6 +16,8 @@ from movement.utils.broadcasting import broadcastable_method
 from movement.utils.vector import compute_signed_angle_2d
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     import xarray as xr
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure, SubFigure
@@ -560,3 +563,32 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         if fig is None or ax is None:
             fig, ax = plt.subplots(1, 1)
         return self._plot(fig, ax, **matplotlib_kwargs)
+
+    def to_file(self, path: str | Path) -> None:
+        """Save the region of interest to a GeoJSON file.
+
+        The ROI is saved as a GeoJSON Feature containing the geometry and
+        properties (name and ROI type).
+
+        Parameters
+        ----------
+        path : str or pathlib.Path
+            Path to the output file. Should have a ``.geojson`` extension.
+
+        See Also
+        --------
+        LineOfInterest.from_file : Load a LineOfInterest from a GeoJSON file.
+        PolygonOfInterest.from_file : Load a PolygonOfInterest from file.
+
+        """
+        geometry = json.loads(shapely.to_geojson(self.region))
+        feature = {
+            "type": "Feature",
+            "geometry": geometry,
+            "properties": {
+                "name": self.name,
+                "roi_type": self.__class__.__name__,
+            },
+        }
+        with open(path, "w") as f:
+            json.dump(feature, f, indent=2)

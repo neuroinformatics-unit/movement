@@ -1,15 +1,24 @@
 """1-dimensional lines of interest."""
 
+from __future__ import annotations
+
+import json
+from typing import TYPE_CHECKING
+
 import numpy as np
 import shapely
-import xarray as xr
-from matplotlib.axes import Axes
-from matplotlib.figure import Figure, SubFigure
-from numpy.typing import ArrayLike
 
 from movement.roi.base import BaseRegionOfInterest, LineLike, PointLikeList
 from movement.utils.broadcasting import broadcastable_method
 from movement.utils.logging import logger
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    import xarray as xr
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure, SubFigure
+    from numpy.typing import ArrayLike
 
 
 class LineOfInterest(BaseRegionOfInterest[LineLike]):
@@ -83,6 +92,48 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
         )
         line = shapely.normalize(line)
         super().__init__(line, name=name)
+
+    @classmethod
+    def from_file(cls, path: str | Path) -> LineOfInterest:
+        """Load a LineOfInterest from a GeoJSON file.
+
+        Parameters
+        ----------
+        path : str or pathlib.Path
+            Path to the GeoJSON file to load.
+
+        Returns
+        -------
+        LineOfInterest
+            The loaded line of interest.
+
+        See Also
+        --------
+        BaseRegionOfInterest.to_file : Save a region of interest to a file.
+
+        """
+        with open(path) as f:
+            data = json.load(f)
+
+        if data["type"] == "Feature":
+            geometry_data = data["geometry"]
+            properties = data.get("properties", {})
+        else:
+            geometry_data = data
+            properties = {}
+
+        geometry = shapely.from_geojson(json.dumps(geometry_data))
+        if not isinstance(geometry, (shapely.LineString, shapely.LinearRing)):
+            raise logger.error(
+                TypeError(
+                    f"Expected LineString or LinearRing geometry, "
+                    f"got {type(geometry).__name__}"
+                )
+            )
+        name = properties.get("name")
+        loop = isinstance(geometry, shapely.LinearRing)
+
+        return cls(geometry.coords, loop=loop, name=name)
 
     def _plot(
         self, fig: Figure | SubFigure, ax: Axes, **matplotlib_kwargs
