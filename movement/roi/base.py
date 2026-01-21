@@ -29,6 +29,7 @@ LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
 RegionLike: TypeAlias = shapely.Polygon
 SupportedGeometry: TypeAlias = LineLike | RegionLike
 TGeometry_co = TypeVar("TGeometry_co", bound=SupportedGeometry, covariant=True)
+ROISequence: TypeAlias = "Sequence[BaseRegionOfInterest]"
 
 
 class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
