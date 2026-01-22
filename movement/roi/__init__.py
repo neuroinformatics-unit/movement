@@ -1,6 +1,6 @@
 """Utilities for representing and analysing regions of interest."""
 
-from movement.roi.base import BaseRegionOfInterest, ROISequence
+from movement.roi.base import BaseRegionOfInterest, ROICollection
 from movement.roi.conditions import compute_region_occupancy
 from movement.roi.io import load_rois, save_rois
 from movement.roi.line import LineOfInterest
@@ -10,7 +10,7 @@ __all__ = [
     "BaseRegionOfInterest",
     "LineOfInterest",
     "PolygonOfInterest",
-    "ROISequence",
+    "ROICollection",
     "compute_region_occupancy",
     "load_rois",
     "save_rois",

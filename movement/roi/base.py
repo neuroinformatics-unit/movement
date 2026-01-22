@@ -594,5 +594,5 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
             json.dump(feature, f, indent=2)
 
 
-# Type alias for sequences of ROIs (defined after class to avoid forward ref)
-ROISequence: TypeAlias = Sequence[BaseRegionOfInterest]
+# Type alias for collections of ROIs (defined after class to avoid forward ref)
+ROICollection: TypeAlias = Sequence[BaseRegionOfInterest]
