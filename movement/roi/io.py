@@ -3,17 +3,16 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import shapely
 
 from movement.roi.line import LineOfInterest
 from movement.roi.polygon import PolygonOfInterest
-from movement.utils.logging import logger
+from movement.validators.files import ValidROICollectionGeoJSON
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from movement.roi.base import ROISequence
 
 
@@ -105,13 +104,9 @@ def load_rois(path: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
     ['square', 'diagonal']
 
     """
-    with open(path) as f:
+    validated_file = ValidROICollectionGeoJSON(Path(path))
+    with open(validated_file.path) as f:
         data = json.load(f)
-
-    if data["type"] != "FeatureCollection":
-        raise logger.error(
-            ValueError(f"Expected FeatureCollection, got {data['type']}")
-        )
 
     return [_feature_to_roi(feature) for feature in data["features"]]
 
@@ -119,57 +114,20 @@ def load_rois(path: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
 def _feature_to_roi(
     feature: dict[str, Any],
 ) -> LineOfInterest | PolygonOfInterest:
-    """Convert a GeoJSON feature to an ROI object."""
+    """Convert a validated GeoJSON feature to an ROI object."""
     geometry_data = feature["geometry"]
-    properties = feature.get("properties", {})
+    properties = feature.get("properties") or {}
 
     geometry = shapely.from_geojson(json.dumps(geometry_data))
     name = properties.get("name")
-    roi_type = properties.get("roi_type")
 
-    if roi_type == "PolygonOfInterest" or isinstance(
-        geometry, shapely.Polygon
-    ):
-        return _polygon_from_geometry(geometry, name)
-    if roi_type == "LineOfInterest" or isinstance(
-        geometry, shapely.LineString | shapely.LinearRing
-    ):
-        return _line_from_geometry(geometry, name)
-
-    raise logger.error(
-        ValueError(f"Unsupported geometry type: {type(geometry).__name__}")
-    )
-
-
-def _polygon_from_geometry(
-    geometry: shapely.Geometry, name: str | None
-) -> PolygonOfInterest:
-    """Create a PolygonOfInterest from a shapely geometry."""
-    if not isinstance(geometry, shapely.Polygon):
-        raise logger.error(
-            TypeError(
-                f"Expected Polygon geometry for PolygonOfInterest, "
-                f"got {type(geometry).__name__}"
-            )
+    if isinstance(geometry, shapely.Polygon):
+        holes = [interior.coords for interior in geometry.interiors]
+        return PolygonOfInterest(
+            geometry.exterior.coords,
+            holes=holes if holes else None,
+            name=name,
         )
-    holes = [interior.coords for interior in geometry.interiors]
-    return PolygonOfInterest(
-        geometry.exterior.coords,
-        holes=holes if holes else None,
-        name=name,
-    )
-
-
-def _line_from_geometry(
-    geometry: shapely.Geometry, name: str | None
-) -> LineOfInterest:
-    """Create a LineOfInterest from a shapely geometry."""
-    if not isinstance(geometry, shapely.LineString | shapely.LinearRing):
-        raise logger.error(
-            TypeError(
-                f"Expected LineString or LinearRing geometry for "
-                f"LineOfInterest, got {type(geometry).__name__}"
-            )
-        )
-    loop = isinstance(geometry, shapely.LinearRing)
-    return LineOfInterest(geometry.coords, loop=loop, name=name)
+    else:  # Must be LineString or LinearRing (validator ensures that)
+        loop = isinstance(geometry, shapely.LinearRing)
+        return LineOfInterest(geometry.coords, loop=loop, name=name)
