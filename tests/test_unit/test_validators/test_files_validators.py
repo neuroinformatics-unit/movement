@@ -9,6 +9,7 @@ from movement.validators.files import (
     ValidFile,
     ValidHDF5,
     ValidNWBFile,
+    ValidROICollectionGeoJSON,
     ValidVIATracksCSV,
     _validate_file_path,
 )
@@ -345,3 +346,140 @@ def test_nwb_file_validator_with_invalid_input(
             else invalid_input
         )
         ValidNWBFile(invalid_input)
+
+
+class TestValidROICollectionGeoJSON:
+    """Tests for ValidROICollectionGeoJSON validator."""
+
+    def test_valid_feature_collection(self, tmp_path):
+        """Test that a valid FeatureCollection passes validation."""
+        file_path = tmp_path / "valid.geojson"
+        file_path.write_text(
+            '{"type": "FeatureCollection", "features": ['
+            '{"type": "Feature", "geometry": {"type": "Polygon", '
+            '"coordinates": [[[0,0],[1,0],[1,1],[0,0]]]}, "properties": {}}'
+            "]}"
+        )
+        validated = ValidROICollectionGeoJSON(file_path)
+        assert validated.path == file_path
+
+    def test_invalid_json(self, tmp_path):
+        """Test that invalid JSON raises ValueError."""
+        file_path = tmp_path / "invalid.geojson"
+        file_path.write_text("not valid json {")
+
+        with pytest.raises(ValueError, match="not valid JSON"):
+            ValidROICollectionGeoJSON(file_path)
+
+    def test_not_feature_collection(self, tmp_path):
+        """Test that non-FeatureCollection raises ValueError."""
+        file_path = tmp_path / "feature.geojson"
+        file_path.write_text('{"type": "Feature", "geometry": null}')
+
+        with pytest.raises(
+            ValueError, match="Expected GeoJSON FeatureCollection"
+        ):
+            ValidROICollectionGeoJSON(file_path)
+
+    def test_missing_features_key(self, tmp_path):
+        """Test that missing 'features' key raises ValueError."""
+        file_path = tmp_path / "no_features.geojson"
+        file_path.write_text('{"type": "FeatureCollection"}')
+
+        with pytest.raises(ValueError, match="missing 'features' key"):
+            ValidROICollectionGeoJSON(file_path)
+
+    def test_missing_geometry(self, tmp_path):
+        """Test that feature without geometry raises ValueError."""
+        file_path = tmp_path / "no_geometry.geojson"
+        file_path.write_text(
+            '{"type": "FeatureCollection", "features": ['
+            '{"type": "Feature", "properties": {}}'
+            "]}"
+        )
+
+        with pytest.raises(ValueError, match="missing 'geometry' key"):
+            ValidROICollectionGeoJSON(file_path)
+
+    def test_null_geometry(self, tmp_path):
+        """Test that null geometry raises ValueError."""
+        file_path = tmp_path / "null_geometry.geojson"
+        file_path.write_text(
+            '{"type": "FeatureCollection", "features": ['
+            '{"type": "Feature", "geometry": null, "properties": {}}'
+            "]}"
+        )
+
+        with pytest.raises(ValueError, match="has null geometry"):
+            ValidROICollectionGeoJSON(file_path)
+
+    def test_unsupported_geometry_type(self, tmp_path):
+        """Test that unsupported geometry type raises ValueError."""
+        file_path = tmp_path / "point.geojson"
+        file_path.write_text(
+            '{"type": "FeatureCollection", "features": ['
+            '{"type": "Feature", "geometry": {"type": "Point", '
+            '"coordinates": [0, 0]}, "properties": {}}'
+            "]}"
+        )
+
+        with pytest.raises(ValueError, match="unsupported geometry type"):
+            ValidROICollectionGeoJSON(file_path)
+
+    @pytest.mark.parametrize(
+        ["geometry_type", "roi_type"],
+        [
+            pytest.param(
+                "LineString",
+                "PolygonOfInterest",
+                id="LineString with PolygonOfInterest",
+            ),
+            pytest.param(
+                "Polygon",
+                "LineOfInterest",
+                id="Polygon with LineOfInterest",
+            ),
+        ],
+    )
+    def test_roi_type_geometry_mismatch(
+        self, geometry_type, roi_type, tmp_path
+    ):
+        """Test that roi_type/geometry mismatch raises TypeError."""
+        if geometry_type == "Polygon":
+            coords = "[[[0,0],[1,0],[1,1],[0,0]]]"
+        else:
+            coords = "[[0,0],[1,1]]"
+
+        file_path = tmp_path / "mismatch.geojson"
+        file_path.write_text(
+            f'{{"type": "FeatureCollection", "features": ['
+            f'{{"type": "Feature", "geometry": {{"type": "{geometry_type}", '
+            f'"coordinates": {coords}}}, '
+            f'"properties": {{"roi_type": "{roi_type}"}}}}'
+            f"]}}"
+        )
+
+        with pytest.raises(TypeError, match="does not match geometry type"):
+            ValidROICollectionGeoJSON(file_path)
+
+    def test_unknown_roi_type(self, tmp_path):
+        """Test that unknown roi_type raises ValueError."""
+        file_path = tmp_path / "unknown_roi_type.geojson"
+        file_path.write_text(
+            '{"type": "FeatureCollection", "features": ['
+            '{"type": "Feature", "geometry": {"type": "Polygon", '
+            '"coordinates": [[[0,0],[1,0],[1,1],[0,0]]]}, '
+            '"properties": {"roi_type": "UnknownROI"}}'
+            "]}"
+        )
+
+        with pytest.raises(ValueError, match="unknown roi_type"):
+            ValidROICollectionGeoJSON(file_path)
+
+    def test_empty_feature_collection(self, tmp_path):
+        """Test that empty FeatureCollection is valid."""
+        file_path = tmp_path / "empty.geojson"
+        file_path.write_text('{"type": "FeatureCollection", "features": []}')
+
+        validated = ValidROICollectionGeoJSON(file_path)
+        assert validated.path == file_path
