@@ -79,6 +79,21 @@ dev = [
   "types-shapely",
   "movement[napari]",
 ]
+docs = [
+  "movement[napari]",
+  "ablog",
+  "linkify-it-py",
+  "myst-parser",
+  "nbsphinx",
+  "pydata-sphinx-theme",
+  "sphinx<9",
+  "sphinx-autodoc-typehints",
+  "sphinx-design",
+  "sphinx-gallery",
+  "sphinx-notfound-page",
+  "sphinx-sitemap",
+  "setuptools_scm"
+]
 
 [project.scripts]
 movement = "movement.cli_entrypoint:main"
