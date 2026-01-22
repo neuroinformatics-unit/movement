@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import shapely
 
@@ -116,7 +116,9 @@ def load_rois(path: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
     return [_feature_to_roi(feature) for feature in data["features"]]
 
 
-def _feature_to_roi(feature: dict) -> LineOfInterest | PolygonOfInterest:
+def _feature_to_roi(
+    feature: dict[str, Any],
+) -> LineOfInterest | PolygonOfInterest:
     """Convert a GeoJSON feature to an ROI object."""
     geometry_data = feature["geometry"]
     properties = feature.get("properties", {})
