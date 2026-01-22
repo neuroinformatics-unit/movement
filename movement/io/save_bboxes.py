@@ -127,7 +127,9 @@ def to_via_tracks_file(
 
     """
     # Validate file path and dataset
-    path = validate_file_path(file_path, permission="w", suffixes={".csv"})
+    valid_path = validate_file_path(
+        file_path, permission="w", suffixes={".csv"}
+    )
     ValidBboxesInputs.validate(ds)
     # Check the number of digits required to represent the frame numbers
     frame_n_digits = _check_frame_required_digits(
@@ -147,12 +149,12 @@ def to_via_tracks_file(
     # Write file
     _write_via_tracks_csv(
         ds,
-        path,
+        valid_path,
         map_individual_to_track_id,
         img_filename_template,
     )
-    logger.info(f"Saved bounding boxes dataset to {path}.")
-    return path
+    logger.info(f"Saved bounding boxes dataset to {valid_path}.")
+    return valid_path
 
 
 def _get_image_filename_template(
