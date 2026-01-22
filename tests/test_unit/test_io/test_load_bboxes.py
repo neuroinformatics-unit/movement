@@ -1,6 +1,6 @@
 """Test suite for the load_bboxes module."""
 
-import ast
+import json
 import re
 from pathlib import Path
 from unittest.mock import patch
@@ -158,9 +158,7 @@ def update_attribute_column(
         ]
         # get the column to update, and convert it to a list of dicts
         # (one dict per row)
-        attributes_dicts = [
-            ast.literal_eval(d) for d in df[attribute_column_name]
-        ]
+        attributes_dicts = [json.loads(d) for d in df[attribute_column_name]]
         # update each dict in the list
         # (if we only have one dict to append, append it to all rows)
         if len(list_dicts_to_append) == 1:
