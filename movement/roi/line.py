@@ -8,9 +8,15 @@ from typing import TYPE_CHECKING
 import numpy as np
 import shapely
 
-from movement.roi.base import BaseRegionOfInterest, LineLike, PointLikeList
+from movement.roi.base import (
+    GEOJSON_SUFFIXES,
+    BaseRegionOfInterest,
+    LineLike,
+    PointLikeList,
+)
 from movement.utils.broadcasting import broadcastable_method
 from movement.utils.logging import logger
+from movement.validators.files import ValidFile
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -112,7 +118,10 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
         BaseRegionOfInterest.to_file : Save a region of interest to a file.
 
         """
-        with open(path) as f:
+        file_path = ValidFile(
+            path, expected_permission="r", expected_suffix=GEOJSON_SUFFIXES
+        ).path
+        with open(file_path) as f:
             data = json.load(f)
 
         if data["type"] == "Feature":

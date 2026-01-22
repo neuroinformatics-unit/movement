@@ -10,9 +10,15 @@ import shapely
 from matplotlib.patches import PathPatch as PltPatch
 from matplotlib.path import Path as PltPath
 
-from movement.roi.base import BaseRegionOfInterest, PointLikeList, RegionLike
+from movement.roi.base import (
+    GEOJSON_SUFFIXES,
+    BaseRegionOfInterest,
+    PointLikeList,
+    RegionLike,
+)
 from movement.roi.line import LineOfInterest
 from movement.utils.logging import logger
+from movement.validators.files import ValidFile
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
@@ -106,7 +112,10 @@ class PolygonOfInterest(BaseRegionOfInterest[RegionLike]):
         BaseRegionOfInterest.to_file : Save a region of interest to a file.
 
         """
-        with open(path) as f:
+        file_path = ValidFile(
+            path, expected_permission="r", expected_suffix=GEOJSON_SUFFIXES
+        ).path
+        with open(file_path) as f:
             data = json.load(f)
 
         if data["type"] == "Feature":
