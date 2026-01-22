@@ -6,69 +6,35 @@ We welcome and encourage contributions in any form—whether it is fixing a bug,
 developing a new feature, or improving the documentation—as long as you follow our
 [code of conduct](target-code-of-conduct).
 
-To help you get started, we have prepared a statement on the project's [mission and scope](target-mission),
-a [roadmap](target-roadmaps) outlining our current priorities, and a detailed [contributing guide](target-contributing).
+To help you get started, we have prepared a list of resources and guidelines. Connect with us
+through our [communication channels](target-connect-with-us) if you have any questions or need assistance.
 
-::::{grid} 1 1 2 2
-:gutter: 3
+::::{grid} 2
+:::{grid-item-card} {fas}`users;sd-text-primary` About the project
 
-:::{grid-item-card} {fas}`users;sd-text-primary` People
-:link: people
-:link-type: doc
+Meet the team and learn about the project's context, goals, and future plans.
 
-Meet the team, maintainers, and contributors behind the project.
-:::
-
-:::{grid-item-card} {fas}`bullseye;sd-text-primary` Mission & Scope
-:link: mission-scope
-:link-type: doc
-
-Understand the scientific goals and scope of the movement package.
-:::
-
-:::{grid-item-card} {fas}`map-location-dot;sd-text-primary` Roadmaps
-:link: roadmaps
-:link-type: doc
-
-Explore our future plans and development milestones.
+- [People](target-people)
+- [Mission & Scope](target-mission)
+- [Roadmaps](target-roadmaps)
+- [Related Projects](target-related-projects)
+- [Resources](target-resources)
+- [Code of Conduct](target-code-of-conduct)
+- [License](target-license)
 :::
 
 :::{grid-item-card} {fas}`code-branch;sd-text-primary` How to Contribute
-:link: contributing
-:link-type: doc
 
-Learn how to set up your environment and contribute code or documentation.
+Learn how to set up your development environment and contribute code or documentation.
+
+- [Before you start](target-before-you-start)
+- [Contribution workflow](target-contribution-workflow)
+- [Development guidelines](target-dev-guidelines)
+- [Contributing documentation](target-contributing-docs)
+- [Sample data](target-contributing-sample-data)
 :::
-
-:::{grid-item-card} {fas}`chalkboard-user;sd-text-primary` Resources
-:link: resources
-:link-type: doc
-
-Talks, slides, and other educational materials about movement.
-:::
-
-:::{grid-item-card} {fas}`diagram-project;sd-text-primary` Related Projects
-:link: related-projects
-:link-type: doc
-
-Discover other tools in the ecosystem and how they fit together.
-:::
-
-:::{grid-item-card} {fas}`handshake;sd-text-primary` Code of Conduct
-:link: code-of-conduct
-:link-type: doc
-
-Our pledge to foster an open and welcoming environment.
-:::
-
-:::{grid-item-card} {fas}`scale-balanced;sd-text-primary` License
-:link: license
-:link-type: doc
-
-BSD 3-Clause License information.
-:::
-
 ::::
+
 
 (target-connect-with-us)=
 ## Connect with us
