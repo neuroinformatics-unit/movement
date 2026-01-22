@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Literal, cast
 
 import attrs
 import numpy as np
+import sparse
 import xarray as xr
 from attrs import converters, define, field, validators
 from numpy.typing import NDArray
@@ -63,13 +64,15 @@ class _BaseDatasetInputs(ABC):
     """
 
     # --- Required fields ---
-    position_array: np.ndarray = field(
-        validator=validators.instance_of(np.ndarray)
+    position_array: np.ndarray | sparse.COO = field(
+        validator=validators.instance_of(np.ndarray | sparse.COO)
     )
     # --- Optional fields ---
-    confidence_array: np.ndarray | None = field(
+    confidence_array: np.ndarray | sparse.COO | None = field(
         default=None,
-        validator=validators.optional(validators.instance_of(np.ndarray)),
+        validator=validators.optional(
+            validators.instance_of(np.ndarray | sparse.COO)
+        ),
     )
     individual_names: list[str] | None = field(
         default=None,
@@ -463,7 +466,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
     """
 
     shape_array: np.ndarray = field(
-        validator=validators.instance_of(np.ndarray)
+        validator=validators.instance_of(np.ndarray | sparse.COO)
     )
     frame_array: np.ndarray | None = field(
         default=None,
