@@ -45,6 +45,7 @@ jobs:
           use-make: true
           fetch-tags: true
           use-artifactci: lazy
+          use-requirements-txt: false
 
   deploy_sphinx_docs:
     name: Deploy Sphinx Docs
