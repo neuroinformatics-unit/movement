@@ -191,7 +191,7 @@ class TestSingleROISerialization:
             roi_class.from_file(file_path)
 
 
-class TestROISequenceSerialization:
+class TestROICollectionSerialization:
     """Tests for saving and loading collections of ROIs."""
 
     def test_save_rois_creates_feature_collection(

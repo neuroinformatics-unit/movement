@@ -5,12 +5,12 @@ from collections import defaultdict
 import numpy as np
 import xarray as xr
 
-from movement.roi.base import ROISequence
+from movement.roi.base import ROICollection
 
 
 def compute_region_occupancy(
     data,
-    regions: ROISequence,
+    regions: ROICollection,
 ) -> xr.DataArray:
     """Return a condition array indicating if points were inside regions.
 

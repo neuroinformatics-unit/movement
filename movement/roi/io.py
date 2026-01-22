@@ -13,11 +13,11 @@ from movement.roi.polygon import PolygonOfInterest
 from movement.validators.files import ValidROICollectionGeoJSON
 
 if TYPE_CHECKING:
-    from movement.roi.base import ROISequence
+    from movement.roi.base import ROICollection
 
 
 def save_rois(
-    rois: ROISequence,
+    rois: ROICollection,
     path: str | Path,
 ) -> None:
     """Save a collection of regions of interest to a GeoJSON file.
