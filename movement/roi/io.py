@@ -39,6 +39,17 @@ def save_rois(
     load_rois : Load a collection of ROIs from a GeoJSON file.
     BaseRegionOfInterest.to_file : Save a single ROI to a file.
 
+    Examples
+    --------
+    Create a polygon and a line, then save them to a GeoJSON file:
+
+    >>> from movement.roi import LineOfInterest, PolygonOfInterest, save_rois
+    >>> square = PolygonOfInterest(
+    ...     [(0, 0), (1, 0), (1, 1), (0, 1)], name="square"
+    ... )
+    >>> diagonal = LineOfInterest([(0, 0), (1, 1)], name="diagonal")
+    >>> save_rois([square, diagonal], "/path/to/rois.geojson")
+
     """
     features = []
     for roi in rois:
@@ -80,6 +91,18 @@ def load_rois(path: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
     save_rois : Save a collection of ROIs to a GeoJSON file.
     LineOfInterest.from_file : Load a single LineOfInterest from a file.
     PolygonOfInterest.from_file : Load a single PolygonOfInterest from a file.
+
+    Examples
+    --------
+    Load a collection of ROIs from a GeoJSON file:
+
+    >>> from movement.roi import load_rois
+    >>> rois = load_rois("/path/to/rois.geojson")
+
+    This returns a list of ROI objects, we can check their names:
+
+    >>> [roi.name for roi in rois]
+    ['square', 'diagonal']
 
     """
     with open(path) as f:
