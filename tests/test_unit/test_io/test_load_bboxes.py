@@ -742,12 +742,6 @@ def test_position_numpy_array_from_via_tracks_file(via_file_path):
     )
 
 
-@pytest.mark.skip(
-    reason=(
-        "Waiting on [PR #772](https://github.com/movement-project/movement/pull/772)"
-        " to be reviewed and merged."
-    )
-)
 @pytest.mark.benchmark
 @pytest.mark.parametrize(
     "via_file_path",
@@ -761,12 +755,6 @@ def test_benchmark_from_via_tracks_file(via_file_path, benchmark):
     benchmark(load_bboxes.from_via_tracks_file, via_file_path)
 
 
-@pytest.mark.skip(
-    reason=(
-        "Waiting on [PR #772](https://github.com/movement-project/movement/pull/772)"
-        " to be reviewed and merged."
-    )
-)
 @pytest.mark.benchmark
 @pytest.mark.parametrize(
     "via_file_path",
