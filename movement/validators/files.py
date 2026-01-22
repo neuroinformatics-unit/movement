@@ -225,9 +225,9 @@ def _if_instance_of(
 
     """
 
-    def _validator(_, attribute, value):
+    def _validator(instance: Any, attribute: Attribute, value: Any) -> None:
         if isinstance(value, cls):
-            validator(_, attribute, value)
+            validator(instance, attribute, value)
 
     return _validator
 
