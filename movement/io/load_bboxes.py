@@ -6,6 +6,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
+import sparse
 import xarray as xr
 
 from movement.utils.logging import logger
@@ -428,7 +429,9 @@ def _numpy_arrays_from_via_tracks_file(
             df[map_key_to_columns[key]].to_numpy(),
             indices_id_switch,  # indices along axis=0
         )
-        array_dict[key] = np.stack(list_arrays, axis=-1)
+        array_dict[key] = sparse.COO.from_numpy(
+            np.stack(list_arrays, axis=-1), fill_value=np.nan
+        )
 
         # squeeze only last dimension if it is 1
         if array_dict[key].shape[1] == 1:
