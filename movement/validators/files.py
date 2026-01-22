@@ -77,7 +77,7 @@ def _file_validator(
         _file_is_not_dir,
         _file_is_accessible(permission),
     ]
-    if suffixes is not None:
+    if suffixes:
         v.append(_file_has_expected_suffix(suffixes))
     return validators.and_(*v)
 
