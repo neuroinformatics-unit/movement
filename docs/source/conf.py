@@ -167,7 +167,6 @@ html_theme_options = {
     "footer_end": ["footer_end"],
     "external_links": [],
     "announcement": "Learn more about movement at the <a href='https://neuroinformatics.dev/open-software-summer-school/index.html'>Neuroinformatics Unit Open Software Summer School</a> in London, August 2026!",
-
 }
 
 # Redirect the webpage to another URL
@@ -192,7 +191,7 @@ html_favicon = "_static/light-logo-niu.png"
 
 # Linkcheck configuration
 linkcheck_timeout = 60  # defaut is 30
-linkcheck_retries = 3   # default is 1
+linkcheck_retries = 3  # default is 1
 
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs (because they are generated dynamically)
@@ -242,6 +241,7 @@ myst_url_schemes = {
     "anipose": "https://anipose.readthedocs.io/en/latest/",
     "TRex": "https://trex.run/docs/",
     "uv": "https://docs.astral.sh/uv/{{path}}#{{fragment}}",
+    "attrs": "https://www.attrs.org/en/stable/{{path}}#{{fragment}}",
 }
 
 intersphinx_mapping = {
@@ -253,6 +253,7 @@ intersphinx_mapping = {
     "pynwb": ("https://pynwb.readthedocs.io/en/stable/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "attrs": ("https://www.attrs.org/en/stable/", None),
 }
 
 # What to show on the 404 page
