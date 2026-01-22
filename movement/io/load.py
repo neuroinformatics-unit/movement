@@ -266,10 +266,8 @@ def from_file(
 
     Examples
     --------
-    >>> from movement.io import load
-    >>> ds = load.from_file(
-    ...     "path/to/file.h5", source_software="DeepLabCut", fps=30
-    ... )
+    >>> from movement.io import from_file
+    >>> ds = from_file("path/to/file.h5", source_software="DeepLabCut", fps=30)
 
     """
     if source_software not in _LOADER_REGISTRY:
