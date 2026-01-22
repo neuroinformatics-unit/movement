@@ -90,53 +90,61 @@ def load_rois(path: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
             ValueError(f"Expected FeatureCollection, got {data['type']}")
         )
 
-    rois: list[LineOfInterest | PolygonOfInterest] = []
-    for feature in data["features"]:
-        geometry_data = feature["geometry"]
-        properties = feature.get("properties", {})
+    return [_feature_to_roi(feature) for feature in data["features"]]
 
-        geometry = shapely.from_geojson(json.dumps(geometry_data))
-        name = properties.get("name")
-        roi_type = properties.get("roi_type")
 
-        roi: LineOfInterest | PolygonOfInterest
-        if roi_type == "PolygonOfInterest" or isinstance(
-            geometry, shapely.Polygon
-        ):
-            if not isinstance(geometry, shapely.Polygon):
-                raise logger.error(
-                    TypeError(
-                        f"Expected Polygon geometry for PolygonOfInterest, "
-                        f"got {type(geometry).__name__}"
-                    )
-                )
-            holes = [interior.coords for interior in geometry.interiors]
-            roi = PolygonOfInterest(
-                geometry.exterior.coords,
-                holes=holes if holes else None,
-                name=name,
+def _feature_to_roi(feature: dict) -> LineOfInterest | PolygonOfInterest:
+    """Convert a GeoJSON feature to an ROI object."""
+    geometry_data = feature["geometry"]
+    properties = feature.get("properties", {})
+
+    geometry = shapely.from_geojson(json.dumps(geometry_data))
+    name = properties.get("name")
+    roi_type = properties.get("roi_type")
+
+    if roi_type == "PolygonOfInterest" or isinstance(
+        geometry, shapely.Polygon
+    ):
+        return _polygon_from_geometry(geometry, name)
+    if roi_type == "LineOfInterest" or isinstance(
+        geometry, shapely.LineString | shapely.LinearRing
+    ):
+        return _line_from_geometry(geometry, name)
+
+    raise logger.error(
+        ValueError(f"Unsupported geometry type: {type(geometry).__name__}")
+    )
+
+
+def _polygon_from_geometry(
+    geometry: shapely.Geometry, name: str | None
+) -> PolygonOfInterest:
+    """Create a PolygonOfInterest from a shapely geometry."""
+    if not isinstance(geometry, shapely.Polygon):
+        raise logger.error(
+            TypeError(
+                f"Expected Polygon geometry for PolygonOfInterest, "
+                f"got {type(geometry).__name__}"
             )
-        elif roi_type == "LineOfInterest" or isinstance(
-            geometry, shapely.LineString | shapely.LinearRing
-        ):
-            if not isinstance(
-                geometry, shapely.LineString | shapely.LinearRing
-            ):
-                raise logger.error(
-                    TypeError(
-                        f"Expected LineString or LinearRing geometry, "
-                        f"got {type(geometry).__name__}"
-                    )
-                )
-            loop = isinstance(geometry, shapely.LinearRing)
-            roi = LineOfInterest(geometry.coords, loop=loop, name=name)
-        else:
-            raise logger.error(
-                ValueError(
-                    f"Unsupported geometry type: {type(geometry).__name__}"
-                )
+        )
+    holes = [interior.coords for interior in geometry.interiors]
+    return PolygonOfInterest(
+        geometry.exterior.coords,
+        holes=holes if holes else None,
+        name=name,
+    )
+
+
+def _line_from_geometry(
+    geometry: shapely.Geometry, name: str | None
+) -> LineOfInterest:
+    """Create a LineOfInterest from a shapely geometry."""
+    if not isinstance(geometry, shapely.LineString | shapely.LinearRing):
+        raise logger.error(
+            TypeError(
+                f"Expected LineString or LinearRing geometry for "
+                f"LineOfInterest, got {type(geometry).__name__}"
             )
-
-        rois.append(roi)
-
-    return rois
+        )
+    loop = isinstance(geometry, shapely.LinearRing)
+    return LineOfInterest(geometry.coords, loop=loop, name=name)
