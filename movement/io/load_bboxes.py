@@ -1,6 +1,6 @@
 """Load bounding boxes tracking data into ``movement``."""
 
-import ast
+import json
 from pathlib import Path
 from typing import Literal
 
@@ -519,9 +519,9 @@ def _parsed_df_from_file(
     df = pd.read_csv(file_path, sep=",", header=0)
 
     # Extract columns holding dict-like data
-    df_region_shapes = df["region_shape_attributes"].apply(ast.literal_eval)
-    df_region_attrs = df["region_attributes"].apply(ast.literal_eval)
-    df_file_attrs = df["file_attributes"].apply(ast.literal_eval)
+    df_region_shapes = df["region_shape_attributes"].apply(json.loads)
+    df_region_attrs = df["region_attributes"].apply(json.loads)
+    df_file_attrs = df["file_attributes"].apply(json.loads)
 
     # Parse region_shape_attributes: x, y, width, height (all required)
     # (renames width --> w, height --> h)
