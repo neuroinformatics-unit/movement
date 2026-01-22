@@ -3,16 +3,22 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import shapely
 
+from movement.roi.base import GEOJSON_SUFFIXES
 from movement.roi.line import LineOfInterest
 from movement.roi.polygon import PolygonOfInterest
-from movement.validators.files import ValidROICollectionGeoJSON
+from movement.validators.files import (
+    ValidFile,
+    ValidROICollectionGeoJSON,
+    _validate_file_path,
+)
 
 if TYPE_CHECKING:
+    from pathlib import Path
+
     from movement.roi.base import ROICollection
 
 
@@ -50,6 +56,10 @@ def save_rois(
     >>> save_rois([square, diagonal], "/path/to/rois.geojson")
 
     """
+    valid_path = _validate_file_path(
+        path, expected_suffix=GEOJSON_SUFFIXES
+    ).path
+
     features = []
     for roi in rois:
         geometry = json.loads(shapely.to_geojson(roi.region))
@@ -68,7 +78,7 @@ def save_rois(
         "features": features,
     }
 
-    with open(path, "w") as f:
+    with open(valid_path, "w") as f:
         json.dump(feature_collection, f, indent=2)
 
 
@@ -104,7 +114,10 @@ def load_rois(path: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
     ['square', 'diagonal']
 
     """
-    validated_file = ValidROICollectionGeoJSON(Path(path))
+    file_path = ValidFile(
+        path, expected_permission="r", expected_suffix=GEOJSON_SUFFIXES
+    ).path
+    validated_file = ValidROICollectionGeoJSON(file_path)
     with open(validated_file.path) as f:
         data = json.load(f)
 

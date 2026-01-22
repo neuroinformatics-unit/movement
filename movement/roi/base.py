@@ -14,6 +14,7 @@ from shapely.coords import CoordinateSequence
 
 from movement.utils.broadcasting import broadcastable_method
 from movement.utils.vector import compute_signed_angle_2d
+from movement.validators.files import _validate_file_path
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -29,6 +30,9 @@ LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
 RegionLike: TypeAlias = shapely.Polygon
 SupportedGeometry: TypeAlias = LineLike | RegionLike
 TGeometry_co = TypeVar("TGeometry_co", bound=SupportedGeometry, covariant=True)
+
+# Supported file suffixes for GeoJSON files
+GEOJSON_SUFFIXES: list[str] = [".geojson", ".json"]
 
 
 class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
@@ -581,6 +585,10 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         PolygonOfInterest.from_file : Load a PolygonOfInterest from file.
 
         """
+        valid_path = _validate_file_path(
+            path, expected_suffix=GEOJSON_SUFFIXES
+        ).path
+
         geometry = json.loads(shapely.to_geojson(self.region))
         feature = {
             "type": "Feature",
@@ -590,7 +598,7 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
                 "roi_type": self.__class__.__name__,
             },
         }
-        with open(path, "w") as f:
+        with open(valid_path, "w") as f:
             json.dump(feature, f, indent=2)
 
 
