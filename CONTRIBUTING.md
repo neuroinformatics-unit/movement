@@ -247,8 +247,8 @@ To edit the documentation, ensure you have already set up a [development environ
 
 To build the documentation locally, install the extra dependencies by running the following command from the repository root:
 ```sh
-pip install -r ./docs/requirements.txt      # conda env
-uv pip install -r ./docs/requirements.txt   # uv env
+pip install -e .[docs]      # conda env
+uv pip install -e .[docs]   # uv env
 ```
 
 Now create a new branch, edit the documentation source files (`.md` or `.rst` in the `docs` folder),
