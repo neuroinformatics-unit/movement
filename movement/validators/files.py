@@ -1,6 +1,6 @@
 """``attrs`` classes for validating file paths."""
 
-import ast
+import json
 import os
 import re
 from pathlib import Path
@@ -438,9 +438,7 @@ class ValidVIATracksCSV:
         df = pd.read_csv(value, sep=",", header=0)
 
         # Extract list of file attributes (dicts)
-        file_attributes_dicts = [
-            ast.literal_eval(d) for d in df.file_attributes
-        ]
+        file_attributes_dicts = [json.loads(d) for d in df.file_attributes]
 
         # If 'frame' is a file_attribute for all files:
         # extract frame number
@@ -538,10 +536,8 @@ class ValidVIATracksCSV:
         df = pd.read_csv(value, sep=",", header=0)
 
         for row in df.itertuples():
-            row_region_shape_attrs = ast.literal_eval(
-                row.region_shape_attributes
-            )
-            row_region_attrs = ast.literal_eval(row.region_attributes)
+            row_region_shape_attrs = json.loads(row.region_shape_attributes)
+            row_region_attrs = json.loads(row.region_attributes)
 
             # check annotation is a rectangle
             if row_region_shape_attrs["name"] != "rect":
@@ -607,7 +603,7 @@ class ValidVIATracksCSV:
             df_one_filename = df.loc[df["filename"] == file]
 
             list_track_ids_one_filename = [
-                int(ast.literal_eval(row.region_attributes)["track"])
+                int(json.loads(row.region_attributes)["track"])
                 for row in df_one_filename.itertuples()
             ]
 
