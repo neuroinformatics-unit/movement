@@ -32,7 +32,6 @@ dependencies = [
   "loguru",
   "pynwb",
   "ndx-pose>=0.2.1",
-  "sparse"
 ]
 
 classifiers = [
@@ -189,7 +188,6 @@ docstring-code-format = true # Also format code in docstrings
 [tool.codespell]
 skip = '.git,.tox,*.svg,docs/source/community/people.md'
 check-hidden = true
-ignore-words-list = "COO"
 
 [tool.tox]
 legacy_tox_ini = """
