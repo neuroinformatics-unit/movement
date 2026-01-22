@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=9a85e2f5"></script>
+    <script src="../_static/documentation_options.js?v=510c7238"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev3</p>
+    <p class="title logo__title">movement v0.13.1.dev4</p>
   
 </a></div>
     
@@ -556,6 +556,7 @@ uv</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </div>
+<p>If you also want to edit the documentation and preview the changes locally, you will additionally need the <code class="docutils literal notranslate"><span class="pre">docs</span></code> extra dependencies. See <a class="reference internal" href="#editing-the-documentation">Editing the documentation</a> for more details.</p>
 </li>
 <li><p>Finally, initialise the <a class="reference internal" href="#formatting-and-pre-commit-hooks">pre-commit hooks</a>:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pre-commit<span class="w"> </span>install
@@ -729,8 +730,8 @@ This keeps the documentation aligned with releases, while allowing manual redepl
 <h3>Editing the documentation<a class="headerlink" href="#editing-the-documentation" title="Link to this heading">#</a></h3>
 <p>To edit the documentation, ensure you have already set up a <a class="reference internal" href="#creating-a-development-environment">development environment</a>.</p>
 <p>To build the documentation locally, install the extra dependencies by running the following command from the repository root:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>./docs/requirements.txt<span class="w">      </span><span class="c1"># conda env</span>
-uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>./docs/requirements.txt<span class="w">   </span><span class="c1"># uv env</span>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[docs]&quot;</span><span class="w">      </span><span class="c1"># conda env</span>
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[docs]&quot;</span><span class="w">   </span><span class="c1"># uv env</span>
 </pre></div>
 </div>
 <p>Now create a new branch, edit the documentation source files (<code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder),
