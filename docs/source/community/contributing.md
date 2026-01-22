@@ -271,6 +271,9 @@ In general:
 * Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within `movement`, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesInputs<movement.validators.datasets.ValidPosesInputs>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
 * Use {meth}`logger.info()<loguru._logger.Logger.info>` for informational messages about expected behaviours that do not indicate problems, e.g. where default values are assigned to optional parameters.
 
+### Implementing new loaders
+If you want to add support for a new data format, please refer to the [implementing new loaders guide](target-implementing-loaders) on how to create a loader and integrate it with the `movement` package.
+
 ### Continuous integration
 All pushes and pull requests will be built by [GitHub actions](github-docs:actions).
 This will usually include linting, testing and deployment.
