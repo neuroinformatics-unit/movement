@@ -628,13 +628,21 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
         i = int(lf.frame_idx - first_frame)
         user_instances = lf.user_instances
         predicted_instances = lf.predicted_instances
+
+        # Pre-group instances by track to avoid repeated filtering
+        # This reduces complexity from O(n²) to O(n) per frame
+        user_instances_by_track = {
+            ind: [inst for inst in user_instances if inst.track == ind]
+            for ind in individuals
+        }
+        predicted_instances_by_track = {
+            ind: [inst for inst in predicted_instances if inst.track == ind]
+            for ind in individuals
+        }
+
         for j, ind in enumerate(individuals):
-            user_track_instances = [
-                inst for inst in user_instances if inst.track == ind
-            ]
-            predicted_track_instances = [
-                inst for inst in predicted_instances if inst.track == ind
-            ]
+            user_track_instances = user_instances_by_track[ind]
+            predicted_track_instances = predicted_instances_by_track[ind]
             # Use user-labelled instance if available
             if user_track_instances:
                 inst = user_track_instances[-1]
