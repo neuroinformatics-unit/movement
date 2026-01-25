@@ -2,9 +2,10 @@ import datetime
 from contextlib import AbstractContextManager as ContextManager
 from contextlib import nullcontext as does_not_raise
 from typing import Any
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import ndx_pose
+import numpy as np
 import pytest
 from pynwb.file import Subject
 
@@ -602,3 +603,83 @@ class TestNWBFileSaveConfig:
         """
         NWBFileSaveConfig()._resolve_nwbfile_kwargs()
         assert "using current UTC time as default" in caplog.messages[0]
+
+
+# ------------------- tests for coverage ----------------------------#
+
+
+def test_ds_to_pose_error_multi_individual_without_selection():
+    """Test error when dataset has multiple individuals and size != 1."""
+    # Mock dataset with size > 1
+    ds = MagicMock()
+    # Mock property access if necessary, or just attribute
+    type(ds.individual).size = MagicMock(return_value=2)
+    # Actually if ds.individual.size is accessed directly as property:
+    ds.individual.size = 2
+
+    # We might need to mock logger error wrapping
+    # The code does: raise logger.error(ValueError(...))
+
+    # If logger.error returns the exception, it raises it.
+
+    with pytest.raises(
+        ValueError, match="Dataset must contain only one individual"
+    ):
+        _ds_to_pose_and_skeletons(ds)
+
+
+def test_ds_to_pose_handles_string_individual():
+    """Test handling where ds.individual.values.tolist() is a string."""
+    ds = MagicMock()
+    ds.individual.size = 1
+    ds.individual.values.tolist.return_value = "ind1"
+
+    ds.keypoint.values.tolist.return_value = ["k1"]
+    ds.time.values = np.arange(5)
+    ds.time_unit = "seconds"
+    ds.sel.return_value.position.values = np.zeros((5, 2))
+    ds.sel.return_value.confidence.values = np.ones(5)
+    ds.source_software = "TestSoft"
+
+    pose, skeletons = _ds_to_pose_and_skeletons(ds)
+    assert pose is not None
+
+
+def test_ds_to_pose_handles_list_individual():
+    """Test handling where ds.individual.values.tolist() is a list."""
+    ds = MagicMock()
+    ds.individual.size = 1
+    ds.individual.values.tolist.return_value = ["ind1"]
+
+    ds.keypoint.values.tolist.return_value = ["k1"]
+    ds.time.values = np.arange(5)
+    ds.time_unit = "seconds"
+    ds.sel.return_value.position.values = np.zeros((5, 2))
+    ds.sel.return_value.confidence.values = np.ones(5)
+    ds.source_software = "TestSoft"
+
+    pose, skeletons = _ds_to_pose_and_skeletons(ds)
+    assert pose is not None
+
+
+def test_ds_to_pose_uses_singular_keypoint_selection():
+    """Test that ds.sel(keypoint=...) is used, validating the keypoint fix."""
+    ds = MagicMock()
+    ds.individual.size = 1
+    ds.individual.values.tolist.return_value = ["ind1"]
+    ds.keypoint.values.tolist.return_value = ["k1"]
+    ds.keypoint.values.tolist.return_value = ["k1"]
+    ds.time.values = np.arange(5)
+    ds.time_unit = "seconds"
+    ds.source_software = "TestSoft"
+
+    # Setup mock for sel
+    mock_sel_result = MagicMock()
+    ds.sel.return_value = mock_sel_result
+    mock_sel_result.position.values = np.zeros((5, 2))
+    mock_sel_result.confidence.values = np.ones(5)
+
+    _ds_to_pose_and_skeletons(ds)
+
+    # Verify ds.sel was called with keypoint (singular)
+    ds.sel.assert_called_with(keypoint="k1")
