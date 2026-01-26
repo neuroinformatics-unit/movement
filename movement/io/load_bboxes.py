@@ -469,12 +469,12 @@ def _df_from_via_tracks_file(
     regexp if it is not defined as a 'file_attribute' in the VIA tracks .csv
     file.
     """
-    # Pre-parse input dataframe
+    # Parse input dataframe
     logger.info(
         "Parsing dataframe (this may take a few minutes for large files)..."
     )
     df = _parsed_df_from_file(file_path, frame_regexp)
-    logger.info("Pre-parsing complete.")
+    logger.info("Parsing complete.")
 
     # Fill in missing combinations of ID and
     # frame number if required
@@ -496,7 +496,8 @@ def _parsed_df_from_file(
     Parameters
     ----------
     file_path : pathlib.Path
-        Path to the VIA tracks .csv file containing the bounding box tracks.
+        Path to the valid VIA tracks .csv file containing the bounding box
+        tracks.
 
     frame_regexp : str, optional
         The regular expression to extract the frame number from the filename.
@@ -531,22 +532,21 @@ def _parsed_df_from_file(
     df["h"] = df_region_shapes.apply(lambda d: d.get("height"))
 
     # Parse region_attributes: track (required), confidence (optional)
-    # (renames track --> ID)
+    # (renames track --> ID; confidence filled with nan if not defined)
     df["ID"] = df_region_attrs.apply(lambda d: d.get("track"))
     df["confidence"] = df_region_attrs.apply(
         lambda d: d.get("confidence", np.nan)
-        # fill with nan if confidence not defined
     )
 
     # Check if frame is in `file_attributes` for all files,
     # otherwise extract from filename.
+    # Note: df["frame_number"] is a str here
     if all("frame" in d for d in df_file_attrs):
         df["frame_number"] = df_file_attrs.apply(lambda d: d.get("frame"))
-        # returns a str
     else:
         df["frame_number"] = df["filename"].str.extract(
             frame_regexp, expand=False
-        )  # returns as str
+        )
 
     # Remove string columns to free memory
     df = df.drop(
