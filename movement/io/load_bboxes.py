@@ -349,7 +349,7 @@ def from_via_tracks_file(
         shape_array=bboxes_arrays["shape_array"],
         confidence_array=bboxes_arrays["confidence_array"],
         individual_names=[
-            f"id_{id.item()}" for id in bboxes_arrays["ID_array"]
+            f"id_{id}" for id in bboxes_arrays["ID_array"].flatten()
         ],
         frame_array=(
             bboxes_arrays["frame_array"]
@@ -410,29 +410,27 @@ def _numpy_arrays_from_via_tracks_file(
     # fill empty frame-ID pairs with nans)
     df = _df_from_via_tracks_file(file_path, frame_regexp)
 
-    # Compute indices of the rows where the IDs switch
-    bool_id_diff_from_prev = df["ID"].ne(df["ID"].shift())  # pandas series
-    indices_id_switch = (
-        bool_id_diff_from_prev.loc[lambda x: x].index[1:].to_numpy()
+    # Extract arrays
+    n_individuals = df["ID"].nunique()
+    n_frames = df["frame_number"].nunique()
+    all_data = df[["x", "y", "w", "h", "confidence"]].to_numpy()
+
+    array_dict: dict[str, np.ndarray] = {}
+    array_dict["position_array"] = (
+        all_data[:, 0:2]  # x,y
+        .reshape(n_individuals, n_frames, 2)
+        .transpose(1, 2, 0)
     )
-
-    # Stack position, shape and confidence arrays along ID axis
-    map_key_to_columns = {
-        "position_array": ["x", "y"],
-        "shape_array": ["w", "h"],
-        "confidence_array": ["confidence"],
-    }
-    array_dict = {}
-    for key in map_key_to_columns:
-        list_arrays = np.split(
-            df[map_key_to_columns[key]].to_numpy(),
-            indices_id_switch,  # indices along axis=0
-        )
-        array_dict[key] = np.stack(list_arrays, axis=-1)
-
-        # squeeze only last dimension if it is 1
-        if array_dict[key].shape[1] == 1:
-            array_dict[key] = array_dict[key].squeeze(axis=1)
+    array_dict["shape_array"] = (
+        all_data[:, 2:4]  # w,h
+        .reshape(n_individuals, n_frames, 2)
+        .transpose(1, 2, 0)
+    )
+    array_dict["confidence_array"] = (
+        all_data[:, 4]  # confidence
+        .reshape(n_individuals, n_frames)
+        .transpose()
+    )
 
     # Transform position_array to represent centroid of bbox,
     # rather than top-left corner
