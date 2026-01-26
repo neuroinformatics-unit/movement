@@ -62,7 +62,6 @@ dev = [
   "pytest",
   "pytest-cov",
   "pytest-mock",
-  "pytest-benchmark",
   "coverage",
   "tox",
   "mypy",
@@ -112,11 +111,7 @@ exclude = ["tests", "docs*"]
 
 
 [tool.pytest.ini_options]
-# This config applies to all pytest runs (CLI, VS Code, tox, CI)
-addopts = "--cov=movement -m 'not benchmark'" # exclude benchmarks by default
-markers = [
-    "benchmark: marks benchmarking tests (deselect with '-m \"not benchmark\"')",
-]
+addopts = "--cov=movement"
 
 [tool.setuptools_scm]
 
