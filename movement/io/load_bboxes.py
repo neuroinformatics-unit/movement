@@ -342,7 +342,7 @@ def from_via_tracks_file(
 
     # Create an xarray.Dataset from the data
     bboxes_arrays = _numpy_arrays_from_via_tracks_file(
-        via_file.path, via_file.frame_regexp
+        via_file.df, via_file.frame_regexp
     )
     ds = from_numpy(
         position_array=bboxes_arrays["position_array"],
@@ -369,9 +369,9 @@ def from_via_tracks_file(
 
 
 def _numpy_arrays_from_via_tracks_file(
-    file_path: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
+    df_in: pd.DataFrame, frame_regexp: str = DEFAULT_FRAME_REGEXP
 ) -> dict:
-    """Extract numpy arrays from the input VIA tracks .csv file.
+    """Extract numpy arrays from VIA tracks dataframe.
 
     The extracted numpy arrays are returned in a dictionary with the following
     keys:
@@ -390,8 +390,9 @@ def _numpy_arrays_from_via_tracks_file(
 
     Parameters
     ----------
-    file_path : pathlib.Path
-        Path to the VIA tracks .csv file containing the bounding box tracks.
+    df_in : pd.DataFrame
+        Input dataframe obtained from directly loading a valid
+        VIA tracks .csv file as a pandas dataframe.
 
     frame_regexp : str
         Regular expression pattern to extract the frame number from the frame
@@ -408,7 +409,7 @@ def _numpy_arrays_from_via_tracks_file(
     # Extract 2D dataframe from input data
     # (sort data by ID and frame number, and
     # fill empty frame-ID pairs with nans)
-    df = _df_from_via_tracks_file(file_path, frame_regexp)
+    df = _df_from_via_tracks_df(df_in, frame_regexp)
 
     # Extract arrays
     n_individuals = df["ID"].nunique()
@@ -444,12 +445,14 @@ def _numpy_arrays_from_via_tracks_file(
     return array_dict
 
 
-def _df_from_via_tracks_file(
-    file_path: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
+def _df_from_via_tracks_df(
+    df_in: pd.DataFrame, frame_regexp: str = DEFAULT_FRAME_REGEXP
 ) -> pd.DataFrame:
-    """Load VIA tracks .csv file as a dataframe.
+    """Extract dataframe from VIA tracks dataframe.
 
-    Read the VIA tracks .csv file as a pandas dataframe with columns:
+    The VIA tracks dataframe is obtained from directly loading a valid
+    VIA tracks .csv file as a pandas dataframe. The output dataframe contains
+    the following columns:
     - ID: the integer ID of the tracked bounding box.
     - frame_number: the frame number of the tracked bounding box.
     - x: the x-coordinate of the tracked bounding box's top-left corner.
@@ -471,7 +474,7 @@ def _df_from_via_tracks_file(
     logger.info(
         "Parsing dataframe (this may take a few minutes for large files)..."
     )
-    df = _parsed_df_from_file(file_path, frame_regexp)
+    df = _parsed_df_from_via_tracks_df(df_in, frame_regexp)
     logger.info("Parsing complete.")
 
     # Fill in missing combinations of ID and
@@ -481,21 +484,20 @@ def _df_from_via_tracks_file(
     return df
 
 
-def _parsed_df_from_file(
-    file_path: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
+def _parsed_df_from_via_tracks_df(
+    df: pd.DataFrame, frame_regexp: str = DEFAULT_FRAME_REGEXP
 ) -> pd.DataFrame:
-    """Compute parsed dataframe from input VIA tracks .csv file.
+    """Parse VIA tracks dataframe.
 
-    Parses dictionary-like string columns in input file, and casts
+    Parses dictionary-like string columns in VIA tracks dataframe, and casts
     columns to the expected types. It returns a copy of the relevant subset
-    of columns. Note that this function should run after validation of the
-    input file with ValidVIATracksCSV.
+    of columns.
 
     Parameters
     ----------
-    file_path : pathlib.Path
-        Path to the valid VIA tracks .csv file containing the bounding box
-        tracks.
+    df : pd.DataFrame
+        Input dataframe obtained from directly loading a valid
+        VIA tracks .csv file as a pandas dataframe.
 
     frame_regexp : str, optional
         The regular expression to extract the frame number from the filename.
@@ -515,7 +517,7 @@ def _parsed_df_from_file(
 
     """
     # Read VIA tracks .csv file as a pandas dataframe
-    df = pd.read_csv(file_path, sep=",", header=0)
+    # df = pd.read_csv(file_path, sep=",", header=0)
 
     # Loop thru rows of columns with dict-like data
     # (this is typically faster than iterrows())

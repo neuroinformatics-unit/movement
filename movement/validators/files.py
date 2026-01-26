@@ -390,6 +390,7 @@ class ValidVIATracksCSV:
 
     path: Path = field(validator=validators.instance_of(Path))
     frame_regexp: str = DEFAULT_FRAME_REGEXP
+    df: pd.DataFrame = field(init=False, factory=pd.DataFrame)
 
     @path.validator
     def _file_contains_valid_header(self, attribute, value):
@@ -416,6 +417,9 @@ class ValidVIATracksCSV:
                     )
                 )
 
+        # Read CSV once and store for later use
+        self.df = pd.read_csv(value, sep=",", header=0)
+
     @path.validator
     def _file_contains_valid_frame_numbers(self, attribute, value):
         """Ensure that the VIA tracks .csv file contains valid frame numbers.
@@ -435,7 +439,7 @@ class ValidVIATracksCSV:
         file extension.
 
         """
-        df = pd.read_csv(value, sep=",", header=0)
+        df = self.df
 
         # Extract list of file attributes (dicts)
         file_attributes_dicts = [json.loads(d) for d in df.file_attributes]
@@ -533,7 +537,7 @@ class ValidVIATracksCSV:
         - Checking that the bounding boxes have a track ID defined.
         - Checking that the track ID can be cast as an integer.
         """
-        df = pd.read_csv(value, sep=",", header=0)
+        df = self.df
 
         for row in df.itertuples():
             row_region_shape_attrs = json.loads(row.region_shape_attributes)
@@ -596,7 +600,7 @@ class ValidVIATracksCSV:
 
         It checks that bounding boxes IDs are defined once per image file.
         """
-        df = pd.read_csv(value, sep=",", header=0)
+        df = self.df
 
         list_unique_filenames = list(set(df.filename))
         for file in list_unique_filenames:
