@@ -504,6 +504,23 @@ To add a new file, you will need to:
 8. Commit your changes using `gin commit -m <message> <filename>` for specific files or `gin commit -m <message> .` for all changes.
 9. Upload your committed changes to the GIN repository with `gin upload`. Use `gin download` to pull the latest changes or `gin sync` to synchronise changes bidirectionally.
 
+### Verifying sample data
+
+To verify that a sample dataset can be fetched and loaded correctly:
+
+```python
+from movement import sample_data
+
+# Fetch and load the dataset
+ds = sample_data.fetch_dataset("SLEAP_three-mice_Aeon_proofread.analysis.h5")
+
+# Verify it loaded correctly
+print(ds)
+```
+
+This displays the dataset's structure (dimensions, coordinates, data variables,
+and attributes), confirming the data was loaded successfully.
+
 ### `metadata.yaml` example entry
 ```yaml
 SLEAP_three-mice_Aeon_proofread.analysis.h5:

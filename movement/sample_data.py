@@ -235,13 +235,6 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     >>> paths = fetch_dataset_paths("VIA_multiple-crabs_5-frames_labels.csv")
     >>> bboxes_path = paths["bboxes"]
 
-    To verify a sample dataset can be fetched and loaded correctly,
-    use :func:`fetch_dataset` which returns an xarray Dataset:
-
-    >>> from movement.sample_data import fetch_dataset
-    >>> ds = fetch_dataset("SLEAP_three-mice_Aeon_proofread.analysis.h5")
-    >>> print(ds)  # doctest: +SKIP
-
     See Also
     --------
     fetch_dataset

@@ -529,25 +529,6 @@ filename = "SLEAP_three-mice_Aeon_proofread.analysis.h5"
 ds = sample_data.fetch_dataset(filename)
 ```
 
-### Verifying sample data
-
-To verify that a sample dataset can be fetched and loaded correctly:
-
-```python
-from movement import sample_data
-
-# Fetch and load the dataset
-ds = sample_data.fetch_dataset("SLEAP_three-mice_Aeon_proofread.analysis.h5")
-
-# Verify it loaded correctly
-print(ds)
-```
-
-This displays the dataset's structure (dimensions, coordinates, data variables,
-and attributes), confirming the data was loaded successfully.
-
-### Associated files
-
 Some sample datasets also have an associated video file
 (the video for which the data was predicted). You can request
 to download the sample video by setting `with_video=True`:
@@ -568,14 +549,6 @@ this file is always downloaded when fetching the dataset,
 and its path is stored in the `frame_path` attribute
 (i.e., `ds.frame_path`). If no frame file is available for the dataset,
 the `frame_path` attribute will not be set.
-
-If you only need the file paths without loading the data (e.g., to use
-with a custom loader), use {func}`fetch_dataset_paths<movement.sample_data.fetch_dataset_paths>`:
-
-```python
-paths = sample_data.fetch_dataset_paths("SLEAP_three-mice_Aeon_proofread.analysis.h5")
-print(paths["poses"])  # Print the path to the poses file
-```
 
 :::{dropdown} Under the hood
 :color: info
