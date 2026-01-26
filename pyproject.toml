@@ -32,6 +32,7 @@ dependencies = [
   "loguru",
   "pynwb",
   "ndx-pose>=0.2.1",
+  "pyarrow"
 ]
 
 classifiers = [

@@ -12,8 +12,6 @@ from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs
 from movement.validators.files import (
     DEFAULT_FRAME_REGEXP,
-    ValidFile,
-    ValidVIATracksCSV,
 )
 
 
@@ -332,17 +330,17 @@ def from_via_tracks_file(
 
     """
     # General file validation
-    file = ValidFile(
-        file_path, expected_permission="r", expected_suffix=[".csv"]
-    )
+    # file = ValidFile(
+    #     file_path, expected_permission="r", expected_suffix=[".csv"]
+    # )
 
-    # Specific VIA-tracks .csv file validation
-    via_file = ValidVIATracksCSV(file.path, frame_regexp=frame_regexp)
-    logger.info(f"Validated VIA tracks .csv file {via_file.path}.")
+    # # Specific VIA-tracks .csv file validation
+    # via_file = ValidVIATracksCSV(file.path, frame_regexp=frame_regexp)
+    # logger.info(f"Validated VIA tracks .csv file {via_file.path}.")
 
     # Create an xarray.Dataset from the data
     bboxes_arrays = _numpy_arrays_from_via_tracks_file(
-        via_file.path, via_file.frame_regexp
+        Path(file_path), frame_regexp
     )
     ds = from_numpy(
         position_array=bboxes_arrays["position_array"],
@@ -362,9 +360,9 @@ def from_via_tracks_file(
 
     # Add metadata as attributes
     ds.attrs["source_software"] = "VIA-tracks"
-    ds.attrs["source_file"] = via_file.path.as_posix()
+    ds.attrs["source_file"] = Path(file_path).as_posix()
 
-    logger.info(f"Loaded bounding boxes tracks from {via_file.path}:\n{ds}")
+    logger.info(f"Loaded bounding boxes tracks from {Path(file_path)}:\n{ds}")
     return ds
 
 
@@ -516,7 +514,8 @@ def _parsed_df_from_file(
 
     """
     # Read VIA tracks .csv file as a pandas dataframe
-    df = pd.read_csv(file_path, sep=",", header=0)
+    # df = pd.read_csv(file_path, sep=",", header=0)
+    df = pd.read_parquet(file_path)
 
     # Extract columns holding dict-like data
     df_region_shapes = df["region_shape_attributes"].apply(json.loads)

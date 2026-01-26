@@ -744,8 +744,9 @@ def test_position_numpy_array_from_via_tracks_file(via_file_path):
 @pytest.mark.parametrize(
     "via_file_path",
     [
-        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+        # pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        # pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+        "/Users/sofia/arc/project_Zoo_crabs/loops_tracking_above_10th_percentile_slurm_1825237_SAMPLE/04.09.2023-01-Right-Loop06_tracks.csv"
     ],
 )
 def test_benchmark_from_via_tracks_file(via_file_path, benchmark):
@@ -757,10 +758,11 @@ def test_benchmark_from_via_tracks_file(via_file_path, benchmark):
 @pytest.mark.parametrize(
     "via_file_path",
     [
-        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-        # multiple crabs present in all 5 frames
-        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
-        # single crab present in 35 non-consecutive frames
+        # pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        # # multiple crabs present in all 5 frames
+        # pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+        # # single crab present in 35 non-consecutive frames
+        "/Users/sofia/arc/project_Zoo_crabs/loops_tracking_above_10th_percentile_slurm_1825237_SAMPLE/04.09.2023-01-Right-Loop06_tracks.csv"
     ],
 )
 def test_benchmark_df_from_via_tracks_file(via_file_path, benchmark):
