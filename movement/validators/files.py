@@ -5,7 +5,7 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import Literal
+from typing import ClassVar, Literal
 
 import h5py
 import pandas as pd
@@ -13,6 +13,10 @@ from attrs import define, field, validators
 from pynwb import NWBFile
 
 from movement.utils.logging import logger
+from movement.validators.json_schemas import (
+    check_file_matches_schema,
+    get_schema,
+)
 
 DEFAULT_FRAME_REGEXP = r"(0\d*)\.\w+$"
 
@@ -664,12 +668,18 @@ class ValidROICollectionGeoJSON:
     validating single-Feature GeoJSON files (as produced by
     :meth:`BaseRegionOfInterest.to_file`).
 
-    The validator ensures that the file:
+    The validator uses a JSON Schema (via the ``jsonschema`` library) to
+    ensure that the file:
 
     - contains valid JSON,
     - is a GeoJSON FeatureCollection (not a single Feature or geometry),
-    - contains features with supported geometry types, and
-    - has roi_type properties that match geometry types (if specified).
+    - contains features with supported geometry types
+      (Polygon, LineString, LinearRing), and
+    - has valid roi_type property values (if specified).
+
+    Additionally, a custom validator checks that roi_type properties match
+    the actual geometry types (e.g., "PolygonOfInterest" requires a Polygon
+    geometry). This cross-field validation cannot be expressed in JSON Schema.
 
     Attributes
     ----------
@@ -679,8 +689,7 @@ class ValidROICollectionGeoJSON:
     Raises
     ------
     ValueError
-        If the file is not valid JSON, not a FeatureCollection,
-        or contains unsupported geometry types.
+        If the file does not match the expected JSON Schema.
     TypeError
         If roi_type property does not match the actual geometry type.
 
@@ -693,78 +702,27 @@ class ValidROICollectionGeoJSON:
 
     path: Path = field(validator=validators.instance_of(Path))
 
+    # JSON schema for basic structure validation
+    _schema: ClassVar[dict] = get_schema("roi_collection")
+
     # Map roi_type strings to expected geometry type strings
-    _roi_type_to_geometry: dict[str, tuple[str, ...]] = {
+    _roi_type_to_geometry: ClassVar[dict[str, tuple[str, ...]]] = {
         "PolygonOfInterest": ("Polygon",),
         "LineOfInterest": ("LineString", "LinearRing"),
     }
-    _supported_geometry_types: tuple[str, ...] = (
-        "Polygon",
-        "LineString",
-        "LinearRing",
-    )
 
     @path.validator
-    def _file_is_valid_json(self, attribute, value):
-        """Ensure the file contains valid JSON."""
-        try:
-            with open(value) as f:
-                json.load(f)
-        except json.JSONDecodeError as e:
-            raise logger.error(
-                ValueError(f"File {value} is not valid JSON: {e}")
-            ) from e
-
-    @path.validator
-    def _file_is_feature_collection(self, attribute, value):
-        """Ensure the file is a GeoJSON FeatureCollection."""
-        with open(value) as f:
-            data = json.load(f)
-
-        if data.get("type") != "FeatureCollection":
-            raise logger.error(
-                ValueError(
-                    f"Expected GeoJSON FeatureCollection, "
-                    f"got '{data.get('type')}'"
-                )
-            )
-
-        if "features" not in data:
-            raise logger.error(
-                ValueError("GeoJSON FeatureCollection missing 'features' key")
-            )
-
-    @path.validator
-    def _features_have_valid_geometry(self, attribute, value):
-        """Ensure all features have supported geometry types."""
-        with open(value) as f:
-            data = json.load(f)
-
-        for i, feature in enumerate(data.get("features", [])):
-            if "geometry" not in feature:
-                raise logger.error(
-                    ValueError(f"Feature {i} missing 'geometry' key")
-                )
-
-            geometry = feature["geometry"]
-            if geometry is None:
-                raise logger.error(
-                    ValueError(f"Feature {i} has null geometry")
-                )
-
-            geom_type = geometry.get("type")
-            if geom_type not in self._supported_geometry_types:
-                raise logger.error(
-                    ValueError(
-                        f"Feature {i} has unsupported geometry type "
-                        f"'{geom_type}'. Supported types: "
-                        f"{self._supported_geometry_types}"
-                    )
-                )
+    def _file_matches_schema(self, attribute, value):
+        """Validate file against JSON schema."""
+        check_file_matches_schema(value, self._schema)
 
     @path.validator
     def _roi_type_matches_geometry(self, attribute, value):
-        """Ensure roi_type properties match actual geometry types."""
+        """Ensure roi_type properties match actual geometry types.
+
+        This cross-field validation cannot be expressed in JSON Schema,
+        so it remains as a custom validator.
+        """
         with open(value) as f:
             data = json.load(f)
 
@@ -779,12 +737,7 @@ class ValidROICollectionGeoJSON:
             geom_type = geometry.get("type") if geometry else None
 
             expected_geom_types = self._roi_type_to_geometry.get(roi_type)
-            if expected_geom_types is None:
-                raise logger.error(
-                    ValueError(
-                        f"Feature {i} has unknown roi_type '{roi_type}'"
-                    )
-                )
+            # Note: unknown roi_type is already caught by schema validation
 
             if geom_type not in expected_geom_types:
                 raise logger.error(

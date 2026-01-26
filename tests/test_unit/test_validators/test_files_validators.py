@@ -13,6 +13,7 @@ from movement.validators.files import (
     ValidVIATracksCSV,
     _validate_file_path,
 )
+from movement.validators.json_schemas import get_schema
 
 
 @pytest.fixture
@@ -376,9 +377,7 @@ class TestValidROICollectionGeoJSON:
         file_path = tmp_path / "feature.geojson"
         file_path.write_text('{"type": "Feature", "geometry": null}')
 
-        with pytest.raises(
-            ValueError, match="Expected GeoJSON FeatureCollection"
-        ):
+        with pytest.raises(ValueError, match="does not match schema"):
             ValidROICollectionGeoJSON(file_path)
 
     def test_missing_features_key(self, tmp_path):
@@ -386,7 +385,9 @@ class TestValidROICollectionGeoJSON:
         file_path = tmp_path / "no_features.geojson"
         file_path.write_text('{"type": "FeatureCollection"}')
 
-        with pytest.raises(ValueError, match="missing 'features' key"):
+        with pytest.raises(
+            ValueError, match="'features' is a required property"
+        ):
             ValidROICollectionGeoJSON(file_path)
 
     def test_missing_geometry(self, tmp_path):
@@ -398,7 +399,9 @@ class TestValidROICollectionGeoJSON:
             "]}"
         )
 
-        with pytest.raises(ValueError, match="missing 'geometry' key"):
+        with pytest.raises(
+            ValueError, match="'geometry' is a required property"
+        ):
             ValidROICollectionGeoJSON(file_path)
 
     def test_null_geometry(self, tmp_path):
@@ -410,7 +413,7 @@ class TestValidROICollectionGeoJSON:
             "]}"
         )
 
-        with pytest.raises(ValueError, match="has null geometry"):
+        with pytest.raises(ValueError, match="None is not of type 'object'"):
             ValidROICollectionGeoJSON(file_path)
 
     def test_unsupported_geometry_type(self, tmp_path):
@@ -423,7 +426,9 @@ class TestValidROICollectionGeoJSON:
             "]}"
         )
 
-        with pytest.raises(ValueError, match="unsupported geometry type"):
+        with pytest.raises(
+            ValueError, match=r"is not one of \['Polygon', 'LineString'"
+        ):
             ValidROICollectionGeoJSON(file_path)
 
     @pytest.mark.parametrize(
@@ -473,7 +478,9 @@ class TestValidROICollectionGeoJSON:
             "]}"
         )
 
-        with pytest.raises(ValueError, match="unknown roi_type"):
+        with pytest.raises(
+            ValueError, match=r"is not one of \['PolygonOfInterest'"
+        ):
             ValidROICollectionGeoJSON(file_path)
 
     def test_empty_feature_collection(self, tmp_path):
@@ -483,3 +490,13 @@ class TestValidROICollectionGeoJSON:
 
         validated = ValidROICollectionGeoJSON(file_path)
         assert validated.path == file_path
+
+
+class TestGetSchema:
+    """Tests for the get_schema utility function."""
+
+    def test_get_schema_existing(self):
+        """Test that get_schema loads an existing schema."""
+        schema = get_schema("roi_collection")
+        assert isinstance(schema, dict)
+        assert schema.get("type") == "object"
