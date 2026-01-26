@@ -517,30 +517,41 @@ def _parsed_df_from_file(
     # Read VIA tracks .csv file as a pandas dataframe
     df = pd.read_csv(file_path, sep=",", header=0)
 
-    # Extract columns holding dict-like data
-    df_region_shapes = df["region_shape_attributes"].apply(json.loads)
-    df_region_attrs = df["region_attributes"].apply(json.loads)
-    df_file_attrs = df["file_attributes"].apply(json.loads)
+    # Loop thru rows of columns with dict-like data
+    # (this is typically faster than iterrows())
+    region_shapes = df["region_shape_attributes"].tolist()
+    region_attrs = df["region_attributes"].tolist()
+    file_attrs = df["file_attributes"].tolist()
 
-    # Parse region_shape_attributes: x, y, width, height (all required)
-    # (renames width --> w, height --> h)
-    df["x"] = df_region_shapes.apply(lambda d: d.get("x"))
-    df["y"] = df_region_shapes.apply(lambda d: d.get("y"))
-    df["w"] = df_region_shapes.apply(lambda d: d.get("width"))
-    df["h"] = df_region_shapes.apply(lambda d: d.get("height"))
+    # Initialize lists for results
+    x, y, w, h, ids, confidences, frame_numbers = [], [], [], [], [], [], []
+    for rs, ra, fa in zip(
+        region_shapes, region_attrs, file_attrs, strict=True
+    ):
+        # Regions shape
+        region_shape_dict = json.loads(rs)
+        x.append(region_shape_dict.get("x"))
+        y.append(region_shape_dict.get("y"))
+        w.append(region_shape_dict.get("width"))
+        h.append(region_shape_dict.get("height"))
 
-    # Parse region_attributes: track (required), confidence (optional)
-    # (renames track --> ID; confidence filled with nan if not defined)
-    df["ID"] = df_region_attrs.apply(lambda d: d.get("track"))
-    df["confidence"] = df_region_attrs.apply(
-        lambda d: d.get("confidence", np.nan)
-    )
+        # Region attributes
+        region_attrs_dict = json.loads(ra)
+        ids.append(region_attrs_dict.get("track"))
+        confidences.append(region_attrs_dict.get("confidence", np.nan))
 
-    # Check if frame is in `file_attributes` for all files,
-    # otherwise extract from filename.
-    # Note: df["frame_number"] is a str here
-    if all("frame" in d for d in df_file_attrs):
-        df["frame_number"] = df_file_attrs.apply(lambda d: d.get("frame"))
+        # File attributes
+        file_attrs_dict = json.loads(fa)
+        # assigns None if not defined under "frame"
+        frame_numbers.append(file_attrs_dict.get("frame"))
+
+    # Assign lists to dataframe
+    df["x"], df["y"], df["w"], df["h"] = x, y, w, h
+    df["ID"], df["confidence"] = ids, confidences
+
+    # After loop, handle frame_number for entire column at once
+    if None not in frame_numbers:
+        df["frame_number"] = frame_numbers
     else:
         df["frame_number"] = df["filename"].str.extract(
             frame_regexp, expand=False
