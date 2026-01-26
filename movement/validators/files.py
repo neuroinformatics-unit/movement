@@ -21,7 +21,7 @@ class ValidFile(Protocol):
     """Protocol for file validation classes."""
 
     suffixes: ClassVar[set[str]]
-    """Expected suffix(es) for the file (class variable)."""
+    """Expected suffix(es) for the file."""
 
     file: Path | NWBFile
     """Path to the file to validate or an NWBFile object."""

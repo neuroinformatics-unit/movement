@@ -33,7 +33,20 @@ SourceSoftware: TypeAlias = Literal[
 
 
 class LoaderProtocol(Protocol):
-    """Protocol for loader functions."""
+    """Protocol for loader functions to be registered via ``register_loader``.
+
+    All loader functions registered via :func:`register_loader`
+    must conform to this protocol. Loaders must accept a file
+    path (str or Path) or  :class:`pynwb.file.NWBFile` object)
+    as their first argument and return an :class:`xarray.Dataset`
+    containing pose tracks or bounding box tracks. Additional
+    positional and keyword arguments are allowed.
+
+    See Also
+    --------
+    register_loader : Decorator for registering loader functions.
+
+    """
 
     def __call__(
         self, file: Path | str | pynwb.file.NWBFile, *args, **kwargs
