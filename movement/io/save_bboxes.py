@@ -12,7 +12,7 @@ import xarray as xr
 
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs
-from movement.validators.files import _validate_file_path
+from movement.validators.files import validate_file_path
 
 if TYPE_CHECKING:
     import _csv
@@ -127,37 +127,34 @@ def to_via_tracks_file(
 
     """
     # Validate file path and dataset
-    file = _validate_file_path(file_path, expected_suffix=[".csv"])
+    valid_path = validate_file_path(
+        file_path, permission="w", suffixes={".csv"}
+    )
     ValidBboxesInputs.validate(ds)
-
     # Check the number of digits required to represent the frame numbers
     frame_n_digits = _check_frame_required_digits(
         ds=ds, frame_n_digits=frame_n_digits
     )
-
     # Define format string for image filenames
     img_filename_template = _get_image_filename_template(
         frame_n_digits=frame_n_digits,
         image_file_prefix=image_file_prefix,
         image_file_suffix=image_file_suffix,
     )
-
     # Map individuals' names to track IDs
     map_individual_to_track_id = _compute_individuals_to_track_ids_map(
         ds.coords["individuals"].values,
         track_ids_from_trailing_numbers,
     )
-
     # Write file
     _write_via_tracks_csv(
         ds,
-        file.path,
+        valid_path,
         map_individual_to_track_id,
         img_filename_template,
     )
-
-    logger.info(f"Saved bounding boxes dataset to {file.path}.")
-    return file.path
+    logger.info(f"Saved bounding boxes dataset to {valid_path}.")
+    return valid_path
 
 
 def _get_image_filename_template(
