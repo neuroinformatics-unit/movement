@@ -242,6 +242,7 @@ myst_url_schemes = {
     "anipose": "https://anipose.readthedocs.io/en/latest/",
     "TRex": "https://trex.run/docs/",
     "uv": "https://docs.astral.sh/uv/{{path}}#{{fragment}}",
+    "pytest-benchmark": "https://pytest-benchmark.readthedocs.io/en/latest/{{path}}#{{fragment}}",
 }
 
 intersphinx_mapping = {
