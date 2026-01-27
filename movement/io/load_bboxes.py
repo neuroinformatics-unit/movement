@@ -11,7 +11,7 @@ import pandas as pd
 import pooch
 import xarray as xr
 
-from movement.utils.logging import logger
+from movement.utils.logging import hide_pooch_hash_logs, logger
 from movement.validators.datasets import ValidBboxesInputs
 from movement.validators.files import (
     DEFAULT_FRAME_REGEXP,
@@ -228,14 +228,15 @@ def from_file(
     """
     # Download file if it is a URL
     if str(file_path).startswith(("http://", "https://")):
-        file_path = pooch.retrieve(
-            url=file_path,
-            known_hash=None,
-            path=Path(
-                "~", ".movement", "data", "public_datasets"
-            ).expanduser(),
-            progressbar=True,
-        )
+        with hide_pooch_hash_logs():
+            file_path = pooch.retrieve(
+                url=file_path,
+                known_hash=None,
+                path=Path(
+                    "~", ".movement", "data", "public_datasets"
+                ).expanduser(),
+                progressbar=True,
+            )
 
     if source_software == "VIA-tracks":
         return from_via_tracks_file(
