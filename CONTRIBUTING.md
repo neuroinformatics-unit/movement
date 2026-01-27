@@ -170,21 +170,21 @@ Avoid including large data files directly in the GitHub repository.
 
 #### Running benchmark tests
 Some tests are marked as `benchmark` because we use them along with [pytest-benchmark](https://pytest-benchmark.readthedocs.io/en/stable/) to measure the performance of a section of the code. These tests are excluded from the default test run to keep CI and local test running fast.
-This applies to all `pytest` runs (from the command line, VS Code, tox or in CI).
+This applies to all ways of running `pytest` (via command line, IDE, tox or CI).
 
-If you wish to run only the benchmark tests locally, you can do so by running:
+To run only the benchmark tests locally:
 
 ```sh
-pytest -m benchmark  # only those marked as 'benchmark'
+pytest -m benchmark
 ```
 
 To run all tests, including those marked as `benchmark`:
 
 ```sh
-pytest -m ""  # all tests, including 'benchmark' ones
+pytest -m ""
 ```
 
-### Comparing benchmark runs across branches
+#### Comparing benchmark runs across branches
 
 To compare performance between branches (e.g., `main` and a PR branch), we use [pytest-benchmark](https://pytest-benchmark.readthedocs.io/en/stable/)'s save and compare functionality:
 
