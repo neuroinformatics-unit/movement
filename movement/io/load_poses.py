@@ -12,7 +12,7 @@ import xarray as xr
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
-from movement.utils.logging import logger
+from movement.utils.logging import hide_pooch_hash_logs, logger
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import (
     ValidAniposeCSV,
@@ -160,14 +160,15 @@ def from_file(
     """
     # Download file if it is a URL
     if str(file_path).startswith(("http://", "https://")):
-        file_path = pooch.retrieve(
-            url=file_path,
-            known_hash=None,
-            path=Path(
-                "~", ".movement", "data", "public_datasets"
-            ).expanduser(),
-            progressbar=True,
-        )
+        with hide_pooch_hash_logs():
+            file_path = pooch.retrieve(
+                url=file_path,
+                known_hash=None,
+                path=Path(
+                    "~", ".movement", "data", "public_datasets"
+                ).expanduser(),
+                progressbar=True,
+            )
 
     if source_software == "DeepLabCut":
         return from_dlc_file(file_path, fps)

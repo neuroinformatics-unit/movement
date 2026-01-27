@@ -2,12 +2,15 @@
 
 import inspect
 import json
+import logging
 import sys
 import warnings
+from contextlib import contextmanager
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
 
+import pooch
 from loguru import logger as loguru_logger
 
 DEFAULT_LOG_DIRECTORY = Path.home() / ".movement"
@@ -157,3 +160,29 @@ def log_to_attrs(func):
         return result
 
     return wrapper
+
+
+@contextmanager
+def hide_pooch_hash_logs():
+    """Hide SHA256 hash printouts from ``pooch.retrieve``.
+
+    This context manager temporarily suppresses SHA256 hash messages
+    when downloading files with Pooch.
+    """
+    pooch_logger = pooch.get_logger()
+
+    class HashFilter(logging.Filter):
+        def filter(self, record):
+            msg = record.getMessage()
+            # Suppress only hash display lines
+            return not (
+                "SHA256 hash of downloaded file" in msg
+                or "Use this value as the 'known_hash'" in msg
+            )
+
+    flt = HashFilter()
+    pooch_logger.addFilter(flt)
+    try:
+        yield
+    finally:
+        pooch_logger.removeFilter(flt)
