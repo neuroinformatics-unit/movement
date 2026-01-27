@@ -8,6 +8,7 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
+import pooch
 import xarray as xr
 
 from movement.utils.logging import logger
@@ -217,8 +218,25 @@ def from_file(
     >>>     source_software="VIA-tracks",
     >>>     fps=30,
     >>> )
+    >>> # Load from a URL
+    >>> ds = load_bboxes.from_file(
+    >>>     "https://github.com/neuroinformatics-unit/movement/raw/main/tests/data/bboxes/VIA_multiple-crabs_5-frames_labels.csv",
+    >>>     source_software="VIA-tracks",
+    >>>     fps=30,
+    >>> )
 
     """
+    # Download file if it is a URL
+    if str(file_path).startswith(("http://", "https://")):
+        file_path = pooch.retrieve(
+            url=file_path,
+            known_hash=None,
+            path=Path(
+                "~", ".movement", "data", "public_datasets"
+            ).expanduser(),
+            progressbar=True,
+        )
+
     if source_software == "VIA-tracks":
         return from_via_tracks_file(
             file_path,
