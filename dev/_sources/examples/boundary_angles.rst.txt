@@ -79,7 +79,7 @@ separate variable.
 .. GENERATED FROM PYTHON SOURCE LINES 36-39
 
 Below we plot the image of the
-`Aeon habitat <https://aeon.swc.ucl.ac.uk/user/aeon_modules/hardware/habitat.html>`_
+`Aeon habitat <https://aeon.swc.ucl.ac.uk/user/aeon_modules/hardware/habitat/>`_
 within which the dataset was recorded.
 
 .. GENERATED FROM PYTHON SOURCE LINES 39-50
@@ -713,7 +713,7 @@ other.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.314 seconds)
+   **Total running time of the script:** (0 minutes 1.332 seconds)
 
 
 .. _sphx_glr_download_examples_boundary_angles.py:

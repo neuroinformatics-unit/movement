@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=f574f621"></script>
+    <script src="../_static/documentation_options.js?v=c28c7c4b"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev5</p>
+    <p class="title logo__title">movement v0.13.1.dev6</p>
   
 </a></div>
     
@@ -646,6 +646,56 @@ This is important as it allows for <a class="reference internal" href="#updating
 <p>For tests requiring experimental data, you can use <a class="reference internal" href="#sample-data">sample data</a> from our external data repository.
 These datasets are accessible through the <code class="docutils literal notranslate"><span class="pre">pytest.DATA_PATHS</span></code> dictionary, populated in <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code>.
 Avoid including large data files directly in the GitHub repository.</p>
+<section id="running-benchmark-tests">
+<h4>Running benchmark tests<a class="headerlink" href="#running-benchmark-tests" title="Link to this heading">#</a></h4>
+<p>Some tests are marked as <code class="docutils literal notranslate"><span class="pre">benchmark</span></code> because we use them along with <a class="reference external" href="https://pytest-benchmark.readthedocs.io/en/latest/#">pytest-benchmark</a> to measure the performance of a section of the code. These tests are excluded from the default test run to keep CI and local test running fast.
+This applies to all ways of running <code class="docutils literal notranslate"><span class="pre">pytest</span></code> (via command line, IDE, tox or CI).</p>
+<p>To run only the benchmark tests locally:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>-m<span class="w"> </span>benchmark
+</pre></div>
+</div>
+<p>To run all tests, including those marked as <code class="docutils literal notranslate"><span class="pre">benchmark</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="comparing-benchmark-runs-across-branches">
+<h4>Comparing benchmark runs across branches<a class="headerlink" href="#comparing-benchmark-runs-across-branches" title="Link to this heading">#</a></h4>
+<p>To compare performance between branches (e.g., <code class="docutils literal notranslate"><span class="pre">main</span></code> and a PR branch), we use <a class="reference external" href="https://pytest-benchmark.readthedocs.io/en/latest/#">pytest-benchmark</a>’s save and compare functionality:</p>
+<ol class="arabic">
+<li><p>Run benchmarks on the <code class="docutils literal notranslate"><span class="pre">main</span></code> branch and save the results:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>checkout<span class="w"> </span>main
+pytest<span class="w"> </span>-m<span class="w"> </span>benchmark<span class="w"> </span>--benchmark-save<span class="o">=</span>main
+</pre></div>
+</div>
+<p>By default the results are saved to <code class="docutils literal notranslate"><span class="pre">.benchmarks/</span></code> (a directory ignored by git) as JSON files with the format <code class="docutils literal notranslate"><span class="pre">&lt;machine-identifier&gt;/0001_main.json</span></code>, where <code class="docutils literal notranslate"><span class="pre">&lt;machine-identifier&gt;</span></code> is a directory whose name relates to the machine specifications, <code class="docutils literal notranslate"><span class="pre">0001</span></code> is a counter for the benchmark run, and <code class="docutils literal notranslate"><span class="pre">main</span></code> corresponds to the string passed in the <code class="docutils literal notranslate"><span class="pre">--benchmark-save</span></code> option.</p>
+</li>
+<li><p>Switch to your PR branch and run the benchmarks again:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>checkout<span class="w"> </span>pr-branch
+pytest<span class="w"> </span>-m<span class="w"> </span>benchmark<span class="w"> </span>--benchmark-save<span class="o">=</span>pr
+</pre></div>
+</div>
+</li>
+<li><p>Show the results from both runs together:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pytest-benchmark<span class="w"> </span>compare<span class="w"> </span>&lt;path-to-main-result.json&gt;<span class="w"> </span>&lt;path-to-pr-result.json&gt;<span class="w"> </span>--group-by<span class="o">=</span>name
+</pre></div>
+</div>
+<p>Instead of providing the paths to the results, you can also provide the identifiers of the runs (e.g. <code class="docutils literal notranslate"><span class="pre">0001_main</span></code> and <code class="docutils literal notranslate"><span class="pre">0002_pr</span></code>), or use glob patterns to match the results (e.g. <code class="docutils literal notranslate"><span class="pre">*main*</span></code> and <code class="docutils literal notranslate"><span class="pre">*pr*</span></code>).</p>
+<p>You can sort the results by the name of the run using the <code class="docutils literal notranslate"><span class="pre">--sort='name'</span></code>, or group them with the <code class="docutils literal notranslate"><span class="pre">--group-by=&lt;label&gt;</span></code> option (e.g. <code class="docutils literal notranslate"><span class="pre">group-by=name</span></code> to group by the name of the run, <code class="docutils literal notranslate"><span class="pre">group-by=func</span></code> to group by the name of the test function, or <code class="docutils literal notranslate"><span class="pre">group-by=param</span></code> to group by the parameters used to test the function). For further options, check the <a class="reference external" href="https://pytest-benchmark.readthedocs.io/en/latest/usage.html#comparison-cli">comparison CLI documentation</a>.</p>
+</li>
+</ol>
+<p>We recommend reading the <a class="reference external" href="https://pytest-benchmark.readthedocs.io/en/latest/#">pytest-benchmark documentation</a> for more information on the available <a class="reference external" href="https://pytest-benchmark.readthedocs.io/en/latest/usage.html#commandline-options">CLI arguments</a>. Some useful options are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--benchmark-warmup=on</span></code>: to enable warmup to prime caches and reduce variability between runs. This is recommended for tests involving I/O or external resources.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--benchmark-warmup-iterations=N</span></code>: to set the number of warmup iterations.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--benchmark-compare</span></code>: to run benchmarks and compare against the last saved run.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--benchmark-min-rounds=10</span></code>: to run more rounds for stable results.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>High standard deviation in benchmark results often indicates bad isolation or non-deterministic behaviour (I/O, side-effects, garbage collection overhead). Before comparing past runs, it is advisable to make the benchmark runs as consistent as possible. See the <a class="reference external" href="https://pytest-benchmark.readthedocs.io/en/latest/comparing.html#">pytest-benchmark guidance on comparing runs</a> and the <a class="reference external" href="https://pytest-benchmark.readthedocs.io/en/latest/faq.html#">pytest-benchmark FAQ</a> for troubleshooting tips.</p>
+</div>
+</section>
 </section>
 <section id="logging">
 <h3>Logging<a class="headerlink" href="#logging" title="Link to this heading">#</a></h3>
@@ -1069,7 +1119,11 @@ To add a new file, you will need to:</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-guidelines">Development guidelines</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#formatting-and-pre-commit-hooks">Formatting and pre-commit hooks</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">Testing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">Testing</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#running-benchmark-tests">Running benchmark tests</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#comparing-benchmark-runs-across-branches">Comparing benchmark runs across branches</a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#logging">Logging</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-and-raising-exceptions">Logging and raising exceptions</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-use-print-warnings-warn-logger-warning-and-logger-info">When to use <code class="docutils literal notranslate"><span class="pre">print</span></code>, <code class="docutils literal notranslate"><span class="pre">warnings.warn</span></code>, <code class="docutils literal notranslate"><span class="pre">logger.warning</span></code> and <code class="docutils literal notranslate"><span class="pre">logger.info</span></code></a></li>
