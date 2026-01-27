@@ -194,7 +194,7 @@ To compare performance between branches (e.g., `main` and a PR branch), we use [
     git checkout main
     pytest -m benchmark --benchmark-save=main
     ```
-    By default the results are saved to `.benchmarks/` (a directory ignored by git) as JSON files with the format `.<machine-identifier>/0001_main.json`, where `<machine-identifier>` is a directory whose name relates to the machine specifications, `0001` is generally a counter for the benchmark run, and `main` corresponds to the string passed in the `--benchmark-save` option.
+    By default the results are saved to `.benchmarks/` (a directory ignored by git) as JSON files with the format `<machine-identifier>/0001_main.json`, where `<machine-identifier>` is a directory whose name relates to the machine specifications, `0001` is a counter for the benchmark run, and `main` corresponds to the string passed in the `--benchmark-save` option.
 
 2. Switch to your PR branch and run the benchmarks again:
 
