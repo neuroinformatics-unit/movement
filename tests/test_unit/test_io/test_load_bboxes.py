@@ -407,7 +407,7 @@ def test_parsed_df_from_file(tmp_path):
     via_file = ValidVIATracksCSV(file_path)
 
     # Compute parsed dataframe
-    df = load_bboxes._parsed_df_from_file(via_file.path)
+    df = load_bboxes._parsed_df_from_valid_file_object(via_file.path)
 
     # Check column names
     assert df.columns.tolist() == [
@@ -492,7 +492,7 @@ def test_parsed_df_from_file_confidence(
     via_file = ValidVIATracksCSV(file_path)
 
     # Compute parsed dataframe
-    df = load_bboxes._parsed_df_from_file(via_file.path)
+    df = load_bboxes._parsed_df_from_valid_file_object(via_file.path)
 
     # Check confidence value in df are as expected
     if np.isnan(expected_confidence):
@@ -538,7 +538,7 @@ def test_parsed_df_from_file_frame_number(
     via_file = ValidVIATracksCSV(file_path)
 
     # Compute parsed dataframe
-    df = load_bboxes._parsed_df_from_file(via_file.path)
+    df = load_bboxes._parsed_df_from_valid_file_object(via_file.path)
 
     # Check frame number is as expected
     assert all(df["frame_number"] == expected_frame_number)
@@ -587,7 +587,7 @@ def test_parsed_df_from_file_frame_number(
 )
 def test_fill_in_missing_rows(input_df, expected_df):
     """Test sorting and gap-filling of ID/frame combinations."""
-    df = load_bboxes._fill_in_missing_rows(input_df)
+    df = load_bboxes._fill_in_missing_rows_and_sort(input_df)
     pd.testing.assert_frame_equal(df, expected_df)
 
 
@@ -719,7 +719,7 @@ def test_position_numpy_array_from_via_tracks_file(via_file_path):
     represents the centroid of the bbox.
     """
     # Extract numpy arrays from VIA tracks .csv file
-    bboxes_arrays = load_bboxes._numpy_arrays_from_via_tracks_file(
+    bboxes_arrays = load_bboxes._numpy_arrays_from_valid_file_object(
         via_file_path
     )
     # Read VIA tracks .csv file as a dataframe

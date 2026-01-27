@@ -1,6 +1,5 @@
 """Load bounding boxes tracking data into ``movement``."""
 
-import json
 from pathlib import Path
 from typing import Literal
 
@@ -341,9 +340,7 @@ def from_via_tracks_file(
     logger.info(f"Validated VIA tracks .csv file {via_file.path}.")
 
     # Create an xarray.Dataset from the data
-    bboxes_arrays = _numpy_arrays_from_via_tracks_file(
-        via_file.df, via_file.frame_regexp
-    )
+    bboxes_arrays = _numpy_arrays_from_valid_file_object(via_file)
     ds = from_numpy(
         position_array=bboxes_arrays["position_array"],
         shape_array=bboxes_arrays["shape_array"],
@@ -368,10 +365,10 @@ def from_via_tracks_file(
     return ds
 
 
-def _numpy_arrays_from_via_tracks_file(
-    df_in: pd.DataFrame, frame_regexp: str = DEFAULT_FRAME_REGEXP
+def _numpy_arrays_from_valid_file_object(
+    valid_via_file: ValidVIATracksCSV,
 ) -> dict:
-    """Extract numpy arrays from VIA tracks dataframe.
+    """Extract numpy arrays from VIA tracks file object.
 
     The extracted numpy arrays are returned in a dictionary with the following
     keys:
@@ -390,15 +387,8 @@ def _numpy_arrays_from_via_tracks_file(
 
     Parameters
     ----------
-    df_in : pd.DataFrame
-        Input dataframe obtained from directly loading a valid
-        VIA tracks .csv file as a pandas dataframe.
-
-    frame_regexp : str
-        Regular expression pattern to extract the frame number from the frame
-        filename. By default, the frame number is expected to be encoded in
-        the filename as an integer number led by at least one zero, followed
-        by the file extension.
+    valid_via_file : ValidVIATracksCSV
+        A validated VIA tracks file object.
 
     Returns
     -------
@@ -409,9 +399,9 @@ def _numpy_arrays_from_via_tracks_file(
     # Extract 2D dataframe from input data
     # (sort data by ID and frame number, and
     # fill empty frame-ID pairs with nans)
-    df = _df_from_via_tracks_df(df_in, frame_regexp)
+    df = _parsed_df_from_valid_file_object(valid_via_file)
 
-    # Extract arrays
+    # Extract numpy arrays
     n_individuals = df["ID"].nunique()
     n_frames = df["frame_number"].nunique()
     all_data = df[["x", "y", "w", "h", "confidence"]].to_numpy()
@@ -445,160 +435,44 @@ def _numpy_arrays_from_via_tracks_file(
     return array_dict
 
 
-def _df_from_via_tracks_df(
-    df_in: pd.DataFrame, frame_regexp: str = DEFAULT_FRAME_REGEXP
+def _parsed_df_from_valid_file_object(
+    valid_via_file: ValidVIATracksCSV,
 ) -> pd.DataFrame:
-    """Extract dataframe from VIA tracks dataframe.
+    """Build a sorted DataFrame from a validated VIA file object.
 
-    The VIA tracks dataframe is obtained from directly loading a valid
-    VIA tracks .csv file as a pandas dataframe. The output dataframe contains
-    the following columns:
-    - ID: the integer ID of the tracked bounding box.
-    - frame_number: the frame number of the tracked bounding box.
-    - x: the x-coordinate of the tracked bounding box's top-left corner.
-    - y: the y-coordinate of the tracked bounding box's top-left corner.
-    - w: the width of the tracked bounding box.
-    - h: the height of the tracked bounding box.
-    - confidence: the confidence score of the tracked bounding box.
-
-    The dataframe is sorted by ID and frame number, and for each ID,
-    empty frames are filled in with NaNs. The coordinates of the bboxes
-    are assumed to be in the image coordinate system (i.e., the top-left
-    corner of a bbox is its corner with minimum x and y coordinates).
-
-    The frame number is extracted from the filename using the provided
-    regexp if it is not defined as a 'file_attribute' in the VIA tracks .csv
-    file.
-    """
-    # Parse input dataframe
-    logger.info(
-        "Parsing dataframe (this may take a few minutes for large files)..."
-    )
-    df = _parsed_df_from_via_tracks_df(df_in, frame_regexp)
-    logger.info("Parsing complete.")
-
-    # Fill in missing combinations of ID and
-    # frame number if required
-    df = _fill_in_missing_rows(df)
-
-    return df
-
-
-def _parsed_df_from_via_tracks_df(
-    df: pd.DataFrame, frame_regexp: str = DEFAULT_FRAME_REGEXP
-) -> pd.DataFrame:
-    """Parse VIA tracks dataframe.
-
-    Parses dictionary-like string columns in VIA tracks dataframe, and casts
-    columns to the expected types. It returns a copy of the relevant subset
-    of columns.
+    Creates a DataFrame with ID, frame_number, x, y, w, h, and confidence
+    columns. Missing (ID, frame_number) combinations are filled with NaNs,
+    and the result is sorted by ID and frame_number.
 
     Parameters
     ----------
-    df : pd.DataFrame
-        Input dataframe obtained from directly loading a valid
-        VIA tracks .csv file as a pandas dataframe.
-
-    frame_regexp : str, optional
-        The regular expression to extract the frame number from the filename.
+    valid_via_file : ValidVIATracksCSV
+        A validated VIA tracks file object.
 
     Returns
     -------
     pd.DataFrame
-        The parsed dataframe with the following columns:
-        - ID: the integer ID of the tracked bounding box.
-        - frame_number: the frame number of the tracked bounding box.
-        - x: the x-coordinate of the tracked bounding box's top-left corner.
-        - y: the y-coordinate of the tracked bounding box's top-left corner.
-        - w: the width of the tracked bounding box.
-        - h: the height of the tracked bounding box.
-        - confidence: the confidence score of the tracked bounding box, filled
-        with NaN where not defined.
+        Sorted DataFrame with all ID/frame combinations.
 
     """
-    # Read VIA tracks .csv file as a pandas dataframe
-    # df = pd.read_csv(file_path, sep=",", header=0)
-
-    # Loop thru rows of columns with dict-like data
-    # (this is typically faster than iterrows())
-    region_shapes = df["region_shape_attributes"].tolist()
-    region_attrs = df["region_attributes"].tolist()
-    file_attrs = df["file_attributes"].tolist()
-
-    # Initialize lists for results
-    x, y, w, h, ids, confidences, frame_numbers = [], [], [], [], [], [], []
-    for rs, ra, fa in zip(
-        region_shapes, region_attrs, file_attrs, strict=True
-    ):
-        # Regions shape
-        region_shape_dict = json.loads(rs)
-        x.append(region_shape_dict.get("x"))
-        y.append(region_shape_dict.get("y"))
-        w.append(region_shape_dict.get("width"))
-        h.append(region_shape_dict.get("height"))
-
-        # Region attributes
-        region_attrs_dict = json.loads(ra)
-        ids.append(region_attrs_dict.get("track"))
-        confidences.append(region_attrs_dict.get("confidence", np.nan))
-
-        # File attributes
-        file_attrs_dict = json.loads(fa)
-        # assigns None if not defined under "frame"
-        frame_numbers.append(file_attrs_dict.get("frame"))
-
-    # Assign lists to dataframe
-    df["x"], df["y"], df["w"], df["h"] = x, y, w, h
-    df["ID"], df["confidence"] = ids, confidences
-
-    # After loop, handle frame_number for entire column at once
-    if None not in frame_numbers:
-        df["frame_number"] = frame_numbers
-    else:
-        df["frame_number"] = df["filename"].str.extract(
-            frame_regexp, expand=False
-        )
-
-    # Remove string columns to free memory
-    df = df.drop(
-        columns=[
-            "region_shape_attributes",
-            "region_attributes",
-            "file_attributes",
-        ]
+    # Build dataframe from file validator object data, then sort and reindex
+    df = pd.DataFrame(
+        {
+            "ID": valid_via_file.ids,
+            "frame_number": valid_via_file.frame_numbers,
+            "x": np.array(valid_via_file.x, dtype=np.float32),
+            "y": np.array(valid_via_file.y, dtype=np.float32),
+            "w": np.array(valid_via_file.w, dtype=np.float32),
+            "h": np.array(valid_via_file.h, dtype=np.float32),
+            "confidence": np.array(
+                valid_via_file.confidence_values, dtype=np.float32
+            ),
+        }
     )
 
-    # Apply type conversions
-    df["ID"] = df["ID"].astype(int)
-    df["frame_number"] = df["frame_number"].astype(int)
-    df[["x", "y", "w", "h", "confidence"]] = df[
-        ["x", "y", "w", "h", "confidence"]
-    ].astype(np.float32)
-
-    # Return relevant subset of columns as copy
-    return df[["ID", "frame_number", "x", "y", "w", "h", "confidence"]].copy()
-
-
-def _fill_in_missing_rows(df: pd.DataFrame) -> pd.DataFrame:
-    """Add rows for missing (ID, frame_number) combinations and fill with NaNs.
-
-    Parameters
-    ----------
-    df : pd.DataFrame
-        The dataframe to fill in missing rows in.
-
-    Returns
-    -------
-    pd.DataFrame
-        The dataframe with rows for previously missing (ID, frame_number)
-        combinations added and filled in with NaNs. The dataframe is sorted
-        by ID and frame number.
-
-    """
-    # Fill in missing rows if required
     # If every ID is defined for every frame:
     # just sort and reindex (does not add rows)
-    if len(df) == len(df["ID"].unique()) * len(df["frame_number"].unique()):
+    if len(df) == df["ID"].nunique() * df["frame_number"].nunique():
         df = df.sort_values(
             by=["ID", "frame_number"],
             axis=0,
