@@ -767,4 +767,5 @@ def test_benchmark_from_via_tracks_file(via_file_path, benchmark):
 )
 def test_benchmark_df_from_via_tracks_file(via_file_path, benchmark):
     """Benchmark the `_df_from_via_tracks_file` function."""
-    benchmark(load_bboxes._df_from_via_tracks_file, via_file_path)
+    valid_via = ValidVIATracksCSV(via_file_path)
+    benchmark(load_bboxes._parsed_df_from_valid_file_object, valid_via)
