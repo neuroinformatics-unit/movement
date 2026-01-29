@@ -1,6 +1,7 @@
 """``attrs`` classes for validating file paths."""
 
 import os
+import re
 from pathlib import Path
 from typing import Literal
 
@@ -463,19 +464,29 @@ class ValidVIATracksCSV:
         # If there is any None in the list, try extracting
         # the frame number from the filename
         if None in frame_numbers:
-            try:
-                frame_numbers = self.df["filename"].str.extract(
-                    self.frame_regexp, expand=False
+            # Check if the regexp pattern is ill-defined
+            if re.compile(self.frame_regexp).groups != 1:
+                raise ValueError(
+                    "The regexp pattern must contain exactly one capture "
+                    f"group for the frame number (got {self.frame_regexp})."
                 )
-            except ValueError as e:
+
+            # Extract frame number from filename
+            frame_numbers = self.df["filename"].str.extract(
+                self.frame_regexp,
+                expand=False,  # to return a series if one capture group
+            )
+
+            # Check if there are no matches
+            if frame_numbers.isna().any():
                 raise logger.error(
                     ValueError(
-                        "Some frame numbers are not defined in the file "
-                        "attributes and cannot be extracted from the "
-                        "filename using the provided regular expression. "
-                        "Please review the input VIA-tracks .csv file."
+                        "Could not extract frame numbers from the filenames "
+                        f"using the regular expression {self.frame_regexp}. "
+                        "Please ensure filenames match the expected pattern, "
+                        "or define the frame numbers in file_attributes."
                     )
-                ) from e
+                )
 
         # Check all frame numbers are castable as integer
         try:
@@ -545,17 +556,6 @@ class ValidVIATracksCSV:
             # Get confidence data if present (otherwise nan)
             confidence = region_attrs.get("confidence", np.nan)
 
-            # Throw error if missing geometry
-            if sx is None or sy is None or sw is None or sh is None:
-                raise logger.error(
-                    ValueError(
-                        f"The bounding box in row {k + 1} is "
-                        "missing a geometric "
-                        "parameter (x, y, width, height). Please review the "
-                        "VIA tracks .csv file."
-                    )
-                )
-
             # Throw error if invalid shape
             if shape_name != "rect":
                 raise logger.error(
@@ -577,15 +577,26 @@ class ValidVIATracksCSV:
                     )
                 )
 
+            # Throw error if missing geometry
+            if sx is None or sy is None or sw is None or sh is None:
+                raise logger.error(
+                    ValueError(
+                        f"The bounding box in row {k + 1} is "
+                        "missing a geometric "
+                        "parameter (x, y, width, height). Please review the "
+                        "VIA tracks .csv file."
+                    )
+                )
+
             # Check if ID is castable as int
             try:
                 track_id = int(track_id)
             except ValueError as e:
                 raise logger.error(
                     ValueError(
-                        f"The bounding box in row {k + 1} track ID "
-                        "cannot be cast as an integer but instead "
-                        f"got {track_id}. Please "
+                        f"The track ID of the bounding box in row {k + 1} "
+                        "cannot be cast as an integer "
+                        f"(got track ID '{track_id}'). Please "
                         "review the VIA tracks .csv file."
                     )
                 ) from e
