@@ -412,7 +412,7 @@ class ValidVIATracksCSV:
     # Bboxes pre-parsed data
     df: pd.DataFrame = field(
         init=False, factory=pd.DataFrame
-    )  # this dataframe is deleted after validation
+    )  # this dataframe attribute is deleted after validation
     x: list[float] = field(init=False, factory=list)
     y: list[float] = field(init=False, factory=list)
     w: list[float] = field(init=False, factory=list)
@@ -597,16 +597,6 @@ class ValidVIATracksCSV:
                     )
                 )
 
-            # Throw error if ID is missing
-            if track_id is None:
-                raise logger.error(
-                    ValueError(
-                        f"The bounding box in row {k + 1} is "
-                        "missing a track ID. "
-                        "Please review the VIA tracks .csv file."
-                    )
-                )
-
             # Throw error if missing geometry
             if sx is None or sy is None or sw is None or sh is None:
                 raise logger.error(
@@ -615,6 +605,16 @@ class ValidVIATracksCSV:
                         "missing a geometric "
                         "parameter (x, y, width, height). Please review the "
                         "VIA tracks .csv file."
+                    )
+                )
+
+            # Throw error if ID is missing
+            if track_id is None:
+                raise logger.error(
+                    ValueError(
+                        f"The bounding box in row {k + 1} is "
+                        "missing a track ID. "
+                        "Please review the VIA tracks .csv file."
                     )
                 )
 
@@ -653,7 +653,8 @@ class ValidVIATracksCSV:
 
         It checks that bounding boxes IDs are defined once per image file.
         """
-        # Use a temporary Series for the check, don't modify self.df
+        # Use a temporary series for the check by using `.assign`
+        # (so that we don't modify self.df)
         has_duplicates = self.df.assign(ID=self.ids).duplicated(
             subset=["filename", "ID"],
             keep=False,
