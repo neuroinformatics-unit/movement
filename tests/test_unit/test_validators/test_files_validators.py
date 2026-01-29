@@ -198,19 +198,15 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         (
             "via_frame_number_in_file_attribute_not_integer",
             ValueError,
-            "04.09.2023-04-Right_RE_test_frame_A.png (row 0): "
-            "'frame' file attribute cannot be cast as an integer. "
-            "Please review the file attributes: "
-            "{'clip': 123, 'frame': 'FOO'}.",
+            "Extracted frame number 'FOO' cannot be cast as integer. ",
         ),
         (
             "via_frame_number_in_filename_wrong_pattern",
-            AttributeError,
-            "04.09.2023-04-Right_RE_test_frame_1.png (row 0): "
-            r"The provided frame regexp ((0\d*)\.\w+$) did not return "
-            "any matches and a "
-            "frame number could not be extracted from the "
-            "filename.",
+            ValueError,
+            "Could not extract frame numbers from the filenames using "
+            r"the regular expression (0\d*)\.\w+$. Please ensure "
+            "filenames match the expected pattern, or define the "
+            "frame numbers in file_attributes.",
         ),
         (
             "via_more_frame_numbers_than_filenames",
@@ -229,46 +225,36 @@ def test_deeplabcut_csv_validator_with_invalid_input(
         (
             "via_region_shape_attribute_not_rect",
             ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
-            "bounding box shape must be 'rect' (rectangular) "
-            "but instead got 'circle'.",
+            "The bounding box in row 1 shape was expected to be 'rect' "
+            "(rectangular) but instead got circle.",
         ),
         (
             "via_region_shape_attribute_missing_x",
             ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
-            "missing bounding box shape parameter(s). "
-            "Expected 'x', 'y', 'width', 'height' to exist as "
-            "'region_shape_attributes', but got "
-            "'['name', 'y', 'width', 'height']'.",
+            "The bounding box in row 1 is missing "
+            "a geometric parameter (x, y, width, height). ",
         ),
         (
             "via_region_attribute_missing_track",
             ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
-            "bounding box does not have a 'track' attribute defined "
-            "under 'region_attributes'. "
-            "Please review the VIA tracks .csv file.",
+            "The bounding box in row 1 is missing a track ID. ",
         ),
         (
             "via_track_id_not_castable_as_int",
             ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
-            "the track ID for the bounding box cannot be cast "
-            "as an integer. "
-            "Please review the VIA tracks .csv file.",
+            "The track ID of the bounding box in row 1 cannot be "
+            "cast as an integer (got track ID 'FOO').",
         ),
         (
             "via_track_ids_not_unique_per_frame",
             ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png: "
-            "multiple bounding boxes in this file have the same track ID. "
-            "Please review the VIA tracks .csv file.",
+            "Duplicate track IDs found in the following files: "
+            "['04.09.2023-04-Right_RE_test_frame_01.png']. ",
         ),
     ],
 )
 def test_via_tracks_csv_validator_with_invalid_input(
-    invalid_via_tracks_csv_file, invalid_input, error_type, log_message
+    via_tracks_csv_factory, invalid_input, error_type, log_message
 ):
     """Test that invalid VIA tracks .csv files raise the appropriate errors.
 
@@ -284,11 +270,32 @@ def test_via_tracks_csv_validator_with_invalid_input(
         (i.e., bboxes IDs must exist only once per frame)
     - error if bboxes IDs are not 1-based integers
     """
-    file_path = invalid_via_tracks_csv_file(invalid_input)
+    file_path = via_tracks_csv_factory(invalid_input)
     with pytest.raises(error_type) as excinfo:
         ValidVIATracksCSV(file_path)
 
-    assert str(excinfo.value) == log_message
+    assert log_message in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "invalid_regexp",
+    [
+        r"\d+",  # no capture group
+        r"(\d+)\.(\w+)",  # two capture groups
+    ],
+)
+def test_via_tracks_csv_validator_with_invalid_regexp(
+    via_tracks_csv_factory, invalid_regexp
+):
+    """Test regexp with wrong number of capture groups raises ValueError."""
+    file_path = via_tracks_csv_factory("via_valid")
+    with pytest.raises(ValueError) as excinfo:
+        ValidVIATracksCSV(file_path, frame_regexp=invalid_regexp)
+
+    assert (
+        "The regexp pattern must contain exactly one capture group for the "
+        rf"frame number (got {invalid_regexp})."
+    ) in str(excinfo.value)
 
 
 @pytest.mark.parametrize(
