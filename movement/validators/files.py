@@ -394,7 +394,7 @@ class ValidVIATracksCSV:
     # Bboxes pre-parsed data
     df: pd.DataFrame = field(
         init=False, factory=pd.DataFrame
-    )  # deleted after validation
+    )  # this dataframe is deleted after validation
     x: list[float] = field(init=False, factory=list)
     y: list[float] = field(init=False, factory=list)
     w: list[float] = field(init=False, factory=list)
@@ -404,7 +404,7 @@ class ValidVIATracksCSV:
     confidence_values: list[float] = field(init=False, factory=list)
 
     def __attrs_post_init__(self):
-        """Clear the DataFrame after validation is complete."""
+        """Clear the dataframe attribute after validation is complete."""
         object.__setattr__(self, "df", None)
 
     @path.validator
@@ -431,10 +431,9 @@ class ValidVIATracksCSV:
                 )
             )
 
-        # -----------------
-        # Read CSV once and store for later use
+        # Store dataframe for other validation steps
+        # (deleted once validation is complete)
         self.df = df
-        # -----------------
 
     @path.validator
     def _file_contains_valid_frame_numbers(self, attribute, value):
