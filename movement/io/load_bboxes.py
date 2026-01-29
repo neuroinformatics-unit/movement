@@ -404,7 +404,7 @@ def _numpy_arrays_from_valid_file_object(
     # Extract numpy arrays
     n_individuals = df["ID"].nunique()
     n_frames = df["frame_number"].nunique()
-    all_data = df[["x", "y", "w", "h", "confidence"]].to_numpy()
+    all_data = df[["x", "y", "w", "h", "confidence"]].to_numpy(copy=True)
 
     array_dict: dict[str, np.ndarray] = {}
     array_dict["position_array"] = (
