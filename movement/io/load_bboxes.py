@@ -404,6 +404,8 @@ def _numpy_arrays_from_valid_file_object(
     # Extract numpy arrays
     n_individuals = df["ID"].nunique()
     n_frames = df["frame_number"].nunique()
+    # copy = True to return a writable numpy array if
+    # copy-on-write is enabled (default for pandas >= 3.0)
     all_data = df[["x", "y", "w", "h", "confidence"]].to_numpy(copy=True)
 
     array_dict: dict[str, np.ndarray] = {}
