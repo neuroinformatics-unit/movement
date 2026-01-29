@@ -1,12 +1,12 @@
 """``attrs`` classes for validating file paths."""
 
-import json
 import os
 from pathlib import Path
 from typing import Literal
 
 import h5py
 import numpy as np
+import orjson
 import pandas as pd
 from attrs import define, field, validators
 from pynwb import NWBFile
@@ -458,7 +458,7 @@ class ValidVIATracksCSV:
         # (returns None if not defined)
         frame_numbers = []
         for row in self.df["file_attributes"]:
-            frame_numbers.append(json.loads(row).get("frame"))
+            frame_numbers.append(orjson.loads(row).get("frame"))
 
         # If there is any None in the list, try extracting
         # the frame number from the filename
@@ -522,8 +522,8 @@ class ValidVIATracksCSV:
             strict=True,
         ):
             # Parse dicts
-            shape_attrs = json.loads(shape_row)
-            region_attrs = json.loads(attr_row)
+            shape_attrs = orjson.loads(shape_row)
+            region_attrs = orjson.loads(attr_row)
 
             # Get shape data
             shape_name = shape_attrs.get("name")
