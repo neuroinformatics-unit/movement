@@ -313,7 +313,7 @@ def via_tracks_csv_factory(tmp_path, request):
     """Return the file path for an invalid VIA tracks .csv file."""
 
     def _via_tracks_csv_factory(invalid_content):
-        file_path = tmp_path / "invalid_via_tracks.csv"
+        file_path = tmp_path / "test_via_tracks.csv"
         with open(file_path, "w") as f:
             f.write(request.getfixturevalue(invalid_content))
         return file_path

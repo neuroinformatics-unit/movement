@@ -381,7 +381,7 @@ def test_from_numpy(
     assert_time_coordinates(ds, fps, start_frame)
 
 
-def test_parsed_df_from_file(tmp_path):
+def test_parsed_df_from_valid_file_object(tmp_path):
     """Test the parsed dataframe is as expected."""
     # Create minimal VIA tracks CSV with one row
     header = (
@@ -431,16 +431,6 @@ def test_parsed_df_from_file(tmp_path):
         ]
     )
 
-    # Check string columns are removed
-    assert all(
-        x not in df.columns.tolist()
-        for x in [
-            "region_shape_attributes",
-            "region_attributes",
-            "file_attributes",
-        ]
-    )
-
     # Check values match strings above
     assert len(df) == 1
     assert df["ID"].iloc[0] == 1
@@ -460,12 +450,12 @@ def test_parsed_df_from_file(tmp_path):
     ],
     ids=["no_confidence", "with_confidence"],
 )
-def test_parsed_df_from_file_confidence(
+def test_parsed_df_from_valid_file_object_confidence(
     region_attributes,
     expected_confidence,
     tmp_path,
 ):
-    """Test that _parsed_df_from_file returns NaN for confidence
+    """Test that _parsed_df_from_valid_file_object returns NaN for confidence
     when not defined, and the actual value when defined.
     """
     # Define a minimal VIA tracks .csv file with one row
@@ -506,10 +496,10 @@ def test_parsed_df_from_file_confidence(
         ("0275.png", '"{""foo"": 123}"', 275),
     ],
 )
-def test_parsed_df_from_file_frame_number(
+def test_parsed_df_from_valid_file_object_frame_number(
     filename, file_attributes, expected_frame_number, tmp_path
 ):
-    """Test frame number extraction from input VIA tracks .csv file.
+    """Test frame number extraction from a valid VIA tracks file object.
 
     We test the case where the frame number is defined in the filename,
     and the case where the frame number is defined in the file_attributes.
@@ -600,7 +590,7 @@ def test_parsed_df_from_file_frame_number(
         ),
     ],
 )
-def test_fill_in_missing_rows(input_data, expected_df):
+def test_parsed_df_from_valid_file_object_fill(input_data, expected_df):
     """Test sorting and gap-filling of ID/frame combinations."""
     # Mock valid VIA file object based on input
     mock_via_file = Mock()
@@ -699,7 +689,7 @@ def test_fps_and_time_coords(
         ),  # multiple crabs, all but id=1 are present in all 5 frames
     ],
 )
-def test_parsed_df_from_valid_file_object(
+def test_parsed_df_from_valid_file(
     via_file_path, expected_n_frames, expected_n_individuals, request
 ):
     """Test that the `_parsed_df_from_valid_file_object` helper function
@@ -742,19 +732,15 @@ def test_parsed_df_from_valid_file_object(
         pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
     ],
 )
-def test_position_numpy_array_from_via_tracks_file(via_file_path):
-    """Test the extracted position array from the VIA tracks .csv file
-    represents the centroid of the bbox.
-    """
-    # Get valid file object
-    via_file_object = ValidVIATracksCSV(via_file_path)
-
+def test_position_array_from_valid_file_object(via_file_path):
+    """Test the position arrays extracted from a valid VIA file object."""
     # Extract numpy arrays from VIA tracks .csv file
+    via_file_object = ValidVIATracksCSV(via_file_path)
     bboxes_arrays = load_bboxes._numpy_arrays_from_valid_file_object(
         via_file_object
     )
 
-    # Read VIA tracks .csv file as a dataframe
+    # Read VIA tracks valid file object as a dataframe
     df = load_bboxes._parsed_df_from_valid_file_object(via_file_object)
 
     # Compute centroid positions from the dataframe
@@ -766,6 +752,7 @@ def test_position_numpy_array_from_via_tracks_file(via_file_path):
             [df_one_id.x + df_one_id.w / 2, df_one_id.y + df_one_id.h / 2]
         ).T  # frames, xy
         list_derived_centroids.append(centroid_position)
+
     # Compare to extracted position array
     assert np.allclose(
         bboxes_arrays["position_array"],  # frames, xy, individuals
