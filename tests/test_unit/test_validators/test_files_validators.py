@@ -298,6 +298,30 @@ def test_via_tracks_csv_validator_with_invalid_regexp(
     ) in str(excinfo.value)
 
 
+def test_via_tracks_csv_validator_attributes(
+    via_tracks_csv_factory,
+):
+    """Test that the attributes are as expected after validation.
+
+    The dataframe attribute should be cleared after validation.
+    The pre-parsed data should be defined.
+    """
+    file_path = via_tracks_csv_factory("via_valid")
+    validator = ValidVIATracksCSV(file_path)
+
+    # Check that the dataframe attribute is cleared
+    assert validator.df is None
+
+    # Check that the pre-parsed data is defined
+    assert isinstance(validator.x, list)
+    assert isinstance(validator.y, list)
+    assert isinstance(validator.w, list)
+    assert isinstance(validator.h, list)
+    assert isinstance(validator.ids, list)
+    assert isinstance(validator.frame_numbers, list)
+    assert isinstance(validator.confidence_values, list)
+
+
 @pytest.mark.parametrize(
     "invalid_input, log_message",
     [

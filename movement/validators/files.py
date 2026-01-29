@@ -372,6 +372,9 @@ class ValidVIATracksCSV:
     - contains tracked bounding boxes, and
     - defines bounding boxes whose IDs are unique per image file.
 
+    If the file is validated, the bounding boxes data is pre-parsed
+    from the input file and added as attributes.
+
     Attributes
     ----------
     path : pathlib.Path
@@ -381,6 +384,20 @@ class ValidVIATracksCSV:
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed
         by the file extension.
+    x : list of float
+        List of x coordinates of the tracked bounding boxes.
+    y : list of float
+        List of y coordinates of the tracked bounding boxes.
+    w : list of float
+        List of width coordinates of the tracked bounding boxes.
+    h : list of float
+        List of height coordinates of the tracked bounding boxes.
+    ids : list of int
+        List of track IDs of the tracked bounding boxes.
+    frame_numbers : list of int
+        List of frame numbers of the tracked bounding boxes.
+    confidence_values : list of float
+        List of confidence values of the tracked bounding boxes.
 
     Raises
     ------
