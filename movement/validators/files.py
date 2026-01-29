@@ -479,11 +479,14 @@ class ValidVIATracksCSV:
 
         # Check all frame numbers are castable as integer
         try:
-            frame_numbers = [int(f) for f in frame_numbers]
+            frame_numbers_int = []
+            for f in frame_numbers:
+                frame_numbers_int.append(int(f))
+            frame_numbers = frame_numbers_int
         except ValueError as e:
             raise logger.error(
                 ValueError(
-                    "The extracted frame numbers cannot be cast as integers. "
+                    f"Extracted frame number '{f}' cannot be cast as integer. "
                     "Please review the VIA-tracks .csv file."
                 )
             ) from e
@@ -516,10 +519,12 @@ class ValidVIATracksCSV:
         """
         # Extract region shape data
         x, y, w, h, ids, confidence_values = [], [], [], [], [], []
-        for shape_row, attr_row in zip(
-            self.df["region_shape_attributes"],
-            self.df["region_attributes"],
-            strict=True,
+        for k, (shape_row, attr_row) in enumerate(
+            zip(
+                self.df["region_shape_attributes"],
+                self.df["region_attributes"],
+                strict=True,
+            )
         ):
             # Parse dicts
             shape_attrs = orjson.loads(shape_row)
@@ -544,7 +549,8 @@ class ValidVIATracksCSV:
             if sx is None or sy is None or sw is None or sh is None:
                 raise logger.error(
                     ValueError(
-                        "At least one bounding box is missing a geometric "
+                        f"The bounding box in row {k + 1} is "
+                        "missing a geometric "
                         "parameter (x, y, width, height). Please review the "
                         "VIA tracks .csv file."
                     )
@@ -554,8 +560,9 @@ class ValidVIATracksCSV:
             if shape_name != "rect":
                 raise logger.error(
                     ValueError(
-                        "At least one bounding box shape is not 'rect' "
-                        "(rectangular). Please review the VIA tracks "
+                        f"The bounding box in row {k + 1} shape was "
+                        "expected to be 'rect' (rectangular) but instead got "
+                        f"{shape_name}. Please review the VIA tracks "
                         ".csv file."
                     )
                 )
@@ -564,7 +571,8 @@ class ValidVIATracksCSV:
             if track_id is None:
                 raise logger.error(
                     ValueError(
-                        "At least one bounding box is missing a track ID. "
+                        f"The bounding box in row {k + 1} is "
+                        "missing a track ID. "
                         "Please review the VIA tracks .csv file."
                     )
                 )
@@ -575,8 +583,10 @@ class ValidVIATracksCSV:
             except ValueError as e:
                 raise logger.error(
                     ValueError(
-                        "At least one bounding box track ID cannot be cast as "
-                        "an integer. Please review the VIA tracks .csv file."
+                        f"The bounding box in row {k + 1} track ID "
+                        "cannot be cast as an integer but instead "
+                        f"got {track_id}. Please "
+                        "review the VIA tracks .csv file."
                     )
                 ) from e
 
