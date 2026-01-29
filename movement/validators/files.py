@@ -436,7 +436,22 @@ class ValidVIATracksCSV:
         self.df = df
 
     @path.validator
-    def _file_contains_valid_frame_numbers(self, attribute, value):
+    def _file_contains_tracked_bboxes(self, attribute, value):
+        """Ensure that the VIA tracks .csv contains tracked bounding boxes.
+
+        This involves:
+
+        - Checking that the bounding boxes are defined as rectangles.
+        - Checking that the bounding boxes have all geometric parameters
+          (``["x", "y", "width", "height"]``).
+        - Checking that the bounding boxes have a track ID defined.
+        - Checking that the track ID can be cast as an integer.
+        - Checking that the frame numbers are valid.
+        """
+        candidate_frame_numbers = self._extract_data_and_validate_regions()
+        self._validate_frame_numbers(candidate_frame_numbers)
+
+    def _validate_frame_numbers(self, frame_numbers):
         """Ensure that the VIA tracks .csv file contains valid frame numbers.
 
         This involves:
@@ -456,9 +471,11 @@ class ValidVIATracksCSV:
         """
         # Try extracting frame number from the file attributes
         # (returns None if not defined)
-        frame_numbers = []
-        for row in self.df["file_attributes"]:
-            frame_numbers.append(orjson.loads(row).get("frame"))
+        # # ------------------
+        # frame_numbers = []
+        # for row in self.df["file_attributes"]:
+        #     frame_numbers.append(orjson.loads(row).get("frame"))
+        # # ------------------
 
         # If there is any None in the list, try extracting
         # the frame number from the filename
@@ -502,29 +519,33 @@ class ValidVIATracksCSV:
         # If all checks pass, add as attribute
         self.frame_numbers = frame_numbers  # already cast as integer
 
-    @path.validator
-    def _file_contains_tracked_bboxes(self, attribute, value):
-        """Ensure that the VIA tracks .csv contains tracked bounding boxes.
+    def _extract_data_and_validate_regions(self) -> list:
+        """Extract data from VIA tracks dataframe and validate regions.
 
-        This involves:
-
-        - Checking that the bounding boxes are defined as rectangles.
-        - Checking that the bounding boxes have all geometric parameters
-          (``["x", "y", "width", "height"]``).
-        - Checking that the bounding boxes have a track ID defined.
-        - Checking that the track ID can be cast as an integer.
+        It extracts the regions data and candidate frame numbers (if defined as
+        file attributes) from the input data, checks the regions'
+        properties and returns the list of candidate frame numbers.
         """
-        # Extract region shape data
+        # Extract region shape data and candidate frame number
         x, y, w, h, ids, confidence_values = [], [], [], [], [], []
-        for shape_row, attr_row in zip(
-            self.df["region_shape_attributes"],
-            self.df["region_attributes"],
-            strict=True,
+        frame_numbers = []
+        for k, (file_attr_row, shape_row, attr_row) in enumerate(
+            zip(
+                self.df["file_attributes"],
+                self.df["region_shape_attributes"],
+                self.df["region_attributes"],
+                strict=True,
+            )
         ):
             # Parse dicts
+            file_attrs = orjson.loads(file_attr_row)
             shape_attrs = orjson.loads(shape_row)
             region_attrs = orjson.loads(attr_row)
 
+            # Extract frame number from file attributes (may be None)
+            frame_numbers.append(file_attrs.get("frame"))
+
+            # Extract and validate shape data
             # Get shape data
             shape_name = shape_attrs.get("name")
             sx, sy, sw, sh = (
@@ -544,7 +565,7 @@ class ValidVIATracksCSV:
             if sx is None or sy is None or sw is None or sh is None:
                 raise logger.error(
                     ValueError(
-                        "At least one bounding box is missing a geometric "
+                        f"The bounding box in row {k} is missing a geometric "
                         "parameter (x, y, width, height). Please review the "
                         "VIA tracks .csv file."
                     )
@@ -554,8 +575,9 @@ class ValidVIATracksCSV:
             if shape_name != "rect":
                 raise logger.error(
                     ValueError(
-                        "At least one bounding box shape is not 'rect' "
-                        "(rectangular). Please review the VIA tracks "
+                        f"The bounding box in row {k} shape was "
+                        "expected to be 'rect' (rectangular) but instead got "
+                        f"{shape_name}. Please review the VIA tracks "
                         ".csv file."
                     )
                 )
@@ -564,7 +586,7 @@ class ValidVIATracksCSV:
             if track_id is None:
                 raise logger.error(
                     ValueError(
-                        "At least one bounding box is missing a track ID. "
+                        f"The bounding box in row {k} is missing a track ID. "
                         "Please review the VIA tracks .csv file."
                     )
                 )
@@ -575,8 +597,9 @@ class ValidVIATracksCSV:
             except ValueError as e:
                 raise logger.error(
                     ValueError(
-                        "At least one bounding box track ID cannot be cast as "
-                        "an integer. Please review the VIA tracks .csv file."
+                        f"The bounding box in row {k} track ID cannot be cast "
+                        f"as an integer but instead got {track_id}. Please "
+                        "review the VIA tracks .csv file."
                     )
                 ) from e
 
@@ -595,6 +618,8 @@ class ValidVIATracksCSV:
         self.h = h
         self.ids = ids  # already an integer
         self.confidence_values = confidence_values  # nan if not defined
+
+        return frame_numbers
 
     @path.validator
     def _file_contains_unique_track_ids_per_filename(self, attribute, value):
