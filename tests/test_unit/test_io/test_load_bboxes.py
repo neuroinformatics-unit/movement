@@ -1,9 +1,8 @@
 """Test suite for the load_bboxes module."""
 
 import json
-import re
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
@@ -304,25 +303,23 @@ def test_from_via_tracks_file(
     [
         (
             r"*",
-            re.error,
+            ValueError,
             "The provided regular expression for the frame numbers (*) "
             "could not be compiled. Please review its syntax.",
         ),
         (
             r"_(0\d*)_$",
-            AttributeError,
-            "00000.jpg (row 0): "
-            r"The provided frame regexp (_(0\d*)_$) did not return any "
-            "matches and a frame number could not be extracted from "
-            "the filename.",
+            ValueError,
+            "Could not extract frame numbers from the filenames "
+            r"using the regular expression _(0\d*)_$. "
+            "Please ensure filenames match the expected pattern, "
+            "or define the frame numbers in file_attributes.",
         ),
         (
             r"(0\d*\.\w+)$",
             ValueError,
-            "00000.jpg (row 0): "
-            "The frame number extracted from the filename "
-            r"using the provided regexp ((0\d*\.\w+)$) "
-            "could not be cast as an integer.",
+            "Extracted frame number '00000.jpg' cannot be cast as integer. "
+            "Please review the VIA-tracks .csv file.",
         ),
     ],
 )
@@ -404,10 +401,10 @@ def test_parsed_df_from_file(tmp_path):
     file_path.write_text(header + row)
 
     # Ensure it is a valid VIA tracks .csv file
-    via_file = ValidVIATracksCSV(file_path)
+    via_file_object = ValidVIATracksCSV(file_path)
 
     # Compute parsed dataframe
-    df = load_bboxes._parsed_df_from_valid_file_object(via_file.path)
+    df = load_bboxes._parsed_df_from_valid_file_object(via_file_object)
 
     # Check column names
     assert df.columns.tolist() == [
@@ -489,10 +486,10 @@ def test_parsed_df_from_file_confidence(
     file_path.write_text(header + row)
 
     # Ensure it is a valid VIA tracks .csv file
-    via_file = ValidVIATracksCSV(file_path)
+    via_file_object = ValidVIATracksCSV(file_path)
 
     # Compute parsed dataframe
-    df = load_bboxes._parsed_df_from_valid_file_object(via_file.path)
+    df = load_bboxes._parsed_df_from_valid_file_object(via_file_object)
 
     # Check confidence value in df are as expected
     if np.isnan(expected_confidence):
@@ -535,59 +532,89 @@ def test_parsed_df_from_file_frame_number(
     file_path.write_text(header + row)
 
     # Ensure it is a valid VIA tracks .csv file
-    via_file = ValidVIATracksCSV(file_path)
+    via_file_object = ValidVIATracksCSV(file_path)
 
     # Compute parsed dataframe
-    df = load_bboxes._parsed_df_from_valid_file_object(via_file.path)
+    df = load_bboxes._parsed_df_from_valid_file_object(via_file_object)
 
     # Check frame number is as expected
     assert all(df["frame_number"] == expected_frame_number)
 
 
 @pytest.mark.parametrize(
-    "input_df, expected_df",
+    "input_data, expected_df",
     [
         # Case 1: all IDs are defined for all frames
-        # expected_df is just sorted (no nan rows added)
+        # expected df is just sorted
         (
-            pd.DataFrame(
-                {
-                    "ID": [1, 2, 1, 2],
-                    "frame_number": [1, 1, 0, 0],
-                    "foo": [10, 20, 30, 40],
-                }
-            ),  # input
+            {
+                "ids": [1, 2, 1, 2],
+                "frame_numbers": [1, 1, 0, 0],
+                "x": [10.0, 20.0, 30.0, 40.0],
+                "y": [1.0, 2.0, 3.0, 4.0],
+                "w": [5.0, 5.0, 5.0, 5.0],
+                "h": [5.0, 5.0, 5.0, 5.0],
+                "confidence_values": [1.0, 1.0, 1.0, 1.0],
+            },
             pd.DataFrame(
                 {
                     "ID": [1, 1, 2, 2],
                     "frame_number": [0, 1, 0, 1],
-                    "foo": [30, 10, 40, 20],
-                }
-            ),  # expected
-        ),
-        # Case 2: ID=2 is not defined for frame 1
-        # expected_df has nan rows added and sorted
-        (
-            pd.DataFrame(
-                {
-                    "ID": [1, 1, 2],
-                    "frame_number": [0, 1, 0],
-                    "foo": [10.0, 20.0, 30.0],
+                    "x": np.array([30.0, 10.0, 40.0, 20.0], dtype=np.float32),
+                    "y": np.array([3.0, 1.0, 4.0, 2.0], dtype=np.float32),
+                    "w": np.array([5.0, 5.0, 5.0, 5.0], dtype=np.float32),
+                    "h": np.array([5.0, 5.0, 5.0, 5.0], dtype=np.float32),
+                    "confidence": np.array(
+                        [1.0, 1.0, 1.0, 1.0], dtype=np.float32
+                    ),
                 }
             ),
+        ),
+        # Case 2: ID=2 is not defined for frame 1
+        # (nan should be added)
+        (
+            {
+                "ids": [1, 1, 2],
+                "frame_numbers": [0, 1, 0],
+                "x": [10.0, 20.0, 30.0],
+                "y": [1.0, 2.0, 3.0],
+                "w": [5.0, 5.0, 5.0],
+                "h": [5.0, 5.0, 5.0],
+                "confidence_values": [1.0, 1.0, 1.0],
+            },
             pd.DataFrame(
                 {
                     "ID": [1, 1, 2, 2],
                     "frame_number": [0, 1, 0, 1],
-                    "foo": [10.0, 20.0, 30.0, np.nan],
+                    "x": np.array(
+                        [10.0, 20.0, 30.0, np.nan], dtype=np.float32
+                    ),
+                    "y": np.array([1.0, 2.0, 3.0, np.nan], dtype=np.float32),
+                    "w": np.array([5.0, 5.0, 5.0, np.nan], dtype=np.float32),
+                    "h": np.array([5.0, 5.0, 5.0, np.nan], dtype=np.float32),
+                    "confidence": np.array(
+                        [1.0, 1.0, 1.0, np.nan], dtype=np.float32
+                    ),
                 }
             ),
         ),
     ],
 )
-def test_fill_in_missing_rows(input_df, expected_df):
+def test_fill_in_missing_rows(input_data, expected_df):
     """Test sorting and gap-filling of ID/frame combinations."""
-    df = load_bboxes._fill_in_missing_rows_and_sort(input_df)
+    # Mock valid VIA file object based on input
+    mock_via_file = Mock()
+    mock_via_file.ids = input_data["ids"]
+    mock_via_file.frame_numbers = input_data["frame_numbers"]
+    mock_via_file.x = input_data["x"]
+    mock_via_file.y = input_data["y"]
+    mock_via_file.w = input_data["w"]
+    mock_via_file.h = input_data["h"]
+    mock_via_file.confidence_values = input_data["confidence_values"]
+
+    # Compute parsed dataframe
+    df = load_bboxes._parsed_df_from_valid_file_object(mock_via_file)
+
     pd.testing.assert_frame_equal(df, expected_df)
 
 
@@ -672,17 +699,18 @@ def test_fps_and_time_coords(
         ),  # multiple crabs, all but id=1 are present in all 5 frames
     ],
 )
-def test_df_from_via_tracks_file(
+def test_parsed_df_from_valid_file_object(
     via_file_path, expected_n_frames, expected_n_individuals, request
 ):
-    """Test that the `_df_from_via_tracks_file` helper function correctly
-    reads the VIA tracks .csv file as a dataframe.
+    """Test that the `_parsed_df_from_valid_file_object` helper function
+    correctly parses the VIA tracks .csv file as a dataframe.
     """
     if via_file_path == "via_multiple_crabs_gap_id_1":
         via_file_path = request.getfixturevalue(via_file_path)
 
     # Read the VIA tracks .csv file as a dataframe
-    df = load_bboxes._df_from_via_tracks_file(via_file_path)
+    valid_file_object = ValidVIATracksCSV(via_file_path)
+    df = load_bboxes._parsed_df_from_valid_file_object(valid_file_object)
 
     # Check dataframe
     assert isinstance(df, pd.DataFrame)
@@ -718,12 +746,17 @@ def test_position_numpy_array_from_via_tracks_file(via_file_path):
     """Test the extracted position array from the VIA tracks .csv file
     represents the centroid of the bbox.
     """
+    # Get valid file object
+    via_file_object = ValidVIATracksCSV(via_file_path)
+
     # Extract numpy arrays from VIA tracks .csv file
     bboxes_arrays = load_bboxes._numpy_arrays_from_valid_file_object(
-        via_file_path
+        via_file_object
     )
+
     # Read VIA tracks .csv file as a dataframe
-    df = load_bboxes._df_from_via_tracks_file(via_file_path)
+    df = load_bboxes._parsed_df_from_valid_file_object(via_file_object)
+
     # Compute centroid positions from the dataframe
     # (go through in the same order as ID array)
     list_derived_centroids = []
