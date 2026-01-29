@@ -464,8 +464,21 @@ class ValidVIATracksCSV:
         # If there is any None in the list, try extracting
         # the frame number from the filename
         if None in frame_numbers:
+            # Check if the regexp pattern can be compiled
+            try:
+                compiled_pattern = re.compile(self.frame_regexp)
+            except re.error as e:
+                raise logger.error(
+                    ValueError(
+                        "The provided regular expression for "
+                        "the frame numbers "
+                        f"({self.frame_regexp}) could not be compiled. "
+                        "Please review its syntax."
+                    )
+                ) from e
+
             # Check if the regexp pattern is ill-defined
-            if re.compile(self.frame_regexp).groups != 1:
+            if compiled_pattern.groups != 1:
                 raise ValueError(
                     "The regexp pattern must contain exactly one capture "
                     f"group for the frame number (got {self.frame_regexp})."
