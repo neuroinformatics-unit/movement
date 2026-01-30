@@ -272,4 +272,6 @@ notfound_context = {
 
 # needed for GH pages (vs readthedocs),
 # because we have no '/<language>/<version>/' in the URL
-notfound_urls_prefix = ""
+# and GH Pages only supports a single root-level 404.html.
+# We therefore serve the 404 page from the latest (stable) docs version
+notfound_urls_prefix = "/latest/"
