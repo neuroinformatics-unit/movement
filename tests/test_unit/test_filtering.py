@@ -424,7 +424,8 @@ class TestFilterShortTrajectories:
         )
 
     @pytest.mark.parametrize(
-        "bad_value", [-1, 0, 10.5, "abc"],
+        "bad_value",
+        [-1, 0, 10.5, "abc"],
     )
     def test_invalid_min_valid_frames(
         self, poses_dataset_varied_lengths, bad_value
@@ -438,9 +439,11 @@ class TestFilterShortTrajectories:
     def test_no_individuals_dimension(self):
         """Dataset without individuals dimension should raise ValueError."""
         ds = xr.Dataset(
-            {"position": xr.DataArray(
-                np.random.rand(10, 2), dims=("time", "space")
-            )},
+            {
+                "position": xr.DataArray(
+                    np.random.rand(10, 2), dims=("time", "space")
+                )
+            },
         )
         with pytest.raises(ValueError, match="individuals"):
             filter_short_trajectories(ds, min_valid_frames=5)
@@ -466,11 +469,13 @@ class TestFilterShortTrajectories:
     def test_single_individual_dataset(self):
         """Dataset with only 1 individual should work correctly."""
         ds = xr.Dataset(
-            {"position": xr.DataArray(
-                np.random.rand(10, 2, 1),
-                dims=("time", "space", "individuals"),
-                coords={"individuals": ["solo"]},
-            )},
+            {
+                "position": xr.DataArray(
+                    np.random.rand(10, 2, 1),
+                    dims=("time", "space", "individuals"),
+                    coords={"individuals": ["solo"]},
+                )
+            },
         )
         result = filter_short_trajectories(ds, min_valid_frames=5)
         assert len(result.individuals) == 1
@@ -480,11 +485,13 @@ class TestFilterShortTrajectories:
         position = np.random.rand(10, 2, 2)
         position[:, :, 1] = np.nan
         ds = xr.Dataset(
-            {"position": xr.DataArray(
-                position,
-                dims=("time", "space", "individuals"),
-                coords={"individuals": ["valid", "empty"]},
-            )},
+            {
+                "position": xr.DataArray(
+                    position,
+                    dims=("time", "space", "individuals"),
+                    coords={"individuals": ["valid", "empty"]},
+                )
+            },
         )
         result = filter_short_trajectories(ds, min_valid_frames=1)
         assert len(result.individuals) == 1
