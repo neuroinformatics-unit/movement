@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=c28c7c4b"></script>
+    <script src="../_static/documentation_options.js?v=66f4f852"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev6</p>
+    <p class="title logo__title">movement v0.13.1.dev7</p>
   
 </a></div>
     
@@ -557,7 +557,7 @@ and can be loaded from and saved to various third-party formats.</p>
 </tbody>
 </table>
 </div>
-<p>*Exporting any <code class="docutils literal notranslate"><span class="pre">movement</span></code> DataArray to a NumPy array is as simple as calling xarray’s built-in <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_numpy.html#xarray.DataArray.to_numpy" title="(in xarray v2025.12.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.to_numpy()</span></code></a> method, so no specialised “Export/Save As” function is needed, see <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/duckarrays.html#">xarray’s documentation</a> for more details.</p>
+<p>*Exporting any <code class="docutils literal notranslate"><span class="pre">movement</span></code> DataArray to a NumPy array is as simple as calling xarray’s built-in <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_numpy.html#xarray.DataArray.to_numpy" title="(in xarray v2026.1.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.to_numpy()</span></code></a> method, so no specialised “Export/Save As” function is needed, see <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/duckarrays.html#">xarray’s documentation</a> for more details.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Currently, <code class="docutils literal notranslate"><span class="pre">movement</span></code> only works with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, across consecutive frames. For pose estimation, this means it only supports the predictions output by the supported software packages listed above. Loading manually labelled data—often defined over a non-continuous set of frames—is not currently supported.</p>
@@ -878,7 +878,7 @@ Custom .csv file</label><div class="sd-tab-content docutils">
 </div>
 <div class="note admonition">
 <p class="admonition-title">Using <code class="docutils literal notranslate"><span class="pre">pandas</span></code></p>
-<p>If you prefer to work with <code class="docutils literal notranslate"><span class="pre">pandas</span></code>, you can alternatively convert the <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset to a <code class="docutils literal notranslate"><span class="pre">pandas</span></code> DataFrame with the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_dataframe.html#xarray.DataArray.to_dataframe" title="(in xarray v2025.12.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.to_dataframe()</span></code></a> method, wrangle the dataframe as required, and then apply the <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html#pandas.DataFrame.to_csv" title="(in pandas v3.0.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.to_csv()</span></code></a> method to save the data as a .csv file.</p>
+<p>If you prefer to work with <code class="docutils literal notranslate"><span class="pre">pandas</span></code>, you can alternatively convert the <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset to a <code class="docutils literal notranslate"><span class="pre">pandas</span></code> DataFrame with the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_dataframe.html#xarray.DataArray.to_dataframe" title="(in xarray v2026.1.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.to_dataframe()</span></code></a> method, wrangle the dataframe as required, and then apply the <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.to_csv.html#pandas.DataFrame.to_csv" title="(in pandas v3.0.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.to_csv()</span></code></a> method to save the data as a .csv file.</p>
 </div>
 </div>
 </div>
@@ -886,10 +886,10 @@ Custom .csv file</label><div class="sd-tab-content docutils">
 </section>
 <section id="native-saving-and-loading-with-netcdf">
 <span id="target-netcdf"></span><h2>Native saving and loading with netCDF<a class="headerlink" href="#native-saving-and-loading-with-netcdf" title="Link to this heading">#</a></h2>
-<p>Because <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets are <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects, we can rely on
+<p>Because <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets are <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects, we can rely on
 xarray’s built-in <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/io.html#">support for the netCDF file format</a>.</p>
 <p>netCDF is a binary file format for self-described datasets that originated in the geosciences,
-and netCDF files on disk directly correspond to <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects.</p>
+and netCDF files on disk directly correspond to <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects.</p>
 <p>Saving to netCDF is the recommended way to preserve the complete state of your analysis,
 including all variables, coordinates, and attributes.</p>
 <p>To save any xarray dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> to a netCDF file:</p>
@@ -902,10 +902,10 @@ including all variables, coordinates, and attributes.</p>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s2">&quot;my_data.nc&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Similarly, an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2025.12.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object (e.g. the <code class="docutils literal notranslate"><span class="pre">position</span></code> variable
+<p>Similarly, an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object (e.g. the <code class="docutils literal notranslate"><span class="pre">position</span></code> variable
 of a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset) can be saved to disk using the
-<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_netcdf.html#xarray.DataArray.to_netcdf" title="(in xarray v2025.12.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_netcdf()</span></code></a> method, and loaded from disk using the
-<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.open_dataarray.html#xarray.open_dataarray" title="(in xarray v2025.12.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.open_dataarray()</span></code></a> function.
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_netcdf.html#xarray.DataArray.to_netcdf" title="(in xarray v2026.1.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_netcdf()</span></code></a> method, and loaded from disk using the
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.open_dataarray.html#xarray.open_dataarray" title="(in xarray v2026.1.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.open_dataarray()</span></code></a> function.
 As netCDF files correspond to Dataset objects,
 these functions internally convert the DataArray to a Dataset before saving,
 and then convert back when loading.</p>

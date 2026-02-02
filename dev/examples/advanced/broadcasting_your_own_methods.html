@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=c28c7c4b"></script>
+    <script src="../../_static/documentation_options.js?v=66f4f852"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev6</p>
+    <p class="title logo__title">movement v0.13.1.dev7</p>
   
 </a></div>
     
@@ -575,7 +575,7 @@ distinct.</p>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="matplotlib.axes.Axes.legend" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">legend</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_broadcasting_your_own_methods_001.png" srcset="../../_images/sphx_glr_broadcasting_your_own_methods_001.png" alt="Trajectories" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7fb20a25d820&gt;
+<img src="../../_images/sphx_glr_broadcasting_your_own_methods_001.png" srcset="../../_images/sphx_glr_broadcasting_your_own_methods_001.png" alt="Trajectories" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7fbbd43204d0&gt;
 </pre></div>
 </div>
 </section>
@@ -782,6 +782,7 @@ body.vscode-dark {
   min-width: 300px;
   max-width: 700px;
   line-height: 1.6;
+  padding-bottom: 4px;
 }
 
 .xr-text-repr-fallback {
@@ -792,8 +793,11 @@ body.vscode-dark {
 .xr-header {
   padding-top: 6px;
   padding-bottom: 6px;
-  margin-bottom: 4px;
+}
+
+.xr-header {
   border-bottom: solid 1px var(--xr-border-color);
+  margin-bottom: 4px;
 }
 
 .xr-header > div,
@@ -804,20 +808,15 @@ body.vscode-dark {
 }
 
 .xr-obj-type,
-.xr-obj-name,
-.xr-group-name {
+.xr-obj-name {
   margin-left: 2px;
   margin-right: 10px;
 }
 
-.xr-group-name::before {
-  content: "📁";
-  padding-right: 0.3em;
-}
-
-.xr-group-name,
-.xr-obj-type {
+.xr-obj-type,
+.xr-group-box-contents > label {
   color: var(--xr-font-color2);
+  display: block;
 }
 
 .xr-sections {
@@ -832,28 +831,39 @@ body.vscode-dark {
   display: contents;
 }
 
-.xr-section-item input {
-  display: inline-block;
+.xr-section-item > input,
+.xr-group-box-contents > input,
+.xr-array-wrap > input {
+  display: block;
   opacity: 0;
   height: 0;
   margin: 0;
 }
 
-.xr-section-item input + label {
+.xr-section-item > input + label,
+.xr-var-item > input + label {
   color: var(--xr-disabled-color);
-  border: 2px solid transparent !important;
 }
 
-.xr-section-item input:enabled + label {
+.xr-section-item > input:enabled + label,
+.xr-var-item > input:enabled + label,
+.xr-array-wrap > input:enabled + label,
+.xr-group-box-contents > input:enabled + label {
   cursor: pointer;
   color: var(--xr-font-color2);
 }
 
-.xr-section-item input:focus + label {
-  border: 2px solid var(--xr-font-color0) !important;
+.xr-section-item > input:focus-visible + label,
+.xr-var-item > input:focus-visible + label,
+.xr-array-wrap > input:focus-visible + label,
+.xr-group-box-contents > input:focus-visible + label {
+  outline: auto;
 }
 
-.xr-section-item input:enabled + label:hover {
+.xr-section-item > input:enabled + label:hover,
+.xr-var-item > input:enabled + label:hover,
+.xr-array-wrap > input:enabled + label:hover,
+.xr-group-box-contents > input:enabled + label:hover {
   color: var(--xr-font-color0);
 }
 
@@ -861,11 +871,25 @@ body.vscode-dark {
   grid-column: 1;
   color: var(--xr-font-color2);
   font-weight: 500;
+  white-space: nowrap;
+}
+
+.xr-section-summary > em {
+  font-weight: normal;
+}
+
+.xr-span-grid {
+  grid-column-end: -1;
 }
 
 .xr-section-summary > span {
   display: inline-block;
-  padding-left: 0.5em;
+  padding-left: 0.3em;
+}
+
+.xr-group-box-contents > input:checked + label > span {
+  display: inline-block;
+  padding-left: 0.6em;
 }
 
 .xr-section-summary-in:disabled + label {
@@ -893,7 +917,8 @@ body.vscode-dark {
 }
 
 .xr-section-summary,
-.xr-section-inline-details {
+.xr-section-inline-details,
+.xr-group-box-contents > label {
   padding-top: 4px;
 }
 
@@ -902,20 +927,29 @@ body.vscode-dark {
 }
 
 .xr-section-details {
-  display: none;
   grid-column: 1 / -1;
   margin-top: 4px;
   margin-bottom: 5px;
+}
+
+.xr-section-summary-in ~ .xr-section-details {
+  display: none;
 }
 
 .xr-section-summary-in:checked ~ .xr-section-details {
   display: contents;
 }
 
+.xr-children {
+  display: inline-grid;
+  grid-template-columns: 100%;
+  grid-column: 1 / -1;
+  padding-top: 4px;
+}
+
 .xr-group-box {
   display: inline-grid;
-  grid-template-columns: 0px 20px auto;
-  width: 100%;
+  grid-template-columns: 0px 30px auto;
 }
 
 .xr-group-box-vline {
@@ -929,13 +963,43 @@ body.vscode-dark {
   grid-column-start: 2;
   grid-row-start: 1;
   height: 1em;
-  width: 20px;
+  width: 26px;
   border-bottom: 0.2em solid;
   border-color: var(--xr-border-color);
 }
 
 .xr-group-box-contents {
   grid-column-start: 3;
+  padding-bottom: 4px;
+}
+
+.xr-group-box-contents > label::before {
+  content: "📂";
+  padding-right: 0.3em;
+}
+
+.xr-group-box-contents > input:checked + label::before {
+  content: "📁";
+}
+
+.xr-group-box-contents > input:checked + label {
+  padding-bottom: 0px;
+}
+
+.xr-group-box-contents > input:checked ~ .xr-sections {
+  display: none;
+}
+
+.xr-group-box-contents > input + label > span {
+  display: none;
+}
+
+.xr-group-box-ellipsis {
+  font-size: 1.4em;
+  font-weight: 900;
+  color: var(--xr-font-color2);
+  letter-spacing: 0.15em;
+  cursor: default;
 }
 
 .xr-array-wrap {
@@ -1170,7 +1234,7 @@ False False False False False False ... False False False False False False
 Coordinates:
   * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
   * keypoints    (keypoints) &lt;U8 32B &#x27;centroid&#x27;
-  * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-obj-name'></div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-1f44f19a-85ae-44ff-9437-857fb8d6a021' class='xr-array-in' type='checkbox' ><label for='section-1f44f19a-85ae-44ff-9437-857fb8d6a021' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False ... False False False False False</span></div><div class='xr-array-data'><pre>array([[[False, False, False]],
+  * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-obj-name'></div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-a5e9290e-ec73-4a1e-a062-24d23e93d2d0' class='xr-array-in' type='checkbox' ><label for='section-a5e9290e-ec73-4a1e-a062-24d23e93d2d0' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False ... False False False False False</span></div><div class='xr-array-data'><pre>array([[[False, False, False]],
 
        [[False, False, False]],
 
@@ -1182,7 +1246,7 @@ Coordinates:
 
        [[False, False, False]],
 
-       [[False, False, False]]], shape=(601, 1, 3))</pre></div></div></li><li class='xr-section-item'><input id='section-a555decf-0c69-4e72-9531-cce79e5f1e1b' class='xr-section-summary-in' type='checkbox'  checked><label for='section-a555decf-0c69-4e72-9531-cce79e5f1e1b' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-8e1e5a9f-6588-4f14-b665-3aeae3cb4ce6' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-8e1e5a9f-6588-4f14-b665-3aeae3cb4ce6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c1c5956e-125a-46ad-bff2-3c314c05ec76' class='xr-var-data-in' type='checkbox'><label for='data-c1c5956e-125a-46ad-bff2-3c314c05ec76' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-365f32f0-8cc2-4047-8904-c355fb2f8f23' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-365f32f0-8cc2-4047-8904-c355fb2f8f23' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-0e9a9f3a-e7a0-44ad-9133-b98c50f38b53' class='xr-var-data-in' type='checkbox'><label for='data-0e9a9f3a-e7a0-44ad-9133-b98c50f38b53' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-b5e641a9-120e-40bf-99be-a97b7aab43ff' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-b5e641a9-120e-40bf-99be-a97b7aab43ff' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8e381c7c-c116-4543-83f2-45955de6ec9f' class='xr-var-data-in' type='checkbox'><label for='data-8e381c7c-c116-4543-83f2-45955de6ec9f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li></ul></div></div>
+       [[False, False, False]]], shape=(601, 1, 3))</pre></div></div></li><li class='xr-section-item'><input id='section-1416cf38-3a2e-462b-af24-4975de8386a8' class='xr-section-summary-in' type='checkbox' checked /><label for='section-1416cf38-3a2e-462b-af24-4975de8386a8' class='xr-section-summary' title='Expand/collapse section'>Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-d6c64d9f-db5c-47a4-ade4-df9630fc0b2b' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-d6c64d9f-db5c-47a4-ade4-df9630fc0b2b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-0f43342d-3de5-4454-b8e5-4ee52a52f3d5' class='xr-var-data-in' type='checkbox'><label for='data-0f43342d-3de5-4454-b8e5-4ee52a52f3d5' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-8bdf2f32-9862-4729-a5d2-647ab9a716c7' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-8bdf2f32-9862-4729-a5d2-647ab9a716c7' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-12034454-cc87-4392-9e5e-1469b401ad68' class='xr-var-data-in' type='checkbox'><label for='data-12034454-cc87-4392-9e5e-1469b401ad68' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-54f36374-dd04-42fc-86a3-bd8103d91a8b' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-54f36374-dd04-42fc-86a3-bd8103d91a8b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d0e59268-ec32-47c6-b4cf-08e05caa1c37' class='xr-var-data-in' type='checkbox'><label for='data-d0e59268-ec32-47c6-b4cf-08e05caa1c37' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li></ul></div></div>
 </div>
 <br />
 <br /><p>We could get the first and last time that an individual was inside the
@@ -1364,6 +1428,7 @@ body.vscode-dark {
   min-width: 300px;
   max-width: 700px;
   line-height: 1.6;
+  padding-bottom: 4px;
 }
 
 .xr-text-repr-fallback {
@@ -1374,8 +1439,11 @@ body.vscode-dark {
 .xr-header {
   padding-top: 6px;
   padding-bottom: 6px;
-  margin-bottom: 4px;
+}
+
+.xr-header {
   border-bottom: solid 1px var(--xr-border-color);
+  margin-bottom: 4px;
 }
 
 .xr-header > div,
@@ -1386,20 +1454,15 @@ body.vscode-dark {
 }
 
 .xr-obj-type,
-.xr-obj-name,
-.xr-group-name {
+.xr-obj-name {
   margin-left: 2px;
   margin-right: 10px;
 }
 
-.xr-group-name::before {
-  content: "📁";
-  padding-right: 0.3em;
-}
-
-.xr-group-name,
-.xr-obj-type {
+.xr-obj-type,
+.xr-group-box-contents > label {
   color: var(--xr-font-color2);
+  display: block;
 }
 
 .xr-sections {
@@ -1414,28 +1477,39 @@ body.vscode-dark {
   display: contents;
 }
 
-.xr-section-item input {
-  display: inline-block;
+.xr-section-item > input,
+.xr-group-box-contents > input,
+.xr-array-wrap > input {
+  display: block;
   opacity: 0;
   height: 0;
   margin: 0;
 }
 
-.xr-section-item input + label {
+.xr-section-item > input + label,
+.xr-var-item > input + label {
   color: var(--xr-disabled-color);
-  border: 2px solid transparent !important;
 }
 
-.xr-section-item input:enabled + label {
+.xr-section-item > input:enabled + label,
+.xr-var-item > input:enabled + label,
+.xr-array-wrap > input:enabled + label,
+.xr-group-box-contents > input:enabled + label {
   cursor: pointer;
   color: var(--xr-font-color2);
 }
 
-.xr-section-item input:focus + label {
-  border: 2px solid var(--xr-font-color0) !important;
+.xr-section-item > input:focus-visible + label,
+.xr-var-item > input:focus-visible + label,
+.xr-array-wrap > input:focus-visible + label,
+.xr-group-box-contents > input:focus-visible + label {
+  outline: auto;
 }
 
-.xr-section-item input:enabled + label:hover {
+.xr-section-item > input:enabled + label:hover,
+.xr-var-item > input:enabled + label:hover,
+.xr-array-wrap > input:enabled + label:hover,
+.xr-group-box-contents > input:enabled + label:hover {
   color: var(--xr-font-color0);
 }
 
@@ -1443,11 +1517,25 @@ body.vscode-dark {
   grid-column: 1;
   color: var(--xr-font-color2);
   font-weight: 500;
+  white-space: nowrap;
+}
+
+.xr-section-summary > em {
+  font-weight: normal;
+}
+
+.xr-span-grid {
+  grid-column-end: -1;
 }
 
 .xr-section-summary > span {
   display: inline-block;
-  padding-left: 0.5em;
+  padding-left: 0.3em;
+}
+
+.xr-group-box-contents > input:checked + label > span {
+  display: inline-block;
+  padding-left: 0.6em;
 }
 
 .xr-section-summary-in:disabled + label {
@@ -1475,7 +1563,8 @@ body.vscode-dark {
 }
 
 .xr-section-summary,
-.xr-section-inline-details {
+.xr-section-inline-details,
+.xr-group-box-contents > label {
   padding-top: 4px;
 }
 
@@ -1484,20 +1573,29 @@ body.vscode-dark {
 }
 
 .xr-section-details {
-  display: none;
   grid-column: 1 / -1;
   margin-top: 4px;
   margin-bottom: 5px;
+}
+
+.xr-section-summary-in ~ .xr-section-details {
+  display: none;
 }
 
 .xr-section-summary-in:checked ~ .xr-section-details {
   display: contents;
 }
 
+.xr-children {
+  display: inline-grid;
+  grid-template-columns: 100%;
+  grid-column: 1 / -1;
+  padding-top: 4px;
+}
+
 .xr-group-box {
   display: inline-grid;
-  grid-template-columns: 0px 20px auto;
-  width: 100%;
+  grid-template-columns: 0px 30px auto;
 }
 
 .xr-group-box-vline {
@@ -1511,13 +1609,43 @@ body.vscode-dark {
   grid-column-start: 2;
   grid-row-start: 1;
   height: 1em;
-  width: 20px;
+  width: 26px;
   border-bottom: 0.2em solid;
   border-color: var(--xr-border-color);
 }
 
 .xr-group-box-contents {
   grid-column-start: 3;
+  padding-bottom: 4px;
+}
+
+.xr-group-box-contents > label::before {
+  content: "📂";
+  padding-right: 0.3em;
+}
+
+.xr-group-box-contents > input:checked + label::before {
+  content: "📁";
+}
+
+.xr-group-box-contents > input:checked + label {
+  padding-bottom: 0px;
+}
+
+.xr-group-box-contents > input:checked ~ .xr-sections {
+  display: none;
+}
+
+.xr-group-box-contents > input + label > span {
+  display: none;
+}
+
+.xr-group-box-ellipsis {
+  font-size: 1.4em;
+  font-weight: 900;
+  color: var(--xr-font-color2);
+  letter-spacing: 0.15em;
+  cursor: default;
 }
 
 .xr-array-wrap {
@@ -1752,7 +1880,7 @@ False False False False False False ... False False False False False False
 Coordinates:
   * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
   * keypoints    (keypoints) &lt;U8 32B &#x27;centroid&#x27;
-  * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-obj-name'>&#x27;position&#x27;</div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-02125ad3-41d3-41cf-89c2-76e1f771c166' class='xr-array-in' type='checkbox' ><label for='section-02125ad3-41d3-41cf-89c2-76e1f771c166' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False ... False False False False False</span></div><div class='xr-array-data'><pre>array([[[False, False, False]],
+  * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-obj-name'>&#x27;position&#x27;</div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-5dc7fc3a-5ae4-4dfe-8ef1-ab91d5058953' class='xr-array-in' type='checkbox' ><label for='section-5dc7fc3a-5ae4-4dfe-8ef1-ab91d5058953' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False ... False False False False False</span></div><div class='xr-array-data'><pre>array([[[False, False, False]],
 
        [[False, False, False]],
 
@@ -1764,7 +1892,7 @@ Coordinates:
 
        [[False, False, False]],
 
-       [[False, False, False]]], shape=(601, 1, 3))</pre></div></div></li><li class='xr-section-item'><input id='section-22e71b45-0437-425a-a479-1dc9ee1ceb79' class='xr-section-summary-in' type='checkbox'  checked><label for='section-22e71b45-0437-425a-a479-1dc9ee1ceb79' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-ecd801b8-a500-4031-8b02-d8d8f491da30' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-ecd801b8-a500-4031-8b02-d8d8f491da30' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-041454b7-87d9-4c29-a87b-a5682dbfca56' class='xr-var-data-in' type='checkbox'><label for='data-041454b7-87d9-4c29-a87b-a5682dbfca56' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-97a85c6a-4fda-4188-a0a9-11d23cb19d04' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-97a85c6a-4fda-4188-a0a9-11d23cb19d04' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8d15cb9a-d1dd-4440-9c2f-c969281dd102' class='xr-var-data-in' type='checkbox'><label for='data-8d15cb9a-d1dd-4440-9c2f-c969281dd102' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-900be1d9-3ac5-4bfe-8eca-df1bf93424fc' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-900be1d9-3ac5-4bfe-8eca-df1bf93424fc' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-900dcd93-4722-4750-837b-174aaea1b519' class='xr-var-data-in' type='checkbox'><label for='data-900dcd93-4722-4750-837b-174aaea1b519' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li></ul></div></div>
+       [[False, False, False]]], shape=(601, 1, 3))</pre></div></div></li><li class='xr-section-item'><input id='section-d72d40e9-ca38-4313-be83-63e4414ed229' class='xr-section-summary-in' type='checkbox' checked /><label for='section-d72d40e9-ca38-4313-be83-63e4414ed229' class='xr-section-summary' title='Expand/collapse section'>Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-f1c60dc6-ee46-4e71-93b4-dcb31a4b303d' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-f1c60dc6-ee46-4e71-93b4-dcb31a4b303d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-23ca4bf2-544a-4d72-b5c0-9c2b78144756' class='xr-var-data-in' type='checkbox'><label for='data-23ca4bf2-544a-4d72-b5c0-9c2b78144756' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-733ea8d7-995a-4a99-8780-4dfa05a6bbbe' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-733ea8d7-995a-4a99-8780-4dfa05a6bbbe' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f0e43300-f5ac-452e-b905-1bc7080068e2' class='xr-var-data-in' type='checkbox'><label for='data-f0e43300-f5ac-452e-b905-1bc7080068e2' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-c0fece53-4e38-4eef-932d-0fe597be8129' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-c0fece53-4e38-4eef-932d-0fe597be8129' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-508f4004-e245-488c-8203-6b57efa60ac8' class='xr-var-data-in' type='checkbox'><label for='data-508f4004-e245-488c-8203-6b57efa60ac8' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li></ul></div></div>
 </div>
 <br />
 <br /><p>Calling <code class="docutils literal notranslate"><span class="pre">in_slippery_region_broadcastable</span></code> in this way gives us a
@@ -1895,6 +2023,7 @@ body.vscode-dark {
   min-width: 300px;
   max-width: 700px;
   line-height: 1.6;
+  padding-bottom: 4px;
 }
 
 .xr-text-repr-fallback {
@@ -1905,8 +2034,11 @@ body.vscode-dark {
 .xr-header {
   padding-top: 6px;
   padding-bottom: 6px;
-  margin-bottom: 4px;
+}
+
+.xr-header {
   border-bottom: solid 1px var(--xr-border-color);
+  margin-bottom: 4px;
 }
 
 .xr-header > div,
@@ -1917,20 +2049,15 @@ body.vscode-dark {
 }
 
 .xr-obj-type,
-.xr-obj-name,
-.xr-group-name {
+.xr-obj-name {
   margin-left: 2px;
   margin-right: 10px;
 }
 
-.xr-group-name::before {
-  content: "📁";
-  padding-right: 0.3em;
-}
-
-.xr-group-name,
-.xr-obj-type {
+.xr-obj-type,
+.xr-group-box-contents > label {
   color: var(--xr-font-color2);
+  display: block;
 }
 
 .xr-sections {
@@ -1945,28 +2072,39 @@ body.vscode-dark {
   display: contents;
 }
 
-.xr-section-item input {
-  display: inline-block;
+.xr-section-item > input,
+.xr-group-box-contents > input,
+.xr-array-wrap > input {
+  display: block;
   opacity: 0;
   height: 0;
   margin: 0;
 }
 
-.xr-section-item input + label {
+.xr-section-item > input + label,
+.xr-var-item > input + label {
   color: var(--xr-disabled-color);
-  border: 2px solid transparent !important;
 }
 
-.xr-section-item input:enabled + label {
+.xr-section-item > input:enabled + label,
+.xr-var-item > input:enabled + label,
+.xr-array-wrap > input:enabled + label,
+.xr-group-box-contents > input:enabled + label {
   cursor: pointer;
   color: var(--xr-font-color2);
 }
 
-.xr-section-item input:focus + label {
-  border: 2px solid var(--xr-font-color0) !important;
+.xr-section-item > input:focus-visible + label,
+.xr-var-item > input:focus-visible + label,
+.xr-array-wrap > input:focus-visible + label,
+.xr-group-box-contents > input:focus-visible + label {
+  outline: auto;
 }
 
-.xr-section-item input:enabled + label:hover {
+.xr-section-item > input:enabled + label:hover,
+.xr-var-item > input:enabled + label:hover,
+.xr-array-wrap > input:enabled + label:hover,
+.xr-group-box-contents > input:enabled + label:hover {
   color: var(--xr-font-color0);
 }
 
@@ -1974,11 +2112,25 @@ body.vscode-dark {
   grid-column: 1;
   color: var(--xr-font-color2);
   font-weight: 500;
+  white-space: nowrap;
+}
+
+.xr-section-summary > em {
+  font-weight: normal;
+}
+
+.xr-span-grid {
+  grid-column-end: -1;
 }
 
 .xr-section-summary > span {
   display: inline-block;
-  padding-left: 0.5em;
+  padding-left: 0.3em;
+}
+
+.xr-group-box-contents > input:checked + label > span {
+  display: inline-block;
+  padding-left: 0.6em;
 }
 
 .xr-section-summary-in:disabled + label {
@@ -2006,7 +2158,8 @@ body.vscode-dark {
 }
 
 .xr-section-summary,
-.xr-section-inline-details {
+.xr-section-inline-details,
+.xr-group-box-contents > label {
   padding-top: 4px;
 }
 
@@ -2015,20 +2168,29 @@ body.vscode-dark {
 }
 
 .xr-section-details {
-  display: none;
   grid-column: 1 / -1;
   margin-top: 4px;
   margin-bottom: 5px;
+}
+
+.xr-section-summary-in ~ .xr-section-details {
+  display: none;
 }
 
 .xr-section-summary-in:checked ~ .xr-section-details {
   display: contents;
 }
 
+.xr-children {
+  display: inline-grid;
+  grid-template-columns: 100%;
+  grid-column: 1 / -1;
+  padding-top: 4px;
+}
+
 .xr-group-box {
   display: inline-grid;
-  grid-template-columns: 0px 20px auto;
-  width: 100%;
+  grid-template-columns: 0px 30px auto;
 }
 
 .xr-group-box-vline {
@@ -2042,13 +2204,43 @@ body.vscode-dark {
   grid-column-start: 2;
   grid-row-start: 1;
   height: 1em;
-  width: 20px;
+  width: 26px;
   border-bottom: 0.2em solid;
   border-color: var(--xr-border-color);
 }
 
 .xr-group-box-contents {
   grid-column-start: 3;
+  padding-bottom: 4px;
+}
+
+.xr-group-box-contents > label::before {
+  content: "📂";
+  padding-right: 0.3em;
+}
+
+.xr-group-box-contents > input:checked + label::before {
+  content: "📁";
+}
+
+.xr-group-box-contents > input:checked + label {
+  padding-bottom: 0px;
+}
+
+.xr-group-box-contents > input:checked ~ .xr-sections {
+  display: none;
+}
+
+.xr-group-box-contents > input + label > span {
+  display: none;
+}
+
+.xr-group-box-ellipsis {
+  font-size: 1.4em;
+  font-weight: 900;
+  color: var(--xr-font-color2);
+  letter-spacing: 0.15em;
+  cursor: default;
 }
 
 .xr-array-wrap {
@@ -2283,7 +2475,7 @@ False False False False False False ... False False False False False False
 Coordinates:
   * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
   * keypoints    (keypoints) &lt;U8 32B &#x27;centroid&#x27;
-    individuals  &lt;U10 40B &#x27;AEON3B_NTP&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-obj-name'>&#x27;position&#x27;</div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-7f010255-c6b6-43cf-8f15-a9fca7ca3648' class='xr-array-in' type='checkbox' ><label for='section-7f010255-c6b6-43cf-8f15-a9fca7ca3648' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False ... False False False False False</span></div><div class='xr-array-data'><pre>array([[False],
+    individuals  &lt;U10 40B &#x27;AEON3B_NTP&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-obj-name'>&#x27;position&#x27;</div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-fef0e622-50c0-4d8a-9164-06bc43d1a689' class='xr-array-in' type='checkbox' ><label for='section-fef0e622-50c0-4d8a-9164-06bc43d1a689' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False ... False False False False False</span></div><div class='xr-array-data'><pre>array([[False],
        [False],
        [False],
        [False],
@@ -2323,7 +2515,7 @@ Coordinates:
        [False],
        [False],
        [False],
-       [False]])</pre></div></div></li><li class='xr-section-item'><input id='section-14d02ede-1e50-406f-a2d0-59df2171e699' class='xr-section-summary-in' type='checkbox'  checked><label for='section-14d02ede-1e50-406f-a2d0-59df2171e699' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-77d09be8-d95c-4c6d-9d46-2da9a4a26791' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-77d09be8-d95c-4c6d-9d46-2da9a4a26791' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-3874bc3b-d39d-462b-91a7-e28f7e708d25' class='xr-var-data-in' type='checkbox'><label for='data-3874bc3b-d39d-462b-91a7-e28f7e708d25' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-1de0327a-6c92-4c81-a192-da3480a41bb6' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-1de0327a-6c92-4c81-a192-da3480a41bb6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-abdce003-f058-4bb7-883f-78f60b81d9e8' class='xr-var-data-in' type='checkbox'><label for='data-abdce003-f058-4bb7-883f-78f60b81d9e8' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>individuals</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27;</div><input id='attrs-3d53caf7-0997-42e2-b921-51c2cc47f19e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-3d53caf7-0997-42e2-b921-51c2cc47f19e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ef9e51c7-6b4f-4816-998e-5302a01b1c61' class='xr-var-data-in' type='checkbox'><label for='data-ef9e51c7-6b4f-4816-998e-5302a01b1c61' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array(&#x27;AEON3B_NTP&#x27;, dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li></ul></div></div>
+       [False]])</pre></div></div></li><li class='xr-section-item'><input id='section-6b97fd45-4bc5-44ee-9e91-015cdcf9b43b' class='xr-section-summary-in' type='checkbox' checked /><label for='section-6b97fd45-4bc5-44ee-9e91-015cdcf9b43b' class='xr-section-summary' title='Expand/collapse section'>Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-9c287326-3531-4212-a7f2-ccc93133b2a0' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-9c287326-3531-4212-a7f2-ccc93133b2a0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-0049dcbd-e761-4cae-a3b3-b5c54bad5338' class='xr-var-data-in' type='checkbox'><label for='data-0049dcbd-e761-4cae-a3b3-b5c54bad5338' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-f1f88876-6148-4de7-a7c5-8024b49eacc2' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-f1f88876-6148-4de7-a7c5-8024b49eacc2' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-64541c31-4bf3-44a1-bff0-2063bbed3f63' class='xr-var-data-in' type='checkbox'><label for='data-64541c31-4bf3-44a1-bff0-2063bbed3f63' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>individuals</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27;</div><input id='attrs-bca6d540-1a47-4b05-b3b6-0decf2be029d' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-bca6d540-1a47-4b05-b3b6-0decf2be029d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-658fbd56-1cc5-4be4-a720-9f5886d04bc3' class='xr-var-data-in' type='checkbox'><label for='data-658fbd56-1cc5-4be4-a720-9f5886d04bc3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array(&#x27;AEON3B_NTP&#x27;, dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li></ul></div></div>
 </div>
 <br />
 <br /></section>
@@ -2473,6 +2665,7 @@ body.vscode-dark {
   min-width: 300px;
   max-width: 700px;
   line-height: 1.6;
+  padding-bottom: 4px;
 }
 
 .xr-text-repr-fallback {
@@ -2483,8 +2676,11 @@ body.vscode-dark {
 .xr-header {
   padding-top: 6px;
   padding-bottom: 6px;
-  margin-bottom: 4px;
+}
+
+.xr-header {
   border-bottom: solid 1px var(--xr-border-color);
+  margin-bottom: 4px;
 }
 
 .xr-header > div,
@@ -2495,20 +2691,15 @@ body.vscode-dark {
 }
 
 .xr-obj-type,
-.xr-obj-name,
-.xr-group-name {
+.xr-obj-name {
   margin-left: 2px;
   margin-right: 10px;
 }
 
-.xr-group-name::before {
-  content: "📁";
-  padding-right: 0.3em;
-}
-
-.xr-group-name,
-.xr-obj-type {
+.xr-obj-type,
+.xr-group-box-contents > label {
   color: var(--xr-font-color2);
+  display: block;
 }
 
 .xr-sections {
@@ -2523,28 +2714,39 @@ body.vscode-dark {
   display: contents;
 }
 
-.xr-section-item input {
-  display: inline-block;
+.xr-section-item > input,
+.xr-group-box-contents > input,
+.xr-array-wrap > input {
+  display: block;
   opacity: 0;
   height: 0;
   margin: 0;
 }
 
-.xr-section-item input + label {
+.xr-section-item > input + label,
+.xr-var-item > input + label {
   color: var(--xr-disabled-color);
-  border: 2px solid transparent !important;
 }
 
-.xr-section-item input:enabled + label {
+.xr-section-item > input:enabled + label,
+.xr-var-item > input:enabled + label,
+.xr-array-wrap > input:enabled + label,
+.xr-group-box-contents > input:enabled + label {
   cursor: pointer;
   color: var(--xr-font-color2);
 }
 
-.xr-section-item input:focus + label {
-  border: 2px solid var(--xr-font-color0) !important;
+.xr-section-item > input:focus-visible + label,
+.xr-var-item > input:focus-visible + label,
+.xr-array-wrap > input:focus-visible + label,
+.xr-group-box-contents > input:focus-visible + label {
+  outline: auto;
 }
 
-.xr-section-item input:enabled + label:hover {
+.xr-section-item > input:enabled + label:hover,
+.xr-var-item > input:enabled + label:hover,
+.xr-array-wrap > input:enabled + label:hover,
+.xr-group-box-contents > input:enabled + label:hover {
   color: var(--xr-font-color0);
 }
 
@@ -2552,11 +2754,25 @@ body.vscode-dark {
   grid-column: 1;
   color: var(--xr-font-color2);
   font-weight: 500;
+  white-space: nowrap;
+}
+
+.xr-section-summary > em {
+  font-weight: normal;
+}
+
+.xr-span-grid {
+  grid-column-end: -1;
 }
 
 .xr-section-summary > span {
   display: inline-block;
-  padding-left: 0.5em;
+  padding-left: 0.3em;
+}
+
+.xr-group-box-contents > input:checked + label > span {
+  display: inline-block;
+  padding-left: 0.6em;
 }
 
 .xr-section-summary-in:disabled + label {
@@ -2584,7 +2800,8 @@ body.vscode-dark {
 }
 
 .xr-section-summary,
-.xr-section-inline-details {
+.xr-section-inline-details,
+.xr-group-box-contents > label {
   padding-top: 4px;
 }
 
@@ -2593,20 +2810,29 @@ body.vscode-dark {
 }
 
 .xr-section-details {
-  display: none;
   grid-column: 1 / -1;
   margin-top: 4px;
   margin-bottom: 5px;
+}
+
+.xr-section-summary-in ~ .xr-section-details {
+  display: none;
 }
 
 .xr-section-summary-in:checked ~ .xr-section-details {
   display: contents;
 }
 
+.xr-children {
+  display: inline-grid;
+  grid-template-columns: 100%;
+  grid-column: 1 / -1;
+  padding-top: 4px;
+}
+
 .xr-group-box {
   display: inline-grid;
-  grid-template-columns: 0px 20px auto;
-  width: 100%;
+  grid-template-columns: 0px 30px auto;
 }
 
 .xr-group-box-vline {
@@ -2620,13 +2846,43 @@ body.vscode-dark {
   grid-column-start: 2;
   grid-row-start: 1;
   height: 1em;
-  width: 20px;
+  width: 26px;
   border-bottom: 0.2em solid;
   border-color: var(--xr-border-color);
 }
 
 .xr-group-box-contents {
   grid-column-start: 3;
+  padding-bottom: 4px;
+}
+
+.xr-group-box-contents > label::before {
+  content: "📂";
+  padding-right: 0.3em;
+}
+
+.xr-group-box-contents > input:checked + label::before {
+  content: "📁";
+}
+
+.xr-group-box-contents > input:checked + label {
+  padding-bottom: 0px;
+}
+
+.xr-group-box-contents > input:checked ~ .xr-sections {
+  display: none;
+}
+
+.xr-group-box-contents > input + label > span {
+  display: none;
+}
+
+.xr-group-box-ellipsis {
+  font-size: 1.4em;
+  font-weight: 900;
+  color: var(--xr-font-color2);
+  letter-spacing: 0.15em;
+  cursor: default;
 }
 
 .xr-array-wrap {
@@ -2861,7 +3117,7 @@ False False True False False True False ... True True False True True False
 Coordinates:
   * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
   * keypoints    (keypoints) &lt;U8 32B &#x27;centroid&#x27;
-  * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-obj-name'>&#x27;position&#x27;</div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-87eb2508-527e-4446-83a1-1c97465ab516' class='xr-array-in' type='checkbox' ><label for='section-87eb2508-527e-4446-83a1-1c97465ab516' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False True False False True ... True True False True True False</span></div><div class='xr-array-data'><pre>array([[[False, False,  True]],
+  * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-obj-name'>&#x27;position&#x27;</div><ul class='xr-dim-list'><li><span class='xr-has-index'>time</span>: 601</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-d3918f3e-c131-4dd0-8c39-de90cbbd16ef' class='xr-array-in' type='checkbox' ><label for='section-d3918f3e-c131-4dd0-8c39-de90cbbd16ef' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False True False False True ... True True False True True False</span></div><div class='xr-array-data'><pre>array([[[False, False,  True]],
 
        [[False, False,  True]],
 
@@ -2873,7 +3129,7 @@ Coordinates:
 
        [[ True,  True, False]],
 
-       [[ True,  True, False]]], shape=(601, 1, 3))</pre></div></div></li><li class='xr-section-item'><input id='section-343af7b5-78bb-4883-af59-6ad044ceb07f' class='xr-section-summary-in' type='checkbox'  checked><label for='section-343af7b5-78bb-4883-af59-6ad044ceb07f' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-0dfe70bd-73fe-4f53-aee7-cf66520cfbb6' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-0dfe70bd-73fe-4f53-aee7-cf66520cfbb6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-aa5dbb48-92cd-441b-8232-bb54049d686f' class='xr-var-data-in' type='checkbox'><label for='data-aa5dbb48-92cd-441b-8232-bb54049d686f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-cb41222d-c26c-4255-870f-fb96d68a9003' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-cb41222d-c26c-4255-870f-fb96d68a9003' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-3b857704-155d-459f-a28b-9eff58ec26e9' class='xr-var-data-in' type='checkbox'><label for='data-3b857704-155d-459f-a28b-9eff58ec26e9' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-ee427216-0a34-4a24-a9f5-7af53324b367' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-ee427216-0a34-4a24-a9f5-7af53324b367' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-fbad1fa8-9cc9-47f3-9fec-8691239ff92e' class='xr-var-data-in' type='checkbox'><label for='data-fbad1fa8-9cc9-47f3-9fec-8691239ff92e' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li></ul></div></div>
+       [[ True,  True, False]]], shape=(601, 1, 3))</pre></div></div></li><li class='xr-section-item'><input id='section-0e66b4f6-b3b2-426c-a5e6-80e77cc0c0cc' class='xr-section-summary-in' type='checkbox' checked /><label for='section-0e66b4f6-b3b2-426c-a5e6-80e77cc0c0cc' class='xr-section-summary' title='Expand/collapse section'>Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>time</span></div><div class='xr-var-dims'>(time)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.0 0.02 0.04 ... 11.96 11.98 12.0</div><input id='attrs-69dff3c7-0040-477a-b732-37f9ac2e72f8' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-69dff3c7-0040-477a-b732-37f9ac2e72f8' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-06f16aa4-7bd8-4674-a1b7-b25ca1901653' class='xr-var-data-in' type='checkbox'><label for='data-06f16aa4-7bd8-4674-a1b7-b25ca1901653' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 0.  ,  0.02,  0.04, ..., 11.96, 11.98, 12.  ], shape=(601,))</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-33a08e81-08fe-42d7-a569-e2c5be7f5e35' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-33a08e81-08fe-42d7-a569-e2c5be7f5e35' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-77f8ef4f-6859-4e9b-8a92-4eea3ee265f9' class='xr-var-data-in' type='checkbox'><label for='data-77f8ef4f-6859-4e9b-8a92-4eea3ee265f9' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-26bd7096-8bec-462d-b01c-db4373127ed6' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-26bd7096-8bec-462d-b01c-db4373127ed6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-40e38ea7-4b0e-4d19-b432-6bcbe633d33f' class='xr-var-data-in' type='checkbox'><label for='data-40e38ea7-4b0e-4d19-b432-6bcbe633d33f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li></ul></div></div>
 </div>
 <br />
 <br /></section>
@@ -2990,6 +3246,7 @@ body.vscode-dark {
   min-width: 300px;
   max-width: 700px;
   line-height: 1.6;
+  padding-bottom: 4px;
 }
 
 .xr-text-repr-fallback {
@@ -3000,8 +3257,11 @@ body.vscode-dark {
 .xr-header {
   padding-top: 6px;
   padding-bottom: 6px;
-  margin-bottom: 4px;
+}
+
+.xr-header {
   border-bottom: solid 1px var(--xr-border-color);
+  margin-bottom: 4px;
 }
 
 .xr-header > div,
@@ -3012,20 +3272,15 @@ body.vscode-dark {
 }
 
 .xr-obj-type,
-.xr-obj-name,
-.xr-group-name {
+.xr-obj-name {
   margin-left: 2px;
   margin-right: 10px;
 }
 
-.xr-group-name::before {
-  content: "📁";
-  padding-right: 0.3em;
-}
-
-.xr-group-name,
-.xr-obj-type {
+.xr-obj-type,
+.xr-group-box-contents > label {
   color: var(--xr-font-color2);
+  display: block;
 }
 
 .xr-sections {
@@ -3040,28 +3295,39 @@ body.vscode-dark {
   display: contents;
 }
 
-.xr-section-item input {
-  display: inline-block;
+.xr-section-item > input,
+.xr-group-box-contents > input,
+.xr-array-wrap > input {
+  display: block;
   opacity: 0;
   height: 0;
   margin: 0;
 }
 
-.xr-section-item input + label {
+.xr-section-item > input + label,
+.xr-var-item > input + label {
   color: var(--xr-disabled-color);
-  border: 2px solid transparent !important;
 }
 
-.xr-section-item input:enabled + label {
+.xr-section-item > input:enabled + label,
+.xr-var-item > input:enabled + label,
+.xr-array-wrap > input:enabled + label,
+.xr-group-box-contents > input:enabled + label {
   cursor: pointer;
   color: var(--xr-font-color2);
 }
 
-.xr-section-item input:focus + label {
-  border: 2px solid var(--xr-font-color0) !important;
+.xr-section-item > input:focus-visible + label,
+.xr-var-item > input:focus-visible + label,
+.xr-array-wrap > input:focus-visible + label,
+.xr-group-box-contents > input:focus-visible + label {
+  outline: auto;
 }
 
-.xr-section-item input:enabled + label:hover {
+.xr-section-item > input:enabled + label:hover,
+.xr-var-item > input:enabled + label:hover,
+.xr-array-wrap > input:enabled + label:hover,
+.xr-group-box-contents > input:enabled + label:hover {
   color: var(--xr-font-color0);
 }
 
@@ -3069,11 +3335,25 @@ body.vscode-dark {
   grid-column: 1;
   color: var(--xr-font-color2);
   font-weight: 500;
+  white-space: nowrap;
+}
+
+.xr-section-summary > em {
+  font-weight: normal;
+}
+
+.xr-span-grid {
+  grid-column-end: -1;
 }
 
 .xr-section-summary > span {
   display: inline-block;
-  padding-left: 0.5em;
+  padding-left: 0.3em;
+}
+
+.xr-group-box-contents > input:checked + label > span {
+  display: inline-block;
+  padding-left: 0.6em;
 }
 
 .xr-section-summary-in:disabled + label {
@@ -3101,7 +3381,8 @@ body.vscode-dark {
 }
 
 .xr-section-summary,
-.xr-section-inline-details {
+.xr-section-inline-details,
+.xr-group-box-contents > label {
   padding-top: 4px;
 }
 
@@ -3110,20 +3391,29 @@ body.vscode-dark {
 }
 
 .xr-section-details {
-  display: none;
   grid-column: 1 / -1;
   margin-top: 4px;
   margin-bottom: 5px;
+}
+
+.xr-section-summary-in ~ .xr-section-details {
+  display: none;
 }
 
 .xr-section-summary-in:checked ~ .xr-section-details {
   display: contents;
 }
 
+.xr-children {
+  display: inline-grid;
+  grid-template-columns: 100%;
+  grid-column: 1 / -1;
+  padding-top: 4px;
+}
+
 .xr-group-box {
   display: inline-grid;
-  grid-template-columns: 0px 20px auto;
-  width: 100%;
+  grid-template-columns: 0px 30px auto;
 }
 
 .xr-group-box-vline {
@@ -3137,13 +3427,43 @@ body.vscode-dark {
   grid-column-start: 2;
   grid-row-start: 1;
   height: 1em;
-  width: 20px;
+  width: 26px;
   border-bottom: 0.2em solid;
   border-color: var(--xr-border-color);
 }
 
 .xr-group-box-contents {
   grid-column-start: 3;
+  padding-bottom: 4px;
+}
+
+.xr-group-box-contents > label::before {
+  content: "📂";
+  padding-right: 0.3em;
+}
+
+.xr-group-box-contents > input:checked + label::before {
+  content: "📁";
+}
+
+.xr-group-box-contents > input:checked + label {
+  padding-bottom: 0px;
+}
+
+.xr-group-box-contents > input:checked ~ .xr-sections {
+  display: none;
+}
+
+.xr-group-box-contents > input + label > span {
+  display: none;
+}
+
+.xr-group-box-ellipsis {
+  font-size: 1.4em;
+  font-weight: 900;
+  color: var(--xr-font-color2);
+  letter-spacing: 0.15em;
+  cursor: default;
 }
 
 .xr-array-wrap {
@@ -3378,9 +3698,9 @@ False False False False False False
 Coordinates:
   * space        (space) &lt;U1 8B &#x27;x&#x27; &#x27;y&#x27;
   * keypoints    (keypoints) &lt;U8 32B &#x27;centroid&#x27;
-  * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-obj-name'>&#x27;position&#x27;</div><ul class='xr-dim-list'><li><span class='xr-has-index'>space</span>: 2</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-ea01ca93-0d1b-4a40-9eca-8cb70202e7c4' class='xr-array-in' type='checkbox' ><label for='section-ea01ca93-0d1b-4a40-9eca-8cb70202e7c4' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False</span></div><div class='xr-array-data'><pre>array([[[False, False, False]],
+  * individuals  (individuals) &lt;U10 120B &#x27;AEON3B_NTP&#x27; &#x27;AEON3B_TP1&#x27; &#x27;AEON3B_TP2&#x27;</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-obj-name'>&#x27;position&#x27;</div><ul class='xr-dim-list'><li><span class='xr-has-index'>space</span>: 2</li><li><span class='xr-has-index'>keypoints</span>: 1</li><li><span class='xr-has-index'>individuals</span>: 3</li></ul></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-855e5f1d-7f02-4173-856a-4b95bb37cb03' class='xr-array-in' type='checkbox' ><label for='section-855e5f1d-7f02-4173-856a-4b95bb37cb03' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>False False False False False False</span></div><div class='xr-array-data'><pre>array([[[False, False, False]],
 
-       [[False, False, False]]])</pre></div></div></li><li class='xr-section-item'><input id='section-82994f5a-870a-488f-ac17-f12f55578004' class='xr-section-summary-in' type='checkbox'  checked><label for='section-82994f5a-870a-488f-ac17-f12f55578004' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>space</span></div><div class='xr-var-dims'>(space)</div><div class='xr-var-dtype'>&lt;U1</div><div class='xr-var-preview xr-preview'>&#x27;x&#x27; &#x27;y&#x27;</div><input id='attrs-2cfa90e9-926c-4f48-8760-13f0d6b222f6' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-2cfa90e9-926c-4f48-8760-13f0d6b222f6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-07167574-25d4-4684-89e5-41f050b08d4a' class='xr-var-data-in' type='checkbox'><label for='data-07167574-25d4-4684-89e5-41f050b08d4a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;x&#x27;, &#x27;y&#x27;], dtype=&#x27;&lt;U1&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-fe3ae8b4-9170-4f00-a325-f43c8c0b9267' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-fe3ae8b4-9170-4f00-a325-f43c8c0b9267' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-23e282c3-0cb0-4b8f-aba1-119b13738914' class='xr-var-data-in' type='checkbox'><label for='data-23e282c3-0cb0-4b8f-aba1-119b13738914' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-9aad99cf-7461-4a30-9941-14194ebd6e71' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-9aad99cf-7461-4a30-9941-14194ebd6e71' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8d1e9039-11ad-4864-aaf1-3bcf0897647a' class='xr-var-data-in' type='checkbox'><label for='data-8d1e9039-11ad-4864-aaf1-3bcf0897647a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li></ul></div></div>
+       [[False, False, False]]])</pre></div></div></li><li class='xr-section-item'><input id='section-62ccad26-0ca5-4b45-8b7f-970d1086c6ae' class='xr-section-summary-in' type='checkbox' checked /><label for='section-62ccad26-0ca5-4b45-8b7f-970d1086c6ae' class='xr-section-summary' title='Expand/collapse section'>Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>space</span></div><div class='xr-var-dims'>(space)</div><div class='xr-var-dtype'>&lt;U1</div><div class='xr-var-preview xr-preview'>&#x27;x&#x27; &#x27;y&#x27;</div><input id='attrs-eba71062-b9d7-44b5-87a8-1ee1efaf972f' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-eba71062-b9d7-44b5-87a8-1ee1efaf972f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-4f901850-1489-4cce-b29a-31200914753e' class='xr-var-data-in' type='checkbox'><label for='data-4f901850-1489-4cce-b29a-31200914753e' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;x&#x27;, &#x27;y&#x27;], dtype=&#x27;&lt;U1&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>keypoints</span></div><div class='xr-var-dims'>(keypoints)</div><div class='xr-var-dtype'>&lt;U8</div><div class='xr-var-preview xr-preview'>&#x27;centroid&#x27;</div><input id='attrs-9d982e60-c563-4dcd-a2b7-fbfaa5c35758' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-9d982e60-c563-4dcd-a2b7-fbfaa5c35758' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8dd49ed3-b4b5-429d-8e2b-3bdf72ba411a' class='xr-var-data-in' type='checkbox'><label for='data-8dd49ed3-b4b5-429d-8e2b-3bdf72ba411a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;centroid&#x27;], dtype=&#x27;&lt;U8&#x27;)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>individuals</span></div><div class='xr-var-dims'>(individuals)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>&#x27;AEON3B_NTP&#x27; ... &#x27;AEON3B_TP2&#x27;</div><input id='attrs-2be06ae8-d33a-4a6b-96e2-9a7ac3bf8b25' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-2be06ae8-d33a-4a6b-96e2-9a7ac3bf8b25' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-24ec3761-c4b2-4915-9a87-29429793ad4d' class='xr-var-data-in' type='checkbox'><label for='data-24ec3761-c4b2-4915-9a87-29429793ad4d' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AEON3B_NTP&#x27;, &#x27;AEON3B_TP1&#x27;, &#x27;AEON3B_TP2&#x27;], dtype=&#x27;&lt;U10&#x27;)</pre></div></li></ul></div></li></ul></div></div>
 </div>
 <br />
 <br /><p>There is no error thrown because functionally, this is a valid operation.
@@ -3507,7 +3827,7 @@ and otherwise works in the same way (and accepts the same parameters).</p>
 the classes inside it, you’ll notice that we use
 <a class="reference internal" href="../../api/movement.utils.broadcasting.broadcastable_method.html#movement.utils.broadcasting.broadcastable_method" title="movement.utils.broadcasting.broadcastable_method"><code class="xref py py-func docutils literal notranslate"><span class="pre">&#64;broadcastable_method()</span></code></a>
 ourselves in some of these methods!</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.123 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.117 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-advanced-broadcasting-your-own-methods-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/advanced/broadcasting_your_own_methods.ipynb"><img alt="Launch binder" src="../../_images/binder_badge_logo.svg" style="width: 150px;" />
