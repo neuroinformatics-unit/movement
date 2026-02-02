@@ -333,11 +333,17 @@ class DataLoader(QWidget):
             properties_df=self.properties,
         )
 
+        # Filter out columns ending in _factorized (used internally for
+        # Tracks/Shapes coloring but not needed in Points layer tooltips)
+        points_properties = self.properties.loc[
+            :, ~self.properties.columns.str.endswith("_factorized")
+        ]
+
         # Add data as a points layer with metadata
         # (max_frame_idx is used to set the frame slider range)
         self.points_layer = self.viewer.add_points(
             self.data[self.data_not_nan, 1:],
-            properties=self.properties.iloc[self.data_not_nan, :],
+            properties=points_properties.iloc[self.data_not_nan, :],
             metadata={"max_frame_idx": max(self.data[:, 1])},
             **points_style.as_kwargs(),
         )
