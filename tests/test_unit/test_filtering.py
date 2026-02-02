@@ -438,10 +438,11 @@ class TestFilterShortTrajectories:
 
     def test_no_individuals_dimension(self):
         """Dataset without individuals dimension should raise ValueError."""
+        rng = np.random.default_rng(42)
         ds = xr.Dataset(
             {
                 "position": xr.DataArray(
-                    np.random.rand(10, 2), dims=("time", "space")
+                    rng.random((10, 2)), dims=("time", "space")
                 )
             },
         )
@@ -468,10 +469,11 @@ class TestFilterShortTrajectories:
 
     def test_single_individual_dataset(self):
         """Dataset with only 1 individual should work correctly."""
+        rng = np.random.default_rng(42)
         ds = xr.Dataset(
             {
                 "position": xr.DataArray(
-                    np.random.rand(10, 2, 1),
+                    rng.random((10, 2, 1)),
                     dims=("time", "space", "individuals"),
                     coords={"individuals": ["solo"]},
                 )
@@ -482,7 +484,8 @@ class TestFilterShortTrajectories:
 
     def test_all_nan_individual(self):
         """Individual with all NaN frames should be filtered."""
-        position = np.random.rand(10, 2, 2)
+        rng = np.random.default_rng(42)
+        position = rng.random((10, 2, 2))
         position[:, :, 1] = np.nan
         ds = xr.Dataset(
             {
