@@ -356,9 +356,7 @@ def filter_short_trajectories(
 
     if "individuals" not in data.dims:
         raise logger.error(
-            ValueError(
-                "Dataset must have an 'individuals' dimension."
-            )
+            ValueError("Dataset must have an 'individuals' dimension.")
         )
 
     position = data.position
