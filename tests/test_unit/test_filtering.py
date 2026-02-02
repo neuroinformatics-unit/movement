@@ -1,10 +1,12 @@
 from contextlib import nullcontext as does_not_raise
 
+import numpy as np
 import pytest
 import xarray as xr
 
 from movement.filtering import (
     filter_by_confidence,
+    filter_short_trajectories,
     interpolate_over_time,
     rolling_filter,
     savgol_filter,
@@ -279,3 +281,211 @@ def test_filter_by_confidence_on_position(
     n_low_confidence_kpts = 5
     assert isinstance(position_filtered, xr.DataArray)
     assert n_nans == valid_input_dataset.sizes["space"] * n_low_confidence_kpts
+
+
+# -------------------- Tests for filter_short_trajectories --------------------
+class TestFilterShortTrajectories:
+    """Test filter_short_trajectories on valid datasets."""
+
+    @pytest.fixture
+    def poses_dataset_varied_lengths(self):
+        """Poses dataset with individuals having different trajectory lengths.
+
+        - id_0: 90 valid frames out of 100
+        - id_1: 50 valid frames out of 100
+        - id_2: 10 valid frames out of 100
+        """
+        n_time, n_space, n_keypoints, n_individuals = 100, 2, 3, 3
+        rng = np.random.default_rng(42)
+        position = rng.random((n_time, n_space, n_keypoints, n_individuals))
+        position[90:, :, :, 0] = np.nan
+        position[50:, :, :, 1] = np.nan
+        position[10:, :, :, 2] = np.nan
+        confidence = rng.random((n_time, n_keypoints, n_individuals))
+
+        return xr.Dataset(
+            data_vars={
+                "position": xr.DataArray(
+                    position,
+                    dims=("time", "space", "keypoints", "individuals"),
+                ),
+                "confidence": xr.DataArray(
+                    confidence,
+                    dims=("time", "keypoints", "individuals"),
+                ),
+            },
+            coords={
+                "time": np.arange(n_time),
+                "space": ["x", "y"],
+                "keypoints": ["snout", "center", "tail"],
+                "individuals": ["id_0", "id_1", "id_2"],
+            },
+            attrs={"ds_type": "poses", "source_software": "test"},
+        )
+
+    @pytest.fixture
+    def bboxes_dataset_varied_lengths(self):
+        """Bboxes dataset with individuals having different trajectory lengths.
+
+        - crab_0: 80 valid frames out of 100
+        - crab_1: 100 valid frames out of 100
+        - crab_2: 20 valid frames out of 100
+        """
+        n_time, n_space, n_individuals = 100, 2, 3
+        rng = np.random.default_rng(42)
+        position = rng.random((n_time, n_space, n_individuals))
+        position[80:, :, 0] = np.nan
+        position[20:, :, 2] = np.nan
+        confidence = rng.random((n_time, n_individuals))
+
+        return xr.Dataset(
+            data_vars={
+                "position": xr.DataArray(
+                    position,
+                    dims=("time", "space", "individuals"),
+                ),
+                "confidence": xr.DataArray(
+                    confidence,
+                    dims=("time", "individuals"),
+                ),
+            },
+            coords={
+                "time": np.arange(n_time),
+                "space": ["x", "y"],
+                "individuals": ["crab_0", "crab_1", "crab_2"],
+            },
+            attrs={"ds_type": "bboxes", "source_software": "test"},
+        )
+
+    def test_filter_poses_basic(self, poses_dataset_varied_lengths):
+        """Test basic filtering keeps only individuals above threshold."""
+        result = filter_short_trajectories(
+            poses_dataset_varied_lengths, min_valid_frames=80
+        )
+        assert len(result.individuals) == 1
+        assert "id_0" in result.individuals.values
+
+    def test_filter_bboxes_basic(self, bboxes_dataset_varied_lengths):
+        """Test filtering on bboxes dataset."""
+        result = filter_short_trajectories(
+            bboxes_dataset_varied_lengths, min_valid_frames=50
+        )
+        assert len(result.individuals) == 2
+        assert "crab_0" in result.individuals.values
+        assert "crab_1" in result.individuals.values
+        assert "crab_2" not in result.individuals.values
+
+    def test_filter_none_removed(self, poses_dataset_varied_lengths):
+        """Test when no individuals are filtered."""
+        result = filter_short_trajectories(
+            poses_dataset_varied_lengths, min_valid_frames=5
+        )
+        assert len(result.individuals) == 3
+
+    def test_filter_all_removed(self, poses_dataset_varied_lengths):
+        """Test when all individuals are filtered."""
+        result = filter_short_trajectories(
+            poses_dataset_varied_lengths, min_valid_frames=200
+        )
+        assert len(result.individuals) == 0
+
+    def test_edge_case_exact_threshold(self, poses_dataset_varied_lengths):
+        """Individual with exactly min_valid_frames should be kept."""
+        result = filter_short_trajectories(
+            poses_dataset_varied_lengths, min_valid_frames=90
+        )
+        assert "id_0" in result.individuals.values
+
+    def test_confidence_also_filtered(self, poses_dataset_varied_lengths):
+        """All data variables should be filtered, not just position."""
+        result = filter_short_trajectories(
+            poses_dataset_varied_lengths, min_valid_frames=80
+        )
+        assert "confidence" in result.data_vars
+        assert result.confidence.sizes["individuals"] == 1
+
+    def test_preserves_attributes(self, poses_dataset_varied_lengths):
+        """Dataset attributes should be preserved."""
+        result = filter_short_trajectories(
+            poses_dataset_varied_lengths, min_valid_frames=50
+        )
+        assert result.attrs["ds_type"] == "poses"
+
+    def test_preserves_coordinates(self, poses_dataset_varied_lengths):
+        """Non-individuals coordinates should be unchanged."""
+        result = filter_short_trajectories(
+            poses_dataset_varied_lengths, min_valid_frames=50
+        )
+        np.testing.assert_array_equal(
+            result.time.values, poses_dataset_varied_lengths.time.values
+        )
+        np.testing.assert_array_equal(
+            result.space.values, poses_dataset_varied_lengths.space.values
+        )
+
+    @pytest.mark.parametrize(
+        "bad_value", [-1, 0, 10.5, "abc"],
+    )
+    def test_invalid_min_valid_frames(
+        self, poses_dataset_varied_lengths, bad_value
+    ):
+        """Non-positive or non-integer values should raise ValueError."""
+        with pytest.raises(ValueError, match="positive integer"):
+            filter_short_trajectories(
+                poses_dataset_varied_lengths, min_valid_frames=bad_value
+            )
+
+    def test_no_individuals_dimension(self):
+        """Dataset without individuals dimension should raise ValueError."""
+        ds = xr.Dataset(
+            {"position": xr.DataArray(
+                np.random.rand(10, 2), dims=("time", "space")
+            )},
+        )
+        with pytest.raises(ValueError, match="individuals"):
+            filter_short_trajectories(ds, min_valid_frames=5)
+
+    def test_print_report(self, poses_dataset_varied_lengths, capsys):
+        """print_report should output filtering summary."""
+        filter_short_trajectories(
+            poses_dataset_varied_lengths,
+            min_valid_frames=50,
+            print_report=True,
+        )
+        captured = capsys.readouterr()
+        assert "Filtered" in captured.out
+        assert "valid frames" in captured.out
+
+    def test_single_individual_kept(self, valid_poses_dataset):
+        """Test on standard fixture (10 frames, 2 individuals, no NaNs)."""
+        result = filter_short_trajectories(
+            valid_poses_dataset, min_valid_frames=10
+        )
+        assert len(result.individuals) == 2
+
+    def test_single_individual_dataset(self):
+        """Dataset with only 1 individual should work correctly."""
+        ds = xr.Dataset(
+            {"position": xr.DataArray(
+                np.random.rand(10, 2, 1),
+                dims=("time", "space", "individuals"),
+                coords={"individuals": ["solo"]},
+            )},
+        )
+        result = filter_short_trajectories(ds, min_valid_frames=5)
+        assert len(result.individuals) == 1
+
+    def test_all_nan_individual(self):
+        """Individual with all NaN frames should be filtered."""
+        position = np.random.rand(10, 2, 2)
+        position[:, :, 1] = np.nan
+        ds = xr.Dataset(
+            {"position": xr.DataArray(
+                position,
+                dims=("time", "space", "individuals"),
+                coords={"individuals": ["valid", "empty"]},
+            )},
+        )
+        result = filter_short_trajectories(ds, min_valid_frames=1)
+        assert len(result.individuals) == 1
+        assert "valid" in result.individuals.values

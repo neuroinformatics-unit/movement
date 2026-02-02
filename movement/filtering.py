@@ -292,3 +292,112 @@ def savgol_filter(
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_smoothed, "output"))
     return data_smoothed
+
+
+def filter_short_trajectories(
+    data: xr.Dataset,
+    min_valid_frames: int,
+    print_report: bool = False,
+) -> xr.Dataset:
+    """Filter out individuals with trajectories shorter than a threshold.
+
+    Individuals whose tracks contain fewer than the specified minimum number
+    of valid frames are removed from the dataset. A frame is considered valid
+    for an individual if at least one keypoint has non-null position data
+    across all spatial dimensions.
+
+    Parameters
+    ----------
+    data : xarray.Dataset
+        A movement dataset containing ``position`` data with dimensions
+        including ``time``, ``space``, and ``individuals``.
+    min_valid_frames : int
+        Minimum number of valid frames required for an individual's
+        trajectory to be retained. Must be a positive integer.
+    print_report : bool
+        Whether to print a report showing which individuals were filtered
+        out and their corresponding number of valid frames.
+        Default is ``False``.
+
+    Returns
+    -------
+    xarray.Dataset
+        A filtered dataset containing only individuals with at least
+        ``min_valid_frames`` valid frames.
+
+    Notes
+    -----
+    For poses datasets, a frame is valid for an individual if at least one
+    keypoint has non-null position data in all spatial dimensions. For
+    bounding boxes datasets, a frame is valid if the position is non-null
+    in all spatial dimensions.
+
+    See Also
+    --------
+    filter_by_confidence : Drop data points below a confidence threshold.
+
+    Examples
+    --------
+    >>> from movement import sample_data
+    >>> from movement.filtering import filter_short_trajectories
+    >>> ds = sample_data.fetch_dataset(
+    ...     "SLEAP_three-mice_Aeon_proofread.analysis.h5"
+    ... )
+    >>> ds_filtered = filter_short_trajectories(ds, min_valid_frames=100)
+
+    """
+    if not isinstance(min_valid_frames, int) or min_valid_frames <= 0:
+        raise logger.error(
+            ValueError(
+                f"min_valid_frames must be a positive integer, "
+                f"got {min_valid_frames}."
+            )
+        )
+
+    if "individuals" not in data.dims:
+        raise logger.error(
+            ValueError(
+                "Dataset must have an 'individuals' dimension."
+            )
+        )
+
+    position = data.position
+
+    # Compute number of valid frames per individual
+    valid_mask = position.notnull().all(dim="space")
+    if "keypoints" in position.dims:
+        valid_mask = valid_mask.any(dim="keypoints")
+    valid_frames_per_individual = valid_mask.sum(dim="time")
+
+    individuals_to_keep = valid_frames_per_individual >= min_valid_frames
+
+    if print_report:
+        n_total = len(data.individuals)
+        n_kept = int(individuals_to_keep.sum().item())
+        n_filtered = n_total - n_kept
+        print(
+            f"\nFiltered {n_filtered}/{n_total} individuals "
+            f"with fewer than {min_valid_frames} valid frames."
+        )
+        if n_filtered > 0:
+            for ind in data.individuals[~individuals_to_keep].values:
+                n_frames = int(
+                    valid_frames_per_individual.sel(individuals=ind).item()
+                )
+                print(f"  - {ind}: {n_frames} valid frames")
+
+    logger.info(
+        f"Filtering trajectories: keeping "
+        f"{int(individuals_to_keep.sum().item())}/{len(data.individuals)} "
+        f"individuals with >= {min_valid_frames} valid frames."
+    )
+
+    filtered_data = data.sel(individuals=individuals_to_keep)
+
+    if len(filtered_data.individuals) == 0:
+        logger.warning(
+            f"No individuals have >= {min_valid_frames} valid frames. "
+            f"Returning empty dataset."
+        )
+
+    return filtered_data
