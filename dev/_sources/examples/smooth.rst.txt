@@ -542,7 +542,7 @@ preserve the original data structure, but large enough to remove
 "spikes" and high-frequency noise. Always inspect the results to ensure
 that the filter is not removing important features.
 
-.. GENERATED FROM PYTHON SOURCE LINES 271-287
+.. GENERATED FROM PYTHON SOURCE LINES 271-289
 
 Smoothing with a Savitzky-Golay filter
 --------------------------------------
@@ -559,16 +559,22 @@ used as the output value.
 Let's try it on the mouse dataset, this time using a 0.2-second
 window (i.e. 6 frames) and the default ``polyorder=2`` for smoothing.
 As before, we first compute the corresponding number of observations
-to be used as the ``window`` size.
+to be used as the ``window`` size. We set ``mode='nearest'`` to avoid
+the ``ValueError`` triggered by the default ``mode='interp'`` when
+:func:`scipy.signal.savgol_filter` encounters NaNs near the signal edges.
 
-.. GENERATED FROM PYTHON SOURCE LINES 287-293
+.. GENERATED FROM PYTHON SOURCE LINES 289-299
 
 .. code-block:: Python
 
 
     window = int(0.2 * ds_mouse.fps)
     ds_mouse_smooth.update(
-        {"position": savgol_filter(ds_mouse.position, window, print_report=True)}
+        {
+            "position": savgol_filter(
+                ds_mouse.position, window, mode="nearest", print_report=True
+            )
+        }
     )
 
 
@@ -593,7 +599,7 @@ to be used as the ``window`` size.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 294-300
+.. GENERATED FROM PYTHON SOURCE LINES 300-306
 
 We see that the number of NaN values has increased after filtering. This is
 for the same reason as with the rolling filter (in its default mode), i.e.
@@ -602,7 +608,7 @@ Unlike the rolling filter, the Savitzky-Golay filter does not provide a
 ``min_periods`` parameter to control this behaviour. Let's visualise the
 effects in the time and frequency domains.
 
-.. GENERATED FROM PYTHON SOURCE LINES 300-304
+.. GENERATED FROM PYTHON SOURCE LINES 306-310
 
 .. code-block:: Python
 
@@ -622,23 +628,27 @@ effects in the time and frequency domains.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 305-307
+.. GENERATED FROM PYTHON SOURCE LINES 311-313
 
 Once again, the power of high-frequency components has been reduced, but more
 missing values have been introduced.
 
-.. GENERATED FROM PYTHON SOURCE LINES 309-310
+.. GENERATED FROM PYTHON SOURCE LINES 315-316
 
 Now let's apply the same Savitzky-Golay filter to the wasp dataset.
 
-.. GENERATED FROM PYTHON SOURCE LINES 310-316
+.. GENERATED FROM PYTHON SOURCE LINES 316-326
 
 .. code-block:: Python
 
 
     window = int(0.2 * ds_wasp.fps)
     ds_wasp_smooth.update(
-        {"position": savgol_filter(ds_wasp.position, window, print_report=True)}
+        {
+            "position": savgol_filter(
+                ds_wasp.position, window, mode="nearest", print_report=True
+            )
+        }
     )
 
 
@@ -655,7 +665,7 @@ Now let's apply the same Savitzky-Golay filter to the wasp dataset.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 317-320
+.. GENERATED FROM PYTHON SOURCE LINES 327-330
 
 .. code-block:: Python
 
@@ -674,7 +684,7 @@ Now let's apply the same Savitzky-Golay filter to the wasp dataset.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 321-329
+.. GENERATED FROM PYTHON SOURCE LINES 331-339
 
 This example shows two important limitations of the Savitzky-Golay filter.
 First, the filter can introduce artefacts around sharp boundaries. For
@@ -685,7 +695,7 @@ choice of ``window`` and ``polyorder``. You can read more about these
 and other limitations of the Savitzky-Golay filter in
 `this paper <https://pubs.acs.org/doi/10.1021/acsmeasuresciau.1c00054>`_.
 
-.. GENERATED FROM PYTHON SOURCE LINES 332-340
+.. GENERATED FROM PYTHON SOURCE LINES 342-350
 
 Combining multiple smoothing filters
 ------------------------------------
@@ -696,7 +706,7 @@ filter with a larger ``window`` to further smooth the data.
 Between the two filters, we can interpolate over small gaps to avoid the
 excessive proliferation of NaN values. Let's try this on the mouse dataset.
 
-.. GENERATED FROM PYTHON SOURCE LINES 340-364
+.. GENERATED FROM PYTHON SOURCE LINES 350-378
 
 .. code-block:: Python
 
@@ -721,7 +731,11 @@ excessive proliferation of NaN values. Let's try this on the mouse dataset.
     # over a 0.4-second window (12 frames).
     window = int(0.4 * ds_mouse.fps)
     ds_mouse_smooth.update(
-        {"position": savgol_filter(ds_mouse_smooth.position, window)}
+        {
+            "position": savgol_filter(
+                ds_mouse_smooth.position, window, mode="nearest"
+            )
+        }
     )
 
 
@@ -731,13 +745,13 @@ excessive proliferation of NaN values. Let's try this on the mouse dataset.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 365-368
+.. GENERATED FROM PYTHON SOURCE LINES 379-382
 
 A record of all applied operations is stored in the ``log`` attribute of the
 ``ds_mouse_smooth.position`` data array. Let's inspect it to summarise
 what we've done.
 
-.. GENERATED FROM PYTHON SOURCE LINES 368-371
+.. GENERATED FROM PYTHON SOURCE LINES 382-385
 
 .. code-block:: Python
 
@@ -755,7 +769,7 @@ what we've done.
     [
       {
         "operation": "rolling_filter",
-        "datetime": "2026-02-03 17:56:28.168762",
+        "datetime": "2026-02-03 18:00:43.822936",
         "window": "3",
         "statistic": "'median'",
         "min_periods": "2",
@@ -763,29 +777,30 @@ what we've done.
       },
       {
         "operation": "interpolate_over_time",
-        "datetime": "2026-02-03 17:56:28.192100",
+        "datetime": "2026-02-03 18:00:43.844353",
         "method": "'linear'",
         "max_gap": "30",
         "print_report": "False"
       },
       {
         "operation": "savgol_filter",
-        "datetime": "2026-02-03 17:56:28.196157",
+        "datetime": "2026-02-03 18:00:43.847821",
         "window": "12",
         "polyorder": "2",
-        "print_report": "False"
+        "print_report": "False",
+        "kwargs": "{'mode': 'nearest'}"
       }
     ]
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 372-374
+.. GENERATED FROM PYTHON SOURCE LINES 386-388
 
 Now let's visualise the difference between the raw data and the final
 smoothed result.
 
-.. GENERATED FROM PYTHON SOURCE LINES 374-382
+.. GENERATED FROM PYTHON SOURCE LINES 388-396
 
 .. code-block:: Python
 
@@ -809,12 +824,12 @@ smoothed result.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 383-385
+.. GENERATED FROM PYTHON SOURCE LINES 397-399
 
 Feel free to play around with the parameters of the applied filters and to
 also look at other keypoints and time ranges.
 
-.. GENERATED FROM PYTHON SOURCE LINES 387-391
+.. GENERATED FROM PYTHON SOURCE LINES 401-405
 
 .. seealso::
   :ref:`examples/filter_and_interpolate:Filtering multiple data variables`
@@ -824,7 +839,7 @@ also look at other keypoints and time ranges.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.575 seconds)
+   **Total running time of the script:** (0 minutes 1.360 seconds)
 
 
 .. _sphx_glr_download_examples_smooth.py:

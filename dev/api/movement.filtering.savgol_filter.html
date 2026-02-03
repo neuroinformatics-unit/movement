@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4814e1ce"></script>
+    <script src="../_static/documentation_options.js?v=839d7103"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev13</p>
+    <p class="title logo__title">movement v0.13.1.dev14</p>
   
 </a></div>
     
@@ -635,7 +635,8 @@ less than <code class="docutils literal notranslate"><span class="pre">window</s
 before and after smoothing. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>**kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a>) – Additional keyword arguments are passed to
 <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html#scipy.signal.savgol_filter" title="(in SciPy v1.17.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.savgol_filter()</span></code></a>.
-Note that the <code class="docutils literal notranslate"><span class="pre">axis</span></code> keyword argument may not be overridden.</p></li>
+Note that the <code class="docutils literal notranslate"><span class="pre">axis</span></code> keyword argument may not be overridden,
+as the filter is always applied over the <code class="docutils literal notranslate"><span class="pre">time</span></code> dimension.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -649,14 +650,18 @@ provided parameters.</p>
 <p class="rubric">Notes</p>
 <p>Uses the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html#scipy.signal.savgol_filter" title="(in SciPy v1.17.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.savgol_filter()</span></code></a> function to apply a
 Savitzky-Golay filter to the input data.
-See the SciPy documentation for more information on that function.
-Whenever one or more NaNs are present in a smoothing window of the
+See the SciPy documentation for more information on that function.</p>
+<p>Whenever one or more NaNs are present in a smoothing window of the
 input data, a NaN is returned to the output array. As a result, any
 stretch of NaNs present in the input data will be propagated
 proportionally to the size of the window (specifically, by
 <code class="docutils literal notranslate"><span class="pre">floor(window/2)</span></code>). Note that, unlike
 <a class="reference internal" href="movement.filtering.rolling_filter.html#movement.filtering.rolling_filter" title="movement.filtering.rolling_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.filtering.rolling_filter()</span></code></a>, there is no <code class="docutils literal notranslate"><span class="pre">min_periods</span></code>
 option to control this behaviour.</p>
+<p>The function raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> if NaNs are found within the signal’s
+edge windows. To avoid this, fill any edge NaNs before filtering, or switch
+from the default <code class="docutils literal notranslate"><span class="pre">mode='interp'</span></code> to an alternative edge handling
+mode (e.g., <code class="docutils literal notranslate"><span class="pre">mode='nearest'</span></code> or <code class="docutils literal notranslate"><span class="pre">mode='mirror'</span></code>).</p>
 </dd></dl>
 
 <section id="examples-using-savgol-filter">

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4814e1ce"></script>
+    <script src="../_static/documentation_options.js?v=839d7103"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev13</p>
+    <p class="title logo__title">movement v0.13.1.dev14</p>
   
 </a></div>
     
@@ -839,10 +839,16 @@ used as the output value.</p>
 <p>Let’s try it on the mouse dataset, this time using a 0.2-second
 window (i.e. 6 frames) and the default <code class="docutils literal notranslate"><span class="pre">polyorder=2</span></code> for smoothing.
 As before, we first compute the corresponding number of observations
-to be used as the <code class="docutils literal notranslate"><span class="pre">window</span></code> size.</p>
+to be used as the <code class="docutils literal notranslate"><span class="pre">window</span></code> size. We set <code class="docutils literal notranslate"><span class="pre">mode='nearest'</span></code> to avoid
+the <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> triggered by the default <code class="docutils literal notranslate"><span class="pre">mode='interp'</span></code> when
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html#scipy.signal.savgol_filter" title="(in SciPy v1.17.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.savgol_filter()</span></code></a> encounters NaNs near the signal edges.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">window</span></a> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.2</span> <span class="o">*</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">fps</span></a><span class="p">)</span>
 <a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="xarray.Dataset.update" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse_smooth</span><span class="o">.</span><span class="n">update</span></a><span class="p">(</span>
-    <span class="p">{</span><span class="s2">&quot;position&quot;</span><span class="p">:</span> <a href="../api/movement.filtering.savgol_filter.html#movement.filtering.savgol_filter" title="movement.filtering.savgol_filter" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">savgol_filter</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">window</span></a><span class="p">,</span> <span class="n">print_report</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;position&quot;</span><span class="p">:</span> <a href="../api/movement.filtering.savgol_filter.html#movement.filtering.savgol_filter" title="movement.filtering.savgol_filter" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">savgol_filter</span></a><span class="p">(</span>
+            <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">window</span></a><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">print_report</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+    <span class="p">}</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -874,7 +880,11 @@ missing values have been introduced.</p>
 <p>Now let’s apply the same Savitzky-Golay filter to the wasp dataset.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">window</span></a> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.2</span> <span class="o">*</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_wasp</span><span class="o">.</span><span class="n">fps</span></a><span class="p">)</span>
 <a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="xarray.Dataset.update" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_wasp_smooth</span><span class="o">.</span><span class="n">update</span></a><span class="p">(</span>
-    <span class="p">{</span><span class="s2">&quot;position&quot;</span><span class="p">:</span> <a href="../api/movement.filtering.savgol_filter.html#movement.filtering.savgol_filter" title="movement.filtering.savgol_filter" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">savgol_filter</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_wasp</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">window</span></a><span class="p">,</span> <span class="n">print_report</span><span class="o">=</span><span class="kc">True</span><span class="p">)}</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;position&quot;</span><span class="p">:</span> <a href="../api/movement.filtering.savgol_filter.html#movement.filtering.savgol_filter" title="movement.filtering.savgol_filter" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">savgol_filter</span></a><span class="p">(</span>
+            <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_wasp</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">window</span></a><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span> <span class="n">print_report</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+    <span class="p">}</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -924,7 +934,11 @@ excessive proliferation of NaN values. Let’s try this on the mouse dataset.</p
 <span class="c1"># over a 0.4-second window (12 frames).</span>
 <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">window</span></a> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.4</span> <span class="o">*</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">fps</span></a><span class="p">)</span>
 <a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="xarray.Dataset.update" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse_smooth</span><span class="o">.</span><span class="n">update</span></a><span class="p">(</span>
-    <span class="p">{</span><span class="s2">&quot;position&quot;</span><span class="p">:</span> <a href="../api/movement.filtering.savgol_filter.html#movement.filtering.savgol_filter" title="movement.filtering.savgol_filter" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">savgol_filter</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse_smooth</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">window</span></a><span class="p">)}</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;position&quot;</span><span class="p">:</span> <a href="../api/movement.filtering.savgol_filter.html#movement.filtering.savgol_filter" title="movement.filtering.savgol_filter" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">savgol_filter</span></a><span class="p">(</span>
+            <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse_smooth</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">window</span></a><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span>
+        <span class="p">)</span>
+    <span class="p">}</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -937,7 +951,7 @@ what we’ve done.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[
   {
     &quot;operation&quot;: &quot;rolling_filter&quot;,
-    &quot;datetime&quot;: &quot;2026-02-03 17:56:28.168762&quot;,
+    &quot;datetime&quot;: &quot;2026-02-03 18:00:43.822936&quot;,
     &quot;window&quot;: &quot;3&quot;,
     &quot;statistic&quot;: &quot;&#39;median&#39;&quot;,
     &quot;min_periods&quot;: &quot;2&quot;,
@@ -945,17 +959,18 @@ what we’ve done.</p>
   },
   {
     &quot;operation&quot;: &quot;interpolate_over_time&quot;,
-    &quot;datetime&quot;: &quot;2026-02-03 17:56:28.192100&quot;,
+    &quot;datetime&quot;: &quot;2026-02-03 18:00:43.844353&quot;,
     &quot;method&quot;: &quot;&#39;linear&#39;&quot;,
     &quot;max_gap&quot;: &quot;30&quot;,
     &quot;print_report&quot;: &quot;False&quot;
   },
   {
     &quot;operation&quot;: &quot;savgol_filter&quot;,
-    &quot;datetime&quot;: &quot;2026-02-03 17:56:28.196157&quot;,
+    &quot;datetime&quot;: &quot;2026-02-03 18:00:43.847821&quot;,
     &quot;window&quot;: &quot;12&quot;,
     &quot;polyorder&quot;: &quot;2&quot;,
-    &quot;print_report&quot;: &quot;False&quot;
+    &quot;print_report&quot;: &quot;False&quot;,
+    &quot;kwargs&quot;: &quot;{&#39;mode&#39;: &#39;nearest&#39;}&quot;
   }
 ]
 </pre></div>
@@ -978,7 +993,7 @@ also look at other keypoints and time ranges.</p>
 in the
 <a class="reference internal" href="filter_and_interpolate.html#sphx-glr-examples-filter-and-interpolate-py"><span class="std std-ref">Drop outliers and interpolate</span></a> example.</p>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.575 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.360 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-smooth-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/smooth.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />

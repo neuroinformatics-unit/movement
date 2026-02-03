@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=4814e1ce"></script>
+    <script src="../../_static/documentation_options.js?v=839d7103"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev13</p>
+    <p class="title logo__title">movement v0.13.1.dev14</p>
   
 </a></div>
     
@@ -709,7 +709,8 @@
 <span class="sd">    **kwargs : dict</span>
 <span class="sd">        Additional keyword arguments are passed to</span>
 <span class="sd">        :func:`scipy.signal.savgol_filter`.</span>
-<span class="sd">        Note that the ``axis`` keyword argument may not be overridden.</span>
+<span class="sd">        Note that the ``axis`` keyword argument may not be overridden,</span>
+<span class="sd">        as the filter is always applied over the ``time`` dimension.</span>
 
 
 <span class="sd">    Returns</span>
@@ -723,6 +724,7 @@
 <span class="sd">    Uses the :func:`scipy.signal.savgol_filter` function to apply a</span>
 <span class="sd">    Savitzky-Golay filter to the input data.</span>
 <span class="sd">    See the SciPy documentation for more information on that function.</span>
+
 <span class="sd">    Whenever one or more NaNs are present in a smoothing window of the</span>
 <span class="sd">    input data, a NaN is returned to the output array. As a result, any</span>
 <span class="sd">    stretch of NaNs present in the input data will be propagated</span>
@@ -731,19 +733,36 @@
 <span class="sd">    :func:`movement.filtering.rolling_filter`, there is no ``min_periods``</span>
 <span class="sd">    option to control this behaviour.</span>
 
+<span class="sd">    The function raises a ``ValueError`` if NaNs are found within the signal&#39;s</span>
+<span class="sd">    edge windows. To avoid this, fill any edge NaNs before filtering, or switch</span>
+<span class="sd">    from the default ``mode=&#39;interp&#39;`` to an alternative edge handling</span>
+<span class="sd">    mode (e.g., ``mode=&#39;nearest&#39;`` or ``mode=&#39;mirror&#39;``).</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s2">&quot;axis&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The &#39;axis&#39; argument may not be overridden.&quot;</span><span class="p">)</span>
         <span class="p">)</span>
+    <span class="n">time_axis</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get_axis_num</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
     <span class="n">data_smoothed</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">data_smoothed</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span>
-        <span class="n">data</span><span class="p">,</span>
-        <span class="n">window</span><span class="p">,</span>
-        <span class="n">polyorder</span><span class="p">,</span>
-        <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data_smoothed</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="n">window</span><span class="p">,</span>
+            <span class="n">polyorder</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="n">time_axis</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;array must not contain infs or NaNs&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;mode=&#39;interp&#39; does not support NaNs in edge windows &quot;</span>
+                    <span class="s2">&quot;with SciPy &gt;= 1.17; use mode=&#39;nearest&#39;/&#39;mirror&#39; or &quot;</span>
+                    <span class="s2">&quot;fill edge NaNs before filtering.&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="k">raise</span>  <span class="c1"># Re-raise any other ValueError unchanged</span>
     <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_smoothed</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">))</span>
