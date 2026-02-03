@@ -36,7 +36,7 @@ class TestFilteringValidDataset:
         ("filter_func, filter_kwargs"),
         [
             (rolling_filter, {"window": 3, "statistic": "median"}),
-            (savgol_filter, {"window": 3, "polyorder": 2}),
+            (savgol_filter, {"window": 3, "polyorder": 2, "mode": "nearest"}),
         ],
     )
     def test_filter_with_nans_on_position(
@@ -193,7 +193,9 @@ class TestFilteringValidDatasetWithNaNs:
         kwargs = {"window": window}
         if filter_func == savgol_filter:
             kwargs["polyorder"] = 2
-        # Filter position
+            # Use 'nearest' to avoid edge NaNs errors with 'interp' mode
+            kwargs["mode"] = "nearest"
+
         valid_input_dataset = request.getfixturevalue(valid_dataset_with_nan)
         position_filtered = filter_func(
             valid_input_dataset.position,
@@ -216,7 +218,7 @@ class TestFilteringValidDatasetWithNaNs:
     @pytest.mark.parametrize(
         "mode, expected_exception",
         [
-            (None, does_not_raise()),
+            (None, pytest.raises(ValueError, match="mode='interp'")),
             ("interp", pytest.raises(ValueError, match="mode='interp'")),
             ("nearest", does_not_raise()),
             ("mirror", does_not_raise()),
