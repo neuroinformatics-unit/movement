@@ -187,7 +187,7 @@ per-file-ignores = { "tests/*" = [
 docstring-code-format = true # Also format code in docstrings
 
 [tool.codespell]
-skip = '.git,.tox,*.svg'
+skip = '.git,.tox,*.svg,docs/source/community/people.md'
 check-hidden = true
 
 [tool.tox]
