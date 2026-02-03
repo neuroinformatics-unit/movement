@@ -55,7 +55,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](http
     ```
 
     :::{note}
-    Your repository now has two remotes : `origin` (your fork, where you push changes) and `upstream` (the main repository, where you pull updates from)
+    Your repository now has two remotes: `origin` (your fork, where you push changes) and `upstream` (the main repository, where you pull updates from)
 
 ### Creating a development environment
 
