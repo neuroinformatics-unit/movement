@@ -1,5 +1,5 @@
 (target-contributing)=
-# How to Contribute
+# Contributing
 
 (target-before-you-start)=
 ## Before you start

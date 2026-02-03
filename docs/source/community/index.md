@@ -23,7 +23,7 @@ Meet the team and learn about the project's context, goals, and future plans.
 - [License](target-license)
 :::
 
-:::{grid-item-card} {fas}`code-branch;sd-text-primary` How to Contribute
+:::{grid-item-card} {fas}`code-branch;sd-text-primary` Contributing
 
 Learn how to set up your development environment and contribute code or documentation.
 
