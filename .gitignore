@@ -99,3 +99,6 @@ uv.lock
 
 # benchmark results
 .benchmarks/
+
+# zarr data
+*.zarr
