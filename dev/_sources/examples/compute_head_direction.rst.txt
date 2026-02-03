@@ -316,7 +316,7 @@ We will do this for a small time window to make the plot more readable.
  .. code-block:: none
 
 
-    <matplotlib.legend.Legend object at 0x7f9608ea6d20>
+    <matplotlib.legend.Legend object at 0x7fa2b7c248f0>
 
 
 
@@ -694,7 +694,7 @@ differ less than 20 degrees (2 histogram bins).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.802 seconds)
+   **Total running time of the script:** (0 minutes 0.834 seconds)
 
 
 .. _sphx_glr_download_examples_compute_head_direction.py:

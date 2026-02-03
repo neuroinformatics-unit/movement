@@ -215,7 +215,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f962091c8f0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fa2cd6acec0>
 
 
 
@@ -246,7 +246,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f9620827d10>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fa2cd6aec60>
 
 
 
@@ -282,7 +282,7 @@ visualisations, like :func:`plot_centroid_trajectory()\
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.705 seconds)
+   **Total running time of the script:** (0 minutes 0.724 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_explore_poses.py:
