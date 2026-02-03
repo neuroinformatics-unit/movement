@@ -287,7 +287,6 @@ def savgol_filter(
                     "fill edge NaNs before filtering."
                 )
             ) from e
-        raise
     if print_report:
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_smoothed, "output"))
