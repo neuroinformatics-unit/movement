@@ -283,9 +283,9 @@ plot_raw_and_smooth_timeseries_and_psd(
 # Let's try it on the mouse dataset, this time using a 0.2-second
 # window (i.e. 6 frames) and the default ``polyorder=2`` for smoothing.
 # As before, we first compute the corresponding number of observations
-# to be used as the ``window`` size. We set ``mode='nearest'`` because the
-# default ``mode='interp'`` used by :func:`scipy.signal.savgol_filter` cannot
-# handle NaN values at the edges of the time series.
+# to be used as the ``window`` size. We set ``mode='nearest'`` to avoid
+# the ``ValueError`` triggered by the default ``mode='interp'`` when
+# :func:`scipy.signal.savgol_filter` encounters NaNs near the signal edges.
 
 window = int(0.2 * ds_mouse.fps)
 ds_mouse_smooth.update(

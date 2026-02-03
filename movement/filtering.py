@@ -258,11 +258,10 @@ def savgol_filter(
     :func:`movement.filtering.rolling_filter`, there is no ``min_periods``
     option to control this behaviour.
 
-    The presence of NaNs in the edge windows will lead to a ``ValueError``.
-    Consider filling the edge NaNs before applying the filter, or
-    overriding the default ``mode='interp'`` used by
-    :func:`scipy.signal.savgol_filter` to specify how the edges
-    are handled (e.g., ``mode='nearest'`` or ``mode='mirror'``).
+    The function raises a ``ValueError`` if NaNs are found within the signal's
+    edge windows. To avoid this, fill any edge NaNs before filtering, or switch
+    from the default ``mode='interp'`` to an alternative edge handling
+    mode (e.g., ``mode='nearest'`` or ``mode='mirror'``).
 
     """
     if "axis" in kwargs:
