@@ -2,7 +2,6 @@
 
 from typing import Any, Literal
 
-import numpy as np
 import xarray as xr
 from scipy import signal
 from xarray.core.types import InterpOptions
@@ -285,7 +284,8 @@ def savgol_filter(
                     "mode='interp' does not support NaNs in edge windows "
                     "with SciPy >= 1.17; use mode='nearest'/'mirror' or "
                     "fill edge NaNs before filtering."
-            )) from e
+                )
+            ) from e
         raise
     if print_report:
         print(report_nan_values(data, "input"))
