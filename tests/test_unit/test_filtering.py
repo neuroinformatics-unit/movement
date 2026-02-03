@@ -75,6 +75,10 @@ class TestFilteringValidDataset:
             ({"mode": "nearest", "print_report": True}, does_not_raise()),
             ({"axis": 1}, pytest.raises(ValueError)),
             ({"mode": "nearest", "axis": 1}, pytest.raises(ValueError)),
+            (  # polyorder >= window: re-raised unchanged by savgol_filter
+                {"polyorder": 5},
+                pytest.raises(ValueError, match="polyorder"),
+            ),
         ],
     )
     def test_savgol_filter_kwargs_override(
