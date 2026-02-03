@@ -11,13 +11,6 @@ from movement.utils.logging import log_to_attrs, logger
 from movement.utils.reports import report_nan_values
 
 
-def _has_edge_nans(data: xr.DataArray, window: int) -> bool:
-    """Check if there are NaNs in the edge windows along the time dimension."""
-    head = data.isel(time=slice(0, window)).values
-    tail = data.isel(time=slice(-window, None)).values
-    return np.isnan(head).any() or np.isnan(tail).any()
-
-
 @log_to_attrs
 def filter_by_confidence(
     data: xr.DataArray,
@@ -275,28 +268,25 @@ def savgol_filter(
         raise logger.error(
             ValueError("The 'axis' argument may not be overridden.")
         )
-
-    if _has_edge_nans(data, window):
-        if "mode" not in kwargs:
-            kwargs["mode"] = "nearest"
-        elif kwargs["mode"] == "interp":
+    time_axis = data.get_axis_num("time")
+    data_smoothed = data.copy()
+    try:
+        data_smoothed.values = signal.savgol_filter(
+            data,
+            window,
+            polyorder,
+            axis=time_axis,
+            **kwargs,
+        )
+    except ValueError as e:
+        if "array must not contain infs or NaNs" in str(e):
             raise logger.error(
                 ValueError(
                     "mode='interp' does not support NaNs in edge windows "
                     "with SciPy >= 1.17; use mode='nearest'/'mirror' or "
                     "fill edge NaNs before filtering."
-                )
-            )
-
-    time_axis = data.get_axis_num("time")
-    data_smoothed = data.copy()
-    data_smoothed.values = signal.savgol_filter(
-        data,
-        window,
-        polyorder,
-        axis=time_axis,
-        **kwargs,
-    )
+            )) from e
+        raise
     if print_report:
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_smoothed, "output"))
