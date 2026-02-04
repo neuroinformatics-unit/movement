@@ -188,8 +188,7 @@ class TestSplitTrajectoriesByGap:
             individual_names=["mouse0"],
         )
 
-        # Store original values
-        original_values = position.values.copy()
+        # Store original individuals (values not needed for this test)
         original_individuals = list(position.coords["individuals"].values)
 
         # Insert NaNs and split
@@ -197,7 +196,8 @@ class TestSplitTrajectoriesByGap:
 
         _ = split_trajectories_by_gap(position, min_gap_size=1)
 
-        # Original should still have NaNs we inserted (but not be further modified)
+        # Original should still have NaNs we inserted,
+        # and should not be further modified.
         assert (
             list(position.coords["individuals"].values) == original_individuals
         )
