@@ -16,7 +16,6 @@ license-files = ["LICENSE"]
 dependencies = [
   "numpy>=2.0.0",
   "pandas",
-  "scipy<1.17.0",
   "h5py",
   "netCDF4<1.7.3",
   "tables>=3.10.1",
@@ -187,7 +186,7 @@ per-file-ignores = { "tests/*" = [
 docstring-code-format = true # Also format code in docstrings
 
 [tool.codespell]
-skip = '.git,.tox,*.svg'
+skip = '.git,.tox,*.svg,docs/source/community/people.md'
 check-hidden = true
 
 [tool.tox]
