@@ -198,7 +198,9 @@ class TestSplitTrajectoriesByGap:
         _ = split_trajectories_by_gap(position, min_gap_size=1)
 
         # Original should still have NaNs we inserted (but not be further modified)
-        assert list(position.coords["individuals"].values) == original_individuals
+        assert (
+            list(position.coords["individuals"].values) == original_individuals
+        )
 
     def test_preserves_attributes(self):
         """Test that DataArray attributes are preserved."""
