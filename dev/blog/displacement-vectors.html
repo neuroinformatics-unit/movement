@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=27e5f51a"></script>
+    <script src="../_static/documentation_options.js?v=101d7f70"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -137,7 +137,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev15</p>
+    <p class="title logo__title">movement v0.13.1.dev16</p>
   
 </a></div>
     
@@ -495,7 +495,7 @@ The new API makes the directionality of displacement <strong>explicit</strong>, 
 </pre></div>
 </div>
 <p><strong>Related changes</strong></p>
-<p>We slightly modified the behaviour of vector conversion from Cartesian to polar coordinates. For simplicity and interpretability, <a class="reference internal" href="../api/movement.utils.vector.cart2pol.html#movement.utils.vector.cart2pol" title="movement.utils.vector.cart2pol"><code class="xref py py-func docutils literal notranslate"><span class="pre">cart2pol</span></code></a> now always sets the angle <code class="docutils literal notranslate"><span class="pre">phi</span></code> to 0 when the vector’s norm <code class="docutils literal notranslate"><span class="pre">rho</span></code> is 0, rather than following the <a class="reference external" href="https://www.iso.org/standard/29237.html">C standard</a> for <a class="reference external" href="https://en.wikipedia.org/wiki/Atan2"><code class="docutils literal notranslate"><span class="pre">arctan2</span></code></a>. This change should not affect existing workflows, as a zero-length vector has an undefined direction—meaning it could point in any direction, and assigning <code class="docutils literal notranslate"><span class="pre">phi</span> <span class="pre">=</span> <span class="pre">0</span></code> is a safe, neutral choice.</p>
+<p>We slightly modified the behaviour of vector conversion from Cartesian to polar coordinates. For simplicity and interpretability, <a class="reference internal" href="../api/movement.utils.vector.cart2pol.html#movement.utils.vector.cart2pol" title="movement.utils.vector.cart2pol"><code class="xref py py-func docutils literal notranslate"><span class="pre">cart2pol</span></code></a> now always sets the angle <code class="docutils literal notranslate"><span class="pre">phi</span></code> to 0 when the vector’s norm <code class="docutils literal notranslate"><span class="pre">rho</span></code> is 0, rather than following the <a class="reference external" href="https://www.iso.org/standard/82075.html">C standard</a> for <a class="reference external" href="https://en.wikipedia.org/wiki/Atan2"><code class="docutils literal notranslate"><span class="pre">arctan2</span></code></a>. This change should not affect existing workflows, as a zero-length vector has an undefined direction—meaning it could point in any direction, and assigning <code class="docutils literal notranslate"><span class="pre">phi</span> <span class="pre">=</span> <span class="pre">0</span></code> is a safe, neutral choice.</p>
 </section>
 <section id="reflections">
 <h2>Reflections<a class="headerlink" href="#reflections" title="Link to this heading">#</a></h2>

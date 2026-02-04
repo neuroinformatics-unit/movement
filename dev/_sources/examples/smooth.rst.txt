@@ -769,7 +769,7 @@ what we've done.
     [
       {
         "operation": "rolling_filter",
-        "datetime": "2026-02-03 18:15:00.208641",
+        "datetime": "2026-02-04 09:38:04.348978",
         "window": "3",
         "statistic": "'median'",
         "min_periods": "2",
@@ -777,14 +777,14 @@ what we've done.
       },
       {
         "operation": "interpolate_over_time",
-        "datetime": "2026-02-03 18:15:00.231767",
+        "datetime": "2026-02-04 09:38:04.371784",
         "method": "'linear'",
         "max_gap": "30",
         "print_report": "False"
       },
       {
         "operation": "savgol_filter",
-        "datetime": "2026-02-03 18:15:00.235770",
+        "datetime": "2026-02-04 09:38:04.375650",
         "window": "12",
         "polyorder": "2",
         "print_report": "False",
@@ -839,7 +839,7 @@ also look at other keypoints and time ranges.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.564 seconds)
+   **Total running time of the script:** (0 minutes 1.554 seconds)
 
 
 .. _sphx_glr_download_examples_smooth.py:

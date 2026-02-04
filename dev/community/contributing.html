@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>How to Contribute &#8212; movement</title>
+    <title>Contributing &#8212; movement</title>
   
   
   
@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=27e5f51a"></script>
+    <script src="../_static/documentation_options.js?v=101d7f70"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev15</p>
+    <p class="title logo__title">movement v0.13.1.dev16</p>
   
 </a></div>
     
@@ -421,7 +421,7 @@
 <li class="toctree-l1"><a class="reference internal" href="people.html">People</a></li>
 <li class="toctree-l1"><a class="reference internal" href="mission-scope.html">Mission &amp; Scope</a></li>
 <li class="toctree-l1"><a class="reference internal" href="roadmaps.html">Roadmaps</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">How to Contribute</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="resources.html">Resources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="related-projects.html">Related projects</a></li>
 <li class="toctree-l1"><a class="reference internal" href="code-of-conduct.html">Code of Conduct</a></li>
@@ -469,7 +469,7 @@
     
     <li class="breadcrumb-item"><a href="index.html" class="nav-link">Community</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">How to Contribute</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Contributing</span></li>
   </ul>
 </nav>
 </div>
@@ -485,10 +485,10 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section class="tex2jax_ignore mathjax_ignore" id="how-to-contribute">
-<span id="target-contributing"></span><h1>How to Contribute<a class="headerlink" href="#how-to-contribute" title="Link to this heading">#</a></h1>
+                   <section class="tex2jax_ignore mathjax_ignore" id="contributing">
+<span id="target-contributing"></span><h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">#</a></h1>
 <section id="before-you-start">
-<h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading">#</a></h2>
+<span id="target-before-you-start"></span><h2>Before you start<a class="headerlink" href="#before-you-start" title="Link to this heading">#</a></h2>
 <p>Before starting work on a contribution, please check the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/issues">issue tracker</a> to see if there’s already an issue describing what you have in mind.</p>
 <ul class="simple">
 <li><p>If there is, add a comment to let others know you’re willing to work on it.</p></li>
@@ -508,24 +508,39 @@ There are a few reasons an issue might not be actionable yet:</p>
 <p>Some issues are labelled as <code class="docutils literal notranslate"><span class="pre">good</span> <span class="pre">first</span> <span class="pre">issue</span></code>.
 These are especially suitable if you’re new to the project, and we recommend starting there.</p>
 </section>
-<section id="contributing-code">
-<h2>Contributing code<a class="headerlink" href="#contributing-code" title="Link to this heading">#</a></h2>
-<section id="creating-a-development-environment">
-<h3>Creating a development environment<a class="headerlink" href="#creating-a-development-environment" title="Link to this heading">#</a></h3>
-<p>In order to make changes to <code class="docutils literal notranslate"><span class="pre">movement</span></code>, you will need to fork the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/">repository</a>.
-If you are not familiar with <code class="docutils literal notranslate"><span class="pre">git</span></code>, we recommend reading up on <a class="reference external" href="https://docs.github.com/en/get-started/using-git/about-git#basic-git-commands">this guide</a>.</p>
+<section id="contribution-workflow">
+<span id="target-contribution-workflow"></span><h2>Contribution workflow<a class="headerlink" href="#contribution-workflow" title="Link to this heading">#</a></h2>
+<p>If you want to contribute to <code class="docutils literal notranslate"><span class="pre">movement</span></code> and don’t have permission to make changes directly, you can create your own copy of the project, make updates, and then suggest those updates for inclusion in the main project. This process is often called a “fork and pull request” workflow.</p>
+<p>When you create your own copy (or “fork”) of a project, it’s like making a new workspace that shares code with the original project.
+Once you’ve made your changes in your copy, you can submit them as a pull request, which is a way to propose changes back to the main project.</p>
+<p>If you are not familiar with <code class="docutils literal notranslate"><span class="pre">git</span></code>, we recommend reading up on <a class="reference external" href="https://docs.github.com/en/get-started/using-git/about-git#basic-git-commands">this guide</a>.</p>
+<section id="forking-the-repository">
+<h3>Forking the repository<a class="headerlink" href="#forking-the-repository" title="Link to this heading">#</a></h3>
 <ol class="arabic">
-<li><p>Clone the forked repository to your local machine and change directory:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/&lt;your-github-username&gt;/movement.git
+<li><p>Fork the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/">repository</a> on GitHub.
+You can read more about <a class="reference external" href="https://docs.github.com/en/get-started/quickstart/fork-a-repo">forking in the GitHub docs</a>.</p></li>
+<li><p>Clone your fork to your local machine and navigate to the repository folder:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span><span class="o">[</span>https://github.com/<span class="o">](</span>https://github.com/<span class="o">)</span>&lt;your-github-username&gt;/movement.git
 <span class="nb">cd</span><span class="w"> </span>movement
 </pre></div>
 </div>
 </li>
-<li><p>Set the upstream remote to the base <code class="docutils literal notranslate"><span class="pre">movement</span></code> repository:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>upstream<span class="w"> </span>https://github.com/neuroinformatics-unit/movement.git
+<li><p>Set the upstream remote to the base <code class="docutils literal notranslate"><span class="pre">movement</span></code> repository:
+This links your local copy to the original project so you can pull the latest changes.</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>upstream<span class="w"> </span><span class="o">[</span>https://github.com/neuroinformatics-unit/movement.git<span class="o">](</span>https://github.com/neuroinformatics-unit/movement.git<span class="o">)</span>
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Your repository now has two remotes: <code class="docutils literal notranslate"><span class="pre">origin</span></code> (your fork, where you push changes) and <code class="docutils literal notranslate"><span class="pre">upstream</span></code> (the main repository, where you pull updates from)</p>
+</div>
 </li>
+</ol>
+</section>
+<section id="creating-a-development-environment">
+<h3>Creating a development environment<a class="headerlink" href="#creating-a-development-environment" title="Link to this heading">#</a></h3>
+<p>Now that you have the repository locally, you need to set up a Python environment and install the project dependencies.</p>
+<ol class="arabic">
 <li><p>Create an environment using <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/#">conda</a> or <a class="reference external" href="https://docs.astral.sh/uv/getting-started/installation/#">uv</a> and install <code class="docutils literal notranslate"><span class="pre">movement</span></code> in editable mode, including development dependencies.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-0" name="sd-tab-set-0" type="radio">
@@ -556,9 +571,9 @@ uv</label><div class="sd-tab-content docutils">
 </div>
 </div>
 </div>
-<p>If you also want to edit the documentation and preview the changes locally, you will additionally need the <code class="docutils literal notranslate"><span class="pre">docs</span></code> extra dependencies. See <a class="reference internal" href="#editing-the-documentation">Editing the documentation</a> for more details.</p>
+<p>If you also want to edit the documentation and preview the changes locally, you will additionally need the <code class="docutils literal notranslate"><span class="pre">docs</span></code> extra dependencies. See <a class="reference internal" href="#editing-the-documentation"><span class="std std-ref">Editing the documentation</span></a> for more details.</p>
 </li>
-<li><p>Finally, initialise the <a class="reference internal" href="#formatting-and-pre-commit-hooks">pre-commit hooks</a>:</p>
+<li><p>Finally, initialise the <a class="reference internal" href="#formatting-and-pre-commit-hooks"><span class="std std-ref">pre-commit hooks</span></a>:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pre-commit<span class="w"> </span>install
 </pre></div>
 </div>
@@ -584,14 +599,20 @@ We recommend, and adhere, to the following conventions:</p>
 <li><p>PRs are preferably merged via the <a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits">“squash and merge”</a> option, to keep a clean commit history on the <em>main</em> branch.</p></li>
 </ul>
 <p>A typical PR workflow would be:</p>
-<ul class="simple">
+<ul>
 <li><p>Create a new branch, make your changes, and stage them.</p></li>
-<li><p>When you try to commit, the <a class="reference internal" href="#formatting-and-pre-commit-hooks">pre-commit hooks</a> will be triggered.</p></li>
+<li><p>When you try to commit, the <a class="reference internal" href="#formatting-and-pre-commit-hooks"><span class="std std-ref">pre-commit hooks</span></a> will be triggered.</p></li>
 <li><p>Stage any changes made by the hooks, and commit.</p></li>
 <li><p>You may also run the pre-commit hooks manually, at any time, with <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">run</span> <span class="pre">-a</span></code>.</p></li>
-<li><p>Make sure to write tests for any new features or bug fixes. See <a class="reference internal" href="#testing">testing</a> below.</p></li>
-<li><p>Don’t forget to update the documentation, if necessary. See <a class="reference internal" href="#contributing-documentation">contributing documentation</a> below.</p></li>
-<li><p>Push your changes to GitHub and open a draft pull request, with a meaningful title and a thorough description of the changes.</p></li>
+<li><p>Make sure to write tests for any new features or bug fixes. See <a class="reference internal" href="#testing"><span class="std std-ref">testing</span></a> below.</p></li>
+<li><p>Don’t forget to update the documentation, if necessary. See <a class="reference internal" href="#contributing-documentation"><span class="std std-ref">contributing documentation</span></a> below.</p></li>
+<li><p>Push your changes to your fork on GitHub(<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">&lt;branch-name&gt;</span></code>).</p></li>
+<li><p>Open a draft pull request from your fork to the upstream <code class="docutils literal notranslate"><span class="pre">movement</span></code> repository, with a meaningful title and a thorough description of the changes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When creating the PR, ensure the base repository is <code class="docutils literal notranslate"><span class="pre">neuroinformatics-unit/movement</span></code> (the <code class="docutils literal notranslate"><span class="pre">upstream</span></code>) and the head repository is your fork. GitHub sometimes defaults to comparing against your own fork. Also make sure to tick the “Allow edits by maintainers” checkbox, so that maintainers can make small fixes directly to your branch.</p>
+</div>
+</li>
 <li><p>If all checks (e.g. linting, type checking, testing) run successfully, you may mark the pull request as ready for review.</p></li>
 <li><p>Respond to review comments and implement any requested changes.</p></li>
 <li><p>One of the maintainers will approve the PR and add it to the <a class="reference external" href="https://github.blog/changelog/2023-02-08-pull-request-merge-queue-public-beta/">merge queue</a>.</p></li>
@@ -600,7 +621,7 @@ We recommend, and adhere, to the following conventions:</p>
 </section>
 </section>
 <section id="development-guidelines">
-<h2>Development guidelines<a class="headerlink" href="#development-guidelines" title="Link to this heading">#</a></h2>
+<span id="target-dev-guidelines"></span><h2>Development guidelines<a class="headerlink" href="#development-guidelines" title="Link to this heading">#</a></h2>
 <section id="formatting-and-pre-commit-hooks">
 <h3>Formatting and pre-commit hooks<a class="headerlink" href="#formatting-and-pre-commit-hooks" title="Link to this heading">#</a></h3>
 <p>Running <code class="docutils literal notranslate"><span class="pre">pre-commit</span> <span class="pre">install</span></code> will set up <a class="reference external" href="https://pre-commit.com/">pre-commit hooks</a> to ensure a consistent formatting style. Currently, these include:</p>
@@ -632,7 +653,7 @@ output something like:</p>
 Sometimes you may have good reasons to ignore a particular rule for a specific line of code. You can do this by adding an inline comment, e.g. <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">noqa:</span> <span class="pre">E501</span></code>. Replace <code class="docutils literal notranslate"><span class="pre">E501</span></code> with the code of the rule you want to ignore.</p>
 <p>For docstrings, we adhere to the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style.
 Make sure to provide docstrings for all public functions, classes, and methods.
-This is important as it allows for <a class="reference internal" href="#updating-the-api-reference">automatic generation of the API reference</a>.</p>
+This is important as it allows for <a class="reference internal" href="#updating-the-api-reference"><span class="std std-ref">automatic generation of the API reference</span></a>.</p>
 </section>
 <section id="testing">
 <h3>Testing<a class="headerlink" href="#testing" title="Link to this heading">#</a></h3>
@@ -643,7 +664,7 @@ This is important as it allows for <a class="reference internal" href="#updating
 <li><p><code class="docutils literal notranslate"><span class="pre">test_integration/</span></code>: Includes tests for interactions between different modules.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">fixtures/</span></code>: Holds reusable test data fixtures, automatically imported via <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code>. Check for existing fixtures before adding new ones, to avoid duplication.</p></li>
 </ul>
-<p>For tests requiring experimental data, you can use <a class="reference internal" href="#sample-data">sample data</a> from our external data repository.
+<p>For tests requiring experimental data, you can use <a class="reference internal" href="#sample-data"><span class="std std-ref">sample data</span></a> from our external data repository.
 These datasets are accessible through the <code class="docutils literal notranslate"><span class="pre">pytest.DATA_PATHS</span></code> dictionary, populated in <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code>.
 Avoid including large data files directly in the GitHub repository.</p>
 <section id="running-benchmark-tests">
@@ -762,7 +783,7 @@ The version number is automatically determined from the latest tag on the <em>ma
 </section>
 </section>
 <section id="contributing-documentation">
-<h2>Contributing documentation<a class="headerlink" href="#contributing-documentation" title="Link to this heading">#</a></h2>
+<span id="target-contributing-docs"></span><h2>Contributing documentation<a class="headerlink" href="#contributing-documentation" title="Link to this heading">#</a></h2>
 <p>The documentation is hosted via <a class="reference external" href="https://pages.github.com/">GitHub pages</a> at
 <a class="reference internal" href="../index.html#target-movement"><span class="std std-ref">movement.neuroinformatics.dev</span></a>.
 Its source files are located in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder of this repository.
@@ -778,7 +799,7 @@ The deployment job runs on tag pushes (for PyPI releases) or manual triggers on 
 This keeps the documentation aligned with releases, while allowing manual redeployment when necessary.</p>
 <section id="editing-the-documentation">
 <h3>Editing the documentation<a class="headerlink" href="#editing-the-documentation" title="Link to this heading">#</a></h3>
-<p>To edit the documentation, ensure you have already set up a <a class="reference internal" href="#creating-a-development-environment">development environment</a>.</p>
+<p>To edit the documentation, ensure you have already set up a <a class="reference internal" href="#creating-a-development-environment"><span class="std std-ref">development environment</span></a>.</p>
 <p>To build the documentation locally, install the extra dependencies by running the following command from the repository root:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[docs]&quot;</span><span class="w">      </span><span class="c1"># conda env</span>
 uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[docs]&quot;</span><span class="w">   </span><span class="c1"># uv env</span>
@@ -786,7 +807,7 @@ uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </s
 </div>
 <p>Now create a new branch, edit the documentation source files (<code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder),
 and commit your changes. Submit your documentation changes via a pull request,
-following the <a class="reference internal" href="#pull-requests">same guidelines as for code changes</a>.
+following the <a class="reference internal" href="#pull-requests"><span class="std std-ref">same guidelines as for code changes</span></a>.
 Make sure that the header levels in your <code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files are incremented
 consistently (H1 &gt; H2 &gt; H3, etc.) without skipping any levels.</p>
 <section id="adding-new-pages">
@@ -869,7 +890,7 @@ RestructuredText</label><div class="sd-tab-content docutils">
 <h4>External references<a class="headerlink" href="#external-references" title="Link to this heading">#</a></h4>
 <p>For referencing external Python objects using <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#">intersphinx</a>,
 ensure the mapping between module names and their documentation URLs is defined in <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_mapping"><code class="docutils literal notranslate"><span class="pre">intersphinx_mapping</span></code></a> in <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>.
-Once the module is included in the mapping, use the same syntax as for <a class="reference internal" href="#internal-references">internal references</a>.</p>
+Once the module is included in the mapping, use the same syntax as for <a class="reference internal" href="#internal-references"><span class="std std-ref">internal references</span></a>.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-4" name="sd-tab-set-2" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-4">
@@ -924,7 +945,7 @@ Non-GitHub users</label><div class="sd-tab-content docutils">
 <section id="building-the-documentation-locally">
 <h3>Building the documentation locally<a class="headerlink" href="#building-the-documentation-locally" title="Link to this heading">#</a></h3>
 <p>We recommend that you build and view the documentation website locally, before you push your proposed changes.</p>
-<p>First, ensure your development environment with the required dependencies is active (see <a class="reference internal" href="#editing-the-documentation">Editing the documentation</a> for details on how to create it). Then, navigate to the <code class="docutils literal notranslate"><span class="pre">docs/</span></code> directory:</p>
+<p>First, ensure your development environment with the required dependencies is active (see <a class="reference internal" href="#editing-the-documentation"><span class="std std-ref">Editing the documentation</span></a> for details on how to create it). Then, navigate to the <code class="docutils literal notranslate"><span class="pre">docs/</span></code> directory:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
 </pre></div>
 </div>
@@ -983,7 +1004,7 @@ For example, to re-build the documentation and check the links, run:</p>
 </section>
 </section>
 <section id="sample-data">
-<h2>Sample data<a class="headerlink" href="#sample-data" title="Link to this heading">#</a></h2>
+<span id="target-contributing-sample-data"></span><h2>Sample data<a class="headerlink" href="#sample-data" title="Link to this heading">#</a></h2>
 <p>We maintain some sample datasets to be used for testing, examples and tutorials on an
 <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">external data repository</a>.
 Our hosting platform of choice is called <a class="reference external" href="https://gin.g-node.org/#">GIN</a> and is maintained
@@ -1030,7 +1051,7 @@ To add a new file, you will need to:</p>
 <li><p>Clone the <code class="docutils literal notranslate"><span class="pre">movement</span></code> data repository to your local machine using <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">get</span> <span class="pre">neuroinformatics/movement-test-data</span></code>, then run <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">download</span> <span class="pre">--content</span></code> to download all the files.</p></li>
 <li><p>Add your new files to the appropriate folders (<code class="docutils literal notranslate"><span class="pre">poses</span></code>, <code class="docutils literal notranslate"><span class="pre">bboxes</span></code>, <code class="docutils literal notranslate"><span class="pre">videos</span></code>, and/or <code class="docutils literal notranslate"><span class="pre">frames</span></code>) following the existing file naming conventions.</p></li>
 <li><p>Add metadata for your new files to <code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> using the example entry below as a template. You can leave all <code class="docutils literal notranslate"><span class="pre">sha256sum</span></code> values as <code class="docutils literal notranslate"><span class="pre">null</span></code> for now.</p></li>
-<li><p>Update file hashes in <code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> by running <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">update_hashes.py</span></code> from the root of the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">movement data repository</a>. This script computes SHA256 hashes for all data files and updates the corresponding <code class="docutils literal notranslate"><span class="pre">sha256sum</span></code> values in the metadata file. Make sure you’re in a <a class="reference internal" href="#creating-a-development-environment">Python environment with <code class="docutils literal notranslate"><span class="pre">movement</span></code> installed</a>.</p></li>
+<li><p>Update file hashes in <code class="docutils literal notranslate"><span class="pre">metadata.yaml</span></code> by running <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">update_hashes.py</span></code> from the root of the <a class="reference external" href="https://gin.g-node.org/neuroinformatics/movement-test-data#">movement data repository</a>. This script computes SHA256 hashes for all data files and updates the corresponding <code class="docutils literal notranslate"><span class="pre">sha256sum</span></code> values in the metadata file. Make sure you’re in a <a class="reference internal" href="#creating-a-development-environment"><span class="std std-ref">Python environment with movement installed</span></a>.</p></li>
 <li><p>Commit your changes using <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&lt;message&gt;</span> <span class="pre">&lt;filename&gt;</span></code> for specific files or <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">&lt;message&gt;</span> <span class="pre">.</span></code> for all changes.</p></li>
 <li><p>Upload your committed changes to the GIN repository with <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">upload</span></code>. Use <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">download</span></code> to pull the latest changes or <code class="docutils literal notranslate"><span class="pre">gin</span> <span class="pre">sync</span></code> to synchronise changes bidirectionally.</p></li>
 </ol>
@@ -1112,7 +1133,8 @@ To add a new file, you will need to:</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#before-you-start">Before you start</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-code">Contributing code</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contribution-workflow">Contribution workflow</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#forking-the-repository">Forking the repository</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#creating-a-development-environment">Creating a development environment</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pull-requests">Pull requests</a></li>
 </ul>
@@ -1164,7 +1186,7 @@ To add a new file, you will need to:</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/community/contributing.rst.txt"
+      <li><a href="../_sources/community/contributing.md.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
