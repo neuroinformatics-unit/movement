@@ -215,6 +215,12 @@ linkcheck_ignore = [
     "https://zenodo.org/records/*",
     "https://doi.org/10.5281/zenodo.*",
 ]
+# Add request headers for specific domains (e.g. to avoid rate-limiting)
+linkcheck_request_headers = {
+    "https://github.com": {
+        "Authorization": f"Bearer {os.environ.get('GITHUB_TOKEN', '')}",
+    },
+}
 
 
 myst_url_schemes = {
