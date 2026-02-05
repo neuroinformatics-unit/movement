@@ -1,6 +1,8 @@
 from contextlib import nullcontext as does_not_raise
+from itertools import product
 
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 
@@ -337,3 +339,41 @@ def test_path_length_nan_warn_threshold(
             position, nan_warn_threshold=nan_warn_threshold
         )
         assert result.name == "path_length"
+
+
+def test_forward_displacement_with_multiindex_coords():
+    """Test compute_forward_displacement with DataArray from pandas MultiIndex.
+
+    This is a regression test for issue #794. When creating an xarray DataArray
+    from a pandas DataFrame with MultiIndex using .to_xarray(), the resulting
+    coordinates retain the _no_setting_name flag from pandas MultiIndex levels.
+    This caused a RuntimeError when xarray's .reindex() tried to set .name on
+    these indices.
+    """
+    # Create DataFrame with MultiIndex (reproduction from issue #794)
+    frames = range(3)
+    space = ["x", "y"]
+    keypoints = ["centroid"]
+    individuals = ["bird001"]
+
+    df = pd.DataFrame(
+        list(product(frames, space, keypoints, individuals)),
+        columns=["time", "space", "keypoints", "individuals"],
+    )
+    df["position"] = np.random.rand(len(df))
+
+    # Convert to xarray DataArray via pandas MultiIndex
+    # This retains the _no_setting_name flag that caused the bug
+    position = (
+        df.loc[:, ["time", "space", "keypoints", "individuals", "position"]]
+        .set_index(["time", "space", "keypoints", "individuals"])["position"]
+        .to_xarray()
+    )
+
+    # This should not raise RuntimeError
+    result = kinematics.compute_forward_displacement(position)
+
+    # Verify correct output
+    assert result.name == "forward_displacement"
+    assert result.dims == position.dims
+    assert result.shape == position.shape
