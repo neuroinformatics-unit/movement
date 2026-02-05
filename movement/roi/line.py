@@ -1,5 +1,7 @@
 """1-dimensional lines of interest."""
 
+from typing import Self
+
 import numpy as np
 import shapely
 import xarray as xr
@@ -179,3 +181,7 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
             ),
             in_degrees=in_degrees,
         )
+
+    def get_transform(self, other: Self) -> np.ndarray:
+        """Throw error for transformation matrix for lines."""
+        raise NotImplementedError("Homography is undefined for LineOfInterest")
