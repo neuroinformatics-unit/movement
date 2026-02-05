@@ -136,13 +136,13 @@ class TestBaseDatasetInputs:
         [
             (("time", "space"), np.zeros((5, 2)), np.full(5, np.nan), None),
             (
-                ("time", "space", "individuals"),
+                ("time", "space", "individual"),
                 np.zeros((5, 2, 1)),
                 np.full((5, 1), np.nan),
                 ["id_0"],
             ),
             (
-                ("time", "space", "individuals"),
+                ("time", "space", "individual"),
                 np.zeros((5, 2, 3)),
                 np.full((5, 3), np.nan),
                 ["id_0", "id_1", "id_2"],
@@ -175,7 +175,7 @@ class TestBaseDatasetInputs:
             (np.zeros((5, 3)), "have 2 spatial dimensions, but got 3"),
         ],
         ids=[
-            "Unexpected additional individuals dimension",
+            "Unexpected additional individual dimension",
             "Expect 2D positions but got 3D positions",
         ],
     )
@@ -336,8 +336,8 @@ class TestValidPosesInputs:
         ds = ValidPosesInputs(
             position_array=valid_poses_dataset.position.values,
             confidence_array=valid_poses_dataset.confidence.values,
-            individual_names=valid_poses_dataset.individuals.values,
-            keypoint_names=valid_poses_dataset.keypoints.values,
+            individual_names=valid_poses_dataset.individual.values,
+            keypoint_names=valid_poses_dataset.keypoint.values,
             fps=fps,
             source_software=valid_poses_dataset.attrs["source_software"],
         ).to_dataset()
@@ -385,7 +385,7 @@ class TestValidBboxesInputs:
         ],
         ids=[
             "Valid shape_array",
-            "Mismatch with position_array individuals dimension",
+            "Mismatch with position_array individual dimension",
             "Missing one dimension",
             "Expect 2D (width, height) shape but got 3D",
         ],
@@ -463,7 +463,7 @@ class TestValidBboxesInputs:
             position_array=valid_bboxes_dataset.position.values,
             shape_array=valid_bboxes_dataset.shape.values,
             confidence_array=valid_bboxes_dataset.confidence.values,
-            individual_names=valid_bboxes_dataset.individuals.values,
+            individual_names=valid_bboxes_dataset.individual.values,
             fps=fps,
             source_software=valid_bboxes_dataset.attrs["source_software"],
         ).to_dataset()

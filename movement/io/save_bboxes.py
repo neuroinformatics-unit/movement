@@ -144,7 +144,7 @@ def to_via_tracks_file(
 
     # Map individuals' names to track IDs
     map_individual_to_track_id = _compute_individuals_to_track_ids_map(
-        ds.coords["individuals"].values,
+        ds.coords["individual"].values,
         track_ids_from_trailing_numbers,
     )
 
@@ -401,10 +401,10 @@ def _write_via_tracks_csv(
             region_id = 0
 
             # Loop through individuals
-            for indiv in ds.individuals.values:
+            for indiv in ds.individual.values:
                 # Get position and shape data
-                xy_data = ds.position.sel(time=time, individuals=indiv).values
-                wh_data = ds.shape.sel(time=time, individuals=indiv).values
+                xy_data = ds.position.sel(time=time, individual=indiv).values
+                wh_data = ds.shape.sel(time=time, individual=indiv).values
 
                 # If the position or shape data contain NaNs, do not write
                 # this bounding box to file
@@ -413,7 +413,7 @@ def _write_via_tracks_csv(
 
                 # Get confidence score
                 confidence = ds.confidence.sel(
-                    time=time, individuals=indiv
+                    time=time, individual=indiv
                 ).values
                 if np.isnan(confidence):
                     confidence = None  # pass as None if confidence is NaN

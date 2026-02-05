@@ -356,7 +356,7 @@ def from_lp_file(
     ds = _ds_from_lp_or_dlc_file(
         file_path=file_path, source_software="LightningPose", fps=fps
     )
-    n_individuals = ds.sizes.get("individuals", 1)
+    n_individuals = ds.sizes.get("individual", 1)
     if n_individuals > 1:
         raise logger.error(
             ValueError(
