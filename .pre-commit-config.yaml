@@ -62,3 +62,11 @@ repos:
       rev: v2.4.1
       hooks:
       - id: codespell
+    - repo: local
+      hooks:
+          - id: check-self-references
+            name: Check for external self-references in docs
+            entry: python docs/check_self_references.py
+            language: python
+            files: ^docs/source/.*\.(md|rst)$
+            pass_filenames: false
