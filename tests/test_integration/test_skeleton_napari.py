@@ -3,14 +3,18 @@
 import numpy as np
 import pytest
 
-napari = pytest.importorskip(
-    "napari", reason="napari not installed - skipping integration tests"
-)
+try:
+    import napari
 
-from movement.napari.skeleton import (  # noqa: E402
-    SkeletonState,
-    add_skeleton_layer,
-)
+    from movement.napari.skeleton import (
+        SkeletonState,
+        add_skeleton_layer,
+    )
+except ImportError:
+    pytest.skip(
+        "napari not installed - skipping integration tests",
+        allow_module_level=True,
+    )
 
 
 def test_add_skeleton_layer_with_template(synthetic_skeleton_dataset):
