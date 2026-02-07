@@ -16,3 +16,49 @@
         <img src="{{ pathto('_static/dark-logo-ucl.png', 1) }}" alt="Sponsors" class="only-dark img-sponsor"/>
     </a>
 </div>
+
+<script>
+    // MutationObserver to detect when the version switcher is populated
+    const observer = new MutationObserver((mutations, obs) => {
+        const versionSwitcher = document.querySelector('.version-switcher__menu');
+        if (versionSwitcher) {
+            const links = versionSwitcher.querySelectorAll('.list-group-item');
+            if (links.length > 0) {
+                // Stop observing once links are found
+                obs.disconnect();
+
+                // Get the current page path (excluding the version prefix)
+                // path is like "/latest/user_guide/index.html" or "/dev/user_guide/index.html"
+                const currentPath = window.location.pathname;
+                const pathParts = currentPath.split('/').filter(p => p);
+                // Assumption: The first part is the version (e.g., "latest", "dev", "v0.13.0")
+                // We want to keep everything after the version.
+                // If the path is just "/" or "/index.html", pathParts might be empty or length 1.
+                // We need to be careful with the root path.
+
+                let pagePath = pathParts.length > 1 ? pathParts.slice(1).join('/') : '';
+                if (pagePath === 'index.html') {
+                    pagePath = '';
+                }
+
+
+                links.forEach(link => {
+                    const versionUrl = new URL(link.getAttribute('href'), window.location.origin);
+                    let basePath = versionUrl.pathname;
+                    basePath = basePath.endsWith('/') ? basePath : basePath + '/';
+
+
+                    // Reconstruct the target URL
+                    // Reconstruct the target URL
+                if (pagePath) {
+                    versionUrl.pathname = basePath + pagePath;
+                    link.setAttribute('href', versionUrl.toString());
+                }
+
+                });
+            }
+        }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+</script>
