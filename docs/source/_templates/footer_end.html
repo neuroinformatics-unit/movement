@@ -35,7 +35,7 @@
                 // We want to keep everything after the version.
                 // If the path is just "/" or "/index.html", pathParts might be empty or length 1.
                 // We need to be careful with the root path.
-                
+
                 let pagePath = pathParts.length > 1 ? pathParts.slice(1).join('/') : '';
                 if (pagePath === 'index.html') {
                     pagePath = '';
@@ -47,7 +47,7 @@
                     let basePath = versionUrl.pathname;
                     basePath = basePath.endsWith('/') ? basePath : basePath + '/';
 
-                    
+
                     // Reconstruct the target URL
                     // Reconstruct the target URL
                 if (pagePath) {
