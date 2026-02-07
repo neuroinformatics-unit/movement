@@ -23,13 +23,14 @@ def scale(
     ----------
     data : xarray.DataArray
         The input data to be scaled.
-    factor : ArrayLike or float
+    factor : ArrayLike, float, or xarray.DataArray
         The scaling factor to apply to the data. If factor is a scalar (a
         single float), the data array is uniformly scaled by the same factor.
-        If factor is an object that can be converted to a 1D numpy array (e.g.
-        a list of floats), the length of the resulting array must match the
-        length of data array's space dimension along which it will be
-        broadcasted.
+        If factor is a 1D array-like object, broadcasting follows
+        xarray / NumPy default rules.
+        If factor is an ``xarray.DataArray``, its dimensions are
+        aligned by name with ``data`` and broadcasting is handled
+        automatically by xarray.
     space_unit : str or None
         The unit of the scaled data stored as a property in
         ``xarray.DataArray.attrs['space_unit']``. In case of the default
@@ -87,6 +88,11 @@ def scale(
     >>> "space_unit" in ds["position"].attrs
     False
 
+    >>> factor = xr.DataArray([1.0, 2.0, 3.0], dims=("time",))
+    >>> ds["position"] = scale(ds["position"], factor=factor)
+
+    Using an ``xarray.DataArray`` for ``factor`` is recommended when the
+    intended broadcasting dimension should be explicit.
     """
     if len(data.coords["space"]) == 2:
         validate_dims_coords(data, {"space": ["x", "y"]})
@@ -94,26 +100,19 @@ def scale(
         validate_dims_coords(data, {"space": ["x", "y", "z"]})
 
     if not np.isscalar(factor):
-        factor = np.array(factor).squeeze()
-        if factor.ndim != 1:
-            raise ValueError(
-                "Factor must be an object that can be converted to a 1D numpy"
-                f" array, got {factor.ndim}D"
-            )
-        elif factor.shape != data.space.values.shape:
-            raise ValueError(
-                f"Factor shape {factor.shape} does not match the shape "
-                f"of the space dimension {data.space.values.shape}"
-            )
-        else:
-            factor_dims = [1] * data.ndim  # 1s array matching data dimensions
-            factor_dims[data.get_axis_num("space")] = factor.shape[0]
-            factor = factor.reshape(factor_dims)
+        if not isinstance(factor, xr.DataArray):
+            factor = np.asarray(factor)
+            if factor.ndim > 1:
+                raise ValueError(
+                    "Factor must be a scalar or 1D array, "
+                    f"got array with {factor.ndim} dimensions."
+                )
+
     scaled_data = data * factor
 
     if space_unit is not None:
         scaled_data.attrs["space_unit"] = space_unit
-    elif space_unit is None:
+    else:
         scaled_data.attrs.pop("space_unit", None)
     return scaled_data
 
