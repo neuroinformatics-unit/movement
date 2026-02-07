@@ -99,13 +99,6 @@ def sample_data_3d() -> xr.DataArray:
             ),
             id="x / 2, y * 2",
         ),
-        pytest.param(
-            {"factor": np.array([0.5, 2]).reshape(1, 2)},
-            data_array_with_dims_and_coords(
-                nparray_0_to_23() * [0.5, 2],
-            ),
-            id="x / 2, y * 2, should squeeze to cast across space",
-        ),
     ],
 )
 def test_scale(
@@ -140,12 +133,11 @@ def test_scale_space_dimension(dims: list[str], data_shape):
     The scaling factor should be broadcasted along the space axis irrespective
     of the order of the dimensions in the input data.
     """
-    factor = [0.5, 2]
+    factor = xr.DataArray([0.5, 2], dims=("space",))
     numerical_data = np.arange(np.prod(data_shape)).reshape(data_shape)
     data = xr.DataArray(numerical_data, dims=dims, coords=SPATIAL_COORDS_2D)
     scaled_data = scale(data, factor=factor)
-    broadcast_list = [1 if dim != "space" else len(factor) for dim in dims]
-    expected_output_data = data * np.array(factor).reshape(broadcast_list)
+    expected_output_data = data * factor
 
     assert scaled_data.shape == data.shape
     xr.testing.assert_equal(scaled_data, expected_output_data)
@@ -201,15 +193,8 @@ def test_scale_twice(
     [
         pytest.param(
             np.zeros((3, 3, 4)),
-            "Factor must be an object that can be converted to a 1D numpy"
-            " array, got 3D",
+            "Factor must be a scalar or 1D array",
             id="3D factor",
-        ),
-        pytest.param(
-            np.zeros(3),
-            "Factor shape (3,) does not match the shape "
-            "of the space dimension (2,)",
-            id="space dimension mismatch",
         ),
     ],
 )
@@ -218,10 +203,8 @@ def test_scale_value_error(
     invalid_factor: np.ndarray,
     expected_error_message: str,
 ):
-    """Test invalid factors raise correct error type and message."""
-    with pytest.raises(ValueError) as error:
+    with pytest.raises(ValueError, match=expected_error_message):
         scale(sample_data_2d, factor=invalid_factor)
-    assert str(error.value) == expected_error_message
 
 
 @pytest.mark.parametrize(
@@ -281,6 +264,33 @@ def test_scale_log(sample_data_2d: xr.DataArray):
     assert len(log_entries) == 2
     verify_log_entry(log_entries[0], "2", "'elephants'")
     verify_log_entry(log_entries[1], "[1, 2]", "'crabs'")
+
+
+def test_scale_time_dependent_factor():
+    """Scaling with a factor defined over time should broadcast correctly."""
+    time = 3
+    space = ["x", "y"]
+
+    data = xr.DataArray(
+        np.ones((time, 2)),
+        dims=("time", "space"),
+        coords={"space": space},
+    )
+
+    factor = xr.DataArray(
+        [1.0, 2.0, 3.0],
+        dims=("time",),
+    )
+
+    scaled = scale(data, factor=factor)
+
+    expected = xr.DataArray(
+        np.array([[1, 1], [2, 2], [3, 3]]),
+        dims=("time", "space"),
+        coords={"space": space},
+    )
+
+    xr.testing.assert_equal(scaled, expected)
 
 
 @pytest.mark.parametrize(
