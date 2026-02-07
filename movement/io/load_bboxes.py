@@ -154,6 +154,7 @@ def from_file(
     fps: float | None = None,
     use_frame_numbers_from_file: bool = False,
     frame_regexp: str = DEFAULT_FRAME_REGEXP,
+    **kwargs,
 ) -> xr.Dataset:
     """Create a ``movement`` bounding boxes dataset from a supported file.
 
@@ -189,6 +190,9 @@ def from_file(
         the filename as an integer number led by at least one zero, followed
         by the file extension. Only used if ``use_frame_numbers_from_file`` is
         True.
+    **kwargs : dict, optional
+        Additional keyword arguments to pass to the software-specific
+        loading functions (e.g. ``from_via_tracks_file``).
 
 
     Returns
@@ -225,6 +229,7 @@ def from_file(
             fps,
             use_frame_numbers_from_file=use_frame_numbers_from_file,
             frame_regexp=frame_regexp,
+            **kwargs,
         )
     else:
         raise logger.error(
