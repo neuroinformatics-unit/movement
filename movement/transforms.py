@@ -99,14 +99,13 @@ def scale(
     else:
         validate_dims_coords(data, {"space": ["x", "y", "z"]})
 
-    if not np.isscalar(factor):
-        if not isinstance(factor, xr.DataArray):
-            factor = np.asarray(factor)
-            if factor.ndim > 1:
-                raise ValueError(
-                    "Factor must be a scalar or 1D array, "
-                    f"got array with {factor.ndim} dimensions."
-                )
+    if not np.isscalar(factor) and not isinstance(factor, xr.DataArray):
+        factor = np.asarray(factor)
+        if factor.ndim > 1:
+            raise ValueError(
+                "Factor must be a scalar or 1D array, "
+                f"got array with {factor.ndim} dimensions."
+            )
 
     scaled_data = data * factor
 
