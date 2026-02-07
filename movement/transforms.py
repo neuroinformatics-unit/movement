@@ -93,6 +93,7 @@ def scale(
 
     Using an ``xarray.DataArray`` for ``factor`` is recommended when the
     intended broadcasting dimension should be explicit.
+
     """
     if len(data.coords["space"]) == 2:
         validate_dims_coords(data, {"space": ["x", "y"]})
