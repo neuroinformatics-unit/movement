@@ -82,6 +82,7 @@ A selection of talks, posters, and blogposts about `movement`.
 
 | Type | Venue | Date | Link |
 |-------|-------|------|------|
+| Talk  | [FOSDEM 2026](https://fosdem.org/2026/schedule/) | Jan 2026 | [Video on fosdem.org](https://fosdem.org/2026/schedule/event/9VLSXV-movement-tracks-python/) |
 | Talk  | [CBIAS 2025](https://www.crick.ac.uk/whats-on/crick-bioimage-analysis-symposium-2025) | Nov 2025 | [Slides](https://neuroinformatics.dev/slides-movement-cbias2025/) |
 | Blogpost  | [UCL-ARC Showcase](https://www.ucl.ac.uk/advanced-research-computing/arc-showcase) | May 2025 | [URL](https://www.ucl.ac.uk/advanced-research-computing/case-studies/2025/may/movement-python-package-simplifies-analysis-animals-motion) |
 | Poster  | [ASAB Spring 2025](https://asabspring2025.github.io) | Apr 2025 | [PDF on Zenodo](https://doi.org/10.5281/zenodo.17924159) |

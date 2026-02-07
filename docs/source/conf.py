@@ -215,6 +215,12 @@ linkcheck_ignore = [
     "https://zenodo.org/records/*",
     "https://doi.org/10.5281/zenodo.*",
 ]
+# Add request headers for specific domains (e.g. to avoid rate-limiting)
+linkcheck_request_headers = {
+    "https://github.com": {
+        "Authorization": f"Bearer {os.environ.get('GITHUB_TOKEN', '')}",
+    },
+}
 
 
 myst_url_schemes = {
@@ -270,6 +276,6 @@ notfound_context = {
 """,
 }
 
-# needed for GH pages (vs readthedocs),
-# because we have no '/<language>/<version>/' in the URL
-notfound_urls_prefix = None
+# Static files live in /<version>/_static/, but GH pages expects a single
+# 404.html at root, so use latest version for all static asset URLs in 404 page
+notfound_urls_prefix = "/latest/"

@@ -234,7 +234,8 @@ def savgol_filter(
     **kwargs : dict
         Additional keyword arguments are passed to
         :func:`scipy.signal.savgol_filter`.
-        Note that the ``axis`` keyword argument may not be overridden.
+        Note that the ``axis`` keyword argument may not be overridden,
+        as the filter is always applied over the ``time`` dimension.
 
 
     Returns
@@ -248,6 +249,7 @@ def savgol_filter(
     Uses the :func:`scipy.signal.savgol_filter` function to apply a
     Savitzky-Golay filter to the input data.
     See the SciPy documentation for more information on that function.
+
     Whenever one or more NaNs are present in a smoothing window of the
     input data, a NaN is returned to the output array. As a result, any
     stretch of NaNs present in the input data will be propagated
@@ -256,19 +258,36 @@ def savgol_filter(
     :func:`movement.filtering.rolling_filter`, there is no ``min_periods``
     option to control this behaviour.
 
+    The function raises a ``ValueError`` if NaNs are found within the signal's
+    edge windows. To avoid this, fill any edge NaNs before filtering, or switch
+    from the default ``mode='interp'`` to an alternative edge handling
+    mode (e.g., ``mode='nearest'`` or ``mode='mirror'``).
+
     """
     if "axis" in kwargs:
         raise logger.error(
             ValueError("The 'axis' argument may not be overridden.")
         )
+    time_axis = data.get_axis_num("time")
     data_smoothed = data.copy()
-    data_smoothed.values = signal.savgol_filter(
-        data,
-        window,
-        polyorder,
-        axis=0,
-        **kwargs,
-    )
+    try:
+        data_smoothed.values = signal.savgol_filter(
+            data,
+            window,
+            polyorder,
+            axis=time_axis,
+            **kwargs,
+        )
+    except ValueError as e:
+        if "array must not contain infs or NaNs" in str(e):
+            raise logger.error(
+                ValueError(
+                    "mode='interp' does not support NaNs in edge windows "
+                    "with SciPy >= 1.17; use mode='nearest'/'mirror' or "
+                    "fill edge NaNs before filtering."
+                )
+            ) from e
+        raise  # Re-raise any other ValueError unchanged
     if print_report:
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_smoothed, "output"))
