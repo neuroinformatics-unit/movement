@@ -24,7 +24,7 @@ jobs:
     name: Update Contributors List
     runs-on: ubuntu-latest
     steps:
-      - name: Guard: token can manage workflows
+      - name: Verify token has workflow permissions
         shell: bash
         run: |
           set -euo pipefail
