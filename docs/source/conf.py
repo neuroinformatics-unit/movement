@@ -222,6 +222,7 @@ linkcheck_ignore = [
     "https://www.iso.org/.*",  # ISO always returns 403 to automated access
     "https://wellcome.org.*",  # Wellcome Trust site blocks bots
     "https://creativecommons.org/.*",  # CC license pages occasionally 403
+    "https://abide.ics.ulisboa.pt/.*",  # SSL certificate errors in CI
 ]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {
