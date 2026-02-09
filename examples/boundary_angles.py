@@ -34,7 +34,7 @@ positions: xr.DataArray = ds.position
 
 # %%
 # Below we plot the image of the
-# `Aeon habitat <https://aeon.swc.ucl.ac.uk/user/aeon_modules/hardware/habitat.html>`_
+# `Aeon habitat <https://aeon.swc.ucl.ac.uk/user/aeon_modules/hardware/habitat/>`_
 # within which the dataset was recorded.
 
 habitat_fig, habitat_ax = plt.subplots(1, 1)
