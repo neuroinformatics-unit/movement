@@ -267,6 +267,29 @@ def test_from_file(
             )
 
 
+def test_from_file_downloads_url(tmp_path):
+    """Test that from_file downloads a file when given a URL."""
+    fake_local = tmp_path / "downloaded.csv"
+    fake_local.touch()
+    url = "https://example.com/data/bboxes.csv"
+    with (
+        patch("movement.io.load_bboxes.pooch.retrieve") as mock_retrieve,
+        patch("movement.io.load_bboxes.from_via_tracks_file") as mock_via,
+    ):
+        mock_retrieve.return_value = str(fake_local)
+        load_bboxes.from_file(url, source_software="VIA-tracks", fps=30)
+        mock_retrieve.assert_called_once()
+        call_kwargs = mock_retrieve.call_args
+        assert call_kwargs.kwargs["url"] == url
+        assert call_kwargs.kwargs["known_hash"] is None
+        mock_via.assert_called_once_with(
+            str(fake_local),
+            30,
+            use_frame_numbers_from_file=False,
+            frame_regexp=r"(0\d*)\.\w+$",
+        )
+
+
 @pytest.mark.parametrize(
     "via_file_path",
     [
