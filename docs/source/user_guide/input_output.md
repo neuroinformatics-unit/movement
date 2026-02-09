@@ -28,7 +28,7 @@ and can be loaded from and saved to various third-party formats.
 | Source Software                                                             | Abbreviation | Source Format                                                                              | Dataset Type         | Supported Operations |
 | --------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------ | -------------------- | -------------------- |
 | [DeepLabCut](dlc:)                                                          | DLC          | DLC-style .h5 or .csv file, or corresponding pandas DataFrame                              | Pose                 | Load & Save          |
-| [SLEAP](sleap:)                                                             | SLEAP        | [analysis](sleap-docs:learnings/export-analysis/) .h5 or .slp file                                      | Pose                 | Load & Save          |
+| [SLEAP](sleap:)                                                             | SLEAP        | [analysis](sleap-docs:tutorial/exporting-the-results/#analysis-hdf5) .h5 or .slp file                                      | Pose                 | Load & Save          |
 | [LightningPose](lp:)                                                        | LP           | DLC-style .csv file, or corresponding pandas DataFrame                                     | Pose                 | Load & Save          |
 | [Anipose](anipose:)                                                         |              | triangulation .csv file, or corresponding pandas DataFrame                                 | Pose                 | Load                 |
 | [VGG Image Annotator](via:)                                                 | VIA          | .csv file for [tracks annotation](via:docs/face_track_annotation.html)                     | Bounding box         | Load                 |
@@ -90,7 +90,7 @@ In `movement`, pose data can only be loaded if all individuals have the same set
 
 
 :::{tab-item} SLEAP
-To load [SLEAP analysis files](sleap-docs:learnings/export-analysis/) in .h5 format (recommended):
+To load [SLEAP analysis files](sleap-docs:tutorial/exporting-the-results/#analysis-hdf5) in .h5 format (recommended):
 
 ```python
 ds = load_poses.from_sleap_file("/path/to/file.analysis.h5", fps=30)

@@ -121,7 +121,8 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
 
         Raises
         ------
-        ValueError : When the normal is requested for a multi-segment geometry.
+        ValueError
+            When the normal is requested for a multi-segment geometry.
 
         """
         # A multi-segment geometry always has at least 3 coordinates.
