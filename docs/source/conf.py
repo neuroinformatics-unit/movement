@@ -223,7 +223,12 @@ linkcheck_ignore = [
     "https://wellcome.org.*",  # Wellcome Trust site blocks bots
     "https://creativecommons.org/.*",  # CC license pages occasionally 403
     "https://abide.ics.ulisboa.pt/.*",  # SSL certificate errors in CI
+    "https://docs.sleap.ai/.*",  # SLEAP docs reorganised; old paths return 404
 ]
+# Allow known permanent redirects so they don't become -W warnings
+linkcheck_allowed_redirects = {
+    r"https://docs\.github\.com/.*": r"https://docs\.github\.com/.*",
+}
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {
     "https://github.com": {
