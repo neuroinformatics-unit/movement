@@ -577,11 +577,13 @@ To add a new file, you will need to:
 3. Install and configure the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) by running `gin login` in a terminal with your GIN credentials.
 4. Clone the `movement` data repository to your local machine using `gin get neuroinformatics/movement-test-data`, then run `gin download --content` to download all the files.
 5. Add your new files to the appropriate folders (`poses`, `bboxes`, `videos`, and/or `frames`) following the existing file naming conventions.
-6. Add metadata for your new files to `metadata.yaml` using the example entry below as a template. You can leave all `sha256sum` values as `null` for now.
+6. Add metadata for your new files to `metadata.yaml` using the [example entry below](target-metadata-yaml) as a template. You can leave all `sha256sum` values as `null` for now.
 7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](gin:neuroinformatics/movement-test-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with `movement` installed](#creating-a-development-environment).
 8. Commit your changes using `gin commit -m <message> <filename>` for specific files or `gin commit -m <message> .` for all changes.
 9. Upload your committed changes to the GIN repository with `gin upload`. Use `gin download` to pull the latest changes or `gin sync` to synchronise changes bidirectionally.
+10. [Verify](target-verify-sample-data) the new files can be fetched and loaded correctly using the {mod}`movement.sample_data` module.
 
+(target-metadata-yaml)=
 ### `metadata.yaml` example entry
 ```yaml
 SLEAP_three-mice_Aeon_proofread.analysis.h5:
@@ -602,4 +604,33 @@ SLEAP_three-mice_Aeon_proofread.analysis.h5:
     sha256sum: null
   note: All labels were proofread (user-defined) and can be considered ground truth.
     It was exported from the .slp file with the same prefix.
+```
+
+(target-verify-sample-data)=
+### Verifying sample data
+
+To verify that a sample dataset can be fetched and loaded correctly:
+
+```python
+from movement import sample_data
+
+# Fetch and load the dataset
+ds = sample_data.fetch_dataset("SLEAP_three-mice_Aeon_proofread.analysis.h5")
+
+# Verify it loaded correctly
+print(ds)
+```
+
+This displays the dataset's structure (dimensions, coordinates, data variables,
+and attributes), confirming the data was loaded successfully.
+
+If the sample dataset also includes a video, pass `with_video=True` to
+verify that the video is correctly linked to the dataset:
+
+```python
+ds = sample_data.fetch_dataset(
+    "SLEAP_three-mice_Aeon_proofread.analysis.h5",
+    with_video=True,
+)
+print(ds.video_path)
 ```
