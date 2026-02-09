@@ -482,21 +482,20 @@ def create_poses_dataset(
     if keypoint_positions is None:
         # Individual 0: keypoints at (0,0), (10,0), (10,10)
         # Individual 1: keypoints at (20,20), (30,20), (30,30)
-        for t in range(n_frames):
-            if n_individuals > 0 and n_keypoints >= 3:
-                position[t, 0, 0, 0] = 0.0
-                position[t, 1, 0, 0] = 0.0
-                position[t, 0, 1, 0] = 10.0
-                position[t, 1, 1, 0] = 0.0
-                position[t, 0, 2, 0] = 10.0
-                position[t, 1, 2, 0] = 10.0
-            if n_individuals > 1 and n_keypoints >= 3:
-                position[t, 0, 0, 1] = 20.0
-                position[t, 1, 0, 1] = 20.0
-                position[t, 0, 1, 1] = 30.0
-                position[t, 1, 1, 1] = 20.0
-                position[t, 0, 2, 1] = 30.0
-                position[t, 1, 2, 1] = 30.0
+        if n_individuals > 0 and n_keypoints >= 3:
+            position[:, 0, 0, 0] = 0.0
+            position[:, 1, 0, 0] = 0.0
+            position[:, 0, 1, 0] = 10.0
+            position[:, 1, 1, 0] = 0.0
+            position[:, 0, 2, 0] = 10.0
+            position[:, 1, 2, 0] = 10.0
+        if n_individuals > 1 and n_keypoints >= 3:
+            position[:, 0, 0, 1] = 20.0
+            position[:, 1, 0, 1] = 20.0
+            position[:, 0, 1, 1] = 30.0
+            position[:, 1, 1, 1] = 20.0
+            position[:, 0, 2, 1] = 30.0
+            position[:, 1, 2, 1] = 30.0
     else:
         # Apply custom positions
         for (ind_id, kpt_id), (x, y) in keypoint_positions.items():
@@ -911,6 +910,25 @@ def test_poses_to_bboxes_invalid_padding_type(
     """Test that invalid padding types raise error."""
     with pytest.raises(TypeError, match="padding_px must be a number"):
         poses_to_bboxes(simple_poses_dataset, padding_px=invalid_padding)
+
+
+def test_poses_to_bboxes_missing_dimensions():
+    """Test error when position is missing required dimensions."""
+    ds = xr.Dataset(
+        data_vars={
+            "position": xr.DataArray(
+                np.zeros((2,)),
+                dims=("space",),
+                coords={"space": ["x", "y"]},
+            ),
+        },
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Missing:",
+    ):
+        poses_to_bboxes(ds)
 
 
 def test_poses_to_bboxes_degenerate_bbox():
