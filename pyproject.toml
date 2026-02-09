@@ -10,12 +10,12 @@ readme = "README.md"
 requires-python = ">=3.11.0"
 dynamic = ["version"]
 
-license = { text = "BSD-3-Clause" }
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 
 dependencies = [
   "numpy>=2.0.0",
   "pandas",
-  "scipy<1.17.0",
   "h5py",
   "netCDF4<1.7.3",
   "tables>=3.10.1",
@@ -42,7 +42,6 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Operating System :: OS Independent",
-  "License :: OSI Approved :: BSD License",
   "Framework :: napari",
 ]
 
@@ -62,6 +61,7 @@ dev = [
   "pytest",
   "pytest-cov",
   "pytest-mock",
+  "pytest-benchmark",
   "coverage",
   "tox",
   "mypy",
@@ -99,7 +99,7 @@ docs = [
 movement = "movement.cli_entrypoint:main"
 
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=77", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -111,7 +111,11 @@ exclude = ["tests", "docs*"]
 
 
 [tool.pytest.ini_options]
-addopts = "--cov=movement"
+# This config applies to all pytest runs (CLI, VS Code, tox, CI)
+addopts = "--cov=movement -m 'not benchmark'" # exclude benchmarks by default
+markers = [
+    "benchmark: marks benchmarking tests (deselect with '-m \"not benchmark\"')",
+]
 
 [tool.setuptools_scm]
 
@@ -182,7 +186,7 @@ per-file-ignores = { "tests/*" = [
 docstring-code-format = true # Also format code in docstrings
 
 [tool.codespell]
-skip = '.git,.tox,*.svg'
+skip = '.git,.tox,*.svg,docs/source/community/people.md'
 check-hidden = true
 
 [tool.tox]

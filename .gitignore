@@ -95,3 +95,7 @@ venv/
 
 # uv related
 uv.lock
+
+
+# benchmark results
+.benchmarks/
