@@ -11,6 +11,7 @@ import xarray as xr
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
+from movement.io._url_helper import _resolve_url
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import (
@@ -149,8 +150,18 @@ def from_file(
     >>> ds = load_poses.from_file(
     ...     "path/to/file.h5", source_software="DeepLabCut", fps=30
     ... )
+    >>> # Load from an HTTPS URL
+    >>> ds = load_poses.from_file(
+    ...     "https://github.com/neuroinformatics-unit/movement/raw/main/tests/data/DLC/single-mouse_EPM.predictions.h5",
+    ...     source_software="DeepLabCut",
+    ...     fps=30
+    ... )
 
     """
+    # Download file if it is a URL
+    if str(file_path).startswith("https://"):
+        file_path = _resolve_url(str(file_path))
+
     if source_software == "DeepLabCut":
         return from_dlc_file(file_path, fps)
     elif source_software == "SLEAP":

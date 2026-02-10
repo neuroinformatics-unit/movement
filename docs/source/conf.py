@@ -1,7 +1,8 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# For the full list of built-in configuration values, see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""Configuration file for the Sphinx documentation builder.
+
+For the full list of built-in configuration values, see the documentation:
+https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -119,11 +120,15 @@ sphinx_gallery_conf = {
         "dependencies": ["../../.binder/requirements.txt"],
     },
     "reference_url": {"movement": None},
-    "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image
-    # Do not render config comments with the pattern # sphinx_gallery_config [= value]
+    # default thumbnail image
+    "default_thumb_file": "source/_static/data_icon.png",
+    # Do not render config comments with pattern
+    # sphinx_gallery_config [= value]
     "remove_config_comments": True,
-    # Mini-galleries config, see https://sphinx-gallery.github.io/stable/configuration.html#add-mini-galleries-for-api-documentation
-    "backreferences_dir": "api/backreferences",  # directory where function/class granular galleries are stored
+    # Mini-galleries config, see
+    # https://sphinx-gallery.github.io/stable/configuration.html
+    # directory where function/class granular galleries are stored
+    "backreferences_dir": "api/backreferences",
     "doc_module": ("movement",),  # module for which to generate mini-galleries
 }
 
@@ -166,7 +171,13 @@ html_theme_options = {
     "footer_start": ["footer_start"],
     "footer_end": ["footer_end"],
     "external_links": [],
-    "announcement": "Learn more about movement at the <a href='https://neuroinformatics.dev/open-software-summer-school/index.html'>Neuroinformatics Unit Open Software Summer School</a> in London, August 2026!",
+    "announcement": (
+        "Learn more about movement at the "
+        "<a href='https://neuroinformatics.dev/"
+        "open-software-summer-school/index.html'>"
+        "Neuroinformatics Unit Open Software Summer School</a> "
+        "in London, August 2026!"
+    ),
 }
 
 # Redirect the webpage to another URL
@@ -260,6 +271,7 @@ intersphinx_mapping = {
     "pynwb": ("https://pynwb.readthedocs.io/en/stable/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "shapely": ("https://shapely.readthedocs.io/en/stable/", None),
 }
 
 # What to show on the 404 page
@@ -270,7 +282,8 @@ notfound_context = {
 
 <p>Sorry, we couldn't find that page.</p>
 
-<p>We occasionally restructure the movement website, and some links may have broken.</p> 
+<p>We occasionally restructure the movement website, and some links may have
+broken.</p> 
 
 <p>Try using the search box or go to the homepage.</p>
 """,
