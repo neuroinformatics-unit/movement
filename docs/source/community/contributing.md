@@ -316,10 +316,12 @@ class ValidMySoftwareCSV:
         with open(value) as f:
             col_names = f.readline().split(",")[:3]
             if col_names != expected_cols:
-            raise ValueError(
-                ".csv header row does not match the known format for "
-                "MySoftware output files."
-            )
+                raise logger.error(
+                    ValueError(
+                        ".csv header row does not match the known format for "
+                        "MySoftware output files."
+                    )
+                )
             self.col_names = col_names
 ```
 
