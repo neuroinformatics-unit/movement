@@ -19,14 +19,36 @@ The following features are being considered for the first stable version `v1.0`.
 navigation, social interactions, etc.
 - __Integrate with neurophysiological data analysis tools__. We eventually aim to facilitate combined analysis of motion and neural data.
 
+## Focus areas for 2026
+
+Several 2025 goals have been carried over and refined:
+
+- Regions of interest can now be created programmatically, so the current focus is on supporting their drawing via our [GUI](target-gui).
+- [With spatial navigation features in place](target-arc-collaboration-blog), the focus shifts to metrics for social interactions and collective behaviour.
+- We'll focus on supporting datetime coordinates in [movement datasets](target-poses-and-bboxes-dataset) to enable future work on events of interest and on alignment with neurophysiological data.
+
+In addition, 2026 introduces some new priorities:
+
+- Expose a single unified entry point for loading motion tracks into `movement`.
+- Simplify the process of adding new loaders for different formats, including documentation.
+- Draft a governance document and define contributor pathways.
+
 ## Focus areas for 2025
 
-- Annotate space by defining regions of interest programmatically and via our [GUI](target-gui).
-- Annotate time by defining events of interest programmatically and via our [GUI](target-gui).
-- Enable workflows for aligning motion tracks with concurrently recorded neurophysiological signals.
-- Enrich the interactive visualisation of motion tracks in `napari`, providing more customisation options.
-- Enable the saving of filtered tracks and derived kinematic variables to disk.
-- Implement metrics useful for analysing spatial navigation, social interactions, and collective behaviour.
+These high-level goals were defined at the beginning of 2025.
+Those completed by the year's end are marked with a checkmark.
+
+- Annotate space by defining regions of interest
+  - [x] programmatically,
+  - [ ] via our [GUI](target-gui).
+- [ ] Annotate time by defining events of interest programmatically and via our [GUI](target-gui).
+- [ ] Enable workflows for aligning motion tracks with concurrently recorded neurophysiological signals.
+- [x] Enrich the interactive visualisation of motion tracks in `napari`, providing more customisation options.
+- [x] Enable the saving of filtered tracks and derived kinematic variables to disk.
+- Implement metrics useful for analysing
+  - [x] spatial navigation,
+  - [ ] social interactions,
+  - [ ] collective behaviour.
 
 ## Version 0.1
 We've released version `v0.1` of `movement` in March 2025, providing a basic set of features to demonstrate the project's potential and to gather feedback from users. Our minimum requirements for this milestone were:
