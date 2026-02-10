@@ -241,7 +241,36 @@ def validate_file_path(
     permission: Literal["r", "w", "rw"] = "r",
     suffixes: set[str] | None = None,
 ) -> Path:
-    """Validate the file has the expected permission(s) and suffix(es)."""
+    """Validate the file has the expected permission(s) and suffix(es).
+
+    Parameters
+    ----------
+    file
+        Path to the file to validate.
+    permission
+        Expected access permission(s) for the file. If "r", the file is
+        expected to be readable. If "w", the file is expected to be writable.
+        If "rw", the file is expected to be both readable and writable.
+        Default is "r".
+    suffixes
+        Expected suffix(es) for the file. If None (default),
+        this check is skipped.
+
+    Returns
+    -------
+    Path
+        The validated file path.
+
+    Raises
+    ------
+    OSError
+        If the file does not meet the expected access ``permission`` or
+        if it is a directory.
+    ValueError
+        If the file does not have one of the expected ``suffixes`` or
+        if the ``permission`` argument is invalid.
+
+    """
     try:
 
         @define
