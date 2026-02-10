@@ -207,7 +207,6 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     >>> paths = fetch_dataset_paths("VIA_multiple-crabs_5-frames_labels.csv")
     >>> bboxes_path = paths["bboxes"]
 
-
     See Also
     --------
     fetch_dataset
