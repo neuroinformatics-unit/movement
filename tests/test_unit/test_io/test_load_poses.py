@@ -237,21 +237,18 @@ def test_from_file_delegates_correctly(source_software, fps, caplog):
 
 
 def test_from_file_downloads_url(tmp_path):
-    """Test that from_file downloads a file when given a URL."""
+    """Test that from_file downloads a file when given an HTTPS URL."""
     fake_local = tmp_path / "downloaded.h5"
     fake_local.touch()
     url = "https://example.com/data/poses.h5"
     with (
-        patch("movement.io.load_poses.pooch.retrieve") as mock_retrieve,
+        patch("movement.io.load_poses._resolve_url") as mock_resolve,
         patch("movement.io.load_poses.from_dlc_file") as mock_dlc,
     ):
-        mock_retrieve.return_value = str(fake_local)
+        mock_resolve.return_value = fake_local
         load_poses.from_file(url, source_software="DeepLabCut", fps=30)
-        mock_retrieve.assert_called_once()
-        call_kwargs = mock_retrieve.call_args
-        assert call_kwargs.kwargs["url"] == url
-        assert call_kwargs.kwargs["known_hash"] is None
-        mock_dlc.assert_called_once_with(str(fake_local), 30)
+        mock_resolve.assert_called_once_with(url)
+        mock_dlc.assert_called_once_with(fake_local, 30)
 
 
 @pytest.mark.parametrize("source_software", [None, "SLEAP"])

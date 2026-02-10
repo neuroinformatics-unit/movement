@@ -6,13 +6,13 @@ from typing import Literal
 import h5py
 import numpy as np
 import pandas as pd
-import pooch
 import pynwb
 import xarray as xr
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
-from movement.utils.logging import hide_pooch_hash_logs, logger
+from movement.io._url_helper import _resolve_url
+from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import (
     ValidAniposeCSV,
@@ -150,7 +150,7 @@ def from_file(
     >>> ds = load_poses.from_file(
     ...     "path/to/file.h5", source_software="DeepLabCut", fps=30
     ... )
-    >>> # Load from a URL
+    >>> # Load from an HTTPS URL
     >>> ds = load_poses.from_file(
     ...     "https://github.com/neuroinformatics-unit/movement/raw/main/tests/data/DLC/single-mouse_EPM.predictions.h5",
     ...     source_software="DeepLabCut",
@@ -159,16 +159,8 @@ def from_file(
 
     """
     # Download file if it is a URL
-    if str(file_path).startswith(("http://", "https://")):
-        with hide_pooch_hash_logs():
-            file_path = pooch.retrieve(
-                url=file_path,
-                known_hash=None,
-                path=Path(
-                    "~", ".movement", "data", "public_datasets"
-                ).expanduser(),
-                progressbar=True,
-            )
+    if str(file_path).startswith("https://"):
+        file_path = _resolve_url(str(file_path))
 
     if source_software == "DeepLabCut":
         return from_dlc_file(file_path, fps)

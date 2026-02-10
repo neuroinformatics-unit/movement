@@ -8,10 +8,10 @@ from typing import Literal
 
 import numpy as np
 import pandas as pd
-import pooch
 import xarray as xr
 
-from movement.utils.logging import hide_pooch_hash_logs, logger
+from movement.io._url_helper import _resolve_url
+from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs
 from movement.validators.files import (
     DEFAULT_FRAME_REGEXP,
@@ -218,7 +218,7 @@ def from_file(
     >>>     source_software="VIA-tracks",
     >>>     fps=30,
     >>> )
-    >>> # Load from a URL
+    >>> # Load from an HTTPS URL
     >>> ds = load_bboxes.from_file(
     >>>     "https://github.com/neuroinformatics-unit/movement/raw/main/tests/data/bboxes/VIA_multiple-crabs_5-frames_labels.csv",
     >>>     source_software="VIA-tracks",
@@ -227,16 +227,8 @@ def from_file(
 
     """
     # Download file if it is a URL
-    if str(file_path).startswith(("http://", "https://")):
-        with hide_pooch_hash_logs():
-            file_path = pooch.retrieve(
-                url=file_path,
-                known_hash=None,
-                path=Path(
-                    "~", ".movement", "data", "public_datasets"
-                ).expanduser(),
-                progressbar=True,
-            )
+    if str(file_path).startswith("https://"):
+        file_path = _resolve_url(str(file_path))
 
     if source_software == "VIA-tracks":
         return from_via_tracks_file(
