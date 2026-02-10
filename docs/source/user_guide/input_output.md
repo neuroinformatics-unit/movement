@@ -42,21 +42,21 @@ Currently, `movement` only works with tracked data: either keypoints or bounding
 Below, we explain how to load pose and bounding box tracks from these supported formats, as well as how to save pose tracks back to some of them.
 
 (target-loading-any-format)=
-### Loading with `from_file()`
+### Loading with `load_dataset()`
 
-The {func}`from_file()<movement.io.load.from_file>` function provides a unified, format-agnostic way to load poses or bounding boxes from any of the [supported software formats](target-supported-formats).
+The {func}`load_dataset()<movement.io.load.load_dataset>` function provides a unified, format-agnostic way to load poses or bounding boxes from any of the [supported software formats](target-supported-formats).
 This function directly dispatches the loading task to the appropriate specialised function in the {mod}`movement.io.load_poses` or {mod}`movement.io.load_bboxes` module based on the `source_software` parameter.
 
-To import {func}`from_file()<movement.io.load.from_file>`:
+To import {func}`load_dataset()<movement.io.load.load_dataset>`:
 ```python
-from movement.io import from_file
+from movement.io import load_dataset
 ```
 
 To load data from any supported format, specify the `file` path, the `source_software` that produced the file, and optionally the `fps` of the video from which the data were obtained.
 
 For example, to load pose tracks from a DeepLabCut .h5 file:
 ```python
-ds = from_file(
+ds = load_dataset(
     "/path/to/file.h5",
     source_software="DeepLabCut",
     fps=30, # Optional; time coords will be in seconds if provided, otherwise in frames
@@ -68,11 +68,11 @@ This reads the file and returns a [movement dataset](target-poses-and-bboxes-dat
 #### Passing additional options
 
 Some file formats support additional options.
-These can be passed directly as keyword arguments to {func}`from_file()<movement.io.load.from_file>`, and they will be forwarded to the appropriate loader.
+These can be passed directly as keyword arguments to {func}`load_dataset()<movement.io.load.load_dataset>`, and they will be forwarded to the appropriate loader.
 
 For example, to specify the tracked individual's name when loading pose tracks from an Anipose triangulation .csv file:
 ```python
-ds = from_file(
+ds = load_dataset(
     "/path/to/file.csv",
     source_software="Anipose",
     individual_name="id_0"
@@ -81,10 +81,10 @@ ds = from_file(
 
 Or to load bounding box tracks from a VIA tracks .csv file while retaining the original frame numbers from the file instead of starting from 0:
 ```python
-ds = from_file(
+ds = load_dataset(
     "/path/to/file.csv",
     source_software="VIA-tracks",
-    use_frame_numbers_from_file=True,
+    use_frame_numbers_load_dataset=True,
 )
 ```
 
@@ -425,11 +425,11 @@ Below is an example of how you may integrate netCDF into you
 `movement`-powered workflows:
 
 ```python
-from movement.io import from_file
+from movement.io import load_dataset
 from movement.filtering import rolling_filter
 from movement.kinematics import compute_speed
 
-ds = from_file("path/to/my_data.h5", source_software="DeepLabCut", fps=30)
+ds = load_dataset("path/to/my_data.h5", source_software="DeepLabCut", fps=30)
 
 # Apply a rolling median filter to smooth the position data
 ds["position_smooth"] = rolling_filter(

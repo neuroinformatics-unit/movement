@@ -155,10 +155,10 @@ Below is a small example showing how to save a GUI-compatible
 netCDF file with `movement`:
 
 ```python
-from movement.io import from_file
+from movement.io import load_dataset
 from movement.filtering import rolling_filter
 
-ds_orig = from_file(
+ds_orig = load_dataset(
     "path/to/my_data.h5", source_software="DeepLabCut", fps=30
 )
 

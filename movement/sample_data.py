@@ -16,7 +16,7 @@ import xarray
 import yaml
 from requests.exceptions import RequestException
 
-from movement.io import from_file
+from movement.io import load_dataset
 from movement.utils.logging import logger
 
 # URL to the remote data repository on GIN
@@ -333,7 +333,7 @@ def fetch_dataset(
 
     for key in ["poses", "bboxes"]:
         if file_paths.get(key):
-            ds = from_file(
+            ds = load_dataset(
                 file_paths[key],
                 source_software=metadata[filename]["source_software"],
                 fps=metadata[filename]["fps"],

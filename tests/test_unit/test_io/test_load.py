@@ -54,21 +54,21 @@ def test_register_loader_decorator(file_validators, expected_file_type):
     ],
 )
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
-def test_from_file_delegates_correctly(
+def test_load_dataset_delegates_correctly(
     source_software, loader_fn, fps, caplog, mocker
 ):
-    """Test from_file delegates to the correct loader function
+    """Test load_dataset delegates to the correct loader function
     according to the source_software.
     """
     if source_software == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source"):
-            load.from_file("some_file", source_software)
+            load.load_dataset("some_file", source_software)
     else:
         mock_loader = mocker.patch(loader_fn)
         mocker.patch.dict(
             load._LOADER_REGISTRY, {source_software: mock_loader}
         )
-        load.from_file("some_file", source_software, fps)
+        load.load_dataset("some_file", source_software, fps)
         expected_call_args = (
             ("some_file", fps) if source_software != "NWB" else ("some_file",)
         )
@@ -102,17 +102,17 @@ def test_from_file_delegates_correctly(
         ),
     ],
 )
-def test_from_file(
+def test_load_dataset(
     file_fixture, source_software, params, expected_context, request
 ):
-    """Test from_file with real files (from various source software)
+    """Test load_dataset with real files (from various source software)
     and parameters.
     """
     file_path = request.getfixturevalue(file_fixture)
     if file_fixture.startswith("nwb"):
         file_path = file_path()  # NWB fixture is a callable
     with expected_context:
-        ds = load.from_file(
+        ds = load.load_dataset(
             file_path,
             source_software,
             **(params or {}),

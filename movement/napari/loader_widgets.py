@@ -21,7 +21,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from movement.io.load import from_file
+from movement.io import load_dataset
 from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.utils.logging import logger
@@ -233,7 +233,7 @@ class DataLoader(QWidget):
 
         Validation is handled by the loader functions.
         """
-        ds = from_file(self.file_path, self.source_software, self.fps)
+        ds = load_dataset(self.file_path, self.source_software, self.fps)
         return ds
 
     def _load_netcdf_file(self) -> xr.Dataset | None:

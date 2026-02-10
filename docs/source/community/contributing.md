@@ -411,10 +411,10 @@ A loader function must conform to the {class}`LoaderProtocol<movement.io.load.Lo
 - Return an {class}`xarray.Dataset<xarray.Dataset>` object containing the [movement dataset](target-poses-and-bboxes-dataset).
 
 ##### Decorate the loader with `@register_loader`
-The {func}`@register_loader()<movement.io.load.register_loader>` decorator associates a loader function with a `source_software` name so that users can load files from that software via the unified {func}`from_file()<movement.io.load.from_file>` interface:
+The {func}`@register_loader()<movement.io.load.register_loader>` decorator associates a loader function with a `source_software` name so that users can load files from that software via the unified {func}`load_dataset()<movement.io.load.load_dataset>` interface:
 ```python
-from movement.io import from_file
-ds = from_file("path/to/mysoftware_output.csv", source_software="MySoftware")
+from movement.io import load_dataset
+ds = load_dataset("path/to/mysoftware_output.csv", source_software="MySoftware")
 ```
 
 which is equivalent to calling the loader function directly:

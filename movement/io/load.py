@@ -230,7 +230,7 @@ def register_loader(
     return decorator
 
 
-def from_file(
+def load_dataset(
     file: Path | str | pynwb.file.NWBFile,
     source_software: SourceSoftware,
     fps: float | None = None,
@@ -279,8 +279,10 @@ def from_file(
 
     Examples
     --------
-    >>> from movement.io import from_file
-    >>> ds = from_file("path/to/file.h5", source_software="DeepLabCut", fps=30)
+    >>> from movement.io import load_dataset
+    >>> ds = load_dataset(
+    ...     "path/to/file.h5", source_software="DeepLabCut", fps=30
+    ... )
 
     """
     if source_software not in _LOADER_REGISTRY:
@@ -338,7 +340,7 @@ def from_multiview_files(
     views_list = list(file_dict.keys())
     new_coord_views = xr.DataArray(views_list, dims="view")
     dataset_list = [
-        from_file(f, source_software=source_software, fps=fps, **kwargs)
+        load_dataset(f, source_software=source_software, fps=fps, **kwargs)
         for f in file_dict.values()
     ]
     return xr.concat(dataset_list, dim=new_coord_views)
