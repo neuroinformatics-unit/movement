@@ -274,9 +274,9 @@ In general:
 ### Implementing new loaders
 Implementing a new loader to support additional [file formats](target-supported-formats) in `movement` involves the following steps:
 
-1. Create validator classes for the file format (recommended)
-2. Implement the loader function
-3. Update the `SourceSoftware` type alias
+1. Create validator classes for the file format (recommended).
+2. Implement the loader function.
+3. Update the `SourceSoftware` type alias.
 
 #### Create file validators
 `movement` enforces separation of concerns by decoupling file validation from data loading, so that loaders can focus solely on reading and parsing data, while validation logic is encapsulated in dedicated file validator classes.
@@ -286,16 +286,16 @@ All file validators are [`attrs`](attrs:)-based classes and live in {mod}`moveme
 They define the rules an input file must satisfy before it can be loaded, and they conform to the {class}`ValidFile<movement.validators.files.ValidFile>` protocol.
 At minimum, this requires defining:
 
-- `suffixes`: the expected file extensions for the format
-- `file`: the path to the file or an {class}`NWBFile<pynwb.file.NWBFile>` object, depending on the loader
+- `suffixes`: The expected file extensions for the format.
+- `file`: The path to the file or an {class}`NWBFile<pynwb.file.NWBFile>` object, depending on the loader.
 
 Additional attributes can also be defined to store pre-parsed information that the loader may need later.
 
 Using a hypothetical format "MySoftware" that produces CSV files containing the columns `scorer`, `bodyparts`, and `coords`, we illustrate the full pattern file validators follow:
 
-- Declare expected file suffixes
-- Normalise the input file and apply reusable validators
-- Implement custom, format-specific validation
+- Declare expected file suffixes.
+- Normalise the input file and apply reusable validators.
+- Implement custom, format-specific validation.
 
 ```python
 @define
@@ -333,9 +333,9 @@ An `attrs` {ref}`converter<attrs:converters>` is typically used to normalise inp
 
 In addition to the built-in `attrs` {mod}`validators<attrs.validators>`, `movement` provides several reusable file-specific validators (as callables) in {mod}`movement.validators.files`:
 
-- `_file_validator`: a composite validator that ensures `file` is a {class}`Path<pathlib.Path>`, is not a directory, is accessible with the required permission, and has one of the expected `suffixes` (if any)
-- `_hdf5_validator`: checks that an HDF5 `file` contains the expected dataset(s)
-- `_if_instance_of`: conditionally applies a validator only when `file` is an instance of a given class
+- `_file_validator`: A composite validator that ensures `file` is a {class}`Path<pathlib.Path>`, is not a directory, is accessible with the required permission, and has one of the expected `suffixes` (if any).
+- `_hdf5_validator`: Checks that an HDF5 `file` contains the expected dataset(s).
+- `_if_instance_of`: Conditionally applies a validator only when `file` is an instance of a given class.
 
 In the current example, the `_file_validator` is used to ensure that the input `file` is a readable CSV file.
 
@@ -367,8 +367,8 @@ Most formats often require custom validation logic beyond basic file checks.
 In the current example, the `_file_contains_expected_header` method uses the `file` attribute's validator method as a decorator (`@file.validator`) to check that the first line of the CSV file matches the expected header row for MySoftware output files.
 
 :::{seealso}
-- {external+attrs:std:doc}`examples`: Overview of writing `attrs` classes
-- {ref}`attrs Validators<attrs:validators>`: Details on writing custom validators for attributes
+- {external+attrs:std:doc}`examples`: Overview of writing `attrs` classes.
+- {ref}`attrs Validators<attrs:validators>`: Details on writing custom validators for attributes.
 :::
 
 #### Implement loader function
@@ -403,10 +403,10 @@ Loader functions live in {mod}`movement.io.load_poses` or {mod}`movement.io.load
 
 A loader function must conform to the {class}`LoaderProtocol<movement.io.load.LoaderProtocol>`, which requires the loader to:
 
-- accept `file` as its first parameter, which may be
-    - a `str` or a {class}`Path<pathlib.Path>`
-    - an {class}`NWBFile<pynwb.file.NWBFile>` object (for NWB-based formats)
-- return an {class}`xarray.Dataset<xarray.Dataset>` object containing the [movement dataset](target-poses-and-bboxes-dataset)
+- Accept `file` as its first parameter, which may be:
+    - A `str` or a {class}`Path<pathlib.Path>`.
+    - An {class}`NWBFile<pynwb.file.NWBFile>` object (for NWB-based formats).
+- Return an {class}`xarray.Dataset<xarray.Dataset>` object containing the [movement dataset](target-poses-and-bboxes-dataset).
 
 ##### Decorate the loader with `@register_loader`
 The {func}`@register_loader()<movement.io.load.register_loader>` decorator associates a loader function with a `source_software` name so that users can load files from that software via the unified {func}`from_file()<movement.io.load.from_file>` interface:
@@ -449,8 +449,8 @@ def from_mysoftware_file(file: str | Path) -> xr.Dataset:
 ##### Constructing the dataset
 After parsing the input file, the loader function should construct the movement dataset using:
 
-- {func}`movement.io.load_poses.from_numpy` for pose tracks
-- {func}`movement.io.load_bboxes.from_numpy` for bounding box tracks
+- {func}`movement.io.load_poses.from_numpy` for pose tracks.
+- {func}`movement.io.load_bboxes.from_numpy` for bounding box tracks.
 
 These helper functions create the {class}`xarray.Dataset<xarray.Dataset>` object from numpy arrays and metadata, ensuring that the dataset conforms to the [movement dataset specification](target-poses-and-bboxes-dataset).
 
