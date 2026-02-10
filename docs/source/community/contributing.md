@@ -385,8 +385,9 @@ Continuing from the hypothetical "MySoftware" example, the loader function `from
 def from_mysoftware_file(file: str | Path) -> xr.Dataset:
     """Load data from MySoftware files."""
     # The decorator returns an instance of ValidMySoftwareCSV
+    # which conforms to the ValidFile protocol
     # so we need to let the type checker know this
-    valid_file = cast("ValidMySoftwareCSV", file)
+    valid_file = cast("ValidFile", file)
     file_path = valid_file.file  # Path
     # The _parse_* functions are pseudocode
     ds = load_poses.from_numpy(
