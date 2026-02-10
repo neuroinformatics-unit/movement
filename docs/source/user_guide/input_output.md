@@ -1,4 +1,4 @@
-eap(target-io)=
+(target-io)=
 # Input/Output
 
 ## Overview
@@ -41,8 +41,58 @@ Currently, `movement` only works with tracked data: either keypoints or bounding
 
 Below, we explain how to load pose and bounding box tracks from these supported formats, as well as how to save pose tracks back to some of them.
 
+(target-loading-any-format)=
+### Loading with `from_file()`
+
+The {func}`from_file()<movement.io.load.from_file>` function provides a unified, format-agnostic way to load poses or bounding boxes from any of the [supported software formats](target-supported-formats).
+This function directly dispatches the loading task to the appropriate specialised function in the {mod}`movement.io.load_poses` or {mod}`movement.io.load_bboxes` module based on the `source_software` parameter.
+
+To import {func}`from_file()<movement.io.load.from_file>`:
+```python
+from movement.io import from_file
+```
+
+To load data from any supported format, specify the `file` path, the `source_software` that produced the file, and optionally the `fps` of the video from which the data were obtained.
+
+For example, to load pose tracks from a DeepLabCut .h5 file:
+```python
+ds = from_file(
+    "/path/to/file.h5",
+    source_software="DeepLabCut",
+    fps=30, # Optional; time coords will be in seconds if provided, otherwise in frames
+)
+```
+
+This reads the file and returns a [movement dataset](target-poses-and-bboxes-dataset) containing the tracked trajectories and associated confidence values.
+
+#### Passing additional options
+
+Some file formats support additional options.
+These can be passed directly as keyword arguments to {func}`from_file()<movement.io.load.from_file>`, and they will be forwarded to the appropriate loader.
+
+For example, to specify the tracked individual's name when loading pose tracks from an Anipose triangulation .csv file:
+```python
+ds = from_file(
+    "/path/to/file.csv",
+    source_software="Anipose",
+    individual_name="id_0"
+)
+```
+
+Or to load bounding box tracks from a VIA tracks .csv file while retaining the original frame numbers from the file instead of starting from 0:
+```python
+ds = from_file(
+    "/path/to/file.csv",
+    source_software="VIA-tracks",
+    use_frame_numbers_from_file=True,
+)
+```
+
+### Loading with software-specific functions
+For users who want direct access to the underlying loading functions or to construct datasets from NumPy arrays, the dedicated loaders remain available.
+
 (target-loading-pose-tracks)=
-### Loading pose tracks
+#### Pose tracks
 
 The pose tracks loading functionalities are provided by the
 {mod}`movement.io.load_poses` module, which can be imported as follows:
@@ -155,14 +205,12 @@ ds = load_poses.from_numpy(
 ::::
 :::::
 
-The resulting poses data structure `ds` will include the predicted trajectories for each individual and
-keypoint, as well as the associated point-wise confidence values reported by
-the pose estimation software.
+The resulting poses data structure `ds` will include the predicted trajectories for each individual and keypoint, as well as the associated point-wise confidence values reported by the pose estimation software.
 
 For more information on the poses data structure, see the [movement datasets](target-poses-and-bboxes-dataset) page.
 
 (target-loading-bbox-tracks)=
-### Loading bounding box tracks
+#### Bounding box tracks
 
 To load bounding box tracks into a [movement bounding boxes dataset](target-poses-and-bboxes-dataset), we need the functions from the
 {mod}`movement.io.load_bboxes` module, which can be imported as follows:
@@ -206,36 +254,6 @@ ds = load_bboxes.from_numpy(
 The resulting data structure `ds` will include the centroid trajectories for each tracked bounding box, the boxes' widths and heights, and their associated confidence values if provided.
 
 For more information on the bounding boxes data structure, see the [movement datasets](target-poses-and-bboxes-dataset) page.
-
-(target-loading-any-format)=
-### Unified loading with `from_file()`
-
-The {func}`from_file()<movement.io.load.from_file>` function provides a unified, format-agnostic way to load poses or bounding boxes from any of the [supported software formats](target-supported-formats).
-This function directly dispatches the loading task to the appropriate specialised function in the aforementioned {mod}`movement.io.load_poses` or {mod}`movement.io.load_bboxes` module based on the `source_software` parameter.
-
-To import it, use:
-```python
-from movement.io import from_file
-```
-
-For example, to load pose tracks from a DeepLabCut .h5 file:
-```python
-ds = from_file(
-    "/path/to/file.h5",
-    source_software="DeepLabCut",
-    fps=30,  # Optionally specify the framerate
-)
-```
-
-The function additionally accepts keyword arguments specific to the underlying loading function being called.
-For example, to load bounding box tracks from a VIA tracks .csv file using the same frame numbers as in the input file:
-```python
-ds = from_file(
-    "/path/to/file.csv",
-    source_software="VIA-tracks",
-    use_frame_numbers_from_file=True,
-)
-```
 
 (target-saving-pose-tracks)=
 ### Saving pose tracks
