@@ -300,7 +300,7 @@ def load_dataset(
     return _LOADER_REGISTRY[source_software](file, fps, **kwargs)
 
 
-def from_multiview_files(
+def load_multiview_dataset(
     file_dict: dict[str, Path | str],
     source_software: SourceSoftware,
     fps: float | None = None,

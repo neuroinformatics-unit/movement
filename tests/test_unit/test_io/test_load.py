@@ -128,7 +128,7 @@ def test_load_dataset(
     ],
     ids=["Poses", "Bboxes"],
 )
-def test_from_multiview_files(dataset_name, source_software):
+def test_load_multiview_dataset(dataset_name, source_software):
     """Test loading data from multiple files (representing
     different views).
     """
@@ -136,7 +136,7 @@ def test_from_multiview_files(dataset_name, source_software):
     file_path_dict = {
         view: DATA_PATHS.get(dataset_name) for view in view_names
     }
-    multi_view_ds = load.from_multiview_files(
+    multi_view_ds = load.load_multiview_dataset(
         file_path_dict, source_software=source_software
     )
     assert isinstance(multi_view_ds, xr.Dataset)
