@@ -1,5 +1,6 @@
 """Load pose tracking data from various frameworks into ``movement``."""
 
+import warnings
 from pathlib import Path
 from typing import Literal, cast
 
@@ -110,6 +111,11 @@ def from_file(
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from any supported file.
 
+    .. deprecated:: 0.14.0
+        This function is deprecated and will be removed in a future release.
+        Use :func:`movement.io.load_dataset<movement.io.load.load_dataset>`
+        instead.
+
     Parameters
     ----------
     file : pathlib.Path or str
@@ -154,6 +160,13 @@ def from_file(
     ... )
 
     """
+    warnings.warn(
+        "The function `movement.io.load_poses.from_file` is deprecated"
+        " and will be removed in a future release. "
+        "Please use `movement.io.load_dataset` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if source_software == "DeepLabCut":
         return from_dlc_file(file, fps)
     elif source_software == "SLEAP":
@@ -422,6 +435,11 @@ def from_multiview_files(
 ) -> xr.Dataset:
     """Load and merge pose tracking data from multiple views (cameras).
 
+    .. deprecated:: 0.14.0
+        This function is deprecated and will be removed in a future release.
+        Use :func:`movement.io.load_multiview_dataset<movement.io.\
+        load.load_multiview_dataset>`instead.
+
     Parameters
     ----------
     file_dict : dict[str, Union[Path, str]]
@@ -439,6 +457,13 @@ def from_multiview_files(
         and associated metadata, with an additional ``views`` dimension.
 
     """
+    warnings.warn(
+        "The function `movement.io.load_poses.from_multiview_files` is "
+        "deprecated and will be removed in a future release. "
+        "Please use `movement.io.load_multiview_dataset` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     views_list = list(file_dict.keys())
     new_coord_views = xr.DataArray(views_list, dims="view")
     dataset_list = [

@@ -2,6 +2,7 @@
 
 import ast
 import re
+import warnings
 from collections.abc import Callable
 from pathlib import Path
 from typing import Literal, cast
@@ -158,6 +159,11 @@ def from_file(
 ) -> xr.Dataset:
     """Create a ``movement`` bounding boxes dataset from a supported file.
 
+    .. deprecated:: 0.14.0
+        This function is deprecated and will be removed in a future release.
+        Use :func:`movement.io.load_dataset<movement.io.load.load_dataset>`
+        instead.
+
     At the moment, we only support VIA tracks .csv files.
 
     Parameters
@@ -220,6 +226,13 @@ def from_file(
     >>> )
 
     """
+    warnings.warn(
+        "The function `movement.io.load_bboxes.from_file` is deprecated"
+        " and will be removed in a future release. "
+        "Please use `movement.io.load_dataset` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if source_software == "VIA-tracks":
         return from_via_tracks_file(
             file,
