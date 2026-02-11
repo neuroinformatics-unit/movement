@@ -23,20 +23,20 @@ navigation, social interactions, etc.
 
 Several 2025 goals have been carried over and refined:
 
-- Regions of interest can now be created programmatically, so the current focus is on supporting their drawing via our [GUI](target-gui).
-- [With spatial navigation features in place](target-arc-collaboration-blog), the focus shifts to metrics for social interactions and collective behaviour.
-- We'll focus on supporting datetime coordinates in [movement datasets](target-poses-and-bboxes-dataset) to enable future work on events of interest and on alignment with neurophysiological data.
+- Support drawing regions of interest via our [GUI](target-gui).
+- Implement at least two functions for quantifying social interactions and/or collective behaviour.
+- Support datetime coordinates in [movement datasets](target-poses-and-bboxes-dataset) (to unlock future work on events of interest and on alignment with neurophysiological data).
 
 In addition, 2026 introduces some new priorities:
 
-- Expose a single unified entry point for loading motion tracks into `movement`.
-- Simplify the process of adding new loaders for different formats, including documentation.
-- Draft a governance document and define contributor pathways.
+- Expose a single unified entry point for loading motion tracks.
+- Simplify and document the process of adding new loaders for different formats.
+- Publish a governance document and define contributor pathways.
 
 ## Focus areas for 2025
 
-These high-level goals were defined at the beginning of 2025.
-Those completed by the year's end are marked with a checkmark.
+We defined these high-level goals in early 2025.
+Items completed by the year's end have been checked off.
 
 - Annotate space by defining regions of interest
   - [x] programmatically,
