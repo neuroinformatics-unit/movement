@@ -227,6 +227,7 @@ def assert_time_coordinates(ds, fps, start_frame=None, frame_array=None):
     )
 
 
+@pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
 @pytest.mark.parametrize("source_software", ["Unknown", "VIA-tracks"])
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 @pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])

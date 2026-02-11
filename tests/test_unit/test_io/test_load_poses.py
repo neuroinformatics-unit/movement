@@ -272,6 +272,7 @@ def test_load_from_nwb_file(input_type, kwargs, request):
     assert ds_from_file_path.attrs == expected_attrs
 
 
+@pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
 @pytest.mark.parametrize(
     "source_software",
     ["DeepLabCut", "SLEAP", "LightningPose", "Anipose", "NWB", "Unknown"],
@@ -304,6 +305,7 @@ def test_from_file_delegates_correctly(source_software, fps, caplog):
                 assert "fps argument is ignored" in caplog.messages[0]
 
 
+@pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
 def test_from_multiview_files():
     """Test loading pose tracks from multiple files (representing
     different views).
