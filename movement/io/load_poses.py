@@ -438,7 +438,7 @@ def from_multiview_files(
     .. deprecated:: 0.14.0
         This function is deprecated and will be removed in a future release.
         Use :func:`movement.io.load_multiview_dataset<movement.io.\
-        load.load_multiview_dataset>`instead.
+        load.load_multiview_dataset>` instead.
 
     Parameters
     ----------
