@@ -647,3 +647,55 @@ def test_to_sleap_analysis_file_overwrite(valid_poses_dataset, tmp_path):
         valid_poses_dataset, file_path, overwrite=True
     )
     assert file_path.is_file()
+
+
+def test_to_lp_file_overwrite(valid_poses_dataset, tmp_path):
+    """Test that overwrite=True allows re-saving a LightningPose file."""
+    file_path = tmp_path / "test_lp.csv"
+
+    # First save should succeed
+    save_poses.to_lp_file(valid_poses_dataset, file_path)
+
+    # Default should raise (derived individual files already exist)
+    with pytest.raises(FileExistsError):
+        save_poses.to_lp_file(valid_poses_dataset, file_path)
+
+    # overwrite=True should succeed
+    save_poses.to_lp_file(valid_poses_dataset, file_path, overwrite=True)
+
+
+def test_to_dlc_file_split_individuals_overwrite(
+    valid_poses_dataset, tmp_path
+):
+    """Test overwrite behavior with split_individuals=True.
+
+    When split_individuals=True, derived per-individual paths must also
+    be protected by the overwrite flag.
+    """
+    file_path = tmp_path / "test_dlc.h5"
+
+    # First save creates per-individual files
+    save_poses.to_dlc_file(
+        valid_poses_dataset, file_path, split_individuals=True
+    )
+
+    # Derived files should exist
+    individuals = valid_poses_dataset.coords["individuals"].values
+    for ind in individuals:
+        derived = tmp_path / f"test_dlc_{ind}.h5"
+        assert derived.is_file()
+
+    # Default should raise because derived files exist
+    with pytest.raises(FileExistsError):
+        save_poses.to_dlc_file(
+            valid_poses_dataset, file_path, split_individuals=True
+        )
+
+    # overwrite=True should succeed
+    save_poses.to_dlc_file(
+        valid_poses_dataset,
+        file_path,
+        split_individuals=True,
+        overwrite=True,
+    )
+

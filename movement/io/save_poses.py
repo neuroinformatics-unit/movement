@@ -229,10 +229,19 @@ def to_dlc_file(
 
         for key, df in df_dict.items():
             # the key is the individual's name
-            filepath = f"{file.path.with_suffix('')}_{key}{file.path.suffix}"
+            filepath = Path(
+                f"{file.path.with_suffix('')}_{key}{file.path.suffix}"
+            )
+            # Validate derived per-individual path for existence
+            if filepath.exists() and not overwrite:
+                raise logger.error(
+                    FileExistsError(
+                        f"File {filepath} already exists."
+                    )
+                )
             if isinstance(df, pd.DataFrame):
-                _save_dlc_df(Path(filepath), df)
-            logger.info(f"Saved poses for individual {key} to {file.path}.")
+                _save_dlc_df(filepath, df)
+            logger.info(f"Saved poses for individual {key} to {filepath}.")
     else:
         # convert the dataset to a single dataframe for all individuals
         df_all = to_dlc_style_df(ds, split_individuals=False)

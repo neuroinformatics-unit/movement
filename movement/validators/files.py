@@ -91,6 +91,17 @@ class ValidFile:
                 raise logger.error(
                     FileExistsError(f"File {value} already exists.")
                 )
+            if (
+                value.exists()
+                and self.overwrite
+                and not os.access(value, os.W_OK)
+            ):
+                raise logger.error(
+                    PermissionError(
+                        f"File {value} already exists but is not "
+                        "writable. Check file permissions."
+                    )
+                )
 
     @path.validator
     def _file_has_access_permissions(self, attribute, value):
