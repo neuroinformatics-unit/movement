@@ -647,4 +647,3 @@ def test_to_sleap_analysis_file_overwrite(valid_poses_dataset, tmp_path):
         valid_poses_dataset, file_path, overwrite=True
     )
     assert file_path.is_file()
-
