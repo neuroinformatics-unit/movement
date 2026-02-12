@@ -236,7 +236,7 @@ def load_dataset(
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from any supported file.
+    """Create a ``movement`` dataset from any supported third-party file.
 
     Parameters
     ----------
