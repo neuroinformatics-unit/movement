@@ -235,9 +235,7 @@ def to_dlc_file(
             # Validate derived per-individual path for existence
             if filepath.exists() and not overwrite:
                 raise logger.error(
-                    FileExistsError(
-                        f"File {filepath} already exists."
-                    )
+                    FileExistsError(f"File {filepath} already exists.")
                 )
             if isinstance(df, pd.DataFrame):
                 _save_dlc_df(filepath, df)

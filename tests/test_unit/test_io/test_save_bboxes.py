@@ -762,4 +762,3 @@ def test_to_via_tracks_file_overwrite(valid_bboxes_dataset, tmp_path):
         valid_bboxes_dataset, output_path, overwrite=True
     )
     assert output_path.is_file()
-
