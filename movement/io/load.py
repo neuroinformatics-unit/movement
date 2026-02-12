@@ -270,12 +270,8 @@ def load_dataset(
 
     See Also
     --------
-    movement.io.load_poses.from_dlc_file
-    movement.io.load_poses.from_sleap_file
-    movement.io.load_poses.from_lp_file
-    movement.io.load_poses.from_anipose_file
-    movement.io.load_poses.from_nwb_file
-    movement.io.load_bboxes.from_via_tracks_file
+    movement.io.load_poses
+    movement.io.load_bboxes
 
     Examples
     --------

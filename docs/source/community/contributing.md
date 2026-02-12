@@ -277,7 +277,6 @@ Implementing a new loader to support additional [file formats](target-supported-
 1. Create validator classes for the file format (recommended).
 2. Implement the loader function.
 3. Update the `SourceSoftware` type alias.
-4. Add the loader function to the `load_dataset()<movement.io.load.load_dataset>` docstring.
 
 #### Create file validators
 `movement` enforces separation of concerns by decoupling file validation from data loading, so that loaders can focus solely on reading and parsing data, while validation logic is encapsulated in dedicated file validator classes.
@@ -469,22 +468,6 @@ SourceSoftware: TypeAlias = Literal[
     ...,
     "MySoftware",  # Newly added software
 ]
-```
-
-#### Add the loader to the `load_dataset()` docstring
-Mention the new loader in the {func}`load_dataset()<movement.io.load.load_dataset>` docstring under the "See Also" section so users browsing the API can easily discover it:
-```python
-def load_dataset(...):
-    """Create a ``movement`` dataset from any supported third-party file.
-
-    ...
-    See Also
-    --------
-    movement.io.load_poses.from_dlc_file
-    movement.io.load_poses.from_mysoftware_file
-
-    ...
-    """
 ```
 
 ### Continuous integration
