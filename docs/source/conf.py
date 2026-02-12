@@ -203,13 +203,14 @@ linkcheck_anchors_ignore_for_url = [
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
-    "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
-    "https://www.sainsburywellcome.org/",  # Occasional ConnectTimeoutError
-    "https://www.robots.ox.ac.uk/",  # occasional 404s
+    "https://opensource.org/license/bsd-3-clause/",  # 403 error
+    "https://www.sainsburywellcome.org/",  # ConnectTimeoutError
+    "https://www.robots.ox.ac.uk/",  # 404 error
     "https://silvalab.codeberg.page/BraiAn/",  # SSLError despite working link
     "https://www.g-node.org/",  # frequent timeouts
     "https://www.contributor-covenant.org/*",  # frequent timeouts
-    "https://docutils.sourceforge.io/*",  # to avoid frequent 403 error
+    "https://docutils.sourceforge.io/*",  # 403 error
+    "https://www.iso.org/",  # 403 error
     # Checking zenodo redirects (from concept doi to record) takes a long time
     "https://zenodo.org/doi/*",
     "https://zenodo.org/records/*",
