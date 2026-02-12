@@ -449,7 +449,7 @@ def from_mysoftware_file(file: str | Path) -> xr.Dataset:
 ```
 :::
 
-##### Constructing the dataset
+##### Construct the dataset
 After parsing the input file, the loader function should construct the movement dataset using:
 
 - {func}`movement.io.load_poses.from_numpy` for pose tracks.
