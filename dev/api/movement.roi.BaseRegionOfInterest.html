@@ -44,9 +44,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=f807dcb2"></script>
-    <script src="../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/documentation_options.js?v=76c49f71"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.roi.BaseRegionOfInterest';</script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev19</p>
+    <p class="title logo__title">movement v0.13.1.dev21</p>
   
 </a></div>
     
@@ -620,7 +620,7 @@
 <h1>BaseRegionOfInterest<a class="headerlink" href="#baseregionofinterest" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.roi.BaseRegionOfInterest">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">movement.roi.</span></span><span class="sig-name descname"><span class="pre">BaseRegionOfInterest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/roi/base.html#BaseRegionOfInterest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.roi.BaseRegionOfInterest" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">movement.roi.</span></span><span class="sig-name descname"><span class="pre">BaseRegionOfInterest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/roi/base.html#BaseRegionOfInterest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.roi.BaseRegionOfInterest" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">TGeometry_co</span></code>]</p>
 <p>Abstract base class for regions of interest (RoIs).</p>
 <p>This class cannot be instantiated directly. Instead, use one of its
@@ -863,7 +863,7 @@ False otherwise.</p>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="movement.roi.BaseRegionOfInterest.coords">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coords</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">CoordinateSequence</span></em><a class="headerlink" href="#movement.roi.BaseRegionOfInterest.coords" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">coords</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">CoordinateSequence</span></span><a class="headerlink" href="#movement.roi.BaseRegionOfInterest.coords" title="Link to this definition">#</a></dt>
 <dd><p>Coordinates of the points that define the region.</p>
 <p>These are the points passed to the constructor argument <code class="docutils literal notranslate"><span class="pre">points</span></code>.</p>
 <p>Note that for Polygonal regions, these are the coordinates of the
@@ -873,13 +873,13 @@ exterior boundary, interior boundaries must be accessed via
 
 <dl class="py property">
 <dt class="sig sig-object py" id="movement.roi.BaseRegionOfInterest.dimensions">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dimensions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></em><a class="headerlink" href="#movement.roi.BaseRegionOfInterest.dimensions" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">dimensions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#movement.roi.BaseRegionOfInterest.dimensions" title="Link to this definition">#</a></dt>
 <dd><p>Dimensionality of the region.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="movement.roi.BaseRegionOfInterest.is_closed">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_closed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></em><a class="headerlink" href="#movement.roi.BaseRegionOfInterest.is_closed" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_closed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#movement.roi.BaseRegionOfInterest.is_closed" title="Link to this definition">#</a></dt>
 <dd><p>Return True if the region is closed.</p>
 <p>A closed region is either:
 - A polygon (2D RoI).
@@ -888,7 +888,7 @@ exterior boundary, interior boundaries must be accessed via
 
 <dl class="py property">
 <dt class="sig sig-object py" id="movement.roi.BaseRegionOfInterest.name">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#movement.roi.BaseRegionOfInterest.name" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#movement.roi.BaseRegionOfInterest.name" title="Link to this definition">#</a></dt>
 <dd><p>Name of the instance.</p>
 </dd></dl>
 
@@ -924,7 +924,7 @@ the input will be directly modified and returned in this value.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="movement.roi.BaseRegionOfInterest.region">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">region</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">TGeometry_co</span></em><a class="headerlink" href="#movement.roi.BaseRegionOfInterest.region" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">region</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">TGeometry_co</span></span><a class="headerlink" href="#movement.roi.BaseRegionOfInterest.region" title="Link to this definition">#</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">shapely.Geometry</span></code> representation of the region.</p>
 </dd></dl>
 
@@ -1038,7 +1038,7 @@ the input will be directly modified and returned in this value.</p></li>
     <div class="footer-items__start">
       
         <div class="footer-item"><p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.2.3.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     <br/>
     </p>
     <p class="theme-version">
