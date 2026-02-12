@@ -743,3 +743,22 @@ def test_to_via_tracks_file_is_recoverable(via_file_path, tmp_path):
 
     # Compare the original and recovered datasets
     xr.testing.assert_equal(original_ds, recovered_ds)
+
+
+def test_to_via_tracks_file_overwrite(valid_bboxes_dataset, tmp_path):
+    """Test that overwrite=True allows re-saving to an existing file."""
+    output_path = tmp_path / "test_overwrite.csv"
+
+    # First save should succeed
+    save_bboxes.to_via_tracks_file(valid_bboxes_dataset, output_path)
+    assert output_path.is_file()
+
+    # Default (overwrite=False) should raise FileExistsError
+    with pytest.raises(FileExistsError):
+        save_bboxes.to_via_tracks_file(valid_bboxes_dataset, output_path)
+
+    # overwrite=True should succeed
+    save_bboxes.to_via_tracks_file(
+        valid_bboxes_dataset, output_path, overwrite=True
+    )
+    assert output_path.is_file()

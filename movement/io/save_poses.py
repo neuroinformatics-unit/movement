@@ -165,6 +165,7 @@ def to_dlc_file(
     ds: xr.Dataset,
     file_path: str | Path,
     split_individuals: bool | Literal["auto"] = "auto",
+    overwrite: bool = False,
 ) -> None:
     """Save a ``movement`` dataset to DeepLabCut file(s).
 
@@ -179,6 +180,9 @@ def to_dlc_file(
     split_individuals : bool or "auto", optional
         Whether to save individuals to separate files or to the same file
         (see Notes). Defaults to "auto".
+    overwrite : bool, optional
+        If True, overwrite the file if it already exists.
+        If False (default), raise ``FileExistsError``.
 
     Notes
     -----
@@ -203,7 +207,9 @@ def to_dlc_file(
     >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
 
     """  # noqa: D301
-    file = _validate_file_path(file_path, expected_suffix=[".csv", ".h5"])
+    file = _validate_file_path(
+        file_path, expected_suffix=[".csv", ".h5"], overwrite=overwrite
+    )
 
     # Sets default behaviour for the function
     if split_individuals == "auto":
@@ -223,10 +229,17 @@ def to_dlc_file(
 
         for key, df in df_dict.items():
             # the key is the individual's name
-            filepath = f"{file.path.with_suffix('')}_{key}{file.path.suffix}"
+            filepath = Path(
+                f"{file.path.with_suffix('')}_{key}{file.path.suffix}"
+            )
+            # Validate derived per-individual path for existence
+            if filepath.exists() and not overwrite:
+                raise logger.error(
+                    FileExistsError(f"File {filepath} already exists.")
+                )
             if isinstance(df, pd.DataFrame):
-                _save_dlc_df(Path(filepath), df)
-            logger.info(f"Saved poses for individual {key} to {file.path}.")
+                _save_dlc_df(filepath, df)
+            logger.info(f"Saved poses for individual {key} to {filepath}.")
     else:
         # convert the dataset to a single dataframe for all individuals
         df_all = to_dlc_style_df(ds, split_individuals=False)
@@ -238,6 +251,7 @@ def to_dlc_file(
 def to_lp_file(
     ds: xr.Dataset,
     file_path: str | Path,
+    overwrite: bool = False,
 ) -> None:
     """Save a ``movement`` dataset to a LightningPose file.
 
@@ -248,6 +262,9 @@ def to_lp_file(
         and associated metadata.
     file_path : pathlib.Path or str
         Path to the file to save the poses to. File extension must be .csv.
+    overwrite : bool, optional
+        If True, overwrite the file if it already exists.
+        If False (default), raise ``FileExistsError``.
 
     Notes
     -----
@@ -264,12 +281,16 @@ def to_lp_file(
     to_dlc_file : Save dataset to a DeepLabCut-style .h5 or .csv file.
 
     """
-    file = _validate_file_path(file_path=file_path, expected_suffix=[".csv"])
+    file = _validate_file_path(
+        file_path=file_path, expected_suffix=[".csv"], overwrite=overwrite
+    )
     ValidPosesInputs.validate(ds)
-    to_dlc_file(ds, file.path, split_individuals=True)
+    to_dlc_file(ds, file.path, split_individuals=True, overwrite=overwrite)
 
 
-def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
+def to_sleap_analysis_file(
+    ds: xr.Dataset, file_path: str | Path, overwrite: bool = False
+) -> None:
     """Save a ``movement`` dataset to a SLEAP analysis file.
 
     Parameters
@@ -279,6 +300,9 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
         and associated metadata.
     file_path : pathlib.Path or str
         Path to the file to save the poses to. File extension must be .h5.
+    overwrite : bool, optional
+        If True, overwrite the file if it already exists.
+        If False (default), raise ``FileExistsError``.
 
     Notes
     -----
@@ -308,7 +332,9 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     ... )
 
     """
-    file = _validate_file_path(file_path=file_path, expected_suffix=[".h5"])
+    file = _validate_file_path(
+        file_path=file_path, expected_suffix=[".h5"], overwrite=overwrite
+    )
     ValidPosesInputs.validate(ds)
 
     ds = _remove_unoccupied_tracks(ds)

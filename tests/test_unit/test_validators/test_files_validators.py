@@ -94,6 +94,43 @@ def test_validate_file_path_file_exists(sample_file_path, tmp_path, suffix):
         _validate_file_path(file_path, [suffix])
 
 
+@pytest.mark.parametrize("suffix", [".txt", ".csv"])
+def test_validate_file_path_overwrite(sample_file_path, tmp_path, suffix):
+    """Test that overwrite=True allows saving to an existing file."""
+    file_path = sample_file_path(tmp_path, suffix)
+    file_path.touch()
+
+    # Default (overwrite=False) should still raise
+    with pytest.raises(OSError):
+        _validate_file_path(file_path, [suffix])
+
+    # overwrite=True should succeed
+    validated_file = _validate_file_path(file_path, [suffix], overwrite=True)
+    assert isinstance(validated_file, ValidFile)
+    assert validated_file.path == file_path
+
+
+@pytest.mark.parametrize("suffix", [".txt", ".csv"])
+def test_validate_file_path_overwrite_read_only(
+    sample_file_path, tmp_path, suffix
+):
+    """Test that overwrite=True on a read-only file raises PermissionError."""
+    file_path = sample_file_path(tmp_path, suffix)
+    file_path.touch()
+
+    # Make the file read-only
+    import os
+    import stat
+
+    os.chmod(file_path, stat.S_IREAD)
+    try:
+        with pytest.raises(PermissionError, match="not writable"):
+            _validate_file_path(file_path, [suffix], overwrite=True)
+    finally:
+        # Restore write permission so tmp_path cleanup can delete it
+        os.chmod(file_path, stat.S_IREAD | stat.S_IWRITE)
+
+
 @pytest.mark.parametrize("invalid_suffix", [".foo", "", None])
 def test_validate_file_path_invalid_suffix(
     sample_file_path, tmp_path, invalid_suffix
