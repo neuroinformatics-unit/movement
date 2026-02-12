@@ -24,7 +24,8 @@ class ValidFile:
 
     - is not a directory,
     - exists if it is meant to be read,
-    - does not exist if it is meant to be written,
+    - does not exist if it is meant to be written
+      (unless ``overwrite`` is True),
     - has the expected access permission(s), and
     - has one of the expected suffix(es).
 
@@ -50,7 +51,8 @@ class ValidFile:
     FileNotFoundError
         If the file does not exist when ``expected_permission`` is "r" or "rw".
     FileExistsError
-        If the file exists when ``expected_permission`` is "w".
+        If the file exists when ``expected_permission`` is "w"
+        and ``overwrite`` is False.
     ValueError
         If the file does not have one of the expected suffix(es).
 
@@ -61,6 +63,7 @@ class ValidFile:
         default="r", validator=validators.in_(["r", "w", "rw"]), kw_only=True
     )
     expected_suffix: list[str] = field(factory=list, kw_only=True)
+    overwrite: bool = field(default=False, kw_only=True)
 
     @path.validator
     def _path_is_not_dir(self, attribute, value):
@@ -84,7 +87,7 @@ class ValidFile:
                     FileNotFoundError(f"File {value} does not exist.")
                 )
         else:  # expected_permission is "w"
-            if value.exists():
+            if value.exists() and not self.overwrite:
                 raise logger.error(
                     FileExistsError(f"File {value} already exists.")
                 )
@@ -125,7 +128,9 @@ class ValidFile:
 
 
 def _validate_file_path(
-    file_path: str | Path, expected_suffix: list[str]
+    file_path: str | Path,
+    expected_suffix: list[str],
+    overwrite: bool = False,
 ) -> ValidFile:
     """Validate the input file path.
 
@@ -137,6 +142,9 @@ def _validate_file_path(
         Path to the file to validate.
     expected_suffix : list of str
         Expected suffix(es) for the file.
+    overwrite : bool, optional
+        If True, allow overwriting an existing file. Default: False.
+
 
     Returns
     -------
@@ -156,6 +164,7 @@ def _validate_file_path(
             file_path,
             expected_permission="w",
             expected_suffix=expected_suffix,
+            overwrite=overwrite,
         )
     except (OSError, ValueError) as error:
         logger.error(error)

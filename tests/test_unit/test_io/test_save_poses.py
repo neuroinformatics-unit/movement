@@ -613,3 +613,38 @@ def test_remove_unoccupied_tracks(valid_poses_dataset):
     ds = valid_poses_dataset.reindex(individuals=new_individuals)
     ds = save_poses._remove_unoccupied_tracks(ds)
     xr.testing.assert_equal(ds, valid_poses_dataset)
+
+
+def test_to_dlc_file_overwrite(valid_poses_dataset, new_h5_file):
+    """Test that overwrite=True allows re-saving to an existing file."""
+    # First save should succeed (file doesn't exist yet)
+    save_poses.to_dlc_file(valid_poses_dataset, new_h5_file)
+    assert new_h5_file.is_file()
+
+    # Default (overwrite=False) should raise FileExistsError
+    with pytest.raises(FileExistsError):
+        save_poses.to_dlc_file(valid_poses_dataset, new_h5_file)
+
+    # overwrite=True should succeed
+    save_poses.to_dlc_file(valid_poses_dataset, new_h5_file, overwrite=True)
+    assert new_h5_file.is_file()
+
+
+def test_to_sleap_analysis_file_overwrite(valid_poses_dataset, tmp_path):
+    """Test that overwrite=True allows re-saving to an existing SLEAP file."""
+    file_path = tmp_path / "test_sleap.h5"
+
+    # First save should succeed
+    save_poses.to_sleap_analysis_file(valid_poses_dataset, file_path)
+    assert file_path.is_file()
+
+    # Default should raise
+    with pytest.raises(FileExistsError):
+        save_poses.to_sleap_analysis_file(valid_poses_dataset, file_path)
+
+    # overwrite=True should succeed
+    save_poses.to_sleap_analysis_file(
+        valid_poses_dataset, file_path, overwrite=True
+    )
+    assert file_path.is_file()
+

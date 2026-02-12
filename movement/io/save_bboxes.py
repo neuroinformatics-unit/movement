@@ -25,6 +25,7 @@ def to_via_tracks_file(
     frame_n_digits: int | None = None,
     image_file_prefix: str | None = None,
     image_file_suffix: str = ".png",
+    overwrite: bool = False,
 ) -> Path:
     """Save a ``movement`` bounding boxes dataset to a VIA tracks .csv file.
 
@@ -51,6 +52,9 @@ def to_via_tracks_file(
     image_file_suffix : str, optional
         Suffix to add to every image filename holding the file extension.
         Strings with or without the dot are accepted. Default is '.png'.
+    overwrite : bool, optional
+        If True, overwrite the file if it already exists.
+        If False (default), raise ``FileExistsError``.
 
     Returns
     -------
@@ -127,7 +131,9 @@ def to_via_tracks_file(
 
     """
     # Validate file path and dataset
-    file = _validate_file_path(file_path, expected_suffix=[".csv"])
+    file = _validate_file_path(
+        file_path, expected_suffix=[".csv"], overwrite=overwrite
+    )
     ValidBboxesInputs.validate(ds)
 
     # Check the number of digits required to represent the frame numbers
