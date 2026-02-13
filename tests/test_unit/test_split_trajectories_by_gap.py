@@ -3,7 +3,6 @@
 import numpy as np
 import pytest
 import xarray as xr
-
 from movement.trajectory_splitting import split_trajectories_by_gap
 
 
