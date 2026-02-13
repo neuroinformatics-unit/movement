@@ -72,8 +72,8 @@ def valid_poses_path_and_ds_with_localised_nans(valid_poses_dataset, tmp_path):
         # Set the selected values to NaN
         ds.position.loc[
             {
-                "individuals": nan_location["individuals"],
-                "keypoints": nan_location["keypoints"],
+                "individual": nan_location["individuals"],
+                "keypoint": nan_location["keypoints"],
                 "time": time_point,
             }
         ] = np.nan
