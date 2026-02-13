@@ -1,10 +1,10 @@
 import numpy as np
 import xarray as xr
+
 from movement.io import poses_to_bboxes
 
 
 def test_conversion():
-
     data = np.array(
         [
             [[[10, 10], [20, 20]]],  # frame 1

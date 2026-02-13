@@ -1,6 +1,4 @@
-"""
-Converter: Pose dataset → Bounding boxes dataset
-"""
+"""Converter: Pose dataset → Bounding boxes dataset"""
 
 import numpy as np
 import xarray as xr
@@ -10,8 +8,7 @@ def poses_to_bboxes(
     poses_ds: xr.Dataset,
     padding: float = 0.0,
 ) -> xr.Dataset:
-    """
-    Convert pose keypoints dataset into bounding boxes dataset.
+    """Convert pose keypoints dataset into bounding boxes dataset.
 
     Parameters
     ----------
@@ -26,8 +23,8 @@ def poses_to_bboxes(
     -------
     xr.Dataset
         Bounding boxes dataset.
-    """
 
+    """
     # Extract coordinates
     coords = poses_ds["position"]  # adjust if different name
 
@@ -67,9 +64,7 @@ def poses_to_bboxes(
                 bboxes,
             )
         },
-        coords={
-            "bbox_coords": ["x_min", "y_min", "x_max", "y_max"]
-        },
+        coords={"bbox_coords": ["x_min", "y_min", "x_max", "y_max"]},
     )
 
     return bbox_ds
