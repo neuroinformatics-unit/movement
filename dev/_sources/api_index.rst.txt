@@ -16,6 +16,7 @@ Information on specific functions, classes, and methods.
     :nosignatures:
 
     movement.filtering
+    movement.io.load
     movement.io.load_bboxes
     movement.io.load_poses
     movement.io.nwb

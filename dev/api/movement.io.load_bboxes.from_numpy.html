@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=76c49f71"></script>
+    <script src="../_static/documentation_options.js?v=413c151b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev21</p>
+    <p class="title logo__title">movement v0.13.1.dev22</p>
   
 </a></div>
     
@@ -425,6 +425,13 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.savgol_filter.html">savgol_filter</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load.html">movement.io.load</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.LoaderProtocol.html">LoaderProtocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_dataset.html">load_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_multiview_dataset.html">load_multiview_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.register_loader.html">register_loader</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.io.load_bboxes.html">movement.io.load_bboxes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_file.html">from_file</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">from_numpy</a></li>
@@ -548,10 +555,13 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.validators.files.html">movement.validators.files</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidAniposeCSV.html">ValidAniposeCSV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutCSV.html">ValidDeepLabCutCSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutH5.html">ValidDeepLabCutH5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidFile.html">ValidFile</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidHDF5.html">ValidHDF5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidNWBFile.html">ValidNWBFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapAnalysis.html">ValidSleapAnalysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapLabels.html">ValidSleapLabels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidVIATracksCSV.html">ValidVIATracksCSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.validate_file_path.html">validate_file_path</a></li>
 </ul>
 </details></li>
 </ul>
@@ -625,36 +635,36 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>position_array</strong> (<em>np.ndarray</em>) – Array of shape (n_frames, n_space, n_individuals)
+<li><p><strong>position_array</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span>) – Array of shape (n_frames, n_space, n_individuals)
 containing the tracks of the bounding box centroids.
 It will be converted to a <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object
 named “position”.</p></li>
-<li><p><strong>shape_array</strong> (<em>np.ndarray</em>) – Array of shape (n_frames, n_space, n_individuals)
+<li><p><strong>shape_array</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span>) – Array of shape (n_frames, n_space, n_individuals)
 containing the shape of the bounding boxes. The shape of a bounding
 box is its width (extent along the x-axis of the image) and height
 (extent along the y-axis of the image). It will be converted to a
 <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object named “shape”.</p></li>
-<li><p><strong>confidence_array</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Array of shape (n_frames, n_individuals) containing
+<li><p><strong>confidence_array</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Array of shape (n_frames, n_individuals) containing
 the confidence scores of the bounding boxes. If None (default), the
 confidence scores are set to an array of NaNs. It will be converted
 to a <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object named “confidence”.</p></li>
-<li><p><strong>individual_names</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – List of individual names for the tracked bounding boxes in the video.
+<li><p><strong>individual_names</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – List of individual names for the tracked bounding boxes in the video.
 If None (default), bounding boxes are assigned names based on the size
 of the <code class="docutils literal notranslate"><span class="pre">position_array</span></code>. The names will be in the format of
 <code class="docutils literal notranslate"><span class="pre">id_&lt;N&gt;</span></code>, where &lt;N&gt;  is an integer from 0 to
 <code class="docutils literal notranslate"><span class="pre">position_array.shape[-1]-1</span></code> (i.e., “id_0”, “id_1”…).</p></li>
-<li><p><strong>frame_array</strong> (<em>np.ndarray</em><em>, </em><em>optional</em>) – Array of shape (n_frames, 1) containing the frame numbers for which
+<li><p><strong>frame_array</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Array of shape (n_frames, 1) containing the frame numbers for which
 bounding boxes are defined. If None (default), frame numbers will
 be assigned based on the first dimension of the <code class="docutils literal notranslate"><span class="pre">position_array</span></code>,
 starting from 0. If a specific array of frame numbers is provided,
 these need to be integers sorted in increasing order.</p></li>
-<li><p><strong>fps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – The video sampling rate. If None (default), the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates
+<li><p><strong>fps</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – The video sampling rate. If None (default), the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates
 of the resulting <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset will be in frame numbers. If
 <code class="docutils literal notranslate"><span class="pre">fps</span></code> is provided, the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates  will be in seconds. If
 the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates are in seconds, they will indicate the
 elapsed time from the capture of the first frame (assumed to be frame
 0).</p></li>
-<li><p><strong>source_software</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Name of the software that generated the data. Defaults to None.</p></li>
+<li><p><strong>source_software</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Name of the software that generated the data. Defaults to None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

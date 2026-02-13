@@ -1,0 +1,23 @@
+LoaderProtocol
+==============
+
+.. currentmodule:: movement.io.load
+
+.. autoclass:: LoaderProtocol
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   
+
+.. minigallery:: movement.io.load.LoaderProtocol
+   :add-heading: Examples using ``LoaderProtocol``

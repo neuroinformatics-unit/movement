@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=76c49f71"></script>
+    <script src="../_static/documentation_options.js?v=413c151b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev21</p>
+    <p class="title logo__title">movement v0.13.1.dev22</p>
   
 </a></div>
     
@@ -747,6 +747,205 @@ In general:</p>
 </ul>
 </section>
 </section>
+<section id="implementing-new-loaders">
+<h3>Implementing new loaders<a class="headerlink" href="#implementing-new-loaders" title="Link to this heading">#</a></h3>
+<p>Implementing a new loader to support additional <a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">file formats</span></a> in <code class="docutils literal notranslate"><span class="pre">movement</span></code> involves the following steps:</p>
+<ol class="arabic simple">
+<li><p>Create validator classes for the file format (recommended).</p></li>
+<li><p>Implement the loader function.</p></li>
+<li><p>Update the <code class="docutils literal notranslate"><span class="pre">SourceSoftware</span></code> type alias.</p></li>
+</ol>
+<section id="create-file-validators">
+<h4>Create file validators<a class="headerlink" href="#create-file-validators" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">movement</span></code> enforces separation of concerns by decoupling file validation from data loading, so that loaders can focus solely on reading and parsing data, while validation logic is encapsulated in dedicated file validator classes.
+Besides allowing users to get early feedback on file issues, this also makes it easier to reuse validation logic across different loaders that may support the same file format.</p>
+<p>All file validators are <a class="reference external" href="https://www.attrs.org/en/stable/#"><code class="docutils literal notranslate"><span class="pre">attrs</span></code></a>-based classes and live in <a class="reference internal" href="../api/movement.validators.files.html#module-movement.validators.files" title="movement.validators.files"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.validators.files</span></code></a>.
+They define the rules an input file must satisfy before it can be loaded, and they conform to the <a class="reference internal" href="../api/movement.validators.files.ValidFile.html#movement.validators.files.ValidFile" title="movement.validators.files.ValidFile"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidFile</span></code></a> protocol.
+At minimum, this requires defining:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">suffixes</span></code>: The expected file extensions for the format.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">file</span></code>: The path to the file or an <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> object, depending on the loader.</p></li>
+</ul>
+<p>Additional attributes can also be defined to store pre-parsed information that the loader may need later.</p>
+<p>Using a hypothetical format “MySoftware” that produces CSV files containing the columns <code class="docutils literal notranslate"><span class="pre">scorer</span></code>, <code class="docutils literal notranslate"><span class="pre">bodyparts</span></code>, and <code class="docutils literal notranslate"><span class="pre">coords</span></code>, we illustrate the full pattern file validators follow:</p>
+<ul class="simple">
+<li><p>Declare expected file suffixes.</p></li>
+<li><p>Normalise the input file and apply reusable validators.</p></li>
+<li><p>Implement custom, format-specific validation.</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@define</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidMySoftwareCSV</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validator for MySoftware .csv output files.&quot;&quot;&quot;</span>
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.csv&quot;</span><span class="p">}</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">col_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+
+    <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_expected_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the .csv file contains the expected header row.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">expected_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scorer&quot;</span><span class="p">,</span> <span class="s2">&quot;bodyparts&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">col_names</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">col_names</span> <span class="o">!=</span> <span class="n">expected_cols</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;.csv header row does not match the known format for &quot;</span>
+                        <span class="s2">&quot;MySoftware output files.&quot;</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">col_names</span> <span class="o">=</span> <span class="n">col_names</span>
+</pre></div>
+</div>
+<section id="declare-expected-file-suffixes">
+<h5>Declare expected file suffixes<a class="headerlink" href="#declare-expected-file-suffixes" title="Link to this heading">#</a></h5>
+<p>The <code class="docutils literal notranslate"><span class="pre">suffixes</span></code> class variable restricts the validator to only accept files with the specified extensions.
+If a suffix check is not required, this can be set to an empty set (<code class="docutils literal notranslate"><span class="pre">set()</span></code>).
+In the <code class="docutils literal notranslate"><span class="pre">ValidMySoftwareCSV</span></code> example, only files with a <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension are accepted.</p>
+</section>
+<section id="normalise-input-file-and-apply-reusable-validators">
+<h5>Normalise input file and apply reusable validators<a class="headerlink" href="#normalise-input-file-and-apply-reusable-validators" title="Link to this heading">#</a></h5>
+<p>An <code class="docutils literal notranslate"><span class="pre">attrs</span></code> <a class="reference external" href="https://www.attrs.org/en/stable/init.html#converters" title="(in attrs v25.4)"><span class="xref std std-ref">converter</span></a> is typically used to normalise input files into <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> objects, along with one or more validators to ensure the file meets the expected criteria.</p>
+<p>In addition to the built-in <code class="docutils literal notranslate"><span class="pre">attrs</span></code> <a class="reference external" href="https://www.attrs.org/en/stable/api.html#module-attrs.validators" title="(in attrs v25.4)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">validators</span></code></a>, <code class="docutils literal notranslate"><span class="pre">movement</span></code> provides several reusable file-specific validators (as callables) in <a class="reference internal" href="../api/movement.validators.files.html#module-movement.validators.files" title="movement.validators.files"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.validators.files</span></code></a>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">_file_validator</span></code>: A composite validator that ensures <code class="docutils literal notranslate"><span class="pre">file</span></code> is a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>, is not a directory, is accessible with the required permission, and has one of the expected <code class="docutils literal notranslate"><span class="pre">suffixes</span></code> (if any).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_hdf5_validator</span></code>: Checks that an HDF5 <code class="docutils literal notranslate"><span class="pre">file</span></code> contains the expected dataset(s).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_if_instance_of</span></code>: Conditionally applies a validator only when <code class="docutils literal notranslate"><span class="pre">file</span></code> is an instance of a given class.</p></li>
+</ul>
+<p>In the current example, the <code class="docutils literal notranslate"><span class="pre">_file_validator</span></code> is used to ensure that the input <code class="docutils literal notranslate"><span class="pre">file</span></code> is a readable CSV file.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header sd-bg-success sd-bg-text-success">
+<span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-light-bulb" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg></span><span class="sd-summary-text">Combining reusable validators</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Reusable validators can be combined using either <a class="reference external" href="https://www.attrs.org/en/stable/api.html#attrs.validators.and_" title="(in attrs v25.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">attrs.validators.and_()</span></code></a> or by passing a list of validators to the <code class="docutils literal notranslate"><span class="pre">validator</span></code> parameter of <a class="reference external" href="https://www.attrs.org/en/stable/api.html#attrs.field" title="(in attrs v25.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">field()</span></code></a>.
+The <code class="docutils literal notranslate"><span class="pre">file</span></code> attribute in <a class="reference internal" href="../api/movement.validators.files.ValidDeepLabCutH5.html#movement.validators.files.ValidDeepLabCutH5" title="movement.validators.files.ValidDeepLabCutH5"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidDeepLabCutH5</span></code></a> combines both <code class="docutils literal notranslate"><span class="pre">_file_validator</span></code> and <code class="docutils literal notranslate"><span class="pre">_hdf5_validator</span></code> to ensure the input file is a readable HDF5 file containing the expected dataset <code class="docutils literal notranslate"><span class="pre">df_with_missing</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@define</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidDeepLabCutH5</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating DeepLabCut-style .h5 files.&quot;&quot;&quot;</span>
+
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.h5&quot;</span><span class="p">}</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
+            <span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
+            <span class="n">_hdf5_validator</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;df_with_missing&quot;</span><span class="p">}),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</details></section>
+<section id="implement-format-specific-validation">
+<h5>Implement format-specific validation<a class="headerlink" href="#implement-format-specific-validation" title="Link to this heading">#</a></h5>
+<p>Most formats often require custom validation logic beyond basic file checks.
+In the current example, the <code class="docutils literal notranslate"><span class="pre">_file_contains_expected_header</span></code> method uses the <code class="docutils literal notranslate"><span class="pre">file</span></code> attribute’s validator method as a decorator (<code class="docutils literal notranslate"><span class="pre">&#64;file.validator</span></code>) to check that the first line of the CSV file matches the expected header row for MySoftware output files.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.attrs.org/en/stable/examples.html" title="(in attrs v25.4)"><span>attrs by Example</span></a>: Overview of writing <code class="docutils literal notranslate"><span class="pre">attrs</span></code> classes.</p></li>
+<li><p><a class="reference external" href="https://www.attrs.org/en/stable/init.html#validators" title="(in attrs v25.4)"><span class="xref std std-ref">attrs Validators</span></a>: Details on writing custom validators for attributes.</p></li>
+</ul>
+</div>
+</section>
+</section>
+<section id="implement-loader-function">
+<h4>Implement loader function<a class="headerlink" href="#implement-loader-function" title="Link to this heading">#</a></h4>
+<p>Once the file validator is defined, the next step is to implement the loader function that reads the validated file and constructs the movement dataset.
+Continuing from the hypothetical “MySoftware” example, the loader function <code class="docutils literal notranslate"><span class="pre">from_mysoftware_file</span></code> would look like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@register_loader</span><span class="p">(</span>
+    <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;MySoftware&quot;</span><span class="p">,</span>
+    <span class="n">file_validators</span><span class="o">=</span><span class="n">ValidMySoftwareCSV</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_mysoftware_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load data from MySoftware files.&quot;&quot;&quot;</span>
+    <span class="c1"># The decorator returns an instance of ValidMySoftwareCSV</span>
+    <span class="c1"># which conforms to the ValidFile protocol</span>
+    <span class="c1"># so we need to let the type checker know this</span>
+    <span class="n">valid_file</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;ValidFile&quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">valid_file</span><span class="o">.</span><span class="n">file</span>  <span class="c1"># Path</span>
+    <span class="c1"># The _parse_* functions are pseudocode</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
+        <span class="n">position_array</span><span class="o">=</span> <span class="n">_parse_positions</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span>
+        <span class="n">confidence_array</span><span class="o">=</span><span class="n">_parse_confidences</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span>
+        <span class="n">individual_names</span><span class="o">=</span><span class="n">_parse_individual_names</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span>
+        <span class="n">keypoint_names</span><span class="o">=</span><span class="n">_parse_keypoint_names</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span>
+        <span class="n">fps</span><span class="o">=</span><span class="n">_parse_fps</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span>
+        <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;MySoftware&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded poses from </span><span class="si">{</span><span class="n">file_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span>
+</pre></div>
+</div>
+<p>Loader functions live in <a class="reference internal" href="../api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a> or <a class="reference internal" href="../api/movement.io.load_bboxes.html#module-movement.io.load_bboxes" title="movement.io.load_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_bboxes</span></code></a>, depending on the data type (poses or bounding boxes).</p>
+<p>A loader function must conform to the <a class="reference internal" href="../api/movement.io.load.LoaderProtocol.html#movement.io.load.LoaderProtocol" title="movement.io.load.LoaderProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">LoaderProtocol</span></code></a>, which requires the loader to:</p>
+<ul class="simple">
+<li><p>Accept <code class="docutils literal notranslate"><span class="pre">file</span></code> as its first parameter, which may be:</p>
+<ul>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">str</span></code> or a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>.</p></li>
+<li><p>An <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> object (for NWB-based formats).</p></li>
+</ul>
+</li>
+<li><p>Return an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> object containing the <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset</span></a>.</p></li>
+</ul>
+<section id="decorate-the-loader-with-register-loader">
+<h5>Decorate the loader with <code class="docutils literal notranslate"><span class="pre">&#64;register_loader</span></code><a class="headerlink" href="#decorate-the-loader-with-register-loader" title="Link to this heading">#</a></h5>
+<p>The <a class="reference internal" href="../api/movement.io.load.register_loader.html#movement.io.load.register_loader" title="movement.io.load.register_loader"><code class="xref py py-func docutils literal notranslate"><span class="pre">&#64;register_loader()</span></code></a> decorator associates a loader function with a <code class="docutils literal notranslate"><span class="pre">source_software</span></code> name so that users can load files from that software via the unified <a class="reference internal" href="../api/movement.io.load.load_dataset.html#movement.io.load.load_dataset" title="movement.io.load.load_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_dataset()</span></code></a> interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;path/to/mysoftware_output.csv&quot;</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;MySoftware&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which is equivalent to calling the loader function directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io.load_poses</span><span class="w"> </span><span class="kn">import</span> <span class="n">from_mysoftware_file</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">from_mysoftware_file</span><span class="p">(</span><span class="s2">&quot;path/to/mysoftware_output.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If a <code class="docutils literal notranslate"><span class="pre">file_validators</span></code> argument is supplied to the <a class="reference internal" href="../api/movement.io.load.register_loader.html#movement.io.load.register_loader" title="movement.io.load.register_loader"><code class="xref py py-func docutils literal notranslate"><span class="pre">&#64;register_loader()</span></code></a> decorator, the decorator selects the appropriate validator—based on its declared <code class="docutils literal notranslate"><span class="pre">suffixes</span></code>—and uses it to normalise and validate the input <code class="docutils literal notranslate"><span class="pre">file</span></code> before invoking the loader.
+As a result, the loader receives the validated file object instead of the raw path or handle.</p>
+<p>If no validator is provided, the loader is passed the raw <code class="docutils literal notranslate"><span class="pre">file</span></code> argument as-is.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header sd-bg-success sd-bg-text-success">
+<span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-light-bulb" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg></span><span class="sd-summary-text">Handling multiple file formats for the same software</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Many software packages produce multiple file formats (e.g. DeepLabCut outputs both CSV and HDF5).
+In that case, we recommend <strong>one loader per source software</strong>, which internally dispatches to per-format parsing functions, to ensure a consistent entry point for each supported source software.
+If formats require very different validation logic, you may pass multiple validators to <code class="docutils literal notranslate"><span class="pre">file_validators=[...]</span></code>.
+The decorator will select the appropriate validator based on file suffix and the validator’s <code class="docutils literal notranslate"><span class="pre">suffixes</span></code> attribute.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@register_loader</span><span class="p">(</span>
+    <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;MySoftware&quot;</span><span class="p">,</span>
+    <span class="n">file_validators</span><span class="o">=</span><span class="p">[</span><span class="n">ValidMySoftwareCSV</span><span class="p">,</span> <span class="n">ValidMySoftwareH5</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_mysoftware_file</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load data from MySoftware files (CSV or HDF5).&quot;&quot;&quot;</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</div>
+</details></section>
+<section id="construct-the-dataset">
+<h5>Construct the dataset<a class="headerlink" href="#construct-the-dataset" title="Link to this heading">#</a></h5>
+<p>After parsing the input file, the loader function should construct the movement dataset using:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../api/movement.io.load_poses.from_numpy.html#movement.io.load_poses.from_numpy" title="movement.io.load_poses.from_numpy"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.load_poses.from_numpy()</span></code></a> for pose tracks.</p></li>
+<li><p><a class="reference internal" href="../api/movement.io.load_bboxes.from_numpy.html#movement.io.load_bboxes.from_numpy" title="movement.io.load_bboxes.from_numpy"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.load_bboxes.from_numpy()</span></code></a> for bounding box tracks.</p></li>
+</ul>
+<p>These helper functions create the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.1.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> object from numpy arrays and metadata, ensuring that the dataset conforms to the <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset specification</span></a>.</p>
+</section>
+</section>
+<section id="update-sourcesoftware-type-alias">
+<h4>Update SourceSoftware type alias<a class="headerlink" href="#update-sourcesoftware-type-alias" title="Link to this heading">#</a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">SourceSoftware</span></code> type alias is defined in <a class="reference internal" href="../api/movement.io.load.html#module-movement.io.load" title="movement.io.load"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load</span></code></a> as a <code class="docutils literal notranslate"><span class="pre">Literal</span></code> containing all supported source software names.
+When adding a new loader, update this type alias to include the new software name to maintain type safety across the codebase:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SourceSoftware</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
+    <span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span>
+    <span class="o">...</span><span class="p">,</span>
+    <span class="s2">&quot;MySoftware&quot;</span><span class="p">,</span>  <span class="c1"># Newly added software</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+</section>
 <section id="continuous-integration">
 <h3>Continuous integration<a class="headerlink" href="#continuous-integration" title="Link to this heading">#</a></h3>
 <p>All pushes and pull requests will be built by <a class="reference external" href="https://docs.github.com/en/actions#">GitHub actions</a>.
@@ -1174,6 +1373,21 @@ verify that the video is correctly linked to the dataset:</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#logging">Logging</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#logging-and-raising-exceptions">Logging and raising exceptions</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-use-print-warnings-warn-logger-warning-and-logger-info">When to use <code class="docutils literal notranslate"><span class="pre">print</span></code>, <code class="docutils literal notranslate"><span class="pre">warnings.warn</span></code>, <code class="docutils literal notranslate"><span class="pre">logger.warning</span></code> and <code class="docutils literal notranslate"><span class="pre">logger.info</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implementing-new-loaders">Implementing new loaders</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#create-file-validators">Create file validators</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#declare-expected-file-suffixes">Declare expected file suffixes</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#normalise-input-file-and-apply-reusable-validators">Normalise input file and apply reusable validators</a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#implement-format-specific-validation">Implement format-specific validation</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#implement-loader-function">Implement loader function</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#decorate-the-loader-with-register-loader">Decorate the loader with <code class="docutils literal notranslate"><span class="pre">@register_loader</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#construct-the-dataset">Construct the dataset</a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-sourcesoftware-type-alias">Update SourceSoftware type alias</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-integration">Continuous integration</a></li>

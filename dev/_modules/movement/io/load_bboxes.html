@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=76c49f71"></script>
+    <script src="../../../_static/documentation_options.js?v=413c151b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev21</p>
+    <p class="title logo__title">movement v0.13.1.dev22</p>
   
 </a></div>
     
@@ -466,14 +466,16 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.io.load</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_loader</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidBboxesInputs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -498,42 +500,42 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    position_array : np.ndarray</span>
+<span class="sd">    position_array</span>
 <span class="sd">        Array of shape (n_frames, n_space, n_individuals)</span>
 <span class="sd">        containing the tracks of the bounding box centroids.</span>
 <span class="sd">        It will be converted to a :class:`xarray.DataArray` object</span>
 <span class="sd">        named &quot;position&quot;.</span>
-<span class="sd">    shape_array : np.ndarray</span>
+<span class="sd">    shape_array</span>
 <span class="sd">        Array of shape (n_frames, n_space, n_individuals)</span>
 <span class="sd">        containing the shape of the bounding boxes. The shape of a bounding</span>
 <span class="sd">        box is its width (extent along the x-axis of the image) and height</span>
 <span class="sd">        (extent along the y-axis of the image). It will be converted to a</span>
 <span class="sd">        :class:`xarray.DataArray` object named &quot;shape&quot;.</span>
-<span class="sd">    confidence_array : np.ndarray, optional</span>
+<span class="sd">    confidence_array</span>
 <span class="sd">        Array of shape (n_frames, n_individuals) containing</span>
 <span class="sd">        the confidence scores of the bounding boxes. If None (default), the</span>
 <span class="sd">        confidence scores are set to an array of NaNs. It will be converted</span>
 <span class="sd">        to a :class:`xarray.DataArray` object named &quot;confidence&quot;.</span>
-<span class="sd">    individual_names : list of str, optional</span>
+<span class="sd">    individual_names</span>
 <span class="sd">        List of individual names for the tracked bounding boxes in the video.</span>
 <span class="sd">        If None (default), bounding boxes are assigned names based on the size</span>
 <span class="sd">        of the ``position_array``. The names will be in the format of</span>
 <span class="sd">        ``id_&lt;N&gt;``, where &lt;N&gt;  is an integer from 0 to</span>
 <span class="sd">        ``position_array.shape[-1]-1`` (i.e., &quot;id_0&quot;, &quot;id_1&quot;...).</span>
-<span class="sd">    frame_array : np.ndarray, optional</span>
+<span class="sd">    frame_array</span>
 <span class="sd">        Array of shape (n_frames, 1) containing the frame numbers for which</span>
 <span class="sd">        bounding boxes are defined. If None (default), frame numbers will</span>
 <span class="sd">        be assigned based on the first dimension of the ``position_array``,</span>
 <span class="sd">        starting from 0. If a specific array of frame numbers is provided,</span>
 <span class="sd">        these need to be integers sorted in increasing order.</span>
-<span class="sd">    fps : float, optional</span>
+<span class="sd">    fps</span>
 <span class="sd">        The video sampling rate. If None (default), the ``time`` coordinates</span>
 <span class="sd">        of the resulting ``movement`` dataset will be in frame numbers. If</span>
 <span class="sd">        ``fps`` is provided, the ``time`` coordinates  will be in seconds. If</span>
 <span class="sd">        the ``time`` coordinates are in seconds, they will indicate the</span>
 <span class="sd">        elapsed time from the capture of the first frame (assumed to be frame</span>
 <span class="sd">        0).</span>
-<span class="sd">    source_software : str, optional</span>
+<span class="sd">    source_software</span>
 <span class="sd">        Name of the software that generated the data. Defaults to None.</span>
 
 <span class="sd">    Returns</span>
@@ -618,7 +620,7 @@
 <div class="viewcode-block" id="from_file">
 <a class="viewcode-back" href="../../../api/movement.io.load_bboxes.from_file.html#movement.io.load_bboxes.from_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span>
-    <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;VIA-tracks&quot;</span><span class="p">],</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">use_frame_numbers_from_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -626,25 +628,30 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` bounding boxes dataset from a supported file.</span>
 
+<span class="sd">    .. deprecated:: 0.14.0</span>
+<span class="sd">        This function is deprecated and will be removed in a future release.</span>
+<span class="sd">        Use :func:`movement.io.load_dataset&lt;movement.io.load.load_dataset&gt;`</span>
+<span class="sd">        instead.</span>
+
 <span class="sd">    At the moment, we only support VIA tracks .csv files.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    file_path : pathlib.Path or str</span>
+<span class="sd">    file</span>
 <span class="sd">        Path to the file containing the tracked bounding boxes. Currently</span>
 <span class="sd">        only VIA tracks .csv files are supported.</span>
-<span class="sd">    source_software : &quot;VIA-tracks&quot;.</span>
+<span class="sd">    source_software</span>
 <span class="sd">        The source software of the file. Currently only files from the</span>
 <span class="sd">        VIA 2.0.12 annotator [1]_ (&quot;VIA-tracks&quot;) are supported.</span>
 <span class="sd">        See .</span>
-<span class="sd">    fps : float, optional</span>
+<span class="sd">    fps</span>
 <span class="sd">        The video sampling rate. If None (default), the ``time`` coordinates</span>
 <span class="sd">        of the resulting ``movement`` dataset will be in frame numbers. If</span>
 <span class="sd">        ``fps`` is provided, the ``time`` coordinates  will be in seconds. If</span>
 <span class="sd">        the ``time`` coordinates are in seconds, they will indicate the</span>
 <span class="sd">        elapsed time from the capture of the first frame (assumed to be frame</span>
 <span class="sd">        0).</span>
-<span class="sd">    use_frame_numbers_from_file : bool, optional</span>
+<span class="sd">    use_frame_numbers_from_file</span>
 <span class="sd">        If True, the frame numbers in the resulting dataset are</span>
 <span class="sd">        the same as the ones specified for each tracked bounding box in the</span>
 <span class="sd">        input file. This may be useful if the bounding boxes are tracked for a</span>
@@ -652,7 +659,7 @@
 <span class="sd">        full video as the time origin. If False (default), the frame numbers</span>
 <span class="sd">        in the VIA tracks .csv file are instead mapped to a 0-based sequence of</span>
 <span class="sd">        consecutive integers.</span>
-<span class="sd">    frame_regexp : str, optional</span>
+<span class="sd">    frame_regexp</span>
 <span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
 <span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
 <span class="sd">        the filename as an integer number led by at least one zero, followed</span>
@@ -688,9 +695,16 @@
 <span class="sd">    &gt;&gt;&gt; )</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">&quot;The function `movement.io.load_bboxes.from_file` is deprecated&quot;</span>
+        <span class="s2">&quot; and will be removed in a future release. &quot;</span>
+        <span class="s2">&quot;Please use `movement.io.load_dataset` instead.&quot;</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">if</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;VIA-tracks&quot;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">from_via_tracks_file</span><span class="p">(</span>
-            <span class="n">file_path</span><span class="p">,</span>
+            <span class="n">file</span><span class="p">,</span>
             <span class="n">fps</span><span class="p">,</span>
             <span class="n">use_frame_numbers_from_file</span><span class="o">=</span><span class="n">use_frame_numbers_from_file</span><span class="p">,</span>
             <span class="n">frame_regexp</span><span class="o">=</span><span class="n">frame_regexp</span><span class="p">,</span>
@@ -704,8 +718,9 @@
 
 <div class="viewcode-block" id="from_via_tracks_file">
 <a class="viewcode-back" href="../../../api/movement.io.load_bboxes.from_via_tracks_file.html#movement.io.load_bboxes.from_via_tracks_file">[docs]</a>
+<span class="nd">@register_loader</span><span class="p">(</span><span class="s2">&quot;VIA-tracks&quot;</span><span class="p">,</span> <span class="n">file_validators</span><span class="o">=</span><span class="p">[</span><span class="n">ValidVIATracksCSV</span><span class="p">])</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_via_tracks_file</span><span class="p">(</span>
-    <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">use_frame_numbers_from_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span><span class="p">,</span>
@@ -714,25 +729,25 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    file_path : pathlib.Path or str</span>
+<span class="sd">    file</span>
 <span class="sd">        Path to the VIA tracks .csv file with the tracked bounding boxes.</span>
 <span class="sd">        For more information on the VIA tracks .csv file format, see the VIA</span>
 <span class="sd">        tutorial for tracking [1]_.</span>
-<span class="sd">    fps : float, optional</span>
+<span class="sd">    fps</span>
 <span class="sd">        The video sampling rate. If None (default), the ``time`` coordinates</span>
 <span class="sd">        of the resulting ``movement`` dataset will be in frame numbers. If</span>
 <span class="sd">        ``fps`` is provided, the ``time`` coordinates  will be in seconds. If</span>
 <span class="sd">        the ``time`` coordinates are in seconds, they will indicate the</span>
 <span class="sd">        elapsed time from the capture of the first frame (assumed to be frame</span>
 <span class="sd">        0).</span>
-<span class="sd">    use_frame_numbers_from_file : bool, optional</span>
+<span class="sd">    use_frame_numbers_from_file</span>
 <span class="sd">        If True, the frame numbers in the resulting dataset are</span>
 <span class="sd">        the same as the ones in the VIA tracks .csv file. This may be useful if</span>
 <span class="sd">        the bounding boxes are tracked for a subset of frames in a video,</span>
 <span class="sd">        but you want to maintain the start of the full video as the time</span>
 <span class="sd">        origin. If False (default), the frame numbers in the VIA tracks .csv</span>
 <span class="sd">        file are instead mapped to a 0-based sequence of consecutive integers.</span>
-<span class="sd">    frame_regexp : str, optional</span>
+<span class="sd">    frame_regexp</span>
 <span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
 <span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
 <span class="sd">        the filename as an integer number led by at least one zero, followed</span>
@@ -805,19 +820,8 @@
 
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># General file validation</span>
-    <span class="n">file</span> <span class="o">=</span> <span class="n">ValidFile</span><span class="p">(</span>
-        <span class="n">file_path</span><span class="p">,</span> <span class="n">expected_permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">expected_suffix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.csv&quot;</span><span class="p">]</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Specific VIA-tracks .csv file validation</span>
-    <span class="n">via_file</span> <span class="o">=</span> <span class="n">ValidVIATracksCSV</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="o">=</span><span class="n">frame_regexp</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validated VIA tracks .csv file </span><span class="si">{</span><span class="n">via_file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Create an xarray.Dataset from the data</span>
-    <span class="n">bboxes_arrays</span> <span class="o">=</span> <span class="n">_numpy_arrays_from_via_tracks_file</span><span class="p">(</span>
-        <span class="n">via_file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">via_file</span><span class="o">.</span><span class="n">frame_regexp</span>
-    <span class="p">)</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;ValidFile&quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">file</span>
+    <span class="n">bboxes_arrays</span> <span class="o">=</span> <span class="n">_numpy_arrays_from_via_tracks_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">)</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">from_numpy</span><span class="p">(</span>
         <span class="n">position_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;position_array&quot;</span><span class="p">],</span>
         <span class="n">shape_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;shape_array&quot;</span><span class="p">],</span>
@@ -833,18 +837,16 @@
         <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
         <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;VIA-tracks&quot;</span><span class="p">,</span>
     <span class="p">)</span>  <span class="c1"># it validates the dataset via ValidBboxesInputs</span>
-
     <span class="c1"># Add metadata as attributes</span>
     <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source_software&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;VIA-tracks&quot;</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded bounding boxes tracks from </span><span class="si">{</span><span class="n">via_file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">ds</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded bounding boxes tracks from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">ds</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ds</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_numpy_arrays_from_via_tracks_file</span><span class="p">(</span>
-    <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract numpy arrays from the input VIA tracks .csv file.</span>
 
@@ -865,10 +867,10 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    file_path : pathlib.Path</span>
+<span class="sd">    file</span>
 <span class="sd">        Path to the VIA tracks .csv file containing the bounding box tracks.</span>
 
-<span class="sd">    frame_regexp : str</span>
+<span class="sd">    frame_regexp</span>
 <span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
 <span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
 <span class="sd">        the filename as an integer number led by at least one zero, followed</span>
@@ -883,7 +885,7 @@
     <span class="c1"># Extract 2D dataframe from input data</span>
     <span class="c1"># (sort data by ID and frame number, and</span>
     <span class="c1"># fill empty frame-ID pairs with nans)</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">_df_from_via_tracks_file</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_df_from_via_tracks_file</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">)</span>
 
     <span class="c1"># Compute indices of the rows where the IDs switch</span>
     <span class="n">bool_id_diff_from_prev</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">ne</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">())</span>  <span class="c1"># pandas series</span>
@@ -922,7 +924,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_df_from_via_tracks_file</span><span class="p">(</span>
-    <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Load VIA tracks .csv file as a dataframe.</span>
 
@@ -945,7 +947,7 @@
 <span class="sd">    file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Read VIA tracks .csv file as a pandas dataframe</span>
-    <span class="n">df_file</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">df_file</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># Format to a 2D dataframe</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
@@ -995,7 +997,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">    df</span>
 <span class="sd">        The VIA tracks input dataframe is the one obtained from</span>
 <span class="sd">        ``df = pd.read_csv(file_path, sep=&quot;,&quot;, header=0)``.</span>
 
@@ -1028,11 +1030,11 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">    df</span>
 <span class="sd">        The VIA tracks input dataframe is the one obtained from</span>
 <span class="sd">        ``df = pd.read_csv(file_path, sep=&quot;,&quot;, header=0)``.</span>
 
-<span class="sd">    frame_regexp : str</span>
+<span class="sd">    frame_regexp</span>
 <span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
 <span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
 <span class="sd">        the filename as an integer number led by at least one zero, followed by</span>
@@ -1086,15 +1088,15 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    df : pd.DataFrame</span>
+<span class="sd">    df</span>
 <span class="sd">        The pandas DataFrame containing the data from the VIA tracks .csv file.</span>
 <span class="sd">        This is the dataframe obtained from running</span>
 <span class="sd">        ``df = pd.read_csv(file_path, sep=&quot;,&quot;, header=0)``.</span>
-<span class="sd">    via_column_name : str</span>
+<span class="sd">    via_column_name</span>
 <span class="sd">        The name of a column in the VIA tracks .csv file whose values are</span>
 <span class="sd">        literal dictionaries (i.e. ``file_attributes``,</span>
 <span class="sd">        ``region_shape_attributes`` or ``region_attributes``).</span>
-<span class="sd">    list_keys : list[str]</span>
+<span class="sd">    list_keys</span>
 <span class="sd">        The list of keys whose values we want to extract from the literal</span>
 <span class="sd">        dictionaries in the ``via_column_name`` column.</span>
 <span class="sd">    cast_fn : type, optional</span>

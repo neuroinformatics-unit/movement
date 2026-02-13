@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=76c49f71"></script>
+    <script src="../_static/documentation_options.js?v=413c151b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -62,7 +62,7 @@
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ValidFile" href="movement.validators.files.ValidFile.html" />
+    <link rel="next" title="ValidDeepLabCutH5" href="movement.validators.files.ValidDeepLabCutH5.html" />
     <link rel="prev" title="ValidAniposeCSV" href="movement.validators.files.ValidAniposeCSV.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev21</p>
+    <p class="title logo__title">movement v0.13.1.dev22</p>
   
 </a></div>
     
@@ -425,6 +425,13 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.savgol_filter.html">savgol_filter</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load.html">movement.io.load</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.LoaderProtocol.html">LoaderProtocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_dataset.html">load_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_multiview_dataset.html">load_multiview_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.register_loader.html">register_loader</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load_bboxes.html">movement.io.load_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_file.html">from_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_numpy.html">from_numpy</a></li>
@@ -548,10 +555,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.validators.files.html">movement.validators.files</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidAniposeCSV.html">ValidAniposeCSV</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">ValidDeepLabCutCSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutH5.html">ValidDeepLabCutH5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidFile.html">ValidFile</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidHDF5.html">ValidHDF5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidNWBFile.html">ValidNWBFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapAnalysis.html">ValidSleapAnalysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapLabels.html">ValidSleapLabels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidVIATracksCSV.html">ValidVIATracksCSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.validate_file_path.html">validate_file_path</a></li>
 </ul>
 </details></li>
 </ul>
@@ -620,31 +630,21 @@
 <h1>ValidDeepLabCutCSV<a class="headerlink" href="#validdeeplabcutcsv" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.validators.files.ValidDeepLabCutCSV">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">movement.validators.files.</span></span><span class="sig-name descname"><span class="pre">ValidDeepLabCutCSV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/files.html#ValidDeepLabCutCSV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.files.ValidDeepLabCutCSV" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">movement.validators.files.</span></span><span class="sig-name descname"><span class="pre">ValidDeepLabCutCSV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/files.html#ValidDeepLabCutCSV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.files.ValidDeepLabCutCSV" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class for validating DeepLabCut-style .csv files.</p>
 <p>The validator ensures that the file contains the
 expected index column levels.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.files.ValidDeepLabCutCSV.path">
-<span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#movement.validators.files.ValidDeepLabCutCSV.path" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="movement.validators.files.ValidDeepLabCutCSV.file">
+<span class="sig-name descname"><span class="pre">file</span></span><a class="headerlink" href="#movement.validators.files.ValidDeepLabCutCSV.file" title="Link to this definition">#</a></dt>
 <dd><p>Path to the .csv file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)">pathlib.Path</a></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.validators.files.ValidDeepLabCutCSV.level_names">
 <span class="sig-name descname"><span class="pre">level_names</span></span><a class="headerlink" href="#movement.validators.files.ValidDeepLabCutCSV.level_names" title="Link to this definition">#</a></dt>
 <dd><p>Names of the index column levels found in the .csv file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="field-list simple">
@@ -680,11 +680,11 @@ expected index column levels.</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.validators.files.ValidFile.html"
+       href="movement.validators.files.ValidDeepLabCutH5.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">ValidFile</p>
+        <p class="prev-next-title">ValidDeepLabCutH5</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -708,7 +708,7 @@ expected index column levels.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidDeepLabCutCSV"><code class="docutils literal notranslate"><span class="pre">ValidDeepLabCutCSV</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidDeepLabCutCSV.path"><code class="docutils literal notranslate"><span class="pre">ValidDeepLabCutCSV.path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidDeepLabCutCSV.file"><code class="docutils literal notranslate"><span class="pre">ValidDeepLabCutCSV.file</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidDeepLabCutCSV.level_names"><code class="docutils literal notranslate"><span class="pre">ValidDeepLabCutCSV.level_names</span></code></a></li>
 </ul>
 </li>

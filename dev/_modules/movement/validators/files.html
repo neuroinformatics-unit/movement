@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=76c49f71"></script>
+    <script src="../../../_static/documentation_options.js?v=413c151b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev21</p>
+    <p class="title logo__title">movement v0.13.1.dev22</p>
   
 </a></div>
     
@@ -467,12 +467,13 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Protocol</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">define</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">validators</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">define</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">validators</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pynwb</span><span class="w"> </span><span class="kn">import</span> <span class="n">NWBFile</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
@@ -482,9 +483,26 @@
 
 <div class="viewcode-block" id="ValidFile">
 <a class="viewcode-back" href="../../../api/movement.validators.files.ValidFile.html#movement.validators.files.ValidFile">[docs]</a>
-<span class="nd">@define</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">ValidFile</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating file paths.</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidFile</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for file validation classes.&quot;&quot;&quot;</span>
+
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expected suffix(es) for the file.&quot;&quot;&quot;</span>
+
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">NWBFile</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Path to the file to validate or an NWBFile object.&quot;&quot;&quot;</span></div>
+
+
+
+<span class="c1"># --- Composable attrs validators --- #</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_file_validator</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">permission</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;rw&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span>
+    <span class="n">suffixes</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a validator that composes file checks.</span>
 
 <span class="sd">    The validator ensures that the file:</span>
 
@@ -494,191 +512,143 @@
 <span class="sd">    - has the expected access permission(s), and</span>
 <span class="sd">    - has one of the expected suffix(es).</span>
 
-<span class="sd">    Attributes</span>
+<span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    path : str or pathlib.Path</span>
-<span class="sd">        Path to the file.</span>
-<span class="sd">    expected_permission : {&quot;r&quot;, &quot;w&quot;, &quot;rw&quot;}</span>
+<span class="sd">    permission</span>
 <span class="sd">        Expected access permission(s) for the file. If &quot;r&quot;, the file is</span>
 <span class="sd">        expected to be readable. If &quot;w&quot;, the file is expected to be writable.</span>
 <span class="sd">        If &quot;rw&quot;, the file is expected to be both readable and writable.</span>
-<span class="sd">        Default: &quot;r&quot;.</span>
-<span class="sd">    expected_suffix : list of str</span>
-<span class="sd">        Expected suffix(es) for the file. If an empty list (default), this</span>
-<span class="sd">        check is skipped.</span>
+<span class="sd">        Default is &quot;r&quot;.</span>
+<span class="sd">    suffixes</span>
+<span class="sd">        Expected suffix(es) for the file.</span>
+<span class="sd">        If None (default), this check is skipped.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If the value is not a :class:`pathlib.Path` object.</span>
 <span class="sd">    IsADirectoryError</span>
-<span class="sd">        If the path points to a directory.</span>
+<span class="sd">        If the file points to a directory.</span>
 <span class="sd">    PermissionError</span>
-<span class="sd">        If the file does not have the expected access permission(s).</span>
+<span class="sd">        If the expected access permission(s) are not met.</span>
 <span class="sd">    FileNotFoundError</span>
-<span class="sd">        If the file does not exist when ``expected_permission`` is &quot;r&quot; or &quot;rw&quot;.</span>
+<span class="sd">        If the file does not exist when ``permission`` is &quot;r&quot; or &quot;rw&quot;.</span>
 <span class="sd">    FileExistsError</span>
-<span class="sd">        If the file exists when ``expected_permission`` is &quot;w&quot;.</span>
+<span class="sd">        If the file exists when ``permission`` is &quot;w&quot;.</span>
 <span class="sd">    ValueError</span>
 <span class="sd">        If the file does not have one of the expected suffix(es).</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">Path</span><span class="p">),</span>
+        <span class="n">_file_is_not_dir</span><span class="p">,</span>
+        <span class="n">_file_is_accessible</span><span class="p">(</span><span class="n">permission</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">suffixes</span><span class="p">:</span>
+        <span class="n">v</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_file_has_expected_suffix</span><span class="p">(</span><span class="n">suffixes</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">validators</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span><span class="o">*</span><span class="n">v</span><span class="p">)</span>
 
-    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">Path</span><span class="p">))</span>
-    <span class="n">expected_permission</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;rw&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">in_</span><span class="p">([</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;rw&quot;</span><span class="p">]),</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">)</span>
-    <span class="n">expected_suffix</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_path_is_not_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the path does not point to a directory.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="ne">IsADirectoryError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Expected a file path but got a directory: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">.&quot;</span>
-                <span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_file_is_not_dir</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure the file does not point to a directory.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">IsADirectoryError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Expected a file path but got a directory: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
+        <span class="p">)</span>
 
-    <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_file_exists_when_expected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the file exists (or not) as needed.</span>
 
-<span class="sd">        This depends on the expected usage (read and/or write).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;r&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_permission</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">)</span>
-                <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># expected_permission is &quot;w&quot;</span>
-            <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="ne">FileExistsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> already exists.&quot;</span><span class="p">)</span>
-                <span class="p">)</span>
-
-    <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_file_has_access_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the file has the expected access permission(s).</span>
-
-<span class="sd">        Raises a PermissionError if not.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">file_is_readable</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">)</span>
-        <span class="n">parent_is_writeable</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;r&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_permission</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">file_is_readable</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="ne">PermissionError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Unable to read file: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">. &quot;</span>
-                    <span class="s2">&quot;Make sure that you have read permissions.&quot;</span>
-                <span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_file_is_readable</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure the file exists and is readable.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> does not exist.&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">R_OK</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">PermissionError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unable to read file: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Make sure that you have read permissions.&quot;</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;w&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_permission</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">parent_is_writeable</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="ne">PermissionError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Unable to write to file: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">. &quot;</span>
-                    <span class="s2">&quot;Make sure that you have write permissions.&quot;</span>
-                <span class="p">)</span>
-            <span class="p">)</span>
+        <span class="p">)</span>
 
-    <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_file_has_expected_suffix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the file has one of the expected suffix(es).&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_suffix</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_suffix</span><span class="p">:</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_file_is_writable</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure the file does not exist and parent directory is writable.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="ne">FileExistsError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> already exists.&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">W_OK</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">PermissionError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unable to write to file: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="s2">&quot;Make sure that you have write permissions.&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_file_is_accessible</span><span class="p">(</span>
+    <span class="n">expected_permission</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;rw&quot;</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure the file can be accessed with the expected permission(s).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">expected_permission</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;rw&quot;</span><span class="p">}:</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;expected_permission must be one of &#39;r&#39;, &#39;w&#39;, or &#39;rw&#39;, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;but got &#39;</span><span class="si">{</span><span class="n">expected_permission</span><span class="si">}</span><span class="s2">&#39; instead.&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validator</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;r&quot;</span> <span class="ow">in</span> <span class="n">expected_permission</span><span class="p">:</span>
+            <span class="n">_file_is_readable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;w&quot;</span> <span class="ow">in</span> <span class="n">expected_permission</span><span class="p">:</span>
+            <span class="n">_file_is_writable</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_validator</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_file_has_expected_suffix</span><span class="p">(</span>
+    <span class="n">suffixes</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure the file has one of the expected suffix(es).&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validator</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">suffix</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">suffixes</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Expected file with suffix(es) </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_suffix</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Expected file with suffix(es) </span><span class="si">{</span><span class="n">suffixes</span><span class="si">}</span><span class="s2"> &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;but got suffix </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2"> instead.&quot;</span>
                 <span class="p">)</span>
-            <span class="p">)</span></div>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_validator</span>
 
 
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_validate_file_path</span><span class="p">(</span>
-    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">expected_suffix</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ValidFile</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate the input file path.</span>
-
-<span class="sd">    We check that the file has write permission and the expected suffix(es).</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    file_path : pathlib.Path or str</span>
-<span class="sd">        Path to the file to validate.</span>
-<span class="sd">    expected_suffix : list of str</span>
-<span class="sd">        Expected suffix(es) for the file.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    ValidFile</span>
-<span class="sd">        The validated file.</span>
-
-<span class="sd">    Raises</span>
-<span class="sd">    ------</span>
-<span class="sd">    OSError</span>
-<span class="sd">        If the file cannot be written.</span>
-<span class="sd">    ValueError</span>
-<span class="sd">        If the file does not have the expected suffix.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">file</span> <span class="o">=</span> <span class="n">ValidFile</span><span class="p">(</span>
-            <span class="n">file_path</span><span class="p">,</span>
-            <span class="n">expected_permission</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span>
-            <span class="n">expected_suffix</span><span class="o">=</span><span class="n">expected_suffix</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
-        <span class="k">raise</span>
-    <span class="k">return</span> <span class="n">file</span>
-
-
-<div class="viewcode-block" id="ValidHDF5">
-<a class="viewcode-back" href="../../../api/movement.validators.files.ValidHDF5.html#movement.validators.files.ValidHDF5">[docs]</a>
-<span class="nd">@define</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">ValidHDF5</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating HDF5 files.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_hdf5_validator</span><span class="p">(</span>
+    <span class="n">datasets</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a validator for HDF5 files.</span>
 
 <span class="sd">    The validator ensures that the file:</span>
 
 <span class="sd">    - is in HDF5 format, and</span>
 <span class="sd">    - contains the expected datasets.</span>
 
-<span class="sd">    Attributes</span>
+<span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    path : pathlib.Path</span>
-<span class="sd">        Path to the HDF5 file.</span>
-<span class="sd">    expected_datasets : list of str or None</span>
-<span class="sd">        List of names of the expected datasets in the HDF5 file. If an empty</span>
-<span class="sd">        list (default), this check is skipped.</span>
+<span class="sd">    datasets</span>
+<span class="sd">        Set of names of the expected datasets in the HDF5 file.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        If the file is not in HDF5 format or if it does not contain the</span>
-<span class="sd">        expected datasets.</span>
+<span class="sd">        If the HDF5 group does not contain the expected datasets.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">Path</span><span class="p">))</span>
-    <span class="n">expected_datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_file_is_h5</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the file is indeed in HDF5 format.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validator</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">__</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;File </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> does not seem to be in validHDF5 format.&quot;</span>
-                <span class="p">)</span>
-            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-
-    <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_expected_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the HDF5 file contains the expected datasets.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">expected_datasets</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">diff</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">expected_datasets</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+                <span class="n">diff</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                         <span class="ne">ValueError</span><span class="p">(</span>
@@ -686,7 +656,160 @@
                             <span class="sa">f</span><span class="s2">&quot;in file: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">. Make sure that the file &quot;</span>
                             <span class="s2">&quot;matches the expected source software format.&quot;</span>
                         <span class="p">)</span>
-                    <span class="p">)</span></div>
+                    <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Could not open file as HDF5: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Make sure that the file is a valid HDF5 file. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+    <span class="k">return</span> <span class="n">_validator</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_if_instance_of</span><span class="p">(</span>
+    <span class="bp">cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span> <span class="n">validator</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a validator that conditionally applies based on type.</span>
+
+<span class="sd">    Use this to apply a validator only when the value is an instance</span>
+<span class="sd">    of a specific class. Useful for fields that accept union types.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cls</span>
+<span class="sd">        The class type to check against.</span>
+<span class="sd">    validator</span>
+<span class="sd">        The validator to apply if the value is an instance of ``cls``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Callable</span>
+<span class="sd">        A validator function that conditionally applies the given</span>
+<span class="sd">        validator.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validator</span><span class="p">(</span><span class="n">instance</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">attribute</span><span class="p">:</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">cls</span><span class="p">):</span>
+            <span class="n">validator</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_validator</span>
+
+
+<span class="c1"># --- Helper functions --- #</span>
+
+
+<div class="viewcode-block" id="validate_file_path">
+<a class="viewcode-back" href="../../../api/movement.validators.files.validate_file_path.html#movement.validators.files.validate_file_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_file_path</span><span class="p">(</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">permission</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;rw&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span>
+    <span class="n">suffixes</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate the file has the expected permission(s) and suffix(es).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file</span>
+<span class="sd">        Path to the file to validate.</span>
+<span class="sd">    permission</span>
+<span class="sd">        Expected access permission(s) for the file. If &quot;r&quot;, the file is</span>
+<span class="sd">        expected to be readable. If &quot;w&quot;, the file is expected to be writable.</span>
+<span class="sd">        If &quot;rw&quot;, the file is expected to be both readable and writable.</span>
+<span class="sd">        Default is &quot;r&quot;.</span>
+<span class="sd">    suffixes</span>
+<span class="sd">        Expected suffix(es) for the file. If None (default),</span>
+<span class="sd">        this check is skipped.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        The validated file path.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    OSError</span>
+<span class="sd">        If the file does not meet the expected access ``permission`` or</span>
+<span class="sd">        if it is a directory.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the file does not have one of the expected ``suffixes`` or</span>
+<span class="sd">        if the ``permission`` argument is invalid.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+
+        <span class="nd">@define</span>
+        <span class="k">class</span><span class="w"> </span><span class="nc">_TempValidator</span><span class="p">:</span>
+            <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+                <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+                <span class="n">validator</span><span class="o">=</span><span class="n">_file_validator</span><span class="p">(</span>
+                    <span class="n">permission</span><span class="o">=</span><span class="n">permission</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span>
+                <span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="n">validator</span> <span class="o">=</span> <span class="n">_TempValidator</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">validator</span><span class="o">.</span><span class="n">file</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+        <span class="k">raise</span></div>
+
+
+
+<span class="c1"># --- File validator classes --- #</span>
+
+
+<div class="viewcode-block" id="ValidSleapAnalysis">
+<a class="viewcode-back" href="../../../api/movement.validators.files.ValidSleapAnalysis.html#movement.validators.files.ValidSleapAnalysis">[docs]</a>
+<span class="nd">@define</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidSleapAnalysis</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating SLEAP analysis (.h5) files.&quot;&quot;&quot;</span>
+
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.h5&quot;</span><span class="p">}</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
+            <span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
+            <span class="n">_hdf5_validator</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;tracks&quot;</span><span class="p">}),</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ValidSleapLabels">
+<a class="viewcode-back" href="../../../api/movement.validators.files.ValidSleapLabels.html#movement.validators.files.ValidSleapLabels">[docs]</a>
+<span class="nd">@define</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidSleapLabels</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating SLEAP labels (.slp) files.&quot;&quot;&quot;</span>
+
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.slp&quot;</span><span class="p">}</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
+            <span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
+            <span class="n">_hdf5_validator</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;pred_points&quot;</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">}),</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ValidDeepLabCutH5">
+<a class="viewcode-back" href="../../../api/movement.validators.files.ValidDeepLabCutH5.html#movement.validators.files.ValidDeepLabCutH5">[docs]</a>
+<span class="nd">@define</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidDeepLabCutH5</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating DeepLabCut-style .h5 files.&quot;&quot;&quot;</span>
+
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.h5&quot;</span><span class="p">}</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
+            <span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
+            <span class="n">_hdf5_validator</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;df_with_missing&quot;</span><span class="p">}),</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
 
 
 
@@ -701,9 +824,9 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    path : pathlib.Path</span>
+<span class="sd">    file</span>
 <span class="sd">        Path to the .csv file.</span>
-<span class="sd">    level_names : list of str</span>
+<span class="sd">    level_names</span>
 <span class="sd">        Names of the index column levels found in the .csv file.</span>
 
 <span class="sd">    Raises</span>
@@ -714,10 +837,14 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">Path</span><span class="p">))</span>
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.csv&quot;</span><span class="p">}</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
+    <span class="p">)</span>
     <span class="n">level_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
 
-    <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
+    <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_expected_levels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the .csv file contains the expected index column levels.</span>
 
@@ -753,7 +880,7 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    path : pathlib.Path</span>
+<span class="sd">    file</span>
 <span class="sd">        Path to the .csv file.</span>
 
 <span class="sd">    Raises</span>
@@ -763,9 +890,13 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">Path</span><span class="p">))</span>
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.csv&quot;</span><span class="p">}</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
+    <span class="p">)</span>
 
-    <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
+    <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_expected_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the .csv file contains the expected columns.&quot;&quot;&quot;</span>
         <span class="n">expected_column_suffixes</span> <span class="o">=</span> <span class="p">[</span>
@@ -851,9 +982,9 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    path : pathlib.Path</span>
+<span class="sd">    file</span>
 <span class="sd">        Path to the VIA tracks .csv file.</span>
-<span class="sd">    frame_regexp : str</span>
+<span class="sd">    frame_regexp</span>
 <span class="sd">        Regular expression pattern to extract the frame number from the</span>
 <span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
 <span class="sd">        the filename as an integer number led by at least one zero, followed</span>
@@ -866,10 +997,14 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">Path</span><span class="p">))</span>
-    <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span>
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.csv&quot;</span><span class="p">}</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_FRAME_REGEXP</span><span class="p">)</span>
 
-    <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
+    <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_valid_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure the VIA tracks .csv file contains the expected header.&quot;&quot;&quot;</span>
         <span class="n">expected_header</span> <span class="o">=</span> <span class="p">[</span>
@@ -894,7 +1029,7 @@
                     <span class="p">)</span>
                 <span class="p">)</span>
 
-    <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
+    <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_valid_frame_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the VIA tracks .csv file contains valid frame numbers.</span>
 
@@ -1001,7 +1136,7 @@
 
         <span class="k">return</span> <span class="n">list_frame_numbers</span>
 
-    <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
+    <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_tracked_bboxes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the VIA tracks .csv contains tracked bounding boxes.</span>
 
@@ -1072,7 +1207,7 @@
                     <span class="p">)</span>
                 <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
-    <span class="nd">@path</span><span class="o">.</span><span class="n">validator</span>
+    <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_unique_track_ids_per_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure the VIA tracks .csv contains unique track IDs per filename.</span>
 
@@ -1116,22 +1251,23 @@
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    file : str | Path | pynwb.file.NWBFile</span>
+<span class="sd">    file</span>
 <span class="sd">        Path to the NWB file on disk (ending in &quot;.nwb&quot;),</span>
 <span class="sd">        or an NWBFile object.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">NWBFile</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.nwb&quot;</span><span class="p">}</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">NWBFile</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">converter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="k">else</span> <span class="n">f</span><span class="p">,</span>
-        <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">((</span><span class="n">Path</span><span class="p">,</span> <span class="n">NWBFile</span><span class="p">)),</span>
-    <span class="p">)</span>
-
-    <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_file_is_valid_nwb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure the file path has read permission and .nwb suffix.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Path</span><span class="p">):</span>
-            <span class="n">ValidFile</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">expected_permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">expected_suffix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.nwb&quot;</span><span class="p">])</span></div>
+        <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
+            <span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">((</span><span class="n">Path</span><span class="p">,</span> <span class="n">NWBFile</span><span class="p">)),</span>
+            <span class="n">_if_instance_of</span><span class="p">(</span>
+                <span class="n">Path</span><span class="p">,</span>
+                <span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span></div>
 
 </pre></div>
 <div class="section ablog__blog_comments">

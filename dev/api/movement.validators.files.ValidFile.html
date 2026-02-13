@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=76c49f71"></script>
+    <script src="../_static/documentation_options.js?v=413c151b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -62,8 +62,8 @@
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ValidHDF5" href="movement.validators.files.ValidHDF5.html" />
-    <link rel="prev" title="ValidDeepLabCutCSV" href="movement.validators.files.ValidDeepLabCutCSV.html" /> 
+    <link rel="next" title="ValidNWBFile" href="movement.validators.files.ValidNWBFile.html" />
+    <link rel="prev" title="ValidDeepLabCutH5" href="movement.validators.files.ValidDeepLabCutH5.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />   
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev21</p>
+    <p class="title logo__title">movement v0.13.1.dev22</p>
   
 </a></div>
     
@@ -425,6 +425,13 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.savgol_filter.html">savgol_filter</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load.html">movement.io.load</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.LoaderProtocol.html">LoaderProtocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_dataset.html">load_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_multiview_dataset.html">load_multiview_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.register_loader.html">register_loader</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load_bboxes.html">movement.io.load_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_file.html">from_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_numpy.html">from_numpy</a></li>
@@ -548,10 +555,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.validators.files.html">movement.validators.files</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidAniposeCSV.html">ValidAniposeCSV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutCSV.html">ValidDeepLabCutCSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutH5.html">ValidDeepLabCutH5</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">ValidFile</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidHDF5.html">ValidHDF5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidNWBFile.html">ValidNWBFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapAnalysis.html">ValidSleapAnalysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapLabels.html">ValidSleapLabels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidVIATracksCSV.html">ValidVIATracksCSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.validate_file_path.html">validate_file_path</a></li>
 </ul>
 </details></li>
 </ul>
@@ -620,65 +630,21 @@
 <h1>ValidFile<a class="headerlink" href="#validfile" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.validators.files.ValidFile">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">movement.validators.files.</span></span><span class="sig-name descname"><span class="pre">ValidFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_permission</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/files.html#ValidFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.files.ValidFile" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Class for validating file paths.</p>
-<p>The validator ensures that the file:</p>
-<ul class="simple">
-<li><p>is not a directory,</p></li>
-<li><p>exists if it is meant to be read,</p></li>
-<li><p>does not exist if it is meant to be written,</p></li>
-<li><p>has the expected access permission(s), and</p></li>
-<li><p>has one of the expected suffix(es).</p></li>
-</ul>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">movement.validators.files.</span></span><span class="sig-name descname"><span class="pre">ValidFile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/files.html#ValidFile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.files.ValidFile" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></a></p>
+<p>Protocol for file validation classes.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.files.ValidFile.path">
-<span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#movement.validators.files.ValidFile.path" title="Link to this definition">#</a></dt>
-<dd><p>Path to the file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> or <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)">pathlib.Path</a></p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="movement.validators.files.ValidFile.file">
+<span class="sig-name descname"><span class="pre">file</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.2)"><span class="pre">NWBFile</span></a></span><a class="headerlink" href="#movement.validators.files.ValidFile.file" title="Link to this definition">#</a></dt>
+<dd><p>Path to the file to validate or an NWBFile object.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.files.ValidFile.expected_permission">
-<span class="sig-name descname"><span class="pre">expected_permission</span></span><a class="headerlink" href="#movement.validators.files.ValidFile.expected_permission" title="Link to this definition">#</a></dt>
-<dd><p>Expected access permission(s) for the file. If “r”, the file is
-expected to be readable. If “w”, the file is expected to be writable.
-If “rw”, the file is expected to be both readable and writable.
-Default: “r”.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>{“r”, “w”, “rw”}</p>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="movement.validators.files.ValidFile.suffixes">
+<span class="sig-name descname"><span class="pre">suffixes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ClassVar" title="(in Python v3.14)"><span class="pre">ClassVar</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.validators.files.ValidFile.suffixes" title="Link to this definition">#</a></dt>
+<dd><p>Expected suffix(es) for the file.</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.files.ValidFile.expected_suffix">
-<span class="sig-name descname"><span class="pre">expected_suffix</span></span><a class="headerlink" href="#movement.validators.files.ValidFile.expected_suffix" title="Link to this definition">#</a></dt>
-<dd><p>Expected suffix(es) for the file. If an empty list (default), this
-check is skipped.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#IsADirectoryError" title="(in Python v3.14)"><strong>IsADirectoryError</strong></a> – If the path points to a directory.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#PermissionError" title="(in Python v3.14)"><strong>PermissionError</strong></a> – If the file does not have the expected access permission(s).</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#FileNotFoundError" title="(in Python v3.14)"><strong>FileNotFoundError</strong></a> – If the file does not exist when <code class="docutils literal notranslate"><span class="pre">expected_permission</span></code> is “r” or “rw”.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#FileExistsError" title="(in Python v3.14)"><strong>FileExistsError</strong></a> – If the file exists when <code class="docutils literal notranslate"><span class="pre">expected_permission</span></code> is “w”.</p></li>
-<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the file does not have one of the expected suffix(es).</p></li>
-</ul>
-</dd>
-</dl>
 </dd></dl>
 
 </section>
@@ -697,20 +663,20 @@ check is skipped.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.validators.files.ValidDeepLabCutCSV.html"
+       href="movement.validators.files.ValidDeepLabCutH5.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">ValidDeepLabCutCSV</p>
+        <p class="prev-next-title">ValidDeepLabCutH5</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.validators.files.ValidHDF5.html"
+       href="movement.validators.files.ValidNWBFile.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">ValidHDF5</p>
+        <p class="prev-next-title">ValidNWBFile</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -734,9 +700,8 @@ check is skipped.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidFile"><code class="docutils literal notranslate"><span class="pre">ValidFile</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidFile.path"><code class="docutils literal notranslate"><span class="pre">ValidFile.path</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidFile.expected_permission"><code class="docutils literal notranslate"><span class="pre">ValidFile.expected_permission</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidFile.expected_suffix"><code class="docutils literal notranslate"><span class="pre">ValidFile.expected_suffix</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidFile.file"><code class="docutils literal notranslate"><span class="pre">ValidFile.file</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidFile.suffixes"><code class="docutils literal notranslate"><span class="pre">ValidFile.suffixes</span></code></a></li>
 </ul>
 </li>
 </ul>

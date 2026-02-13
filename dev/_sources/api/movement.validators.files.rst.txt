@@ -18,14 +18,28 @@
     
     ValidDeepLabCutCSV
     
+    ValidDeepLabCutH5
+    
     ValidFile
     
-    ValidHDF5
-    
     ValidNWBFile
+    
+    ValidSleapAnalysis
+    
+    ValidSleapLabels
     
     ValidVIATracksCSV
     
 
 
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    validate_file_path
+    
 

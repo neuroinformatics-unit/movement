@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>ValidHDF5 &#8212; movement</title>
+    <title>ValidSleapLabels &#8212; movement</title>
   
   
   
@@ -44,12 +44,12 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=76c49f71"></script>
+    <script src="../_static/documentation_options.js?v=413c151b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.validators.files.ValidHDF5';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.validators.files.ValidSleapLabels';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
@@ -58,12 +58,12 @@
             false;
         </script>
     <script src="../_static/js/contributors.js?v=4c153e30"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.validators.files.ValidHDF5.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.validators.files.ValidSleapLabels.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ValidNWBFile" href="movement.validators.files.ValidNWBFile.html" />
-    <link rel="prev" title="ValidFile" href="movement.validators.files.ValidFile.html" /> 
+    <link rel="next" title="ValidVIATracksCSV" href="movement.validators.files.ValidVIATracksCSV.html" />
+    <link rel="prev" title="ValidSleapAnalysis" href="movement.validators.files.ValidSleapAnalysis.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />   
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev21</p>
+    <p class="title logo__title">movement v0.13.1.dev22</p>
   
 </a></div>
     
@@ -425,6 +425,13 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.savgol_filter.html">savgol_filter</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load.html">movement.io.load</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.LoaderProtocol.html">LoaderProtocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_dataset.html">load_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_multiview_dataset.html">load_multiview_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.register_loader.html">register_loader</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load_bboxes.html">movement.io.load_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_file.html">from_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_numpy.html">from_numpy</a></li>
@@ -548,10 +555,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.validators.files.html">movement.validators.files</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidAniposeCSV.html">ValidAniposeCSV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutCSV.html">ValidDeepLabCutCSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutH5.html">ValidDeepLabCutH5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidFile.html">ValidFile</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">ValidHDF5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidNWBFile.html">ValidNWBFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapAnalysis.html">ValidSleapAnalysis</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">ValidSleapLabels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidVIATracksCSV.html">ValidVIATracksCSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.validate_file_path.html">validate_file_path</a></li>
 </ul>
 </details></li>
 </ul>
@@ -600,7 +610,7 @@
     
     <li class="breadcrumb-item"><a href="movement.validators.files.html" class="nav-link">movement.validators.files</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ValidHDF5</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ValidSleapLabels</span></li>
   </ul>
 </nav>
 </div>
@@ -616,47 +626,13 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="validhdf5">
-<h1>ValidHDF5<a class="headerlink" href="#validhdf5" title="Link to this heading">#</a></h1>
+                   <section id="validsleaplabels">
+<h1>ValidSleapLabels<a class="headerlink" href="#validsleaplabels" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="movement.validators.files.ValidHDF5">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">movement.validators.files.</span></span><span class="sig-name descname"><span class="pre">ValidHDF5</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">expected_datasets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/files.html#ValidHDF5"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.files.ValidHDF5" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="movement.validators.files.ValidSleapLabels">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">movement.validators.files.</span></span><span class="sig-name descname"><span class="pre">ValidSleapLabels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/files.html#ValidSleapLabels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.files.ValidSleapLabels" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Class for validating HDF5 files.</p>
-<p>The validator ensures that the file:</p>
-<ul class="simple">
-<li><p>is in HDF5 format, and</p></li>
-<li><p>contains the expected datasets.</p></li>
-</ul>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.files.ValidHDF5.path">
-<span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#movement.validators.files.ValidHDF5.path" title="Link to this definition">#</a></dt>
-<dd><p>Path to the HDF5 file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)">pathlib.Path</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.files.ValidHDF5.expected_datasets">
-<span class="sig-name descname"><span class="pre">expected_datasets</span></span><a class="headerlink" href="#movement.validators.files.ValidHDF5.expected_datasets" title="Link to this definition">#</a></dt>
-<dd><p>List of names of the expected datasets in the HDF5 file. If an empty
-list (default), this check is skipped.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> or None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the file is not in HDF5 format or if it does not contain the
-    expected datasets.</p>
-</dd>
-</dl>
+<p>Class for validating SLEAP labels (.slp) files.</p>
 </dd></dl>
 
 </section>
@@ -675,20 +651,20 @@ list (default), this check is skipped.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.validators.files.ValidFile.html"
+       href="movement.validators.files.ValidSleapAnalysis.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">ValidFile</p>
+        <p class="prev-next-title">ValidSleapAnalysis</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.validators.files.ValidNWBFile.html"
+       href="movement.validators.files.ValidVIATracksCSV.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">ValidNWBFile</p>
+        <p class="prev-next-title">ValidVIATracksCSV</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -711,11 +687,7 @@ list (default), this check is skipped.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidHDF5"><code class="docutils literal notranslate"><span class="pre">ValidHDF5</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidHDF5.path"><code class="docutils literal notranslate"><span class="pre">ValidHDF5.path</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidHDF5.expected_datasets"><code class="docutils literal notranslate"><span class="pre">ValidHDF5.expected_datasets</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidSleapLabels"><code class="docutils literal notranslate"><span class="pre">ValidSleapLabels</span></code></a></li>
 </ul>
   </nav></div>
 
@@ -723,7 +695,7 @@ list (default), this check is skipped.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/api/movement.validators.files.ValidHDF5.rst.txt"
+      <li><a href="../_sources/api/movement.validators.files.ValidSleapLabels.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

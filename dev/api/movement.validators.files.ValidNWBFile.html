@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=76c49f71"></script>
+    <script src="../_static/documentation_options.js?v=413c151b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -62,8 +62,8 @@
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ValidVIATracksCSV" href="movement.validators.files.ValidVIATracksCSV.html" />
-    <link rel="prev" title="ValidHDF5" href="movement.validators.files.ValidHDF5.html" /> 
+    <link rel="next" title="ValidSleapAnalysis" href="movement.validators.files.ValidSleapAnalysis.html" />
+    <link rel="prev" title="ValidFile" href="movement.validators.files.ValidFile.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />   
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev21</p>
+    <p class="title logo__title">movement v0.13.1.dev22</p>
   
 </a></div>
     
@@ -425,6 +425,13 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.savgol_filter.html">savgol_filter</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load.html">movement.io.load</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.LoaderProtocol.html">LoaderProtocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_dataset.html">load_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_multiview_dataset.html">load_multiview_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.register_loader.html">register_loader</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load_bboxes.html">movement.io.load_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_file.html">from_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_numpy.html">from_numpy</a></li>
@@ -548,10 +555,13 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.validators.files.html">movement.validators.files</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidAniposeCSV.html">ValidAniposeCSV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutCSV.html">ValidDeepLabCutCSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutH5.html">ValidDeepLabCutH5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidFile.html">ValidFile</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidHDF5.html">ValidHDF5</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">ValidNWBFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapAnalysis.html">ValidSleapAnalysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapLabels.html">ValidSleapLabels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidVIATracksCSV.html">ValidVIATracksCSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.validate_file_path.html">validate_file_path</a></li>
 </ul>
 </details></li>
 </ul>
@@ -633,11 +643,6 @@
 <span class="sig-name descname"><span class="pre">file</span></span><a class="headerlink" href="#movement.validators.files.ValidNWBFile.file" title="Link to this definition">#</a></dt>
 <dd><p>Path to the NWB file on disk (ending in “.nwb”),
 or an NWBFile object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a> | Path | <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.2)">pynwb.file.NWBFile</a></p>
-</dd>
-</dl>
 </dd></dl>
 
 </dd></dl>
@@ -658,20 +663,20 @@ or an NWBFile object.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.validators.files.ValidHDF5.html"
+       href="movement.validators.files.ValidFile.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">ValidHDF5</p>
+        <p class="prev-next-title">ValidFile</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.validators.files.ValidVIATracksCSV.html"
+       href="movement.validators.files.ValidSleapAnalysis.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">ValidVIATracksCSV</p>
+        <p class="prev-next-title">ValidSleapAnalysis</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

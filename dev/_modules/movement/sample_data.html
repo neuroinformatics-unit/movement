@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=76c49f71"></script>
+    <script src="../../_static/documentation_options.js?v=413c151b"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev21</p>
+    <p class="title logo__title">movement v0.13.1.dev22</p>
   
 </a></div>
     
@@ -480,7 +480,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">requests.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">RequestException</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bboxes</span><span class="p">,</span> <span class="n">load_poses</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 
 <span class="c1"># URL to the remote data repository on GIN</span>
@@ -806,11 +806,9 @@
 
     <span class="n">file_paths</span> <span class="o">=</span> <span class="n">fetch_dataset_paths</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">with_video</span><span class="o">=</span><span class="n">with_video</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">load_module</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-        <span class="p">[</span><span class="s2">&quot;poses&quot;</span><span class="p">,</span> <span class="s2">&quot;bboxes&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">load_poses</span><span class="p">,</span> <span class="n">load_bboxes</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span>
-    <span class="p">):</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;poses&quot;</span><span class="p">,</span> <span class="s2">&quot;bboxes&quot;</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">file_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
-            <span class="n">ds</span> <span class="o">=</span> <span class="n">load_module</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span>
                 <span class="n">file_paths</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
                 <span class="n">source_software</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;source_software&quot;</span><span class="p">],</span>
                 <span class="n">fps</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;fps&quot;</span><span class="p">],</span>

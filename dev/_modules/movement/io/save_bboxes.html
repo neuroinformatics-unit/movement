@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=76c49f71"></script>
+    <script src="../../../_static/documentation_options.js?v=413c151b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev21</p>
+    <p class="title logo__title">movement v0.13.1.dev22</p>
   
 </a></div>
     
@@ -476,7 +476,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidBboxesInputs</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_file_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_file_path</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">_csv</span>
@@ -593,37 +593,34 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Validate file path and dataset</span>
-    <span class="n">file</span> <span class="o">=</span> <span class="n">_validate_file_path</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">expected_suffix</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.csv&quot;</span><span class="p">])</span>
+    <span class="n">valid_path</span> <span class="o">=</span> <span class="n">validate_file_path</span><span class="p">(</span>
+        <span class="n">file_path</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;.csv&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
     <span class="n">ValidBboxesInputs</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-
     <span class="c1"># Check the number of digits required to represent the frame numbers</span>
     <span class="n">frame_n_digits</span> <span class="o">=</span> <span class="n">_check_frame_required_digits</span><span class="p">(</span>
         <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">frame_n_digits</span><span class="o">=</span><span class="n">frame_n_digits</span>
     <span class="p">)</span>
-
     <span class="c1"># Define format string for image filenames</span>
     <span class="n">img_filename_template</span> <span class="o">=</span> <span class="n">_get_image_filename_template</span><span class="p">(</span>
         <span class="n">frame_n_digits</span><span class="o">=</span><span class="n">frame_n_digits</span><span class="p">,</span>
         <span class="n">image_file_prefix</span><span class="o">=</span><span class="n">image_file_prefix</span><span class="p">,</span>
         <span class="n">image_file_suffix</span><span class="o">=</span><span class="n">image_file_suffix</span><span class="p">,</span>
     <span class="p">)</span>
-
     <span class="c1"># Map individuals&#39; names to track IDs</span>
     <span class="n">map_individual_to_track_id</span> <span class="o">=</span> <span class="n">_compute_individuals_to_track_ids_map</span><span class="p">(</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
         <span class="n">track_ids_from_trailing_numbers</span><span class="p">,</span>
     <span class="p">)</span>
-
     <span class="c1"># Write file</span>
     <span class="n">_write_via_tracks_csv</span><span class="p">(</span>
         <span class="n">ds</span><span class="p">,</span>
-        <span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
+        <span class="n">valid_path</span><span class="p">,</span>
         <span class="n">map_individual_to_track_id</span><span class="p">,</span>
         <span class="n">img_filename_template</span><span class="p">,</span>
     <span class="p">)</span>
-
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved bounding boxes dataset to </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">file</span><span class="o">.</span><span class="n">path</span></div>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved bounding boxes dataset to </span><span class="si">{</span><span class="n">valid_path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">valid_path</span></div>
 
 
 

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=76c49f71"></script>
+    <script src="_static/documentation_options.js?v=413c151b"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.13.1.dev21</p>
+    <p class="title logo__title">movement v0.13.1.dev22</p>
   
 </a></div>
     
@@ -425,6 +425,13 @@
 <li class="toctree-l2"><a class="reference internal" href="api/movement.filtering.savgol_filter.html">savgol_filter</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="api/movement.io.load.html">movement.io.load</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.io.load.LoaderProtocol.html">LoaderProtocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.io.load.load_dataset.html">load_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.io.load.load_multiview_dataset.html">load_multiview_dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.io.load.register_loader.html">register_loader</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/movement.io.load_bboxes.html">movement.io.load_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/movement.io.load_bboxes.from_file.html">from_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/movement.io.load_bboxes.from_numpy.html">from_numpy</a></li>
@@ -548,10 +555,13 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="api/movement.validators.files.html">movement.validators.files</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/movement.validators.files.ValidAniposeCSV.html">ValidAniposeCSV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/movement.validators.files.ValidDeepLabCutCSV.html">ValidDeepLabCutCSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.validators.files.ValidDeepLabCutH5.html">ValidDeepLabCutH5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/movement.validators.files.ValidFile.html">ValidFile</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/movement.validators.files.ValidHDF5.html">ValidHDF5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/movement.validators.files.ValidNWBFile.html">ValidNWBFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.validators.files.ValidSleapAnalysis.html">ValidSleapAnalysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.validators.files.ValidSleapLabels.html">ValidSleapLabels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/movement.validators.files.ValidVIATracksCSV.html">ValidVIATracksCSV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/movement.validators.files.validate_file_path.html">validate_file_path</a></li>
 </ul>
 </details></li>
 </ul>
@@ -619,61 +629,64 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="api/movement.filtering.html#module-movement.filtering" title="movement.filtering"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.filtering</span></code></a></p></td>
 <td><p>Filter and interpolate tracks in <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.load_bboxes.html#module-movement.io.load_bboxes" title="movement.io.load_bboxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_bboxes</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.load.html#module-movement.io.load" title="movement.io.load"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load</span></code></a></p></td>
+<td><p>Load data from various frameworks into <code class="docutils literal notranslate"><span class="pre">movement</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.load_bboxes.html#module-movement.io.load_bboxes" title="movement.io.load_bboxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_bboxes</span></code></a></p></td>
 <td><p>Load bounding boxes tracking data into <code class="docutils literal notranslate"><span class="pre">movement</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a></p></td>
 <td><p>Load pose tracking data from various frameworks into <code class="docutils literal notranslate"><span class="pre">movement</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.nwb.html#module-movement.io.nwb" title="movement.io.nwb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.nwb</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.nwb.html#module-movement.io.nwb" title="movement.io.nwb"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.nwb</span></code></a></p></td>
 <td><p>Helpers to convert between <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses datasets and NWB files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.save_bboxes.html#module-movement.io.save_bboxes" title="movement.io.save_bboxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.save_bboxes</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.save_bboxes.html#module-movement.io.save_bboxes" title="movement.io.save_bboxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.save_bboxes</span></code></a></p></td>
 <td><p>Save bounding boxes data from <code class="docutils literal notranslate"><span class="pre">movement</span></code> to VIA tracks .csv format.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.io.save_poses.html#module-movement.io.save_poses" title="movement.io.save_poses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.save_poses</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.io.save_poses.html#module-movement.io.save_poses" title="movement.io.save_poses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.save_poses</span></code></a></p></td>
 <td><p>Save pose tracking data from <code class="docutils literal notranslate"><span class="pre">movement</span></code> to various file formats.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.kinematics.html#module-movement.kinematics" title="movement.kinematics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.kinematics</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.kinematics.html#module-movement.kinematics" title="movement.kinematics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.kinematics</span></code></a></p></td>
 <td><p>Compute variables derived from <code class="docutils literal notranslate"><span class="pre">position</span></code> data.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.napari.convert.html#module-movement.napari.convert" title="movement.napari.convert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.napari.convert</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.napari.convert.html#module-movement.napari.convert" title="movement.napari.convert"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.napari.convert</span></code></a></p></td>
 <td><p>Conversion functions from <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets to napari layers.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.napari.layer_styles.html#module-movement.napari.layer_styles" title="movement.napari.layer_styles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.napari.layer_styles</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.napari.layer_styles.html#module-movement.napari.layer_styles" title="movement.napari.layer_styles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.napari.layer_styles</span></code></a></p></td>
 <td><p>Dataclasses containing layer styles for napari.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.plots.html#module-movement.plots" title="movement.plots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.plots</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.plots.html#module-movement.plots" title="movement.plots"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.plots</span></code></a></p></td>
 <td><p>Plotting utilities for <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.roi.html#module-movement.roi" title="movement.roi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.roi</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.roi.html#module-movement.roi" title="movement.roi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.roi</span></code></a></p></td>
 <td><p>Utilities for representing and analysing regions of interest.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.sample_data.html#module-movement.sample_data" title="movement.sample_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.sample_data</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.sample_data.html#module-movement.sample_data" title="movement.sample_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.sample_data</span></code></a></p></td>
 <td><p>Fetch and load sample datasets.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.transforms.html#module-movement.transforms" title="movement.transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.transforms</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.transforms.html#module-movement.transforms" title="movement.transforms"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.transforms</span></code></a></p></td>
 <td><p>Compute and apply spatial transforms.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.utils.broadcasting.html#module-movement.utils.broadcasting" title="movement.utils.broadcasting"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.broadcasting</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.utils.broadcasting.html#module-movement.utils.broadcasting" title="movement.utils.broadcasting"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.broadcasting</span></code></a></p></td>
 <td><p>Broadcasting operations across <code class="docutils literal notranslate"><span class="pre">xarray.DataArray</span></code> dimensions.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.utils.logging.html#module-movement.utils.logging" title="movement.utils.logging"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.logging</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.utils.logging.html#module-movement.utils.logging" title="movement.utils.logging"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.logging</span></code></a></p></td>
 <td><p>Logging utilities for the <code class="docutils literal notranslate"><span class="pre">movement</span></code> package.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.utils.reports.html#module-movement.utils.reports" title="movement.utils.reports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.reports</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.utils.reports.html#module-movement.utils.reports" title="movement.utils.reports"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.reports</span></code></a></p></td>
 <td><p>Utility functions for reporting missing data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.utils.vector.html#module-movement.utils.vector" title="movement.utils.vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.vector</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.utils.vector.html#module-movement.utils.vector" title="movement.utils.vector"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.vector</span></code></a></p></td>
 <td><p>Utility functions for vector operations.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.validators.arrays.html#module-movement.validators.arrays" title="movement.validators.arrays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.validators.arrays</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.validators.arrays.html#module-movement.validators.arrays" title="movement.validators.arrays"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.validators.arrays</span></code></a></p></td>
 <td><p>Validators for data arrays.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.validators.datasets.html#module-movement.validators.datasets" title="movement.validators.datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.validators.datasets</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/movement.validators.datasets.html#module-movement.validators.datasets" title="movement.validators.datasets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.validators.datasets</span></code></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">attrs</span></code> classes for validating data structures.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/movement.validators.files.html#module-movement.validators.files" title="movement.validators.files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.validators.files</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/movement.validators.files.html#module-movement.validators.files" title="movement.validators.files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.validators.files</span></code></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">attrs</span></code> classes for validating file paths.</p></td>
 </tr>
 </tbody>
