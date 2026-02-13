@@ -249,6 +249,7 @@ myst_url_schemes = {
     "anipose": "https://anipose.readthedocs.io/en/latest/",
     "TRex": "https://trex.run/docs/",
     "uv": "https://docs.astral.sh/uv/{{path}}#{{fragment}}",
+    "attrs": "https://www.attrs.org/en/stable/{{path}}#{{fragment}}",
     "pytest-benchmark": "https://pytest-benchmark.readthedocs.io/en/latest/{{path}}#{{fragment}}",
 }
 
@@ -261,6 +262,7 @@ intersphinx_mapping = {
     "pynwb": ("https://pynwb.readthedocs.io/en/stable/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "attrs": ("https://www.attrs.org/en/stable/", None),
 }
 
 # What to show on the 404 page
