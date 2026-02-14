@@ -9,14 +9,37 @@ on:
     - cron: '0 0 1 * *' # Runs at midnight on the first day of every month
   workflow_dispatch:
 
+# Give the automation enough permissions so the PR it opens can trigger the usual
+# pull_request workflows. Without workflows: write, GitHub will not start follow-up
+# pull_request jobs for bot-authored branches, leaving required checks stuck in
+# pending rather than failing. This explicitly prevents the silent hang mode seen
+# in the monthly contributors PRs.
+permissions:
+  contents: write
+  pull-requests: write
+  workflows: write
+
 jobs:
   update_contributors_list:
     name: Update Contributors List
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
+      - name: Verify token has workflow permissions
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          status=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "authorization: Bearer $GH_TOKEN" \
+            -H "accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GH_REPO/actions/workflows")
+          if [[ "$status" != "200" ]]; then
+            echo "Expected GITHUB_TOKEN to have workflows:write; got HTTP $status when listing workflows." >&2
+            exit 1
+          fi
+          echo "workflow permissions OK"
       - name: Contribute List
         uses: akhilmhdh/contributors-readme-action@v2.3.11
         with:
