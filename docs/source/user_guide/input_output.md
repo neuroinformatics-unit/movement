@@ -200,7 +200,7 @@ ds = load_poses.from_coco_file(
 
 The COCO format stores keypoints as a flat list `[x1, y1, v1, x2, y2, v2, ...]` where `v` is a visibility flag:
 - `v=0`: not labeled (confidence = 0.0)
-- `v=1`: labeled but occluded (confidence = 0.5)  
+- `v=1`: labeled but occluded (confidence = 0.5)
 - `v=2`: labeled and visible (confidence = 1.0)
 
 Each image in the COCO file corresponds to a frame, and each annotation within an image represents an individual. Frames without annotations are filled with NaN values.
