@@ -557,6 +557,10 @@ def invalid_dstype_netcdf_file(tmp_path_factory):
 
 
 # ---------------- COCO JSON file fixtures ----------------------------
+# Constants for COCO fixtures
+COCO_FRAME_001 = "frame_001.jpg"
+
+
 @pytest.fixture
 def valid_coco_json_file(tmp_path):
     """Return a path to a valid COCO keypoints JSON file with
@@ -566,7 +570,7 @@ def valid_coco_json_file(tmp_path):
 
     coco_data = {
         "images": [
-            {"id": 1, "file_name": "frame_001.jpg"},
+            {"id": 1, "file_name": COCO_FRAME_001},
             {"id": 2, "file_name": "frame_002.jpg"},
             {"id": 3, "file_name": "frame_003.jpg"},
         ],
@@ -610,7 +614,7 @@ def coco_json_missing_categories(tmp_path):
     import json
 
     coco_data = {
-        "images": [{"id": 1, "file_name": "frame_001.jpg"}],
+        "images": [{"id": 1, "file_name": COCO_FRAME_001}],
         "annotations": [
             {
                 "id": 1,
@@ -634,7 +638,7 @@ def coco_json_missing_keypoints(tmp_path):
     import json
 
     coco_data = {
-        "images": [{"id": 1, "file_name": "frame_001.jpg"}],
+        "images": [{"id": 1, "file_name": COCO_FRAME_001}],
         "annotations": [
             {
                 "id": 1,

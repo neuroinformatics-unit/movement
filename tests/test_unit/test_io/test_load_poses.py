@@ -349,12 +349,11 @@ def test_coco_confidence_mapping(valid_coco_json_file):
     """Test that COCO visibility flags are correctly mapped to confidence."""
     ds = load_poses.from_coco_file(valid_coco_json_file)
 
-    # Frame 1, individual 0: keypoints with v=[2,1,0]
+    # Frame 1, individual 0: keypoints with visibility flags [2,1,0]
     # Should map to confidence [1.0, 0.5, 0.0]
     confidence_frame1_ind0 = ds.confidence.isel(time=0, individuals=0).values
-    assert confidence_frame1_ind0[0] == 1.0  # v=2
-    assert confidence_frame1_ind0[1] == 0.5  # v=1
-    assert confidence_frame1_ind0[2] == 0.0  # v=0
+    expected_confidence = np.array([1.0, 0.5, 0.0])
+    np.testing.assert_allclose(confidence_frame1_ind0, expected_confidence)
 
 
 def test_coco_position_values(valid_coco_json_file):
