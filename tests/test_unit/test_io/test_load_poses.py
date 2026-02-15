@@ -391,3 +391,145 @@ def test_coco_invalid_json_raises_error(invalid_json_file):
         match="is not a valid JSON file",
     ):
         load_poses.from_coco_file(invalid_json_file)
+
+
+def test_coco_empty_categories_raises_error(tmp_path):
+    """Test that COCO file with empty categories list raises an error."""
+    import json
+
+    coco_data = {
+        "images": [{"id": 1, "file_name": "f.jpg"}],
+        "annotations": [],
+        "categories": [],
+    }
+    file_path = tmp_path / "empty_cats.json"
+    with open(file_path, "w") as f:
+        json.dump(coco_data, f)
+    with pytest.raises(ValueError, match="contains no categories"):
+        load_poses.from_coco_file(file_path)
+
+
+def test_coco_annotation_without_keypoints_skipped(tmp_path):
+    """Test that annotations without 'keypoints' field are skipped."""
+    import json
+
+    coco_data = {
+        "images": [{"id": 1, "file_name": "f.jpg"}],
+        "annotations": [
+            {"id": 1, "image_id": 1, "category_id": 1},
+            {
+                "id": 2,
+                "image_id": 1,
+                "category_id": 1,
+                "keypoints": [1, 2, 2],
+            },
+        ],
+        "categories": [{"id": 1, "name": "p", "keypoints": ["nose"]}],
+    }
+    file_path = tmp_path / "skip_ann.json"
+    with open(file_path, "w") as f:
+        json.dump(coco_data, f)
+    ds = load_poses.from_coco_file(file_path)
+    assert ds.sizes["individuals"] == 1
+
+
+def test_coco_unknown_image_id_raises_error(tmp_path):
+    """Test that annotation referencing unknown image_id raises error."""
+    import json
+
+    coco_data = {
+        "images": [{"id": 1, "file_name": "f.jpg"}],
+        "annotations": [
+            {
+                "id": 1,
+                "image_id": 999,
+                "category_id": 1,
+                "keypoints": [1, 2, 2],
+            },
+        ],
+        "categories": [{"id": 1, "name": "p", "keypoints": ["nose"]}],
+    }
+    file_path = tmp_path / "bad_imgid.json"
+    with open(file_path, "w") as f:
+        json.dump(coco_data, f)
+    with pytest.raises(ValueError, match="unknown image_id 999"):
+        load_poses.from_coco_file(file_path)
+
+
+def test_coco_invalid_keypoints_length_raises_error(tmp_path):
+    """Test that keypoints not divisible by 3 raises error."""
+    import json
+
+    coco_data = {
+        "images": [{"id": 1, "file_name": "f.jpg"}],
+        "annotations": [
+            {
+                "id": 1,
+                "image_id": 1,
+                "category_id": 1,
+                "keypoints": [1, 2],
+            },
+        ],
+        "categories": [{"id": 1, "name": "p", "keypoints": ["nose"]}],
+    }
+    file_path = tmp_path / "bad_kp_len.json"
+    with open(file_path, "w") as f:
+        json.dump(coco_data, f)
+    with pytest.raises(ValueError, match="Expected multiple of 3"):
+        load_poses.from_coco_file(file_path)
+
+
+def test_coco_empty_annotations(tmp_path):
+    """Test loading COCO file with no annotations produces NaN-filled data."""
+    import json
+
+    import numpy as np
+
+    coco_data = {
+        "images": [{"id": 1, "file_name": "f.jpg"}],
+        "annotations": [],
+        "categories": [{"id": 1, "name": "p", "keypoints": ["nose"]}],
+    }
+    file_path = tmp_path / "empty_anns.json"
+    with open(file_path, "w") as f:
+        json.dump(coco_data, f)
+    ds = load_poses.from_coco_file(file_path)
+    assert ds.sizes["time"] == 1
+    assert np.all(np.isnan(ds.position.values))
+
+
+def test_coco_deterministic_image_ordering(tmp_path):
+    """Test images are sorted by id for deterministic frame ordering."""
+    import json
+
+    coco_data = {
+        "images": [
+            {"id": 3, "file_name": "f3.jpg"},
+            {"id": 1, "file_name": "f1.jpg"},
+            {"id": 2, "file_name": "f2.jpg"},
+        ],
+        "annotations": [
+            {
+                "id": 1,
+                "image_id": 1,
+                "category_id": 1,
+                "keypoints": [10, 20, 2],
+            },
+            {
+                "id": 2,
+                "image_id": 3,
+                "category_id": 1,
+                "keypoints": [30, 40, 1],
+            },
+        ],
+        "categories": [{"id": 1, "name": "p", "keypoints": ["nose"]}],
+    }
+    file_path = tmp_path / "unsorted_imgs.json"
+    with open(file_path, "w") as f:
+        json.dump(coco_data, f)
+    ds = load_poses.from_coco_file(file_path)
+    # image_id 1 → frame 0, image_id 3 → frame 2
+    p0 = ds.position.isel(time=0, individuals=0, keypoints=0).values
+    assert p0[0] == 10
+    p2 = ds.position.isel(time=2, individuals=0, keypoints=0).values
+    assert p2[0] == 30

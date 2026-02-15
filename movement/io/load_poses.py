@@ -1040,20 +1040,11 @@ def from_coco_file(
         coco_data = json.load(f)
 
     # Extract keypoint names from the first category with keypoints
-    keypoint_names = None
+    keypoint_names: list[str] = []
     for category in coco_data["categories"]:
         if "keypoints" in category:
             keypoint_names = category["keypoints"]
             break
-
-    if keypoint_names is None:
-        raise logger.error(
-            ValueError(
-                "No keypoint names found in any category. "
-                "COCO keypoints format requires a 'keypoints' field "
-                "in at least one category."
-            )
-        )
 
     n_keypoints = len(keypoint_names)
 
