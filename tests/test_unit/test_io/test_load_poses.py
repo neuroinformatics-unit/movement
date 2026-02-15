@@ -321,3 +321,73 @@ def test_from_multiview_files():
     assert isinstance(multi_view_ds, xr.Dataset)
     assert "view" in multi_view_ds.dims
     assert multi_view_ds.view.values.tolist() == view_names
+
+
+def test_load_from_coco_file(valid_coco_json_file, helpers):
+    """Test loading from a valid COCO keypoints JSON file."""
+    ds = load_poses.from_coco_file(valid_coco_json_file, fps=30)
+    expected_values = {
+        **expected_values_poses,
+        "source_software": "COCO",
+        "file_path": valid_coco_json_file,
+        "fps": 30,
+    }
+    helpers.assert_valid_dataset(ds, expected_values)
+    assert list(ds.coords["keypoints"].values) == [
+        "nose",
+        "left_eye",
+        "right_eye",
+    ]
+    assert list(ds.coords["individuals"].values) == [
+        "individual_0",
+        "individual_1",
+    ]
+    assert ds.sizes["time"] == 3  # 3 frames
+
+
+def test_coco_confidence_mapping(valid_coco_json_file):
+    """Test that COCO visibility flags are correctly mapped to confidence."""
+    ds = load_poses.from_coco_file(valid_coco_json_file)
+
+    # Frame 1, individual 0: keypoints with v=[2,1,0]
+    # Should map to confidence [1.0, 0.5, 0.0]
+    confidence_frame1_ind0 = ds.confidence.isel(time=0, individuals=0).values
+    assert confidence_frame1_ind0[0] == 1.0  # v=2
+    assert confidence_frame1_ind0[1] == 0.5  # v=1
+    assert confidence_frame1_ind0[2] == 0.0  # v=0
+
+
+def test_coco_position_values(valid_coco_json_file):
+    """Test that COCO position values are correctly extracted."""
+    ds = load_poses.from_coco_file(valid_coco_json_file)
+
+    # Frame 1, individual 0, keypoint 0 (nose): x=10, y=20
+    position = ds.position.isel(time=0, individuals=0, keypoints=0).values
+    assert position[0] == 10  # x
+    assert position[1] == 20  # y
+
+
+def test_coco_missing_categories_raises_error(coco_json_missing_categories):
+    """Test that COCO file without categories raises an error."""
+    with pytest.raises(
+        ValueError, match="COCO file must contain the following keys"
+    ):
+        load_poses.from_coco_file(coco_json_missing_categories)
+
+
+def test_coco_missing_keypoints_raises_error(coco_json_missing_keypoints):
+    """Test that COCO file without keypoint names raises an error."""
+    with pytest.raises(
+        ValueError,
+        match="No keypoint names found in any category",
+    ):
+        load_poses.from_coco_file(coco_json_missing_keypoints)
+
+
+def test_coco_invalid_json_raises_error(invalid_json_file):
+    """Test that an invalid JSON file raises an appropriate error."""
+    with pytest.raises(
+        ValueError,
+        match="is not a valid JSON file",
+    ):
+        load_poses.from_coco_file(invalid_json_file)
