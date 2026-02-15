@@ -29,6 +29,7 @@ SourceSoftware: TypeAlias = Literal[
     "Anipose",
     "NWB",
     "VIA-tracks",
+    "MotionBIDS",
 ]
 
 

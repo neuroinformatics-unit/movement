@@ -613,3 +613,154 @@ def test_remove_unoccupied_tracks(valid_poses_dataset):
     ds = valid_poses_dataset.reindex(individuals=new_individuals)
     ds = save_poses._remove_unoccupied_tracks(ds)
     xr.testing.assert_equal(ds, valid_poses_dataset)
+
+
+# -------------- Motion-BIDS saver tests ----------------------------
+
+
+def test_to_motion_bids_creates_files(valid_poses_dataset, tmp_path):
+    """Test that to_motion_bids creates the expected output files."""
+    paths = save_poses.to_motion_bids(valid_poses_dataset, tmp_path)
+    assert isinstance(paths, dict)
+    assert set(paths.keys()) == {
+        "motion_tsv",
+        "channels_tsv",
+        "motion_json",
+    }
+    for key, path in paths.items():
+        assert path.exists(), f"{key} file was not created"
+
+
+def test_to_motion_bids_filenames(valid_poses_dataset, tmp_path):
+    """Test that the BIDS filenames follow the expected pattern."""
+    paths = save_poses.to_motion_bids(
+        valid_poses_dataset,
+        tmp_path,
+        task="walking",
+        tracksys="markerless",
+        subject="02",
+    )
+    prefix = "sub-02_task-walking_tracksys-markerless"
+    assert paths["motion_tsv"].name == f"{prefix}_motion.tsv"
+    assert paths["channels_tsv"].name == f"{prefix}_channels.tsv"
+    assert paths["motion_json"].name == f"{prefix}_motion.json"
+
+
+def test_to_motion_bids_with_session(valid_poses_dataset, tmp_path):
+    """Test that session entity appears in the filename when specified."""
+    paths = save_poses.to_motion_bids(
+        valid_poses_dataset,
+        tmp_path,
+        session="pre",
+    )
+    assert "ses-pre" in paths["motion_tsv"].name
+
+
+def test_to_motion_bids_metadata_json(valid_poses_dataset, tmp_path):
+    """Test that the Motion-BIDS JSON metadata is correct."""
+    import json
+
+    ds = valid_poses_dataset.copy()
+    ds.attrs["fps"] = 25
+
+    paths = save_poses.to_motion_bids(
+        ds,
+        tmp_path,
+        task="tracking",
+        tracksys="pose",
+    )
+
+    with open(paths["motion_json"]) as f:
+        metadata = json.load(f)
+
+    assert "SamplingFrequency" in metadata
+    assert metadata["TaskName"] == "tracking"
+    assert metadata["TrackingSystemName"] == "pose"
+    assert "POSChannelCount" in metadata
+    assert "TrackedPointsCount" in metadata
+
+
+def test_to_motion_bids_metadata_kwargs(valid_poses_dataset, tmp_path):
+    """Test that extra metadata_kwargs are written to the JSON sidecar."""
+    import json
+
+    paths = save_poses.to_motion_bids(
+        valid_poses_dataset,
+        tmp_path,
+        Manufacturer="OptiTrack",
+        Description="Custom experiment",
+    )
+
+    with open(paths["motion_json"]) as f:
+        metadata = json.load(f)
+
+    assert metadata["Manufacturer"] == "OptiTrack"
+    assert metadata["Description"] == "Custom experiment"
+
+
+def test_to_motion_bids_channels_tsv(valid_poses_dataset, tmp_path):
+    """Test the channels TSV has required columns and POS type."""
+    paths = save_poses.to_motion_bids(valid_poses_dataset, tmp_path)
+    channels_df = pd.read_csv(paths["channels_tsv"], sep="\t")
+    required_cols = {"name", "component", "type", "tracked_point", "units"}
+    assert required_cols.issubset(set(channels_df.columns))
+    assert (channels_df["type"] == "POS").all()
+
+
+def test_to_motion_bids_motion_tsv_no_header(valid_poses_dataset, tmp_path):
+    """Test that the motion TSV has no header row."""
+    paths = save_poses.to_motion_bids(valid_poses_dataset, tmp_path)
+    with open(paths["motion_tsv"]) as f:
+        first_line = f.readline().strip()
+    # All values should be numeric (no header)
+    values = first_line.split("\t")
+    for v in values:
+        float(v)  # Should not raise
+
+
+def test_to_motion_bids_multi_individual(valid_poses_dataset, tmp_path):
+    """Test that multi-individual datasets include individual column."""
+    # valid_poses_dataset defaults to multi_individual_array (2 individuals)
+    paths = save_poses.to_motion_bids(valid_poses_dataset, tmp_path)
+    channels_df = pd.read_csv(paths["channels_tsv"], sep="\t")
+    assert "individual" in channels_df.columns
+    individuals = channels_df["individual"].unique().tolist()
+    assert len(individuals) == 2
+
+
+@pytest.mark.parametrize(
+    "valid_poses_dataset",
+    ["single_individual_array"],
+    indirect=True,
+)
+def test_to_motion_bids_single_individual(valid_poses_dataset, tmp_path):
+    """Test that single-individual datasets omit individual column."""
+    paths = save_poses.to_motion_bids(valid_poses_dataset, tmp_path)
+    channels_df = pd.read_csv(paths["channels_tsv"], sep="\t")
+    assert "individual" not in channels_df.columns
+
+
+def test_to_motion_bids_round_trip(valid_motion_bids_2d):
+    """Test that saving then loading preserves position data."""
+    ds_loaded = load_poses.from_motion_bids_file(valid_motion_bids_2d)
+    output_dir = valid_motion_bids_2d.parent / "roundtrip"
+    paths = save_poses.to_motion_bids(
+        ds_loaded,
+        output_dir,
+        task="tracking",
+        tracksys="pose",
+        subject="01",
+    )
+    ds_reloaded = load_poses.from_motion_bids_file(paths["motion_tsv"])
+    xr.testing.assert_allclose(ds_loaded.position, ds_reloaded.position)
+    assert list(ds_loaded.coords["keypoints"].values) == list(
+        ds_reloaded.coords["keypoints"].values
+    )
+
+
+def test_to_motion_bids_creates_output_dir(valid_poses_dataset, tmp_path):
+    """Test that output directory is created if it does not exist."""
+    output_dir = tmp_path / "new_nested" / "dir"
+    paths = save_poses.to_motion_bids(valid_poses_dataset, output_dir)
+    assert output_dir.exists()
+    assert paths["motion_tsv"].exists()

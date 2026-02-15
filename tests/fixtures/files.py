@@ -554,3 +554,314 @@ def invalid_dstype_netcdf_file(tmp_path_factory):
     ds.to_netcdf(invalid_path)
 
     yield str(invalid_path)
+
+
+# ---------------- COCO JSON file fixtures ----------------------------
+
+
+# -------------- Motion-BIDS file fixtures ----------------------------
+
+_MOTION_BIDS_PREFIX = "sub-01_task-tracking_tracksys-pose"
+_CHANNELS_HEADER = ["name", "component", "type", "tracked_point", "units"]
+
+
+def _write_motion_bids_files(
+    tmp_path,
+    *,
+    prefix=_MOTION_BIDS_PREFIX,
+    motion_data=None,
+    channels_data=None,
+    metadata=None,
+):
+    """Write a set of Motion-BIDS files and return the motion.tsv path.
+
+    This is a helper function for creating Motion-BIDS fixture files.
+    """
+    import json
+
+    parent = tmp_path / "motion_bids"
+    parent.mkdir(exist_ok=True)
+
+    motion_path = parent / f"{prefix}_motion.tsv"
+    channels_path = parent / f"{prefix}_channels.tsv"
+    json_path = parent / f"{prefix}_motion.json"
+
+    if motion_data is not None:
+        with open(motion_path, "w") as f:
+            for row in motion_data:
+                f.write("\t".join(str(v) for v in row) + "\n")
+
+    if channels_data is not None:
+        with open(channels_path, "w") as f:
+            f.write("\t".join(channels_data[0]) + "\n")
+            for row in channels_data[1:]:
+                f.write("\t".join(str(v) for v in row) + "\n")
+
+    if metadata is not None:
+        with open(json_path, "w") as f:
+            json.dump(metadata, f)
+
+    return motion_path
+
+
+@pytest.fixture
+def valid_motion_bids_2d(tmp_path):
+    """Return paths for a valid 2D Motion-BIDS dataset.
+
+    3 frames, 1 individual, 2 keypoints (nose, tail), 2D (x, y).
+    """
+    motion_data = [
+        [1.0, 2.0, 5.0, 6.0],
+        [1.1, 2.1, 5.1, 6.1],
+        [1.2, 2.2, 5.2, 6.2],
+    ]
+    channels_data = [
+        _CHANNELS_HEADER,
+        ["nose_x", "x", "POS", "nose", "px"],
+        ["nose_y", "y", "POS", "nose", "px"],
+        ["tail_x", "x", "POS", "tail", "px"],
+        ["tail_y", "y", "POS", "tail", "px"],
+    ]
+    metadata = {"SamplingFrequency": 30}
+    return _write_motion_bids_files(
+        tmp_path,
+        motion_data=motion_data,
+        channels_data=channels_data,
+        metadata=metadata,
+    )
+
+
+@pytest.fixture
+def valid_motion_bids_3d(tmp_path):
+    """Return paths for a valid 3D Motion-BIDS dataset.
+
+    2 frames, 1 individual, 2 keypoints (nose, tail), 3D (x, y, z).
+    """
+    motion_data = [
+        [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
+        [1.1, 2.1, 3.1, 4.1, 5.1, 6.1],
+    ]
+    channels_data = [
+        _CHANNELS_HEADER,
+        ["nose_x", "x", "POS", "nose", "m"],
+        ["nose_y", "y", "POS", "nose", "m"],
+        ["nose_z", "z", "POS", "nose", "m"],
+        ["tail_x", "x", "POS", "tail", "m"],
+        ["tail_y", "y", "POS", "tail", "m"],
+        ["tail_z", "z", "POS", "tail", "m"],
+    ]
+    metadata = {"SamplingFrequency": 60}
+    return _write_motion_bids_files(
+        tmp_path,
+        motion_data=motion_data,
+        channels_data=channels_data,
+        metadata=metadata,
+    )
+
+
+@pytest.fixture
+def valid_motion_bids_multi_individual(tmp_path):
+    """Return paths for a valid Motion-BIDS dataset with 2 individuals.
+
+    2 frames, 2 individuals (Alice, Bob), 1 keypoint (nose), 2D (x, y).
+    """
+    motion_data = [
+        [10.0, 20.0, 30.0, 40.0],
+        [10.1, 20.1, 30.1, 40.1],
+    ]
+    channels_data = [
+        _CHANNELS_HEADER + ["individual"],
+        ["Alice_nose_x", "x", "POS", "nose", "px", "Alice"],
+        ["Alice_nose_y", "y", "POS", "nose", "px", "Alice"],
+        ["Bob_nose_x", "x", "POS", "nose", "px", "Bob"],
+        ["Bob_nose_y", "y", "POS", "nose", "px", "Bob"],
+    ]
+    metadata = {"SamplingFrequency": 30}
+    return _write_motion_bids_files(
+        tmp_path,
+        motion_data=motion_data,
+        channels_data=channels_data,
+        metadata=metadata,
+    )
+
+
+@pytest.fixture
+def motion_bids_missing_channels(tmp_path):
+    """Return path for Motion-BIDS files missing _channels.tsv."""
+    motion_data = [[1.0, 2.0]]
+    metadata = {"SamplingFrequency": 30}
+    return _write_motion_bids_files(
+        tmp_path,
+        motion_data=motion_data,
+        channels_data=None,
+        metadata=metadata,
+    )
+
+
+@pytest.fixture
+def motion_bids_missing_json(tmp_path):
+    """Return path for Motion-BIDS files missing _motion.json."""
+    motion_data = [[1.0, 2.0]]
+    channels_data = [
+        _CHANNELS_HEADER,
+        ["nose_x", "x", "POS", "nose", "px"],
+        ["nose_y", "y", "POS", "nose", "px"],
+    ]
+    return _write_motion_bids_files(
+        tmp_path,
+        motion_data=motion_data,
+        channels_data=channels_data,
+        metadata=None,
+    )
+
+
+@pytest.fixture
+def motion_bids_missing_sampling_freq(tmp_path):
+    """Return path for Motion-BIDS files missing SamplingFrequency."""
+    motion_data = [[1.0, 2.0]]
+    channels_data = [
+        _CHANNELS_HEADER,
+        ["nose_x", "x", "POS", "nose", "px"],
+        ["nose_y", "y", "POS", "nose", "px"],
+    ]
+    metadata = {"TaskName": "walking"}
+    return _write_motion_bids_files(
+        tmp_path,
+        motion_data=motion_data,
+        channels_data=channels_data,
+        metadata=metadata,
+    )
+
+
+@pytest.fixture
+def motion_bids_missing_channels_columns(tmp_path):
+    """Return path for Motion-BIDS files where _channels.tsv is
+    missing required columns.
+    """
+    motion_data = [[1.0, 2.0]]
+    channels_data = [
+        ["name", "component"],
+        ["nose_x", "x"],
+        ["nose_y", "y"],
+    ]
+    metadata = {"SamplingFrequency": 30}
+    return _write_motion_bids_files(
+        tmp_path,
+        motion_data=motion_data,
+        channels_data=channels_data,
+        metadata=metadata,
+    )
+
+
+@pytest.fixture
+def motion_bids_no_pos_channels(tmp_path):
+    """Return path for Motion-BIDS files where _channels.tsv has
+    no POS-type channels.
+    """
+    motion_data = [[1.0, 2.0]]
+    channels_data = [
+        _CHANNELS_HEADER,
+        ["accel_x", "x", "ACCEL", "wrist", "m/s^2"],
+        ["accel_y", "y", "ACCEL", "wrist", "m/s^2"],
+    ]
+    metadata = {"SamplingFrequency": 30}
+    return _write_motion_bids_files(
+        tmp_path,
+        motion_data=motion_data,
+        channels_data=channels_data,
+        metadata=metadata,
+    )
+
+
+@pytest.fixture
+def motion_bids_with_header(tmp_path):
+    """Return path for a Motion-BIDS _motion.tsv with a non-numeric
+    header row (invalid).
+    """
+    motion_path = _write_motion_bids_files(
+        tmp_path,
+        motion_data=None,
+        channels_data=[
+            _CHANNELS_HEADER,
+            ["nose_x", "x", "POS", "nose", "px"],
+            ["nose_y", "y", "POS", "nose", "px"],
+        ],
+        metadata={"SamplingFrequency": 30},
+    )
+    # Overwrite motion tsv with a header row (invalid)
+    with open(motion_path, "w") as f:
+        f.write("col_a\tcol_b\n1.0\t2.0\n")
+    return motion_path
+
+
+@pytest.fixture
+def motion_bids_empty_tsv(tmp_path):
+    """Return path for an empty Motion-BIDS _motion.tsv file."""
+    motion_path = _write_motion_bids_files(
+        tmp_path,
+        motion_data=None,
+        channels_data=[
+            _CHANNELS_HEADER,
+            ["nose_x", "x", "POS", "nose", "px"],
+        ],
+        metadata={"SamplingFrequency": 30},
+    )
+    # Overwrite motion tsv as empty (invalid)
+    motion_path.write_text("")
+    return motion_path
+
+
+@pytest.fixture
+def motion_bids_invalid_json(tmp_path):
+    """Return path for Motion-BIDS files with an invalid JSON file."""
+    motion_path = _write_motion_bids_files(
+        tmp_path,
+        motion_data=[[1.0, 2.0]],
+        channels_data=[
+            _CHANNELS_HEADER,
+            ["nose_x", "x", "POS", "nose", "px"],
+            ["nose_y", "y", "POS", "nose", "px"],
+        ],
+        metadata={"SamplingFrequency": 30},
+    )
+    # Overwrite JSON with invalid content
+    json_path = motion_path.parent / (
+        motion_path.name.replace("_motion.tsv", "_motion.json")
+    )
+    with open(json_path, "w") as f:
+        f.write("{bad json content")
+    return motion_path
+
+
+@pytest.fixture
+def motion_bids_wrong_filename(tmp_path):
+    """Return path for a .tsv file that doesn't end with _motion.tsv."""
+    parent = tmp_path / "motion_bids_wrong_name"
+    parent.mkdir(exist_ok=True)
+    file_path = parent / "sub-01_task-tracking_data.tsv"
+    with open(file_path, "w") as f:
+        f.write("1.0\t2.0\n")
+    return file_path
+
+
+@pytest.fixture
+def motion_bids_corrupt_channels(tmp_path):
+    """Return path for Motion-BIDS with a corrupt channels TSV file."""
+    motion_path = _write_motion_bids_files(
+        tmp_path,
+        motion_data=[[1.0, 2.0]],
+        channels_data=[
+            _CHANNELS_HEADER,
+            ["nose_x", "x", "POS", "nose", "px"],
+            ["nose_y", "y", "POS", "nose", "px"],
+        ],
+        metadata={"SamplingFrequency": 30},
+    )
+    # Overwrite channels TSV with binary/corrupt data that pandas can't parse
+    channels_path = motion_path.parent / (
+        motion_path.name.replace("_motion.tsv", "_channels.tsv")
+    )
+    with open(channels_path, "wb") as f:
+        # Write binary data that will cause pandas to fail
+        f.write(b"\x00\x01\x02\xff\xfe\xfd")
+    return motion_path
