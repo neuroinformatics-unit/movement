@@ -9,6 +9,7 @@ from numpy.typing import ArrayLike
 
 from movement.utils.logging import log_to_attrs
 from movement.validators.arrays import validate_dims_coords
+from movement.validators.datasets import ValidPosesInputs
 
 
 @log_to_attrs
@@ -116,6 +117,206 @@ def scale(
     elif space_unit is None:
         scaled_data.attrs.pop("space_unit", None)
     return scaled_data
+
+
+def _validate_poses_dataset(ds: xr.Dataset) -> None:
+    """Validate pose dataset structure for poses_to_bboxes.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        The input dataset to validate.
+
+    Raises
+    ------
+    TypeError
+        If the input is not an xarray.Dataset.
+    ValueError
+        If the dataset does not meet movement poses dataset requirements
+        or if it is not 2D.
+
+    """
+    ValidPosesInputs.validate(ds)
+    validate_dims_coords(ds.position, {"space": ["x", "y"]}, exact_coords=True)
+
+
+def _compute_bbox_for_keypoints(
+    x_coords: np.ndarray,
+    y_coords: np.ndarray,
+    padding_px: float,
+) -> tuple[float, float, float, float]:
+    """Compute bounding box from keypoint coordinates.
+
+    Parameters
+    ----------
+    x_coords : np.ndarray
+        Array of x coordinates for keypoints.
+    y_coords : np.ndarray
+        Array of y coordinates for keypoints.
+    padding_px : float
+        Padding to add around the bounding box.
+
+    Returns
+    -------
+    tuple[float, float, float, float]
+        A tuple of (centroid_x, centroid_y, width, height).
+        Returns NaN values if no valid keypoints exist.
+
+    """
+    # A keypoint is valid only if both x and y are present.
+    valid_kpt_mask = ~np.isnan(x_coords) & ~np.isnan(y_coords)
+    valid_x = x_coords[valid_kpt_mask]
+    valid_y = y_coords[valid_kpt_mask]
+
+    # Check if we have any valid keypoints
+    if len(valid_x) == 0 or len(valid_y) == 0:
+        return np.nan, np.nan, np.nan, np.nan
+
+    # Compute bounding box
+    x_min, x_max = valid_x.min(), valid_x.max()
+    y_min, y_max = valid_y.min(), valid_y.max()
+
+    # Centroid (center of bbox)
+    centroid_x = (x_min + x_max) / 2
+    centroid_y = (y_min + y_max) / 2
+
+    # Shape (width, height) with padding
+    width = x_max - x_min + 2 * padding_px
+    height = y_max - y_min + 2 * padding_px
+
+    return centroid_x, centroid_y, width, height
+
+
+@log_to_attrs
+def poses_to_bboxes(
+    ds: xr.Dataset,
+    padding_px: float = 0.0,
+) -> xr.Dataset:
+    """Compute and add bounding box arrays to a movement dataset.
+
+    This function computes bounding boxes from pose estimation keypoints by
+    finding the minimum and maximum coordinates across all keypoints for each
+    individual at each time point. The resulting bounding box is represented
+    by its centroid (center point) and shape (width and height).
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        A valid 2D ``movement`` poses dataset with dimensions
+        (time, space, keypoints, individuals).
+    padding_px : float, optional
+        Number of pixels to add as padding around the bounding box in all
+        directions. The padding increases both width and height by
+        ``2 * padding_px``. Default is 0.0 (no padding).
+
+    Returns
+    -------
+    xarray.Dataset
+        A dataset with all input variables preserved and two additional arrays:
+
+        - ``position_boxes``: (time, space, individuals), with bounding box
+          centroids.
+        - ``shape_boxes``: (time, space, individuals), with bounding box
+          width/height.
+
+    Raises
+    ------
+    TypeError
+        If ``padding_px`` is not numeric.
+    ValueError
+        If the dataset is invalid, not 2D, or ``padding_px`` is negative.
+
+    Notes
+    -----
+    - Keypoints with NaN coordinates are excluded from bounding box
+      calculation. If all keypoints for an individual at a given time are
+      NaN, the resulting bounding box position and shape are NaN.
+    - The bounding box centroid is calculated as the midpoint between the
+      minimum and maximum coordinates: ``(min + max) / 2``.
+    - The bounding box shape is calculated as the span of coordinates plus
+      padding: ``width = max_x - min_x + 2*padding_px`` and
+      ``height = max_y - min_y + 2*padding_px``.
+    - When there is only one valid keypoint, the bounding box will have
+      zero width and/or height (before padding is applied).
+    - This function adds a new entry to the dataset ``log`` attribute.
+
+    Examples
+    --------
+    Add bounding box arrays to a poses dataset:
+
+    >>> from movement.transforms import poses_to_bboxes
+    >>> ds_with_boxes = poses_to_bboxes(poses_ds)
+
+    Add 10 pixels of padding around each bounding box:
+
+    >>> ds_with_boxes = poses_to_bboxes(poses_ds, padding_px=10)
+
+    The resulting bounding boxes can be accessed via:
+
+    >>> ds_with_boxes.position_boxes  # centroids
+    >>> ds_with_boxes.shape_boxes  # widths and heights
+
+    See Also
+    --------
+    movement.filtering.filter_by_confidence : Filter data by confidence
+        threshold
+    movement.transforms.scale : Scale spatial coordinates
+
+    """
+    _validate_poses_dataset(ds)
+    if not isinstance(padding_px, (int, float)):
+        raise TypeError(
+            f"padding_px must be a number, got {type(padding_px).__name__}"
+        )
+    if padding_px < 0:
+        raise ValueError(f"padding_px must be non-negative, got {padding_px}")
+
+    # Extract data
+    position = ds.position  # shape: (time, space, keypoints, individuals)
+
+    # Get dimensions
+    n_frames = len(ds.coords["time"])
+    n_individuals = len(ds.coords["individuals"])
+
+    # Initialize output arrays with NaN
+    bbox_position = np.full((n_frames, 2, n_individuals), np.nan)
+    bbox_shape = np.full((n_frames, 2, n_individuals), np.nan)
+
+    # Compute bounding boxes for each frame and individual
+    for t_idx in range(n_frames):
+        for ind_idx in range(n_individuals):
+            # Extract keypoint positions for this individual at this time
+            keypoints = position.isel(time=t_idx, individuals=ind_idx).values
+
+            # Extract x and y coordinates
+            x_coords = keypoints[0, :]  # All x values across keypoints
+            y_coords = keypoints[1, :]  # All y values across keypoints
+
+            # Compute bounding box
+            centroid_x, centroid_y, width, height = (
+                _compute_bbox_for_keypoints(x_coords, y_coords, padding_px)
+            )
+
+            # Store position and shape results
+            bbox_position[t_idx, 0, ind_idx] = centroid_x
+            bbox_position[t_idx, 1, ind_idx] = centroid_y
+            bbox_shape[t_idx, 0, ind_idx] = width
+            bbox_shape[t_idx, 1, ind_idx] = height
+
+    # Add arrays to the existing movement dataset.
+    dim_names = ("time", "space", "individuals")
+    return ds.assign(
+        position_boxes=xr.DataArray(
+            bbox_position,
+            dims=dim_names,
+            coords={dim: ds.coords[dim] for dim in dim_names},
+        ),
+        shape_boxes=xr.DataArray(
+            bbox_shape,
+            dims=dim_names,
+            coords={dim: ds.coords[dim] for dim in dim_names},
+        ),
+    )
 
 
 def compute_homography_transform(
