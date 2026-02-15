@@ -457,7 +457,7 @@ def create_poses_dataset(
     n_keypoints=3,
     n_individuals=2,
     keypoint_positions=None,
-    confidence_values=None,
+    confidence_values="default",
     ds_attrs=None,
 ):
     """Create poses datasets with configurable parameters.
@@ -468,7 +468,8 @@ def create_poses_dataset(
         n_individuals: Number of individuals
         keypoint_positions: Dict mapping (individual_id, keypoint_id) to
             (x, y) tuples
-        confidence_values: Array of confidence values or None
+        confidence_values: Array of confidence values, "default" (all ones),
+            or None (omit confidence variable)
         ds_attrs: Dictionary of dataset attributes
 
     Returns:
@@ -510,6 +511,11 @@ def create_poses_dataset(
     }
 
     # Add confidence if provided
+    if isinstance(confidence_values, str) and confidence_values == "default":
+        confidence_values = np.ones(
+            (n_frames, n_keypoints, n_individuals), dtype=float
+        )
+
     if confidence_values is not None:
         data_vars["confidence"] = xr.DataArray(
             confidence_values,
@@ -720,6 +726,10 @@ def test_poses_to_bboxes_partial_nan_keypoints():
                 position,
                 dims=("time", "space", "keypoints", "individuals"),
             ),
+            "confidence": xr.DataArray(
+                np.ones((2, 3, 1)),
+                dims=("time", "keypoints", "individuals"),
+            ),
         },
         coords={
             "time": np.arange(2),
@@ -809,6 +819,10 @@ def test_poses_to_bboxes_3d_poses():
             "position": xr.DataArray(
                 position,
                 dims=("time", "space", "keypoints", "individuals"),
+            ),
+            "confidence": xr.DataArray(
+                np.ones((2, 2, 1)),
+                dims=("time", "keypoints", "individuals"),
             ),
         },
         coords={
