@@ -537,3 +537,166 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
     """
     all_nan = ds.position.isnull().all(dim=["keypoints", "space", "time"])
     return ds.where(~all_nan, drop=True)
+
+
+def to_motion_bids(
+    ds: xr.Dataset,
+    output_dir: str | Path,
+    task: str = "tracking",
+    tracksys: str = "pose",
+    subject: str = "01",
+    session: str | None = None,
+    **metadata_kwargs,
+) -> dict[str, Path]:
+    """Save a ``movement`` dataset to Motion-BIDS format.
+
+    This writes three files following the Motion-BIDS specification [1]_:
+
+    - ``*_motion.tsv``: Position time series (no header, tab-separated).
+    - ``*_channels.tsv``: Channel descriptions with required columns.
+    - ``*_motion.json``: Recording metadata including ``SamplingFrequency``.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
+    output_dir : pathlib.Path or str
+        Path to the output directory. The directory will be created if
+        it does not exist.
+    task : str, optional
+        BIDS task label. Default is ``"tracking"``.
+    tracksys : str, optional
+        BIDS tracking system label. Default is ``"pose"``.
+    subject : str, optional
+        BIDS subject label. Default is ``"01"``.
+    session : str, optional
+        BIDS session label. If None (default), the session entity is
+        omitted from the filename.
+    **metadata_kwargs
+        Additional key-value pairs to include in the ``_motion.json``
+        sidecar file. These are merged with automatically generated
+        metadata. User-provided values take precedence.
+
+    Returns
+    -------
+    dict[str, Path]
+        Dictionary mapping file types to their paths:
+        ``{"motion_tsv": ..., "channels_tsv": ..., "motion_json": ...}``.
+
+    Notes
+    -----
+    Each spatial coordinate of each keypoint is written as a separate
+    channel in the ``_motion.tsv`` file, following the Motion-BIDS
+    convention where channels are named ``{tracked_point}_{component}``.
+
+    Confidence scores from the ``movement`` dataset are not written,
+    as Motion-BIDS does not define a standard field for them.
+
+    If the dataset contains multiple individuals, an ``individual``
+    column is added to ``_channels.tsv`` to distinguish them.
+
+    References
+    ----------
+    .. [1] https://bids-specification.readthedocs.io/en/stable/modality-specific-files/motion.html
+
+    Examples
+    --------
+    >>> from movement.io import save_poses, load_poses
+    >>> ds = load_poses.from_sleap_file("path/to/file.analysis.h5", fps=30)
+    >>> paths = save_poses.to_motion_bids(
+    ...     ds,
+    ...     output_dir="output/sub-01/motion",
+    ...     task="walking",
+    ...     tracksys="markerless",
+    ...     subject="01",
+    ... )
+
+    """
+    import json
+
+    ValidPosesInputs.validate(ds)
+
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Build BIDS filename prefix
+    parts = [f"sub-{subject}"]
+    if session is not None:
+        parts.append(f"ses-{session}")
+    parts.extend([f"task-{task}", f"tracksys-{tracksys}"])
+    prefix = "_".join(parts)
+
+    motion_tsv_path = output_dir / f"{prefix}_motion.tsv"
+    channels_tsv_path = output_dir / f"{prefix}_channels.tsv"
+    motion_json_path = output_dir / f"{prefix}_motion.json"
+
+    keypoints = ds.coords["keypoints"].values.tolist()
+    space_coords = ds.coords["space"].values.tolist()
+    individuals = ds.coords["individuals"].values.tolist()
+
+    is_multi_individual = len(individuals) > 1
+
+    # Build channels list and flatten position data
+    channel_rows: list[dict] = []
+    data_columns: list[np.ndarray] = []
+
+    for individual in individuals:
+        for keypoint in keypoints:
+            for component in space_coords:
+                channel_name = f"{keypoint}_{component}"
+                if is_multi_individual:
+                    channel_name = f"{individual}_{channel_name}"
+
+                row: dict[str, str] = {
+                    "name": channel_name,
+                    "component": component,
+                    "type": "POS",
+                    "tracked_point": keypoint,
+                    "units": "px",
+                }
+                if is_multi_individual:
+                    row["individual"] = individual
+
+                channel_rows.append(row)
+
+                # Extract column data
+                col_data = ds.position.sel(
+                    space=component,
+                    keypoints=keypoint,
+                    individuals=individual,
+                ).values
+                data_columns.append(col_data)
+
+    # Write _motion.tsv (no header)
+    motion_array = np.column_stack(data_columns)
+    np.savetxt(motion_tsv_path, motion_array, delimiter="\t", fmt="%.10g")
+
+    # Write _channels.tsv
+    channels_df = pd.DataFrame(channel_rows)
+    channels_df.to_csv(channels_tsv_path, sep="\t", index=False)
+
+    # Build metadata for _motion.json
+    fps = getattr(ds, "fps", None)
+    sampling_frequency = fps if fps is not None else 0
+
+    auto_metadata: dict = {
+        "SamplingFrequency": sampling_frequency,
+        "POSChannelCount": len(channel_rows),
+        "TrackedPointsCount": len(keypoints),
+        "TaskName": task,
+        "TrackingSystemName": tracksys,
+    }
+    # Merge with user-provided metadata (user takes precedence)
+    auto_metadata.update(metadata_kwargs)
+
+    with open(motion_json_path, "w") as f:
+        json.dump(auto_metadata, f, indent=2)
+
+    logger.info(f"Saved Motion-BIDS dataset to {output_dir}.")
+
+    return {
+        "motion_tsv": motion_tsv_path,
+        "channels_tsv": channels_tsv_path,
+        "motion_json": motion_json_path,
+    }

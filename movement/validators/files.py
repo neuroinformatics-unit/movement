@@ -751,6 +751,181 @@ class ValidVIATracksCSV:
 
 
 @define
+class ValidMotionBidsTSV:
+    """Class for validating Motion-BIDS ``_motion.tsv`` files.
+
+    The validator ensures that the file:
+
+    - has a ``.tsv`` suffix,
+    - is readable,
+    - has a matching ``_channels.tsv`` companion file,
+    - has a matching ``_motion.json`` companion file,
+    - the ``_motion.tsv`` contains only numeric data (no header row),
+    - the ``_channels.tsv`` has the required columns
+      (``name``, ``component``, ``type``, ``tracked_point``, ``units``),
+    - the ``_channels.tsv`` has at least one ``POS`` channel,
+    - the ``_motion.json`` contains a ``SamplingFrequency`` field.
+
+    Attributes
+    ----------
+    file
+        Path to the ``_motion.tsv`` file.
+    channels_path
+        Path to the companion ``_channels.tsv`` file.
+    metadata_path
+        Path to the companion ``_motion.json`` file.
+
+    Raises
+    ------
+    ValueError
+        If the file or its companion files do not match the expected
+        Motion-BIDS format.
+
+    """
+
+    suffixes: ClassVar[set[str]] = {".tsv"}
+    file: Path = field(
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
+    )
+    channels_path: Path = field(init=False)
+    metadata_path: Path = field(init=False)
+
+    @file.validator
+    def _validate_motion_bids_files(self, attribute, value):
+        """Validate the Motion-BIDS file and its companion files."""
+        self._validate_filename(value)
+        self._locate_companion_files(value)
+        self._validate_motion_tsv(value)
+        self._validate_channels_tsv(self.channels_path)
+        self._validate_metadata_json(self.metadata_path)
+
+    @staticmethod
+    def _validate_filename(value):
+        """Check the filename ends with ``_motion.tsv``."""
+        if not value.stem.endswith("_motion"):
+            raise logger.error(
+                ValueError(
+                    f"Expected a Motion-BIDS file ending with "
+                    f"'_motion.tsv', but got: {value.name}"
+                )
+            )
+
+    def _locate_companion_files(self, value):
+        """Find ``_channels.tsv`` and ``_motion.json`` next to *value*."""
+        base = value.name.rsplit("_motion.tsv", 1)[0]
+        parent = value.parent
+        channels_path = parent / f"{base}_channels.tsv"
+        metadata_path = parent / f"{base}_motion.json"
+
+        if not channels_path.exists():
+            raise logger.error(
+                FileNotFoundError(
+                    f"Expected companion channels file not "
+                    f"found: {channels_path}"
+                )
+            )
+        if not metadata_path.exists():
+            raise logger.error(
+                FileNotFoundError(
+                    f"Expected companion metadata file not "
+                    f"found: {metadata_path}"
+                )
+            )
+
+        self.channels_path = channels_path
+        self.metadata_path = metadata_path
+
+    @staticmethod
+    def _validate_motion_tsv(value):
+        """Ensure ``_motion.tsv`` has numeric data (no header)."""
+        import csv
+
+        with open(value) as f:
+            reader = csv.reader(f, delimiter="\t")
+            first_row = next(reader, None)
+            if first_row is None:
+                raise logger.error(
+                    ValueError(f"Motion-BIDS file is empty: {value}")
+                )
+            for col_val in first_row:
+                try:
+                    float(col_val)
+                except ValueError:
+                    raise logger.error(
+                        ValueError(
+                            f"Motion-BIDS _motion.tsv file must "
+                            f"not contain a header row. Found "
+                            f"non-numeric value '{col_val}' in "
+                            f"the first row of: {value}"
+                        )
+                    ) from None
+
+    @staticmethod
+    def _validate_channels_tsv(channels_path):
+        """Ensure ``_channels.tsv`` has required columns and POS."""
+        required_columns = [
+            "name",
+            "component",
+            "type",
+            "tracked_point",
+            "units",
+        ]
+        try:
+            channels_df = pd.read_csv(channels_path, sep="\t")
+        except Exception as e:
+            raise logger.error(
+                ValueError(
+                    f"Could not parse channels file as TSV: "
+                    f"{channels_path}. Error: {e}"
+                )
+            ) from e
+
+        missing_cols = [
+            col for col in required_columns if col not in channels_df.columns
+        ]
+        if missing_cols:
+            raise logger.error(
+                ValueError(
+                    f"Channels file is missing required "
+                    f"columns: {missing_cols}. "
+                    f"Expected: {required_columns}."
+                )
+            )
+
+        if "POS" not in channels_df["type"].values:
+            raise logger.error(
+                ValueError(
+                    f"Channels file must contain at least one "
+                    f"channel with type 'POS', but none were "
+                    f"found in: {channels_path}"
+                )
+            )
+
+    @staticmethod
+    def _validate_metadata_json(metadata_path):
+        """Ensure ``_motion.json`` is valid and has SamplingFrequency."""
+        import json
+
+        try:
+            with open(metadata_path) as f:
+                metadata = json.load(f)
+        except json.JSONDecodeError as e:
+            raise logger.error(
+                ValueError(f"{metadata_path} is not a valid JSON file.")
+            ) from e
+
+        if "SamplingFrequency" not in metadata:
+            raise logger.error(
+                ValueError(
+                    f"Motion-BIDS JSON metadata must contain "
+                    f"'SamplingFrequency', but the key was not "
+                    f"found in: {metadata_path}"
+                )
+            )
+
+
+@define
 class ValidNWBFile:
     """Class for validating NWB files.
 
