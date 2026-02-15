@@ -81,12 +81,12 @@ dev = [
 ]
 docs = [
   "movement[napari]",
-  "ablog",
+  "ablog>=0.11.13",
   "linkify-it-py",
   "myst-parser",
   "nbsphinx",
   "pydata-sphinx-theme",
-  "sphinx<9",
+  "sphinx",
   "sphinx-autodoc-typehints",
   "sphinx-design",
   "sphinx-gallery",
