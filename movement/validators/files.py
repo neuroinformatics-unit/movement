@@ -751,6 +751,78 @@ class ValidVIATracksCSV:
 
 
 @define
+class ValidCOCOJSON:
+    """Class for validating COCO keypoints JSON files.
+
+    The validator ensures that the JSON file contains the expected keys
+    for COCO keypoints format.
+
+    Attributes
+    ----------
+    file
+        Path to the COCO JSON file.
+
+    Raises
+    ------
+    ValueError
+        If the JSON file does not contain the expected COCO format keys.
+
+    """
+
+    suffixes: ClassVar[set[str]] = {".json"}
+    file: Path = field(
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
+    )
+
+    @file.validator
+    def _file_contains_coco_keys(self, attribute, value):
+        """Ensure that the JSON file contains the expected COCO keys."""
+        import json
+
+        try:
+            with open(value) as f:
+                data = json.load(f)
+        except json.JSONDecodeError as e:
+            raise logger.error(
+                ValueError(f"{value} is not a valid JSON file.")
+            ) from e
+
+        required_keys = {"images", "annotations", "categories"}
+        missing_keys = required_keys - set(data.keys())
+        if missing_keys:
+            missing_keys_str = ", ".join(sorted(missing_keys))
+            expected_keys_str = ", ".join(sorted(required_keys))
+            raise logger.error(
+                ValueError(
+                    f"COCO file must contain the following keys: "
+                    f"{expected_keys_str}. "
+                    f"Missing: {missing_keys_str}."
+                )
+            )
+
+        # Validate that categories have keypoints defined
+        if not data.get("categories"):
+            raise logger.error(
+                ValueError(
+                    f"JSON file {value} contains no categories. "
+                    "At least one category with keypoints must be defined."
+                )
+            )
+
+        # Check if at least one category has keypoints
+        has_keypoints = any("keypoints" in cat for cat in data["categories"])
+        if not has_keypoints:
+            raise logger.error(
+                ValueError(
+                    "No keypoint names found in any category. "
+                    "COCO keypoints format requires a 'keypoints' field "
+                    "in at least one category."
+                )
+            )
+
+
+@define
 class ValidNWBFile:
     """Class for validating NWB files.
 
