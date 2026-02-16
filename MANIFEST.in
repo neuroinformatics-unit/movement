@@ -13,4 +13,4 @@ recursive-exclude tests *
 recursive-exclude .binder *
 
 # Include json schemas
-recursive-include movement/validators/json_schemas/schemas *.json
+recursive-include movement/validators/json_schemas *.json
