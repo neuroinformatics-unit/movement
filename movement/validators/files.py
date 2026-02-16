@@ -783,24 +783,23 @@ class ValidNWBFile:
 
 @define
 class ValidROICollectionGeoJSON:
-    """Class for validating GeoJSON files containing a collection of ROIs.
+    """Class for validating GeoJSON FeatureCollection files.
 
-    This validator is specifically for GeoJSON FeatureCollection files that
-    contain multiple regions of interest (as produced by
-    :func:`save_rois()<movement.roi.save_rois>`). It is **not** intended for
-    validating single-Feature GeoJSON files.
+    This validator is specifically for GeoJSON FeatureCollection files
+    that contain multiple regions of interest (as produced by
+    :func:`save_rois()<movement.roi.save_rois>`). It is **not** intended
+    for validating single-Feature GeoJSON files.
 
-    The validator ensures that the file:
-
-    - contains valid JSON,
-    - is a GeoJSON FeatureCollection (not a single Feature or geometry),
-    - contains features with supported geometry types, and
-    - has roi_type properties that match geometry types (if specified).
+    The validator ensures that the file contains valid JSON with a
+    GeoJSON FeatureCollection containing supported geometry types and
+    consistent roi_type properties.
 
     Attributes
     ----------
-    path : pathlib.Path
-        Path to the GeoJSON FeatureCollection file.
+    file
+        Path to the GeoJSON file.
+    data
+        Parsed JSON data from the file.
 
     Raises
     ------
@@ -817,7 +816,12 @@ class ValidROICollectionGeoJSON:
 
     """
 
-    path: Path = field(validator=validators.instance_of(Path))
+    suffixes: ClassVar[set[str]] = {".geojson", ".json"}
+    file: Path = field(
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
+    )
+    data: dict = field(init=False, factory=dict)
 
     # Map roi_type strings to expected geometry type strings
     _roi_type_to_geometry: dict[str, tuple[str, ...]] = {
@@ -830,43 +834,37 @@ class ValidROICollectionGeoJSON:
         "LinearRing",
     )
 
-    @path.validator
+    @file.validator
     def _file_is_valid_json(self, attribute, value):
         """Ensure the file contains valid JSON."""
         try:
             with open(value) as f:
-                json.load(f)
+                self.data = json.load(f)
         except json.JSONDecodeError as e:
             raise logger.error(
                 ValueError(f"File {value} is not valid JSON: {e}")
             ) from e
 
-    @path.validator
+    @file.validator
     def _file_is_feature_collection(self, attribute, value):
         """Ensure the file is a GeoJSON FeatureCollection."""
-        with open(value) as f:
-            data = json.load(f)
-
-        if data.get("type") != "FeatureCollection":
+        if self.data.get("type") != "FeatureCollection":
             raise logger.error(
                 ValueError(
                     f"Expected GeoJSON FeatureCollection, "
-                    f"got '{data.get('type')}'"
+                    f"got '{self.data.get('type')}'"
                 )
             )
 
-        if "features" not in data:
+        if "features" not in self.data:
             raise logger.error(
                 ValueError("GeoJSON FeatureCollection missing 'features' key")
             )
 
-    @path.validator
+    @file.validator
     def _features_have_valid_geometry(self, attribute, value):
         """Ensure all features have supported geometry types."""
-        with open(value) as f:
-            data = json.load(f)
-
-        for i, feature in enumerate(data.get("features", [])):
+        for i, feature in enumerate(self.data.get("features", [])):
             if "geometry" not in feature:
                 raise logger.error(
                     ValueError(f"Feature {i} missing 'geometry' key")
@@ -888,13 +886,10 @@ class ValidROICollectionGeoJSON:
                     )
                 )
 
-    @path.validator
+    @file.validator
     def _roi_type_matches_geometry(self, attribute, value):
         """Ensure roi_type properties match actual geometry types."""
-        with open(value) as f:
-            data = json.load(f)
-
-        for i, feature in enumerate(data.get("features", [])):
+        for i, feature in enumerate(self.data.get("features", [])):
             properties = feature.get("properties", {})
             roi_type = properties.get("roi_type") if properties else None
 

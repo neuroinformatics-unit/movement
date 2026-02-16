@@ -11,9 +11,9 @@ from movement.validators.files import (
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
     ValidNWBFile,
+    ValidROICollectionGeoJSON,
     ValidSleapAnalysis,
     ValidSleapLabels,
-    ValidROICollectionGeoJSON,
     ValidVIATracksCSV,
     _hdf5_validator,
     _if_instance_of,
@@ -424,7 +424,7 @@ class TestValidROICollectionGeoJSON:
             "]}"
         )
         validated = ValidROICollectionGeoJSON(file_path)
-        assert validated.path == file_path
+        assert validated.file == file_path
 
     def test_invalid_json(self, tmp_path):
         """Test that invalid JSON raises ValueError."""
@@ -545,4 +545,4 @@ class TestValidROICollectionGeoJSON:
         file_path.write_text('{"type": "FeatureCollection", "features": []}')
 
         validated = ValidROICollectionGeoJSON(file_path)
-        assert validated.path == file_path
+        assert validated.file == file_path

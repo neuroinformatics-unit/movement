@@ -12,17 +12,13 @@ from movement.roi.base import BaseRegionOfInterest
 from movement.roi.line import LineOfInterest
 from movement.roi.polygon import PolygonOfInterest
 from movement.validators.files import (
-    ValidFile,
     ValidROICollectionGeoJSON,
-    _validate_file_path,
+    validate_file_path,
 )
 
 if TYPE_CHECKING:
     from pathlib import Path
 
-
-# Supported file suffixes for GeoJSON files
-GEOJSON_SUFFIXES: list[str] = [".geojson", ".json"]
 
 # Type alias for collections of ROIs
 ROICollection: TypeAlias = Sequence[BaseRegionOfInterest]
@@ -61,9 +57,9 @@ def save_rois(
     >>> save_rois([square, diagonal], "/path/to/rois.geojson")
 
     """
-    valid_path = _validate_file_path(
-        path, expected_suffix=GEOJSON_SUFFIXES
-    ).path
+    valid_path = validate_file_path(
+        path, permission="w", suffixes=ValidROICollectionGeoJSON.suffixes
+    )
 
     features = []
     for roi in rois:
@@ -117,14 +113,11 @@ def load_rois(path: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
     ['square', 'diagonal']
 
     """
-    file_path = ValidFile(
-        path, expected_permission="r", expected_suffix=GEOJSON_SUFFIXES
-    ).path
-    validated_file = ValidROICollectionGeoJSON(file_path)
-    with open(validated_file.path) as f:
-        data = json.load(f)
-
-    return [_feature_to_roi(feature) for feature in data["features"]]
+    validated_file = ValidROICollectionGeoJSON(path)
+    return [
+        _feature_to_roi(feature)
+        for feature in validated_file.data["features"]
+    ]
 
 
 def _feature_to_roi(
