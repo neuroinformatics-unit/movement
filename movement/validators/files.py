@@ -842,9 +842,9 @@ class ValidNWBFile:
 class ValidROICollectionGeoJSON:
     """Class for validating GeoJSON FeatureCollection files.
 
-    The validator ensures that the file is:
+    The validator ensures that the file:
 
-    - in valid JSON format.
+    - has a valid JSON format.
     - matches the expected ``roi_collection`` JSON schema. This schema captures
       the structure of a GeoJSON file containing a FeatureCollection
       of ``movement``-compatible regions of interest.
