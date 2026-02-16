@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -10,19 +9,12 @@ import shapely
 from matplotlib.patches import PathPatch as PltPatch
 from matplotlib.path import Path as PltPath
 
-from movement.roi.base import (
-    GEOJSON_SUFFIXES,
-    BaseRegionOfInterest,
-    PointLikeList,
-    RegionLike,
-)
+from movement.roi.base import BaseRegionOfInterest, PointLikeList, RegionLike
 from movement.roi.line import LineOfInterest
 from movement.utils.logging import logger
-from movement.validators.files import ValidFile
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
-    from pathlib import Path
 
     from matplotlib.axes import Axes
     from matplotlib.figure import Figure, SubFigure
@@ -92,54 +84,6 @@ class PolygonOfInterest(BaseRegionOfInterest[RegionLike]):
             shell=exterior_boundary, holes=holes
         )
         super().__init__(geometry=polygon, name=name)
-
-    @classmethod
-    def from_file(cls, path: str | Path) -> PolygonOfInterest:
-        """Load a PolygonOfInterest from a GeoJSON file.
-
-        Parameters
-        ----------
-        path : str or pathlib.Path
-            Path to the GeoJSON file to load.
-
-        Returns
-        -------
-        PolygonOfInterest
-            The loaded polygon of interest.
-
-        See Also
-        --------
-        BaseRegionOfInterest.to_file : Save a region of interest to a file.
-
-        """
-        file_path = ValidFile(
-            path, expected_permission="r", expected_suffix=GEOJSON_SUFFIXES
-        ).path
-        with open(file_path) as f:
-            data = json.load(f)
-
-        if data["type"] == "Feature":
-            geometry_data = data["geometry"]
-            properties = data.get("properties", {})
-        else:
-            geometry_data = data
-            properties = {}
-
-        geometry = shapely.from_geojson(json.dumps(geometry_data))
-        if not isinstance(geometry, shapely.Polygon):
-            raise logger.error(
-                TypeError(
-                    f"Expected Polygon geometry, got {type(geometry).__name__}"
-                )
-            )
-        name = properties.get("name")
-
-        holes = [interior.coords for interior in geometry.interiors]
-        return cls(
-            geometry.exterior.coords,
-            holes=holes if holes else None,
-            name=name,
-        )
 
     @property
     def _default_plot_args(self) -> dict[str, Any]:

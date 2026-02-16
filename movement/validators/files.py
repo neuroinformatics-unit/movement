@@ -788,8 +788,7 @@ class ValidROICollectionGeoJSON:
     This validator is specifically for GeoJSON FeatureCollection files that
     contain multiple regions of interest (as produced by
     :func:`save_rois()<movement.roi.save_rois>`). It is **not** intended for
-    validating single-Feature GeoJSON files (as produced by
-    :meth:`BaseRegionOfInterest.to_file`).
+    validating single-Feature GeoJSON files.
 
     The validator ensures that the file:
 

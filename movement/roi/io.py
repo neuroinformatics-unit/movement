@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 import shapely
 
-from movement.roi.base import GEOJSON_SUFFIXES
+from movement.roi.base import BaseRegionOfInterest
 from movement.roi.line import LineOfInterest
 from movement.roi.polygon import PolygonOfInterest
 from movement.validators.files import (
@@ -19,7 +20,12 @@ from movement.validators.files import (
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from movement.roi.base import ROICollection
+
+# Supported file suffixes for GeoJSON files
+GEOJSON_SUFFIXES: list[str] = [".geojson", ".json"]
+
+# Type alias for collections of ROIs
+ROICollection: TypeAlias = Sequence[BaseRegionOfInterest]
 
 
 def save_rois(
@@ -42,7 +48,6 @@ def save_rois(
     See Also
     --------
     load_rois : Load a collection of ROIs from a GeoJSON file.
-    BaseRegionOfInterest.to_file : Save a single ROI to a file.
 
     Examples
     --------
@@ -98,8 +103,6 @@ def load_rois(path: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
     See Also
     --------
     save_rois : Save a collection of ROIs to a GeoJSON file.
-    LineOfInterest.from_file : Load a single LineOfInterest from a file.
-    PolygonOfInterest.from_file : Load a single PolygonOfInterest from a file.
 
     Examples
     --------
