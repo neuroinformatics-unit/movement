@@ -904,20 +904,14 @@ class ValidROICollectionGeoJSON:
         """
         for i, feature in enumerate(self.data.get("features", [])):
             properties = feature.get("properties", {})
-            roi_type = (
-                properties.get("roi_type") if properties else None
-            )
+            roi_type = properties.get("roi_type") if properties else None
 
             if roi_type is None:
                 continue
 
             geometry = feature.get("geometry", {})
-            geom_type = (
-                geometry.get("type") if geometry else None
-            )
-            expected_geom_types = (
-                self.roi_type_to_geometry.get(roi_type)
-            )
+            geom_type = geometry.get("type") if geometry else None
+            expected_geom_types = self.roi_type_to_geometry.get(roi_type)
 
             if geom_type not in expected_geom_types:
                 raise logger.error(
