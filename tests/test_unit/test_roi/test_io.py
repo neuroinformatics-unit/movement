@@ -1,4 +1,4 @@
-"""Tests for ROI serialization (to_file/from_file)."""
+"""Tests for IO of ROI collections."""
 
 import json
 
