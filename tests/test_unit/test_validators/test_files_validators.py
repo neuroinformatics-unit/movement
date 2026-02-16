@@ -423,9 +423,7 @@ def _feature_collection(*features: str) -> str:
     return f'{{"type": "FeatureCollection", "features": [{joined}]}}'
 
 
-def _feature_with_roi_type(
-    geom_type: str, coords: str, roi_type: str
-) -> str:
+def _feature_with_roi_type(geom_type: str, coords: str, roi_type: str) -> str:
     """Build a GeoJSON Feature string with an roi_type property."""
     return (
         f'{{"type": "Feature", '
@@ -470,9 +468,7 @@ def _feature_with_roi_type(
             id="missing features key",
         ),
         pytest.param(
-            _feature_collection(
-                '{"type": "Feature", "properties": {}}'
-            ),
+            _feature_collection('{"type": "Feature", "properties": {}}'),
             pytest.raises(
                 ValueError,
                 match="'geometry' is a required property",
@@ -481,8 +477,7 @@ def _feature_with_roi_type(
         ),
         pytest.param(
             _feature_collection(
-                '{"type": "Feature", "geometry": null, '
-                '"properties": {}}'
+                '{"type": "Feature", "geometry": null, "properties": {}}'
             ),
             pytest.raises(
                 ValueError,
@@ -506,7 +501,8 @@ def _feature_with_roi_type(
         pytest.param(
             _feature_collection(
                 _feature_with_roi_type(
-                    "LineString", "[[0,0],[1,1]]",
+                    "LineString",
+                    "[[0,0],[1,1]]",
                     "PolygonOfInterest",
                 )
             ),
@@ -519,7 +515,8 @@ def _feature_with_roi_type(
         pytest.param(
             _feature_collection(
                 _feature_with_roi_type(
-                    "Polygon", "[[[0,0],[1,0],[1,1],[0,0]]]",
+                    "Polygon",
+                    "[[[0,0],[1,0],[1,1],[0,0]]]",
                     "UnknownROI",
                 )
             ),
@@ -532,9 +529,7 @@ def _feature_with_roi_type(
         ),
     ],
 )
-def test_roi_collection_geojson_validator(
-    content, expected_context, tmp_path
-):
+def test_roi_collection_geojson_validator(content, expected_context, tmp_path):
     """Test ValidROICollectionGeoJSON with valid and invalid inputs."""
     file_path = tmp_path / "test.geojson"
     file_path.write_text(content)
