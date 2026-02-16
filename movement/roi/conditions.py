@@ -5,7 +5,7 @@ from collections import defaultdict
 import numpy as np
 import xarray as xr
 
-from movement.roi.base import ROICollection
+from movement.roi.io import ROICollection
 
 
 def compute_region_occupancy(
