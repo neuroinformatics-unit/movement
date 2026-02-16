@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-# Type alias for collections of ROIs
+# Type alias for collections of RoIs
 ROICollection: TypeAlias = Sequence[BaseRegionOfInterest]
 
 
@@ -28,11 +28,11 @@ def save_rois(
     rois: ROICollection,
     file: str | Path,
 ) -> None:
-    """Save a collection of regions of interest (ROIs) to a GeoJSON file.
+    """Save a collection of regions of interest (RoIs) to a GeoJSON file.
 
-    The ROIs are saved as a GeoJSON FeatureCollection, with each ROI
+    The RoIs are saved as a GeoJSON FeatureCollection, with each RoI
     represented as a Feature containing its geometry and properties
-    (name and ROI type).
+    (name and RoI type).
 
     Parameters
     ----------
@@ -44,7 +44,7 @@ def save_rois(
 
     See Also
     --------
-    load_rois : Load a collection of ROIs from a GeoJSON file.
+    load_rois : Load a collection of RoIs from a GeoJSON file.
 
     Examples
     --------
@@ -85,7 +85,7 @@ def save_rois(
 
 
 def load_rois(file: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
-    """Load a collection of regions of interest (ROIs) from a GeoJSON file.
+    """Load a collection of regions of interest (RoIs) from a GeoJSON file.
 
     Parameters
     ----------
@@ -99,16 +99,16 @@ def load_rois(file: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
 
     See Also
     --------
-    save_rois : Save a collection of ROIs to a GeoJSON file.
+    save_rois : Save a collection of RoIs to a GeoJSON file.
 
     Examples
     --------
-    Load a collection of ROIs from a GeoJSON file:
+    Load a collection of RoIs from a GeoJSON file:
 
     >>> from movement.roi import load_rois
     >>> rois = load_rois("/path/to/rois.geojson")
 
-    This returns a list of ROI objects, we can check their names:
+    This returns a list of RoI objects, we can check their names:
 
     >>> [roi.name for roi in rois]
     ['square', 'diagonal']
@@ -123,7 +123,7 @@ def load_rois(file: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
 def _feature_to_roi(
     feature: dict[str, Any],
 ) -> LineOfInterest | PolygonOfInterest:
-    """Convert a validated GeoJSON feature to an ROI object."""
+    """Convert a validated GeoJSON feature to an RoI object."""
     geometry_data = feature["geometry"]
     properties = feature.get("properties") or {}
 
