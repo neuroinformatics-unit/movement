@@ -28,7 +28,7 @@ def save_rois(
     rois: ROICollection,
     path: str | Path,
 ) -> None:
-    """Save a collection of regions of interest to a GeoJSON file.
+    """Save a collection of regions of interest (ROIs) to a GeoJSON file.
 
     The ROIs are saved as a GeoJSON FeatureCollection, with each ROI
     represented as a Feature containing its geometry and properties
@@ -84,7 +84,7 @@ def save_rois(
 
 
 def load_rois(path: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
-    """Load a collection of regions of interest from a GeoJSON file.
+    """Load a collection of regions of interest (ROIs) from a GeoJSON file.
 
     Parameters
     ----------
