@@ -337,6 +337,7 @@ In addition to the built-in `attrs` {mod}`validators<attrs.validators>`, `moveme
 
 - `_file_validator`: A composite validator that ensures `file` is a {class}`Path<pathlib.Path>`, is not a directory, is accessible with the required permission, and has one of the expected `suffixes` (if any).
 - `_hdf5_validator`: Checks that an HDF5 `file` contains the expected dataset(s).
+- `_json_validator`: Checks that a `file` contains valid JSON and optionally validates it against a [JSON Schema](https://json-schema.org/). Schemas are stored as `.json` files in `movement/validators/json_schemas/` and can be loaded with the `_get_json_schema` helper.
 - `_if_instance_of`: Conditionally applies a validator only when `file` is an instance of a given class.
 
 In the current example, the `_file_validator` is used to ensure that the input `file` is a readable CSV file.
