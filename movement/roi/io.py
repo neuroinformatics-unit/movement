@@ -26,7 +26,7 @@ ROICollection: TypeAlias = Sequence[BaseRegionOfInterest]
 
 def save_rois(
     rois: ROICollection,
-    path: str | Path,
+    file: str | Path,
 ) -> None:
     """Save a collection of regions of interest (ROIs) to a GeoJSON file.
 
@@ -38,8 +38,9 @@ def save_rois(
     ----------
     rois : list of BaseRegionOfInterest
         The regions of interest to save.
-    path : str or pathlib.Path
-        Path to the output file. Should have a ``.geojson`` extension.
+    file : str or pathlib.Path
+        Path to the output file.
+        Should have a ``.geojson`` or a ``.json`` extension.
 
     See Also
     --------
@@ -58,7 +59,7 @@ def save_rois(
 
     """
     valid_path = validate_file_path(
-        path, permission="w", suffixes=ValidROICollectionGeoJSON.suffixes
+        file, permission="w", suffixes=ValidROICollectionGeoJSON.suffixes
     )
 
     features = []
@@ -83,12 +84,12 @@ def save_rois(
         json.dump(feature_collection, f, indent=2)
 
 
-def load_rois(path: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
+def load_rois(file: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
     """Load a collection of regions of interest (ROIs) from a GeoJSON file.
 
     Parameters
     ----------
-    path : str or pathlib.Path
+    file : str or pathlib.Path
         Path to the GeoJSON file to load.
 
     Returns
@@ -113,10 +114,9 @@ def load_rois(path: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
     ['square', 'diagonal']
 
     """
-    validated_file = ValidROICollectionGeoJSON(path)
+    validated_file = ValidROICollectionGeoJSON(file)
     return [
-        _feature_to_roi(feature)
-        for feature in validated_file.data["features"]
+        _feature_to_roi(feature) for feature in validated_file.data["features"]
     ]
 
 
