@@ -1,4 +1,4 @@
-"""Tests for IO of ROI collections."""
+"""Tests for IO of RoI collections."""
 
 import json
 
@@ -6,7 +6,7 @@ from movement.roi import LineOfInterest, PolygonOfInterest
 
 
 class TestROICollectionSerialization:
-    """Tests for saving and loading collections of ROIs."""
+    """Tests for saving and loading collections of RoIs."""
 
     def test_save_rois_creates_feature_collection(
         self, unit_square, segment_of_y_equals_x, tmp_path
@@ -27,7 +27,7 @@ class TestROICollectionSerialization:
     def test_load_rois_returns_list(
         self, unit_square, segment_of_y_equals_x, tmp_path
     ):
-        """Test that load_rois returns a list of ROI objects."""
+        """Test that load_rois returns a list of RoI objects."""
         from movement.roi import load_rois, save_rois
 
         file_path = tmp_path / "rois.geojson"
@@ -41,7 +41,7 @@ class TestROICollectionSerialization:
     def test_collection_round_trip_preserves_types(
         self, unit_square, segment_of_y_equals_x, tmp_path
     ):
-        """Test that collection round-trip preserves ROI types."""
+        """Test that collection round-trip preserves RoI types."""
         from movement.roi import load_rois, save_rois
 
         file_path = tmp_path / "rois.geojson"
@@ -99,7 +99,7 @@ class TestROICollectionSerialization:
         segment_of_y_equals_x,
         tmp_path,
     ):
-        """Test collection with various ROI types."""
+        """Test collection with various RoI types."""
         from movement.roi import load_rois, save_rois
 
         loop_line = LineOfInterest(
