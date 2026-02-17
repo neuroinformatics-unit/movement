@@ -106,7 +106,7 @@ plot_speed(ds_bc.speed, title="Speed")
 # %%
 # Define active vs inactive states
 # ---------------------------------
-# We apply an arbitray speed threshold to classify each timepoint.
+# We apply an arbitrary speed threshold to classify each timepoint.
 # This produces a boolean array where ``True`` means active
 # and ``False`` means inactive.
 
