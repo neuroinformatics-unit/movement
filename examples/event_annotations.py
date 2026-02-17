@@ -24,6 +24,12 @@ subsets of data by event.
 # take a 1-hour recording of a mouse in its home cage, compute its
 # speed, and segment the recording into active and inactive states
 # based on a speed threshold.
+#
+# .. note::
+#    This example is inspired by code written by
+#    `Callum Marshall <https://www.keshavarzilab.com/callum>`_ from the
+#    `Keshavarzi lab <https://www.keshavarzilab.com>`_ at the
+#    University of Cambridge.
 
 # %%
 # Imports
