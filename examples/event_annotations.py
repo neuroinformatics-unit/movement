@@ -160,11 +160,11 @@ print(f"Inactive frames: {ds_inactive.sizes['time']}")
 
 
 # %%
-# Stack multiple event annotations
-# --------------------------------
+# Combine multiple event annotations
+# ----------------------------------
 # Each non-dimension coordinate along ``time`` acts like an
 # **event annotation layer**: a parallel track of labels attached to the
-# same time axis. We can stack multiple boolean layers, each
+# same time axis. We can add multiple boolean layers, each
 # capturing a different binary aspect of the data.
 #
 # For example, suppose we also know whether a stimulus was
@@ -177,7 +177,7 @@ is_stimulus = rng.random(ds_bc.sizes["time"]) > 0.7
 ds_bc = ds_bc.assign_coords(stimulus=("time", is_stimulus))
 
 # %%
-# While :meth:`~xarray.Dataset.sel` works for selecting on a
+# While :meth:`xarray.Dataset.sel` works for selecting on a
 # single non-dimension coordinate, it does not support selecting
 # on multiple non-dimension coordinates along the same dimension
 # at once. To combine conditions across layers, we use boolean
@@ -207,7 +207,7 @@ ds_bc = ds_bc.assign_coords(state=("time", state_labels))
 print(ds_bc.coords["state"])
 
 # %%
-# Selection works the same way with :meth:`~xarray.Dataset.sel`.
+# Selection works the same way with :meth:`xarray.Dataset.sel`.
 
 for state_name in ["active", "inactive"]:
     ds_state = ds_bc.sel(state=state_name)
