@@ -38,7 +38,7 @@ class LoaderProtocol(Protocol):
 
     All loader functions registered via :func:`register_loader`
     must conform to this protocol. Loaders must accept a file
-    path (str or Path) or  :class:`pynwb.file.NWBFile` object)
+    path (str or Path) or :class:`pynwb.file.NWBFile` object)
     as their first argument and return an :class:`xarray.Dataset`
     containing pose tracks or bounding box tracks. Additional
     positional and keyword arguments are allowed.
@@ -267,7 +267,6 @@ def load_dataset(
     xarray.Dataset
         ``movement`` dataset containing the pose or bounding box tracks,
         confidence scores, and associated metadata.
-
 
     See Also
     --------

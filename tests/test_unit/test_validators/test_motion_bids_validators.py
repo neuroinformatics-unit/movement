@@ -97,7 +97,7 @@ from movement.validators.files import ValidMotionBidsTSV
         "motion.tsv is empty",
         "motion.json is invalid JSON",
         "filename does not end with _motion.tsv",
-        "channels.tsv is corrupt/unparseable",
+        "channels.tsv is corrupt/unparsable",
     ],
 )
 def test_motion_bids_tsv_validator(fixture_name, expected_context, request):
