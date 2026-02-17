@@ -1,0 +1,23 @@
+movement.plots
+==============
+
+.. rubric:: Description
+
+.. automodule:: movement.plots
+
+.. currentmodule:: movement.plots
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    plot_centroid_trajectory
+    
+    plot_occupancy
+    
+

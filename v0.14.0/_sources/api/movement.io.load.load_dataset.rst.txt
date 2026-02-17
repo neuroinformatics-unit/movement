@@ -1,0 +1,9 @@
+load\_dataset
+=============
+
+.. currentmodule:: movement.io.load
+
+.. autofunction:: load_dataset
+
+.. minigallery:: movement.io.load.load_dataset
+   :add-heading: Examples using ``load_dataset``

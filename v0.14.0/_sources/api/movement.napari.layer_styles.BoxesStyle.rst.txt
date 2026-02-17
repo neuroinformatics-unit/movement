@@ -1,0 +1,47 @@
+BoxesStyle
+==========
+
+.. currentmodule:: movement.napari.layer_styles
+
+.. autoclass:: BoxesStyle
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+      ~BoxesStyle.as_kwargs
+   
+   
+      ~BoxesStyle.set_color_by
+   
+   
+      ~BoxesStyle.set_text_by
+   
+   
+   
+
+.. minigallery:: movement.napari.layer_styles.BoxesStyle
+   :add-heading: Examples using ``BoxesStyle``

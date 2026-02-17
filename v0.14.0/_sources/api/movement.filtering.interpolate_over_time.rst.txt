@@ -1,0 +1,9 @@
+interpolate\_over\_time
+=======================
+
+.. currentmodule:: movement.filtering
+
+.. autofunction:: interpolate_over_time
+
+.. minigallery:: movement.filtering.interpolate_over_time
+   :add-heading: Examples using ``interpolate_over_time``

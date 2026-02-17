@@ -1,0 +1,45 @@
+﻿movement.validators.files
+=========================
+
+.. rubric:: Description
+
+.. automodule:: movement.validators.files
+
+.. currentmodule:: movement.validators.files
+
+
+.. rubric:: Classes
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    ValidAniposeCSV
+    
+    ValidDeepLabCutCSV
+    
+    ValidDeepLabCutH5
+    
+    ValidFile
+    
+    ValidNWBFile
+    
+    ValidSleapAnalysis
+    
+    ValidSleapLabels
+    
+    ValidVIATracksCSV
+    
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    validate_file_path
+    
+

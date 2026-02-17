@@ -1,0 +1,23 @@
+ValidSleapAnalysis
+==================
+
+.. currentmodule:: movement.validators.files
+
+.. autoclass:: ValidSleapAnalysis
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   
+
+.. minigallery:: movement.validators.files.ValidSleapAnalysis
+   :add-heading: Examples using ``ValidSleapAnalysis``
