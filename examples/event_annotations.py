@@ -15,7 +15,7 @@ subsets of data by event.
 # event (e.g., stimulus onset, trial boundary), or any other
 # per-timepoint annotation relevant to the analysis.
 #
-# These annotations can be stored as `non-dimension coordinates
+# These **event annotations** can be stored as `non-dimension coordinates
 # <https://docs.xarray.dev/en/stable/user-guide/data-structures.html#coordinates>`_
 # along the ``time`` dimension, allowing us to select data using
 # standard ``xarray`` operations.
@@ -47,7 +47,7 @@ from movement.kinematics import compute_speed
 # This contains the DeepLabCut predictions for a single mouse tracked over
 # one hour in its home cage. We select the first (and only)
 # individual and the ``bodycenter`` keypoint to work with.
-# Let's call the selected dataset ``ds_bc`` for brevity.
+# We name the selected dataset ``ds_bc`` for brevity.
 
 ds = sample_data.fetch_dataset(
     "DLC_smart-kage3_datetime-20240417T100006.predictions.h5"
@@ -58,7 +58,7 @@ print(ds_bc)
 # %%
 # Compute and plot speed
 # ----------------------
-# We use :func:`movement.kinematics.compute_speed` to compute the
+# We use :func:`movement.kinematics.compute_speed` to get the
 # instantaneous speed of the ``bodycenter`` keypoint across time.
 # We store the result as a new variable in the same dataset.
 
@@ -74,12 +74,12 @@ print(ds_bc.speed)
 
 def plot_speed(speed_da, threshold=None, active=None, title="Speed"):
     """Plot a speed DataArray over time."""
-    fig, ax = plt.subplots(figsize=(8, 3))
+    fig, ax = plt.subplots(figsize=(10, 3))
     time = speed_da.time.values
-    speed_da.plot.line(x="time", ax=ax, linewidth=0.5, color="grey")
+    speed_da.plot.line(x="time", ax=ax, linewidth=0.5, color="black")
 
     if threshold is not None:
-        ax.axhline(threshold, linestyle="--", color="tab:red")
+        ax.axhline(threshold, linestyle="--", color="tomato")
 
     if active is not None:
         changes = np.diff(active.astype(int), prepend=~active[0])
@@ -89,9 +89,9 @@ def plot_speed(speed_da, threshold=None, active=None, title="Speed"):
             if active[s]:
                 ax.axvspan(
                     time[s],
-                    time[e - 1],
-                    alpha=0.2,
-                    color="tab:green",
+                    time[min(e, len(time) - 1)],
+                    alpha=0.4,
+                    color="tomato",
                 )
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Speed (pixels/s)")
@@ -103,9 +103,6 @@ def plot_speed(speed_da, threshold=None, active=None, title="Speed"):
 
 # %%
 # Let's plot the speed over time to get a sense of the data.
-# Note that speed here is expressed in pixels per second,
-# because the DeepLabCut predictions are given in pixel coordinates
-# and the time unit is seconds (stored in ``ds.attrs['time_unit']``).
 
 plot_speed(ds_bc.speed, title="Speed")
 
@@ -160,7 +157,7 @@ print(f"Inactive frames: {ds_inactive.sizes['time']}")
 
 
 # %%
-# Combine multiple event annotations
+# Combine boolean event annotations
 # ----------------------------------
 # Each non-dimension coordinate along ``time`` acts like an
 # **event annotation layer**: a parallel track of labels attached to the
@@ -180,8 +177,8 @@ ds_bc = ds_bc.assign_coords(stimulus=("time", is_stimulus))
 # While :meth:`xarray.Dataset.sel` works for selecting on a
 # single non-dimension coordinate, it does not support selecting
 # on multiple non-dimension coordinates along the same dimension
-# at once. To combine conditions across layers, we use boolean
-# indexing along ``time`` instead.
+# at once. To combine conditions across annotation layers,
+# we use boolean indexing along ``time`` instead.
 
 ds_active_stim = ds_bc.sel(time=ds_bc.active & ds_bc.stimulus)
 print(f"Active + stimulus frames: {ds_active_stim.sizes['time']}")
