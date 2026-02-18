@@ -74,7 +74,7 @@ print(ds_bc.speed)
 
 def plot_speed(speed_da, threshold=None, active=None, title="Speed"):
     """Plot a speed DataArray over time."""
-    fig, ax = plt.subplots(figsize=(10, 3))
+    fig, ax = plt.subplots(figsize=(8, 3))
     time = speed_da.time.values
     speed_da.plot.line(x="time", ax=ax, linewidth=0.5, color="black")
 
@@ -141,7 +141,7 @@ plot_speed(
 # annotates an existing one with additional labels.
 
 ds_bc = ds_bc.assign_coords(active=("time", is_active))
-print(ds_bc.coords["active"])
+print(ds_bc.coords)
 
 # %%
 # With the ``active`` coordinate in place, we can select
@@ -172,6 +172,7 @@ print(f"Inactive frames: {ds_inactive.sizes['time']}")
 rng = np.random.default_rng(42)
 is_stimulus = rng.random(ds_bc.sizes["time"]) > 0.7
 ds_bc = ds_bc.assign_coords(stimulus=("time", is_stimulus))
+print(ds_bc.coords)
 
 # %%
 # While :meth:`xarray.Dataset.sel` works for selecting on a
@@ -201,7 +202,7 @@ print(f"Active + stimulus frames: {ds_active_stim.sizes['time']}")
 
 state_labels = np.where(is_active, "active", "inactive")
 ds_bc = ds_bc.assign_coords(state=("time", state_labels))
-print(ds_bc.coords["state"])
+print(ds_bc.coords)
 
 # %%
 # Selection works the same way with :meth:`xarray.Dataset.sel`.
