@@ -332,6 +332,11 @@ def load_multiview_dataset(
     dataset specified in ``file_path_dict``. This is the default
     behaviour of :func:`xarray.concat` used under the hood.
 
+    See Also
+    --------
+    movement.io.load_poses
+    movement.io.load_bboxes
+
     """
     views_list = list(file_dict.keys())
     new_coord_views = xr.DataArray(views_list, dims="view")
