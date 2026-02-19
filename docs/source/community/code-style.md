@@ -1,6 +1,8 @@
 (target-code-style)=
 # Code style
 
+This page describes the conventions we follow to keep `movement`'s codebase consistent, covering automated formatting tools and logging practices.
+
 (target-formatting-and-pre-commit-hooks)=
 ## Formatting and pre-commit hooks
 Running `pre-commit install` will set up [pre-commit hooks](https://pre-commit.com/) to ensure a consistent formatting style. Currently, these include:
