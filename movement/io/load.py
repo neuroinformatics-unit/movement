@@ -259,7 +259,7 @@ def load_dataset(
         the NWB file.
     **kwargs
         Additional keyword arguments to pass to the software-specific
-        loading functions that are listed under "See Also".
+        loading functions in modules listed under "See Also".
 
     Returns
     -------
@@ -318,7 +318,7 @@ def load_multiview_dataset(
         the NWB file.
     **kwargs
         Additional keyword arguments to pass to the software-specific
-        loading functions that are listed under "See Also".
+        loading functions in modules listed under "See Also".
 
     Returns
     -------
