@@ -215,7 +215,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f6cc44d0e60>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f1dabc0bf50>
 
 
 
@@ -246,7 +246,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f6cc4610bf0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f1dabeb0200>
 
 
 
