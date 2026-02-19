@@ -5,9 +5,13 @@
     "url": "https://movement.neuroinformatics.dev/dev/"
   },
   {
-    "name": "v0.13.0 (latest)",
-    "version": "v0.13.0",
+    "name": "v0.14.0 (latest)",
+    "version": "v0.14.0",
     "url": "https://movement.neuroinformatics.dev/latest/"
+  },
+  {
+    "version": "v0.13.0",
+    "url": "https://movement.neuroinformatics.dev/v0.13.0/"
   },
   {
     "version": "v0.12.0",
