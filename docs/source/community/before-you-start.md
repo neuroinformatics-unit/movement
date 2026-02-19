@@ -51,10 +51,4 @@ We will do our best to provide timely and constructive feedback on your contribu
 However, we are a small team with many other commitments, so please be patient if you don't hear back immediately.
 We receive notifications for all activity in the repository, so avoid pinging maintainers directly unless you haven't received any response for over two weeks or something is truly urgent.
 
-To help us review your work promptly, please keep pull requests small and focused on a single
-change — these are easier to review and tend to be prioritised.
-If you haven't yet had a pull request merged in any of our
-[team's projects](https://neuroinformatics.dev/projects), please avoid opening more than one
-at a time until your first has been reviewed (unless maintainers suggest otherwise).
-
 Please also make sure your contributions follow our [code of conduct](target-code-of-conduct) and our [team's policy on using AI](https://neuroinformatics.dev/get-involved/ai_policy.html). Contributions that don't may be closed without further review.

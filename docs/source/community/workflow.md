@@ -85,6 +85,8 @@ Now that you have the repository locally, you need to set up a Python environmen
 In all cases, please submit code to the main repository via a pull request (PR).
 We recommend, and adhere, to the following conventions:
 
+- Please keep PRs small and focused on a single change — these are easier to review and tend to be prioritised.
+- If you haven't yet had a PR merged in any of our [team's projects](https://neuroinformatics.dev/projects), please avoid opening more than one at a time until your first has been reviewed (unless maintainers suggest otherwise).
 - Please submit _draft_ PRs as early as possible to allow for discussion.
 - The PR title should be descriptive e.g. "Add new function to do X" or "Fix bug in Y".
 - The PR description should be used to provide context and motivation for the changes.
