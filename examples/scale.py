@@ -559,8 +559,3 @@ print(
 # %%
 # Having the data in real-world units makes these quantitative comparisons
 # possible.
-
-# %%
-# .. seealso::
-#    :ref:`sphx_glr_examples_load_and_visualise_3D_poses.py` for an example
-#    visualising 3D pose tracks from the same recording.
