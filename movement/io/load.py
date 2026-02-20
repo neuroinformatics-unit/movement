@@ -259,7 +259,7 @@ def load_dataset(
         the NWB file.
     **kwargs
         Additional keyword arguments to pass to the software-specific
-        loading functions that are listed under "See Also".
+        loading functions in modules listed under "See Also".
 
     Returns
     -------
@@ -318,7 +318,7 @@ def load_multiview_dataset(
         the NWB file.
     **kwargs
         Additional keyword arguments to pass to the software-specific
-        loading functions that are listed under "See Also".
+        loading functions in modules listed under "See Also".
 
     Returns
     -------
@@ -331,6 +331,11 @@ def load_multiview_dataset(
     The attributes of the resulting dataset will be taken from the first
     dataset specified in ``file_path_dict``. This is the default
     behaviour of :func:`xarray.concat` used under the hood.
+
+    See Also
+    --------
+    movement.io.load_poses
+    movement.io.load_bboxes
 
     """
     views_list = list(file_dict.keys())
