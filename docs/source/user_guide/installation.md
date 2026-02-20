@@ -86,7 +86,8 @@ Alternatively, upgrade to macOS 14 to use any of the installation methods above.
 :::{admonition} For developers
 :class: tip
 
-If you would like to contribute to `movement`, see our [contributing guide](target-contributing)
+If you would like to contribute to `movement`,
+see our [contribution workflow](target-contribution-workflow)
 for detailed developer setup instructions and coding guidelines.
 :::
 

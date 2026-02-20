@@ -1,4 +1,4 @@
 # Contributing
 
-See the [Contributing Guide](https://movement.neuroinformatics.dev/latest/community/contributing.html)
-on our website for detailed instructions.
+See the [Community page](https://movement.neuroinformatics.dev/latest/community/index.html)
+on our website for detailed contributing guidelines.

@@ -29,9 +29,12 @@ Learn how to set up your development environment and contribute code or document
 
 - [Before you start](target-before-you-start)
 - [Contribution workflow](target-contribution-workflow)
-- [Development guidelines](target-dev-guidelines)
-- [Contributing documentation](target-contributing-docs)
+- [Code style](target-code-style)
+- [Testing](target-testing)
+- [Implementing new loaders](target-implementing-loaders)
+- [Updating the documentation](target-updating-docs)
 - [Sample data](target-contributing-sample-data)
+- [Maintainers guide](target-maintainers-guide)
 :::
 ::::
 
@@ -43,15 +46,30 @@ Learn how to set up your development environment and contribute code or document
 
 
 ```{toctree}
+:caption: About the project
 :maxdepth: 2
 :hidden:
 
 people
 mission-scope
 roadmaps
-contributing
 resources
 related-projects
 code-of-conduct
 license
+```
+
+```{toctree}
+:caption: Contributing
+:maxdepth: 2
+:hidden:
+
+before-you-start
+workflow
+code-style
+testing
+implementing-loaders
+updating-docs
+sample-data
+maintainers
 ```
