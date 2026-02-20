@@ -34,7 +34,7 @@ In addition, 2026 introduces some new priorities:
 - Expose a single unified entry point for loading motion tracks.
 - Simplify and document the process of adding new loaders for different formats.
 - Publish a governance document and define contributor pathways.
-- Survey animal behaviour researchers to prioritise specialised behavioural metrics for implementation.
+- Survey animal behaviour researchers to prioritise specialised behavioural metrics, and implement at least two of them.
 
 ## Focus areas for 2025
 
