@@ -21,10 +21,12 @@ navigation, social interactions, etc.
 
 ## Focus areas for 2026
 
-Several 2025 goals have been carried over and refined:
+Several 2025 goals have been carried over, refined or expanded for 2026:
 
-- Support drawing regions of interest via our [GUI](target-gui).
-- Implement at least two functions for quantifying social interactions and/or collective behaviour.
+- Support novel user workflows in our `napari` [GUI](target-gui), including:
+  - drawing regions of interest and saving them to disk,
+  - filtering visualised data by individuals and keypoints,
+  - manually correcting predictions and saving them to disk.
 - Support datetime coordinates in [movement datasets](target-poses-and-bboxes-dataset) (to unlock future work on events of interest and on alignment with neurophysiological data).
 
 In addition, 2026 introduces some new priorities:
@@ -32,6 +34,7 @@ In addition, 2026 introduces some new priorities:
 - Expose a single unified entry point for loading motion tracks.
 - Simplify and document the process of adding new loaders for different formats.
 - Publish a governance document and define contributor pathways.
+- Survey animal behaviour researchers to prioritise specialised behavioural metrics for implementation.
 
 ## Focus areas for 2025
 
