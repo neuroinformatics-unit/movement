@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=93eb3500"></script>
+    <script src="../_static/documentation_options.js?v=3793b119"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev2</p>
+    <p class="title logo__title">movement v0.14.1.dev3</p>
   
 </a></div>
     
@@ -502,15 +502,49 @@ navigation, social interactions, etc.</p></li>
 <li><p><strong>Integrate with neurophysiological data analysis tools</strong>. We eventually aim to facilitate combined analysis of motion and neural data.</p></li>
 </ul>
 </section>
+<section id="focus-areas-for-2026">
+<h2>Focus areas for 2026<a class="headerlink" href="#focus-areas-for-2026" title="Link to this heading">#</a></h2>
+<p>Several 2025 goals have been carried over, refined or expanded for 2026:</p>
+<ul class="simple">
+<li><p>Support novel user workflows in our <code class="docutils literal notranslate"><span class="pre">napari</span></code> <a class="reference internal" href="../user_guide/gui.html#target-gui"><span class="std std-ref">GUI</span></a>, including:</p>
+<ul>
+<li><p>drawing regions of interest and saving them to disk,</p></li>
+<li><p>filtering visualised data by individuals and keypoints,</p></li>
+<li><p>manually correcting predictions and saving them to disk.</p></li>
+</ul>
+</li>
+<li><p>Support datetime coordinates in <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a> (to unlock future work on events of interest and on alignment with neurophysiological data).</p></li>
+</ul>
+<p>In addition, 2026 introduces some new priorities:</p>
+<ul class="simple">
+<li><p>Expose a single unified entry point for loading motion tracks.</p></li>
+<li><p>Simplify and document the process of adding new loaders for different formats.</p></li>
+<li><p>Publish a governance document and define contributor pathways.</p></li>
+<li><p>Survey animal behaviour researchers to prioritise specialised behavioural metrics, and implement at least two of them.</p></li>
+</ul>
+</section>
 <section id="focus-areas-for-2025">
 <h2>Focus areas for 2025<a class="headerlink" href="#focus-areas-for-2025" title="Link to this heading">#</a></h2>
-<ul class="simple">
-<li><p>Annotate space by defining regions of interest programmatically and via our <a class="reference internal" href="../user_guide/gui.html#target-gui"><span class="std std-ref">GUI</span></a>.</p></li>
-<li><p>Annotate time by defining events of interest programmatically and via our <a class="reference internal" href="../user_guide/gui.html#target-gui"><span class="std std-ref">GUI</span></a>.</p></li>
-<li><p>Enable workflows for aligning motion tracks with concurrently recorded neurophysiological signals.</p></li>
-<li><p>Enrich the interactive visualisation of motion tracks in <code class="docutils literal notranslate"><span class="pre">napari</span></code>, providing more customisation options.</p></li>
-<li><p>Enable the saving of filtered tracks and derived kinematic variables to disk.</p></li>
-<li><p>Implement metrics useful for analysing spatial navigation, social interactions, and collective behaviour.</p></li>
+<p>We defined these high-level goals in early 2025.
+Items completed by the year’s end have been checked off.</p>
+<ul class="contains-task-list simple">
+<li><p>Annotate space by defining regions of interest</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> programmatically,</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> via our <a class="reference internal" href="../user_guide/gui.html#target-gui"><span class="std std-ref">GUI</span></a>.</p></li>
+</ul>
+</li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Annotate time by defining events of interest programmatically and via our <a class="reference internal" href="../user_guide/gui.html#target-gui"><span class="std std-ref">GUI</span></a>.</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> Enable workflows for aligning motion tracks with concurrently recorded neurophysiological signals.</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Enrich the interactive visualisation of motion tracks in <code class="docutils literal notranslate"><span class="pre">napari</span></code>, providing more customisation options.</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> Enable the saving of filtered tracks and derived kinematic variables to disk.</p></li>
+<li><p>Implement metrics useful for analysing</p>
+<ul class="contains-task-list">
+<li class="task-list-item"><p><input class="task-list-item-checkbox" checked="checked" disabled="disabled" type="checkbox"> spatial navigation,</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> social interactions,</p></li>
+<li class="task-list-item"><p><input class="task-list-item-checkbox" disabled="disabled" type="checkbox"> collective behaviour.</p></li>
+</ul>
+</li>
 </ul>
 </section>
 <section id="version-0-1">
@@ -579,6 +613,7 @@ navigation, social interactions, etc.</p></li>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#long-term-vision">Long-term vision</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#focus-areas-for-2026">Focus areas for 2026</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#focus-areas-for-2025">Focus areas for 2025</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#version-0-1">Version 0.1</a></li>
 </ul>
