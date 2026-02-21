@@ -369,7 +369,7 @@ def from_lp_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     ds = _ds_from_lp_or_dlc_file(
         valid_file=valid_file, source_software="LightningPose", fps=fps
     )
-    n_individuals = ds.sizes.get("individuals", 1)
+    n_individuals = ds.sizes.get("individual", 1)
     if n_individuals > 1:
         raise logger.error(
             ValueError(

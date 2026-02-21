@@ -58,11 +58,11 @@ def occupancy_data() -> xr.DataArray:
         data_vals[:, :, keypoint_index, 3] += (1.0, 0.0)
     return xr.DataArray(
         data=data_vals,
-        dims=["time", "space", "keypoints", "individuals"],
+        dims=["time", "space", "keypoint", "individual"],
         coords={
             "space": ["x", "y"],
-            "keypoints": ["left", "right", "centre"],
-            "individuals": [0, 1, 2, 3],
+            "keypoint": ["left", "right", "centre"],
+            "individual": [0, 1, 2, 3],
         },
     )
 
@@ -122,7 +122,7 @@ def occupancy_data_with_nans(occupancy_data: xr.DataArray) -> xr.DataArray:
                 "keypoints": ["left", "right"],
             },
             3 * antidiagonal_matrix([1] * 5),
-            {"keypoints": "centre"},
+            {"keypoint": "centre"},
             id="Keypoints: Handle not a dimension",
         ),
         pytest.param(
@@ -175,7 +175,7 @@ def occupancy_data_with_nans(occupancy_data: xr.DataArray) -> xr.DataArray:
                 "individuals": [0, 2],
             },
             antidiagonal_matrix([1] * 5),
-            {"individuals": 0},
+            {"individual": 0},
             id="Individuals: Handle not a dimension",
         ),
         pytest.param(
