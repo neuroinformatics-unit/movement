@@ -337,3 +337,35 @@ def test_path_length_nan_warn_threshold(
             position, nan_warn_threshold=nan_warn_threshold
         )
         assert result.name == "path_length"
+
+
+def test_forward_displacement_with_multiindex_coords():
+    """Test that compute_forward_displacement works with DataArrays
+    created from a pandas MultiIndex via .to_xarray().
+
+    Regression test for https://github.com/neuroinformatics-unit/movement/issues/794
+    """
+    from itertools import product
+
+    import pandas as pd
+
+    frames = range(3)
+    space = ["x", "y"]
+    keypoints = ["centroid"]
+    individuals = ["bird001"]
+    df = pd.DataFrame(
+        list(product(frames, space, keypoints, individuals)),
+        columns=["time", "space", "keypoints", "individuals"],
+    )
+    df["position"] = np.random.rand(len(df))
+
+    position = (
+        df.loc[:, ["time", "space", "keypoints", "individuals", "position"]]
+        .set_index(["time", "space", "keypoints", "individuals"])["position"]
+        .to_xarray()
+    )
+
+    result = kinematics.compute_forward_displacement(position)
+    assert result is not None
+    assert "time" in result.dims
+    assert "space" in result.dims

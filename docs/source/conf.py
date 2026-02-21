@@ -214,7 +214,21 @@ linkcheck_ignore = [
     "https://zenodo.org/doi/*",
     "https://zenodo.org/records/*",
     "https://doi.org/10.5281/zenodo.*",
+    # Institutional and social-media sites that block or throttle bots
+    "https://www.youtube.com/.*",  # YouTube returns 403 to automated requests
+    "https://www.ucl.ac.uk/.*",  # UCL pages frequently 403/timeout for bots
+    "https://aeon.swc.ucl.ac.uk/.*",  # UCL subdomain, same issue
+    "https://www.crick.ac.uk/.*",  # Crick institutional site blocks bots
+    "https://www.iso.org/.*",  # ISO always returns 403 to automated access
+    "https://wellcome.org.*",  # Wellcome Trust site blocks bots
+    "https://creativecommons.org/.*",  # CC license pages occasionally 403
+    "https://abide.ics.ulisboa.pt/.*",  # SSL certificate errors in CI
+    "https://docs.sleap.ai/.*",  # SLEAP docs reorganised; old paths return 404
 ]
+# Allow known permanent redirects so they don't become -W warnings
+linkcheck_allowed_redirects = {
+    r"https://docs\.github\.com/.*": r"https://docs\.github\.com/.*",
+}
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {
     "https://github.com": {
