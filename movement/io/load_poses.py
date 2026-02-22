@@ -987,6 +987,16 @@ def _parse_motion_bids_channels(
     # Extract unique spatial components preserving order
     components = list(dict.fromkeys(pos_channels["component"]))
 
+    # Validate component order
+    if components not in (["x", "y"], ["x", "y", "z"]):
+        raise logger.error(
+            ValueError(
+                f"Unexpected Motion-BIDS spatial component order "
+                f"{components!r}. Expected ['x', 'y'] or "
+                f"['x', 'y', 'z'] in that order."
+            )
+        )
+
     # Extract individual names if present
     if "individual" in pos_channels.columns:
         individual_names = list(dict.fromkeys(pos_channels["individual"]))
@@ -1032,7 +1042,7 @@ def from_motion_bids_file(
 
     Notes
     -----
-    Motion-BIDS stores motion data across multiple files:
+    Motion-BIDS [1]_ stores motion data across multiple files:
 
     - ``*_motion.tsv``: Time series data (no header row, tab-separated).
       Each column corresponds to a channel defined in ``_channels.tsv``.
@@ -1094,6 +1104,17 @@ def from_motion_bids_file(
         np.float64
     )
     n_frames = motion_data.shape[0]
+
+    # Validate column count matches channels
+    n_columns = motion_data.shape[1]
+    if n_columns != len(channels_df):
+        raise logger.error(
+            ValueError(
+                f"Motion-BIDS data mismatch: motion file has "
+                f"{n_columns} columns, but channels file defines "
+                f"{len(channels_df)} channels."
+            )
+        )
 
     # Build position array: (n_frames, n_space, n_keypoints, n_individuals)
     position_array = np.full(

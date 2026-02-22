@@ -865,3 +865,70 @@ def motion_bids_corrupt_channels(tmp_path):
         # Write binary data that will cause pandas to fail
         f.write(b"\x00\x01\x02\xff\xfe\xfd")
     return motion_path
+
+
+@pytest.fixture
+def motion_bids_wrong_component_order(tmp_path):
+    """Return path for Motion-BIDS where components are y, x (wrong order)."""
+    motion_data = [
+        [1.0, 2.0, 5.0, 6.0],
+        [1.1, 2.1, 5.1, 6.1],
+    ]
+    channels_data = [
+        _CHANNELS_HEADER,
+        ["nose_y", "y", "POS", "nose", "px"],
+        ["nose_x", "x", "POS", "nose", "px"],
+        ["tail_y", "y", "POS", "tail", "px"],
+        ["tail_x", "x", "POS", "tail", "px"],
+    ]
+    metadata = {"SamplingFrequency": 30}
+    return _write_motion_bids_files(
+        tmp_path,
+        motion_data=motion_data,
+        channels_data=channels_data,
+        metadata=metadata,
+    )
+
+
+@pytest.fixture
+def motion_bids_column_count_mismatch(tmp_path):
+    """Return path for Motion-BIDS where motion.tsv has more columns
+    than channels.tsv defines.
+    """
+    motion_data = [
+        [1.0, 2.0, 3.0, 4.0, 5.0],  # 5 columns
+        [1.1, 2.1, 3.1, 4.1, 5.1],
+    ]
+    channels_data = [
+        _CHANNELS_HEADER,
+        ["nose_x", "x", "POS", "nose", "px"],
+        ["nose_y", "y", "POS", "nose", "px"],
+    ]  # only 2 channels
+    metadata = {"SamplingFrequency": 30}
+    return _write_motion_bids_files(
+        tmp_path,
+        motion_data=motion_data,
+        channels_data=channels_data,
+        metadata=metadata,
+    )
+
+
+@pytest.fixture
+def motion_bids_invalid_components(tmp_path):
+    """Return path for Motion-BIDS with invalid component values (a, b)."""
+    motion_data = [
+        [1.0, 2.0],
+        [1.1, 2.1],
+    ]
+    channels_data = [
+        _CHANNELS_HEADER,
+        ["nose_a", "a", "POS", "nose", "px"],
+        ["nose_b", "b", "POS", "nose", "px"],
+    ]
+    metadata = {"SamplingFrequency": 30}
+    return _write_motion_bids_files(
+        tmp_path,
+        motion_data=motion_data,
+        channels_data=channels_data,
+        metadata=metadata,
+    )

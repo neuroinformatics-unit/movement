@@ -678,6 +678,15 @@ def to_motion_bids(
 
     # Build metadata for _motion.json
     fps = getattr(ds, "fps", None)
+    if fps is None and "SamplingFrequency" not in metadata_kwargs:
+        raise logger.error(
+            ValueError(
+                "Cannot export to Motion-BIDS: dataset has no 'fps' "
+                "attribute. Please set 'fps' before calling "
+                "to_motion_bids(), or supply 'SamplingFrequency' "
+                "via metadata_kwargs."
+            )
+        )
     sampling_frequency = fps if fps is not None else 0
 
     auto_metadata: dict = {

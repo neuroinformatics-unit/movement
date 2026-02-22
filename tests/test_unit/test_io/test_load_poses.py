@@ -415,3 +415,15 @@ def test_motion_bids_position_values_multi_individual(
     # Frame 0, Bob nose: x=30.0, y=40.0
     pos_bob = ds.position.isel(time=0, individuals=1, keypoints=0).values
     np.testing.assert_allclose(pos_bob, [30.0, 40.0])
+
+
+def test_motion_bids_wrong_component_order(motion_bids_wrong_component_order):
+    """Test that wrong component order raises a ValueError."""
+    with pytest.raises(ValueError, match="Unexpected Motion-BIDS spatial"):
+        load_poses.from_motion_bids_file(motion_bids_wrong_component_order)
+
+
+def test_motion_bids_column_count_mismatch(motion_bids_column_count_mismatch):
+    """Test that mismatched column count raises a ValueError."""
+    with pytest.raises(ValueError, match="Motion-BIDS data mismatch"):
+        load_poses.from_motion_bids_file(motion_bids_column_count_mismatch)

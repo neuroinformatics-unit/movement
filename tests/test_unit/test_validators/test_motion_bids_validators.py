@@ -83,6 +83,13 @@ from movement.validators.files import ValidMotionBidsTSV
                 match="Could not parse channels file as TSV",
             ),
         ),
+        (
+            "motion_bids_invalid_components",
+            pytest.raises(
+                ValueError,
+                match="Invalid component values in channels file",
+            ),
+        ),
     ],
     ids=[
         "valid 2D Motion-BIDS files",
@@ -98,6 +105,7 @@ from movement.validators.files import ValidMotionBidsTSV
         "motion.json is invalid JSON",
         "filename does not end with _motion.tsv",
         "channels.tsv is corrupt/unparsable",
+        "channels.tsv has invalid component values",
     ],
 )
 def test_motion_bids_tsv_validator(fixture_name, expected_context, request):
