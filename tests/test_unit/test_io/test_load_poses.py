@@ -321,3 +321,109 @@ def test_from_multiview_files():
     assert isinstance(multi_view_ds, xr.Dataset)
     assert "view" in multi_view_ds.dims
     assert multi_view_ds.view.values.tolist() == view_names
+
+
+# -------------- Motion-BIDS loader tests ----------------------------
+
+
+def test_load_from_motion_bids_2d(valid_motion_bids_2d, helpers):
+    """Test loading 2D Motion-BIDS data returns a valid dataset."""
+    ds = load_poses.from_motion_bids_file(valid_motion_bids_2d)
+    expected_values = {
+        **expected_values_poses,
+        "source_software": "MotionBIDS",
+        "file_path": valid_motion_bids_2d,
+        "fps": 30,
+    }
+    helpers.assert_valid_dataset(ds, expected_values)
+    assert ds.sizes["time"] == 3
+    assert ds.sizes["space"] == 2
+    assert list(ds.coords["keypoints"].values) == ["nose", "tail"]
+    assert list(ds.coords["individuals"].values) == ["individual_0"]
+
+
+def test_load_from_motion_bids_3d(valid_motion_bids_3d, helpers):
+    """Test loading 3D Motion-BIDS data returns a valid dataset."""
+    ds = load_poses.from_motion_bids_file(valid_motion_bids_3d)
+    expected_values = {
+        **expected_values_poses,
+        "source_software": "MotionBIDS",
+        "file_path": valid_motion_bids_3d,
+        "fps": 60,
+    }
+    helpers.assert_valid_dataset(ds, expected_values)
+    assert ds.sizes["time"] == 2
+    assert ds.sizes["space"] == 3
+    assert list(ds.coords["space"].values) == ["x", "y", "z"]
+
+
+def test_load_from_motion_bids_multi_individual(
+    valid_motion_bids_multi_individual, helpers
+):
+    """Test loading multi-individual Motion-BIDS data."""
+    ds = load_poses.from_motion_bids_file(valid_motion_bids_multi_individual)
+    expected_values = {
+        **expected_values_poses,
+        "source_software": "MotionBIDS",
+        "file_path": valid_motion_bids_multi_individual,
+        "fps": 30,
+    }
+    helpers.assert_valid_dataset(ds, expected_values)
+    assert list(ds.coords["individuals"].values) == ["Alice", "Bob"]
+    assert list(ds.coords["keypoints"].values) == ["nose"]
+
+
+def test_motion_bids_fps_override(valid_motion_bids_2d):
+    """Test that providing fps overrides the JSON SamplingFrequency."""
+    ds = load_poses.from_motion_bids_file(valid_motion_bids_2d, fps=100)
+    assert ds.attrs["fps"] == 100
+    assert ds.attrs["time_unit"] == "seconds"
+    # Verify the time coordinate step matches the override fps
+    time_vals = ds.coords["time"].values
+    dt = time_vals[1] - time_vals[0]
+    np.testing.assert_allclose(dt, 1.0 / 100)
+
+
+def test_motion_bids_confidence_is_nan(valid_motion_bids_2d):
+    """Test that confidence is filled with NaN for Motion-BIDS data."""
+    ds = load_poses.from_motion_bids_file(valid_motion_bids_2d)
+    assert np.all(np.isnan(ds.confidence.values))
+
+
+def test_motion_bids_position_values_2d(valid_motion_bids_2d):
+    """Test exact position values from a 2D Motion-BIDS dataset."""
+    ds = load_poses.from_motion_bids_file(valid_motion_bids_2d)
+    # Frame 0, nose: x=1.0, y=2.0
+    pos_nose_f0 = ds.position.isel(time=0, individuals=0, keypoints=0).values
+    np.testing.assert_allclose(pos_nose_f0, [1.0, 2.0])
+    # Frame 0, tail: x=5.0, y=6.0
+    pos_tail_f0 = ds.position.isel(time=0, individuals=0, keypoints=1).values
+    np.testing.assert_allclose(pos_tail_f0, [5.0, 6.0])
+    # Frame 2, nose: x=1.2, y=2.2
+    pos_nose_f2 = ds.position.isel(time=2, individuals=0, keypoints=0).values
+    np.testing.assert_allclose(pos_nose_f2, [1.2, 2.2])
+
+
+def test_motion_bids_position_values_multi_individual(
+    valid_motion_bids_multi_individual,
+):
+    """Test position values for multi-individual Motion-BIDS data."""
+    ds = load_poses.from_motion_bids_file(valid_motion_bids_multi_individual)
+    # Frame 0, Alice nose: x=10.0, y=20.0
+    pos_alice = ds.position.isel(time=0, individuals=0, keypoints=0).values
+    np.testing.assert_allclose(pos_alice, [10.0, 20.0])
+    # Frame 0, Bob nose: x=30.0, y=40.0
+    pos_bob = ds.position.isel(time=0, individuals=1, keypoints=0).values
+    np.testing.assert_allclose(pos_bob, [30.0, 40.0])
+
+
+def test_motion_bids_wrong_component_order(motion_bids_wrong_component_order):
+    """Test that wrong component order raises a ValueError."""
+    with pytest.raises(ValueError, match="Unexpected Motion-BIDS spatial"):
+        load_poses.from_motion_bids_file(motion_bids_wrong_component_order)
+
+
+def test_motion_bids_column_count_mismatch(motion_bids_column_count_mismatch):
+    """Test that mismatched column count raises a ValueError."""
+    with pytest.raises(ValueError, match="Motion-BIDS data mismatch"):
+        load_poses.from_motion_bids_file(motion_bids_column_count_mismatch)

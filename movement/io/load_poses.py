@@ -20,6 +20,7 @@ from movement.validators.files import (
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
     ValidFile,
+    ValidMotionBidsTSV,
     ValidNWBFile,
     ValidSleapAnalysis,
     ValidSleapLabels,
@@ -944,3 +945,225 @@ def _ds_from_nwb_object(
     return xr.merge(
         single_keypoint_datasets, join="outer", compat="no_conflicts"
     )
+
+
+_DEFAULT_INDIVIDUAL = "individual_0"
+
+
+def _parse_motion_bids_channels(
+    channels_path: Path,
+) -> tuple[list[str], list[str], list[str], pd.DataFrame, pd.DataFrame]:
+    """Parse a Motion-BIDS ``_channels.tsv`` file.
+
+    Parameters
+    ----------
+    channels_path
+        Path to the ``_channels.tsv`` file.
+
+    Returns
+    -------
+    tuple
+        ``(keypoint_names, components, individual_names,
+        channels_df, pos_channels)``:
+
+        - keypoint_names: Unique tracked point names preserving order.
+        - components: Spatial components
+          (e.g. ``["x", "y"]`` or ``["x", "y", "z"]``).
+        - individual_names: Unique individual names. If no
+          ``individual`` column is present, defaults to
+          ``["individual_0"]``.
+        - channels_df: Full channels DataFrame.
+        - pos_channels: Filtered DataFrame with only POS rows.
+
+    """
+    channels_df = pd.read_csv(channels_path, sep="\t")
+
+    # Filter to POS channels only
+    pos_channels = channels_df[channels_df["type"] == "POS"]
+
+    # Extract unique keypoints preserving order
+    keypoint_names = list(dict.fromkeys(pos_channels["tracked_point"]))
+
+    # Extract unique spatial components preserving order
+    components = list(dict.fromkeys(pos_channels["component"]))
+
+    # Validate component order
+    if components not in (["x", "y"], ["x", "y", "z"]):
+        raise logger.error(
+            ValueError(
+                f"Unexpected Motion-BIDS spatial component order "
+                f"{components!r}. Expected ['x', 'y'] or "
+                f"['x', 'y', 'z'] in that order."
+            )
+        )
+
+    # Extract individual names if present
+    if "individual" in pos_channels.columns:
+        individual_names = list(dict.fromkeys(pos_channels["individual"]))
+    else:
+        individual_names = [_DEFAULT_INDIVIDUAL]
+
+    return (
+        keypoint_names,
+        components,
+        individual_names,
+        channels_df,
+        pos_channels,
+    )
+
+
+@register_loader("MotionBIDS", file_validators=[ValidMotionBidsTSV])
+def from_motion_bids_file(
+    file: str | Path,
+    fps: float | None = None,
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from Motion-BIDS files.
+
+    Parameters
+    ----------
+    file
+        Path to the Motion-BIDS ``_motion.tsv`` file containing position
+        time series. The corresponding ``_channels.tsv`` and
+        ``_motion.json`` companion files are expected in the same
+        directory and are auto-detected based on the BIDS naming
+        convention.
+    fps
+        The number of frames per second in the recording. If None
+        (default), the ``SamplingFrequency`` from the companion
+        ``_motion.json`` file will be used. If provided, this value
+        overrides the JSON metadata.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores
+        (filled with NaN, as Motion-BIDS does not store confidence),
+        and associated metadata.
+
+    Notes
+    -----
+    Motion-BIDS [1]_ stores motion data across multiple files:
+
+    - ``*_motion.tsv``: Time series data (no header row, tab-separated).
+      Each column corresponds to a channel defined in ``_channels.tsv``.
+    - ``*_channels.tsv``: Channel metadata with required columns:
+      ``name``, ``component``, ``type``, ``tracked_point``, ``units``.
+    - ``*_motion.json``: Recording metadata, including the required
+      ``SamplingFrequency`` field.
+
+    Only channels with type ``POS`` are loaded as position data.
+    Channels with other types (e.g. ``ACCEL``, ``GYRO``) are ignored.
+
+    If the channels file contains an ``individual`` column, it is used
+    to determine multiple individuals. Otherwise, a single individual
+    is assumed.
+
+    References
+    ----------
+    .. [1] https://bids-specification.readthedocs.io/en/stable/modality-specific-files/motion.html
+
+    Examples
+    --------
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_motion_bids_file(
+    ...     "sub-01_task-walking_tracksys-pose_motion.tsv"
+    ... )
+
+    """
+    import json
+
+    valid_file = cast("ValidFile", file)
+    file_path = valid_file.file
+
+    # The validator has already located companion files
+    channels_path = valid_file.channels_path  # type: ignore[attr-defined]
+    metadata_path = valid_file.metadata_path  # type: ignore[attr-defined]
+
+    # Parse metadata JSON
+    with open(metadata_path) as f:
+        metadata = json.load(f)
+
+    # Use fps from argument, or fall back to JSON SamplingFrequency
+    effective_fps = fps if fps is not None else metadata["SamplingFrequency"]
+
+    # Parse channels (single read — also returns DataFrames)
+    (
+        keypoint_names,
+        components,
+        individual_names,
+        channels_df,
+        pos_channels,
+    ) = _parse_motion_bids_channels(channels_path)
+
+    n_space = len(components)
+    n_keypoints = len(keypoint_names)
+    n_individuals = len(individual_names)
+
+    # Read motion data (no header)
+    motion_data = pd.read_csv(file_path, sep="\t", header=None).values.astype(
+        np.float64
+    )
+    n_frames = motion_data.shape[0]
+
+    # Validate column count matches channels
+    n_columns = motion_data.shape[1]
+    if n_columns != len(channels_df):
+        raise logger.error(
+            ValueError(
+                f"Motion-BIDS data mismatch: motion file has "
+                f"{n_columns} columns, but channels file defines "
+                f"{len(channels_df)} channels."
+            )
+        )
+
+    # Build position array: (n_frames, n_space, n_keypoints, n_individuals)
+    position_array = np.full(
+        (n_frames, n_space, n_keypoints, n_individuals),
+        np.nan,
+        dtype=np.float64,
+    )
+
+    # Map component names to spatial indices
+    component_to_idx = {comp: idx for idx, comp in enumerate(components)}
+    keypoint_to_idx = {kp: idx for idx, kp in enumerate(keypoint_names)}
+    individual_to_idx = {ind: idx for idx, ind in enumerate(individual_names)}
+
+    # Determine the individual for each channel
+    has_individual_col = "individual" in pos_channels.columns
+
+    for row_idx, channel_row in pos_channels.iterrows():
+        col_idx = channels_df.index.get_loc(row_idx)
+        comp = channel_row["component"]
+        tracked_point = channel_row["tracked_point"]
+
+        if has_individual_col:
+            individual = channel_row["individual"]
+        else:
+            individual = _DEFAULT_INDIVIDUAL
+
+        space_idx = component_to_idx.get(comp)
+        kp_idx = keypoint_to_idx.get(tracked_point)
+        ind_idx = individual_to_idx.get(individual)
+
+        all_valid = (
+            space_idx is not None
+            and kp_idx is not None
+            and ind_idx is not None
+        )
+        if all_valid:
+            position_array[:, space_idx, kp_idx, ind_idx] = motion_data[
+                :, col_idx
+            ]
+
+    ds = from_numpy(
+        position_array=position_array,
+        confidence_array=None,
+        individual_names=individual_names,
+        keypoint_names=keypoint_names,
+        fps=effective_fps,
+        source_software="MotionBIDS",
+    )
+
+    ds.attrs["source_file"] = file_path.as_posix()
+    logger.info(f"Loaded pose tracks from {file_path}:\n{ds}")
+    return ds
