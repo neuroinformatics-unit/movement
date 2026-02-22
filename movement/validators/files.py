@@ -893,6 +893,19 @@ class ValidMotionBidsTSV:
                 )
             )
 
+        # Validate component values are only x, y, z
+        valid_components = {"x", "y", "z"}
+        actual_components = set(channels_df["component"])
+        invalid_components = actual_components - valid_components
+        if invalid_components:
+            raise logger.error(
+                ValueError(
+                    f"Invalid component values in channels file: "
+                    f"{invalid_components}. "
+                    f"Only 'x', 'y', 'z' are allowed."
+                )
+            )
+
         if "POS" not in channels_df["type"].values:
             raise logger.error(
                 ValueError(
