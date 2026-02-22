@@ -1,6 +1,7 @@
 """``attrs`` classes for validating file paths."""
 
 import ast
+import json
 import os
 import re
 from collections.abc import Callable
@@ -8,6 +9,7 @@ from pathlib import Path
 from typing import Any, ClassVar, Literal, Protocol
 
 import h5py
+import jsonschema
 import pandas as pd
 from attrs import Attribute, define, field, validators
 from pynwb import NWBFile
@@ -200,6 +202,62 @@ def _hdf5_validator(
             ) from e
 
     return _validator
+
+
+def _json_validator(
+    schema: dict | None = None,
+) -> Callable[[Any, Any, Path], None]:
+    """Return a validator for JSON files.
+
+    The validator ensures that the file:
+
+    - is in valid JSON format, and
+    - matches the provided JSON schema, if given.
+
+    Parameters
+    ----------
+    schema
+        The JSON schema to validate against. If None (default), only the JSON
+        format will be checked.
+
+    Raises
+    ------
+    ValueError
+        If the file is not valid JSON or does not match the schema.
+
+    """
+
+    def _validator(_, __, value: Path) -> None:
+        try:
+            with open(value) as f:
+                data = json.load(f)
+        except json.JSONDecodeError as e:
+            raise logger.error(
+                ValueError(f"File {value} is not valid JSON: {e}")
+            ) from e
+
+        if schema is not None:
+            try:
+                jsonschema.validate(instance=data, schema=schema)
+            except jsonschema.ValidationError as e:
+                raise logger.error(
+                    ValueError(
+                        f"File {value} does not match schema: {e.message}"
+                    )
+                ) from e
+
+    return _validator
+
+
+def _get_json_schema(name: str) -> dict:
+    """Load a JSON schema from file.
+
+    The ``name`` argument should correspond to the name of a JSON schema file
+    (without the .json extension) located in the ``json_schemas`` directory
+    """
+    schema_path = Path(__file__).parent / "json_schemas" / f"{name}.json"
+    with open(schema_path) as file:
+        return json.load(file)
 
 
 def _if_instance_of(
@@ -778,3 +836,88 @@ class ValidNWBFile:
             ),
         ),
     )
+
+
+@define
+class ValidROICollectionGeoJSON:
+    """Class for validating GeoJSON FeatureCollection files.
+
+    The validator ensures that the file:
+
+    - has a valid JSON format.
+    - matches the expected ``roi_collection`` JSON schema. This schema captures
+      the structure of a GeoJSON file containing a FeatureCollection
+      of ``movement``-compatible regions of interest.
+      (as produced by :func:`save_rois()<movement.roi.save_rois>`).
+
+    Additionally, a custom check is implemented to ensure that
+    each Feature's ``roi_type`` property matches its actual geometry type
+    (e.g., "PolygonOfInterest" should have geometry type "Polygon").
+
+    Attributes
+    ----------
+    file
+        Path to the GeoJSON file.
+    data
+        Parsed JSON data from the file.
+
+    Raises
+    ------
+    ValueError
+        If the file is not valid JSON or does not match the expected schema.
+    TypeError
+        If roi_type property does not match the actual geometry type.
+
+    See Also
+    --------
+    movement.roi.save_rois : Save a collection of RoIs to a GeoJSON file.
+    movement.roi.load_rois : Load a collection of RoIs from a GeoJSON file.
+
+    """
+
+    suffixes: ClassVar[set[str]] = {".geojson", ".json"}
+    schema: ClassVar[dict] = _get_json_schema("roi_collection")
+    roi_type_to_geometry: ClassVar[dict[str, tuple[str, ...]]] = {
+        "PolygonOfInterest": ("Polygon",),
+        "LineOfInterest": ("LineString", "LinearRing"),
+    }
+    file: Path = field(
+        converter=Path,
+        validator=validators.and_(
+            _file_validator(permission="r", suffixes=suffixes),
+            _json_validator(schema=schema),
+        ),
+    )
+    data: dict = field(init=False, factory=dict)
+
+    def __attrs_post_init__(self):
+        """Load data and check roi_type/geometry consistency."""
+        with open(self.file) as f:
+            self.data = json.load(f)
+        self._check_roi_type_matches_geometry()
+
+    def _check_roi_type_matches_geometry(self):
+        """Ensure roi_type properties match actual geometry types.
+
+        This cross-field validation cannot be expressed in JSON Schema,
+        so it's implemented here as a post-initialisation custom check.
+        """
+        for i, feature in enumerate(self.data.get("features", [])):
+            properties = feature.get("properties", {})
+            roi_type = properties.get("roi_type") if properties else None
+
+            if roi_type is None:
+                continue
+
+            geometry = feature.get("geometry", {})
+            geom_type = geometry.get("type") if geometry else None
+            expected_geom_types = self.roi_type_to_geometry.get(roi_type)
+
+            if geom_type not in expected_geom_types:
+                raise logger.error(
+                    TypeError(
+                        f"Feature {i}: roi_type '{roi_type}' "
+                        f"does not match geometry type "
+                        f"'{geom_type}'"
+                    )
+                )
