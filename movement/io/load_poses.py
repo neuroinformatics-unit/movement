@@ -540,7 +540,7 @@ def _ds_from_sleap_analysis_file(file: Path, fps: float | None) -> xr.Dataset:
         scores = np.full(tracks.shape[:1] + tracks.shape[2:], np.nan)
         individual_names = [n.decode() for n in f["track_names"][:]] or None
         if individual_names is None:
-            logger.warning(
+            logger.info(
                 f"Could not find SLEAP Track in {file}. "
                 "Assuming single-individual dataset and assigning "
                 "default individual name."
@@ -581,7 +581,7 @@ def _ds_from_sleap_labels_file(file: Path, fps: float | None) -> xr.Dataset:
     tracks_with_scores = _sleap_labels_to_numpy(labels)
     individual_names = [track.name for track in labels.tracks] or None
     if individual_names is None:
-        logger.warning(
+        logger.info(
             f"Could not find SLEAP Track in {file}. "
             "Assuming single-individual dataset and assigning "
             "default individual name."
