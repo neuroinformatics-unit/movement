@@ -494,3 +494,71 @@ def _compute_scaled_path_length(
     valid_proportion = valid_segments / (data.sizes["time"] - 1)
     # return scaled path length
     return compute_norm(displacement).sum(dim="time") / valid_proportion
+
+
+def straightness_index(
+    data: xr.DataArray,
+    start: float | None = None,
+    stop: float | None = None,
+    nan_policy: Literal["ffill", "scale"] = "ffill",
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    """Compute the straightness index (d = D / L) for a trajectory.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        Position data, with "time" and "space" (Cartesian) dimensions.
+    start : float, optional
+        Start time (defaults to min)
+    stop : float, optional
+        Stop time (defaults to max)
+    nan_policy : Literal["ffill", "scale"], optional
+        NaN handling ("ffill" or "scale")
+    nan_warn_threshold : float, optional
+        Warn if nan proportion exceeds threshold
+
+    Returns
+    -------
+    xarray.DataArray
+        Straightness index for each trajectory.
+
+    """
+    # Select time interval
+    if start is not None or stop is not None:
+        data = data.sel(time=slice(start, stop))
+
+    # If there are any NaNs in the middle of the trajectory,
+    # return NaN for those tracks (ignore NaNs only at the very start or end)
+    if data.sizes["time"] > 2:
+        # Reduce over both time and space to get a mask matching
+        # all non-time, non-space dims
+        nan_middle = (
+            data.isel(time=slice(1, -1))
+            .isnull()
+            .any(dim="space")
+            .any(dim="time")
+        )
+    else:
+        nan_middle = xr.zeros_like(
+            data.isel(time=0).any(dim="space")
+        )  # no NaNs in middle if only 2 points
+
+    # Euclidean (straight line) distance D from start to end
+    displacement = data.isel(time=-1) - data.isel(time=0)
+    D = compute_norm(displacement)
+
+    # Path length L
+    L = compute_path_length(
+        data,
+        nan_policy=nan_policy,
+        nan_warn_threshold=nan_warn_threshold,
+    )
+
+    # Calculate straightness index, handling zero-length paths
+    straightness = D / L.where(L != 0)
+    # Set straightness to NaN where there are NaNs in the middle
+    straightness = straightness.where(~nan_middle)
+    straightness.name = "straightness_index"
+
+    return straightness

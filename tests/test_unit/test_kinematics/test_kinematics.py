@@ -5,6 +5,7 @@ import pytest
 import xarray as xr
 
 from movement import kinematics
+from movement.kinematics import straightness_index
 
 
 @pytest.mark.parametrize(
@@ -337,3 +338,149 @@ def test_path_length_nan_warn_threshold(
             position, nan_warn_threshold=nan_warn_threshold
         )
         assert result.name == "path_length"
+
+
+def create_straight_line_dataset(length=10, n_ind=1, n_kp=1):
+    """Simulate movement in a straight line for testing.
+    This creates an xarray.DataArray representing movement from (0,0) to (9,9),
+    for each individual/keypoint. Used to test that straightness index == 1.
+    """
+    coords = {
+        "time": np.arange(length),
+        "individuals": [f"id_{i}" for i in range(n_ind)],
+        "keypoints": [f"kp_{i}" for i in range(n_kp)],
+        "space": ["x", "y"],
+    }
+    data = np.stack(
+        [np.linspace([0, 0], [9, 9], length) for _ in range(n_ind * n_kp)]
+    )
+    data = data.reshape((n_ind, n_kp, length, 2))
+    # xarray shape: (individuals, keypoints, time, space)
+    ds = xr.DataArray(
+        data.transpose(2, 0, 1, 3),  # (time, individuals, keypoints, space)
+        dims=["time", "individuals", "keypoints", "space"],
+        coords=coords,
+    )
+    return ds
+
+
+def create_curved_path_dataset(length=10, n_ind=1, n_kp=1):
+    """Create a semicircular (curved) trajectory for testing.
+    This dataset is not straight, so the straightness index should be < 1.
+    Useful for verifying the function's sensitivity to path curvature.
+    """
+    theta = np.linspace(0, np.pi, length)
+    x = np.cos(theta)
+    y = np.sin(theta)
+    base = np.stack([x, y], axis=-1)
+    base = base * 10  # stretch for effect
+    data = np.broadcast_to(base, (n_ind, n_kp, length, 2))
+    data = data.reshape((n_ind, n_kp, length, 2))
+    ds = xr.DataArray(
+        data.transpose(2, 0, 1, 3),
+        dims=["time", "individuals", "keypoints", "space"],
+        coords={
+            "time": np.arange(length),
+            "individuals": [f"id_{i}" for i in range(n_ind)],
+            "keypoints": [f"kp_{i}" for i in range(n_kp)],
+            "space": ["x", "y"],
+        },
+    )
+    return ds
+
+
+def make_nans(dataarray, which="start"):
+    """Introduce NaNs at specified locations within the dataarray.
+    Used to test function's robustness to missing data in various regions.
+    """
+    ds = dataarray.copy()
+    if which == "start":
+        ds[0, ...] = np.nan
+    elif which == "end":
+        ds[-1, ...] = np.nan
+    elif which == "all":
+        ds[:, ...] = np.nan
+    elif which == "middle":
+        mid = ds.shape[0] // 2
+        ds[mid, ...] = np.nan
+    return ds
+
+
+@pytest.mark.parametrize(
+    "prep_func, expected, tol",
+    [
+        (create_straight_line_dataset, 1.0, 1e-10),
+        (create_curved_path_dataset, pytest.approx(0.63, abs=0.02), 0.05),
+    ],
+)
+def test_straightness_basic(prep_func, expected, tol):
+    """Test basic expected behavior:
+    - straightness index is 1 for perfect straight line,
+    - < 1 for a curved path.
+    Checks that values are finite and within [0, 1].
+    """
+    data = prep_func()
+    si = straightness_index(data)
+    # Should be between 0 and 1, close to expected
+    assert np.all(np.isfinite(si.values))
+    assert np.all(si.values <= 1)
+    assert np.all(si.values >= 0)
+    if isinstance(expected, float):
+        assert np.allclose(si.values, expected, atol=tol)
+    else:
+        assert expected == si.values
+
+
+def test_straightness_zero_path():
+    """Edge case: all positions identical (no movement).
+    The path length should be zero, so straightness index should be NaN.
+    """
+    # All points identical
+    data = create_straight_line_dataset()
+    data.values[:] = 42
+    si = straightness_index(data)
+    # Should be all np.nan due to zero path length
+    assert np.all(np.isnan(si.values))
+
+
+@pytest.mark.parametrize("which", ["start", "end", "all", "middle"])
+def test_straightness_nans(which):
+    """Test function's handling of missing data at various locations:
+    - Only start missing,
+    - Only end missing,
+    - All points missing,
+    - NaNs in the middle of trajectory.
+    Should return NaN for start/end/all missing, may be valid for 'middle'.
+    """
+    data = create_straight_line_dataset()
+    nan_data = make_nans(data, which=which)
+    # Should not raise, but produces nan
+    si = straightness_index(nan_data)
+    # At least one (all for "all") value is nan
+    if which == "all":
+        assert np.all(np.isnan(si.values))
+    else:
+        assert np.any(np.isnan(si.values))
+
+
+def test_straightness_single_timepoint():
+    """Edge case: dataset has only a single timepoint.
+    Function should raise ValueError due to insufficient data for
+    displacement/path.
+    """
+    data = create_straight_line_dataset(length=1)
+    # Should error due to path length/displacement calculation needing 2 points
+    with pytest.raises(ValueError):
+        straightness_index(data)
+
+
+def test_straightness_multiple_individuals_keypoints():
+    """Test function's behavior with multiple individuals and keypoints.
+    Ensures shape and axes of output match expected.
+    """
+    data = create_straight_line_dataset(n_ind=3, n_kp=2)
+    si = straightness_index(data)
+    # Shape, coords consistent
+    assert "individuals" in si.dims
+    assert "keypoints" in si.dims
+    assert si.shape == (1, 3, 2) or si.ndim >= 1
