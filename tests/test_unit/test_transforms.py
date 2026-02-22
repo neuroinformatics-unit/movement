@@ -452,37 +452,38 @@ def test_compute_homography_transform_invalid_input(
 # ============= Tests for poses_to_bboxes =============
 
 
-def create_poses_dataset(
+def create_position_da(
     n_frames=5,
     n_keypoints=3,
     n_individuals=2,
     keypoint_positions=None,
-    confidence_values="default",
-    ds_attrs=None,
 ):
-    """Create poses datasets with configurable parameters.
+    """Create a poses position DataArray with configurable parameters.
 
-    Args:
-        n_frames: Number of time frames
-        n_keypoints: Number of keypoints per individual
-        n_individuals: Number of individuals
-        keypoint_positions: Dict mapping (individual_id, keypoint_id) to
-            (x, y) tuples
-        confidence_values: Array of confidence values, "default" (all ones),
-            or None (omit confidence variable)
-        ds_attrs: Dictionary of dataset attributes
+    Parameters
+    ----------
+    n_frames : int
+        Number of time frames.
+    n_keypoints : int
+        Number of keypoints per individual.
+    n_individuals : int
+        Number of individuals.
+    keypoint_positions : dict, optional
+        Dict mapping (individual_id, keypoint_id) to (x, y) tuples.
+        If None, uses default positions:
+        Individual 0: keypoints at (0,0), (10,0), (10,10)
+        Individual 1: keypoints at (20,20), (30,20), (30,30).
 
-    Returns:
-        xarray.Dataset with pose data
+    Returns
+    -------
+    xarray.DataArray
+        Position array with dims (time, space, keypoints, individuals).
 
     """
     n_space = 2
     position = np.zeros((n_frames, n_space, n_keypoints, n_individuals))
 
-    # Set default positions if not provided
     if keypoint_positions is None:
-        # Individual 0: keypoints at (0,0), (10,0), (10,10)
-        # Individual 1: keypoints at (20,20), (30,20), (30,30)
         if n_individuals > 0 and n_keypoints >= 3:
             position[:, 0, 0, 0] = 0.0
             position[:, 1, 0, 0] = 0.0
@@ -498,133 +499,89 @@ def create_poses_dataset(
             position[:, 0, 2, 1] = 30.0
             position[:, 1, 2, 1] = 30.0
     else:
-        # Apply custom positions
         for (ind_id, kpt_id), (x, y) in keypoint_positions.items():
             position[:, 0, kpt_id, ind_id] = x
             position[:, 1, kpt_id, ind_id] = y
 
-    data_vars = {
-        "position": xr.DataArray(
-            position,
-            dims=("time", "space", "keypoints", "individuals"),
-        ),
-    }
-
-    # Add confidence if provided
-    if isinstance(confidence_values, str) and confidence_values == "default":
-        confidence_values = np.ones(
-            (n_frames, n_keypoints, n_individuals), dtype=float
-        )
-
-    if confidence_values is not None:
-        data_vars["confidence"] = xr.DataArray(
-            confidence_values,
-            dims=("time", "keypoints", "individuals"),
-        )
-
-    # Set default attributes
-    if ds_attrs is None:
-        ds_attrs = {"fps": 30, "time_unit": "frames", "ds_type": "poses"}
-
-    ds = xr.Dataset(
-        data_vars=data_vars,
+    return xr.DataArray(
+        position,
+        dims=("time", "space", "keypoints", "individuals"),
         coords={
             "time": np.arange(n_frames),
             "space": ["x", "y"],
             "keypoints": [f"kpt_{i}" for i in range(n_keypoints)],
             "individuals": [f"id_{i}" for i in range(n_individuals)],
         },
-        attrs=ds_attrs,
     )
-
-    return ds
 
 
 def verify_bbox_result(
-    result, expected_position, expected_shape, ind_id=0, frame_id=0
+    pos_da, shape_da, expected_position, expected_shape, ind_id=0, frame_id=0
 ):
     """Verify bbox position and shape values.
 
-    Args:
-        result: The result dataset from poses_to_bboxes
-        expected_position: Tuple of (x_centroid, y_centroid)
-        expected_shape: Tuple of (width, height)
-        ind_id: Individual index to check
-        frame_id: Frame index to check
+    Parameters
+    ----------
+    pos_da : xarray.DataArray
+        Centroid DataArray returned by poses_to_bboxes.
+    shape_da : xarray.DataArray
+        Shape DataArray returned by poses_to_bboxes.
+    expected_position : tuple
+        Expected (x_centroid, y_centroid).
+    expected_shape : tuple
+        Expected (width, height).
+    ind_id : int
+        Individual index to check.
+    frame_id : int
+        Frame index to check.
 
     """
     assert np.allclose(
-        result.position_boxes.values[frame_id, 0, ind_id], expected_position[0]
+        pos_da.values[frame_id, 0, ind_id], expected_position[0]
     )
     assert np.allclose(
-        result.position_boxes.values[frame_id, 1, ind_id], expected_position[1]
+        pos_da.values[frame_id, 1, ind_id], expected_position[1]
     )
-    assert np.allclose(
-        result.shape_boxes.values[frame_id, 0, ind_id], expected_shape[0]
-    )
-    assert np.allclose(
-        result.shape_boxes.values[frame_id, 1, ind_id], expected_shape[1]
-    )
+    assert np.allclose(shape_da.values[frame_id, 0, ind_id], expected_shape[0])
+    assert np.allclose(shape_da.values[frame_id, 1, ind_id], expected_shape[1])
 
 
 @pytest.fixture
-def simple_poses_dataset():
-    """Create a simple poses dataset.
-
-    Creates a dataset with 2 individuals, 3 keypoints, 5 frames.
-    """
-    confidence = np.full((5, 3, 2), 0.9)
-    return create_poses_dataset(
-        n_frames=5,
-        n_keypoints=3,
-        n_individuals=2,
-        confidence_values=confidence,
-    )
+def simple_position_da():
+    """Position DataArray: 2 individuals, 3 keypoints, 5 frames."""
+    return create_position_da(n_frames=5, n_keypoints=3, n_individuals=2)
 
 
-def test_poses_to_bboxes_basic(simple_poses_dataset):
-    """Test that bounding boxes are added to the existing dataset."""
-    result = poses_to_bboxes(simple_poses_dataset)
+def test_poses_to_bboxes_basic(simple_position_da):
+    """Test basic bounding box computation from a position DataArray."""
+    pos_da, shape_da = poses_to_bboxes(simple_position_da)
 
-    # Existing vars remain intact
-    assert "position" in result.data_vars
-    assert "confidence" in result.data_vars
-    xr.testing.assert_equal(result.position, simple_poses_dataset.position)
-    xr.testing.assert_equal(result.confidence, simple_poses_dataset.confidence)
+    # Output dimensions
+    assert pos_da.dims == ("time", "space", "individuals")
+    assert shape_da.dims == ("time", "space", "individuals")
 
-    # New vars are added with the expected dimensions
-    assert "position_boxes" in result.data_vars
-    assert "shape_boxes" in result.data_vars
-    assert result.position_boxes.dims == ("time", "space", "individuals")
-    assert result.shape_boxes.dims == ("time", "space", "individuals")
-
-    # Check coordinates
-    assert list(result.coords["space"].values) == ["x", "y"]
-    assert list(result.coords["individuals"].values) == ["id_0", "id_1"]
-
-    # Check metadata is preserved (no dataset conversion)
-    assert result.attrs["ds_type"] == "poses"
-    assert "log" in result.attrs
-    assert result.attrs["fps"] == 30
+    # Output coordinates
+    assert list(pos_da.coords["space"].values) == ["x", "y"]
+    assert list(pos_da.coords["individuals"].values) == ["id_0", "id_1"]
 
     # Verify bbox calculations for individual 0
-    verify_bbox_result(result, (5.0, 5.0), (10.0, 10.0), ind_id=0)
+    verify_bbox_result(pos_da, shape_da, (5.0, 5.0), (10.0, 10.0), ind_id=0)
 
     # Verify bbox calculations for individual 1
-    verify_bbox_result(result, (25.0, 25.0), (10.0, 10.0), ind_id=1)
+    verify_bbox_result(pos_da, shape_da, (25.0, 25.0), (10.0, 10.0), ind_id=1)
 
 
 @pytest.mark.parametrize("padding_px", [0, 5, 10.5, 100])
-def test_poses_to_bboxes_with_padding(simple_poses_dataset, padding_px):
+def test_poses_to_bboxes_with_padding(simple_position_da, padding_px):
     """Test bounding box calculation with various padding values."""
-    result = poses_to_bboxes(simple_poses_dataset, padding_px=padding_px)
+    _, shape_da = poses_to_bboxes(simple_position_da, padding_px=padding_px)
 
     # Individual 0 has width=10, height=10 before padding
     expected_width = 10.0 + 2 * padding_px
     expected_height = 10.0 + 2 * padding_px
 
-    assert np.allclose(result.shape_boxes.values[0, 0, 0], expected_width)
-    assert np.allclose(result.shape_boxes.values[0, 1, 0], expected_height)
+    assert np.allclose(shape_da.values[0, 0, 0], expected_width)
+    assert np.allclose(shape_da.values[0, 1, 0], expected_height)
 
 
 def test_poses_to_bboxes_single_keypoint():
@@ -632,86 +589,79 @@ def test_poses_to_bboxes_single_keypoint():
 
     With a single keypoint, the bbox should have zero width/height.
     """
-    # Single keypoint at (5, 10)
-    ds = create_poses_dataset(
+    position = create_position_da(
         n_frames=3,
         n_keypoints=1,
         n_individuals=1,
         keypoint_positions={(0, 0): (5.0, 10.0)},
     )
 
-    result = poses_to_bboxes(ds)
+    pos_da, shape_da = poses_to_bboxes(position)
 
     # Centroid should be at the single keypoint
-    assert np.allclose(result.position_boxes.values[:, 0, 0], 5.0)
-    assert np.allclose(result.position_boxes.values[:, 1, 0], 10.0)
+    assert np.allclose(pos_da.values[:, 0, 0], 5.0)
+    assert np.allclose(pos_da.values[:, 1, 0], 10.0)
 
     # Shape should be zero (no span)
-    assert np.allclose(result.shape_boxes.values[:, 0, 0], 0.0)  # width
-    assert np.allclose(result.shape_boxes.values[:, 1, 0], 0.0)  # height
+    assert np.allclose(shape_da.values[:, 0, 0], 0.0)  # width
+    assert np.allclose(shape_da.values[:, 1, 0], 0.0)  # height
 
 
-def test_poses_to_bboxes_with_nan(simple_poses_dataset):
+def test_poses_to_bboxes_with_nan(simple_position_da):
     """Test conversion with NaN values in positions."""
-    ds = simple_poses_dataset.copy(deep=True)
+    position = simple_position_da.copy(deep=True)
 
     # Set some keypoints to NaN
-    ds.position.values[0, :, 0, 0] = np.nan  # First keypoint of ind 0, frame 0
-    ds.position.values[1, :, 1, 1] = (
-        np.nan
-    )  # Second keypoint of ind 1, frame 1
+    position.values[0, :, 0, 0] = np.nan  # First keypoint of ind 0, frame 0
+    position.values[1, :, 1, 1] = np.nan  # Second keypoint of ind 1, frame 1
 
-    result = poses_to_bboxes(ds)
+    pos_da, shape_da = poses_to_bboxes(position)
 
     # Frame 0, individual 0: only 2 keypoints valid
-    # -> bbox should still be computed
     # Remaining keypoints: (10,0), (10,10)
     # -> centroid (10, 5), shape (0, 10)
-    verify_bbox_result(result, (10.0, 5.0), (0.0, 10.0), ind_id=0, frame_id=0)
+    verify_bbox_result(
+        pos_da, shape_da, (10.0, 5.0), (0.0, 10.0), ind_id=0, frame_id=0
+    )
 
     # Frame 1, individual 1: only 2 keypoints valid
     # Remaining keypoints: (20,20), (30,30)
     # -> centroid (25, 25), shape (10, 10)
-    assert np.allclose(result.position_boxes.values[1, 0, 1], 25.0)
-    assert np.allclose(result.position_boxes.values[1, 1, 1], 25.0)
+    assert np.allclose(pos_da.values[1, 0, 1], 25.0)
+    assert np.allclose(pos_da.values[1, 1, 1], 25.0)
 
 
 def test_poses_to_bboxes_all_nan_frame():
     """Test frame where all keypoints are NaN for an individual."""
-    ds = create_poses_dataset(
+    position = create_position_da(
         n_frames=3,
         n_keypoints=3,
         n_individuals=1,
         keypoint_positions={(0, i): (5.0, 5.0) for i in range(3)},
     )
     # Set all keypoints to NaN in frame 1
-    ds.position.values[1, :, :, 0] = np.nan
+    position.values[1, :, :, 0] = np.nan
 
-    result = poses_to_bboxes(ds)
+    pos_da, shape_da = poses_to_bboxes(position)
 
     # Frame 1 should have all NaN
-    assert np.isnan(result.position_boxes.values[1, 0, 0])
-    assert np.isnan(result.position_boxes.values[1, 1, 0])
-    assert np.isnan(result.shape_boxes.values[1, 0, 0])
-    assert np.isnan(result.shape_boxes.values[1, 1, 0])
+    assert np.isnan(pos_da.values[1, 0, 0])
+    assert np.isnan(pos_da.values[1, 1, 0])
+    assert np.isnan(shape_da.values[1, 0, 0])
+    assert np.isnan(shape_da.values[1, 1, 0])
 
-    # Other frames should be valid
-    # (all keypoints at 5,5 -> bbox at 5,5 with 0 size)
-    assert np.allclose(result.position_boxes.values[0, 0, 0], 5.0)
-    assert np.allclose(result.position_boxes.values[2, 0, 0], 5.0)
+    # Other frames should be valid (all keypoints at 5,5 -> zero-size bbox)
+    assert np.allclose(pos_da.values[0, 0, 0], 5.0)
+    assert np.allclose(pos_da.values[2, 0, 0], 5.0)
 
 
 def test_poses_to_bboxes_partial_nan_keypoints():
     """Test keypoints with some coordinates NaN (x valid, y NaN)."""
-    position = np.array(
+    data = np.array(
         [
             [
                 [[1.0], [2.0], [3.0]],  # x coords frame 0
-                [
-                    [1.0],
-                    [np.nan],
-                    [3.0],
-                ],  # y coords frame 0 - middle keypoint has NaN y
+                [[1.0], [np.nan], [3.0]],  # y coords frame 0 - middle kpt NaN
             ],
             [
                 [[1.0], [2.0], [3.0]],  # x coords frame 1
@@ -719,164 +669,82 @@ def test_poses_to_bboxes_partial_nan_keypoints():
             ],
         ]
     )
-
-    ds = xr.Dataset(
-        data_vars={
-            "position": xr.DataArray(
-                position,
-                dims=("time", "space", "keypoints", "individuals"),
-            ),
-            "confidence": xr.DataArray(
-                np.ones((2, 3, 1)),
-                dims=("time", "keypoints", "individuals"),
-            ),
-        },
+    position = xr.DataArray(
+        data,
+        dims=("time", "space", "keypoints", "individuals"),
         coords={
             "time": np.arange(2),
             "space": ["x", "y"],
             "keypoints": ["kpt_0", "kpt_1", "kpt_2"],
             "individuals": ["id_0"],
         },
-        attrs={"ds_type": "poses"},
     )
 
-    result = poses_to_bboxes(ds)
+    pos_da, shape_da = poses_to_bboxes(position)
 
-    # Frame 0: middle keypoint should be ignored (has NaN in y)
+    # Frame 0: middle keypoint ignored (NaN in y)
     # Valid keypoints: (1,1), (3,3) -> centroid (2, 2), shape (2, 2)
-    assert np.allclose(result.position_boxes.values[0, 0, 0], 2.0)
-    assert np.allclose(result.position_boxes.values[0, 1, 0], 2.0)
-    assert np.allclose(result.shape_boxes.values[0, 0, 0], 2.0)
-    assert np.allclose(result.shape_boxes.values[0, 1, 0], 2.0)
+    assert np.allclose(pos_da.values[0, 0, 0], 2.0)
+    assert np.allclose(pos_da.values[0, 1, 0], 2.0)
+    assert np.allclose(shape_da.values[0, 0, 0], 2.0)
+    assert np.allclose(shape_da.values[0, 1, 0], 2.0)
 
     # Frame 1: all keypoints valid
     # Keypoints: (1,1), (2,2), (3,3) -> centroid (2, 2), shape (2, 2)
-    assert np.allclose(result.position_boxes.values[1, 0, 0], 2.0)
-    assert np.allclose(result.position_boxes.values[1, 1, 0], 2.0)
+    assert np.allclose(pos_da.values[1, 0, 0], 2.0)
+    assert np.allclose(pos_da.values[1, 1, 0], 2.0)
 
 
-def test_poses_to_bboxes_keeps_confidence_unchanged(simple_poses_dataset):
-    """Test that existing confidence values are preserved."""
-    result = poses_to_bboxes(simple_poses_dataset)
-    xr.testing.assert_equal(result.confidence, simple_poses_dataset.confidence)
+def test_poses_to_bboxes_output_coords(simple_position_da):
+    """Test that output DataArrays carry the correct coordinates."""
+    pos_da, shape_da = poses_to_bboxes(simple_position_da)
 
-
-def test_poses_to_bboxes_missing_confidence():
-    """Test validator error when confidence is missing."""
-    ds = create_poses_dataset(
-        n_frames=2,
-        n_keypoints=2,
-        n_individuals=1,
-        keypoint_positions={(0, i): (5.0, 5.0) for i in range(2)},
-        confidence_values=None,
-    )
-
-    with pytest.raises(
-        ValueError,
-        match="Missing required data variables: \\['confidence'\\]",
-    ):
-        poses_to_bboxes(ds)
-
-
-def test_poses_to_bboxes_preserves_metadata(simple_poses_dataset):
-    """Test that metadata is preserved."""
-    result = poses_to_bboxes(simple_poses_dataset)
-
-    # Check original attributes are preserved
-    assert result.attrs["fps"] == 30
-    assert result.attrs["time_unit"] == "frames"
-
-    # Check ds_type is preserved
-    assert result.attrs["ds_type"] == "poses"
-
-    # Check log attribute exists
-    assert "log" in result.attrs
-
-
-def test_poses_to_bboxes_preserves_coords(simple_poses_dataset):
-    """Test that time, space and individual coordinates are preserved."""
-    result = poses_to_bboxes(simple_poses_dataset)
-
-    # Check time coordinates
     np.testing.assert_array_equal(
-        result.coords["time"].values,
-        simple_poses_dataset.coords["time"].values,
+        pos_da.coords["time"].values, simple_position_da.coords["time"].values
     )
-
-    # Check individual names
-    assert list(result.coords["individuals"].values) == ["id_0", "id_1"]
-    assert list(result.coords["space"].values) == ["x", "y"]
+    assert list(pos_da.coords["individuals"].values) == ["id_0", "id_1"]
+    assert list(pos_da.coords["space"].values) == ["x", "y"]
+    # keypoints dimension must be gone
+    assert "keypoints" not in pos_da.dims
+    assert "keypoints" not in shape_da.dims
 
 
 # ============= Error Handling Tests =============
 
 
 def test_poses_to_bboxes_3d_poses():
-    """Test that 3D poses raise appropriate error."""
-    position = np.full((2, 3, 2, 1), 5.0)
-    ds = xr.Dataset(
-        data_vars={
-            "position": xr.DataArray(
-                position,
-                dims=("time", "space", "keypoints", "individuals"),
-            ),
-            "confidence": xr.DataArray(
-                np.ones((2, 2, 1)),
-                dims=("time", "keypoints", "individuals"),
-            ),
-        },
+    """Test that 3D position arrays raise an appropriate error."""
+    position = xr.DataArray(
+        np.full((2, 3, 2, 1), 5.0),
+        dims=("time", "space", "keypoints", "individuals"),
         coords={
             "time": np.arange(2),
             "space": ["x", "y", "z"],
             "keypoints": ["kpt_0", "kpt_1"],
             "individuals": ["id_0"],
         },
-        attrs={"ds_type": "poses"},
     )
 
     with pytest.raises(
         ValueError,
-        match=(
-            "Dimension 'space' must only contain \\['x', 'y'\\] as coordinates"
-        ),
+        match="Dimension 'space' must only contain \\['x', 'y'\\]",
     ):
-        poses_to_bboxes(ds)
-
-
-def test_poses_to_bboxes_missing_position():
-    """Test error when position data variable is missing."""
-    ds = xr.Dataset(
-        data_vars={
-            "confidence": xr.DataArray(
-                np.ones((2, 2, 1)),
-                dims=("time", "keypoints", "individuals"),
-            ),
-        },
-        coords={
-            "time": [0, 1],
-            "keypoints": ["kpt_0", "kpt_1"],
-            "individuals": ["id_0"],
-        },
-    )
-
-    with pytest.raises(
-        ValueError,
-        match="Missing required data variables: \\['position'\\]",
-    ):
-        poses_to_bboxes(ds)
+        poses_to_bboxes(position)
 
 
 def test_poses_to_bboxes_invalid_input_type():
-    """Test error with non-Dataset input."""
-    data_array = xr.DataArray(np.ones((2, 2)), dims=("time", "space"))
+    """Test error when input is not a DataArray."""
+    ds = xr.Dataset(
+        {"position": xr.DataArray(np.ones((2, 2)), dims=("time", "space"))}
+    )
 
-    with pytest.raises(TypeError, match="Expected an xarray Dataset"):
-        poses_to_bboxes(data_array)
+    with pytest.raises(TypeError, match="Expected an xarray DataArray"):
+        poses_to_bboxes(ds)
 
 
 def test_poses_to_bboxes_negative_padding():
     """Test that negative padding raises error."""
-    ds = create_poses_dataset(
+    position = create_position_da(
         n_frames=2,
         n_keypoints=2,
         n_individuals=1,
@@ -884,7 +752,7 @@ def test_poses_to_bboxes_negative_padding():
     )
 
     with pytest.raises(ValueError, match="padding_px must be non-negative"):
-        poses_to_bboxes(ds, padding_px=-5)
+        poses_to_bboxes(position, padding_px=-5)
 
 
 @pytest.mark.parametrize(
@@ -893,74 +761,42 @@ def test_poses_to_bboxes_negative_padding():
     ids=["string", "list", "None"],
 )
 def test_poses_to_bboxes_invalid_padding_type(
-    simple_poses_dataset, invalid_padding
+    simple_position_da, invalid_padding
 ):
     """Test that invalid padding types raise error."""
     with pytest.raises(TypeError, match="padding_px must be a number"):
-        poses_to_bboxes(simple_poses_dataset, padding_px=invalid_padding)
+        poses_to_bboxes(simple_position_da, padding_px=invalid_padding)
 
 
 def test_poses_to_bboxes_missing_dimensions():
-    """Test error when position is missing required dimensions."""
-    ds = xr.Dataset(
-        data_vars={
-            "position": xr.DataArray(
-                np.zeros((2, 2)),
-                dims=("space", "time"),
-                coords={"space": ["x", "y"]},
-            ),
-            "confidence": xr.DataArray(
-                np.zeros((2, 2)),
-                dims=("time", "keypoints"),
-            ),
-        },
+    """Test error when position DataArray is missing required dimensions."""
+    position = xr.DataArray(
+        np.zeros((2, 2)),
+        dims=("space", "time"),
+        coords={"space": ["x", "y"]},
     )
 
-    with pytest.raises(
-        ValueError,
-        match="Missing required dimensions:",
-    ):
-        poses_to_bboxes(ds)
+    with pytest.raises(ValueError, match="Input data must contain"):
+        poses_to_bboxes(position)
 
 
 def test_poses_to_bboxes_degenerate_bbox():
-    """Test when all keypoints are at same position (zero size bbox)."""
-    # All keypoints at (5, 5)
-    ds = create_poses_dataset(
+    """Test when all keypoints are at same position (zero-size bbox)."""
+    position = create_position_da(
         n_frames=2,
         n_keypoints=3,
         n_individuals=1,
         keypoint_positions={(0, i): (5.0, 5.0) for i in range(3)},
     )
 
-    result = poses_to_bboxes(ds)
+    pos_da, shape_da = poses_to_bboxes(position)
 
-    # Centroid should be at (5, 5), shape should be zero
     for frame_id in range(2):
         verify_bbox_result(
-            result, (5.0, 5.0), (0.0, 0.0), ind_id=0, frame_id=frame_id
+            pos_da,
+            shape_da,
+            (5.0, 5.0),
+            (0.0, 0.0),
+            ind_id=0,
+            frame_id=frame_id,
         )
-
-
-def test_poses_to_bboxes_log_attribute(simple_poses_dataset):
-    """Test that log attribute is correctly updated."""
-    import json
-
-    result = poses_to_bboxes(simple_poses_dataset, padding_px=5)
-
-    # Check log exists and contains the operation
-    assert "log" in result.attrs
-    log_str = result.attrs["log"]
-
-    # Parse the JSON log string
-    log_entries = json.loads(log_str)
-
-    # Should have at least one entry
-    assert len(log_entries) > 0
-
-    # Parse the log entry (it's a list of dicts)
-    last_entry = log_entries[-1]
-    assert last_entry["operation"] == "poses_to_bboxes"
-    assert "5" in str(last_entry["padding_px"]) or "5.0" in str(
-        last_entry["padding_px"]
-    )
