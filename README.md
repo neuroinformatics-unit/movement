@@ -22,7 +22,7 @@ A Python toolbox for analysing animal body movements across space and time.
 
 Create and activate a conda environment with movement installed (including the GUI):
 ```bash
-conda create -n movement-env -c conda-forge movement napari pyqt
+conda create -n movement-env -c conda-forge movement napari pyqt6
 conda activate movement-env
 ```
 
