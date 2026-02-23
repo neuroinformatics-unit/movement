@@ -1,7 +1,6 @@
-"""Scale pose tracks
-=====================
-
-Scale 2D pose tracks to real world units using known distances.
+"""Scale pose tracks to real-world units
+========================================
+Convert pixel coordinates to physical units using a known reference distance.
 """
 
 # %%
@@ -84,33 +83,17 @@ print(f"Keypoints:\n{ds_mouse.keypoints.values}")
 # and apply a rolling median filter to suppress any remaining tracking
 # outliers.
 
-ds_mouse.update(
-    {
-        "position": filter_by_confidence(
-            ds_mouse.position,
-            ds_mouse.confidence,
-            threshold=0.9,
-            print_report=True,
-        )
-    }
+ds_mouse["position"] = filter_by_confidence(
+    ds_mouse.position,
+    ds_mouse.confidence,
+    threshold=0.9,
 )
-ds_mouse.update(
-    {
-        "position": interpolate_over_time(
-            ds_mouse.position, max_gap=40, print_report=True
-        )
-    }
-)
-ds_mouse.update(
-    {
-        "position": rolling_filter(
-            ds_mouse.position,
-            window=6,
-            min_periods=2,
-            statistic="median",
-            print_report=True,
-        )
-    }
+ds_mouse["position"] = interpolate_over_time(ds_mouse.position, max_gap=40)
+ds_mouse["position"] = rolling_filter(
+    ds_mouse.position,
+    window=6,
+    min_periods=2,
+    statistic="median",
 )
 
 
@@ -121,14 +104,7 @@ ds_mouse.update(
 # function that draws the mouse skeleton in a single frame.
 
 
-def plot_skeleton(
-    position_data,
-    skeleton,
-    frame,
-    ax,
-    s=3,
-    **plot_kwargs,
-):
+def plot_skeleton(position_data, skeleton, frame, ax, s=3):
     """Plot the mouse skeleton for a single frame.
 
     Parameters
@@ -140,36 +116,24 @@ def plot_skeleton(
         where each element is a keypoint name present in ``position_data``.
     frame : int
         Index of the time frame to plot.
-    ax : matplotlib.axes.Axes, optional
+    ax : matplotlib.axes.Axes
         Axes on which to draw.
     s : float, optional
         Marker size for keypoint scatter points. Default is 3.
-    **plot_kwargs
-        Additional keyword arguments passed to the plot and scatter calls.
-        Supports ``alpha`` (default 1) and ``linewidth`` (default 1.5).
 
     """
-    defaults = {"alpha": 1, "linewidth": 1.5}
-    defaults.update(plot_kwargs)
-
     pos_frame = position_data.squeeze().isel(time=frame)
 
     # Draw skeleton connections
     for joint_1, joint_2 in skeleton:
         x1, y1 = pos_frame.sel(keypoints=joint_1)
         x2, y2 = pos_frame.sel(keypoints=joint_2)
-        ax.plot(
-            [x1, x2],
-            [y1, y2],
-            color="b",
-            alpha=defaults["alpha"],
-            linewidth=defaults["linewidth"],
-        )
+        ax.plot([x1, x2], [y1, y2], color="b", linewidth=1.5)
 
     # Draw keypoints
     for bodypart in pos_frame.keypoints:
         x, y = pos_frame.sel(keypoints=bodypart)
-        ax.scatter(x, y, c="g", s=s, alpha=defaults["alpha"])
+        ax.scatter(x, y, c="g", s=s)
 
 
 # %%
@@ -223,7 +187,7 @@ skeleton = [
 
 example_frame = 275
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(8, 3))
 plot_skeleton(ds_mouse.position, skeleton, frame=example_frame, ax=ax, s=10)
 
 ax.invert_yaxis()  # image coordinates have y increasing downward
@@ -242,6 +206,13 @@ plt.show()
 # %%
 # Measure a known distance from video footage
 # -------------------------------------------
+# .. attention::
+#   The following steps require ``napari`` to be installed. If you haven't
+#   already, install ``movement`` with the optional GUI dependencies by
+#   following the `installation instructions
+#   <https://movement.neuroinformatics.dev/latest/user_guide/installation
+#   .html>`_.
+#
 # First, open the video file in napari:
 #
 # .. code-block:: python
@@ -250,7 +221,8 @@ plt.show()
 #    viewer = napari.Viewer()
 #    viewer.open(ds_mouse.video_path)
 #
-# N.B. You can also load a single frame image instead of the full video.
+# .. note::
+#    You can also load a single frame image instead of the full video.
 #
 # Next, measure a known distance in the napari viewer:
 #
@@ -263,7 +235,9 @@ plt.show()
 #    :width: 600
 #
 # 4. To read the line length in pixels, go to Layers → Measure → Toggle
-# shape dimensions measurement (napari builtins).
+# shape dimensions measurement (napari builtins). This displays P
+# (perimeter) and A (area). In the case of a single line, the perimeter value
+# corresponds to the line length in pixels, and the area will always be 0.
 #
 # .. image:: /_static/napari_scale_measure.png
 #    :width: 600
@@ -318,30 +292,48 @@ shape_coords = shapes_layer.data
 print(f"Measurements:\n{measurements_px}\n")
 print(f"Coordinates:\n{shape_coords}")
 
-# Extract the perimeter of the drawn shape in pixels
+# Extract the line length in pixels from the perimeter (P) column
 distance_px = measurements_px["_perimeter"].values.squeeze()
 
 # %%
-# Scale poses to real units
-# -------------------------
-# The measured line spans one grid square, which we know to be 1 cm.
-# Dividing this known length by the distance in pixels gives us the scaling
-# factor.
+# Transform poses to real units
+# -----------------------------
+# We now transform the pose coordinates to real-world units in two steps:
+# scaling from pixels to centimetres, and flipping the y-axis so that
+# positive y corresponds to upward in real-world space (image coordinates
+# have the y-axis pointing downward).
+#
+# First, we calculate the scaling factor. The measured line spans one grid
+# square, which we know to be 1 cm. Dividing this known length by the
+# distance in pixels gives us the scaling factor.
 
-scaling_factor = 1 / distance_px  # cm per pixel
+scaling_factor = 1 / distance_px
 print(f"Scaling factor: {scaling_factor:.6f} cm/pixel")
+
+# %%
+# .. note::
+#    This scaling factor assumes a constant relationship between pixels and
+#    real-world units across the entire image, based on a single reference
+#    measurement taken at the far side of the belt. In practice, several
+#    factors can violate this assumption. For example, in 2D imaging,
+#    perspective effects mean that the apparent size of objects varies with
+#    their distance from the camera. Distances measured in the plane of the
+#    reference grid will therefore be close to accurate, but can deviate
+#    as the mouse moves away from this plane. Calibrated multi-camera
+#    setups avoid these assumptions by mapping image coordinates directly
+#    to real-world 3D space.
 
 # %%
 # Let's inspect the position values before scaling.
 
 # Select a frame range in which the mouse is visible
-sample_range = np.arange(300, 305)
+sample_range = np.arange(300, 301)
 print(ds_mouse.position.isel(time=sample_range).values)
 
 # %%
 # Now we apply :func:`movement.transforms.scale` to convert from pixels to
-# centimetres. We can assign our space unit 'cm' here as an attribute in
-# ``xarray.DataArray.attrs['space_unit']``.
+# centimetres. We can assign our space unit 'cm' here, to be stored as an
+# attribute in ``xarray.DataArray.attrs['space_unit']``.
 
 ds_mouse["position"] = scale(
     ds_mouse["position"], factor=scaling_factor, space_unit="cm"
@@ -362,9 +354,10 @@ print(f"Unit:\n{ds_mouse['position'].space_unit}\n")
 print(f"Log:\n{ds_mouse['position'].log}")
 
 # %%
-# Furthermore, since image coordinates have the y-axis pointing downward,
-# we further transform the data array by flipping and shifting relative to
-# the maximum so that positive y corresponds to upward in real world space.
+# Next, we flip the y-axis by subtracting each y value from the maximum y
+# value in the dataset. Note that the zero point in y is anchored to the
+# lowest y position of the mouse in this recording, which approximates
+# the belt surface.
 
 y = ds_mouse["position"].sel(space="y")
 ds_mouse["position"].loc[dict(space="y")] = y.max() - y
@@ -373,7 +366,7 @@ ds_mouse["position"].loc[dict(space="y")] = y.max() - y
 # We can now re-plot the same skeleton, this time in centimetres and with
 # the y-axis pointing upward.
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(8, 3))
 plot_skeleton(ds_mouse.position, skeleton, frame=example_frame, ax=ax, s=10)
 
 ax.set_xlabel("x (cm)")
@@ -408,32 +401,22 @@ toe_keypoint_names = [
     "HindpawToeR",
     "HindpawToeL",
 ]
-colours = ["tab:blue", "tab:orange", "tab:green", "tab:red"]
 
 # Construct a new data array with only the toe keypoints
 ds_limbs = ds_mouse.position.sel(keypoints=toe_keypoint_names)
 
-fig, axs = plt.subplots(2)
-for i, limb in enumerate(toe_keypoint_names):
-    # Plot limb trajectories in x
-    axs[0].plot(
-        ds_limbs.time,
-        ds_limbs.sel(keypoints=limb, space="x"),
-        color=colours[i],
-        label=limb,
-    )
-    # Plot limb trajectories in y
-    axs[1].plot(
-        ds_limbs.time,
-        ds_limbs.sel(keypoints=limb, space="y"),
-        color=colours[i],
-    )
-
-axs[0].legend()
+ds_limbs.plot.line(
+    x="time",
+    hue="keypoints",
+    row="space",
+    size=2.5,
+    aspect=2,
+    sharey=False,
+)
+axs = plt.gcf().axes
 axs[0].set_ylabel("x (cm)")
 axs[1].set_xlabel("Time (s)")
 axs[1].set_ylabel("y (cm)")
-fig.tight_layout()
 plt.show()
 
 # %%
@@ -552,10 +535,9 @@ print(
 # %%
 # Here we can see that during typical locomotion, the fore- and hindpaw
 # inter-limb distances are synchronised and closely matched, differing by
-# only ~30 mm on average. During the transitioning stride, however,
+# only 0.31 cm on average. During the transitioning stride, however,
 # this difference grows more than tenfold, reflecting the gait adjustments
 # the mouse makes to accommodate the speed differential between belts.
-
-# %%
+#
 # Having the data in real-world units makes these quantitative comparisons
 # possible.
