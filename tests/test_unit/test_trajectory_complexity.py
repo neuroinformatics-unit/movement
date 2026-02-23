@@ -11,35 +11,8 @@ from movement.kinematics import compute_straightness_index
 # ─────────────────────────────────────────────
 
 
-def make_straight_line(length=10, n_ind=1, n_kp=1):
-    """Straight diagonal line — SI should be exactly 1.0."""
-    coords = {
-        "time": np.arange(length),
-        "individuals": [f"id_{i}" for i in range(n_ind)],
-        "keypoints": [f"kp_{i}" for i in range(n_kp)],
-        "space": ["x", "y"],
-    }
-    t = np.arange(length, dtype=float)
-    xy = np.stack([t, t], axis=-1)  # diagonal
-    data = np.tile(xy[:, np.newaxis, np.newaxis, :], (1, n_ind, n_kp, 1))
-    return xr.DataArray(
-        data,
-        dims=["time", "individuals", "keypoints", "space"],
-        coords=coords,
-    )
-
-
-def make_closed_loop(n_ind=1, n_kp=1):
-    """Trajectory returning exactly to start — SI should be 0.0."""
-    positions = np.array(
-        [
-            [0.0, 0.0],
-            [1.0, 0.0],
-            [1.0, 1.0],
-            [0.0, 1.0],
-            [0.0, 0.0],  # back to start
-        ]
-    )
+def _create_test_dataarray(positions, n_ind=1, n_kp=1):
+    """Construct a standardized xarray.DataArray for testing."""
     length = len(positions)
     coords = {
         "time": np.arange(length),
@@ -57,20 +30,31 @@ def make_closed_loop(n_ind=1, n_kp=1):
     )
 
 
+def make_straight_line(length=10, n_ind=1, n_kp=1):
+    """Straight diagonal line — SI should be exactly 1.0."""
+    t = np.arange(length, dtype=float)
+    positions = np.stack([t, t], axis=-1)  # diagonal
+    return _create_test_dataarray(positions, n_ind, n_kp)
+
+
+def make_closed_loop(n_ind=1, n_kp=1):
+    """Trajectory returning exactly to start — SI should be 0.0."""
+    positions = np.array(
+        [
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [1.0, 1.0],
+            [0.0, 1.0],
+            [0.0, 0.0],  # back to start
+        ]
+    )
+    return _create_test_dataarray(positions, n_ind, n_kp)
+
+
 def make_stationary(length=5, n_ind=1, n_kp=1):
     """Animal never moves — path length = 0 → SI should be NaN."""
-    coords = {
-        "time": np.arange(length),
-        "individuals": [f"id_{i}" for i in range(n_ind)],
-        "keypoints": [f"kp_{i}" for i in range(n_kp)],
-        "space": ["x", "y"],
-    }
-    data = np.ones((length, n_ind, n_kp, 2)) * 3.0
-    return xr.DataArray(
-        data,
-        dims=["time", "individuals", "keypoints", "space"],
-        coords=coords,
-    )
+    positions = np.ones((length, 2)) * 3.0
+    return _create_test_dataarray(positions, n_ind, n_kp)
 
 
 def make_known_si(n_ind=1, n_kp=1):
@@ -93,21 +77,7 @@ def make_known_si(n_ind=1, n_kp=1):
             [3.0, 4.0],
         ]
     )
-    length = len(positions)
-    coords = {
-        "time": np.arange(length),
-        "individuals": [f"id_{i}" for i in range(n_ind)],
-        "keypoints": [f"kp_{i}" for i in range(n_kp)],
-        "space": ["x", "y"],
-    }
-    data = np.tile(
-        positions[:, np.newaxis, np.newaxis, :], (1, n_ind, n_kp, 1)
-    )
-    return xr.DataArray(
-        data,
-        dims=["time", "individuals", "keypoints", "space"],
-        coords=coords,
-    )
+    return _create_test_dataarray(positions, n_ind, n_kp)
 
 
 # ─────────────────────────────────────────────
