@@ -1,5 +1,5 @@
 from importlib.metadata import PackageNotFoundError, version
-from movement.trajectory_complexity import compute_straightness_index
+from movement.kinematics.trajectory_complexity import compute_straightness_index
 
 from movement.utils.logging import logger
 

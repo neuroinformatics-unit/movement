@@ -18,6 +18,9 @@ from movement.kinematics.orientation import (
     compute_turning_angle,
 )
 from movement.kinematics.kinetic_energy import compute_kinetic_energy
+from movement.kinematics.trajectory_complexity import (
+    compute_straightness_index,
+)
 
 
 __all__ = [
@@ -35,4 +38,5 @@ __all__ = [
     "compute_forward_vector_angle",
     "compute_kinetic_energy",
     "compute_turning_angle",
+    "compute_straightness_index",
 ]
