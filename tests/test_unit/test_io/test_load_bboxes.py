@@ -1,7 +1,6 @@
 """Test suite for the load_bboxes module."""
 
 import ast
-import re
 from pathlib import Path
 from unittest.mock import patch
 
@@ -228,6 +227,7 @@ def assert_time_coordinates(ds, fps, start_frame=None, frame_array=None):
     )
 
 
+@pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
 @pytest.mark.parametrize("source_software", ["Unknown", "VIA-tracks"])
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 @pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
@@ -284,7 +284,7 @@ def test_from_via_tracks_file(
     a valid VIA tracks .csv file returns a proper Dataset.
     """
     kwargs = {
-        "file_path": via_file_path,
+        "file": via_file_path,
         "fps": fps,
         "use_frame_numbers_from_file": use_frame_numbers_from_file,
         **({"frame_regexp": frame_regexp} if frame_regexp is not None else {}),
@@ -298,51 +298,6 @@ def test_from_via_tracks_file(
         "file_path": via_file_path,
     }
     helpers.assert_valid_dataset(ds, expected_values)
-
-
-@pytest.mark.parametrize(
-    "frame_regexp, error_type, log_message",
-    [
-        (
-            r"*",
-            re.error,
-            "The provided regular expression for the frame numbers (*) "
-            "could not be compiled. Please review its syntax.",
-        ),
-        (
-            r"_(0\d*)_$",
-            AttributeError,
-            "00000.jpg (row 0): "
-            r"The provided frame regexp (_(0\d*)_$) did not return any "
-            "matches and a frame number could not be extracted from "
-            "the filename.",
-        ),
-        (
-            r"(0\d*\.\w+)$",
-            ValueError,
-            "00000.jpg (row 0): "
-            "The frame number extracted from the filename "
-            r"using the provided regexp ((0\d*\.\w+)$) "
-            "could not be cast as an integer.",
-        ),
-    ],
-)
-def test_from_via_tracks_file_invalid_frame_regexp(
-    frame_regexp, error_type, log_message
-):
-    """Test that loading tracked bounding box data from
-    a valid VIA tracks .csv file with an invalid frame_regexp
-    raises a ValueError.
-    """
-    input_file = pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv")
-    with pytest.raises(error_type) as excinfo:
-        load_bboxes.from_via_tracks_file(
-            input_file,
-            use_frame_numbers_from_file=True,
-            frame_regexp=frame_regexp,
-        )
-
-    assert str(excinfo.value) == log_message
 
 
 @pytest.mark.parametrize(

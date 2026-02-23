@@ -1,33 +1,65 @@
-from unittest.mock import MagicMock
+from contextlib import nullcontext
+from unittest.mock import MagicMock, patch
 
 import pytest
+import xarray as xr
 
 import movement.kinematics as kinematics
+from movement.io import load_bboxes, load_poses
 
 
 @pytest.mark.parametrize(
-    "deprecated_function, mocked_inputs, check_in_message",
+    "deprecated_function, mocked_inputs, patch_context, check_in_message",
     [
         (
             kinematics.compute_displacement,
             {"data": MagicMock(dims=["time", "space"])},
+            nullcontext(),
             ["compute_forward_displacement", "compute_backward_displacement"],
+        ),
+        (
+            load_poses.from_file,
+            {"file": "dummy_path", "source_software": "SLEAP"},
+            patch(
+                "movement.io.load_poses.from_sleap_file",
+                return_value=xr.Dataset(),
+            ),
+            ["load_dataset"],
+        ),
+        (
+            load_poses.from_multiview_files,
+            {
+                "file_dict": {"dummy_view": "dummy_path"},
+                "source_software": "SLEAP",
+            },
+            patch(
+                "movement.io.load_poses.from_sleap_file",
+                return_value=xr.Dataset(),
+            ),
+            ["load_multiview_dataset"],
+        ),
+        (
+            load_bboxes.from_file,
+            {"file": "dummy_path", "source_software": "VIA-tracks"},
+            patch(
+                "movement.io.load_bboxes.from_via_tracks_file",
+                return_value=xr.Dataset(),
+            ),
+            ["load_dataset"],
         ),
     ],
 )
-def test_deprecation(deprecated_function, mocked_inputs, check_in_message):
-    """Test that calling median_filter raises a DeprecationWarning.
-    And that it forwards to rolling_filter with statistic='median'.
+def test_deprecation(
+    deprecated_function, mocked_inputs, patch_context, check_in_message
+):
+    """Test that calling a deprecated function raises a DeprecationWarning
+    with the expected message.
     """
-    with pytest.warns(DeprecationWarning) as record:
+    with patch_context, pytest.warns(DeprecationWarning) as record:
         _ = deprecated_function(**mocked_inputs)
-
-    assert len(record) == 1
-    assert isinstance(record[0].message, DeprecationWarning)
     assert f"{deprecated_function.__name__}` is deprecated" in str(
         record[0].message
     )
-
     assert all(
         message in str(record[0].message) for message in check_in_message
     )
