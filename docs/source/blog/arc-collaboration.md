@@ -7,6 +7,7 @@ category: update
 language: English
 ---
 
+(target-arc-collaboration-blog)=
 # Spatial Navigation Feature Update
 
 _This is a short summary of the spatial navigation features introduced during Jan-Feb 2025._

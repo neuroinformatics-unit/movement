@@ -21,15 +21,11 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from movement.io import load_bboxes, load_poses
+from movement.io import load_dataset
 from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.utils.logging import logger
-from movement.validators.datasets import (
-    ValidBboxesDataset,
-    ValidPosesDataset,
-    _validate_dataset,
-)
+from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
 
 # Allowed file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
@@ -215,6 +211,7 @@ class DataLoader(QWidget):
 
         Returns True if the data was successfully extracted, False otherwise.
         """
+        ds: xr.Dataset | None
         if self.source_software not in SUPPORTED_NETCDF_FILES:
             ds = self._load_third_party_file()
         else:
@@ -236,12 +233,7 @@ class DataLoader(QWidget):
 
         Validation is handled by the loader functions.
         """
-        loader = (
-            load_poses
-            if self.source_software in SUPPORTED_POSES_FILES
-            else load_bboxes
-        )
-        ds = loader.from_file(self.file_path, self.source_software, self.fps)
+        ds = load_dataset(self.file_path, self.source_software, self.fps)
         return ds
 
     def _load_netcdf_file(self) -> xr.Dataset | None:
@@ -266,13 +258,16 @@ class DataLoader(QWidget):
             return None
 
         # Validate dataset depending on its type
-        validator = {
-            "poses": ValidPosesDataset,
-            "bboxes": ValidBboxesDataset,
-        }[ds_type]
+        validators: dict[
+            str, type[ValidPosesInputs] | type[ValidBboxesInputs]
+        ] = {
+            "poses": ValidPosesInputs,
+            "bboxes": ValidBboxesInputs,
+        }
+        validator = validators[ds_type]
 
         try:
-            _validate_dataset(ds, validator)
+            validator.validate(ds)
         except (ValueError, TypeError) as e:
             show_error(
                 f"The netCDF file does not appear to be a valid "
@@ -333,11 +328,17 @@ class DataLoader(QWidget):
             properties_df=self.properties,
         )
 
+        # Filter out columns ending in _factorized (used internally for
+        # Tracks/Shapes coloring but not needed in Points layer tooltips)
+        points_properties = self.properties.loc[
+            :, ~self.properties.columns.str.endswith("_factorized")
+        ]
+
         # Add data as a points layer with metadata
         # (max_frame_idx is used to set the frame slider range)
         self.points_layer = self.viewer.add_points(
             self.data[self.data_not_nan, 1:],
-            properties=self.properties.iloc[self.data_not_nan, :],
+            properties=points_properties.iloc[self.data_not_nan, :],
             metadata={"max_frame_idx": max(self.data[:, 1])},
             **points_style.as_kwargs(),
         )

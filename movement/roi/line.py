@@ -1,15 +1,18 @@
 """1-dimensional lines of interest."""
 
-import matplotlib.pyplot as plt
 import numpy as np
+import shapely
 import xarray as xr
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure, SubFigure
 from numpy.typing import ArrayLike
 
-from movement.roi.base import BaseRegionOfInterest, PointLikeList
+from movement.roi.base import BaseRegionOfInterest, LineLike, PointLikeList
 from movement.utils.broadcasting import broadcastable_method
+from movement.utils.logging import logger
 
 
-class LineOfInterest(BaseRegionOfInterest):
+class LineOfInterest(BaseRegionOfInterest[LineLike]):
     """Representation of boundaries or other lines of interest.
 
     This class can be used to represent boundaries or other internal divisions
@@ -54,7 +57,7 @@ class LineOfInterest(BaseRegionOfInterest):
         argument. However, if you want to define an enclosed region for your
         analysis, we recommend you create a
         :class:`PolygonOfInterest<movement.roi.PolygonOfInterest>`
-        and use its ``boundary`` property instead.
+        and use its ``exterior_boundary`` property instead.
 
         See Also
         --------
@@ -62,11 +65,28 @@ class LineOfInterest(BaseRegionOfInterest):
             The base class that constructor arguments are passed to.
 
         """
-        super().__init__(points, dimensions=1, closed=loop, name=name)
+        if len(points) < 2:
+            raise logger.error(
+                ValueError(
+                    f"Need at least 2 points to define a 1D region "
+                    f"(got {len(points)})."
+                )
+            )
+        if len(points) < 3 and loop:
+            raise logger.error(
+                ValueError("Cannot create a loop from a single line segment.")
+            )
+        line: LineLike = (
+            shapely.LinearRing(coordinates=points)
+            if loop
+            else shapely.LineString(coordinates=points)
+        )
+        line = shapely.normalize(line)
+        super().__init__(line, name=name)
 
     def _plot(
-        self, fig: plt.Figure, ax: plt.Axes, **matplotlib_kwargs
-    ) -> tuple[plt.Figure, plt.Axes]:
+        self, fig: Figure | SubFigure, ax: Axes, **matplotlib_kwargs
+    ) -> tuple[Figure | SubFigure, Axes]:
         """LinesOfInterest can simply be plotted as lines."""
         ax.plot(
             [c[0] for c in self.coords],
@@ -101,7 +121,8 @@ class LineOfInterest(BaseRegionOfInterest):
 
         Raises
         ------
-        ValueError : When the normal is requested for a multi-segment geometry.
+        ValueError
+            When the normal is requested for a multi-segment geometry.
 
         """
         # A multi-segment geometry always has at least 3 coordinates.

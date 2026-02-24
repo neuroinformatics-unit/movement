@@ -98,7 +98,7 @@ def _cdist(
     result = result.assign_coords(
         {
             elem1: getattr(a, labels_dim).values,
-            elem2: getattr(a, labels_dim).values,
+            elem2: getattr(b, labels_dim).values,
         }
     )
     result.name = "distance"

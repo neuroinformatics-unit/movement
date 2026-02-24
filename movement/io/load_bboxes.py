@@ -2,16 +2,18 @@
 
 import ast
 import re
+import warnings
 from collections.abc import Callable
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 import numpy as np
 import pandas as pd
 import xarray as xr
 
+from movement.io.load import register_loader
 from movement.utils.logging import logger
-from movement.validators.datasets import ValidBboxesDataset
+from movement.validators.datasets import ValidBboxesInputs
 from movement.validators.files import (
     DEFAULT_FRAME_REGEXP,
     ValidFile,
@@ -48,7 +50,7 @@ def from_numpy(
         the confidence scores of the bounding boxes. If None (default), the
         confidence scores are set to an array of NaNs. It will be converted
         to a :class:`xarray.DataArray` object named "confidence".
-    individual_names : list of str, optional
+    individual_names
         List of individual names for the tracked bounding boxes in the video.
         If None (default), bounding boxes are assigned names based on the size
         of the ``position_array``. The names will be in the format of
@@ -60,14 +62,14 @@ def from_numpy(
         be assigned based on the first dimension of the ``position_array``,
         starting from 0. If a specific array of frame numbers is provided,
         these need to be integers sorted in increasing order.
-    fps : float, optional
+    fps
         The video sampling rate. If None (default), the ``time`` coordinates
         of the resulting ``movement`` dataset will be in frame numbers. If
         ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
         the ``time`` coordinates are in seconds, they will indicate the
         elapsed time from the capture of the first frame (assumed to be frame
         0).
-    source_software : str, optional
+    source_software
         Name of the software that generated the data. Defaults to None.
 
     Returns
@@ -135,7 +137,7 @@ def from_numpy(
     ... )
 
     """
-    valid_bboxes_data = ValidBboxesDataset(
+    valid_bboxes_inputs = ValidBboxesInputs(
         position_array=position_array,
         shape_array=shape_array,
         confidence_array=confidence_array,
@@ -144,11 +146,11 @@ def from_numpy(
         fps=fps,
         source_software=source_software,
     )
-    return _ds_from_valid_data(valid_bboxes_data)
+    return valid_bboxes_inputs.to_dataset()
 
 
 def from_file(
-    file_path: Path | str,
+    file: Path | str,
     source_software: Literal["VIA-tracks"],
     fps: float | None = None,
     use_frame_numbers_from_file: bool = False,
@@ -156,25 +158,30 @@ def from_file(
 ) -> xr.Dataset:
     """Create a ``movement`` bounding boxes dataset from a supported file.
 
+    .. deprecated:: 0.14.0
+        This function is deprecated and will be removed in a future release.
+        Use :func:`movement.io.load_dataset<movement.io.load.load_dataset>`
+        instead.
+
     At the moment, we only support VIA tracks .csv files.
 
     Parameters
     ----------
-    file_path : pathlib.Path or str
+    file
         Path to the file containing the tracked bounding boxes. Currently
         only VIA tracks .csv files are supported.
-    source_software : "VIA-tracks".
+    source_software
         The source software of the file. Currently only files from the
         VIA 2.0.12 annotator [1]_ ("VIA-tracks") are supported.
         See .
-    fps : float, optional
+    fps
         The video sampling rate. If None (default), the ``time`` coordinates
         of the resulting ``movement`` dataset will be in frame numbers. If
         ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
         the ``time`` coordinates are in seconds, they will indicate the
         elapsed time from the capture of the first frame (assumed to be frame
         0).
-    use_frame_numbers_from_file : bool, optional
+    use_frame_numbers_from_file
         If True, the frame numbers in the resulting dataset are
         the same as the ones specified for each tracked bounding box in the
         input file. This may be useful if the bounding boxes are tracked for a
@@ -182,7 +189,7 @@ def from_file(
         full video as the time origin. If False (default), the frame numbers
         in the VIA tracks .csv file are instead mapped to a 0-based sequence of
         consecutive integers.
-    frame_regexp : str, optional
+    frame_regexp
         Regular expression pattern to extract the frame number from the frame
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed
@@ -217,9 +224,16 @@ def from_file(
     >>> )
 
     """
+    warnings.warn(
+        "The function `movement.io.load_bboxes.from_file` is deprecated"
+        " and will be removed in a future release. "
+        "Please use `movement.io.load_dataset` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if source_software == "VIA-tracks":
         return from_via_tracks_file(
-            file_path,
+            file,
             fps,
             use_frame_numbers_from_file=use_frame_numbers_from_file,
             frame_regexp=frame_regexp,
@@ -230,8 +244,9 @@ def from_file(
         )
 
 
+@register_loader("VIA-tracks", file_validators=[ValidVIATracksCSV])
 def from_via_tracks_file(
-    file_path: Path | str,
+    file: str | Path,
     fps: float | None = None,
     use_frame_numbers_from_file: bool = False,
     frame_regexp: str = DEFAULT_FRAME_REGEXP,
@@ -240,25 +255,25 @@ def from_via_tracks_file(
 
     Parameters
     ----------
-    file_path : pathlib.Path or str
+    file
         Path to the VIA tracks .csv file with the tracked bounding boxes.
         For more information on the VIA tracks .csv file format, see the VIA
         tutorial for tracking [1]_.
-    fps : float, optional
+    fps
         The video sampling rate. If None (default), the ``time`` coordinates
         of the resulting ``movement`` dataset will be in frame numbers. If
         ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
         the ``time`` coordinates are in seconds, they will indicate the
         elapsed time from the capture of the first frame (assumed to be frame
         0).
-    use_frame_numbers_from_file : bool, optional
+    use_frame_numbers_from_file
         If True, the frame numbers in the resulting dataset are
         the same as the ones in the VIA tracks .csv file. This may be useful if
         the bounding boxes are tracked for a subset of frames in a video,
         but you want to maintain the start of the full video as the time
         origin. If False (default), the frame numbers in the VIA tracks .csv
         file are instead mapped to a 0-based sequence of consecutive integers.
-    frame_regexp : str, optional
+    frame_regexp
         Regular expression pattern to extract the frame number from the frame
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed
@@ -330,19 +345,8 @@ def from_via_tracks_file(
 
 
     """
-    # General file validation
-    file = ValidFile(
-        file_path, expected_permission="r", expected_suffix=[".csv"]
-    )
-
-    # Specific VIA-tracks .csv file validation
-    via_file = ValidVIATracksCSV(file.path, frame_regexp=frame_regexp)
-    logger.info(f"Validated VIA tracks .csv file {via_file.path}.")
-
-    # Create an xarray.Dataset from the data
-    bboxes_arrays = _numpy_arrays_from_via_tracks_file(
-        via_file.path, via_file.frame_regexp
-    )
+    file_path = cast("ValidFile", file).file
+    bboxes_arrays = _numpy_arrays_from_via_tracks_file(file_path, frame_regexp)
     ds = from_numpy(
         position_array=bboxes_arrays["position_array"],
         shape_array=bboxes_arrays["shape_array"],
@@ -357,18 +361,16 @@ def from_via_tracks_file(
         ),
         fps=fps,
         source_software="VIA-tracks",
-    )  # it validates the dataset via ValidBboxesDataset
-
+    )  # it validates the dataset via ValidBboxesInputs
     # Add metadata as attributes
     ds.attrs["source_software"] = "VIA-tracks"
-    ds.attrs["source_file"] = file.path.as_posix()
-
-    logger.info(f"Loaded bounding boxes tracks from {via_file.path}:\n{ds}")
+    ds.attrs["source_file"] = file_path.as_posix()
+    logger.info(f"Loaded bounding boxes tracks from {file_path}:\n{ds}")
     return ds
 
 
 def _numpy_arrays_from_via_tracks_file(
-    file_path: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
+    file: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
 ) -> dict:
     """Extract numpy arrays from the input VIA tracks .csv file.
 
@@ -389,10 +391,10 @@ def _numpy_arrays_from_via_tracks_file(
 
     Parameters
     ----------
-    file_path : pathlib.Path
+    file
         Path to the VIA tracks .csv file containing the bounding box tracks.
 
-    frame_regexp : str
+    frame_regexp
         Regular expression pattern to extract the frame number from the frame
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed
@@ -407,7 +409,7 @@ def _numpy_arrays_from_via_tracks_file(
     # Extract 2D dataframe from input data
     # (sort data by ID and frame number, and
     # fill empty frame-ID pairs with nans)
-    df = _df_from_via_tracks_file(file_path, frame_regexp)
+    df = _df_from_via_tracks_file(file, frame_regexp)
 
     # Compute indices of the rows where the IDs switch
     bool_id_diff_from_prev = df["ID"].ne(df["ID"].shift())  # pandas series
@@ -446,7 +448,7 @@ def _numpy_arrays_from_via_tracks_file(
 
 
 def _df_from_via_tracks_file(
-    file_path: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
+    file: Path, frame_regexp: str = DEFAULT_FRAME_REGEXP
 ) -> pd.DataFrame:
     """Load VIA tracks .csv file as a dataframe.
 
@@ -469,7 +471,7 @@ def _df_from_via_tracks_file(
     file.
     """
     # Read VIA tracks .csv file as a pandas dataframe
-    df_file = pd.read_csv(file_path, sep=",", header=0)
+    df_file = pd.read_csv(file, sep=",", header=0)
 
     # Format to a 2D dataframe
     df = pd.DataFrame(
@@ -519,7 +521,7 @@ def _extract_confidence_from_via_tracks_df(df: pd.DataFrame) -> np.ndarray:
 
     Parameters
     ----------
-    df : pd.DataFrame
+    df
         The VIA tracks input dataframe is the one obtained from
         ``df = pd.read_csv(file_path, sep=",", header=0)``.
 
@@ -552,11 +554,11 @@ def _extract_frame_number_from_via_tracks_df(
 
     Parameters
     ----------
-    df : pd.DataFrame
+    df
         The VIA tracks input dataframe is the one obtained from
         ``df = pd.read_csv(file_path, sep=",", header=0)``.
 
-    frame_regexp : str
+    frame_regexp
         Regular expression pattern to extract the frame number from the frame
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed by
@@ -609,15 +611,15 @@ def _via_attribute_column_to_numpy(
 
     Parameters
     ----------
-    df : pd.DataFrame
+    df
         The pandas DataFrame containing the data from the VIA tracks .csv file.
         This is the dataframe obtained from running
         ``df = pd.read_csv(file_path, sep=",", header=0)``.
-    via_column_name : str
+    via_column_name
         The name of a column in the VIA tracks .csv file whose values are
         literal dictionaries (i.e. ``file_attributes``,
         ``region_shape_attributes`` or ``region_attributes``).
-    list_keys : list[str]
+    list_keys
         The list of keys whose values we want to extract from the literal
         dictionaries in the ``via_column_name`` column.
     cast_fn : type, optional
@@ -643,61 +645,3 @@ def _via_attribute_column_to_numpy(
     bbox_attr_array = np.array(list_bbox_attr)
 
     return bbox_attr_array.squeeze()
-
-
-def _ds_from_valid_data(data: ValidBboxesDataset) -> xr.Dataset:
-    """Convert a validated bounding boxes dataset to an xarray Dataset.
-
-    Parameters
-    ----------
-    data : movement.validators.datasets.ValidBboxesDataset
-        The validated bounding boxes dataset object.
-
-    Returns
-    -------
-    bounding boxes dataset containing the boxes tracks,
-        boxes shapes, confidence scores and associated metadata.
-
-    """
-    # Create the time coordinate
-    time_coords = data.frame_array.squeeze()  # type: ignore
-    time_unit = "frames"
-
-    dataset_attrs: dict[str, str | float | None] = {
-        "source_software": data.source_software,
-        "ds_type": "bboxes",
-    }
-    # if fps is provided:
-    # time_coords is expressed in seconds, with the time origin
-    # set as frame 0 == time 0 seconds
-    # Store fps as a dataset attribute
-    if data.fps:
-        # Compute elapsed time from frame 0.
-        # Ignoring type error because `data.frame_array` is not None after
-        # ValidBboxesDataset.__attrs_post_init__()  # type: ignore
-        time_coords = np.array(
-            [frame / data.fps for frame in data.frame_array.squeeze()]  # type: ignore
-        )
-        time_unit = "seconds"
-        dataset_attrs["fps"] = data.fps
-
-    dataset_attrs["time_unit"] = time_unit
-    # Convert data to an xarray.Dataset
-    # with dimensions ('time', 'space', 'individuals')
-    DIM_NAMES = ValidBboxesDataset.DIM_NAMES
-    n_space = data.position_array.shape[1]
-    return xr.Dataset(
-        data_vars={
-            "position": xr.DataArray(data.position_array, dims=DIM_NAMES),
-            "shape": xr.DataArray(data.shape_array, dims=DIM_NAMES),
-            "confidence": xr.DataArray(
-                data.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
-            ),
-        },
-        coords={
-            DIM_NAMES[0]: time_coords,
-            DIM_NAMES[1]: ["x", "y", "z"][:n_space],
-            DIM_NAMES[2]: data.individual_names,
-        },
-        attrs=dataset_attrs,
-    )

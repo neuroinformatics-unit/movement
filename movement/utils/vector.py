@@ -1,5 +1,7 @@
 """Utility functions for vector operations."""
 
+from typing import NoReturn
+
 import numpy as np
 import xarray as xr
 
@@ -144,12 +146,12 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     # Replace space dim with space_pol
     dims = list(data.dims)
     dims[dims.index("space")] = "space_pol"
-    return xr.combine_nested(
+    return xr.concat(
         [
             rho.assign_coords({"space_pol": "rho"}),
             phi.assign_coords({"space_pol": "phi"}),
         ],
-        concat_dim="space_pol",
+        dim="space_pol",
     ).transpose(*dims)
 
 
@@ -178,12 +180,12 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
     # Replace space_pol dim with space
     dims = list(data.dims)
     dims[dims.index("space_pol")] = "space"
-    return xr.combine_nested(
+    return xr.concat(
         [
             x.assign_coords({"space": "x"}),
             y.assign_coords({"space": "y"}),
         ],
-        concat_dim="space",
+        dim="space",
     ).transpose(*dims)
 
 
@@ -292,6 +294,7 @@ def compute_signed_angle_2d(
     dot = u_x * v_x + u_y * v_y
 
     angles = np.arctan2(cross, dot)
+    assert isinstance(angles, xr.DataArray)
     # arctan2 returns values in [-pi, pi].
     # We need to map -pi angles to pi, to stay in the (-pi, pi] range
     angles.values[angles <= -np.pi] = np.pi
@@ -299,7 +302,7 @@ def compute_signed_angle_2d(
     return angles
 
 
-def _raise_error_for_missing_spatial_dim() -> None:
+def _raise_error_for_missing_spatial_dim() -> NoReturn:
     raise logger.error(
         ValueError(
             "Input data array must contain either 'space' or 'space_pol' "

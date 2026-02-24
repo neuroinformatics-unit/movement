@@ -33,7 +33,7 @@ jobs:
     name: Build Sphinx Docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: |
             ~/.movement/*
@@ -45,6 +45,8 @@ jobs:
           use-make: true
           fetch-tags: true
           use-artifactci: lazy
+          use-requirements-txt: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   deploy_sphinx_docs:
     name: Deploy Sphinx Docs

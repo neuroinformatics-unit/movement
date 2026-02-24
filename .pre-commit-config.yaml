@@ -2,6 +2,7 @@ exclude: 'conf.py'
 # Configuring https://pre-commit.ci/ bot
 ci:
     autoupdate_schedule: monthly
+    skip: [mypy] # Build exceeds tier max size 250MiB
 repos:
     - repo: https://github.com/pre-commit/pre-commit-hooks
       rev: v6.0.0
@@ -30,14 +31,15 @@ repos:
         - id: rst-directive-colons
         - id: rst-inline-touching-normal
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.14.7
+      rev: v0.14.14
       hooks:
         - id: ruff
         - id: ruff-format
     - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: v1.19.0
+      rev: v1.19.1
       hooks:
           - id: mypy
+            exclude: ^(tests|docs|examples)/
             additional_dependencies:
                 - attrs
                 - types-setuptools
@@ -45,12 +47,16 @@ repos:
                 - types-attrs
                 - types-PyYAML
                 - types-requests
+                - xarray
+                - scipy-stubs
+                - types-shapely
+                - matplotlib
     - repo: https://github.com/mgedmin/check-manifest
       rev: "0.51"
       hooks:
           - id: check-manifest
             args: [--no-build-isolation]
-            additional_dependencies: [setuptools-scm, wheel]
+            additional_dependencies: ["setuptools>=77", "wheel", "setuptools_scm[toml]>=6.2"]
     - repo: https://github.com/codespell-project/codespell
       # Configuration for codespell is in pyproject.toml
       rev: v2.4.1

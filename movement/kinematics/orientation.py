@@ -1,7 +1,7 @@
 """Compute orientations as vectors and angles."""
 
 from collections.abc import Hashable
-from typing import Literal
+from typing import Literal, cast
 
 import numpy as np
 import xarray as xr
@@ -101,13 +101,13 @@ def compute_forward_vector(
     ) - data.sel(keypoints=right_keypoint, drop=True)
     # Define upward vector
     # default: negative z direction in the image coordinate system
-    upward_vector = (
+    upward_vector_arr = (
         np.array([0, 0, -1])
         if camera_view == "top_down"
         else np.array([0, 0, 1])
     )
     upward_vector = xr.DataArray(
-        np.tile(upward_vector.reshape(1, -1), [len(data.time), 1]),
+        np.tile(upward_vector_arr.reshape(1, -1), [len(data.time), 1]),
         dims=["time", "space"],
         coords={
             "space": ["x", "y", "z"],
@@ -115,8 +115,9 @@ def compute_forward_vector(
     )
     # Compute forward direction as the cross product
     # (right-to-left) cross (forward) = up
-    forward_vector = xr.cross(
-        right_to_left_vector, upward_vector, dim="space"
+    forward_vector = cast(
+        "xr.DataArray",
+        xr.cross(right_to_left_vector, upward_vector, dim="space"),
     ).drop_sel(
         space="z"
     )  # keep only the first 2 spatal dimensions of the result
@@ -248,7 +249,7 @@ def compute_forward_vector_angle(
 
     # Convert to degrees
     if in_degrees:
-        heading_array = np.rad2deg(heading_array)
+        heading_array = cast("xr.DataArray", np.rad2deg(heading_array))
 
     heading_array.name = "forward_vector_angle"
     return heading_array

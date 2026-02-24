@@ -2,6 +2,8 @@
 
 import xarray as xr
 from matplotlib import pyplot as plt
+from matplotlib.axes import Axes
+from matplotlib.figure import Figure, SubFigure
 
 DEFAULT_PLOTTING_ARGS = {
     "s": 15,
@@ -14,9 +16,9 @@ def plot_centroid_trajectory(
     da: xr.DataArray,
     individual: str | None = None,
     keypoints: str | list[str] | None = None,
-    ax: plt.Axes | None = None,
+    ax: Axes | None = None,
     **kwargs,
-) -> tuple[plt.Figure, plt.Axes]:
+) -> tuple[Figure | SubFigure, Axes]:
     """Plot centroid trajectory.
 
     This function plots the trajectory of the centroid
@@ -47,64 +49,51 @@ def plot_centroid_trajectory(
 
     Returns
     -------
-    (figure, axes) : tuple of (matplotlib.pyplot.Figure, matplotlib.axes.Axes)
-        The figure and axes containing the trajectory plot.
+    fig : matplotlib.figure.Figure or matplotlib.figure.SubFigure
+        If ``ax`` is provided, this is ``ax.figure``
+        (:class:`matplotlib.figure.Figure` or
+        :class:`matplotlib.figure.SubFigure`). Otherwise, a new
+        :class:`matplotlib.figure.Figure` is created and returned.
+    ax : matplotlib.axes.Axes
+        Axes on which the trajectory was drawn. If ``ax`` is provided,
+        the input will be directly modified and returned in this value.
 
     """
     if isinstance(individual, list):
         raise ValueError("Only one individual can be selected.")
 
     selection = {}
-
     if "individuals" in da.dims:
-        if individual is None:
-            selection["individuals"] = da.individuals.values[0]
-        else:
-            selection["individuals"] = individual
-
+        selection["individuals"] = individual or da.individuals.values[0]
     if "keypoints" in da.dims:
-        if keypoints is None:
-            selection["keypoints"] = da.keypoints.values
-        else:
-            selection["keypoints"] = keypoints
+        selection["keypoints"] = keypoints or da.keypoints.values
 
-    plot_point = da.sel(**selection)
-
+    plot_point = da.sel(selection)
     # If there are multiple selected keypoints, calculate the centroid
     plot_point = (
         plot_point.mean(dim="keypoints", skipna=True)
         if "keypoints" in plot_point.dims and plot_point.sizes["keypoints"] > 1
         else plot_point
     )
-
     plot_point = plot_point.squeeze()  # Only space and time should remain
 
     fig, ax = plt.subplots(figsize=(6, 6)) if ax is None else (ax.figure, ax)
-
     # Merge default plotting args with user-provided kwargs
-    for key, value in DEFAULT_PLOTTING_ARGS.items():
-        kwargs.setdefault(key, value)
-
-    colorbar = False
-    if "c" not in kwargs:
-        kwargs["c"] = plot_point.time
-        colorbar = True
-
+    c_provided = "c" in kwargs
+    kwargs = {**DEFAULT_PLOTTING_ARGS, **kwargs}
+    kwargs.setdefault("c", plot_point.time)
     # Plot the scatter, colouring by time or user-provided colour
     sc = ax.scatter(
         plot_point.sel(space="x"),
         plot_point.sel(space="y"),
         **kwargs,
     )
-
+    # Add 'colorbar' for time dimension if no colour was provided by user
+    if not c_provided:
+        cbar = fig.colorbar(sc, ax=ax, label="Time")
+        if cbar.solids is not None:
+            cbar.solids.set(alpha=1.0)
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_title("Trajectory")
-
-    # Add 'colorbar' for time dimension if no colour was provided by user
-    time_label = "Time"
-    fig.colorbar(sc, ax=ax, label=time_label).solids.set(
-        alpha=1.0
-    ) if colorbar else None
-
     return fig, ax
