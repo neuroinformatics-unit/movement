@@ -29,18 +29,15 @@ from movement.utils.vector import compute_norm
 # three synchronised camera views (side, front, and overhead). The pose tracks
 # from the side view were used in the :ref:`sphx_glr_examples_scale.py`
 # example.
-# Since triangulation combines predictions from multiple camera views, there is
-# no single confidence score for each 3D point. Here, confidence values were
-# summarised as the median across the three camera views, and coordinates where
-# triangulation could not be performed (NaN values) have been backfilled
-# with zeros.
+# Since 3D points were obtained by triangulation rather than direct model
+# prediction, confidence values were summarised as the median across the three
+# camera views. Coordinates where triangulation could not be performed (NaN
+# values) have been backfilled with zeros to conform to the DeepLabCut file
+# format.
 #
-# The `.h5` file contains 4 x 50 columns, with 50 being the number of tracked
-# keypoints, comprising both mouse and apparatus features, and 4 being the
-# number
-# of spatial dimensions + confidence values (x, y, z, confidence). Let's
-# load it
-# and inspect the structure.
+# The ``.h5`` file contains 4 x 50 columns: 50 keypoints (comprising both
+# mouse body parts and static apparatus landmarks) and 4 values per keypoint
+# (x, y, z, confidence). Let's load it and inspect the structure.
 
 ds = sample_data.fetch_dataset(
     "DLC_single-mouse_DBTravelator_3D.predictions.h5"
@@ -64,7 +61,8 @@ print(f"Keypoints: {ds.keypoints.values}")
 # camera positions relative to the travelator apparatus. The extrinsic
 # parameters below were obtained from multi-camera calibration and describe
 # the translation and rotation of each camera relative to a shared world
-# coordinate system.
+# coordinate system. The world coordinate system is defined relative to the
+# travelator belt, with axis units in millimetres.
 
 cameras_extrinsics = {
     "side": {
@@ -100,8 +98,10 @@ cameras_extrinsics = {
 }
 
 # %%
-# We plot these camera positions relative to a mockup of the
-# dual-belt travelator.
+# We plot the camera positions relative to a 3D mockup of the dual-belt
+# travelator. You do not need to understand the following plotting code,
+# only that it constructs a mockup of the travelator and marks the position
+# and orientation of each camera in 3D space.
 
 fig = plt.figure(figsize=(4, 4))
 ax = fig.add_subplot(projection="3d")
@@ -130,8 +130,8 @@ edges = [
     (0, 4),
     (1, 5),
     (2, 6),
-    (3, 7),
-]  # verticals
+    (3, 7),  # verticals
+]
 for i, j in edges:
     ax.plot(*corners[[i, j]].T, color="black", lw=0.5, zorder=110)
 
@@ -143,10 +143,13 @@ def add_floor(ax, x0, x1, y_max, **kwargs):
     ax.add_collection3d(Poly3DCollection([verts], **kwargs))
 
 
-for x0 in (-box_dx, w):  # black end-platforms
+# Plot black end-platforms
+for x0 in (-box_dx, w):
     add_floor(
         ax, x0, x0 + box_dx, d, facecolors="black", edgecolors="none", zorder=1
     )
+
+# Plot white belt
 add_floor(
     ax,
     0,
@@ -171,17 +174,14 @@ axis_colours = ["r", "g", "b"]
 for cam, ext in cameras_extrinsics.items():
     R = ext["rotm"]  # rotation matrix (world → camera)
     t = ext["tvec"]  # translation vector (in camera coordinates)
-    pos = (-R.T @ t).flatten()  # invert extrinsics to get camera
-    # position in world coordinates
+    pos = (-R.T @ t).flatten()  # camera position in world coordinates
 
-    # Plot camera axes
     for vec, col in zip(R, axis_colours, strict=True):
         direction = vec / np.linalg.norm(vec) * shaft_length
         ax.quiver(
             *pos, *direction, color=col, arrow_length_ratio=0.5, length=1.7
         )
 
-    # Label camera
     ax.text(
         pos[0] - 50,
         pos[1] - 50,
@@ -203,11 +203,24 @@ ax.set(
 )
 ax.set_aspect("equal")
 ax.tick_params(labelsize=7)
+ax.locator_params(nbins=4)
 ax.grid(False)
 ax.view_init(elev=15, azim=-40, roll=0)
 fig.subplots_adjust(left=0.05, right=0.85, bottom=0.1, top=0.99)
 
 plt.show()
+
+# %%
+# The coloured arrows at each camera position represent its local coordinate
+# axes derived from the extrinsic calibration parameters: the blue arrow
+# points along the camera's optical axis (the direction it faces), while
+# the red and green arrows represent the horizontal and vertical axes of
+# the image plane, respectively.
+#
+# We can see that the side camera captures the lateral profile of the
+# travelator, the front camera looks down its length, and the overhead
+# camera provides a bird's eye view. Together, these three views were
+# combined via triangulation to produce the 3D dataset.
 
 # %%
 # Select mouse keypoints
@@ -218,15 +231,12 @@ print(ds.keypoints.values)
 
 # %%
 # The loaded dataset contains 43 keypoints spanning the mouse's head, back,
-# tail,
-# and limbs. An additional 7 keypoints mark structural landmarks on
+# tail, and limbs. An additional 7 keypoints mark structural landmarks on
 # the travelator itself. Let's filter the dataset to keep only the mouse
 # keypoints.
 
 mouse_keywords = ["Nose", "Ear", "Back", "Tail", "paw"]
-# Find the keypoints which contain the mouse keywords
 mask = ds.keypoints.str.contains("|".join(mouse_keywords))
-# Filter the dataset by the mouse keypoints
 ds_mouse = ds.sel(keypoints=ds.keypoints[mask])
 
 # %%
@@ -235,23 +245,21 @@ ds_mouse = ds.sel(keypoints=ds.keypoints[mask])
 # We'll use these later to add spatial context to our plots.
 
 belt_corner_names = ["StartPlatL", "StartPlatR", "TransitionL", "TransitionR"]
-belt_corners_avg_position = ds.position.sel(
+belt_corners = ds.position.sel(
     keypoints=belt_corner_names, individuals="individual_0"
-).mean(dim="time")
-print(f"Belt corner positions: {belt_corners_avg_position}")
+)
+belt_corners_avg_position = belt_corners.mean(dim="time")
 
 # %%
 # Visualise a subset of the data
 # ------------------------------
 # Let's plot the 3D trajectory of a single keypoint to get a sense of the data.
 # We'll use the nose of our single mouse, which shows the overall path along
-# the
-# travelator.
+# the travelator.
 
 nose_position = ds_mouse.position.sel(
     keypoints="Nose", individuals="individual_0"
 )
-print(nose_position)
 
 
 # %%
@@ -260,7 +268,7 @@ print(nose_position)
 # <https://matplotlib.org/stable/gallery/lines_bars_and_markers
 # /multicolored_line.html>`_.
 # It creates a 3D figure, draws a scatter-line coloured by a scalar,
-# overlays belt corner landmarks, and adds a horizontal colourbar.
+# overlays belt corner landmarks, and adds a colourbar.
 
 
 def plot_coloured_trajectory_3d(
@@ -271,7 +279,6 @@ def plot_coloured_trajectory_3d(
     cmap="turbo",
     elev=1,
     azim=330,
-    box_aspect=(6, 2, 2),
 ):
     """Plot a 3D keypoint trajectory coloured by a scalar.
 
@@ -291,57 +298,50 @@ def plot_coloured_trajectory_3d(
         Matplotlib colourmap name.
     elev, azim : float
         Viewing angles for the 3D axes.
-    box_aspect : tuple
-        Aspect ratio for the 3D axes.
-
-    Returns
-    -------
-    fig, ax
-        Figure and axes objects.
 
     """
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
 
     # Extract spatial coordinates
-    x = position.sel(space="x")
-    y = position.sel(space="y")
-    z = position.sel(space="z")
+    x, y, z = (position.sel(space=s) for s in ["x", "y", "z"])
 
     # Scatter points coloured by the scalar variable
-    ax.scatter(x, y, z, c=colour_values, s=1, cmap=cmap)
+    ax.scatter(x, y, z, c=colour_values, s=2, cmap=cmap)
 
-    # Build per-segment line collection for continuous colour mapping
+    # Convert to numpy arrays for line collection construction
     x, y, z = (np.asarray(arr).ravel() for arr in (x, y, z))
-    lc_kwargs = {"capstyle": "butt", "cmap": cmap}
 
+    # Compute midpoints between consecutive points for smooth colour
+    # transitions
     x_mid = np.hstack((x[:1], 0.5 * (x[1:] + x[:-1]), x[-1:]))
     y_mid = np.hstack((y[:1], 0.5 * (y[1:] + y[:-1]), y[-1:]))
     z_mid = np.hstack((z[:1], 0.5 * (z[1:] + z[:-1]), z[-1:]))
 
+    # Build segments as (start, midpoint, end) triplets for each point
     start = np.column_stack((x_mid[:-1], y_mid[:-1], z_mid[:-1]))[:, None, :]
     mid = np.column_stack((x, y, z))[:, None, :]
     end = np.column_stack((x_mid[1:], y_mid[1:], z_mid[1:]))[:, None, :]
 
     segments = np.concatenate((start, mid, end), axis=1)
 
-    lc = Line3DCollection(segments, **lc_kwargs)
+    # Create and add the coloured line collection
+    lc = Line3DCollection(segments, capstyle="butt", cmap=cmap, linewidths=1)
     lc.set_array(colour_values)
     ax.add_collection3d(lc)
 
-    # Overlay belt corner landmarks
-    ax.scatter(
-        belt_corners.sel(space="x"),
-        belt_corners.sel(space="y"),
-        belt_corners.sel(space="z"),
-        c="k",
-        s=5,
-        alpha=1,
-    )
+    # Overlay belt corner landmarks with labels
+    for kp in belt_corners.keypoints.values:
+        bx, by, bz = (
+            float(belt_corners.sel(keypoints=kp, space=s))
+            for s in ["x", "y", "z"]
+        )
+        ax.scatter(bx, by, bz, c="k", s=5)
+        ax.text(bx, by, bz, kp, fontsize=6, color="k")
 
     # Format axes and add colourbar
     ax.view_init(elev=elev, azim=azim, roll=0)
-    ax.set_box_aspect(box_aspect)
+    ax.set_box_aspect((6, 2, 2))
     ax.set_xlabel("x (mm)", labelpad=20)
     ax.set_ylabel("y (mm)", labelpad=15)
     ax.set_zlabel("z (mm)", labelpad=5)
@@ -355,17 +355,15 @@ def plot_coloured_trajectory_3d(
     )
     fig.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.1)
 
-    return fig, ax
-
 
 # %%
-# We can use ``plot_trajectory_3d`` to plot the trajectory of the
-# nose as the mouse runs along the dual-belt travelator. We also plot each of
-# our fixed landmark coordinates to add further spatial information. We colour
-# each point by the frame index across all recorded frames.
+# We can use ``plot_coloured_trajectory_3d`` to plot the trajectory of the
+# nose as the mouse runs along the dual-belt travelator, adding each of
+# our fixed belt corner coordinates to add further spatial information. We
+# colour each point by the frame index across all recorded frames.
 
 plot_coloured_trajectory_3d(
-    nose_position,
+    position=nose_position,
     colour_values=nose_position.time,
     belt_corners=belt_corners_avg_position,
     colour_label="Frame index",
@@ -381,38 +379,25 @@ plt.show()
 # confidence scores below ``threshold`` and interpolate to fill in
 # the resulting gaps.
 
-# Replace position values with NaN where confidence < threshold
-threshold = 0.9
-ds_mouse.update(
-    {
-        "position": filter_by_confidence(
-            ds_mouse.position,
-            ds_mouse.confidence,
-            threshold=0.9,
-            print_report=True,
-        )
-    }
+ds_mouse["position"] = filter_by_confidence(
+    ds_mouse.position,
+    ds_mouse.confidence,
+    threshold=0.9,
 )
-
-# Linearly interpolate over NaN gaps of up to 10 consecutive frames
-ds_mouse.update(
-    {
-        "position": interpolate_over_time(
-            ds_mouse.position, method="linear", max_gap=10, print_report=True
-        )
-    }
+ds_mouse["position"] = interpolate_over_time(
+    ds_mouse.position,
+    max_gap=40,
 )
 
 # %%
-# We recalculate our (now cleaned up) nose dataset.
+# Let's now re-extract the nose position from the cleaned dataset and plot
+# the trajectory again.
+
 clean_nose_position = ds_mouse.position.sel(
     keypoints="Nose", individuals="individual_0"
 )
-
-# %%
-# And plot again.
 plot_coloured_trajectory_3d(
-    clean_nose_position,
+    position=clean_nose_position,
     colour_values=clean_nose_position.time,
     belt_corners=belt_corners_avg_position,
     colour_label="Frame index",
@@ -420,21 +405,20 @@ plot_coloured_trajectory_3d(
 plt.show()
 
 # %%
-# The nose appears to dip vertically (in ``z``) as it progresses along the
-# dual-belt
-# travelator and towards the transition area (marked by keypoints
-# ``TransitionL``
-# and ``TransitionR``). Let's visualise how the running speed changes along the
-# trajectory using the `plot_coloured_trajectory_3d` plotting function and
-# :func:`movement.kinematics.compute_speed`. Since the second belt moves faster
-# than the first, we might expect to see changes in speed around the
-# transition.
+# The artefacts have now been removed, giving us a clean trace to work with.
+# We can already see that the nose drops in absolute height (``z``) on
+# approach to the transition area (marked by the ``TransitionL`` and
+# ``TransitionR`` belt landmarks). Let's now visualise how running speed
+# varies along the trajectory using
+# :func:`movement.kinematics.compute_speed`. Since the second belt moves
+# faster than the first, we might expect to see changes in speed around the
+# transition point.
 
-# Compute the Euclidean speed of the nose across all three spatial dimensions
+# Compute the speed of the nose across all three spatial dimensions
 speed_nose = compute_speed(clean_nose_position)
 
 plot_coloured_trajectory_3d(
-    clean_nose_position,
+    position=clean_nose_position,
     colour_values=speed_nose,
     belt_corners=belt_corners_avg_position,
     colour_label="Speed (mm/s)",
@@ -444,16 +428,18 @@ plot_coloured_trajectory_3d(
 plt.show()
 
 # %%
-# The colour gradient shows that the nose decelerates as the mouse
-# approaches the belt transition area, marked by the ``TransitionL`` and
-# ``TransitionR`` landmarks. Combined with the downward dip observed
-# in the previous plot, this suggests the mouse slows and lowers its
-# head in anticipation of stepping onto the faster-moving second belt.
+# The speed colour gradient shows that the nose accelerates as the mouse runs
+# across the first belt, before briefly decelerating at the transition
+# point. Combined with the gradual downward dip observed in ``z``,
+# this suggests the mouse begins to lower its body on approach to the
+# transition before braking as it steps onto the faster-moving second belt.
+# To get a fuller picture of the postural changes involved, let's visualise
+# all tracked keypoints together as a skeleton.
 
 # %%
 # Visualise the skeleton
 # ----------------------
-# Next, we define the skeleton of our mouse body and the belt area.
+# We first define the skeleton connections for the mouse body and belt area.
 
 mouse_skeleton = [
     ("Nose", "Back1"),
@@ -507,19 +493,21 @@ belt_skeleton = [
 ]
 
 # %%
-# We plot the mouse skeleton in 3D space.
+# We plot the mouse skeleton in 3D space for a single example frame.
 
-mouse_frame = ds_mouse.position.isel(time=275)
+sample_frame = 275
+mouse_frame = ds_mouse.position.isel(time=sample_frame)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection="3d")
 
+# Draw keypoints as scatter points
 for bodypart in mouse_frame.keypoints:
     x, y, z = mouse_frame.sel(keypoints=bodypart)
     ax.scatter(x, y, z, s=5, color="g")
 
-for connection in mouse_skeleton:
-    joint_1, joint_2 = connection
+# Draw skeleton connections between keypoints
+for joint_1, joint_2 in mouse_skeleton:
     x1, y1, z1 = mouse_frame.sel(keypoints=joint_1)
     x2, y2, z2 = mouse_frame.sel(keypoints=joint_2)
     ax.plot([x1, x2], [y1, y2], [z1, z2], "b-")
@@ -535,36 +523,36 @@ fig.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
 plt.show()
 
 # %%
-# We can add in the belt landmark positions to visualise the full tracked
-# field.
-# We can see the mouse is positioned within the area of the first belt and
-# is approaching the transition area between the first and second belt.
+# We can add in the belt landmark positions to further visualise the mouse's
+# position relative to the travelator.
 
-mouse_frame = ds_mouse.position.isel(time=275)
+mouse_frame = ds_mouse.position.isel(time=sample_frame)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection="3d")
 
-ax.scatter(
-    belt_corners_avg_position.sel(space="x"),
-    belt_corners_avg_position.sel(space="y"),
-    belt_corners_avg_position.sel(space="z"),
-    s=1,
-    c="r",
-)
+# Draw belt corner landmarks
+for kp in belt_corners_avg_position.keypoints.values:
+    bx, by, bz = (
+        float(belt_corners_avg_position.sel(keypoints=kp, space=s))
+        for s in ["x", "y", "z"]
+    )
+    ax.scatter(bx, by, bz, c="r", s=5)
+    ax.text(bx - 30, by, bz, kp, fontsize=6, color="k")
 
-for bodypart in mouse_frame.keypoints:
-    x, y, z = mouse_frame.sel(keypoints=bodypart)
-    ax.scatter(x, y, z, s=1, color="g")
-
-for connection in belt_skeleton:
-    joint_1, joint_2 = connection
+# Draw belt outline
+for joint_1, joint_2 in belt_skeleton:
     x1, y1, z1 = belt_corners_avg_position.sel(keypoints=joint_1)
     x2, y2, z2 = belt_corners_avg_position.sel(keypoints=joint_2)
     ax.plot([x1, x2], [y1, y2], [z1, z2], "y-")
 
-for connection in mouse_skeleton:
-    joint_1, joint_2 = connection
+# Draw mouse keypoints
+for bodypart in mouse_frame.keypoints:
+    x, y, z = mouse_frame.sel(keypoints=bodypart)
+    ax.scatter(x, y, z, s=1, color="g")
+
+# Draw mouse skeleton connections
+for joint_1, joint_2 in mouse_skeleton:
     x1, y1, z1 = mouse_frame.sel(keypoints=joint_1)
     x2, y2, z2 = mouse_frame.sel(keypoints=joint_2)
     ax.plot([x1, x2], [y1, y2], [z1, z2], "b-", linewidth=1.1)
@@ -581,7 +569,13 @@ plt.show()
 
 
 # %%
-# Now let's visualise how the skeleton evolves over time.
+# We can see the mouse is positioned within the area of the first belt and
+# is approaching the transition area between the first and second belt.
+
+# %%
+# Now that we can see the skeleton structure and the mouse's position
+# relative to the belt, let's visualise how the skeleton evolves across a
+# subset of frames.
 # We create a helper function to plot this skeleton over time.
 
 
@@ -590,9 +584,11 @@ def plot_skeleton_over_time(
     skeleton_edges,
     frame_range,
     c,
-    ax=None,
+    ax,
     s=3,
-    **plot_kwargs,
+    cmap="viridis",
+    alpha=0.5,
+    linewidth=1,
 ):
     """Plot skeleton over multiple frames.
 
@@ -606,32 +602,28 @@ def plot_skeleton_over_time(
         Frames to plot, e.g. range(100, 200, 5).
     c : array-like
         Colour values for each frame (must match length of frame_range).
-    ax : matplotlib Axes3D, optional
-        Axes to plot on. Creates new figure if None.
+    ax : matplotlib Axes3D
+        Axes to plot on.
     s : float, optional
         Marker size. Set to 0 to hide markers. Default is 3.
-    elev, azim, roll : float, optional
-        Viewing angles. Defaults are 20, 300, 0.
-    box_aspect : str or tuple, optional
-        'equal' or (x, y, z) ratio. Default is 'equal'.
-    **plot_kwargs
-        Additional options: cmap, alpha, linewidth.
+    cmap : str, optional
+        Matplotlib colourmap name. Default is 'viridis'.
+    alpha : float, optional
+        Opacity of plotted elements. Default is 0.5.
+    linewidth : float, optional
+        Width of skeleton connection lines. Default is 1.
 
     Returns
     -------
-    fig, ax
-        Figure and axes objects.
+    sm : matplotlib.cm.ScalarMappable
+        Scalar mappable for use in adding a colourbar.
 
     """
-    # Set defaults
-    defaults = {"cmap": "viridis", "alpha": 0.6, "linewidth": 1.5}
-    defaults.update(plot_kwargs)
-
     pos = position_data.squeeze()
 
     # Map colour values to colours
     norm = plt.Normalize(np.min(c), np.max(c))
-    cmap_obj = plt.get_cmap(defaults["cmap"])
+    cmap_obj = plt.get_cmap(cmap)
     colours = cmap_obj(norm(c))
 
     # Plot each frame
@@ -640,38 +632,33 @@ def plot_skeleton_over_time(
 
         # Draw skeleton edges
         for node1, node2 in skeleton_edges:
-            try:
-                xyz1 = pos_frame.sel(keypoints=node1).values
-                xyz2 = pos_frame.sel(keypoints=node2).values
-                if not (np.isnan(xyz1).any() or np.isnan(xyz2).any()):
-                    ax.plot(
-                        [xyz1[0], xyz2[0]],
-                        [xyz1[1], xyz2[1]],
-                        [xyz1[2], xyz2[2]],
-                        color=colours[i],
-                        alpha=defaults["alpha"],
-                        linewidth=defaults["linewidth"],
-                    )
-            except (KeyError, IndexError):
-                pass
+            xyz1 = pos_frame.sel(keypoints=node1).values
+            xyz2 = pos_frame.sel(keypoints=node2).values
+            if not (np.isnan(xyz1).any() or np.isnan(xyz2).any()):
+                ax.plot(
+                    [xyz1[0], xyz2[0]],
+                    [xyz1[1], xyz2[1]],
+                    [xyz1[2], xyz2[2]],
+                    color=colours[i],
+                    alpha=alpha,
+                    linewidth=linewidth,
+                )
 
         # Draw keypoints
         if s > 0:
             for kpt in pos_frame.keypoints.values:
-                try:
-                    xyz = pos_frame.sel(keypoints=kpt).values
-                    if not np.isnan(xyz).any():
-                        ax.scatter(
-                            xyz[0],
-                            xyz[1],
-                            xyz[2],
-                            c=[colours[i]],
-                            s=s,
-                            alpha=defaults["alpha"],
-                        )
-                except (KeyError, IndexError):
-                    pass
+                xyz = pos_frame.sel(keypoints=kpt).values
+                if not np.isnan(xyz).any():
+                    ax.scatter(
+                        xyz[0],
+                        xyz[1],
+                        xyz[2],
+                        c=[colours[i]],
+                        s=s,
+                        alpha=alpha,
+                    )
 
+    # Return a ScalarMappable for colourbar creation
     sm = plt.cm.ScalarMappable(cmap=cmap_obj, norm=norm)
     sm.set_array(c)
 
@@ -683,7 +670,7 @@ def plot_skeleton_over_time(
 # transition area between the two belts.
 
 
-def plot_belt_transition_line(ax, belt_corners, **kwargs):
+def plot_belt_transition_line(ax, belt_corners):
     """Plot the transition line between the two travelator belts.
 
     Parameters
@@ -693,13 +680,8 @@ def plot_belt_transition_line(ax, belt_corners, **kwargs):
     belt_corners : xarray.DataArray
         Averaged belt corner positions (must contain ``TransitionL``
         and ``TransitionR`` keypoints).
-    **kwargs
-        Keyword arguments passed to ``ax.plot`` (default: black solid
-        line, linewidth 2).
 
     """
-    defaults = {"color": "k", "linewidth": 2, "linestyle": "-"}
-    defaults.update(kwargs)
     ax.plot(
         [
             belt_corners.sel(keypoints="TransitionL", space="x"),
@@ -713,15 +695,16 @@ def plot_belt_transition_line(ax, belt_corners, **kwargs):
             belt_corners.sel(keypoints="TransitionL", space="z"),
             belt_corners.sel(keypoints="TransitionR", space="z"),
         ],
-        color=defaults["color"],
-        linewidth=defaults["linewidth"],
-        linestyle=defaults["linestyle"],
+        color="k",
+        linewidth=2,
+        linestyle="-",
     )
 
 
 # %%
-# Let's use these to plot the full mouse skeleton over a subset of
-# frames from the run (``frame_range``), coloured by frame index.
+# Let's use ``plot_skeleton_over_time`` and ``plot_belt_transition_line`` to
+# plot the full mouse skeleton over a subset of frames from the run
+# (defined as ``frame_range``), coloured by frame index.
 
 frame_range = range(280, 340, 1)
 
@@ -734,22 +717,18 @@ sm = plot_skeleton_over_time(
     frame_range=frame_range,
     c=np.array(frame_range),
     ax=ax,
-    alpha=0.4,
-    linewidth=1,
     s=0,
     cmap="viridis_r",
 )
 
-plot_belt_transition_line(
-    ax, belt_corners_avg_position, color="k", linewidth=2, linestyle="-"
-)
+plot_belt_transition_line(ax, belt_corners_avg_position)
 
 ax.view_init(elev=10, azim=290, roll=0)
 ax.set_aspect("equal")
 ax.set_xlabel("x (mm)", labelpad=40)
 ax.set_ylabel("y (mm)", labelpad=5)
 ax.set_zlabel("z (mm)", labelpad=5)
-cb = fig.colorbar(
+fig.colorbar(
     sm,
     ax=ax,
     label="Frame number",
@@ -790,7 +769,7 @@ limb_skeleton = list(
 )
 
 # %%
-# We next compute the Euclidean speed of each limb keypoint using
+# We compute the speed of each limb keypoint using
 # :func:`movement.kinematics.compute_speed`, which returns the frame-to-frame
 # displacement magnitude across all three spatial dimensions (x, y, z).
 # Taking the median across keypoints gives a single representative speed
@@ -798,17 +777,15 @@ limb_skeleton = list(
 
 limb_speed = compute_speed(ds_limb)
 avg_limb_velocity = limb_speed.median(dim="keypoints")
-print(avg_limb_velocity)
 
 # %%
-# Now we plot the right forelimb skeleton over time, coloured by its
-# speed at each frame. The frame range covers the last two strides on
-# the first (slower) belt and a single stride on the second (faster)
-# belt. A vertical black line marks the belt transition.
+# We plot the right forelimb skeleton over time, coloured by its speed at
+# each frame. The frame range covers the last two strides on the first
+# (slower) belt and a single stride on the second (faster) belt. The black
+# line marks the belt transition.
 
 fig = plt.figure()
 ax = fig.add_subplot(projection="3d")
-cmap = "inferno"
 
 frame_range = range(260, 365, 1)
 
@@ -816,29 +793,25 @@ frame_range = range(260, 365, 1)
 sm = plot_skeleton_over_time(
     ds_limb,
     limb_skeleton,
-    frame_range=frame_range,  # 400,460,2
+    frame_range=frame_range,
     c=avg_limb_velocity.isel(time=np.array(frame_range)),
     ax=ax,
-    alpha=0.5,
-    linewidth=1,
     s=3,
-    cmap=cmap,
+    cmap="inferno",
 )
 
 # Overlay the belt transition line for spatial reference
-plot_belt_transition_line(
-    ax, belt_corners_avg_position, color="k", linewidth=2, linestyle="-"
-)
+plot_belt_transition_line(ax, belt_corners_avg_position)
 
 ax.view_init(elev=20, azim=310, roll=0)
 ax.set_box_aspect((6, 1, 1))
 ax.set_xlabel("x (mm)", labelpad=30)
 ax.set_ylabel("y (mm)", labelpad=5)
 ax.set_zlabel("z (mm)", labelpad=5)
-cbR = fig.colorbar(
+fig.colorbar(
     sm,
     ax=ax,
-    label="Speed mm/s",
+    label="Speed (mm/s)",
     orientation="horizontal",
     pad=-0.05,
     fraction=0.06,
@@ -849,19 +822,19 @@ fig.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.1)
 plt.show()
 
 # %%
-# The limb moves fastest during early swing, when it is rapidly
-# protracted to reposition for the next footfall, and slowest
-# during stance, when the paw is in contact with the belt surface.
-# After the transition line, stance-phase speed is noticeably higher
-# than on the first belt, consistent with the faster surface speed
-# of the second belt (30 cm/s vs 6 cm/s).
+# The limb moves fastest during early swing, when it is rapidly protracted
+# to reposition for the next footfall, and slowest during stance, when the
+# paw is in contact with the belt. After the transition, stance-phase speed
+# is noticeably higher, consistent with the faster surface speed of the
+# second belt (30 cm/s vs 6 cm/s).
 
 # %%
-# We can also explore the limb kinematics by measuring the inter-limb
-# distance - the Euclidean distance between the left and right forepaw
-# toes - using :func:`movement.kinematics.compute_pairwise_distances`.
-# In 3D, this gives us a good measure of the base of support across
-# the gait cycle.
+# Beyond speed, we can further characterise the stride pattern by measuring
+# the inter-limb distance - the Euclidean distance between the left and
+# right forepaw toes - using
+# :func:`movement.kinematics.compute_pairwise_distances`. This gives us a
+# measure of how the separation between the two forepaws varies in 3D space
+# across the stride cycle.
 
 # Compute the frame-by-frame distance between the two forepaw toes
 forepaw_dist = compute_pairwise_distances(
@@ -871,13 +844,11 @@ forepaw_dist = compute_pairwise_distances(
 )
 
 # %%
-# Let's plot the right forelimb over time again, now coloured by the
-# forepaw inter-limb distance. This lets us see how the base of support
-# varies spatially across the stride cycle.
+# We plot the right forelimb over time again, now coloured by the
+# forepaw inter-limb distance.
 
 fig = plt.figure()
 ax = fig.add_subplot(projection="3d")
-cmap = "viridis"
 
 frame_range = range(260, 365, 1)
 
@@ -888,22 +859,18 @@ sm = plot_skeleton_over_time(
     frame_range=frame_range,
     c=forepaw_dist.isel(time=np.array(frame_range)),
     ax=ax,
-    alpha=0.5,
-    linewidth=1,
     s=3,
-    cmap=cmap,
+    cmap="viridis",
 )
 
-plot_belt_transition_line(
-    ax, belt_corners_avg_position, color="k", linewidth=2, linestyle="-"
-)
+plot_belt_transition_line(ax, belt_corners_avg_position)
 
 ax.view_init(elev=10, azim=270, roll=0)
 ax.set_box_aspect((6, 1, 1))
 ax.set_xlabel("x (mm)", labelpad=30)
 ax.set_ylabel("y (mm)", labelpad=5)
 ax.set_zlabel("z (mm)", labelpad=5)
-cbR = fig.colorbar(
+fig.colorbar(
     sm,
     ax=ax,
     label="Forepaw L–R distance",
@@ -917,14 +884,12 @@ fig.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.1)
 plt.show()
 
 # %%
-# The inter-limb distance peaks at the start and end of each swing
-# phase, when the limbs are maximally apart, and dips mid-swing as
-# the limbs pass each other moving in opposite directions. This
-# pattern is consistent with a trotting gait, where diagonal limb
-# pairs move in synchrony. We can verify this with a simple
-# stance phase diagram, using the z-coordinate of each toe to
-# classify it as in stance (on the belt surface, z < 1 mm) or in
-# swing (elevated above the belt).
+# The inter-limb distance oscillates with two peaks per stride, consistent
+# with the two forepaws moving in antiphase - each time one paw is maximally
+# protracted, the other is maximally retracted. To confirm this and examine
+# the full gait pattern, we plot the stance phases of all four limbs as a
+# gait phase diagram, classifying each toe as in stance (z < 1 mm, in contact
+# with the belt) or swing (elevated above the belt).
 
 frame_range = range(260, 365, 1)
 
@@ -945,7 +910,6 @@ stance_mask = ds_toes.sel(space="z") < 1
 # For each toe, find contiguous stance regions and draw them as bars
 for i, kp in enumerate(toe_names):
     stance = stance_mask.sel(keypoints=kp).values
-    # Detect stance onset/offset via diff of the binary mask
     diff = np.diff(stance.astype(int), prepend=0, append=0)
     starts = np.where(diff == 1)[0]
     ends = np.where(diff == -1)[0]
@@ -970,7 +934,6 @@ transition_time = avg_body_x.time.where(
 ).values[0]
 
 ax.axvline(transition_time, color="k", linestyle="--", label="Transition")
-
 ax.set_title("Stance phases per limb")
 ax.set_yticks(range(len(toe_names)))
 ax.set_yticklabels(toe_names)
@@ -981,29 +944,35 @@ plt.subplots_adjust(left=0.15, right=0.99, top=0.85, bottom=0.25)
 plt.show()
 
 # %%
-# Indeed, we see here that the mouse is exhibiting a trotting gait,
-# where the diagonal limb pairs (e.g. left hindpaw and right forepaw)
-# move in synchrony. This pattern holds for the first few strides on
-# the slower belt, but is disrupted around the transition point
-# (approximately 1.325 s) as the mouse adjusts to the faster second
-# belt.
+# The stance diagram confirms a trotting gait, with diagonal limb pairs
+# (left hindpaw/right forepaw and right hindpaw/left forepaw) moving in
+# synchrony. This is consistent with the antiphase forepaw oscillation
+# observed in the inter-limb distance plot. The pattern holds across the
+# first belt but is disrupted around the transition point as the mouse
+# adjusts to the faster second belt.
+
+# %%
+# .. note::
 #
-# Note that this simple z-threshold approach to stance detection is not
-# fully robust. Some stance periods are incorrectly fragmented where
-# toe tracking dips briefly above the 1 mm threshold, perhaps due to
-# tracking inaccuracies. More reliable stance detection would require a
-# dedicated gait classification method.
+#    This simple z-threshold approach to stance detection is not
+#    robust. Some stance periods are incorrectly fragmented where toe
+#    tracking briefly exceeds the 1 mm threshold, likely due to tracking
+#    noise. More reliable stance detection would require a dedicated gait
+#    classification method.
 
 # %%
 # Compute 3D head orientation
 # ---------------------------
-# With 3D tracking of the nose and both ears, we can also derive all three
-# rotational degrees of freedom of the head: yaw (lateral rotation),
-# pitch (vertical rotation), and roll (head tilt).
+# So far we have focused on whole-body and limb kinematics. With 3D tracking
+# of the nose and both ears, we can also derive all three rotational degrees
+# of freedom of the head: yaw (lateral rotation), pitch (vertical rotation),
+# and roll (head tilt).
 #
 # We define the head origin as the midpoint between the ears, with its
 # z-coordinate shifted by the median vertical offset between the ear
-# midpoint and nose to represent a level head position.
+# midpoint and nose. This corrects for the fact that the nose sits below
+# the ear midpoint, so that the reference origin is at the same height as
+# the nose in a neutral head position.
 
 # Select the three head keypoints for a single individual
 ear_l = ds_mouse.position.sel(keypoints="EarL", individuals="individual_0")
@@ -1014,7 +983,7 @@ nose = ds_mouse.position.sel(keypoints="Nose", individuals="individual_0")
 ear_mid = (ear_l + ear_r) / 2
 
 # Shift the ear midpoint's z-coordinate by the median vertical offset
-# between nose and ear midpoint, so the origin sits at "level head" height
+# between nose and ear midpoint
 avg_z_offset = (nose - ear_mid).sel(space="z").median()
 ear_mid.loc[dict(space="z")] = ear_mid.sel(space="z") + avg_z_offset
 
@@ -1063,10 +1032,12 @@ roll = np.degrees(
 
 # %%
 # Let's plot all three angles over time. We display the median for each
-# angle and the ``x`` position of the transition area between belts.
+# angle and the ``x`` position of the transition area between belts
+# (``transition_x``).
 
 fig, axes = plt.subplots(3, 1, figsize=(8, 6), sharex=True)
 
+# Yaw
 ax = axes[0]
 ax.plot(nose.sel(space="x"), yaw, color="r", linewidth=1.5)
 ax.set_ylabel("Yaw (°)")
@@ -1078,36 +1049,27 @@ ax.axhline(
     label="Median",
 )
 ax.axvline(
-    belt_corners_avg_position.sel(keypoints="TransitionR", space="x"),
+    transition_x,
     color="k",
     linewidth=1,
     linestyle="--",
     label="Belt transition",
 )
 
+# Pitch
 ax = axes[1]
 ax.plot(nose.sel(space="x"), pitch, color="g", linewidth=1.5)
 ax.set_ylabel("Pitch (°)")
 ax.axhline(float(pitch.median()), color="grey", linewidth=1, linestyle="--")
-ax.axvline(
-    belt_corners_avg_position.sel(keypoints="TransitionR", space="x"),
-    color="k",
-    linewidth=1,
-    linestyle="--",
-)
+ax.axvline(transition_x, color="k", linewidth=1, linestyle="--")
 
+# Roll
 ax = axes[2]
 ax.plot(nose.sel(space="x"), roll, color="b", linewidth=1.5)
 ax.set_ylabel("Roll (°)")
 ax.axhline(float(roll.median()), color="grey", linewidth=1, linestyle="--")
-ax.axvline(
-    belt_corners_avg_position.sel(keypoints="TransitionR", space="x"),
-    color="k",
-    linewidth=1,
-    linestyle="--",
-)
+ax.axvline(transition_x, color="k", linewidth=1, linestyle="--")
 ax.set_xlabel("X (mm)")
-plt.subplots_adjust(left=0.01, right=0.99, top=0.5, bottom=0.01)
 
 fig.legend(loc="center")
 fig.tight_layout()
@@ -1117,7 +1079,7 @@ plt.show()
 # %%
 # A positive yaw shows the head is angled leftward, towards the back
 # wall of the travelator. A positive pitch means the head is angled
-# more upward. A Positive roll shows the head is tilted leftward.
+# more upward. A positive roll shows the head is tilted leftward.
 #
 # Overall, we can see the roll of the head appears to tilt more
 # towards the back wall but is not modulated by the belt transition.
@@ -1126,9 +1088,9 @@ plt.show()
 # this better in 3D space.
 
 # %%
-# We can visualise the head orientation on the 3D trajectory using
-# a quiver plot. We define a helper function to plot arrows
-# coloured by any of the three head angles.
+# We can visualise the head orientation along the 3D nose trajectory using
+# a quiver plot, where each arrow represents the head direction coloured
+# by one of the three head angles. We define a helper function for this.
 
 
 def plot_head_direction_quiver(
@@ -1168,11 +1130,6 @@ def plot_head_direction_quiver(
         Viewing angles.
     box_aspect : tuple
         Aspect ratio for the 3D axes.
-
-    Returns
-    -------
-    fig, ax
-        Figure and axes objects.
 
     """
     fig = plt.figure()
@@ -1220,9 +1177,7 @@ def plot_head_direction_quiver(
             linewidth=1.0,
         )
 
-    plot_belt_transition_line(
-        ax, belt_corners, color="k", linewidth=2, linestyle="-"
-    )
+    plot_belt_transition_line(ax, belt_corners)
 
     ax.view_init(elev=elev, azim=azim, roll=0)
     ax.set_box_aspect(box_aspect)
@@ -1242,8 +1197,6 @@ def plot_head_direction_quiver(
         fraction=0.06,
     )
     fig.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.1)
-
-    return fig, ax
 
 
 # %%
@@ -1265,11 +1218,15 @@ plot_head_direction_quiver(
 plt.show()
 
 # %%
-# Here we see that the head is angled toward the belt
-# surface at the start of the run, pitches upward on approach to the
-# belt transition, and then dips again after stepping onto the second belt.
-# This may reflect the mouse lowering its centre of mass as it adjusts
-# to each moving belt surface.
+# Here we see that the head is angled toward the belt surface at the start
+# of the run, pitches upward on approach to the belt transition, and then seems
+# to dip again as the body crosses onto the second belt. Combined with
+# the gradual drop in absolute nose height already observed, this suggests
+# the mouse lowers its body on approach to the transition while keeping its
+# head raised - perhaps to maintain a view of the upcoming belt - before
+# pitching the head downward as the body crosses. This forward head pitch
+# may reflect a forwards shift in centre of mass to counteract the backward
+# force of accelerating onto the faster-moving second belt.
 
 # %%
 # Next, let's plot the yaw of the head along the nose trajectory.
