@@ -3,7 +3,7 @@
 import numpy as np
 import xarray as xr
 
-from movement.kinematics import compute_path_length
+from movement.kinematics import compute_displacement, compute_path_length
 from movement.utils.logging import log_to_attrs, logger
 from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
@@ -124,7 +124,7 @@ def compute_straightness_index(
 
         # L(t): rolling sum of step lengths over the window
         # compute_path_length uses diff internally; we need step lengths
-        step_lengths = compute_norm(data.diff(dim="time"))
+        step_lengths = compute_norm(compute_displacement(data))
         # Align step_lengths to the same time axis as data (diff drops t=0)
         step_lengths = step_lengths.reindex(
             time=data.coords["time"], fill_value=np.nan
