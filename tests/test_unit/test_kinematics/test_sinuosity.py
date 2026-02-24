@@ -6,7 +6,6 @@ import xarray as xr
 
 from movement.kinematics import compute_sinuosity, compute_straightness_index
 
-
 # ============================================================
 # Fixtures
 # ============================================================
@@ -17,9 +16,7 @@ def clean_zigzag():
     """Create a clean zig-zag trajectory with no NaN values."""
     time = np.linspace(0, 1, 5)
     space = ["x", "y"]
-    data = np.array(
-        [[0, 0], [1, 1], [2, 0], [3, 1], [4, 0]], dtype=float
-    )
+    data = np.array([[0, 0], [1, 1], [2, 0], [3, 1], [4, 0]], dtype=float)
     return xr.DataArray(
         data,
         coords={"time": time, "space": space},
@@ -33,9 +30,7 @@ def straight_line():
     """Create a perfectly straight trajectory along the x-axis."""
     time = np.linspace(0, 1, 5)
     space = ["x", "y"]
-    data = np.array(
-        [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], dtype=float
-    )
+    data = np.array([[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], dtype=float)
     return xr.DataArray(
         data,
         coords={"time": time, "space": space},
@@ -92,9 +87,7 @@ def stationary():
     """Create a stationary trajectory (no movement)."""
     time = np.linspace(0, 1, 5)
     space = ["x", "y"]
-    data = np.array(
-        [[5, 5], [5, 5], [5, 5], [5, 5], [5, 5]], dtype=float
-    )
+    data = np.array([[5, 5], [5, 5], [5, 5], [5, 5], [5, 5]], dtype=float)
     return xr.DataArray(
         data,
         coords={"time": time, "space": space},

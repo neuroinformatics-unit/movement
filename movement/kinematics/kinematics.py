@@ -13,8 +13,8 @@ public API may be revised to reflect this distinction more explicitly.
 import warnings
 from typing import Literal
 
-import xarray as xr
 import numpy as np
+import xarray as xr
 
 from movement.utils.logging import logger
 from movement.utils.reports import report_nan_values
@@ -216,7 +216,6 @@ def compute_backward_displacement(data: xr.DataArray) -> xr.DataArray:
     backward_displacement = -fwd_displacement.roll(time=1)
     backward_displacement.name = "backward_displacement"
     return backward_displacement
-
 
 
 def compute_velocity(data: xr.DataArray) -> xr.DataArray:
