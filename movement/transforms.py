@@ -37,6 +37,7 @@ def scale(
 
     Returns
     -------
+    xarray.DataArray
         The scaled data array.
 
     Notes
@@ -133,6 +134,7 @@ def compute_homography_transform(
 
     Returns
     -------
+    numpy.ndarray
         A (3, 3) transformation matrix that aligns the
         source points to the destination points.
 

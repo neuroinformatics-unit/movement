@@ -335,6 +335,7 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
 
         Returns
         -------
+        numpy.ndarray
             Coordinates of the point on ``self`` that is closest to
             ``position``.
 
@@ -379,6 +380,7 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
 
         Returns
         -------
+        numpy.ndarray
             Approach vector from the point to the region.
 
         See Also

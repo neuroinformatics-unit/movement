@@ -74,6 +74,7 @@ def from_numpy(
 
     Returns
     -------
+    xarray.Dataset
         ``movement`` dataset containing the position, shape, and confidence
         scores of the tracked bounding boxes, and any associated metadata.
 
@@ -199,6 +200,7 @@ def from_file(
 
     Returns
     -------
+    xarray.Dataset
         ``movement`` dataset containing the position, shape, and confidence
         scores of the tracked bounding boxes, and any associated metadata.
 
@@ -282,6 +284,7 @@ def from_via_tracks_file(
 
     Returns
     -------
+    xarray.Dataset
         ``movement`` dataset containing the position, shape, and confidence
         scores of the tracked bounding boxes, and any associated metadata.
 
@@ -527,7 +530,7 @@ def _extract_confidence_from_via_tracks_df(df: pd.DataFrame) -> np.ndarray:
 
     Returns
     -------
-    np.ndarray
+    numpy.ndarray
         A numpy array of size (n_bboxes, ) containing the bounding boxes
         confidence scores.
 
@@ -566,6 +569,7 @@ def _extract_frame_number_from_via_tracks_df(
 
     Returns
     -------
+    numpy.ndarray
         A numpy array of size (n_frames, ) containing the frame numbers.
         In the VIA tracks .csv file, the frame number is expected to be
         defined as a 'file_attribute' , or encoded in the filename as an
@@ -627,6 +631,7 @@ def _via_attribute_column_to_numpy(
 
     Returns
     -------
+    numpy.ndarray
         A numpy array holding the extracted values. If ``len(list_keys) > 1``
         the array is two-dimensional with shape ``(N, len(list_keys))``, where
         ``N`` is the number of rows in the input dataframe ``df``. If

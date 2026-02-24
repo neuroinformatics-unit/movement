@@ -39,6 +39,7 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
 
     Returns
     -------
+    xarray.DataArray
         An xarray DataArray containing the time-derivative of the input data.
 
     See Also
@@ -82,6 +83,7 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
 
     Returns
     -------
+    xarray.DataArray
         An xarray DataArray containing displacement vectors in Cartesian
         coordinates.
 
@@ -147,6 +149,7 @@ def compute_forward_displacement(data: xr.DataArray) -> xr.DataArray:
 
     Returns
     -------
+    xarray.DataArray
         An xarray DataArray containing forward displacement vectors in
         Cartesian coordinates.
 
@@ -189,6 +192,7 @@ def compute_backward_displacement(data: xr.DataArray) -> xr.DataArray:
 
     Returns
     -------
+    xarray.DataArray
         An xarray DataArray containing backward displacement vectors in
         Cartesian coordinates.
 
@@ -228,6 +232,7 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
 
     Returns
     -------
+    xarray.DataArray
         An xarray DataArray containing velocity vectors in Cartesian
         coordinates.
 
@@ -268,6 +273,7 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
 
     Returns
     -------
+    xarray.DataArray
         An xarray DataArray containing acceleration vectors in Cartesian
         coordinates.
 
@@ -309,6 +315,7 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
 
     Returns
     -------
+    xarray.DataArray
         An xarray DataArray containing the computed speed,
         with dimensions matching those of the input data,
         except ``space`` is removed.
@@ -356,6 +363,7 @@ def compute_path_length(
 
     Returns
     -------
+    xarray.DataArray
         An xarray DataArray containing the computed path length,
         with dimensions matching those of the input data,
         except ``time`` and ``space`` are removed.
@@ -470,6 +478,7 @@ def _compute_scaled_path_length(
 
     Returns
     -------
+    xarray.DataArray
         An xarray DataArray containing the computed path length,
         with dimensions matching those of the input data,
         except ``time`` and ``space`` are removed.

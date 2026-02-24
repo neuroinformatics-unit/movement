@@ -52,6 +52,7 @@ def _cdist(
 
     Returns
     -------
+    xarray.DataArray
         An xarray DataArray containing the computed distances between
         each pair of inputs.
 
@@ -331,7 +332,7 @@ def _validate_labels_dimension(data: xr.DataArray, dim: str) -> xr.DataArray:
 
     Returns
     -------
-    xarray
+    xarray.DataArray
         The input data with the labels dimension validated.
 
     """

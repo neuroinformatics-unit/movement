@@ -41,6 +41,7 @@ def compute_kinetic_energy(
 
     Returns
     -------
+    xarray.DataArray
         A data array containing the kinetic energy per individual, for every
         time point. Note that the output array lacks ``space`` and
         ``keypoints`` dimensions.

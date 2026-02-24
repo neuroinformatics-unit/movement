@@ -35,6 +35,7 @@ def compute_region_occupancy(
 
     Returns
     -------
+    xarray.DataArray
         A boolean ``DataArray`` providing occupancy information.
 
     Examples

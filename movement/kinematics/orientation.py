@@ -48,6 +48,7 @@ def compute_forward_vector(
 
     Returns
     -------
+    xarray.DataArray
         An xarray DataArray representing the forward vector, with
         dimensions matching the input data array, but without the
         ``keypoints`` dimension.
@@ -132,7 +133,7 @@ def compute_head_direction_vector(
     left_keypoint: str,
     right_keypoint: str,
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
-):
+)-> xr.DataArray:
     """Compute the 2D head direction vector given two keypoints on the head.
 
     This function is an alias for :func:`compute_forward_vector()\
@@ -159,6 +160,7 @@ def compute_head_direction_vector(
 
     Returns
     -------
+    xarray.DataArray
         An xarray DataArray representing the head direction vector, with
         dimensions matching the input data array, but without the
         ``keypoints`` dimension.
@@ -219,6 +221,7 @@ def compute_forward_vector_angle(
 
     Returns
     -------
+    xarray.DataArray
         An xarray DataArray containing the computed forward vector angles,
         with dimensions matching the input data array,
         but without the ``keypoints`` and ``space`` dimensions.
