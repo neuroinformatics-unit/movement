@@ -10,6 +10,8 @@ from movement.kinematics.kinematics import (
     compute_speed,
     compute_time_derivative,
     compute_velocity,
+    compute_sinuosity,
+    compute_straightness_index,
 )
 from movement.kinematics.orientation import (
     compute_forward_vector,
@@ -32,4 +34,6 @@ __all__ = [
     "compute_head_direction_vector",
     "compute_forward_vector_angle",
     "compute_kinetic_energy",
+    "compute_sinuosity",
+    "compute_straightness_index",
 ]

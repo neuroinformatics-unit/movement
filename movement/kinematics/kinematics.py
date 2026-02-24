@@ -14,6 +14,7 @@ import warnings
 from typing import Literal
 
 import xarray as xr
+import numpy as np
 
 from movement.utils.logging import logger
 from movement.utils.reports import report_nan_values
@@ -215,6 +216,7 @@ def compute_backward_displacement(data: xr.DataArray) -> xr.DataArray:
     backward_displacement = -fwd_displacement.roll(time=1)
     backward_displacement.name = "backward_displacement"
     return backward_displacement
+
 
 
 def compute_velocity(data: xr.DataArray) -> xr.DataArray:
@@ -494,3 +496,285 @@ def _compute_scaled_path_length(
     valid_proportion = valid_segments / (data.sizes["time"] - 1)
     # return scaled path length
     return compute_norm(displacement).sum(dim="time") / valid_proportion
+
+
+def compute_sinuosity(
+    data: xr.DataArray,
+    nan_policy: Literal["ffill", "scale"] = "scale",
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    """Compute Benhamou's sinuosity index for trajectory data.
+
+    Sinuosity measures the tortuosity of a path as the ratio of the
+    path length to the net displacement, with values closer to 1
+    indicating straighter paths.
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        The input data containing position information, with
+        ``time`` and ``space`` (containing ``x`` and ``y``)
+        as required dimensions.
+    nan_policy : Literal["ffill", "scale"], optional
+        Policy to handle NaN values. Default is "scale".
+    nan_warn_threshold : float, optional
+        Proportion of NaN values above which to issue a warning.
+        Default is 0.2 (20%).
+
+    Returns
+    -------
+    xr.DataArray
+        An xarray DataArray containing the sinuosity index.
+
+    References
+    ----------
+    Benhamou, S. (2004). How to reliably estimate the tortuosity of
+    an animal's path. Journal of Theoretical Biology, 229(2), 209-220.
+
+    """
+    # Use standard validation from movement
+    validate_dims_coords(data, {"time": [], "space": []})
+
+    # Check for stationary trajectory first (skip warnings)
+    if _is_stationary_trajectory(data):
+        # Return NaN without triggering warnings
+        result = xr.DataArray(
+            np.nan,
+            attrs={"units": "dimensionless"},
+        )
+        result.name = "sinuosity"
+        return result
+
+    # Check for sufficient valid data
+    if _is_stationary_trajectory(data) or not _filter_valid_regions(data):
+        return _make_nan_result("sinuosity")
+
+    # Warn about NaN proportion (only for non-stationary trajectories)
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+
+    # Compute path length with NaN handling
+    path_length = compute_path_length(data, nan_policy=nan_policy)
+
+    # Compute net displacement
+    net_displacement = _compute_net_displacement(data)
+
+    # Calculate sinuosity (path_length / net_displacement)
+    sinuosity = xr.where(
+        net_displacement > 0,
+        path_length / net_displacement,
+        np.nan,
+    )
+
+    sinuosity.name = "sinuosity"
+    return sinuosity
+
+
+def _compute_net_displacement(data: xr.DataArray) -> xr.DataArray:
+    """Compute net displacement (start-to-end Euclidean distance).
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        The input data containing position information, with
+        ``time`` and ``space`` as required dimensions.
+
+    Returns
+    -------
+    xr.DataArray
+        Net displacement scalar for each individual/keypoint.
+
+    """
+    valid_mask = ~data.isnull().any(dim="space")
+
+    # First valid position
+    first_idx = valid_mask.argmax(dim="time")
+    start_pos = data.isel(time=first_idx)
+
+    # Last valid position (reverse search)
+    reversed_mask = valid_mask.isel(time=slice(None, None, -1))
+    last_idx = data.sizes["time"] - 1 - reversed_mask.argmax(dim="time")
+    end_pos = data.isel(time=last_idx)
+
+    # Euclidean distance
+    displacement = end_pos - start_pos
+    return np.sqrt((displacement**2).sum(dim="space"))
+
+
+def _get_first_valid_position(data: xr.DataArray) -> xr.DataArray:
+    """Get the first valid (non-NaN) position for each trajectory.
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        Position data with time and space dimensions.
+
+    Returns
+    -------
+    xr.DataArray
+        First valid position for each individual/keypoint.
+
+    """
+    # Find first valid index along time
+    valid_mask = ~data.isnull().any(dim="space")
+    first_valid_idx = valid_mask.argmax(dim="time")
+
+    # Extract position at first valid time
+    return data.isel(time=first_valid_idx)
+
+
+def _get_last_valid_position(data: xr.DataArray) -> xr.DataArray:
+    """Get the last valid (non-NaN) position for each trajectory.
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        Position data with time and space dimensions.
+
+    Returns
+    -------
+    xr.DataArray
+        Last valid position for each individual/keypoint.
+
+    """
+    # Find last valid index along time (reverse argmax)
+    valid_mask = ~data.isnull().any(dim="space")
+    # Reverse along time, find first valid, then convert back to original index
+    reversed_mask = valid_mask.isel(time=slice(None, None, -1))
+    last_valid_idx_reversed = reversed_mask.argmax(dim="time")
+    last_valid_idx = data.sizes["time"] - 1 - last_valid_idx_reversed
+
+    # Extract position at last valid time
+    return data.isel(time=last_valid_idx)
+
+
+def compute_straightness_index(
+    data: xr.DataArray,
+    nan_policy: Literal["ffill", "scale"] = "scale",
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    """Compute straightness index for trajectory data.
+
+    The straightness index is the inverse of sinuosity, ranging from
+    0 (highly tortuous) to 1 (perfectly straight).
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        The input data containing position information, with
+        ``time`` and ``space`` as required dimensions.
+    nan_policy : Literal["ffill", "scale"], optional
+        Policy to handle NaN values. Default is "scale".
+    nan_warn_threshold : float, optional
+        Proportion of NaN values above which to issue a warning.
+        Default is 0.2 (20%).
+
+    Returns
+    -------
+    xr.DataArray
+        An xarray DataArray containing the straightness index.
+
+    Notes
+    -----
+    Straightness Index = net_displacement / path_length
+    This is the reciprocal of Benhamou's sinuosity.
+
+    """
+    # Use standard validation from movement
+    validate_dims_coords(data, {"time": [], "space": []})
+
+    # Check for stationary trajectory first (skip warnings)
+    if _is_stationary_trajectory(data):
+        # Return NaN without triggering warnings
+        result = xr.DataArray(
+            np.nan,
+            attrs={"units": "dimensionless"},
+        )
+        result.name = "straightness_index"
+        return result
+
+    # Check for sufficient valid data
+    if _is_stationary_trajectory(data) or not _filter_valid_regions(data):
+        return _make_nan_result("straightness_index")
+
+    # Warn about NaN proportion (only for non-stationary trajectories)
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+
+    # Compute components
+    path_length = compute_path_length(data, nan_policy=nan_policy)
+    net_displacement = _compute_net_displacement(data)
+
+    # Calculate straightness
+    straightness = xr.where(
+        path_length > 0,
+        net_displacement / path_length,
+        np.nan,
+    )
+
+    straightness.name = "straightness_index"
+    return straightness
+
+
+def _filter_valid_regions(
+    data: xr.DataArray,
+    min_valid_points: int = 2,
+) -> bool:
+    """Check if trajectory has sufficient valid (non-NaN) data points.
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        The input data containing position information.
+    min_valid_points : int, optional
+        Minimum number of valid points required for a meaningful
+        computation. Default is 2.
+
+    Returns
+    -------
+    bool
+        True if trajectory has sufficient valid data, False otherwise.
+
+    """
+    valid_mask = ~data.isnull().any(dim="space")
+    valid_count = valid_mask.sum(dim="time")
+    return bool(valid_count >= min_valid_points)
+
+
+def _is_stationary_trajectory(
+    data: xr.DataArray,
+    tolerance: float = 1e-10,
+) -> bool:
+    """Check if a trajectory is stationary (no movement).
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        The input data containing position information.
+    tolerance : float, optional
+        Tolerance for considering positions as identical.
+        Default is 1e-10.
+
+    Returns
+    -------
+    bool
+        True if the trajectory is stationary, False otherwise.
+
+    """
+    valid_mask = ~data.isnull().any(dim="space")
+
+    if not valid_mask.any():
+        return True  # All NaN = consider stationary
+
+    # Get first valid position
+    first_valid_idx = valid_mask.argmax(dim="time")
+    first_pos = data.isel(time=first_valid_idx)
+
+    # Check if all valid positions are the same as the first
+    valid_data = data.where(valid_mask, drop=True)
+
+    if valid_data.sizes["time"] == 0:
+        return True
+
+    # Calculate max deviation from first position
+    deviation = np.abs(valid_data - first_pos).max()
+
+    return bool(deviation < tolerance)
