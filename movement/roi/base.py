@@ -438,7 +438,7 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         in_degrees : bool
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
-        reference_vector : np.ndarray or xarray.DataArray or None
+        reference_vector
             The reference vector to be used. Dimensions must be compatible with
             the argument of the same name that is passed to
             :func:`compute_signed_angle_2d`. Default ``(1., 0.)``.
