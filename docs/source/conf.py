@@ -262,6 +262,7 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "attrs": ("https://www.attrs.org/en/stable/", None),
+    "shapely": ("https://shapely.readthedocs.io/en/stable/", None),
 }
 
 # What to show on the 404 page
