@@ -133,7 +133,7 @@ def compute_head_direction_vector(
     left_keypoint: str,
     right_keypoint: str,
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
-)-> xr.DataArray:
+) -> xr.DataArray:
     """Compute the 2D head direction vector given two keypoints on the head.
 
     This function is an alias for :func:`compute_forward_vector()\
