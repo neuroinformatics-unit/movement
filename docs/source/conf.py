@@ -214,6 +214,7 @@ linkcheck_ignore = [
     "https://zenodo.org/doi/*",
     "https://zenodo.org/records/*",
     "https://doi.org/10.5281/zenodo.*",
+    "https://abide.ics.ulisboa.pt/*"  # flaky
 ]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {
