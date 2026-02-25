@@ -171,6 +171,23 @@ of ``movement``.
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="Scale pose tracks to real-world units">
+
+.. only:: html
+
+  .. image:: /examples/images/thumb/sphx_glr_scale_thumb.png
+    :alt:
+
+  :doc:`/examples/scale`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Scale pose tracks to real-world units</div>
+    </div>
+
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Load the .csv files from FreeMoCap into movement and visualise them in 3D.">
 
 .. only:: html
@@ -205,6 +222,7 @@ of ``movement``.
    /examples/boundary_angles
    /examples/compute_kinematics
    /examples/load_and_upsample_bboxes
+   /examples/scale
    /examples/load_freemocap_data
 
 .. target-examples-advanced:

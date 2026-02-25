@@ -1,0 +1,1279 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Scale pose tracks to real-world units &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=2f2d43a3" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=fc1a21d4"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/scale';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script src="../_static/js/contributors.js?v=4c153e30"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/examples/scale.html" />
+    <link rel="icon" href="../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Load and visualise FreeMoCap 3D data" href="load_freemocap_data.html" />
+    <link rel="prev" title="Load and upsample bounding box tracks" href="load_and_upsample_bboxes.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />   
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/movement_favicon.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.14.1.dev4</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="load_and_explore_poses.html">Load and explore pose tracks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="filter_and_interpolate.html">Drop outliers and interpolate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convert_file_formats.html">Convert pose tracks between file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="smooth.html">Smooth pose tracks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mouse_eye_movements.html">Pupil tracking</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compute_head_direction.html">Compute head direction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="boundary_angles.html">Compute distances and angles to regions of interest</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compute_kinematics.html">Compute and visualise kinematics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_and_upsample_bboxes.html">Load and upsample bounding box tracks</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Scale pose tracks to real-world units</a></li>
+<li class="toctree-l1"><a class="reference internal" href="load_freemocap_data.html">Load and visualise FreeMoCap 3D data</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="advanced/index.html">Advanced</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/broadcasting_your_own_methods.html">Broadcast functions across multi-dimensional data</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Scale pose tracks to real-world units</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p><a class="reference internal" href="#sphx-glr-download-examples-scale-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code or to run this example in your browser via Binder.</p>
+</div>
+<section class="sphx-glr-example-title" id="scale-pose-tracks-to-real-world-units">
+<span id="sphx-glr-examples-scale-py"></span><h1>Scale pose tracks to real-world units<a class="headerlink" href="#scale-pose-tracks-to-real-world-units" title="Link to this heading">#</a></h1>
+<p>Convert pixel coordinates to physical units using a known reference distance.</p>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.signal</span><span class="w"> </span><span class="kn">import</span> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html#scipy.signal.find_peaks" title="scipy.signal.find_peaks" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">find_peaks</span></a>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.filtering</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <a href="../api/movement.filtering.filter_by_confidence.html#movement.filtering.filter_by_confidence" title="movement.filtering.filter_by_confidence" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">filter_by_confidence</span></a><span class="p">,</span>
+    <a href="../api/movement.filtering.interpolate_over_time.html#movement.filtering.interpolate_over_time" title="movement.filtering.interpolate_over_time" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">interpolate_over_time</span></a><span class="p">,</span>
+    <a href="../api/movement.filtering.rolling_filter.html#movement.filtering.rolling_filter" title="movement.filtering.rolling_filter" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">rolling_filter</span></a><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.kinematics.compute_pairwise_distances.html#movement.kinematics.compute_pairwise_distances" title="movement.kinematics.compute_pairwise_distances" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_pairwise_distances</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.transforms</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.transforms.scale.html#movement.transforms.scale" title="movement.transforms.scale" class="sphx-glr-backref-module-movement-transforms sphx-glr-backref-type-py-function"><span class="n">scale</span></a>
+</pre></div>
+</div>
+</section>
+<section id="load-sample-dataset">
+<h2>Load sample dataset<a class="headerlink" href="#load-sample-dataset" title="Link to this heading">#</a></h2>
+<p>In this example, we will use the <code class="docutils literal notranslate"><span class="pre">DLC_single-mouse_DBTravelator_2D</span></code>
+sample dataset, which contains DeepLabCut predictions of a single
+mouse running across a dual-belt travelator, where the second belt
+runs faster than the first.</p>
+<p>The back wall of the travelator has a visible 1 cm grid, which
+we can use as a scaling reference to convert pixel coordinates into
+real-world units.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a> <span class="o">=</span> <a href="../api/movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset" title="movement.sample_data.fetch_dataset" class="sphx-glr-backref-module-movement-sample_data sphx-glr-backref-type-py-function"><span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset</span></a><span class="p">(</span>
+    <span class="s2">&quot;DLC_single-mouse_DBTravelator_2D.predictions.h5&quot;</span><span class="p">,</span> <span class="n">with_video</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 508kB
+Dimensions:      (time: 418, space: 2, keypoints: 50, individuals: 1)
+Coordinates:
+  * time         (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688
+  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+  * keypoints    (keypoints) &lt;U15 3kB &#39;StartPlatL&#39; &#39;StepL&#39; ... &#39;HindpawKneeL&#39;
+  * individuals  (individuals) &lt;U12 48B &#39;individual_0&#39;
+Data variables:
+    position     (time, space, keypoints, individuals) float64 334kB 70.12 .....
+    confidence   (time, keypoints, individuals) float64 167kB 1.0 ... 0.005941
+Attributes:
+    source_software:  DeepLabCut
+    ds_type:          poses
+    fps:              247.0
+    time_unit:        seconds
+    source_file:      /home/runner/.movement/data/poses/DLC_single-mouse_DBTr...
+    frame_path:       /home/runner/.movement/data/frames/single-mouse_DBTrave...
+    video_path:       /home/runner/.movement/data/videos/single-mouse_DBTrave...
+</pre></div>
+</div>
+<p>We can see the DeepLabCut dataset contains positions and confidence scores
+for 50 keypoints tracked on a single mouse, recorded at 247 fps over
+approximately 1.7 seconds.</p>
+</section>
+<section id="prepare-the-dataset">
+<h2>Prepare the dataset<a class="headerlink" href="#prepare-the-dataset" title="Link to this heading">#</a></h2>
+<p>Before scaling, let’s inspect the tracked keypoints and clean up the
+data.</p>
+<p>We can see that out of the 50 tracked keypoints, the majority track
+positions along the mouse’s body (head, back, tail, and limbs).</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span></a><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;StartPlatL&#39; &#39;StepL&#39; &#39;StartPlatR&#39; &#39;StepR&#39; &#39;Door&#39; &#39;TransitionL&#39;
+ &#39;TransitionR&#39; &#39;Nose&#39; &#39;EarL&#39; &#39;EarR&#39; &#39;Back1&#39; &#39;Back2&#39; &#39;Back3&#39; &#39;Back4&#39;
+ &#39;Back5&#39; &#39;Back6&#39; &#39;Back7&#39; &#39;Back8&#39; &#39;Back9&#39; &#39;Back10&#39; &#39;Back11&#39; &#39;Back12&#39;
+ &#39;Tail1&#39; &#39;Tail2&#39; &#39;Tail3&#39; &#39;Tail4&#39; &#39;Tail5&#39; &#39;Tail6&#39; &#39;Tail7&#39; &#39;Tail8&#39; &#39;Tail9&#39;
+ &#39;Tail10&#39; &#39;Tail11&#39; &#39;Tail12&#39; &#39;ForepawToeR&#39; &#39;ForepawKnuckleR&#39;
+ &#39;ForepawAnkleR&#39; &#39;ForepawKneeR&#39; &#39;ForepawToeL&#39; &#39;ForepawKnuckleL&#39;
+ &#39;ForepawAnkleL&#39; &#39;ForepawKneeL&#39; &#39;HindpawToeR&#39; &#39;HindpawKnuckleR&#39;
+ &#39;HindpawAnkleR&#39; &#39;HindpawKneeR&#39; &#39;HindpawToeL&#39; &#39;HindpawKnuckleL&#39;
+ &#39;HindpawAnkleL&#39; &#39;HindpawKneeL&#39;]
+</pre></div>
+</div>
+<p>However, there are also a number of keypoints which track physical
+landmarks on the apparatus rather than the mouse itself. We don’t need
+these so we can filter them out of the dataset.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">landmark_keypoints</span></a> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;Door&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;StartPlatL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;StartPlatR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;StepL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;StepR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TransitionL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TransitionR&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># Select all keypoints excluding the landmarks, and the single individual.</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.sel.html#xarray.Dataset.sel" title="xarray.Dataset.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span>
+    <span class="n">keypoints</span><span class="o">=~</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.isin.html#xarray.DataArray.isin" title="xarray.DataArray.isin" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">isin</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">landmark_keypoints</span></a><span class="p">),</span>
+    <span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;individual_0&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;----------------------------------&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Keypoints:</span><span class="se">\n</span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 437kB
+Dimensions:      (time: 418, space: 2, keypoints: 43)
+Coordinates:
+  * time         (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688
+  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+  * keypoints    (keypoints) &lt;U15 3kB &#39;Nose&#39; &#39;EarL&#39; ... &#39;HindpawKneeL&#39;
+    individuals  &lt;U12 48B &#39;individual_0&#39;
+Data variables:
+    position     (time, space, keypoints) float64 288kB 55.6 47.47 ... 170.1
+    confidence   (time, keypoints) float64 144kB 0.02365 0.01434 ... 0.005941
+Attributes:
+    source_software:  DeepLabCut
+    ds_type:          poses
+    fps:              247.0
+    time_unit:        seconds
+    source_file:      /home/runner/.movement/data/poses/DLC_single-mouse_DBTr...
+    frame_path:       /home/runner/.movement/data/frames/single-mouse_DBTrave...
+    video_path:       /home/runner/.movement/data/videos/single-mouse_DBTrave...
+----------------------------------
+Keypoints:
+[&#39;Nose&#39; &#39;EarL&#39; &#39;EarR&#39; &#39;Back1&#39; &#39;Back2&#39; &#39;Back3&#39; &#39;Back4&#39; &#39;Back5&#39; &#39;Back6&#39;
+ &#39;Back7&#39; &#39;Back8&#39; &#39;Back9&#39; &#39;Back10&#39; &#39;Back11&#39; &#39;Back12&#39; &#39;Tail1&#39; &#39;Tail2&#39;
+ &#39;Tail3&#39; &#39;Tail4&#39; &#39;Tail5&#39; &#39;Tail6&#39; &#39;Tail7&#39; &#39;Tail8&#39; &#39;Tail9&#39; &#39;Tail10&#39; &#39;Tail11&#39;
+ &#39;Tail12&#39; &#39;ForepawToeR&#39; &#39;ForepawKnuckleR&#39; &#39;ForepawAnkleR&#39; &#39;ForepawKneeR&#39;
+ &#39;ForepawToeL&#39; &#39;ForepawKnuckleL&#39; &#39;ForepawAnkleL&#39; &#39;ForepawKneeL&#39;
+ &#39;HindpawToeR&#39; &#39;HindpawKnuckleR&#39; &#39;HindpawAnkleR&#39; &#39;HindpawKneeR&#39;
+ &#39;HindpawToeL&#39; &#39;HindpawKnuckleL&#39; &#39;HindpawAnkleL&#39; &#39;HindpawKneeL&#39;]
+</pre></div>
+</div>
+<p>Next we remove low-confidence predictions, interpolate over gaps,
+and apply a rolling median filter to suppress any remaining tracking
+outliers.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <a href="../api/movement.filtering.filter_by_confidence.html#movement.filtering.filter_by_confidence" title="movement.filtering.filter_by_confidence" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">filter_by_confidence</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">confidence</span></a><span class="p">,</span>
+    <span class="n">threshold</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <a href="../api/movement.filtering.interpolate_over_time.html#movement.filtering.interpolate_over_time" title="movement.filtering.interpolate_over_time" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">interpolate_over_time</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span> <span class="n">max_gap</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <a href="../api/movement.filtering.rolling_filter.html#movement.filtering.rolling_filter" title="movement.filtering.rolling_filter" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">rolling_filter</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span>
+    <span class="n">window</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+    <span class="n">min_periods</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">statistic</span><span class="o">=</span><span class="s2">&quot;median&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="visualise-the-skeleton-in-pixels">
+<h2>Visualise the skeleton in pixels<a class="headerlink" href="#visualise-the-skeleton-in-pixels" title="Link to this heading">#</a></h2>
+<p>To see what the pose data looks like before scaling, we define a helper
+function that draws the mouse skeleton in a single frame.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_skeleton</span><span class="p">(</span><span class="n">position_data</span><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">skeleton</span></a><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot the mouse skeleton for a single frame.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    position_data : xarray.DataArray</span>
+<span class="sd">        Position data with dimensions ``time``, ``keypoints``, and ``space``.</span>
+<span class="sd">    skeleton : list of tuple</span>
+<span class="sd">        List of (joint_1, joint_2) pairs defining skeletal connections,</span>
+<span class="sd">        where each element is a keypoint name present in ``position_data``.</span>
+<span class="sd">    frame : int</span>
+<span class="sd">        Index of the time frame to plot.</span>
+<span class="sd">    ax : matplotlib.axes.Axes</span>
+<span class="sd">        Axes on which to draw.</span>
+<span class="sd">    s : float, optional</span>
+<span class="sd">        Marker size for keypoint scatter points. Default is 3.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">pos_frame</span> <span class="o">=</span> <span class="n">position_data</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">frame</span><span class="p">)</span>
+
+    <span class="c1"># Draw skeleton connections</span>
+    <span class="k">for</span> <span class="n">joint_1</span><span class="p">,</span> <span class="n">joint_2</span> <span class="ow">in</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">skeleton</span></a><span class="p">:</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">pos_frame</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="n">joint_1</span><span class="p">)</span>
+        <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">pos_frame</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="n">joint_2</span><span class="p">)</span>
+        <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">plot</span></a><span class="p">([</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">],</span> <span class="p">[</span><span class="n">y1</span><span class="p">,</span> <span class="n">y2</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+
+    <span class="c1"># Draw keypoints</span>
+    <span class="k">for</span> <span class="n">bodypart</span> <span class="ow">in</span> <span class="n">pos_frame</span><span class="o">.</span><span class="n">keypoints</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">y</span></a> <span class="o">=</span> <span class="n">pos_frame</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="n">bodypart</span><span class="p">)</span>
+        <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html#matplotlib.axes.Axes.scatter" title="matplotlib.axes.Axes.scatter" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span></a><span class="p">(</span><span class="n">x</span><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">y</span></a><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We define the connections between keypoints that form the mouse skeleton,
+then plot it for a single frame using the above function.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">skeleton</span></a> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;Nose&quot;</span><span class="p">,</span> <span class="s2">&quot;Back1&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;EarL&quot;</span><span class="p">,</span> <span class="s2">&quot;Back1&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;EarR&quot;</span><span class="p">,</span> <span class="s2">&quot;Back1&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back1&quot;</span><span class="p">,</span> <span class="s2">&quot;Back2&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back2&quot;</span><span class="p">,</span> <span class="s2">&quot;Back3&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back3&quot;</span><span class="p">,</span> <span class="s2">&quot;Back4&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back4&quot;</span><span class="p">,</span> <span class="s2">&quot;Back5&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back5&quot;</span><span class="p">,</span> <span class="s2">&quot;Back6&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back6&quot;</span><span class="p">,</span> <span class="s2">&quot;Back7&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back7&quot;</span><span class="p">,</span> <span class="s2">&quot;Back8&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back8&quot;</span><span class="p">,</span> <span class="s2">&quot;Back9&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back9&quot;</span><span class="p">,</span> <span class="s2">&quot;Back10&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back10&quot;</span><span class="p">,</span> <span class="s2">&quot;Back11&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back11&quot;</span><span class="p">,</span> <span class="s2">&quot;Back12&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back12&quot;</span><span class="p">,</span> <span class="s2">&quot;Tail1&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Tail1&quot;</span><span class="p">,</span> <span class="s2">&quot;Tail2&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Tail2&quot;</span><span class="p">,</span> <span class="s2">&quot;Tail3&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Tail3&quot;</span><span class="p">,</span> <span class="s2">&quot;Tail4&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Tail4&quot;</span><span class="p">,</span> <span class="s2">&quot;Tail5&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Tail5&quot;</span><span class="p">,</span> <span class="s2">&quot;Tail6&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Tail6&quot;</span><span class="p">,</span> <span class="s2">&quot;Tail7&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Tail7&quot;</span><span class="p">,</span> <span class="s2">&quot;Tail8&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Tail8&quot;</span><span class="p">,</span> <span class="s2">&quot;Tail9&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Tail9&quot;</span><span class="p">,</span> <span class="s2">&quot;Tail10&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Tail10&quot;</span><span class="p">,</span> <span class="s2">&quot;Tail11&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Tail11&quot;</span><span class="p">,</span> <span class="s2">&quot;Tail12&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back3&quot;</span><span class="p">,</span> <span class="s2">&quot;ForepawKneeL&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back3&quot;</span><span class="p">,</span> <span class="s2">&quot;ForepawKneeR&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back9&quot;</span><span class="p">,</span> <span class="s2">&quot;HindpawKneeL&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;Back9&quot;</span><span class="p">,</span> <span class="s2">&quot;HindpawKneeR&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;ForepawKneeL&quot;</span><span class="p">,</span> <span class="s2">&quot;ForepawAnkleL&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;ForepawKneeR&quot;</span><span class="p">,</span> <span class="s2">&quot;ForepawAnkleR&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;HindpawKneeL&quot;</span><span class="p">,</span> <span class="s2">&quot;HindpawAnkleL&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;HindpawKneeR&quot;</span><span class="p">,</span> <span class="s2">&quot;HindpawAnkleR&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;ForepawAnkleL&quot;</span><span class="p">,</span> <span class="s2">&quot;ForepawKnuckleL&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;ForepawAnkleR&quot;</span><span class="p">,</span> <span class="s2">&quot;ForepawKnuckleR&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;HindpawAnkleL&quot;</span><span class="p">,</span> <span class="s2">&quot;HindpawKnuckleL&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;HindpawAnkleR&quot;</span><span class="p">,</span> <span class="s2">&quot;HindpawKnuckleR&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;ForepawKnuckleL&quot;</span><span class="p">,</span> <span class="s2">&quot;ForepawToeL&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;ForepawKnuckleR&quot;</span><span class="p">,</span> <span class="s2">&quot;ForepawToeR&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;HindpawKnuckleL&quot;</span><span class="p">,</span> <span class="s2">&quot;HindpawToeL&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;HindpawKnuckleR&quot;</span><span class="p">,</span> <span class="s2">&quot;HindpawToeR&quot;</span><span class="p">),</span>
+<span class="p">]</span>
+
+<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">example_frame</span></a> <span class="o">=</span> <span class="mi">275</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">plot_skeleton</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">skeleton</span></a><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">example_frame</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.invert_yaxis.html#matplotlib.axes.Axes.invert_yaxis" title="matplotlib.axes.Axes.invert_yaxis" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">invert_yaxis</span></a><span class="p">()</span>  <span class="c1"># image coordinates have y increasing downward</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;x (pixels)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;y (pixels)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_aspect.html#matplotlib.axes.Axes.set_aspect" title="matplotlib.axes.Axes.set_aspect" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span></a><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_scale_001.png" srcset="../_images/sphx_glr_scale_001.png" alt="scale" class = "sphx-glr-single-img"/><p>The skeleton gives us the shape of the mouse’s body, but the coordinate
+system is in pixels. To interpret sizes and distances in real-world units,
+we need to convert to physical units. We can do this by measuring a known
+distance in the video using the <code class="docutils literal notranslate"><span class="pre">napari</span></code> GUI and then applying
+<a class="reference internal" href="../api/movement.transforms.scale.html#movement.transforms.scale" title="movement.transforms.scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.transforms.scale()</span></code></a> to convert from pixels to centimetres.</p>
+</section>
+<section id="measure-a-known-distance-from-video-footage">
+<h2>Measure a known distance from video footage<a class="headerlink" href="#measure-a-known-distance-from-video-footage" title="Link to this heading">#</a></h2>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The following steps require <code class="docutils literal notranslate"><span class="pre">napari</span></code> to be installed. If you haven’t
+already, install <code class="docutils literal notranslate"><span class="pre">movement</span></code> with the optional GUI dependencies by
+following the <a class="reference internal" href="../user_guide/installation.html#target-installation"><span class="std std-ref">installation instructions</span></a>.</p>
+</div>
+<p>First, open the video file in napari:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">napari</span>
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">napari</span><span class="o">.</span><span class="n">Viewer</span><span class="p">()</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="o">.</span><span class="n">video_path</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can also load a single frame image instead of the full video.</p>
+</div>
+<p>Next, measure a known distance in the napari viewer:</p>
+<ol class="arabic simple">
+<li><p>Add a new shapes layer by clicking ‘New shapes layer’ in the layer list.</p></li>
+<li><p>Select the ‘Add lines’ tool (shortcut: L) from the layer controls.</p></li>
+<li><p>Draw a line across a feature of known length. In this case, the grid
+squares are 1x1 cm, so we can draw a line along one side of a grid square.</p></li>
+</ol>
+<a class="reference internal image-reference" href="../_images/napari_scale_draw.png"><img alt="../_images/napari_scale_draw.png" src="../_images/napari_scale_draw.png" width="600" />
+</a>
+<p>4. To read the line length in pixels, go to Layers → Measure → Toggle
+shape dimensions measurement (napari builtins). This displays P
+(perimeter) and A (area). In the case of a single line, the perimeter value
+corresponds to the line length in pixels, and the area will always be 0.</p>
+<a class="reference internal image-reference" href="../_images/napari_scale_measure.png"><img alt="../_images/napari_scale_measure.png" src="../_images/napari_scale_measure.png" width="600" />
+</a>
+<ol class="arabic simple" start="5">
+<li><p>Close the napari viewer.</p></li>
+</ol>
+<p>We can then retrieve the measured distance and line coordinates from the
+shapes layer.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">shapes_layer</span> <span class="o">=</span> <span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s2">&quot;Shapes&quot;</span><span class="p">]</span>
+<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">measurements_px</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">shapes_layer</span><span class="o">.</span><span class="n">features</span></a>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">shape_coords</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">shapes_layer</span><span class="o">.</span><span class="n">data</span></a>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Measurements:</span><span class="se">\n</span><span class="si">{</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">measurements_px</span></a><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Coordinates:</span><span class="se">\n</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">shape_coords</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Extract the line length in pixels from the perimeter (P) column</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">distance_px</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">measurements_px</span></a><span class="p">[</span><span class="s2">&quot;_perimeter&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Measurements:
+   _perimeter  _area
+0   29.063293    0.0
+
+Coordinates:
+[array([[275.      ,  48.455124, 930.55444 ],
+       [275.      ,  48.452595, 959.61774 ]], dtype=float32)]
+</pre></div>
+</div>
+</section>
+<section id="transform-poses-to-real-units">
+<h2>Transform poses to real units<a class="headerlink" href="#transform-poses-to-real-units" title="Link to this heading">#</a></h2>
+<p>We now transform the pose coordinates to real-world units in two steps:
+scaling from pixels to centimetres, and flipping the y-axis so that
+positive y corresponds to upward in real-world space (image coordinates
+have the y-axis pointing downward).</p>
+<p>First, we calculate the scaling factor. The measured line spans one grid
+square, which we know to be 1 cm. Dividing this known length by the
+distance in pixels gives us the scaling factor.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">scaling_factor</span></a> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">distance_px</span></a>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Scaling factor: </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">scaling_factor</span></a><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2"> cm/pixel&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Scaling factor: 0.034408 cm/pixel
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This scaling factor assumes a constant relationship between pixels and
+real-world units across the entire image, based on a single reference
+measurement taken at the far side of the belt. In practice, several
+factors can violate this assumption. For example, in 2D imaging,
+perspective effects mean that the apparent size of objects varies with
+their distance from the camera. Distances measured in the plane of the
+reference grid will therefore be close to accurate, but can deviate
+as the mouse moves away from this plane. Calibrated multi-camera
+setups avoid these assumptions by mapping image coordinates directly
+to real-world 3D space.</p>
+</div>
+<p>Let’s inspect the position values before scaling.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select a frame range in which the mouse is visible</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sample_range</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.arange.html#numpy.arange" title="numpy.arange" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">arange</span></a><span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">301</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.isel.html#xarray.DataArray.isel" title="xarray.DataArray.isel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">isel</span></a><span class="p">(</span><span class="n">time</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sample_range</span></a><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[[[1398.2734375  1321.61193848 1330.91986084 1324.80633545 1306.98193359
+   1288.26031494 1270.04632568 1252.95697021 1235.85125732 1217.36029053
+   1199.72625732 1181.1987915  1163.58392334 1146.29034424 1126.3626709
+   1126.17126465 1103.95812988 1081.17657471 1057.53509521 1035.8026123
+   1012.95870972  988.29507446  968.99377441  946.29476929  925.46606445
+    903.1199646   882.91726685 1299.08605957 1289.45465088 1281.8973999
+   1283.18951416 1340.15515137 1337.95861816 1327.96911621 1313.1293335
+   1192.83721924 1185.10662842 1160.95397949 1195.93652344 1151.7109375
+   1136.6963501  1134.84191895 1168.97979736]
+  [ 179.98707581  114.40616608  126.98419189  124.15420151  118.58591843
+    116.37707901  113.20304489  108.78902054  104.51488113  100.12917328
+     97.42570114   98.87822342  104.46193314  111.52003479  118.15843201
+    124.30410385  119.9714241   116.60536957  115.4688797   114.47219467
+    115.20085907  118.57863998  118.48215866  121.45074081  121.86370087
+    123.55347824  125.70636749  200.3639679   199.53270721  196.58586884
+    173.59635162  192.48999023  185.47390747  180.66627502  170.02613068
+    192.91704559  179.59600067  163.21473694  142.73191833  200.17955017
+    194.60357666  166.07353973  161.26473236]]]
+</pre></div>
+</div>
+<p>Now we apply <a class="reference internal" href="../api/movement.transforms.scale.html#movement.transforms.scale" title="movement.transforms.scale"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.transforms.scale()</span></code></a> to convert from pixels to
+centimetres. We can assign our space unit ‘cm’ here, to be stored as an
+attribute in <code class="docutils literal notranslate"><span class="pre">xarray.DataArray.attrs['space_unit']</span></code>.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <a href="../api/movement.transforms.scale.html#movement.transforms.scale" title="movement.transforms.scale" class="sphx-glr-backref-module-movement-transforms sphx-glr-backref-type-py-function"><span class="n">scale</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">],</span> <span class="n">factor</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">scaling_factor</span></a><span class="p">,</span> <span class="n">space_unit</span><span class="o">=</span><span class="s2">&quot;cm&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we inspect our sample of values again. We can see the values have been
+adjusted.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.isel.html#xarray.DataArray.isel" title="xarray.DataArray.isel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">isel</span></a><span class="p">(</span><span class="n">time</span><span class="o">=</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">sample_range</span></a><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[[[48.11132164 45.4735786  45.79384245 45.58349033 44.97019431
+   44.32602716 43.69932635 43.11132156 42.52275395 41.88652299
+   41.27977712 40.64229031 40.03620386 39.44117221 38.75550754
+   38.74892169 37.98461963 37.20075955 36.38731149 35.63954753
+   34.85354222 34.00492417 33.34081153 32.55979181 31.84312474
+   31.07424766 30.37912004 44.69851574 44.36712147 44.10709412
+   44.15155276 46.11160722 46.03602965 45.69231423 45.18171198
+   41.04274141 40.77674985 39.94571364 41.14938123 39.62768216
+   39.11106529 39.04725865 40.22186327]
+  [ 6.1929347   3.93644884  4.36922932  4.27185596  4.08026435
+    4.00426335  3.89505225  3.74317599  3.59611284  3.44521088
+    3.35219072  3.40216862  3.59429102  3.83714381  4.06555554
+    4.27701375  4.12793637  4.0121183   3.97301433  3.93872073
+    3.96379237  4.08001392  4.07669422  4.1788362   4.19304519
+    4.25118648  4.32526237  6.89405595  6.86545421  6.76406038
+    5.97304482  6.62313077  6.38172376  6.21630436  5.85020186
+    6.63782475  6.17947872  5.61583771  4.91107179  6.88771056
+    6.69585434  5.71420244  5.54874261]]]
+</pre></div>
+</div>
+<p>The scaled data array’s attributes now contain the <code class="docutils literal notranslate"><span class="pre">space_unit</span></code> and a
+<code class="docutils literal notranslate"><span class="pre">log</span></code> entry recording the operation and its parameters, alongside the
+operations applied in earlier steps.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unit:</span><span class="se">\n</span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">space_unit</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Log:</span><span class="se">\n</span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">log</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Unit:
+cm
+
+Log:
+[
+  {
+    &quot;operation&quot;: &quot;filter_by_confidence&quot;,
+    &quot;datetime&quot;: &quot;2026-02-25 12:05:14.859898&quot;,
+    &quot;confidence&quot;: &quot;&lt;xarray.DataArray &#39;confidence&#39; (time: 418, keypoints: 43)&gt; Size: 144kB\n0.02365 0.01434 0.01821 0.02692 0.05129 ... 0.004628 0.007376 0.003921 0.005941\nCoordinates:\n  * time         (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688\n  * keypoints    (keypoints) &lt;U15 3kB &#39;Nose&#39; &#39;EarL&#39; ... &#39;HindpawKneeL&#39;\n    individuals  &lt;U12 48B &#39;individual_0&#39;&quot;,
+    &quot;threshold&quot;: &quot;0.9&quot;,
+    &quot;print_report&quot;: &quot;False&quot;
+  },
+  {
+    &quot;operation&quot;: &quot;interpolate_over_time&quot;,
+    &quot;datetime&quot;: &quot;2026-02-25 12:05:14.873889&quot;,
+    &quot;method&quot;: &quot;&#39;linear&#39;&quot;,
+    &quot;max_gap&quot;: &quot;40&quot;,
+    &quot;print_report&quot;: &quot;False&quot;
+  },
+  {
+    &quot;operation&quot;: &quot;rolling_filter&quot;,
+    &quot;datetime&quot;: &quot;2026-02-25 12:05:14.877212&quot;,
+    &quot;window&quot;: &quot;6&quot;,
+    &quot;statistic&quot;: &quot;&#39;median&#39;&quot;,
+    &quot;min_periods&quot;: &quot;2&quot;,
+    &quot;print_report&quot;: &quot;False&quot;
+  },
+  {
+    &quot;operation&quot;: &quot;scale&quot;,
+    &quot;datetime&quot;: &quot;2026-02-25 12:05:15.164648&quot;,
+    &quot;factor&quot;: &quot;np.float64(0.03440766330229682)&quot;,
+    &quot;space_unit&quot;: &quot;&#39;cm&#39;&quot;
+  }
+]
+</pre></div>
+</div>
+<p>Next, we flip the y-axis by subtracting each y value from the maximum y
+value in the dataset. Note that the zero point in y is anchored to the
+lowest y position of the mouse in this recording, which approximates
+the belt surface.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">y</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)]</span> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.max.html#xarray.DataArray.max" title="xarray.DataArray.max" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">y</span><span class="o">.</span><span class="n">max</span></a><span class="p">()</span> <span class="o">-</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">y</span></a>
+</pre></div>
+</div>
+<p>We can now re-plot the same skeleton, this time in centimetres and with
+the y-axis pointing upward.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">plot_skeleton</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">skeleton</span></a><span class="p">,</span> <span class="n">frame</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">example_frame</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="o">=</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;x (cm)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;y (cm)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_aspect.html#matplotlib.axes.Axes.set_aspect" title="matplotlib.axes.Axes.set_aspect" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span></a><span class="p">(</span><span class="s2">&quot;equal&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_scale_002.png" srcset="../_images/sphx_glr_scale_002.png" alt="scale" class = "sphx-glr-single-img"/></section>
+<section id="working-with-real-world-distances">
+<h2>Working with real-world distances<a class="headerlink" href="#working-with-real-world-distances" title="Link to this heading">#</a></h2>
+<p>With the data now in centimetres, we can measure the mouse directly. Let’s
+first compute its approximate body length and height in <code class="docutils literal notranslate"><span class="pre">example_frame</span></code>.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frame_x</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">example_frame</span></a><span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frame_y</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">example_frame</span></a><span class="p">)</span>
+
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_length</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">frame_x</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;Nose&quot;</span><span class="p">)</span> <span class="o">-</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">frame_x</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;Tail12&quot;</span><span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_height</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.max.html#xarray.DataArray.max" title="xarray.DataArray.max" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">frame_y</span><span class="o">.</span><span class="n">max</span></a><span class="p">()</span> <span class="o">-</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.min.html#xarray.DataArray.min" title="xarray.DataArray.min" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">frame_y</span><span class="o">.</span><span class="n">min</span></a><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mouse length: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">mouse_length</span><span class="o">.</span><span class="n">values</span></a><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> cm&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mouse height: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">mouse_height</span><span class="o">.</span><span class="n">values</span></a><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> cm&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Mouse length: 17.5 cm
+Mouse height: 3.8 cm
+</pre></div>
+</div>
+<p>Beyond simple static measurements, real-world units also make aspects of
+movement, such as gait-related distances interpretable. Let’s visualise
+the paw trajectories in x and y over time.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select the toe keypoints for all four limbs</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">toe_keypoint_names</span></a> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;ForepawToeR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ForepawToeL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HindpawToeR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HindpawToeL&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># Construct a new data array with only the toe keypoints</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_limbs</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">toe_keypoint_names</span></a><span class="p">)</span>
+
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_limbs</span></a><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span>
+    <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span>
+    <span class="n">row</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span>
+    <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span>
+    <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">sharey</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.gcf.html#matplotlib.pyplot.gcf" title="matplotlib.pyplot.gcf" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">gcf</span></a><span class="p">()</span><span class="o">.</span><span class="n">axes</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;x (cm)&quot;</span><span class="p">)</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Time (s)&quot;</span><span class="p">)</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;y (cm)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_scale_003.png" srcset="../_images/sphx_glr_scale_003.png" alt="space = x, space = y" class = "sphx-glr-single-img"/><p>Here we see the mouse traverses approximately 60 cm across the travelator,
+and step heights typically remain below around 0.5 cm.</p>
+<p>These trajectories give us a broad sense of limb movement, but we can go
+further and quantify dynamics between limbs, such as the inter-limb
+distances in real-world units using
+<a class="reference internal" href="../api/movement.kinematics.compute_pairwise_distances.html#movement.kinematics.compute_pairwise_distances" title="movement.kinematics.compute_pairwise_distances"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.kinematics.compute_pairwise_distances()</span></code></a>. Here, we again use
+the toe keypoints to compare the anterior-posterior separation of the fore-
+and hindpaw pairs.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forepaw_dist</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_pairwise_distances.html#movement.kinematics.compute_pairwise_distances" title="movement.kinematics.compute_pairwise_distances" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_pairwise_distances</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span>
+    <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span>
+    <span class="n">pairs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ForepawToeL&quot;</span><span class="p">:</span> <span class="s2">&quot;ForepawToeR&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hindpaw_dist</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_pairwise_distances.html#movement.kinematics.compute_pairwise_distances" title="movement.kinematics.compute_pairwise_distances" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_pairwise_distances</span></a><span class="p">(</span>
+    <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span>
+    <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span>
+    <span class="n">pairs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;HindpawToeL&quot;</span><span class="p">:</span> <span class="s2">&quot;HindpawToeR&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>We plot these inter-limb distances for the fore- and hindpaws against the
+mean x-position of the body as the mouse traverses the travelator. Since
+we know the first belt is 47 cm long, we can also easily plot the
+transition point at which the mouse moves onto the faster second belt.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">belt_transition</span></a> <span class="o">=</span> <span class="mi">47</span>  <span class="c1"># cm</span>
+
+<span class="c1"># Compute a proxy for body centre in x</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">avg_body_x</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">avg_body_x</span></a><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forepaw_dist</span></a><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Forepaws&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">avg_body_x</span></a><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hindpaw_dist</span></a><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:orange&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hindpaws&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.axvline.html#matplotlib.axes.Axes.axvline" title="matplotlib.axes.Axes.axvline" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">axvline</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">belt_transition</span></a><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Belt transition&quot;</span><span class="p">)</span>
+
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xlabel.html#matplotlib.axes.Axes.set_xlabel" title="matplotlib.axes.Axes.set_xlabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span></a><span class="p">(</span><span class="s2">&quot;x (cm)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_ylabel.html#matplotlib.axes.Axes.set_ylabel" title="matplotlib.axes.Axes.set_ylabel" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span></a><span class="p">(</span><span class="s2">&quot;Inter-limb distance (cm)&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html#matplotlib.pyplot.legend" title="matplotlib.pyplot.legend" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">legend</span></a><span class="p">()</span>
+<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.show.html#matplotlib.pyplot.show" title="matplotlib.pyplot.show" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../_images/sphx_glr_scale_004.png" srcset="../_images/sphx_glr_scale_004.png" alt="scale" class = "sphx-glr-single-img"/><p>The forepaw and hindpaw inter-limb distances oscillate largely in
+synchrony, consistent with a trotting gait, with peak separations of
+approximately 4 cm for the majority of strides.</p>
+<p>However, after the mouse’s body centre passes the belt transition,
+the forepaw inter-limb distance drops noticeably whilst the hindpaw
+distance increases. This likely reflects the mouse accommodating the speed
+difference between belts - the forepaws shorten their stride to avoid
+over-reaching, while the hindpaws widen to keep the rear of the body from
+trailing behind.</p>
+<p>We can quantify these observations by comparing peak inter-limb distances
+across all strides with those during only the transitioning stride.</p>
+<p>First, let’s compute the mean peak inter-limb distance across all strides.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find maximum interlimb distances in each stride by locating the peaks.</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forepaw_peaks</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html#scipy.signal.find_peaks" title="scipy.signal.find_peaks" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">find_peaks</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">forepaw_dist</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">(),</span> <span class="n">prominence</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hindpaw_peaks</span></a><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">_</span></a> <span class="o">=</span> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html#scipy.signal.find_peaks" title="scipy.signal.find_peaks" class="sphx-glr-backref-module-scipy-signal sphx-glr-backref-type-py-function"><span class="n">find_peaks</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">hindpaw_dist</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">(),</span> <span class="n">prominence</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+
+<span class="c1"># Find inter-limb distances at these peak locations</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forepaw_peak_vals</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">forepaw_dist</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()[</span>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forepaw_peaks</span></a><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+<span class="p">]</span>  <span class="c1"># Exclude the first two peaks to match the available hindpaw strides</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hindpaw_peak_vals</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">hindpaw_dist</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()[</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hindpaw_peaks</span></a><span class="p">]</span>
+
+<a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">forepaw_mean</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forepaw_peak_vals</span></a><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">hindpaw_mean</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hindpaw_peak_vals</span></a><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">forepaw_std</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forepaw_peak_vals</span></a><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+<a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">hindpaw_std</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hindpaw_peak_vals</span></a><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">paw_diffs</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hindpaw_peak_vals</span></a> <span class="o">-</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forepaw_peak_vals</span></a>
+<a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">paw_diffs_mean</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.mean.html#numpy.mean" title="numpy.mean" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">mean</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">paw_diffs</span></a><span class="p">)</span>
+<a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">paw_diffs_std</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.std.html#numpy.std" title="numpy.std" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">std</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">paw_diffs</span></a><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Mean peak inter-limb distance (forepaws): &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">forepaw_mean</span></a><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> ± </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">forepaw_std</span></a><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> cm (± std)&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Mean peak inter-limb distance (hindpaws): &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">hindpaw_mean</span></a><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> ± </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">hindpaw_std</span></a><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> cm (± std)&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Hindpaw - forepaw inter-limb difference: &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">paw_diffs_mean</span></a><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> ± </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">paw_diffs_std</span></a><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> cm (± std)&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Mean peak inter-limb distance (forepaws): 3.92 ± 0.62 cm (± std)
+Mean peak inter-limb distance (hindpaws): 4.23 ± 0.54 cm (± std)
+Hindpaw - forepaw inter-limb difference: 0.31 ± 1.07 cm (± std)
+</pre></div>
+</div>
+<p>Now let’s compare these average distances with the maximum inter-limb
+distances during the transitioning stride where the mouse steps onto the
+faster second belt (the second-to-last peak in each trace).</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">post_forepaw_dist</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">forepaw_dist</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()[</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forepaw_peaks</span></a><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]]</span>
+<a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">post_hindpaw_dist</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">hindpaw_dist</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()[</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hindpaw_peaks</span></a><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]]</span>
+
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Transitioning forepaw inter-limb distance:  </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">post_forepaw_dist</span></a><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> cm&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Transitioning hindpaw inter-limb distance:  </span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">post_hindpaw_dist</span></a><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> cm&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">&quot;Hindpaw–forepaw difference at transition:     &quot;</span>
+    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">post_hindpaw_dist</span></a><span class="w"> </span><span class="o">-</span><span class="w"> </span><a href="https://numpy.org/doc/stable/reference/arrays.scalars.html#numpy.float64" title="numpy.float64" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-attribute"><span class="n">post_forepaw_dist</span></a><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> cm&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Transitioning forepaw inter-limb distance:  1.97 cm
+Transitioning hindpaw inter-limb distance:  5.45 cm
+Hindpaw–forepaw difference at transition:     3.48 cm
+</pre></div>
+</div>
+<p>Here we can see that during typical locomotion, the fore- and hindpaw
+inter-limb distances are synchronised and closely matched, differing by
+only 0.31 cm on average. During the transitioning stride, however,
+this difference grows more than tenfold, reflecting the gait adjustments
+the mouse makes to accommodate the speed differential between belts.</p>
+<p>Having the data in real-world units makes these quantitative comparisons
+possible.</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.799 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-scale-py">
+<div class="binder-badge docutils container">
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/scale.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
+</a>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/938c85f93ad6d7c7be7acb093b94d40d/scale.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">scale.ipynb</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/783b8f497f7953acf2fe34a6e26721d6/scale.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">scale.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/54c27b3274e775d73ff1b2d93df0b096/scale.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">scale.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="load_and_upsample_bboxes.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Load and upsample bounding box tracks</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="load_freemocap_data.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Load and visualise FreeMoCap 3D data</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-sample-dataset">Load sample dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prepare-the-dataset">Prepare the dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualise-the-skeleton-in-pixels">Visualise the skeleton in pixels</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#measure-a-known-distance-from-video-footage">Measure a known distance from video footage</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transform-poses-to-real-units">Transform poses to real units</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-real-world-distances">Working with real-world distances</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/examples/scale.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.16.1.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
