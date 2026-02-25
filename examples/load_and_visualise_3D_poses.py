@@ -739,6 +739,8 @@ ax.grid(False)
 fig.subplots_adjust(left=0.01, right=0.99, bottom=0.1, top=0.99)
 plt.show()
 
+# sphinx_gallery_thumbnail_number = 6
+
 # %%
 # Compute limb kinematics in 3D
 # -----------------------------
