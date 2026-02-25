@@ -209,9 +209,7 @@ plt.show()
 # .. attention::
 #   The following steps require ``napari`` to be installed. If you haven't
 #   already, install ``movement`` with the optional GUI dependencies by
-#   following the `installation instructions
-#   <https://movement.neuroinformatics.dev/latest/user_guide/installation
-#   .html>`_.
+#   following the :ref:`installation instructions<target-installation>`.
 #
 # First, open the video file in napari:
 #
@@ -368,6 +366,7 @@ ds_mouse["position"].loc[dict(space="y")] = y.max() - y
 
 fig, ax = plt.subplots(figsize=(8, 3))
 plot_skeleton(ds_mouse.position, skeleton, frame=example_frame, ax=ax, s=10)
+# sphinx_gallery_thumbnail_number = 2
 
 ax.set_xlabel("x (cm)")
 ax.set_ylabel("y (cm)")
