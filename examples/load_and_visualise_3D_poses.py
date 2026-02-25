@@ -26,9 +26,7 @@ from movement.utils.vector import compute_norm
 # the first.
 #
 # This dataset was derived via triangulation of DeepLabCut predictions from
-# three synchronised camera views (side, front, and overhead). The pose tracks
-# from the side view were used in the :ref:`sphx_glr_examples_scale.py`
-# example.
+# three synchronised camera views (side, front, and overhead).
 # Since 3D points were obtained by triangulation rather than direct model
 # prediction, confidence values were summarised as the median across the three
 # camera views. Coordinates where triangulation could not be performed (NaN
