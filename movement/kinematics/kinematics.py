@@ -54,17 +54,17 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
     if order <= 0:
         raise logger.error(ValueError("Order must be a positive integer."))
     validate_dims_coords(data, {"time": []})
-    
+
     # We start with the input data
     result = data
-    
+
     # Loop to compute higher-order derivatives
     for _ in range(order):
-        # By re-assigning directly, we encourage Python to release 
+        # By re-assigning directly, we encourage Python to release
         # the memory used by the previous 'result' sooner.
         result = result.differentiate("time")
-    
-    # TODO: For higher orders (e.g., acceleration), consider implementing a 
+
+    # TODO: For higher orders (e.g., acceleration), consider implementing a
     # single-pass numerical method (like a central difference stencil for 2nd order)
     # to avoid creating multiple intermediate DataArray copies in memory.
     return result
@@ -503,7 +503,10 @@ def _compute_scaled_path_length(
     valid_segments = (~displacement.isnull()).all(dim="space").sum(dim="time")
     # compute proportion of valid segments per point track
     valid_proportion = valid_segments / (data.sizes["time"] - 1)
-    
+
     # return scaled path length, handling cases where valid_proportion is 0 to avoid ZeroDivisionError
     result = compute_norm(displacement).sum(dim="time")
-    return result.where(valid_proportion > 0, other=float("nan")) / valid_proportion
+    return (
+        result.where(valid_proportion > 0, other=float("nan"))
+        / valid_proportion
+    )
