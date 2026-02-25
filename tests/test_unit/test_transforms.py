@@ -64,12 +64,12 @@ def sample_data_3d() -> xr.DataArray:
     ["optional_arguments", "expected_output"],
     [
         pytest.param(
-            {},
+            {"factor": 1},
             data_array_with_dims_and_coords(nparray_0_to_23()),
             id="Do nothing",
         ),
         pytest.param(
-            {"space_unit": "elephants"},
+            {"factor": 1, "space_unit": "elephants"},
             data_array_with_dims_and_coords(
                 nparray_0_to_23(), space_unit="elephants"
             ),
@@ -281,6 +281,12 @@ def test_scale_log(sample_data_2d: xr.DataArray):
     assert len(log_entries) == 2
     verify_log_entry(log_entries[0], "2", "'elephants'")
     verify_log_entry(log_entries[1], "[1, 2]", "'crabs'")
+
+
+def test_scale_requires_factor(sample_data_2d: xr.DataArray):
+    """Test that scale raises TypeError if factor is not provided."""
+    with pytest.raises(TypeError, match="factor"):
+        scale(sample_data_2d)
 
 
 @pytest.mark.parametrize(
