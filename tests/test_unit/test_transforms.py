@@ -219,7 +219,7 @@ def test_scale_value_error(
     expected_error_message: str,
 ):
     """Test invalid factors raise correct error type and message."""
-    with pytest.raises(ValueError) as error:
+    with pytest.raises(ValueError, match="Factor") as error:
         scale(sample_data_2d, factor=invalid_factor)
     assert str(error.value) == expected_error_message
 
@@ -249,7 +249,7 @@ def test_scale_invalid_3d_space(factor):
         nparray_0_to_23().reshape(8, 3),
         coords=invalid_coords,
     )
-    with pytest.raises(ValueError) as error:
+    with pytest.raises(ValueError, match="Input data must contain") as error:
         scale(invalid_sample_data_3d, factor=factor)
     assert str(error.value) == (
         "Input data must contain ['z'] in the 'space' coordinates.\n"
