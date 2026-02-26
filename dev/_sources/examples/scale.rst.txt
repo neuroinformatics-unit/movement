@@ -653,21 +653,21 @@ operations applied in earlier steps.
     [
       {
         "operation": "filter_by_confidence",
-        "datetime": "2026-02-26 14:39:02.618136",
+        "datetime": "2026-02-26 18:36:20.876828",
         "confidence": "<xarray.DataArray 'confidence' (time: 418, keypoints: 43)> Size: 144kB\n0.02365 0.01434 0.01821 0.02692 0.05129 ... 0.004628 0.007376 0.003921 0.005941\nCoordinates:\n  * time         (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688\n  * keypoints    (keypoints) <U15 3kB 'Nose' 'EarL' ... 'HindpawKneeL'\n    individuals  <U12 48B 'individual_0'",
         "threshold": "0.9",
         "print_report": "False"
       },
       {
         "operation": "interpolate_over_time",
-        "datetime": "2026-02-26 14:39:02.631848",
+        "datetime": "2026-02-26 18:36:20.890097",
         "method": "'linear'",
         "max_gap": "40",
         "print_report": "False"
       },
       {
         "operation": "rolling_filter",
-        "datetime": "2026-02-26 14:39:02.635040",
+        "datetime": "2026-02-26 18:36:20.893067",
         "window": "6",
         "statistic": "'median'",
         "min_periods": "2",
@@ -675,7 +675,7 @@ operations applied in earlier steps.
       },
       {
         "operation": "scale",
-        "datetime": "2026-02-26 14:39:02.916531",
+        "datetime": "2026-02-26 18:36:21.136414",
         "factor": "np.float64(0.03440766330229682)",
         "space_unit": "'cm'"
       }
@@ -1020,7 +1020,7 @@ possible.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.789 seconds)
+   **Total running time of the script:** (0 minutes 1.615 seconds)
 
 
 .. _sphx_glr_download_examples_scale.py:

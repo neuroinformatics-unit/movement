@@ -20,8 +20,6 @@
     
     fetch_dataset_paths
     
-    hide_pooch_hash_logs
-    
     list_datasets
     
 

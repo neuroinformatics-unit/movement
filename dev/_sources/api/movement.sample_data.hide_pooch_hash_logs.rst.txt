@@ -1,9 +1,0 @@
-hide\_pooch\_hash\_logs
-=======================
-
-.. currentmodule:: movement.sample_data
-
-.. autofunction:: hide_pooch_hash_logs
-
-.. minigallery:: movement.sample_data.hide_pooch_hash_logs
-   :add-heading: Examples using ``hide_pooch_hash_logs``

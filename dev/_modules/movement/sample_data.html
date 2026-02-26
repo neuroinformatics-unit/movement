@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=5862a5cd"></script>
+    <script src="../../_static/documentation_options.js?v=6f9a2fa7"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev5</p>
+    <p class="title logo__title">movement v0.14.1.dev6</p>
   
 </a></div>
     
@@ -495,10 +495,8 @@
 <span class="n">METADATA_FILE</span> <span class="o">=</span> <span class="s2">&quot;metadata.yaml&quot;</span>
 
 
-<div class="viewcode-block" id="hide_pooch_hash_logs">
-<a class="viewcode-back" href="../../api/movement.sample_data.hide_pooch_hash_logs.html#movement.sample_data.hide_pooch_hash_logs">[docs]</a>
 <span class="nd">@contextmanager</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">hide_pooch_hash_logs</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_hide_pooch_hash_logs</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Hide SHA256 hash printouts from ``pooch.retrieve``.</span>
 
 <span class="sd">    This context manager temporarily suppresses SHA256 hash messages</span>
@@ -520,8 +518,7 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="k">yield</span>
     <span class="k">finally</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">removeFilter</span><span class="p">(</span><span class="n">flt</span><span class="p">)</span></div>
-
+        <span class="n">logger</span><span class="o">.</span><span class="n">removeFilter</span><span class="p">(</span><span class="n">flt</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_download_metadata_file</span><span class="p">(</span><span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">DATA_DIR</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
@@ -546,7 +543,7 @@
 <span class="sd">        Path to the downloaded file.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">with</span> <span class="n">hide_pooch_hash_logs</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">_hide_pooch_hash_logs</span><span class="p">():</span>
         <span class="n">local_file_path</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
             <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DATA_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="n">known_hash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
