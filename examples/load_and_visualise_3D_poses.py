@@ -26,7 +26,9 @@ from movement.utils.vector import compute_norm
 # the first.
 #
 # This dataset was derived via triangulation of DeepLabCut predictions from
-# three synchronised camera views (side, front, and overhead).
+# three synchronised camera views (side, front, and overhead). The pose tracks
+# from the side view are used in the :ref:`sphx_glr_examples_scale.py`
+# example.
 # Since 3D points were obtained by triangulation rather than direct model
 # prediction, confidence values were summarised as the median across the three
 # camera views. Coordinates where triangulation could not be performed (NaN
@@ -48,14 +50,14 @@ print("-----------------------------------------------------")
 print(f"Keypoints: {ds.keypoints.values}")
 
 # %%
-# The dataset contains 50 keypoints tracked in 3D for a single mouse,
-# along with associated confidence scores. The recording was captured
+# Here we see the dataset contains 50 keypoints tracked in 3D for a single
+# mouse, along with associated confidence scores. The recording was captured
 # at 247 fps and spans 418 frames (~1.7 seconds).
 
 # %%
 # Visualise camera positions
 # --------------------------
-# To help us understand the recording geometry, let's visualise the
+# To help us first understand the recording geometry, let's visualise the
 # camera positions relative to the travelator apparatus. The extrinsic
 # parameters below were obtained from multi-camera calibration and describe
 # the translation and rotation of each camera relative to a shared world
@@ -96,10 +98,10 @@ cameras_extrinsics = {
 }
 
 # %%
-# We plot the camera positions relative to a 3D mockup of the dual-belt
-# travelator. You do not need to understand the following plotting code,
-# only that it constructs a mockup of the travelator and marks the position
-# and orientation of each camera in 3D space.
+# We can then plot the camera positions relative to a 3D mockup of the
+# dual-belt travelator. You do not need to understand the following plotting
+# code, only that it constructs a mockup of the travelator and marks the
+# position and orientation of each camera in 3D space.
 
 fig = plt.figure(figsize=(4, 4))
 ax = fig.add_subplot(projection="3d")
@@ -228,14 +230,19 @@ plt.show()
 print(ds.keypoints.values)
 
 # %%
-# The loaded dataset contains 43 keypoints spanning the mouse's head, back,
-# tail, and limbs. An additional 7 keypoints mark structural landmarks on
-# the travelator itself. Let's filter the dataset to keep only the mouse
-# keypoints.
+# Here we see the loaded dataset contains 43 keypoints spanning the mouse's
+# head, back, tail, and limbs. An additional 7 keypoints mark structural
+# landmarks on the travelator itself, for example ``StartPlatL`` marks the
+# left corner of the first travelator belt at the end nearest the starting
+# platform, and ``TransitionR`` marks the right side of the gap
+# between the two belts.
+#
+# Let's filter the dataset to keep only the mouse keypoints.
 
 mouse_keywords = ["Nose", "Ear", "Back", "Tail", "paw"]
 mask = ds.keypoints.str.contains("|".join(mouse_keywords))
 ds_mouse = ds.sel(keypoints=ds.keypoints[mask])
+print(ds_mouse)
 
 # %%
 # Since the travelator landmarks are static, we can average their positions
@@ -247,6 +254,11 @@ belt_corners = ds.position.sel(
     keypoints=belt_corner_names, individuals="individual_0"
 )
 belt_corners_avg_position = belt_corners.mean(dim="time")
+print(belt_corners_avg_position)
+
+# %%
+# This gives us a (4 keypoints × 3 spatial dimensions) data array of stable
+# belt corner coordinates.
 
 # %%
 # Visualise a subset of the data
@@ -371,16 +383,17 @@ plt.show()
 # %%
 # Filter out points with low confidence and interpolate
 # -----------------------------------------------------
-# This trajectory reveals some artefacts from coordinates where
+# The above trajectory reveals some artefacts from coordinates where
 # triangulation failed, which were backfilled with zeros in this
 # dataset. Let's filter out any points in our ``position`` data with
 # confidence scores below ``threshold`` and interpolate to fill in
 # the resulting gaps.
 
+threshold = 0.9
 ds_mouse["position"] = filter_by_confidence(
     ds_mouse.position,
     ds_mouse.confidence,
-    threshold=0.9,
+    threshold=threshold,
 )
 ds_mouse["position"] = interpolate_over_time(
     ds_mouse.position,
@@ -388,7 +401,7 @@ ds_mouse["position"] = interpolate_over_time(
 )
 
 # %%
-# Let's now re-extract the nose position from the cleaned dataset and plot
+# We now re-extract the nose position from the cleaned dataset and plot
 # the trajectory again.
 
 clean_nose_position = ds_mouse.position.sel(
@@ -403,14 +416,15 @@ plot_coloured_trajectory_3d(
 plt.show()
 
 # %%
-# The artefacts have now been removed, giving us a clean trace to work with.
-# We can already see that the nose drops in absolute height (``z``) on
-# approach to the transition area (marked by the ``TransitionL`` and
-# ``TransitionR`` belt landmarks). Let's now visualise how running speed
-# varies along the trajectory using
-# :func:`movement.kinematics.compute_speed`. Since the second belt moves
-# faster than the first, we might expect to see changes in speed around the
-# transition point.
+# The artefacts have now been removed, giving us a clean trace to analyse.
+# From this simple trajectory, we can see that the nose drops in absolute
+# height (``z``) on approach to the transition area (marked by the
+# ``TransitionL`` and ``TransitionR`` belt landmarks). To explore this further,
+# let's visualise how running speed varies along the trajectory using
+# :func:`compute_speed <movement.kinematics.compute_speed>`.
+# Since the second belt moves
+# faster than the first, we might expect to see changes in speed as the mouse
+# navigates the task of crossing the transition point.
 
 # Compute the speed of the nose across all three spatial dimensions
 speed_nose = compute_speed(clean_nose_position)
@@ -426,13 +440,14 @@ plot_coloured_trajectory_3d(
 plt.show()
 
 # %%
-# The speed colour gradient shows that the nose accelerates as the mouse runs
-# across the first belt, before briefly decelerating at the transition
+# The speed colour gradient shows that the nose increases in speed as the mouse
+# runs across the first belt, before briefly decelerating at the transition
 # point. Combined with the gradual downward dip observed in ``z``,
-# this suggests the mouse begins to lower its body on approach to the
-# transition before braking as it steps onto the faster-moving second belt.
-# To get a fuller picture of the postural changes involved, let's visualise
-# all tracked keypoints together as a skeleton.
+# this suggests the mouse begins to lower itself - whether at the head or
+# across the whole body - on approach to the transition before braking as it
+# steps onto the faster-moving second belt. To get a fuller picture of the
+# postural changes involved, let's visualise all tracked keypoints together
+# as a skeleton.
 
 # %%
 # Visualise the skeleton
@@ -491,7 +506,7 @@ belt_skeleton = [
 ]
 
 # %%
-# We plot the mouse skeleton in 3D space for a single example frame.
+# We then plot the mouse skeleton in 3D space for a single example frame.
 
 sample_frame = 275
 mouse_frame = ds_mouse.position.isel(time=sample_frame)
@@ -521,7 +536,7 @@ fig.subplots_adjust(left=0.01, right=0.99, top=0.99, bottom=0.01)
 plt.show()
 
 # %%
-# We can add in the belt landmark positions to further visualise the mouse's
+# We can also add in the belt landmark positions to visualise the mouse's
 # position relative to the travelator.
 
 mouse_frame = ds_mouse.position.isel(time=sample_frame)
@@ -529,7 +544,7 @@ mouse_frame = ds_mouse.position.isel(time=sample_frame)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection="3d")
 
-# Draw belt corner landmarks
+# Draw annotated belt corner landmarks
 for kp in belt_corners_avg_position.keypoints.values:
     bx, by, bz = (
         float(belt_corners_avg_position.sel(keypoints=kp, space=s))
@@ -567,11 +582,11 @@ plt.show()
 
 
 # %%
-# We can see the mouse is positioned within the area of the first belt and
+# Here we see the mouse is positioned within the area of the first belt and
 # is approaching the transition area between the first and second belt.
 
 # %%
-# Now that we can see the skeleton structure and the mouse's position
+# Now that we have established the skeleton structure and the mouse's position
 # relative to the belt, let's visualise how the skeleton evolves across a
 # subset of frames.
 # We create a helper function to plot this skeleton over time.
@@ -744,12 +759,13 @@ plt.show()
 # %%
 # Compute limb kinematics in 3D
 # -----------------------------
-# The full-body skeleton plot above is visually dense. To better understand
-# how the mouse negotiates the belt transition, we can isolate a single limb
-# and examine how its speed and spatial trajectory change across the gait
-# cycle. Because the second belt moves faster than the first, we expect
-# to see kinematic differences - particularly in stance-phase speed - before
-# and after the transition.
+# The full-body skeleton plot above is visually dense and doesn't tell us
+# much about the mouse's movement on approach to the transition area.
+# To better understand how the mouse negotiates the belt transition,
+# we can isolate a single limb and examine how its speed and spatial
+# trajectory change across the gait cycle. Because the second belt moves
+# faster than the first, we might expect to see kinematic differences -
+# particularly in stance-phase speed - before and after the transition.
 #
 # We focus on the right forelimb, defined by the chain of keypoints from
 # toe to knee.
@@ -761,19 +777,21 @@ limb_keypoint_names = [
     "ForepawAnkleR",
     "ForepawKneeR",
 ]
+# Filter the mouse dataset to keep only the right forelimb keypoints
 ds_limb = ds_mouse.position.sel(
     keypoints=limb_keypoint_names, individuals="individual_0"
 )
+# Construct skeleton edges as consecutive pairs of keypoints
 limb_skeleton = list(
     zip(limb_keypoint_names, limb_keypoint_names[1:], strict=False)
 )
 
 # %%
 # We compute the speed of each limb keypoint using
-# :func:`movement.kinematics.compute_speed`, which returns the frame-to-frame
-# displacement magnitude across all three spatial dimensions (x, y, z).
-# Taking the median across keypoints gives a single representative speed
-# for the limb at each frame.
+# :func:`compute_speed <movement.kinematics.compute_speed>`, which returns
+# the frame-to-frame Euclidean speed across all three spatial dimensions (x,
+# y, z). Taking the median across keypoints gives a single representative
+# speed for the limb at each frame.
 
 limb_speed = compute_speed(ds_limb)
 avg_limb_velocity = limb_speed.median(dim="keypoints")
@@ -832,9 +850,10 @@ plt.show()
 # Beyond speed, we can further characterise the stride pattern by measuring
 # the inter-limb distance - the Euclidean distance between the left and
 # right forepaw toes - using
-# :func:`movement.kinematics.compute_pairwise_distances`. This gives us a
-# measure of how the separation between the two forepaws varies in 3D space
-# across the stride cycle.
+# :func:`compute_pairwise_distances
+# <movement.kinematics.compute_pairwise_distances>`.
+# This gives us a measure of how the separation between the two forepaws
+# varies in 3D space across the stride cycle.
 
 # Compute the frame-by-frame distance between the two forepaw toes
 forepaw_dist = compute_pairwise_distances(
@@ -963,7 +982,7 @@ plt.show()
 # %%
 # Compute 3D head orientation
 # ---------------------------
-# So far we have focused on whole-body and limb kinematics. With 3D tracking
+# So far we have focused on limb kinematics. With 3D tracking
 # of the nose and both ears, we can also derive all three rotational degrees
 # of freedom of the head: yaw (lateral rotation), pitch (vertical rotation),
 # and roll (head tilt).
@@ -990,12 +1009,12 @@ ear_mid.loc[dict(space="z")] = ear_mid.sel(space="z") + avg_z_offset
 # %%
 # Now let's compute yaw, pitch and roll from the head vector
 # (``ear_mid`` → ``nose``) and the ear-to-ear vector (``ear_r`` → ``ear_l``).
-#
-# We use :func:`numpy.arctan2` throughout to compute angles from pairs
-# of vector components. For pitch and roll, we take the angle between
-# the vector's z-component and its horizontal (XY) magnitude, obtained
-# via :func:`movement.utils.vector.compute_norm`, to get the elevation
-# relative to the horizontal plane.
+# We use :obj:`numpy.arctan2` throughout, which takes two vector components
+# (y, x) and returns the angle of that vector in the XY plane. For pitch
+# and roll, the 3D head vector is first projected onto the horizontal (XY)
+# plane by dropping the z component, and its magnitude is computed via
+# :func:`compute_norm <movement.utils.vector.compute_norm>` - ``arctan2``
+# is then used to find the angle of elevation above that plane.
 
 # Yaw: horizontal rotation of the head, computed as the angle of the
 # head vector projected onto the XY plane.
@@ -1102,6 +1121,8 @@ def plot_head_direction_quiver(
     step=5,
     arrow_scale=1.0,
     cmap="coolwarm",
+    vmin=None,
+    vmax=None,
     elev=5,
     azim=290,
     box_aspect=(20, 2, 2),
@@ -1126,6 +1147,8 @@ def plot_head_direction_quiver(
         Length of the normalised arrows in mm.
     cmap : str
         Matplotlib colourmap name.
+    vmin, vmax : float or None
+        Colour limits for normalisation. If None, limits are set symmetrically
     elev, azim : float
         Viewing angles.
     box_aspect : tuple
@@ -1137,7 +1160,6 @@ def plot_head_direction_quiver(
 
     # Subsample frames for visual clarity
     t_slice = slice(None, None, step)
-
     nose_sub = nose_position.isel(time=t_slice)
     head_sub = head_vector.isel(time=t_slice)
 
@@ -1158,8 +1180,10 @@ def plot_head_direction_quiver(
     )
 
     # Map scalar colour values to a symmetric diverging colourmap
-    vmax = max(abs(float(c_sub.min())), abs(float(c_sub.max())))
-    norm_c = plt.Normalize(-vmax, vmax)
+    if vmin is None and vmax is None:
+        vmax = max(abs(float(c_sub.min())), abs(float(c_sub.max())))
+        vmin = -vmax
+    norm_c = plt.Normalize(vmin, vmax)
     cmap_obj = plt.get_cmap(cmap)
     colours = cmap_obj(norm_c(c_sub.values))
 
@@ -1211,7 +1235,7 @@ plot_head_direction_quiver(
     belt_corners_avg_position,
     step=20,
     arrow_scale=25,
-    colour_label="Pitch (°, negative = more dipped)",
+    colour_label="Pitch (°, positive = more upward)",
     elev=10,
     azim=270,
 )
@@ -1225,8 +1249,9 @@ plt.show()
 # the mouse lowers its body on approach to the transition while keeping its
 # head raised - perhaps to maintain a view of the upcoming belt - before
 # pitching the head downward as the body crosses. This forward head pitch
-# may reflect a forwards shift in centre of mass to counteract the backward
-# force of accelerating onto the faster-moving second belt.
+# may reflect a forwards shift in centre of mass to counteract the
+# backward inertial force imposed by stepping onto the faster-moving second
+# belt.
 
 # %%
 # Next, let's plot the yaw of the head along the nose trajectory.
@@ -1247,6 +1272,91 @@ plt.show()
 
 # %%
 # The head turns rightward at the start of the run but is oriented
-# leftward (toward the back wall) for the remainder, with a brief
-# increase in leftward yaw during the belt transition. This may
-# reflect a whole-body twist as the mouse steps onto the faster belt.
+# leftward (toward the back wall) for the remainder, with a brief but marked
+# increase in leftward yaw during the belt transition.  This could reflect the
+# whole body rotating leftward, or perhaps a more isolated rotation of the head
+# driven by shoulder girdle movement as the right forepaw protracts onto
+# the faster belt.
+
+# %%
+# The allocentric angles above are measured relative to the world coordinate
+# system, so they conflate head movement with whole-body orientation. To
+# isolate head movement relative to the body, we can instead compute
+# egocentric angles, which measure head orientation relative to the body
+# axis. We will use yaw as an example, defining the body axis as the dorsal
+# midline (``Back1`` → ``Back12``).
+
+# %%
+# .. note::
+#
+#    The following section uses dot products and cross products to compute
+#    signed angles between vectors. These operations are explained well in the
+#    `3Blue1Brown linear algebra series
+#    <https://www.3blue1brown.com/topics/linear-algebra>`_.
+
+# %%
+# To compute egocentric yaw, we project both the head vector and the body
+# axis onto the horizontal (XY) plane, then use the dot and cross products
+# of these projected vectors to find the signed angle between them.
+
+# Body axis: neck (Back1) to tailbase (Back12), pointing forward
+back1 = ds_mouse.position.sel(keypoints="Back1", individuals="individual_0")
+back12 = ds_mouse.position.sel(keypoints="Back12", individuals="individual_0")
+body_axis = back1 - back12
+
+# Project both vectors onto the horizontal (XY) plane
+body_xy = body_axis.sel(space=["x", "y"])
+head_xy = head_vec.sel(space=["x", "y"])
+
+# Egocentric yaw: signed angle between the body axis and head vector in the
+# horizontal plane. Positive = leftward.
+dot_xy = (head_xy * body_xy).sum(dim="space")
+cross_z = body_xy.sel(space="x") * head_xy.sel(space="y") - body_xy.sel(
+    space="y"
+) * head_xy.sel(space="x")
+egocentric_yaw = np.degrees(np.arctan2(cross_z, dot_xy))
+
+# %%
+# Let's plot egocentric and allocentric yaw together for comparison.
+
+fig, ax = plt.subplots(figsize=(8, 2))
+
+ax.plot(
+    nose.sel(space="x"),
+    egocentric_yaw,
+    color="r",
+    linewidth=1.5,
+    label="Egocentric",
+)
+ax.plot(
+    nose.sel(space="x"),
+    yaw,
+    color="r",
+    linewidth=1.5,
+    linestyle="--",
+    label="Allocentric",
+)
+ax.axhline(
+    float(egocentric_yaw.median()), color="grey", linewidth=1, linestyle="--"
+)
+ax.axvline(transition_x, color="k", linewidth=1, linestyle="--")
+
+ax.legend(loc="upper left")
+ax.set_xlabel("X (mm)")
+ax.set_ylabel("Yaw (°)")
+fig.tight_layout()
+plt.show()
+
+# %%
+# Through most of the first belt the two signals track closely, suggesting
+# the body runs roughly parallel to the belt with the head held in a
+# consistent leftward orientation. Toward the transition, allocentric yaw
+# diverges more steeply than egocentric, indicating the whole body begins
+# rotating leftward independently of head. At peak leftward rotation,
+# egocentric yaw briefly catches up - consistent with an additional head
+# twist as the right forepaw protracts onto the faster belt.
+# Post-transition, allocentric yaw remains elevated while egocentric yaw
+# oscillates, perhaps reflecting disruption to head-body coordination as the
+# mouse adjusts to the faster second belt. This illustrates how separating
+# egocentric from allocentric orientation can reveal distinct contributions
+# of head and body movement that would otherwise be conflated.
