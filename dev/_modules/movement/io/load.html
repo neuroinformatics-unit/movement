@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=fc1a21d4"></script>
+    <script src="../../../_static/documentation_options.js?v=5862a5cd"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev4</p>
+    <p class="title logo__title">movement v0.14.1.dev5</p>
   
 </a></div>
     
@@ -728,7 +728,7 @@
 <span class="sd">        the NWB file.</span>
 <span class="sd">    **kwargs</span>
 <span class="sd">        Additional keyword arguments to pass to the software-specific</span>
-<span class="sd">        loading functions that are listed under &quot;See Also&quot;.</span>
+<span class="sd">        loading functions in modules listed under &quot;See Also&quot;.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -790,7 +790,7 @@
 <span class="sd">        the NWB file.</span>
 <span class="sd">    **kwargs</span>
 <span class="sd">        Additional keyword arguments to pass to the software-specific</span>
-<span class="sd">        loading functions that are listed under &quot;See Also&quot;.</span>
+<span class="sd">        loading functions in modules listed under &quot;See Also&quot;.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -803,6 +803,11 @@
 <span class="sd">    The attributes of the resulting dataset will be taken from the first</span>
 <span class="sd">    dataset specified in ``file_path_dict``. This is the default</span>
 <span class="sd">    behaviour of :func:`xarray.concat` used under the hood.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    movement.io.load_poses</span>
+<span class="sd">    movement.io.load_bboxes</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">views_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">file_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>

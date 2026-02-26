@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=fc1a21d4"></script>
+    <script src="../_static/documentation_options.js?v=5862a5cd"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev4</p>
+    <p class="title logo__title">movement v0.14.1.dev5</p>
   
 </a></div>
     
@@ -628,7 +628,16 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.utils.broadcasting.make_broadcastable">
 <span class="sig-prename descclassname"><span class="pre">movement.utils.broadcasting.</span></span><span class="sig-name descname"><span class="pre">make_broadcastable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_classmethod</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_broadcastable_along</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_dimension_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/broadcasting.html#make_broadcastable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.broadcasting.make_broadcastable" title="Link to this definition">#</a></dt>
-<dd><p>Create a decorator that allows a function to be broadcast.</p>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Overloads<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>is_classmethod</strong> (<span class="sphinx_autodoc_typehints-type">Literal[False]</span>), <strong>only_broadcastable_along</strong> (<span class="sphinx_autodoc_typehints-type">str | None</span>), <strong>new_dimension_name</strong> (<span class="sphinx_autodoc_typehints-type">str | None</span>) → <span class="sphinx_autodoc_typehints-type">Callable[[Function1DTo1D[P, ScalarOr1D]], FunctionDaToDa[P]]</span></p></li>
+<li><p><strong>is_classmethod</strong> (<span class="sphinx_autodoc_typehints-type">Literal[True]</span>), <strong>only_broadcastable_along</strong> (<span class="sphinx_autodoc_typehints-type">str | None</span>), <strong>new_dimension_name</strong> (<span class="sphinx_autodoc_typehints-type">str | None</span>) → <span class="sphinx_autodoc_typehints-type">Callable[[ClsMethod1DTo1D[Self, P, ScalarOr1D]], ClsMethodDaToDa[Self, P]]</span></p></li>
+<li><p><strong>is_classmethod</strong> (<span class="sphinx_autodoc_typehints-type">bool</span>), <strong>only_broadcastable_along</strong> (<span class="sphinx_autodoc_typehints-type">str | None</span>), <strong>new_dimension_name</strong> (<span class="sphinx_autodoc_typehints-type">str | None</span>) → <span class="sphinx_autodoc_typehints-type">Callable[…, FunctionDaToDa[P] | ClsMethodDaToDa[Self, P]]</span></p></li>
+</ul>
+</dd>
+</dl>
+<p>Create a decorator that allows a function to be broadcast.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
