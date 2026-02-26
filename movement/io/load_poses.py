@@ -443,9 +443,9 @@ def from_multiview_files(
     ----------
     file_dict
         A dict whose keys are the view names and values are the paths to load.
-    source_software : {'LightningPose', 'SLEAP', 'DeepLabCut'}
+    source_software
         The source software of the file.
-    fps : float, optional
+    fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
 

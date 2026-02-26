@@ -240,7 +240,7 @@ class NWBFileSaveConfig:
             resolved.
         entity
             Individual or keypoint name.
-        entity_type : str or None
+        entity_type
             Type of entity (i.e. "individual", "keypoint"). Used in error
             or warning messages.
         id_key

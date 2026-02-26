@@ -31,7 +31,7 @@ def filter_by_confidence(
     threshold
         The confidence threshold below which datapoints are filtered.
         A default value of ``0.6`` is used. See notes for more information.
-    print_report : bool
+    print_report
         Whether to print a report on the number of NaNs in the dataset
         before and after filtering. Default is ``False``.
 
@@ -78,8 +78,7 @@ def interpolate_over_time(
     ----------
     data
         The input data to be interpolated.
-    method : {"linear", "nearest", "zero", "slinear", "quadratic", "cubic", \
-        "polynomial", "barycentric", "krogh", "pchip", "spline", "akima"}
+    method
         String indicating which method to use for interpolation.
         Default is ``linear``.
     max_gap
