@@ -626,7 +626,7 @@ def _via_attribute_column_to_numpy(
     list_keys
         The list of keys whose values we want to extract from the literal
         dictionaries in the ``via_column_name`` column.
-    cast_fn : type, optional
+    cast_fn
         The type function to cast the values to. By default ``float``.
 
     Returns
