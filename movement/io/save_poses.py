@@ -97,7 +97,7 @@ def to_dlc_style_df(
     ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    split_individuals 
+    split_individuals
         If True, return a dictionary of DataFrames per individual, with
         individual names as keys. If False (default), return a single
         DataFrame for all individuals (see Notes).
@@ -245,7 +245,7 @@ def to_lp_file(
 
     Parameters
     ----------
-    ds   
+    ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
     file_path

@@ -227,7 +227,7 @@ def savgol_filter(
         The order of the polynomial used to fit the samples. Must be
         less than ``window``. By default, a ``polyorder`` of
         2 is used.
-    print_report 
+    print_report
         Whether to print a report on the number of NaNs in the dataset
         before and after smoothing. Default is ``False``.
     **kwargs
