@@ -170,9 +170,9 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         reference_vector
             Constant or time-varying vector to take signed angle with the
             "vector to the region".
-        how_to_compute_vector_to_region : Callable
+        how_to_compute_vector_to_region
             How to compute the "vector to the region" from ``position``.
-        in_degrees : bool
+        in_degrees
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
 
@@ -201,7 +201,7 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         ----------
         da
             ``DataArray`` lacking a "space" dimension, that is to be assigned.
-        old_dimension : Hashable
+        old_dimension
             The dimension that should be renamed to "space", and reassigned
             coordinates.
 
@@ -223,9 +223,9 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
 
         Parameters
         ----------
-        geometry : shapely.Geometry
+        geometry
             The ``shapely`` geometry that defines the region of interest.
-        name : str, default None
+        name
             Human-readable name to assign to the given region, for
             user-friendliness. Default name given is 'Un-named region' if no
             explicit name is provided.
@@ -262,10 +262,10 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
 
         Parameters
         ----------
-        position : ArrayLike
+        position
             Spatial coordinates [x, y, [z]] to check as being inside the
             region.
-        include_boundary : bool
+        include_boundary
             Whether to treat a position on the region's boundary as inside the
             region (True) or outside the region (False). Default True.
 
@@ -292,10 +292,10 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
 
         Parameters
         ----------
-        point : ArrayLike
+        point
             Coordinates of a point, from which to find the nearest point in the
             region defined by ``self``.
-        boundary_only : bool, optional
+        boundary_only
             If ``True``, compute the distance from ``point`` to the boundary of
             the region, rather than the closest point belonging to the region.
             Default ``False``.
@@ -326,10 +326,10 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
 
         Parameters
         ----------
-        position : ArrayLike
+        position
             Coordinates of a point, from which to find the nearest point in the
             region.
-        boundary_only : bool, optional
+        boundary_only
             If ``True``, compute the nearest point to ``position`` that is on
             the  boundary of ``self``. Default ``False``.
 
@@ -368,13 +368,13 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
 
         Parameters
         ----------
-        point : ArrayLike
+        point
             Coordinates of a point to compute the vector to (or from) the
             region.
-        boundary_only : bool
+        boundary_only
             If ``True``, the approach vector to the boundary of the region is
             computed. Default ``False``.
-        unit : bool
+        unit
             If ``True``, the approach vector is returned normalised, otherwise
             it is not normalised. Default is ``False``.
 
@@ -432,10 +432,10 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         ----------
         position
             ``DataArray`` of spatial positions.
-        boundary_only : bool
+        boundary_only
             If ``True``, the allocentric angle to the closest boundary point of
             the region is computed. Default ``False``.
-        in_degrees : bool
+        in_degrees
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
         reference_vector
@@ -489,27 +489,27 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
 
         Parameters
         ----------
-        direction :
+        direction
             An array of vectors representing a given direction,
             e.g., the forward vector(s).
-        position :
+        position
             `DataArray` of spatial positions, considered the origin of the
             ``direction`` vector.
-        boundary_only : bool
+        boundary_only
             Passed to :func:`compute_approach_vector`
             (see Notes). Default ``False``.
-        in_degrees : bool
+        in_degrees
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
 
         See Also
         --------
-        compute_allocentric_angle_to_nearest_point :
+        compute_allocentric_angle_to_nearest_point
             Related class method for computing the egocentric angle to the
             region.
-        compute_approach_vector :
+        compute_approach_vector
             The method used to compute the approach vector.
-        movement.utils.vector.compute_signed_angle_2d :
+        movement.utils.vector.compute_signed_angle_2d
             The underlying function used to compute the signed angle between
             the approach vector and the reference vector.
 
@@ -533,10 +533,10 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
 
         Parameters
         ----------
-        ax : matplotlib.axes.Axes or None, optional
+        ax
             Axes object on which to draw the region. If None, a new
             figure and axes are created.
-        matplotlib_kwargs : Any
+        matplotlib_kwargs
             Keyword arguments passed to the :mod:`matplotlib.pyplot` plotting
             function.
 

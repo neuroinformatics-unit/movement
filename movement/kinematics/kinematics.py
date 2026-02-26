@@ -32,7 +32,7 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
     ----------
     data
         The input data containing ``time`` as a required dimension.
-    order : int
+    order
         The order of the time-derivative. For an input containing position
         data, use 1 to compute velocity, and 2 to compute acceleration. Value
         must be a positive integer.
@@ -346,17 +346,17 @@ def compute_path_length(
     data
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-    start : float, optional
+    start
         The start time of the path. If None (default),
         the minimum time coordinate in the data is used.
-    stop : float, optional
+    stop
         The end time of the path. If None (default),
         the maximum time coordinate in the data is used.
-    nan_policy : Literal["ffill", "scale"], optional
+    nan_policy
         Policy to handle NaN (missing) values. Can be one of the ``"ffill"``
         or ``"scale"``. Defaults to ``"ffill"`` (forward fill).
         See Notes for more details on the two policies.
-    nan_warn_threshold : float, optional
+    nan_warn_threshold
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
         Defaults to 0.2 (20%).
@@ -435,7 +435,7 @@ def _warn_about_nan_proportion(
     ----------
     data
         The input data array.
-    nan_warn_threshold : float
+    nan_warn_threshold
         The threshold for the proportion of NaN values. Must be a number
         between 0 and 1.
 

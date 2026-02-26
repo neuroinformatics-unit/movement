@@ -118,22 +118,21 @@ def from_file(
 
     Parameters
     ----------
-    file : pathlib.Path or str
+    file
         Path to the file containing predicted poses. The file format must
         be among those supported by the ``from_dlc_file()``,
         ``from_slp_file()`` or ``from_lp_file()`` functions. One of these
         these functions will be called internally, based on
         the value of ``source_software``.
-    source_software : {"DeepLabCut", "SLEAP", "LightningPose", "Anipose", \
-        "NWB"}
+    source_software
         The source software of the file.
-    fps : float, optional
+    fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
         This argument is ignored when ``source_software`` is "NWB", as the
         frame rate will be directly read or estimated from metadata in
         the NWB file.
-    **kwargs : dict, optional
+    **kwargs
         Additional keyword arguments to pass to the software-specific
         loading functions that are listed under "See Also".
 
@@ -442,7 +441,7 @@ def from_multiview_files(
 
     Parameters
     ----------
-    file_dict : dict[str, Union[Path, str]]
+    file_dict
         A dict whose keys are the view names and values are the paths to load.
     source_software : {'LightningPose', 'SLEAP', 'DeepLabCut'}
         The source software of the file.

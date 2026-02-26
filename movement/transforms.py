@@ -23,14 +23,14 @@ def scale(
     ----------
     data
         The input data to be scaled.
-    factor : ArrayLike or float
+    factor
         The scaling factor to apply to the data. If factor is a scalar (a
         single float), the data array is uniformly scaled by the same factor.
         If factor is an object that can be converted to a 1D numpy array (e.g.
         a list of floats), the length of the resulting array must match the
         length of data array's space dimension along which it will be
         broadcasted.
-    space_unit : str or None
+    space_unit
         The unit of the scaled data stored as a property in
         ``xarray.DataArray.attrs['space_unit']``. In case of the default
         (``None``) the ``space_unit`` attribute is dropped.

@@ -26,10 +26,10 @@ def _ds_to_dlc_style_df(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    columns : pandas.MultiIndex
+    columns
         DeepLabCut-style multi-index columns
 
     Returns
@@ -74,10 +74,10 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
 
     Parameters
     ----------
-    filepath : pathlib.Path
+    filepath
         Path of the file to save the dataframe to. The file extension
         must be either .h5 (recommended) or .csv.
-    df : pandas.DataFrame
+    df
         Pandas Dataframe to save
 
     """
@@ -94,10 +94,10 @@ def to_dlc_style_df(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    split_individuals : bool, optional
+    split_individuals 
         If True, return a dictionary of DataFrames per individual, with
         individual names as keys. If False (default), return a single
         DataFrame for all individuals (see Notes).
@@ -170,13 +170,13 @@ def to_dlc_file(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    file_path : pathlib.Path or str
+    file_path
         Path to the file to save the poses to. The file extension
         must be either .h5 (recommended) or .csv.
-    split_individuals : bool or "auto", optional
+    split_individuals
         Whether to save individuals to separate files or to the same file
         (see Notes). Defaults to "auto".
 
@@ -245,10 +245,10 @@ def to_lp_file(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds   
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    file_path : pathlib.Path or str
+    file_path
         Path to the file to save the poses to. File extension must be .csv.
 
     Notes
@@ -278,10 +278,10 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    file_path : pathlib.Path or str
+    file_path
         Path to the file to save the poses to. File extension must be .h5.
 
     Notes
@@ -391,10 +391,10 @@ def to_nwb_file(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         ``movement`` poses dataset containing the data to be converted to
         NWBFile(s).
-    config : NWBFileSaveConfig, optional
+    config
         Configuration object containing keyword arguments to customise the
         :class:`pynwb.file.NWBFile` (s) that will be created
         for each individual.
@@ -525,7 +525,7 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
 

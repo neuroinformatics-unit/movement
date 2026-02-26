@@ -38,13 +38,13 @@ class MovementLogger:
 
         Parameters
         ----------
-        log_file_name : str, optional
+        log_file_name
             The name of the log file. Defaults to ``"movement"``.
-        log_directory : pathlib.Path, optional
+        log_directory
             The directory to store the log file in. Defaults to
             ``"~/.movement"``. A different directory can be specified,
             for example, for testing purposes.
-        console : bool, optional
+        console
             Whether to add a console logger. Defaults to ``True``.
 
         """

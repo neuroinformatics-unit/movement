@@ -233,7 +233,7 @@ class _BaseDatasetInputs(ABC):
 
         Parameters
         ----------
-        ds : xarray.Dataset
+        ds
             Dataset to validate.
 
         Raises

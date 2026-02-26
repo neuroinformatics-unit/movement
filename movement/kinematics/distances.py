@@ -130,10 +130,10 @@ def compute_pairwise_distances(
         ``space`` (in Cartesian coordinates), and
         ``individuals`` or ``keypoints`` (as specified by ``dim``)
         as required dimensions.
-    dim : Literal["individuals", "keypoints"]
+    dim
         The dimension to compute the distances for. Must be either
         ``'individuals'`` or ``'keypoints'``.
-    pairs : dict[str, str | list[str]] or 'all'
+    pairs
         Specifies the pairs of elements (either individuals or keypoints)
         for which to compute distances, depending on the value of ``dim``.
 
@@ -146,12 +146,12 @@ def compute_pairwise_distances(
         - Alternatively, use the special keyword ``'all'`` to compute distances
           for all possible pairs of individuals or keypoints
           (depending on ``dim``).
-    metric : str, optional
+    metric
         The distance metric to use. Must be one of the options supported
         by :func:`scipy.spatial.distance.cdist`, e.g. ``'cityblock'``,
         ``'euclidean'``, etc.
         Defaults to ``'euclidean'``.
-    **kwargs : dict
+    **kwargs
         Additional keyword arguments to pass to
         :func:`scipy.spatial.distance.cdist`.
 
@@ -327,7 +327,7 @@ def _validate_labels_dimension(data: xr.DataArray, dim: str) -> xr.DataArray:
     ----------
     data
         The input data to validate.
-    dim : str
+    dim
         The dimension to validate.
 
     Returns

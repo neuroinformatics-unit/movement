@@ -39,14 +39,14 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
 
         Parameters
         ----------
-        points : tuple of (x, y) pairs
+        points
             The points (in sequence) that make up the line segment. At least
             two points must be provided.
-        loop : bool, default False
+        loop
             If True, the final point in ``points`` will be connected by an
             additional line segment to the first, creating a closed loop.
             (See Notes).
-        name : str, optional
+        name
             Name of the LoI that is to be created. A default name will be
             inherited from the base class if not provided, and
             defaults are inherited from.
@@ -114,7 +114,7 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
 
         Parameters
         ----------
-        on_same_side_as : ArrayLike
+        on_same_side_as
             A sample point in the (x,y) plane the normal is in. If multiple
             points are given, one normal vector is returned for each point
             given. By default, the origin is used.
@@ -161,7 +161,7 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
             e.g., the forward vector(s).
         position
             Spatial positions, considered the origin of the ``direction``.
-        in_degrees : bool
+        in_degrees
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
 

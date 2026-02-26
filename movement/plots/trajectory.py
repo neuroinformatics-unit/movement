@@ -33,17 +33,17 @@ def plot_centroid_trajectory(
         A data array containing position information, with `time` and `space`
         as required dimensions. Optionally, it may have `individuals` and/or
         `keypoints` dimensions.
-    individual : str, optional
+    individual
         The name of the individual to be plotted. By default, the first
         individual is plotted.
-    keypoints : str, list[str], optional
+    keypoints
         The name of the keypoint to be plotted, or a list of keypoint names
         (their centroid will be plotted). By default, the centroid of all
         keypoints is plotted.
-    ax : matplotlib.axes.Axes or None, optional
+    ax
         Axes object on which to draw the trajectory. If None, a new
         figure and axes are created.
-    **kwargs : dict
+    **kwargs
         Additional keyword arguments passed to
         :meth:`matplotlib.axes.Axes.scatter`.
 

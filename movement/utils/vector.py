@@ -215,7 +215,7 @@ def compute_signed_angle_2d(
         compare ``u``. May either be an xarray
         DataArray containing the ``"space"``  dimension or a numpy
         array containing one or more 2D vectors. (See Notes)
-    v_as_left_operand : bool, default False
+    v_as_left_operand
         If True, the signed angle between ``v`` and ``u`` is returned, instead
         of the signed angle between ``u`` and ``v``. This is a convenience
         wrapper for when one of the two vectors to be used does not have time

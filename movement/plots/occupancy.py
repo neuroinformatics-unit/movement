@@ -39,16 +39,16 @@ def plot_occupancy(
     ----------
     da
         Spatial data to create histogram for. NaN values are dropped.
-    individuals : Hashable, optional
+    individuals
         The name of the individual(s) to be aggregated and plotted. By default,
         all individuals are aggregated.
-    keypoints : Hashable | list[Hashable], optional
+    keypoints
         Name of a keypoint or list of such names. The centroid of all provided
         keypoints is computed, then plotted in the histogram.
-    ax : matplotlib.axes.Axes, optional
+    ax
         Axes object on which to draw the histogram. If not provided, a new
         figure and axes are created and returned.
-    kwargs : Any
+    kwargs
         Keyword arguments passed to :meth:`matplotlib.axes.Axes.hist2d`.
 
     Returns
