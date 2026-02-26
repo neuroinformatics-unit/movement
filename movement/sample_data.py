@@ -35,7 +35,7 @@ METADATA_FILE = "metadata.yaml"
 
 
 @contextmanager
-def hide_pooch_hash_logs():
+def _hide_pooch_hash_logs():
     """Hide SHA256 hash printouts from ``pooch.retrieve``.
 
     This context manager temporarily suppresses SHA256 hash messages
@@ -82,7 +82,7 @@ def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
         Path to the downloaded file.
 
     """
-    with hide_pooch_hash_logs():
+    with _hide_pooch_hash_logs():
         local_file_path = pooch.retrieve(
             url=f"{DATA_URL}/{file_name}",
             known_hash=None,
