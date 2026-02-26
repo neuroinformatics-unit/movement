@@ -258,6 +258,92 @@ def compute_forward_vector_angle(
     return heading_array
 
 
+def compute_turning_angles(
+    data: xr.DataArray,
+    in_degrees: bool = False,
+    heading_vectors: xr.DataArray | None = None,
+) -> xr.DataArray:
+    r"""Compute turning angles from positional or heading vector data.
+
+    Turning angles are the signed angular change in heading between
+    consecutive time points. By default, heading is derived from
+    positional displacement (``data.diff(dim="time")``). If
+    ``heading_vectors`` are provided, they are used directly instead.
+
+    The returned angles are in radians, spanning the range
+    :math:`(-\pi, \pi]`, unless ``in_degrees`` is set to ``True``.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data representing position. Must contain
+        ``time`` and ``space`` as dimensions, with ``x`` and ``y``
+        coordinates in the ``space`` dimension.
+        Ignored when ``heading_vectors`` is provided.
+    in_degrees : bool
+        If ``True``, angles are returned in degrees.
+        Otherwise radians. Default ``False``.
+    heading_vectors : xarray.DataArray, optional
+        Pre-computed heading vectors (e.g. from
+        :func:`compute_forward_vector`). Must contain ``time``
+        and ``space`` dimensions with ``x`` and ``y`` coordinates.
+        When provided, turning angles are computed as signed angles
+        between consecutive heading vectors, rather than from
+        positional displacement. Default is ``None``.
+
+    Returns
+    -------
+    xarray.DataArray
+        Signed turning angles. Positive values indicate
+        counter-clockwise turns, negative values clockwise turns.
+        The output has ``n - 2`` time points when computed from
+        position data (``n`` being the number of input time points),
+        or ``n - 1`` time points when computed from heading vectors.
+
+    Notes
+    -----
+    When ``heading_vectors`` is ``None``, turning angles measure
+    changes in *movement direction* (displacement heading).
+    When ``heading_vectors`` is provided, turning angles measure
+    changes in *body orientation*. These are scientifically distinct:
+    an animal can move in one direction while its body points another.
+
+    The output size difference (``n - 2`` vs ``n - 1``) arises because
+    computing displacement from position already consumes one time
+    point, whereas heading vectors are defined at each time point.
+
+    See Also
+    --------
+    compute_forward_vector :
+        Compute body orientation vectors from symmetric keypoints.
+    movement.utils.vector.compute_signed_angle_2d :
+        The underlying function for computing signed 2D angles.
+
+    """
+    if heading_vectors is not None:
+        _validate_type_data_array(heading_vectors)
+        validate_dims_coords(
+            heading_vectors, {"time": [], "space": ["x", "y"]}
+        )
+        vectors = heading_vectors
+    else:
+        _validate_type_data_array(data)
+        validate_dims_coords(data, {"time": [], "space": ["x", "y"]})
+        vectors = data.diff(dim="time")
+
+    prev_vectors = vectors.isel(time=slice(None, -1))
+    next_vectors = vectors.isel(time=slice(1, None)).assign_coords(
+        time=prev_vectors.time
+    )
+    angles = compute_signed_angle_2d(prev_vectors, next_vectors)
+
+    if in_degrees:
+        angles = cast("xr.DataArray", np.rad2deg(angles))
+
+    angles.name = "turning_angle"
+    return angles
+
+
 def _validate_type_data_array(data: xr.DataArray) -> None:
     """Validate the input data is an xarray DataArray.
 

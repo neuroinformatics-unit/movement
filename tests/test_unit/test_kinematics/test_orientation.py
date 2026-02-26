@@ -431,3 +431,129 @@ class TestForwardVectorAngle:
 
         xr.testing.assert_allclose(pass_numpy, pass_tuple)
         xr.testing.assert_allclose(pass_numpy, pass_list)
+
+
+class TestComputeTurningAngles:
+    """Test the compute_turning_angles function.
+
+    Tests cover both the displacement-based (default) and
+    heading-vectors-based code paths.
+    """
+
+    @pytest.fixture
+    def position_data(self) -> xr.DataArray:
+        """Position data for 5 time points moving in a square.
+
+        Positions: (0,0) -> (1,0) -> (1,1) -> (0,1) -> (0,0)
+        Displacements: (1,0), (0,1), (-1,0), (0,-1)
+        Turning angles between consecutive displacements:
+          (1,0)->(0,1) = +pi/2
+          (0,1)->(-1,0) = +pi/2
+          (-1,0)->(0,-1) = +pi/2
+        """
+        return xr.DataArray(
+            data=[
+                [0.0, 0.0],
+                [1.0, 0.0],
+                [1.0, 1.0],
+                [0.0, 1.0],
+                [0.0, 0.0],
+            ],
+            dims=["time", "space"],
+            coords={"time": [0, 1, 2, 3, 4], "space": ["x", "y"]},
+        )
+
+    @pytest.fixture
+    def heading_data(self) -> xr.DataArray:
+        """Heading vectors rotating counter-clockwise by pi/4 per step.
+
+        Vectors: (1,0), (1,1)/sqrt2, (0,1), (-1,1)/sqrt2
+        Turning angles:
+          (1,0)->(1,1)/sqrt2 = +pi/4
+          (1,1)/sqrt2->(0,1) = +pi/4
+          (0,1)->(-1,1)/sqrt2 = +pi/4
+        """
+        s = np.sqrt(2.0)
+        return xr.DataArray(
+            data=[
+                [1.0, 0.0],
+                [1.0 / s, 1.0 / s],
+                [0.0, 1.0],
+                [-1.0 / s, 1.0 / s],
+            ],
+            dims=["time", "space"],
+            coords={"time": [0, 1, 2, 3], "space": ["x", "y"]},
+        )
+
+    def test_displacement_based(self, position_data: xr.DataArray) -> None:
+        """Test default path computes turning from displacement."""
+        result = kinematics.compute_turning_angles(position_data)
+        assert result.name == "turning_angle"
+        # 5 positions -> 4 displacements -> 3 turning angles
+        assert result.sizes["time"] == 3
+        expected = np.full(3, np.pi / 2)
+        np.testing.assert_allclose(result.values, expected, atol=1e-10)
+
+    def test_heading_vectors_path(
+        self, position_data: xr.DataArray, heading_data: xr.DataArray
+    ) -> None:
+        """Test heading_vectors path uses provided vectors."""
+        result = kinematics.compute_turning_angles(
+            position_data, heading_vectors=heading_data
+        )
+        assert result.name == "turning_angle"
+        # 4 heading vectors -> 3 turning angles
+        assert result.sizes["time"] == 3
+        expected = np.full(3, np.pi / 4)
+        np.testing.assert_allclose(result.values, expected, atol=1e-10)
+
+    def test_in_degrees(self, position_data: xr.DataArray) -> None:
+        """Test in_degrees converts radians to degrees."""
+        in_radians = kinematics.compute_turning_angles(position_data)
+        in_degrees = kinematics.compute_turning_angles(
+            position_data, in_degrees=True
+        )
+        xr.testing.assert_allclose(in_degrees, np.rad2deg(in_radians))
+
+    def test_none_is_default(self, position_data: xr.DataArray) -> None:
+        """heading_vectors=None produces same result as omitting it."""
+        default = kinematics.compute_turning_angles(position_data)
+        explicit_none = kinematics.compute_turning_angles(
+            position_data, heading_vectors=None
+        )
+        xr.testing.assert_equal(default, explicit_none)
+
+    def test_invalid_type(self, position_data: xr.DataArray) -> None:
+        """Non-DataArray heading_vectors raises TypeError."""
+        with pytest.raises(TypeError, match="must be an xarray.DataArray"):
+            kinematics.compute_turning_angles(
+                position_data,
+                heading_vectors=position_data.values,
+            )
+
+    def test_missing_space_dim(self) -> None:
+        """heading_vectors without space dim raises ValueError."""
+        bad_data = xr.DataArray(
+            data=np.ones((4,)),
+            dims=["time"],
+            coords={"time": [0, 1, 2, 3]},
+        )
+        with pytest.raises(ValueError, match="must contain"):
+            kinematics.compute_turning_angles(
+                bad_data, heading_vectors=bad_data
+            )
+
+    def test_missing_space_coords(self) -> None:
+        """heading_vectors with wrong space coords raises ValueError."""
+        bad_data = xr.DataArray(
+            data=np.ones((4, 2)),
+            dims=["time", "space"],
+            coords={
+                "time": [0, 1, 2, 3],
+                "space": ["a", "b"],
+            },
+        )
+        with pytest.raises(ValueError, match="must contain"):
+            kinematics.compute_turning_angles(
+                bad_data, heading_vectors=bad_data
+            )
