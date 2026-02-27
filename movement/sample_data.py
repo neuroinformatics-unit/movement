@@ -16,7 +16,7 @@ import xarray
 import yaml
 from requests.exceptions import RequestException
 
-from movement.io import load_bboxes, load_poses
+from movement.io import load_dataset
 from movement.utils.logging import logger
 
 # URL to the remote data repository on GIN
@@ -35,7 +35,7 @@ METADATA_FILE = "metadata.yaml"
 
 
 @contextmanager
-def hide_pooch_hash_logs():
+def _hide_pooch_hash_logs():
     """Hide SHA256 hash printouts from ``pooch.retrieve``.
 
     This context manager temporarily suppresses SHA256 hash messages
@@ -82,7 +82,7 @@ def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
         Path to the downloaded file.
 
     """
-    with hide_pooch_hash_logs():
+    with _hide_pooch_hash_logs():
         local_file_path = pooch.retrieve(
             url=f"{DATA_URL}/{file_name}",
             known_hash=None,
@@ -235,7 +235,6 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     >>> paths = fetch_dataset_paths("VIA_multiple-crabs_5-frames_labels.csv")
     >>> bboxes_path = paths["bboxes"]
 
-
     See Also
     --------
     fetch_dataset
@@ -332,11 +331,9 @@ def fetch_dataset(
 
     file_paths = fetch_dataset_paths(filename, with_video=with_video)
 
-    for key, load_module in zip(
-        ["poses", "bboxes"], [load_poses, load_bboxes], strict=False
-    ):
+    for key in ["poses", "bboxes"]:
         if file_paths.get(key):
-            ds = load_module.from_file(
+            ds = load_dataset(
                 file_paths[key],
                 source_software=metadata[filename]["source_software"],
                 fps=metadata[filename]["fps"],
