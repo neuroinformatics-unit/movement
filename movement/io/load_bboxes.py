@@ -2,7 +2,7 @@
 
 import warnings
 from pathlib import Path
-from typing import Literal
+from typing import Literal, cast
 
 import numpy as np
 import pandas as pd
@@ -13,6 +13,7 @@ from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs
 from movement.validators.files import (
     DEFAULT_FRAME_REGEXP,
+    ValidFile,
     ValidVIATracksCSV,
 )
 
@@ -345,10 +346,10 @@ def from_via_tracks_file(
 
     """
     # General file validation
-    # file = ValidFile(file, expected_permission="r", expected_suffix=[".csv"])
+    file_path = cast("ValidFile", file).file
 
     # Specific VIA-tracks .csv file validation
-    via_file = ValidVIATracksCSV(file, frame_regexp=frame_regexp)
+    via_file = ValidVIATracksCSV(file_path, frame_regexp=frame_regexp)
     logger.info(f"Validated VIA tracks .csv file {via_file.file}.")
 
     # Create an xarray.Dataset from the data
