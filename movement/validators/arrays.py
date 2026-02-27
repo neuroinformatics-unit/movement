@@ -22,12 +22,12 @@ def validate_dims_coords(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data array to validate.
-    required_dim_coords : dict of {str: list of str | list of Hashable}
+    required_dim_coords
         A dictionary mapping required dimensions to a list of required
         coordinate values along each dimension.
-    exact_coords : bool, optional
+    exact_coords
         If False (default), checks only that the listed coordinates
         exist in each dimension. If True, checks that each dimension
         has exactly the specified coordinates and no more.

@@ -22,17 +22,17 @@ def compute_kinetic_energy(
 
     Parameters
     ----------
-    position : xr.DataArray
+    position
         The input data containing position information, with ``time``,
         ``space`` and ``keypoints`` as required dimensions.
-    keypoints : list, optional
+    keypoints
         A list of keypoint names to include in the computation.
         By default, all are used.
-    masses : dict, optional
+    masses
         A dictionary mapping keypoint names to masses, e.g.
         {"snout": 1.2, "tail": 0.8}.
         By default, unit mass is assumed for all keypoints.
-    decompose : bool, optional
+    decompose
         If True, the kinetic energy is decomposed into "translational" and
         "internal" components (see Notes). This requires at least two keypoints
         per individual, but more would be desirable for a meaningful
@@ -41,7 +41,7 @@ def compute_kinetic_energy(
 
     Returns
     -------
-    xr.DataArray
+    xarray.DataArray
         A data array containing the kinetic energy per individual, for every
         time point. Note that the output array lacks ``space`` and
         ``keypoints`` dimensions.

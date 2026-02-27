@@ -52,12 +52,12 @@ class PointsStyle(LayerStyle):
 
         Parameters
         ----------
-        property : str
+        property
             The column name in the properties DataFrame to color by.
-        properties_df : pd.DataFrame
+        properties_df
             The properties DataFrame containing the data to color by.
             It should contain the column specified in `property`.
-        cmap : str, optional
+        cmap
             The name of the colormap to use, otherwise use the face_colormap.
 
         """
@@ -83,7 +83,7 @@ class PointsStyle(LayerStyle):
 
         Parameters
         ----------
-        property : str
+        property
             The column name in the properties DataFrame to use for text.
 
         """
@@ -106,10 +106,10 @@ class TracksStyle(LayerStyle):
 
         Parameters
         ----------
-        property : str
+        property
             The column name in the properties DataFrame to color by.
 
-        cmap : str, optional
+        cmap
             The name of the colormap to use. If not specified,
             DEFAULT_COLORMAP is used.
 
@@ -148,13 +148,13 @@ class BoxesStyle(LayerStyle):
 
         Parameters
         ----------
-        property : str
+        property
             The column name in the properties DataFrame to color shape edges
             and associated text by.
-        properties_df : pd.DataFrame
+        properties_df
             The properties DataFrame containing the data for generating the
             colormap.
-        cmap : str, optional
+        cmap
             The name of the colormap to use, otherwise use the edge_colormap.
 
         Notes
@@ -183,7 +183,7 @@ class BoxesStyle(LayerStyle):
 
         Parameters
         ----------
-        property : str
+        property
             The column name in the properties DataFrame to use for text.
 
         """
