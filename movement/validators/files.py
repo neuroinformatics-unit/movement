@@ -4,7 +4,7 @@ import ast
 import json
 import os
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any, ClassVar, Literal, Protocol
 
@@ -15,6 +15,10 @@ from attrs import Attribute, define, field, validators
 from pynwb import NWBFile
 
 from movement.utils.logging import logger
+from movement.validators._json_schemas import (
+    ROI_COLLECTION_SCHEMA,
+    ROI_TYPE_TO_GEOMETRY,
+)
 
 DEFAULT_FRAME_REGEXP = r"(0\d*)\.\w+$"
 
@@ -205,7 +209,9 @@ def _hdf5_validator(
 
 
 def _json_validator(
-    schema: dict | None = None,
+    schema: Mapping[str, Any] | None = None,
+    custom_checks: tuple[Callable[[Mapping[str, Any]], None], ...] = (),
+    data_attr: str | None = None,
 ) -> Callable[[Any, Any, Path], None]:
     """Return a validator for JSON files.
 
@@ -217,8 +223,14 @@ def _json_validator(
     Parameters
     ----------
     schema
-        The JSON schema to validate against. If None (default), only the JSON
-        format will be checked.
+        The JSON schema to validate against. If None (default), any valid
+        JSON file is accepted.
+    custom_checks
+        Additional custom checks to apply to the JSON data. Each check must
+        be a callable that receives the parsed JSON data as its only argument.
+    data_attr
+        Optional name of an attribute on the validated instance where the
+        parsed JSON data should be stored.
 
     Raises
     ------
@@ -227,7 +239,7 @@ def _json_validator(
 
     """
 
-    def _validator(_, __, value: Path) -> None:
+    def _validator(instance: Any, __: Attribute, value: Path) -> None:
         try:
             with open(value) as f:
                 data = json.load(f)
@@ -246,18 +258,13 @@ def _json_validator(
                     )
                 ) from e
 
+        for check in custom_checks:
+            check(data)
+
+        if data_attr is not None:
+            setattr(instance, data_attr, data)
+
     return _validator
-
-
-def _get_json_schema(name: str) -> dict:
-    """Load a JSON schema from file.
-
-    The ``name`` argument should correspond to the name of a JSON schema file
-    (without the .json extension) located in the ``json_schemas`` directory
-    """
-    schema_path = Path(__file__).parent / "json_schemas" / f"{name}.json"
-    with open(schema_path) as file:
-        return json.load(file)
 
 
 def _if_instance_of(
@@ -838,21 +845,47 @@ class ValidNWBFile:
     )
 
 
+def _check_roi_type_matches_geometry(data: Mapping[str, Any]) -> None:
+    """Ensure ``roi_type`` properties match the GeoJSON geometry types.
+
+    This custom ValidROICollectionGeoJSON check enforces that the ``roi_type``
+    properties in the GeoJSON file are consistent with their geometry types,
+    according to the ``ROI_TYPE_TO_GEOMETRY`` mapping.
+    """
+    for i, feature in enumerate(data.get("features", [])):
+        roi_type = feature.get("properties", {}).get("roi_type")
+
+        if roi_type is None:
+            continue
+
+        geom_type = feature.get("geometry", {}).get("type")
+        expected_geom_types = ROI_TYPE_TO_GEOMETRY.get(roi_type, ())
+
+        if geom_type not in expected_geom_types:
+            raise logger.error(
+                TypeError(
+                    f"Feature {i}: roi_type '{roi_type}' "
+                    f"does not match geometry type "
+                    f"'{geom_type}'"
+                )
+            )
+
+
 @define
 class ValidROICollectionGeoJSON:
     """Class for validating GeoJSON FeatureCollection files.
 
     The validator ensures that the file:
 
-    - has a valid JSON format.
-    - matches the expected ``roi_collection`` JSON schema. This schema captures
-      the structure of a GeoJSON file containing a FeatureCollection
-      of ``movement``-compatible regions of interest.
-      (as produced by :func:`save_rois()<movement.roi.save_rois>`).
+    - is well-formed JSON.
+    - conforms to the RoI Collection GeoJSON schema, which checks that
+      the file contains a GeoJSON FeatureCollection containing
+      ``movement``-compatible regions of interest (as produced by
+      :func:`save_rois()<movement.roi.save_rois>`).
 
-    Additionally, a custom check is implemented to ensure that
-    each Feature's ``roi_type`` property matches its actual geometry type
-    (e.g., "PolygonOfInterest" should have geometry type "Polygon").
+    Additionally, it performs a custom validation step to ensure that
+    each Feature's ``roi_type`` property is consistent with its geometry
+    type (e.g. "PolygonOfInterest" must have geometry type "Polygon").
 
     Attributes
     ----------
@@ -866,7 +899,7 @@ class ValidROICollectionGeoJSON:
     ValueError
         If the file is not valid JSON or does not match the expected schema.
     TypeError
-        If roi_type property does not match the actual geometry type.
+        If ``roi_type`` property does not match the actual geometry type.
 
     See Also
     --------
@@ -876,48 +909,16 @@ class ValidROICollectionGeoJSON:
     """
 
     suffixes: ClassVar[set[str]] = {".geojson", ".json"}
-    schema: ClassVar[dict] = _get_json_schema("roi_collection")
-    roi_type_to_geometry: ClassVar[dict[str, tuple[str, ...]]] = {
-        "PolygonOfInterest": ("Polygon",),
-        "LineOfInterest": ("LineString", "LinearRing"),
-    }
+    schema: ClassVar[Mapping[str, Any]] = ROI_COLLECTION_SCHEMA
     file: Path = field(
         converter=Path,
         validator=validators.and_(
             _file_validator(permission="r", suffixes=suffixes),
-            _json_validator(schema=schema),
+            _json_validator(
+                schema=schema,
+                custom_checks=(_check_roi_type_matches_geometry,),
+                data_attr="data",
+            ),
         ),
     )
     data: dict = field(init=False, factory=dict)
-
-    def __attrs_post_init__(self):
-        """Load data and check roi_type/geometry consistency."""
-        with open(self.file) as f:
-            self.data = json.load(f)
-        self._check_roi_type_matches_geometry()
-
-    def _check_roi_type_matches_geometry(self):
-        """Ensure roi_type properties match actual geometry types.
-
-        This cross-field validation cannot be expressed in JSON Schema,
-        so it's implemented here as a post-initialisation custom check.
-        """
-        for i, feature in enumerate(self.data.get("features", [])):
-            properties = feature.get("properties", {})
-            roi_type = properties.get("roi_type") if properties else None
-
-            if roi_type is None:
-                continue
-
-            geometry = feature.get("geometry", {})
-            geom_type = geometry.get("type") if geometry else None
-            expected_geom_types = self.roi_type_to_geometry.get(roi_type)
-
-            if geom_type not in expected_geom_types:
-                raise logger.error(
-                    TypeError(
-                        f"Feature {i}: roi_type '{roi_type}' "
-                        f"does not match geometry type "
-                        f"'{geom_type}'"
-                    )
-                )
