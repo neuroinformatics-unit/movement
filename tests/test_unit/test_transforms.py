@@ -531,19 +531,27 @@ def verify_bbox_result(
     expected_shape : tuple
         Expected (width, height).
     ind_id : int
-        Individual index to check.
+        Individual index to check. Default is 0.
     frame_id : int
-        Frame index to check.
+        Frame index to check. Default is 0.
 
     """
     assert np.allclose(
-        pos_da.values[frame_id, 0, ind_id], expected_position[0]
+        pos_da.isel(time=frame_id, individuals=ind_id).sel(space="x"),
+        expected_position[0],  # x-coord
     )
     assert np.allclose(
-        pos_da.values[frame_id, 1, ind_id], expected_position[1]
+        pos_da.isel(time=frame_id, individuals=ind_id).sel(space="y"),
+        expected_position[1],  # y-coord
     )
-    assert np.allclose(shape_da.values[frame_id, 0, ind_id], expected_shape[0])
-    assert np.allclose(shape_da.values[frame_id, 1, ind_id], expected_shape[1])
+    assert np.allclose(
+        shape_da.isel(time=frame_id, individuals=ind_id).sel(space="x"),
+        expected_shape[0],  # width
+    )
+    assert np.allclose(
+        shape_da.isel(time=frame_id, individuals=ind_id).sel(space="y"),
+        expected_shape[1],  # height
+    )
 
 
 @pytest.fixture
@@ -552,36 +560,38 @@ def simple_position_da():
     return create_position_da(n_frames=5, n_keypoints=3, n_individuals=2)
 
 
-def test_poses_to_bboxes_basic(simple_position_da):
-    """Test basic bounding box computation from a position DataArray."""
-    pos_da, shape_da = poses_to_bboxes(simple_position_da)
+@pytest.mark.parametrize(
+    "padding, expected_shape",
+    [
+        (0, (10.0, 10.0)),
+        (5, (20.0, 20.0)),
+        (10.5, (31.0, 31.0)),
+        (100, (210.0, 210.0)),
+    ],
+)
+def test_poses_to_bboxes(simple_position_da, padding, expected_shape):
+    """Test bounding box computation with various padding values."""
+    pos_da, shape_da = poses_to_bboxes(simple_position_da, padding=padding)
 
-    # Output dimensions
+    # Check dimensions and coordinates are as expected
     assert pos_da.dims == ("time", "space", "individuals")
     assert shape_da.dims == ("time", "space", "individuals")
-
-    # Output coordinates
     assert list(pos_da.coords["space"].values) == ["x", "y"]
     assert list(pos_da.coords["individuals"].values) == ["id_0", "id_1"]
+    np.testing.assert_array_equal(
+        pos_da.coords["time"].values, simple_position_da.coords["time"].values
+    )
 
-    # Verify bbox calculations for individual 0
-    verify_bbox_result(pos_da, shape_da, (5.0, 5.0), (10.0, 10.0), ind_id=0)
-
-    # Verify bbox calculations for individual 1
-    verify_bbox_result(pos_da, shape_da, (25.0, 25.0), (10.0, 10.0), ind_id=1)
-
-
-@pytest.mark.parametrize("padding_px", [0, 5, 10.5, 100])
-def test_poses_to_bboxes_with_padding(simple_position_da, padding_px):
-    """Test bounding box calculation with various padding values."""
-    _, shape_da = poses_to_bboxes(simple_position_da, padding_px=padding_px)
-
-    # Individual 0 has width=10, height=10 before padding
-    expected_width = 10.0 + 2 * padding_px
-    expected_height = 10.0 + 2 * padding_px
-
-    assert np.allclose(shape_da.values[0, 0, 0], expected_width)
-    assert np.allclose(shape_da.values[0, 1, 0], expected_height)
+    # Check shape and centroid values per individual
+    # Centroids are unaffected by padding
+    expected_centroid_id_0 = (5.0, 5.0)
+    expected_centroid_id_1 = (25.0, 25.0)
+    verify_bbox_result(
+        pos_da, shape_da, expected_centroid_id_0, expected_shape, ind_id=0
+    )
+    verify_bbox_result(
+        pos_da, shape_da, expected_centroid_id_1, expected_shape, ind_id=1
+    )
 
 
 def test_poses_to_bboxes_single_keypoint():
@@ -594,6 +604,7 @@ def test_poses_to_bboxes_single_keypoint():
         n_keypoints=1,
         n_individuals=1,
         keypoint_positions={(0, 0): (5.0, 10.0)},
+        # first individual, first keypoint at x=5, y=10
     )
 
     pos_da, shape_da = poses_to_bboxes(position)
@@ -608,31 +619,60 @@ def test_poses_to_bboxes_single_keypoint():
 
 
 def test_poses_to_bboxes_with_nan(simple_position_da):
-    """Test conversion with NaN values in positions."""
+    """Test conversion with NaN values in positions.
+
+    NaN keypoints should be ignored in the bbox calculation.
+    """
+    # Create position keypoint data
     position = simple_position_da.copy(deep=True)
+    # Set some frames all to NaN
+    position.sel(time=0, individuals="id_0", keypoints="kpt_0").values[:] = (
+        np.nan
+    )
+    position.sel(time=1, individuals="id_1", keypoints="kpt_1").values[:] = (
+        np.nan
+    )
 
-    # Set some keypoints to NaN
-    position.values[0, :, 0, 0] = np.nan  # First keypoint of ind 0, frame 0
-    position.values[1, :, 1, 1] = np.nan  # Second keypoint of ind 1, frame 1
-
+    # Compute bboxes arrays
     pos_da, shape_da = poses_to_bboxes(position)
 
     # Frame 0, individual 0: only 2 keypoints valid
     # Remaining keypoints: (10,0), (10,10)
     # -> centroid (10, 5), shape (0, 10)
+    expected_centroid_id_0 = (10.0, 5.0)
+    expected_shape_id_0 = (0.0, 10.0)
     verify_bbox_result(
-        pos_da, shape_da, (10.0, 5.0), (0.0, 10.0), ind_id=0, frame_id=0
+        pos_da,
+        shape_da,
+        expected_centroid_id_0,
+        expected_shape_id_0,
+        ind_id=0,
+        frame_id=0,
     )
 
     # Frame 1, individual 1: only 2 keypoints valid
     # Remaining keypoints: (20,20), (30,30)
     # -> centroid (25, 25), shape (10, 10)
-    assert np.allclose(pos_da.values[1, 0, 1], 25.0)
-    assert np.allclose(pos_da.values[1, 1, 1], 25.0)
+    expected_centroid_id_1 = (25.0, 25.0)
+    expected_shape_id_1 = (10.0, 10.0)
+    verify_bbox_result(
+        pos_da,
+        shape_da,
+        expected_centroid_id_1,
+        expected_shape_id_1,
+        ind_id=1,
+        frame_id=1,
+    )
 
 
 def test_poses_to_bboxes_all_nan_frame():
-    """Test frame where all keypoints are NaN for an individual."""
+    """Test frame where all keypoints are NaN for an individual.
+
+    The corresponding bbox position and shape should be NaN for
+    that frame and individual.
+    """
+    # Create pose data for 3 frames, 3 keypoints, 1 individual,
+    # all kpts at (5,5)
     position = create_position_da(
         n_frames=3,
         n_keypoints=3,
@@ -640,23 +680,34 @@ def test_poses_to_bboxes_all_nan_frame():
         keypoint_positions={(0, i): (5.0, 5.0) for i in range(3)},
     )
     # Set all keypoints to NaN in frame 1
-    position.values[1, :, :, 0] = np.nan
+    position.sel(time=1, individuals="id_0").values[:] = np.nan
 
+    # Compute bboxes arrays
     pos_da, shape_da = poses_to_bboxes(position)
 
     # Frame 1 should have all NaN
-    assert np.isnan(pos_da.values[1, 0, 0])
-    assert np.isnan(pos_da.values[1, 1, 0])
-    assert np.isnan(shape_da.values[1, 0, 0])
-    assert np.isnan(shape_da.values[1, 1, 0])
+    assert np.all(np.isnan(pos_da.sel(time=1, individuals="id_0").values))
+    assert np.all(np.isnan(shape_da.sel(time=1, individuals="id_0").values))
 
     # Other frames should be valid (all keypoints at 5,5 -> zero-size bbox)
-    assert np.allclose(pos_da.values[0, 0, 0], 5.0)
-    assert np.allclose(pos_da.values[2, 0, 0], 5.0)
+    expected_centroid = (5.0, 5.0)
+    expected_shape = (0.0, 0.0)
+    verify_bbox_result(
+        pos_da, shape_da, expected_centroid, expected_shape, frame_id=0
+    )
+    verify_bbox_result(
+        pos_da, shape_da, expected_centroid, expected_shape, frame_id=2
+    )
 
 
 def test_poses_to_bboxes_partial_nan_keypoints():
-    """Test keypoints with some coordinates NaN (x valid, y NaN)."""
+    """Test keypoints with some NaN spatial coordinates.
+
+    Test for the case in which x valid but y is NaN for a
+    keypoint - the keypoint should be ignored in the bbox
+    calculation.
+    """
+    # Prepare input pose data
     data = np.array(
         [
             [
@@ -680,123 +731,112 @@ def test_poses_to_bboxes_partial_nan_keypoints():
         },
     )
 
+    # Compute bboxes arrays from pose data with partial NaN keypoints
     pos_da, shape_da = poses_to_bboxes(position)
 
-    # Frame 0: middle keypoint ignored (NaN in y)
-    # Valid keypoints: (1,1), (3,3) -> centroid (2, 2), shape (2, 2)
-    assert np.allclose(pos_da.values[0, 0, 0], 2.0)
-    assert np.allclose(pos_da.values[0, 1, 0], 2.0)
-    assert np.allclose(shape_da.values[0, 0, 0], 2.0)
-    assert np.allclose(shape_da.values[0, 1, 0], 2.0)
+    # Frame 0: middle keypoint should be ignored (y is NaN)
+    # Valid keypoints (x,y): (1,1), (3,3)
+    # -> centroid (2, 2), shape (2, 2)
+    assert np.allclose(pos_da.sel(time=0, individuals="id_0"), [2.0, 2.0])
+    assert np.allclose(shape_da.sel(time=0, individuals="id_0"), [2.0, 2.0])
 
     # Frame 1: all keypoints valid
-    # Keypoints: (1,1), (2,2), (3,3) -> centroid (2, 2), shape (2, 2)
-    assert np.allclose(pos_da.values[1, 0, 0], 2.0)
-    assert np.allclose(pos_da.values[1, 1, 0], 2.0)
-
-
-def test_poses_to_bboxes_output_coords(simple_position_da):
-    """Test that output DataArrays carry the correct coordinates."""
-    pos_da, shape_da = poses_to_bboxes(simple_position_da)
-
-    np.testing.assert_array_equal(
-        pos_da.coords["time"].values, simple_position_da.coords["time"].values
-    )
-    assert list(pos_da.coords["individuals"].values) == ["id_0", "id_1"]
-    assert list(pos_da.coords["space"].values) == ["x", "y"]
-    # keypoints dimension must be gone
-    assert "keypoints" not in pos_da.dims
-    assert "keypoints" not in shape_da.dims
-
-
-# ============= Error Handling Tests =============
-
-
-def test_poses_to_bboxes_3d_poses():
-    """Test that 3D position arrays raise an appropriate error."""
-    position = xr.DataArray(
-        np.full((2, 3, 2, 1), 5.0),
-        dims=("time", "space", "keypoints", "individuals"),
-        coords={
-            "time": np.arange(2),
-            "space": ["x", "y", "z"],
-            "keypoints": ["kpt_0", "kpt_1"],
-            "individuals": ["id_0"],
-        },
-    )
-
-    with pytest.raises(
-        ValueError,
-        match="Dimension 'space' must only contain \\['x', 'y'\\]",
-    ):
-        poses_to_bboxes(position)
-
-
-def test_poses_to_bboxes_invalid_input_type():
-    """Test error when input is not a DataArray."""
-    ds = xr.Dataset(
-        {"position": xr.DataArray(np.ones((2, 2)), dims=("time", "space"))}
-    )
-
-    with pytest.raises(TypeError, match="Expected an xarray DataArray"):
-        poses_to_bboxes(ds)
-
-
-def test_poses_to_bboxes_negative_padding():
-    """Test that negative padding raises error."""
-    position = create_position_da(
-        n_frames=2,
-        n_keypoints=2,
-        n_individuals=1,
-        keypoint_positions={(0, i): (5.0, 5.0) for i in range(2)},
-    )
-
-    with pytest.raises(ValueError, match="padding_px must be non-negative"):
-        poses_to_bboxes(position, padding_px=-5)
-
-
-@pytest.mark.parametrize(
-    "invalid_padding",
-    ["10", [10], None],
-    ids=["string", "list", "None"],
-)
-def test_poses_to_bboxes_invalid_padding_type(
-    simple_position_da, invalid_padding
-):
-    """Test that invalid padding types raise error."""
-    with pytest.raises(TypeError, match="padding_px must be a number"):
-        poses_to_bboxes(simple_position_da, padding_px=invalid_padding)
-
-
-def test_poses_to_bboxes_missing_dimensions():
-    """Test error when position DataArray is missing required dimensions."""
-    position = xr.DataArray(
-        np.zeros((2, 2)),
-        dims=("space", "time"),
-        coords={"space": ["x", "y"]},
-    )
-
-    with pytest.raises(ValueError, match="Input data must contain"):
-        poses_to_bboxes(position)
+    # Valid keypoints (x,y): (1,1), (2,2), (3,3)
+    # -> centroid (2, 2), shape (2, 2)
+    assert np.allclose(pos_da.sel(time=1, individuals="id_0"), [2.0, 2.0])
+    assert np.allclose(shape_da.sel(time=1, individuals="id_0"), [2.0, 2.0])
 
 
 def test_poses_to_bboxes_degenerate_bbox():
-    """Test when all keypoints are at same position (zero-size bbox)."""
+    """Test when all keypoints are co-located produces a zero-size bbox."""
+    # Create pose data for 2 frames, 3 keypoints, 1 individual,
+    # all kpts at (5,5)
+    common_position = (5.0, 5.0)
     position = create_position_da(
         n_frames=2,
         n_keypoints=3,
         n_individuals=1,
-        keypoint_positions={(0, i): (5.0, 5.0) for i in range(3)},
+        keypoint_positions={(0, i): common_position for i in range(3)},
     )
 
+    # Compute bboxes arrays
     pos_da, shape_da = poses_to_bboxes(position)
 
-    for frame_id in range(2):
-        verify_bbox_result(
-            pos_da,
-            shape_da,
-            (5.0, 5.0),
-            (0.0, 0.0),
-            ind_id=0,
-            frame_id=frame_id,
-        )
+    # Check bbox centroid matches the co-located keypoints and shape is zero
+    assert np.allclose(pos_da.sel(individuals="id_0"), [5.0, 5.0])
+    assert np.allclose(shape_da.sel(individuals="id_0"), [0.0, 0.0])
+
+
+@pytest.mark.parametrize(
+    "position, kwargs, expected_exception, expected_message",
+    [
+        (
+            xr.DataArray(
+                np.full((2, 3, 2, 1), 5.0),
+                dims=("time", "space", "keypoints", "individuals"),
+                coords={
+                    "time": np.arange(2),
+                    "space": ["x", "y", "z"],
+                    "keypoints": ["kpt_0", "kpt_1"],
+                    "individuals": ["id_0"],
+                },
+            ),
+            {},
+            ValueError,
+            "Dimension 'space' must only contain \\['x', 'y'\\]",
+        ),
+        (
+            xr.Dataset(
+                {
+                    "position": xr.DataArray(
+                        np.ones((2, 2)), dims=("time", "space")
+                    )
+                }
+            ),
+            {},
+            TypeError,
+            "Expected an xarray DataArray",
+        ),
+        (
+            xr.DataArray(
+                np.zeros((2, 2)),
+                dims=("foo", "bar"),
+                coords={"foo": ["x", "y"]},
+            ),
+            {},
+            ValueError,
+            "Input data must contain",
+            # missing required coords and dimensions
+        ),
+        (
+            create_position_da(n_frames=2, n_keypoints=2, n_individuals=1),
+            {"padding": -5},
+            ValueError,
+            "padding must be non-negative",
+        ),
+        (
+            create_position_da(n_frames=2, n_keypoints=2, n_individuals=1),
+            {"padding": "10"},
+            TypeError,
+            "padding must be a number",
+        ),
+        (
+            create_position_da(n_frames=2, n_keypoints=2, n_individuals=1),
+            {"padding": [10]},
+            TypeError,
+            "padding must be a number",
+        ),
+        (
+            create_position_da(n_frames=2, n_keypoints=2, n_individuals=1),
+            {"padding": None},
+            TypeError,
+            "padding must be a number",
+        ),
+    ],
+)
+def test_poses_to_bboxes_invalid(
+    position, kwargs, expected_exception, expected_message
+):
+    """Test that invalid inputs raise the expected errors."""
+    with pytest.raises(expected_exception, match=expected_message):
+        poses_to_bboxes(position, **kwargs)
