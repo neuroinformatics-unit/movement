@@ -721,7 +721,7 @@ def test_number_of_quotes_in_via_tracks_csv_file(
 )
 def test_to_via_tracks_file_is_recoverable(via_file_path, tmp_path):
     """Test that an exported VIA tracks .csv file can be loaded back into
-    the a dataset that matches the original one.
+    a dataset that matches the original one.
     """
     # Load a bboxes dataset from a VIA tracks .csv file
     original_ds = load_bboxes.from_via_tracks_file(

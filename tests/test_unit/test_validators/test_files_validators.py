@@ -1,4 +1,3 @@
-import re
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest.mock import Mock
@@ -224,109 +223,69 @@ def test_deeplabcut_validators(
 
 
 @pytest.mark.parametrize(
-    "mode, param, expected_context",
+    "invalid_input, error_type, log_message",
     [
         (
-            "file",
             "via_invalid_header",
-            pytest.raises(ValueError, match=".csv header row does not match"),
+            ValueError,
+            ".csv header row does not match",
         ),
         (
-            "file",
             "via_frame_number_in_file_attribute_not_integer",
-            pytest.raises(
-                ValueError,
-                match="'frame' file attribute cannot be cast as an integer",
-            ),
+            ValueError,
+            "Extracted frame number 'FOO' cannot be cast as integer. ",
         ),
         (
-            "file",
             "via_frame_number_in_filename_wrong_pattern",
-            pytest.raises(
-                AttributeError,
-                match="provided frame regexp .* did not return any matches",
-            ),
+            ValueError,
+            "Could not extract frame numbers from the filenames using "
+            r"the regular expression (0\d*)\.\w+$. Please ensure "
+            "filenames match the expected pattern, or define the "
+            "frame numbers in file_attributes.",
         ),
         (
-            "file",
             "via_more_frame_numbers_than_filenames",
-            pytest.raises(
-                ValueError,
-                match="number of unique frame numbers does not match",
-            ),
+            ValueError,
+            "number of unique frame numbers does not match",
         ),
         (
-            "file",
             "via_less_frame_numbers_than_filenames",
-            pytest.raises(
-                ValueError,
-                match="number of unique frame numbers does not match",
-            ),
+            ValueError,
+            "number of unique frame numbers does not match",
         ),
         (
-            "file",
             "via_region_shape_attribute_not_rect",
-            pytest.raises(
-                ValueError, match="bounding box shape must be 'rect'"
-            ),
+            ValueError,
+            "The bounding box in row 1 shape was expected to be 'rect' "
+            "(rectangular) but instead got circle.",
         ),
         (
-            "file",
             "via_region_shape_attribute_missing_x",
-            pytest.raises(
-                ValueError, match="missing bounding box shape parameter"
-            ),
+            ValueError,
+            "The bounding box in row 1 is missing "
+            "a geometric parameter (x, y, width, height). ",
         ),
         (
-            "file",
             "via_region_attribute_missing_track",
-            pytest.raises(
-                ValueError,
-                match="bounding box does not have a 'track' attribute",
-            ),
+            ValueError,
+            "The bounding box in row 1 is missing a track ID. ",
         ),
         (
-            "file",
             "via_track_id_not_castable_as_int",
-            pytest.raises(
-                ValueError,
-                match="the track ID for the bounding box cannot be cast",
-            ),
+            ValueError,
+            "The track ID of the bounding box in row 1 cannot be "
+            "cast as an integer (got track ID 'FOO').",
         ),
         (
-            "file",
             "via_track_ids_not_unique_per_frame",
-            pytest.raises(
-                ValueError,
-                match="multiple bounding boxes .* have the same track ID",
-            ),
+            ValueError,
+            "Duplicate track IDs found in the following files: "
+            "['04.09.2023-04-Right_RE_test_frame_01.png']. ",
         ),
-        (
-            "regexp",
-            r"*",
-            pytest.raises(re.error, match="could not be compiled"),
-        ),
-        (
-            "regexp",
-            r"_(0\d*)_$",
-            pytest.raises(
-                AttributeError,
-                match="provided frame regexp .* did not return any matches",
-            ),
-        ),
-        (
-            "regexp",
-            r"(0\d*\.\w+)$",
-            pytest.raises(
-                ValueError,
-                match="frame number .* could not be cast as an integer",
-            ),
-        ),
-        ("valid", None, does_not_raise()),
     ],
 )
-def test_via_tracks_csv_validator(
-    invalid_via_tracks_csv_file, via_tracks_csv, mode, param, expected_context
+def test_via_tracks_csv_validator_with_invalid_input(
+    via_tracks_csv_factory, invalid_input, error_type, log_message
 ):
     """Test ValidVIATracksCSV with valid and invalid inputs.
 
@@ -347,16 +306,56 @@ def test_via_tracks_csv_validator(
         - regexp does not return any matches
         - extracted frame numbers cannot be cast as integers
     """
-    file_path = (
-        invalid_via_tracks_csv_file(param)
-        if mode == "file"
-        else via_tracks_csv
-    )
-    with expected_context:
-        if mode != "regexp":
-            ValidVIATracksCSV(file_path)
-        else:
-            ValidVIATracksCSV(file_path, frame_regexp=param)
+    file_path = via_tracks_csv_factory(invalid_input)
+    with pytest.raises(error_type) as excinfo:
+        ValidVIATracksCSV(file_path)
+
+    assert log_message in str(excinfo.value)
+
+
+@pytest.mark.parametrize(
+    "invalid_regexp",
+    [
+        r"\d+",  # no capture group
+        r"(\d+)\.(\w+)",  # two capture groups
+    ],
+)
+def test_via_tracks_csv_validator_with_invalid_regexp(
+    via_tracks_csv_factory, invalid_regexp
+):
+    """Test regexp with wrong number of capture groups raises ValueError."""
+    file_path = via_tracks_csv_factory("via_valid")
+    with pytest.raises(ValueError) as excinfo:
+        ValidVIATracksCSV(file_path, frame_regexp=invalid_regexp)
+
+    assert (
+        "The regexp pattern must contain exactly one capture group for the "
+        rf"frame number (got {invalid_regexp})."
+    ) in str(excinfo.value)
+
+
+def test_via_tracks_csv_validator_attributes(
+    via_tracks_csv_factory,
+):
+    """Test that the attributes are as expected after validation.
+
+    The dataframe attribute should be cleared after validation.
+    The pre-parsed data should be defined.
+    """
+    file_path = via_tracks_csv_factory("via_valid")
+    validator = ValidVIATracksCSV(file_path)
+
+    # Check that the dataframe attribute is cleared
+    assert validator.df is None
+
+    # Check that the pre-parsed data is defined
+    assert isinstance(validator.x, list)
+    assert isinstance(validator.y, list)
+    assert isinstance(validator.w, list)
+    assert isinstance(validator.h, list)
+    assert isinstance(validator.ids, list)
+    assert isinstance(validator.frame_numbers, list)
+    assert isinstance(validator.confidence_values, list)
 
 
 @pytest.mark.parametrize(
