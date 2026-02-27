@@ -223,21 +223,19 @@ def test_deeplabcut_validators(
 
 
 @pytest.mark.parametrize(
-    "mode, param, expected_context",
+    "invalid_input, error_type, log_message",
     [
         (
-            "file",
             "via_invalid_header",
-            pytest.raises(ValueError, match=".csv header row does not match"),
+            ValueError,
+            ".csv header row does not match",
         ),
         (
-            "file",
             "via_frame_number_in_file_attribute_not_integer",
             ValueError,
             "Extracted frame number 'FOO' cannot be cast as integer. ",
         ),
         (
-            "file",
             "via_frame_number_in_filename_wrong_pattern",
             ValueError,
             "Could not extract frame numbers from the filenames using "
@@ -246,50 +244,39 @@ def test_deeplabcut_validators(
             "frame numbers in file_attributes.",
         ),
         (
-            "file",
             "via_more_frame_numbers_than_filenames",
-            pytest.raises(
-                ValueError,
-                match="number of unique frame numbers does not match",
-            ),
+            ValueError,
+            "number of unique frame numbers does not match",
         ),
         (
-            "file",
             "via_less_frame_numbers_than_filenames",
-            pytest.raises(
-                ValueError,
-                match="number of unique frame numbers does not match",
-            ),
+            ValueError,
+            "number of unique frame numbers does not match",
         ),
         (
-            "file",
             "via_region_shape_attribute_not_rect",
             ValueError,
             "The bounding box in row 1 shape was expected to be 'rect' "
             "(rectangular) but instead got circle.",
         ),
         (
-            "file",
             "via_region_shape_attribute_missing_x",
             ValueError,
             "The bounding box in row 1 is missing "
             "a geometric parameter (x, y, width, height). ",
         ),
         (
-            "file",
             "via_region_attribute_missing_track",
             ValueError,
             "The bounding box in row 1 is missing a track ID. ",
         ),
         (
-            "file",
             "via_track_id_not_castable_as_int",
             ValueError,
             "The track ID of the bounding box in row 1 cannot be "
             "cast as an integer (got track ID 'FOO').",
         ),
         (
-            "file",
             "via_track_ids_not_unique_per_frame",
             ValueError,
             "Duplicate track IDs found in the following files: "
