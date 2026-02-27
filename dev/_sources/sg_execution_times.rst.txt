@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:20.366** total execution time for 12 files **from all galleries**:
+**00:19.808** total execution time for 12 files **from all galleries**:
 
 .. container::
 
@@ -33,38 +33,38 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_examples_load_and_upsample_bboxes.py` (``../../examples/load_and_upsample_bboxes.py``)
-     - 00:03.618
+     - 00:03.516
      - 0.0
    * - :ref:`sphx_glr_examples_mouse_eye_movements.py` (``../../examples/mouse_eye_movements.py``)
-     - 00:03.463
+     - 00:03.361
      - 0.0
    * - :ref:`sphx_glr_examples_compute_kinematics.py` (``../../examples/compute_kinematics.py``)
-     - 00:02.262
+     - 00:02.225
      - 0.0
    * - :ref:`sphx_glr_examples_filter_and_interpolate.py` (``../../examples/filter_and_interpolate.py``)
-     - 00:01.892
+     - 00:01.837
      - 0.0
    * - :ref:`sphx_glr_examples_scale.py` (``../../examples/scale.py``)
-     - 00:01.881
+     - 00:01.808
      - 0.0
    * - :ref:`sphx_glr_examples_smooth.py` (``../../examples/smooth.py``)
-     - 00:01.632
+     - 00:01.590
      - 0.0
    * - :ref:`sphx_glr_examples_boundary_angles.py` (``../../examples/boundary_angles.py``)
-     - 00:01.360
+     - 00:01.321
      - 0.0
    * - :ref:`sphx_glr_examples_load_freemocap_data.py` (``../../examples/load_freemocap_data.py``)
-     - 00:01.183
+     - 00:01.147
      - 0.0
    * - :ref:`sphx_glr_examples_advanced_broadcasting_your_own_methods.py` (``../../examples/advanced/broadcasting_your_own_methods.py``)
-     - 00:01.146
+     - 00:01.108
      - 0.0
    * - :ref:`sphx_glr_examples_compute_head_direction.py` (``../../examples/compute_head_direction.py``)
-     - 00:00.832
+     - 00:00.818
      - 0.0
    * - :ref:`sphx_glr_examples_load_and_explore_poses.py` (``../../examples/load_and_explore_poses.py``)
-     - 00:00.733
+     - 00:00.722
      - 0.0
    * - :ref:`sphx_glr_examples_convert_file_formats.py` (``../../examples/convert_file_formats.py``)
-     - 00:00.364
+     - 00:00.355
      - 0.0

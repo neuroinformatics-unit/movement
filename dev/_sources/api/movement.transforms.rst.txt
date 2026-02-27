@@ -18,6 +18,8 @@
     
     compute_homography_transform
     
+    poses_to_bboxes
+    
     scale
     
 

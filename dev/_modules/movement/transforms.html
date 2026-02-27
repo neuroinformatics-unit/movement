@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=cbe2abbe"></script>
+    <script src="../../_static/documentation_options.js?v=23f8087c"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev7</p>
+    <p class="title logo__title">movement v0.14.1.dev8</p>
   
 </a></div>
     
@@ -579,6 +579,110 @@
     <span class="k">elif</span> <span class="n">space_unit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">scaled_data</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;space_unit&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">scaled_data</span></div>
+
+
+
+<div class="viewcode-block" id="poses_to_bboxes">
+<a class="viewcode-back" href="../../api/movement.transforms.poses_to_bboxes.html#movement.transforms.poses_to_bboxes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">poses_to_bboxes</span><span class="p">(</span>
+    <span class="n">position</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">padding</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute bounding box centroid and shape from a poses position array.</span>
+
+<span class="sd">    This function computes bounding boxes from pose estimation keypoints by</span>
+<span class="sd">    finding the minimum and maximum coordinates across all keypoints for each</span>
+<span class="sd">    individual at each time point. The resulting bounding box is represented</span>
+<span class="sd">    by its centroid (center point) and shape (width and height).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    position : xarray.DataArray</span>
+<span class="sd">        A 2D poses position array with dimensions</span>
+<span class="sd">        ``(time, space, keypoints, individuals)``, where the ``space``</span>
+<span class="sd">        coordinate contains exactly ``[&quot;x&quot;, &quot;y&quot;]``.</span>
+<span class="sd">    padding : float, optional</span>
+<span class="sd">        Number of pixels to add as padding around the bounding box in all</span>
+<span class="sd">        directions. The padding increases both width and height by</span>
+<span class="sd">        ``2 * padding``. Default is 0.0 (no padding).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[xarray.DataArray, xarray.DataArray]</span>
+<span class="sd">        A tuple ``(position, shape)`` where:</span>
+
+<span class="sd">        - ``position``: bounding box centroids with dimensions</span>
+<span class="sd">          ``(time, space, individuals)``.</span>
+<span class="sd">        - ``shape``: bounding box width and height with dimensions</span>
+<span class="sd">          ``(time, space, individuals)``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    TypeError</span>
+<span class="sd">        If ``position`` is not an :class:`xarray.DataArray` or if</span>
+<span class="sd">        ``padding`` is not numeric.</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the position array is missing required dimensions or coordinates,</span>
+<span class="sd">        is not 2D, or ``padding`` is negative.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - Keypoints with NaN in any spatial coordinate are excluded from bounding</span>
+<span class="sd">      box calculation. If all keypoints for an individual at a given time are</span>
+<span class="sd">      NaN, the resulting centroid and shape are NaN.</span>
+<span class="sd">    - The centroid is calculated as the midpoint of the bounding box:</span>
+<span class="sd">      ``(min + max) / 2`` for each spatial dimension.</span>
+<span class="sd">    - The shape is calculated as the span of coordinates plus padding:</span>
+<span class="sd">      ``width = max_x - min_x + 2*padding`` and</span>
+<span class="sd">      ``height = max_y - min_y + 2*padding``.</span>
+<span class="sd">    - When there is only one valid keypoint, the bounding box will have</span>
+<span class="sd">      zero width and/or height (before padding is applied).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Compute bounding boxes from a poses dataset with zero padding:</span>
+
+<span class="sd">    &gt;&gt;&gt; from movement.transforms import poses_to_bboxes</span>
+<span class="sd">    &gt;&gt;&gt; bbox_position, bbox_shape = poses_to_bboxes(poses_ds[&quot;position&quot;])</span>
+
+<span class="sd">    Compute bounding boxes from a poses dataset with 10 pixels of padding:</span>
+
+<span class="sd">    &gt;&gt;&gt; bbox_position, bbox_shape = poses_to_bboxes(</span>
+<span class="sd">    ...     poses_ds[&quot;position&quot;], padding=10</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    movement.transforms.scale : Scale spatial coordinates</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Expected an xarray DataArray, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">position</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span>
+        <span class="n">position</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="s2">&quot;keypoints&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;individuals&quot;</span><span class="p">:</span> <span class="p">[]},</span>
+        <span class="n">exact_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">padding</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;padding must be a number, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">padding</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">padding</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;padding must be non-negative, got </span><span class="si">{</span><span class="n">padding</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># A keypoint is valid only if all spatial coordinates are present.</span>
+    <span class="n">valid_mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">position</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span>
+    <span class="n">masked</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid_mask</span><span class="p">)</span>
+
+    <span class="n">pos_min</span> <span class="o">=</span> <span class="n">masked</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">pos_max</span> <span class="o">=</span> <span class="n">masked</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">centroid</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos_min</span> <span class="o">+</span> <span class="n">pos_max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">shape</span> <span class="o">=</span> <span class="n">pos_max</span> <span class="o">-</span> <span class="n">pos_min</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">padding</span>
+
+    <span class="k">return</span> <span class="n">centroid</span><span class="p">,</span> <span class="n">shape</span></div>
 
 
 

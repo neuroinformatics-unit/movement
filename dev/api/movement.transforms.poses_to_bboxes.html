@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement.io.load_bboxes &#8212; movement</title>
+    <title>poses_to_bboxes &#8212; movement</title>
   
   
   
@@ -49,7 +49,7 @@
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.io.load_bboxes';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.transforms.poses_to_bboxes';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
@@ -58,12 +58,12 @@
             false;
         </script>
     <script src="../_static/js/contributors.js?v=4c153e30"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.io.load_bboxes.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.transforms.poses_to_bboxes.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="from_file" href="movement.io.load_bboxes.from_file.html" />
-    <link rel="prev" title="register_loader" href="movement.io.load.register_loader.html" /> 
+    <link rel="next" title="scale" href="movement.transforms.scale.html" />
+    <link rel="prev" title="compute_homography_transform" href="movement.transforms.compute_homography_transform.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />   
@@ -429,7 +429,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.register_loader.html">register_loader</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">movement.io.load_bboxes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load_bboxes.html">movement.io.load_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_file.html">from_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_numpy.html">from_numpy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_via_tracks_file.html">from_via_tracks_file</a></li>
@@ -509,9 +509,9 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.list_datasets.html">list_datasets</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="movement.transforms.html">movement.transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.transforms.html">movement.transforms</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.transforms.compute_homography_transform.html">compute_homography_transform</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.transforms.poses_to_bboxes.html">poses_to_bboxes</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">poses_to_bboxes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.transforms.scale.html">scale</a></li>
 </ul>
 </details></li>
@@ -604,7 +604,10 @@
     
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.io.load_bboxes</span></li>
+    
+    <li class="breadcrumb-item"><a href="movement.transforms.html" class="nav-link">movement.transforms</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">poses_to_bboxes</span></li>
   </ul>
 </nav>
 </div>
@@ -620,25 +623,83 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="movement-io-load-bboxes">
-<h1>movement.io.load_bboxes<a class="headerlink" href="#movement-io-load-bboxes" title="Link to this heading">#</a></h1>
-<p class="rubric">Description</p>
-<p id="module-movement.io.load_bboxes">Load bounding boxes tracking data into <code class="docutils literal notranslate"><span class="pre">movement</span></code>.</p>
-<p class="rubric">Functions</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.io.load_bboxes.from_file.html#movement.io.load_bboxes.from_file" title="movement.io.load_bboxes.from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_file</span></code></a></p></td>
-<td><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset from a supported file.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.io.load_bboxes.from_numpy.html#movement.io.load_bboxes.from_numpy" title="movement.io.load_bboxes.from_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_numpy</span></code></a></p></td>
-<td><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset from NumPy arrays.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.io.load_bboxes.from_via_tracks_file.html#movement.io.load_bboxes.from_via_tracks_file" title="movement.io.load_bboxes.from_via_tracks_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_via_tracks_file</span></code></a></p></td>
-<td><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset from a VIA tracks .csv file.</p></td>
-</tr>
-</tbody>
-</table>
+                   <section id="poses-to-bboxes">
+<h1>poses_to_bboxes<a class="headerlink" href="#poses-to-bboxes" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="movement.transforms.poses_to_bboxes">
+<span class="sig-prename descclassname"><span class="pre">movement.transforms.</span></span><span class="sig-name descname"><span class="pre">poses_to_bboxes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/transforms.html#poses_to_bboxes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.transforms.poses_to_bboxes" title="Link to this definition">#</a></dt>
+<dd><p>Compute bounding box centroid and shape from a poses position array.</p>
+<p>This function computes bounding boxes from pose estimation keypoints by
+finding the minimum and maximum coordinates across all keypoints for each
+individual at each time point. The resulting bounding box is represented
+by its centroid (center point) and shape (width and height).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>position</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><em>xarray.DataArray</em></a>) – A 2D poses position array with dimensions
+<code class="docutils literal notranslate"><span class="pre">(time,</span> <span class="pre">space,</span> <span class="pre">keypoints,</span> <span class="pre">individuals)</span></code>, where the <code class="docutils literal notranslate"><span class="pre">space</span></code>
+coordinate contains exactly <code class="docutils literal notranslate"><span class="pre">[&quot;x&quot;,</span> <span class="pre">&quot;y&quot;]</span></code>.</p></li>
+<li><p><strong>padding</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><em>float</em></a><em>, </em><em>optional</em>) – Number of pixels to add as padding around the bounding box in all
+directions. The padding increases both width and height by
+<code class="docutils literal notranslate"><span class="pre">2</span> <span class="pre">*</span> <span class="pre">padding</span></code>. Default is 0.0 (no padding).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>A tuple <code class="docutils literal notranslate"><span class="pre">(position,</span> <span class="pre">shape)</span></code> where:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">position</span></code>: bounding box centroids with dimensions
+<code class="docutils literal notranslate"><span class="pre">(time,</span> <span class="pre">space,</span> <span class="pre">individuals)</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">shape</span></code>: bounding box width and height with dimensions
+<code class="docutils literal notranslate"><span class="pre">(time,</span> <span class="pre">space,</span> <span class="pre">individuals)</span></code>.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)">tuple</a>[<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)">xarray.DataArray</a>, <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)">xarray.DataArray</a>]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#TypeError" title="(in Python v3.14)"><strong>TypeError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">position</span></code> is not an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> or if
+    <code class="docutils literal notranslate"><span class="pre">padding</span></code> is not numeric.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the position array is missing required dimensions or coordinates,
+    is not 2D, or <code class="docutils literal notranslate"><span class="pre">padding</span></code> is negative.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Keypoints with NaN in any spatial coordinate are excluded from bounding
+box calculation. If all keypoints for an individual at a given time are
+NaN, the resulting centroid and shape are NaN.</p></li>
+<li><p>The centroid is calculated as the midpoint of the bounding box:
+<code class="docutils literal notranslate"><span class="pre">(min</span> <span class="pre">+</span> <span class="pre">max)</span> <span class="pre">/</span> <span class="pre">2</span></code> for each spatial dimension.</p></li>
+<li><p>The shape is calculated as the span of coordinates plus padding:
+<code class="docutils literal notranslate"><span class="pre">width</span> <span class="pre">=</span> <span class="pre">max_x</span> <span class="pre">-</span> <span class="pre">min_x</span> <span class="pre">+</span> <span class="pre">2*padding</span></code> and
+<code class="docutils literal notranslate"><span class="pre">height</span> <span class="pre">=</span> <span class="pre">max_y</span> <span class="pre">-</span> <span class="pre">min_y</span> <span class="pre">+</span> <span class="pre">2*padding</span></code>.</p></li>
+<li><p>When there is only one valid keypoint, the bounding box will have
+zero width and/or height (before padding is applied).</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<p>Compute bounding boxes from a poses dataset with zero padding:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">poses_to_bboxes</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bbox_position</span><span class="p">,</span> <span class="n">bbox_shape</span> <span class="o">=</span> <span class="n">poses_to_bboxes</span><span class="p">(</span><span class="n">poses_ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">])</span>
+</pre></div>
 </div>
+<p>Compute bounding boxes from a poses dataset with 10 pixels of padding:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bbox_position</span><span class="p">,</span> <span class="n">bbox_shape</span> <span class="o">=</span> <span class="n">poses_to_bboxes</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">poses_ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">],</span> <span class="n">padding</span><span class="o">=</span><span class="mi">10</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.transforms.scale.html#movement.transforms.scale" title="movement.transforms.scale"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.transforms.scale</span></code></a></dt><dd><p>Scale spatial coordinates</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
 </section>
 
 <div class="section ablog__blog_comments">
@@ -655,20 +716,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.io.load.register_loader.html"
+       href="movement.transforms.compute_homography_transform.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">register_loader</p>
+        <p class="prev-next-title">compute_homography_transform</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.io.load_bboxes.from_file.html"
+       href="movement.transforms.scale.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">from_file</p>
+        <p class="prev-next-title">scale</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -684,10 +745,22 @@
 
 
   <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.transforms.poses_to_bboxes"><code class="docutils literal notranslate"><span class="pre">poses_to_bboxes()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/api/movement.io.load_bboxes.rst.txt"
+      <li><a href="../_sources/api/movement.transforms.poses_to_bboxes.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>
