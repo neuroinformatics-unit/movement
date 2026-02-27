@@ -65,15 +65,10 @@ def sample_data_3d() -> xr.DataArray:
 
 
 @pytest.mark.parametrize(
-    ["optional_arguments", "expected_output"],
+    ["arguments", "expected_output"],
     [
         pytest.param(
-            {},
-            data_array_with_dims_and_coords(nparray_0_to_23()),
-            id="Do nothing",
-        ),
-        pytest.param(
-            {"space_unit": "elephants"},
+            {"factor": 1, "space_unit": "elephants"},
             data_array_with_dims_and_coords(
                 nparray_0_to_23(), space_unit="elephants"
             ),
@@ -114,11 +109,11 @@ def sample_data_3d() -> xr.DataArray:
 )
 def test_scale(
     sample_data_2d: xr.DataArray,
-    optional_arguments: dict[str, Any],
+    arguments: dict[str, Any],
     expected_output: xr.DataArray,
 ):
     """Test scaling with different factors and space_units."""
-    scaled_data = scale(sample_data_2d, **optional_arguments)
+    scaled_data = scale(sample_data_2d, **arguments)
     xr.testing.assert_equal(scaled_data, expected_output)
     assert drop_attrs_log(scaled_data.attrs) == expected_output.attrs
 
@@ -156,7 +151,7 @@ def test_scale_space_dimension(dims: list[str], data_shape):
 
 
 @pytest.mark.parametrize(
-    ["optional_arguments_1", "optional_arguments_2", "expected_output"],
+    ["arguments_1", "arguments_2", "expected_output"],
     [
         pytest.param(
             {"factor": 2, "space_unit": "elephants"},
@@ -184,8 +179,8 @@ def test_scale_space_dimension(dims: list[str], data_shape):
 )
 def test_scale_twice(
     sample_data_2d: xr.DataArray,
-    optional_arguments_1: dict[str, Any],
-    optional_arguments_2: dict[str, Any],
+    arguments_1: dict[str, Any],
+    arguments_2: dict[str, Any],
     expected_output: xr.DataArray,
 ):
     """Test scaling when applied twice.
@@ -193,8 +188,8 @@ def test_scale_twice(
     provided, or remove it if None is passed explicitly or by default.
     """
     output_data_array = scale(
-        scale(sample_data_2d, **optional_arguments_1),
-        **optional_arguments_2,
+        scale(sample_data_2d, **arguments_1),
+        **arguments_2,
     )
     xr.testing.assert_equal(output_data_array, expected_output)
     assert drop_attrs_log(output_data_array.attrs) == expected_output.attrs
