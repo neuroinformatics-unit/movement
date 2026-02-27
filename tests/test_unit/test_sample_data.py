@@ -13,9 +13,9 @@ from movement.sample_data import (
     SAMPLE_DATA,
     _fetch_and_unzip,
     _fetch_metadata,
+    _hide_pooch_hash_logs,
     fetch_dataset,
     fetch_dataset_paths,
-    hide_pooch_hash_logs,
     list_datasets,
 )
 
@@ -287,7 +287,7 @@ def test_fetch_and_unzip_exceptions(
 )
 def test_hide_pooch_hash_logs(message, should_block):
     """Test that ``HashFilter`` blocks only hash-related messages."""
-    with hide_pooch_hash_logs():
+    with _hide_pooch_hash_logs():
         logger = pooch.get_logger()
         hash_filter = logger.filters[-1]
 
@@ -324,11 +324,11 @@ def test_hash_filter_removed_after_context(raise_exception):
     initial_filter_count = len(logger.filters)
 
     if raise_exception:
-        with pytest.raises(ValueError), hide_pooch_hash_logs():
+        with pytest.raises(ValueError), _hide_pooch_hash_logs():
             assert len(logger.filters) == initial_filter_count + 1
             raise ValueError("Test exception")
     else:
-        with hide_pooch_hash_logs():
+        with _hide_pooch_hash_logs():
             assert len(logger.filters) == initial_filter_count + 1
 
     # Filter should be removed after context exits
