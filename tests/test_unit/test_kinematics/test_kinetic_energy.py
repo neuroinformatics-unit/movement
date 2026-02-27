@@ -140,10 +140,11 @@ def test_insufficient_keypoints(
             decompose=True,
         )
 
+
 @pytest.fixture
 def position_array_with_nan():
-	data = np.ones((5, 1, 2, 2))
-	return xr.DataArray(
+    data = np.ones((5, 1, 2, 2))
+    return xr.DataArray(
         data,
         coords={
             "time": np.arange(5),
@@ -154,21 +155,24 @@ def position_array_with_nan():
         dims=["time", "individuals", "keypoints", "space"],
     )
 
+
 def test_kinetic_energy_partial_nan(position_array_with_nan):
-	data = position_array_with_nan.copy(deep=True)
-	data.loc[dict(time=2, keypoints="tail")] = np.nan
-	ke = compute_kinetic_energy(data)
-	assert np.isfinite(ke.sel(time=2, individuals="ind1"))
+    data = position_array_with_nan.copy(deep=True)
+    data.loc[dict(time=2, keypoints="tail")] = np.nan
+    ke = compute_kinetic_energy(data)
+    assert np.isfinite(ke.sel(time=2, individuals="ind1"))
+
 
 def test_kinetic_energy_full_nan(position_array_with_nan):
-	data = position_array_with_nan.copy(deep=True)
-	data.loc[dict(time=2)] = np.nan
-	ke = compute_kinetic_energy(data)
-	assert np.isnan(ke.sel(time=1, individuals="ind1"))
-	assert np.isnan(ke.sel(time=3, individuals="ind1"))
+    data = position_array_with_nan.copy(deep=True)
+    data.loc[dict(time=2)] = np.nan
+    ke = compute_kinetic_energy(data)
+    assert np.isnan(ke.sel(time=1, individuals="ind1"))
+    assert np.isnan(ke.sel(time=3, individuals="ind1"))
+
 
 def test_kinetic_energy_nan_warning(position_array_with_nan):
-	data = position_array_with_nan.copy(deep=True)
-	data.loc[dict(time=[1, 2], keypoints="head")] = np.nan
-	with pytest.warns(UserWarning, match="The result may be unreliable"):
-		compute_kinetic_energy(data, nan_warn_threshold=0.1)
+    data = position_array_with_nan.copy(deep=True)
+    data.loc[dict(time=[1, 2], keypoints="head")] = np.nan
+    with pytest.warns(UserWarning, match="The result may be unreliable"):
+        compute_kinetic_energy(data, nan_warn_threshold=0.1)
