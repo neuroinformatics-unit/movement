@@ -139,3 +139,31 @@ def test_insufficient_keypoints(
             keypoints=keypoints,
             decompose=True,
         )
+
+
+def test_compute_kinetic_energy_nan_keypoints():
+    """When one keypoint has NaN velocity, the centre-of-mass velocity
+    should be computed using only valid keypoints.
+    """
+    position = xr.DataArray(
+        np.array(
+            [
+                [[[1.0, 0.0], [2.0, 0.0], [3.0, 0.0]]],
+                [[[2.0, 0.0], [4.0, 0.0], [np.nan, np.nan]]],
+            ]
+        ),
+        dims=["time", "individuals", "keypoints", "space"],
+        coords={
+            "time": [0, 1],
+            "individuals": ["id0"],
+            "keypoints": ["a", "b", "c"],
+            "space": ["x", "y"],
+        },
+    )
+
+    result = compute_kinetic_energy(position, decompose=True)
+
+    translational_ke = result.sel(energy="translational").isel(time=1)
+    assert not np.isclose(translational_ke.item(), 1.5), (
+        "Current implementation incorrectly uses all weights."
+    )
