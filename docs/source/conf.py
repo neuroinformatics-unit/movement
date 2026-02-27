@@ -199,7 +199,7 @@ linkcheck_anchors_ignore_for_url = [
     "https://neuroinformatics.zulipchat.com/",
     "https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py",
 ]
-# A list of regular expressions that match URLs that should not be checked
+# A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
     "https://opensource.org/license/bsd-3-clause/",  # 403 error
