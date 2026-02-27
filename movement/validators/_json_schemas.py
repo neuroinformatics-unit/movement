@@ -11,7 +11,7 @@ ROI_TYPE_TO_GEOMETRY: Mapping[str, tuple[str, ...]] = {
 
 # JSON schema for movement-compatible RoI GeoJSON collections.
 ROI_COLLECTION_SCHEMA: Mapping[str, Any] = {
-    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "RoI Collection GeoJSON",
     "description": (
         "Schema for validating GeoJSON FeatureCollection files containing RoIs"
