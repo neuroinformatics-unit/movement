@@ -53,38 +53,26 @@ def scale(
 
     Examples
     --------
-    Let's imagine a camera viewing a 2D plane from the top, with an
-    estimated resolution of 10 pixels per cm. We can scale down
-    position data by a factor of 1/10 to express it in cm units.
-
+    >>> import numpy as np
+    >>> import xarray as xr
     >>> from movement.transforms import scale
-    >>> ds["position"] = scale(ds["position"], factor=1 / 10, space_unit="cm")
-    >>> print(ds["position"].space_unit)
-    cm
-    >>> print(ds["position"].log)
-    [
-        {
-            "operation": "scale",
-            "datetime": "2025-06-05 15:08:16.919947",
-            "factor": "0.1",
-            "space_unit": "'cm'"
-        }
-    ]
+    >>> data = xr.DataArray(
+    ...     np.arange(6, dtype=float).reshape(3, 2),
+    ...     dims=["time", "space"],
+    ...     coords={"space": ["x", "y"]},
+    ... )
 
-    Note that the attributes of the scaled data array now contain the assigned
-    ``space_unit`` as well as a ``log`` entry with the arguments passed to
-    the function.
+    Scale down position data by a factor of 1/10 and assign a unit:
 
-    We can also scale the two spatial dimensions by different factors.
+    >>> scaled = scale(data, factor=1 / 10, space_unit="cm")
+    >>> scaled.attrs["space_unit"]
+    'cm'
 
-    >>> ds["position"] = scale(ds["position"], factor=[10, 20])
+    Scale back up by different factors per spatial dimension.
+    The ``space_unit`` attribute is removed when not provided:
 
-    The second scale operation restored the x axis to its original scale,
-    and scaled up the y axis to twice its original size.
-    The log will now contain two entries, but the ``space_unit`` attribute
-    has been removed, as it was not provided in the second function call.
-
-    >>> "space_unit" in ds["position"].attrs
+    >>> scaled2 = scale(scaled, factor=[10, 20])
+    >>> "space_unit" in scaled2.attrs
     False
 
     """
@@ -176,6 +164,8 @@ def compute_homography_transform(
 
     Examples
     --------
+    >>> import numpy as np
+    >>> from movement.transforms import compute_homography_transform
     >>> src = np.array([[0, 0], [1, 0], [1, 1], [0, 1]], dtype=np.float32)
     >>> dst = np.array([[0, 0], [2, 0], [2, 2], [0, 2]], dtype=np.float32)
     >>> H = compute_homography_transform(src, dst)

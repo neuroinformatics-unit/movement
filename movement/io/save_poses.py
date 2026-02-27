@@ -198,9 +198,16 @@ def to_dlc_file(
 
     Examples
     --------
-    >>> from movement.io import save_poses, load_poses
-    >>> ds = load_poses.from_sleap_file("/path/to/file_sleap.analysis.h5")
-    >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
+    >>> from movement.io import (  # doctest: +SKIP
+    ...     save_poses,
+    ...     load_poses,
+    ... )
+    >>> ds = load_poses.from_sleap_file(  # doctest: +SKIP
+    ...     "/path/to/file_sleap.analysis.h5"
+    ... )
+    >>> save_poses.to_dlc_file(  # doctest: +SKIP
+    ...     ds, "/path/to/file_dlc.h5"
+    ... )
 
     """
     valid_path = validate_file_path(
@@ -305,9 +312,9 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
 
     Examples
     --------
-    >>> from movement.io import save_poses, load_poses
-    >>> ds = load_poses.from_dlc_file("path/to/file.h5")
-    >>> save_poses.to_sleap_analysis_file(
+    >>> from movement.io import save_poses, load_poses  # doctest: +SKIP
+    >>> ds = load_poses.from_dlc_file("path/to/file.h5")  # doctest: +SKIP
+    >>> save_poses.to_sleap_analysis_file(  # doctest: +SKIP
     ...     ds, "/path/to/file_sleap.analysis.h5"
     ... )
 
@@ -416,12 +423,12 @@ def to_nwb_file(
     Create :class:`pynwb.file.NWBFile` objects for each individual in
     a ``movement`` poses dataset ``ds`` and save them to disk:
 
-    >>> from movement.sample_data import fetch_dataset
-    >>> from movement.io import save_poses
-    >>> from pynwb import NWBHDF5IO
-    >>> ds = fetch_dataset("DLC_two-mice.predictions.csv")
-    >>> nwb_files = save_poses.to_nwb_file(ds)
-    >>> for file in nwb_files:
+    >>> from movement.sample_data import fetch_dataset  # doctest: +SKIP
+    >>> from movement.io import save_poses  # doctest: +SKIP
+    >>> from pynwb import NWBHDF5IO  # doctest: +SKIP
+    >>> ds = fetch_dataset("DLC_two-mice.predictions.csv")  # doctest: +SKIP
+    >>> nwb_files = save_poses.to_nwb_file(ds)  # doctest: +SKIP
+    >>> for file in nwb_files:  # doctest: +SKIP
     ...     with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
     ...         io.write(file)
 
@@ -431,19 +438,19 @@ def to_nwb_file(
     via the :class:`NWBFileSaveConfig<movement.io.nwb.NWBFileSaveConfig>`
     object.
 
-    >>> from movement.io.nwb import NWBFileSaveConfig
-    >>> config = NWBFileSaveConfig(
+    >>> from movement.io.nwb import NWBFileSaveConfig  # doctest: +SKIP
+    >>> config = NWBFileSaveConfig(  # doctest: +SKIP
     ...     nwbfile_kwargs={"session_description": "test session"},
     ...     processing_module_kwargs={"description": "processed behav data"},
     ...     subject_kwargs={"age": "P90D", "species": "Mus musculus"},
     ... )
-    >>> nwb_files = save_poses.to_nwb_file(ds, config)
+    >>> nwb_files = save_poses.to_nwb_file(ds, config)  # doctest: +SKIP
 
     Create NWBFiles with different :class:`pynwb.file.NWBFile`
     and :class:`pynwb.file.Subject` metadata for each individual
     (e.g. ``individual1``, ``individual2``) in the dataset:
 
-    >>> config = NWBFileSaveConfig(
+    >>> config = NWBFileSaveConfig(  # doctest: +SKIP
     ...     nwbfile_kwargs={
     ...         "individual1": {
     ...             "experimenter": "experimenter1",
@@ -459,12 +466,12 @@ def to_nwb_file(
     ...         "individual2": {"age": "P91D", "sex": "F"},
     ...     },
     ... )
-    >>> nwb_files = save_poses.to_nwb_file(ds, config)
+    >>> nwb_files = save_poses.to_nwb_file(ds, config)  # doctest: +SKIP
 
     Create NWBFiles with different ``ndx_pose.PoseEstimationSeries``
     metadata for different keypoints (e.g. ``leftear``, ``rightear``):
 
-    >>> config = NWBFileSaveConfig(
+    >>> config = NWBFileSaveConfig(  # doctest: +SKIP
     ...     pose_estimation_series_kwargs={
     ...         "leftear": {
     ...             "description": "left ear",
@@ -474,7 +481,7 @@ def to_nwb_file(
     ...         },
     ...     },
     ... )
-    >>> nwb_files = save_poses.to_nwb_file(ds, config)
+    >>> nwb_files = save_poses.to_nwb_file(ds, config)  # doctest: +SKIP
 
     See Also
     --------

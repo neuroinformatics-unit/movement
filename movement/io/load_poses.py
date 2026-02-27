@@ -154,8 +154,8 @@ def from_file(
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_file(
+    >>> from movement.io import load_poses  # doctest: +SKIP
+    >>> ds = load_poses.from_file(  # doctest: +SKIP
     ...     "path/to/file.h5", source_software="DeepLabCut", fps=30
     ... )
 
@@ -325,8 +325,10 @@ def from_sleap_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_sleap_file("path/to/file.analysis.h5", fps=30)
+    >>> from movement.io import load_poses  # doctest: +SKIP
+    >>> ds = load_poses.from_sleap_file(  # doctest: +SKIP
+    ...     "path/to/file.analysis.h5", fps=30
+    ... )
 
     """
     valid_file = cast("ValidFile", file)
@@ -361,8 +363,10 @@ def from_lp_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_lp_file("path/to/file.csv", fps=30)
+    >>> from movement.io import load_poses  # doctest: +SKIP
+    >>> ds = load_poses.from_lp_file(  # doctest: +SKIP
+    ...     "path/to/file.csv", fps=30
+    ... )
 
     """
     valid_file = cast("ValidFile", file)
@@ -408,8 +412,10 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_dlc_file("path/to/file.h5", fps=30)
+    >>> from movement.io import load_poses  # doctest: +SKIP
+    >>> ds = load_poses.from_dlc_file(  # doctest: +SKIP
+    ...     "path/to/file.h5", fps=30
+    ... )
 
     Notes
     -----
@@ -850,24 +856,27 @@ def from_nwb_file(
     Open an NWB file and load pose tracks from the
     :class:`pynwb.file.NWBFile` object:
 
-    >>> import pynwb
-    >>> import xarray as xr
-    >>> from movement.io import load_poses
-    >>> with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
+    >>> import pynwb  # doctest: +SKIP
+    >>> import xarray as xr  # doctest: +SKIP
+    >>> from movement.io import load_poses  # doctest: +SKIP
+    >>> nwb_path = "path/to/file.nwb"  # doctest: +SKIP
+    >>> with pynwb.NWBHDF5IO(  # doctest: +SKIP
+    ...     nwb_path, mode="r"
+    ... ) as io:
     ...     nwb_file = io.read()
     ...     ds = load_poses.from_nwb_file(nwb_file)
 
     Or, directly load pose tracks from an NWB file on disk:
 
-    >>> ds = load_poses.from_nwb_file("path/to/file.nwb")
+    >>> ds = load_poses.from_nwb_file("path/to/file.nwb")  # doctest: +SKIP
 
     Load two single-individual datasets from two NWB files and merge them
     into a multi-individual dataset:
 
-    >>> ds_singles = [
+    >>> ds_singles = [  # doctest: +SKIP
     ...     load_poses.from_nwb_file(f) for f in ["id1.nwb", "id2.nwb"]
     ... ]
-    >>> ds_multi = xr.merge(ds_singles)
+    >>> ds_multi = xr.merge(ds_singles)  # doctest: +SKIP
 
     """
     valid_file = cast("ValidFile", file)

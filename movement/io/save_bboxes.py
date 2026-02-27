@@ -75,15 +75,17 @@ def to_via_tracks_file(
     names and assuming the image files are PNG files. The frame numbers in the
     image filenames are padded with at least one leading zero by default:
 
-    >>> from movement.io import save_bboxes
-    >>> save_bboxes.to_via_tracks_file(ds, "/path/to/output.csv")
+    >>> from movement.io import save_bboxes  # doctest: +SKIP
+    >>> save_bboxes.to_via_tracks_file(  # doctest: +SKIP
+    ...     ds, "/path/to/output.csv"
+    ... )
 
     Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
     assigning the track IDs sequentially based on the alphabetically sorted
     list of individuals' names, and assuming the image files are PNG files:
 
-    >>> from movement.io import save_bboxes
-    >>> save_bboxes.to_via_tracks_file(
+    >>> from movement.io import save_bboxes  # doctest: +SKIP
+    >>> save_bboxes.to_via_tracks_file(  # doctest: +SKIP
     ...     ds,
     ...     "/path/to/output.csv",
     ...     track_ids_from_trailing_numbers=False,
@@ -93,8 +95,8 @@ def to_via_tracks_file(
     deriving the track IDs from the numbers at the end of the individuals'
     names, and assuming the image files are JPG files:
 
-    >>> from movement.io import save_bboxes
-    >>> save_bboxes.to_via_tracks_file(
+    >>> from movement.io import save_bboxes  # doctest: +SKIP
+    >>> save_bboxes.to_via_tracks_file(  # doctest: +SKIP
     ...     ds,
     ...     "/path/to/output.csv",
     ...     image_file_suffix=".jpg",
@@ -105,8 +107,8 @@ def to_via_tracks_file(
     names and with image filenames following the format
     ``frame-<frame_number>.jpg``:
 
-    >>> from movement.io import save_bboxes
-    >>> save_bboxes.to_via_tracks_file(
+    >>> from movement.io import save_bboxes  # doctest: +SKIP
+    >>> save_bboxes.to_via_tracks_file(  # doctest: +SKIP
     ...     ds,
     ...     "/path/to/output.csv",
     ...     image_file_prefix="frame-",
@@ -118,8 +120,8 @@ def to_via_tracks_file(
     names, and with frame numbers in the image filenames represented using 4
     digits (i.e., image filenames would be ``0000.png``, ``0001.png``, etc.):
 
-    >>> from movement.io import save_bboxes
-    >>> save_bboxes.to_via_tracks_file(
+    >>> from movement.io import save_bboxes  # doctest: +SKIP
+    >>> save_bboxes.to_via_tracks_file(  # doctest: +SKIP
     ...     ds,
     ...     "/path/to/output.csv",
     ...     frame_n_digits=4,

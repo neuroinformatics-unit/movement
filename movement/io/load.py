@@ -275,8 +275,8 @@ def load_dataset(
 
     Examples
     --------
-    >>> from movement.io import load_dataset
-    >>> ds = load_dataset(
+    >>> from movement.io import load_dataset  # doctest: +SKIP
+    >>> ds = load_dataset(  # doctest: +SKIP
     ...     "path/to/file.h5", source_software="DeepLabCut", fps=30
     ... )
 

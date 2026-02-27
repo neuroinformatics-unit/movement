@@ -218,12 +218,12 @@ def from_file(
     the time coordinates in seconds, and assuming t = 0 seconds corresponds to
     the first tracked frame in the file.
 
-    >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_file(
-    >>>     "path/to/file.csv",
-    >>>     source_software="VIA-tracks",
-    >>>     fps=30,
-    >>> )
+    >>> from movement.io import load_bboxes  # doctest: +SKIP
+    >>> ds = load_bboxes.from_file(  # doctest: +SKIP
+    ...     "path/to/file.csv",
+    ...     source_software="VIA-tracks",
+    ...     fps=30,
+    ... )
 
     """
     warnings.warn(
@@ -310,8 +310,8 @@ def from_via_tracks_file(
     the time coordinates in frames, and setting the first tracked frame in the
     file as frame 0.
 
-    >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_via_tracks_file(
+    >>> from movement.io import load_bboxes  # doctest: +SKIP
+    >>> ds = load_bboxes.from_via_tracks_file(  # doctest: +SKIP
     ...     "path/to/file.csv",
     ... )
 
@@ -319,8 +319,8 @@ def from_via_tracks_file(
     the time coordinates in seconds, and assuming t = 0 seconds corresponds to
     the first tracked frame in the file.
 
-    >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_via_tracks_file(
+    >>> from movement.io import load_bboxes  # doctest: +SKIP
+    >>> ds = load_bboxes.from_via_tracks_file(  # doctest: +SKIP
     ...     "path/to/file.csv",
     ...     fps=30,
     ... )
@@ -329,18 +329,18 @@ def from_via_tracks_file(
     the time coordinates in frames, and using the same frame numbers as
     in the VIA tracks .csv file.
 
-    >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_via_tracks_file(
+    >>> from movement.io import load_bboxes  # doctest: +SKIP
+    >>> ds = load_bboxes.from_via_tracks_file(  # doctest: +SKIP
     ...     "path/to/file.csv",
-    ...     use_frame_numbers_from_file=True.
+    ...     use_frame_numbers_from_file=True,
     ... )
 
     Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with
     the time coordinates in seconds, and assuming t = 0 seconds corresponds to
     the 0th frame in the full video.
 
-    >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_via_tracks_file(
+    >>> from movement.io import load_bboxes  # doctest: +SKIP
+    >>> ds = load_bboxes.from_via_tracks_file(  # doctest: +SKIP
     ...     "path/to/file.csv",
     ...     fps=30,
     ...     use_frame_numbers_from_file=True,
