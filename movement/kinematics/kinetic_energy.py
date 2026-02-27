@@ -3,7 +3,10 @@
 import numpy as np
 import xarray as xr
 
-from movement.kinematics.kinematics import compute_velocity
+from movement.kinematics.kinematics import (
+    _warn_about_nan_proportion,
+    compute_velocity,
+)
 from movement.utils.logging import logger
 from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
@@ -14,6 +17,7 @@ def compute_kinetic_energy(
     keypoints: list | None = None,
     masses: dict | None = None,
     decompose: bool = False,
+    nan_warn_threshold: float = 0.1,  # how much missing data is acceptable before a warning
 ) -> xr.DataArray:
     r"""Compute kinetic energy per individual.
 
@@ -38,6 +42,11 @@ def compute_kinetic_energy(
         per individual, but more would be desirable for a meaningful
         decomposition. The default is False, meaning the total kinetic energy
         is returned.
+    nan_warn_threshold: float, optional
+    If some keypoints are missing at some point in time, kinetic energy
+        is computed only on the remaining valid points. If any point has at least
+        threshold values missing, a warning will be emitted.
+        By default 0.1.
 
     Returns
     -------
@@ -142,6 +151,7 @@ def compute_kinetic_energy(
     validate_dims_coords(
         position, {"time": [], "space": ["x", "y"], "keypoints": []}
     )
+    _warn_about_nan_proportion(position, nan_warn_threshold)
 
     # Subset keypoints if requested
     if keypoints is not None:
@@ -173,7 +183,7 @@ def compute_kinetic_energy(
 
     # Compute total KE
     weighted_ke = 0.5 * weights * (compute_norm(velocity) ** 2)
-    ke_total = weighted_ke.sum(dim="keypoints")
+    ke_total = weighted_ke.sum(dim="keypoints", min_count=1)
 
     if not decompose:
         return ke_total
