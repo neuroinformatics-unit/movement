@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=6f9a2fa7"></script>
+    <script src="../../../_static/documentation_options.js?v=cbe2abbe"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev6</p>
+    <p class="title logo__title">movement v0.14.1.dev7</p>
   
 </a></div>
     
@@ -578,7 +578,7 @@
     <span class="p">)</span>
     <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[]})</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">reindex_like</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;displacement&quot;</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
@@ -593,7 +593,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[]})</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;lower&quot;</span><span class="p">)</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">coords</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">reindex_like</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span>
 
 
