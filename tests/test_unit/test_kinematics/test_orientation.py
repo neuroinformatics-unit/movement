@@ -25,11 +25,11 @@ def valid_data_array_for_forward_vector():
             [[[-1, 0], [1, 0], [0, 1]]],  # time 2
             [[[0, -1], [0, 1], [-1, 0]]],  # time 3
         ],
-        dims=["time", "individuals", "keypoints", "space"],
+        dims=["time", "individual", "keypoint", "space"],
         coords={
             "time": time,
-            "individuals": individuals,
-            "keypoints": keypoints,
+            "individual": individuals,
+            "keypoint": keypoints,
             "space": space,
         },
     )
@@ -46,10 +46,10 @@ def invalid_input_type_for_forward_vector(valid_data_array_for_forward_vector):
 
 @pytest.fixture
 def invalid_dimensions_for_forward_vector(valid_data_array_for_forward_vector):
-    """Return a position DataArray in which the ``keypoints`` dimension has
+    """Return a position DataArray in which the ``keypoint`` dimension has
     been dropped.
     """
-    return valid_data_array_for_forward_vector.sel(keypoints="nose", drop=True)
+    return valid_data_array_for_forward_vector.sel(keypoint="nose", drop=True)
 
 
 @pytest.fixture
@@ -72,7 +72,7 @@ def valid_data_array_for_forward_vector_with_nan(
     """
     nan_dataarray = valid_data_array_for_forward_vector.where(
         (valid_data_array_for_forward_vector.time != 1)
-        | (valid_data_array_for_forward_vector.keypoints != "left_ear")
+        | (valid_data_array_for_forward_vector.keypoint != "left_ear")
     )
     return nan_dataarray
 
@@ -107,7 +107,7 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
 
     for output_array in [forward_vector, forward_vector_flipped, head_vector]:
         assert isinstance(output_array, xr.DataArray)
-        for preserved_coord in ["time", "space", "individuals"]:
+        for preserved_coord in ["time", "space", "individual"]:
             assert np.all(
                 output_array[preserved_coord]
                 == valid_data_array_for_forward_vector[preserved_coord]
@@ -130,7 +130,7 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
         (
             "invalid_dimensions_for_forward_vector",
             ValueError,
-            "Input data must contain ['keypoints']",
+            "Input data must contain ['keypoint']",
             ["left_ear", "right_ear"],
         ),
         (
@@ -178,7 +178,7 @@ def test_nan_behavior_forward_vector(
     # trunk-ignore(bandit/B101)
     assert forward_vector.name == "forward_vector"
     # Check coord preservation
-    for preserved_coord in ["time", "space", "individuals"]:
+    for preserved_coord in ["time", "space", "individual"]:
         assert np.all(
             forward_vector[preserved_coord]
             == valid_data_array_for_forward_vector_with_nan[preserved_coord]
@@ -244,8 +244,8 @@ class TestForwardVectorAngle:
         data[:, :, 1] = -data[:, :, 0]
         return xr.DataArray(
             data=data,
-            dims=["time", "space", "keypoints"],
-            coords={"space": ["x", "y"], "keypoints": ["left", "right"]},
+            dims=["time", "space", "keypoint"],
+            coords={"space": ["x", "y"], "keypoint": ["left", "right"]},
         )
 
     @pytest.mark.parametrize(

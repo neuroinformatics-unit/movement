@@ -27,11 +27,11 @@ def assert_components_in_report(components, report_str):
             {
                 "expected": [
                     "position",
-                    "keypoints",
+                    "keypoint",
                     "centroid",
                     "left",
                     "right",
-                    "individuals",
+                    "individual",
                     "id_0",
                     "3/10",
                     "1/10",
@@ -43,7 +43,7 @@ def assert_components_in_report(components, report_str):
         (
             "valid_bboxes_dataset_with_nan",
             {
-                "expected": ["position", "individuals", "id_0", "3/10"],
+                "expected": ["position", "individual", "id_0", "3/10"],
                 "not_expected": ["id_1"],
             },
         ),
@@ -64,7 +64,7 @@ def test_report_nan_values_full_dataset(data, expectations, request):
     [
         (
             "valid_poses_dataset_with_nan",
-            lambda ds: ds.isel(individuals=0),
+            lambda ds: ds.isel(individual=0),
             {
                 "expected": [
                     "centroid",
@@ -79,7 +79,7 @@ def test_report_nan_values_full_dataset(data, expectations, request):
         ),
         (
             "valid_bboxes_dataset_with_nan",
-            lambda ds: ds.isel(individuals=0),
+            lambda ds: ds.isel(individual=0),
             {
                 "expected": ["3/10"],
                 "not_expected": ["id_0"],
@@ -87,7 +87,7 @@ def test_report_nan_values_full_dataset(data, expectations, request):
         ),
         (
             "valid_poses_dataset_with_nan",
-            lambda ds: ds.isel(keypoints=0),
+            lambda ds: ds.isel(keypoint=0),
             {
                 "expected": ["id_0", "3/10"],
                 "not_expected": ["centroid"],
@@ -95,7 +95,7 @@ def test_report_nan_values_full_dataset(data, expectations, request):
         ),
         (
             "valid_poses_dataset_with_nan",
-            lambda ds: ds.isel(individuals=0, keypoints=0),
+            lambda ds: ds.isel(individual=0, keypoint=0),
             {
                 "expected": ["3/10"],
                 "not_expected": ["centroid", "id_0"],

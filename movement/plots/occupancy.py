@@ -115,26 +115,26 @@ def plot_occupancy(
     """
     # Collapse dimensions if necessary
     data = da.copy(deep=True)
-    if "keypoints" in da.dims:
+    if "keypoint" in da.dims:
         if keypoints is not None:
-            data = data.sel(keypoints=keypoints)
-        # A selection of just one keypoint automatically drops the keypoints
+            data = data.sel(keypoint=keypoints)
+        # A selection of just one keypoint automatically drops the keypoint
         # dimension, hence the need to re-check this here
-        if "keypoints" in data.dims:
-            data = data.mean(dim="keypoints", skipna=True)
-    if "individuals" in da.dims and individuals is not None:
-        data = data.sel(individuals=individuals)
+        if "keypoint" in data.dims:
+            data = data.mean(dim="keypoint", skipna=True)
+    if "individual" in da.dims and individuals is not None:
+        data = data.sel(individual=individuals)
 
     # We need to remove NaN values from each individual, but we can't do this
-    # right now because we still potentially have a (time, space, individuals)
+    # right now because we still potentially have a (time, space, individual)
     # array and so dropping NaNs along any axis may remove valid points for
     # other times / individuals.
-    # Since we only care about a count, we can just unravel the individuals
+    # Since we only care about a count, we can just unravel the individual
     # dimension and create a "long" array of points. For example, a (10, 2, 5)
-    # time-space-individuals DataArray becomes (50, 2).
-    if "individuals" in data.dims:
+    # time-space-individual DataArray becomes (50, 2).
+    if "individual" in data.dims:
         data = data.stack(
-            {"new": ("time", "individuals")}, create_index=False
+            {"new": ("time", "individual")}, create_index=False
         ).swap_dims({"new": "time"})
     # We should now have just the relevant time-space data,
     # so we can remove time-points with NaN values.
