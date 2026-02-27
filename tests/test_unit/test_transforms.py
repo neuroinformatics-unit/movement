@@ -452,252 +452,134 @@ def test_compute_homography_transform_invalid_input(
 # ============= Tests for poses_to_bboxes =============
 
 
-def create_position_da(
-    n_frames=5,
-    n_keypoints=3,
-    n_individuals=2,
-    keypoint_positions=None,
-):
-    """Create a poses position DataArray with configurable parameters.
-
-    Parameters
-    ----------
-    n_frames : int
-        Number of time frames.
-    n_keypoints : int
-        Number of keypoints per individual.
-    n_individuals : int
-        Number of individuals.
-    keypoint_positions : dict, optional
-        Dict mapping (individual_id, keypoint_id) to (x, y) tuples.
-        If None, uses default positions:
-        Individual 0: keypoints at (0,0), (10,0), (10,10)
-        Individual 1: keypoints at (20,20), (30,20), (30,30).
-
-    Returns
-    -------
-    xarray.DataArray
-        Position array with dims (time, space, keypoints, individuals).
-
-    """
-    n_space = 2
-    position = np.zeros((n_frames, n_space, n_keypoints, n_individuals))
-
-    if keypoint_positions is None:
-        if n_individuals > 0 and n_keypoints >= 3:
-            position[:, 0, 0, 0] = 0.0
-            position[:, 1, 0, 0] = 0.0
-            position[:, 0, 1, 0] = 10.0
-            position[:, 1, 1, 0] = 0.0
-            position[:, 0, 2, 0] = 10.0
-            position[:, 1, 2, 0] = 10.0
-        if n_individuals > 1 and n_keypoints >= 3:
-            position[:, 0, 0, 1] = 20.0
-            position[:, 1, 0, 1] = 20.0
-            position[:, 0, 1, 1] = 30.0
-            position[:, 1, 1, 1] = 20.0
-            position[:, 0, 2, 1] = 30.0
-            position[:, 1, 2, 1] = 30.0
-    else:
-        for (ind_id, kpt_id), (x, y) in keypoint_positions.items():
-            position[:, 0, kpt_id, ind_id] = x
-            position[:, 1, kpt_id, ind_id] = y
-
-    return xr.DataArray(
-        position,
-        dims=("time", "space", "keypoints", "individuals"),
-        coords={
-            "time": np.arange(n_frames),
-            "space": ["x", "y"],
-            "keypoints": [f"kpt_{i}" for i in range(n_keypoints)],
-            "individuals": [f"id_{i}" for i in range(n_individuals)],
-        },
-    )
-
-
-def verify_bbox_result(
-    pos_da, shape_da, expected_position, expected_shape, ind_id=0, frame_id=0
-):
-    """Verify bbox position and shape values.
-
-    Parameters
-    ----------
-    pos_da : xarray.DataArray
-        Centroid DataArray returned by poses_to_bboxes.
-    shape_da : xarray.DataArray
-        Shape DataArray returned by poses_to_bboxes.
-    expected_position : tuple
-        Expected (x_centroid, y_centroid).
-    expected_shape : tuple
-        Expected (width, height).
-    ind_id : int
-        Individual index to check. Default is 0.
-    frame_id : int
-        Frame index to check. Default is 0.
-
-    """
-    assert np.allclose(
-        pos_da.isel(time=frame_id, individuals=ind_id).sel(space="x"),
-        expected_position[0],  # x-coord
-    )
-    assert np.allclose(
-        pos_da.isel(time=frame_id, individuals=ind_id).sel(space="y"),
-        expected_position[1],  # y-coord
-    )
-    assert np.allclose(
-        shape_da.isel(time=frame_id, individuals=ind_id).sel(space="x"),
-        expected_shape[0],  # width
-    )
-    assert np.allclose(
-        shape_da.isel(time=frame_id, individuals=ind_id).sel(space="y"),
-        expected_shape[1],  # height
-    )
-
-
-@pytest.fixture
-def simple_position_da():
-    """Position DataArray: 2 individuals, 3 keypoints, 5 frames."""
-    return create_position_da(n_frames=5, n_keypoints=3, n_individuals=2)
-
-
 @pytest.mark.parametrize(
     "padding, expected_shape",
     [
-        (0, (10.0, 10.0)),
-        (5, (20.0, 20.0)),
-        (10.5, (31.0, 31.0)),
-        (100, (210.0, 210.0)),
+        (0, (1.0, 1.0)),
+        (5, (11.0, 11.0)),
+        (10.5, (22.0, 22.0)),
+        (100, (201.0, 201.0)),
     ],
 )
-def test_poses_to_bboxes(simple_position_da, padding, expected_shape):
-    """Test bounding box computation with various padding values."""
-    pos_da, shape_da = poses_to_bboxes(simple_position_da, padding=padding)
+def test_poses_to_bboxes(valid_poses_dataset, padding, expected_shape):
+    """Test bounding box computation with various padding values.
 
-    # Check dimensions and coordinates are as expected
+    The valid_poses_dataset fixture provides 2 individuals with 3
+    keypoints moving in uniform linear motion over 10 frames.
+    At each frame t, the bbox shape (before padding) is (1, 1)
+    for both individuals.
+    """
+    position = valid_poses_dataset.position
+    pos_da, shape_da = poses_to_bboxes(position, padding=padding)
+
+    # Check dimensions and coordinates
     assert pos_da.dims == ("time", "space", "individuals")
     assert shape_da.dims == ("time", "space", "individuals")
     assert list(pos_da.coords["space"].values) == ["x", "y"]
     assert list(pos_da.coords["individuals"].values) == ["id_0", "id_1"]
     np.testing.assert_array_equal(
-        pos_da.coords["time"].values, simple_position_da.coords["time"].values
+        pos_da.coords["time"].values, position.coords["time"].values
+    )
+    # keypoints dimension must be gone
+    assert "keypoints" not in pos_da.dims
+    assert "keypoints" not in shape_da.dims
+
+    # At frame 0:
+    #   id_0 keypoints: centroid (0,0), left (0,1), right (1,0)
+    #     -> bbox centroid (0.5, 0.5), shape (1, 1) + padding
+    #   id_1 keypoints: centroid (0,0), left (-1,0), right (0,1)
+    #     -> bbox centroid (-0.5, 0.5), shape (1, 1) + padding
+    assert np.allclose(pos_da.sel(time=0, individuals="id_0"), [0.5, 0.5])
+    assert np.allclose(
+        shape_da.sel(time=0, individuals="id_0"), expected_shape
+    )
+    assert np.allclose(pos_da.sel(time=0, individuals="id_1"), [-0.5, 0.5])
+    assert np.allclose(
+        shape_da.sel(time=0, individuals="id_1"), expected_shape
     )
 
-    # Check shape and centroid values per individual
-    # Centroids are unaffected by padding
-    expected_centroid_id_0 = (5.0, 5.0)
-    expected_centroid_id_1 = (25.0, 25.0)
-    verify_bbox_result(
-        pos_da, shape_da, expected_centroid_id_0, expected_shape, ind_id=0
-    )
-    verify_bbox_result(
-        pos_da, shape_da, expected_centroid_id_1, expected_shape, ind_id=1
-    )
 
-
-def test_poses_to_bboxes_single_keypoint():
+@pytest.mark.parametrize(
+    "valid_poses_dataset",
+    ["single_keypoint_array"],
+    indirect=True,
+)
+def test_poses_to_bboxes_single_keypoint(valid_poses_dataset):
     """Test conversion with single keypoint per individual.
 
     With a single keypoint, the bbox should have zero width/height.
     """
-    position = create_position_da(
-        n_frames=3,
-        n_keypoints=1,
-        n_individuals=1,
-        keypoint_positions={(0, 0): (5.0, 10.0)},
-        # first individual, first keypoint at x=5, y=10
-    )
-
+    position = valid_poses_dataset.position
     pos_da, shape_da = poses_to_bboxes(position)
 
-    # Centroid should be at the single keypoint
-    assert np.allclose(pos_da.values[:, 0, 0], 5.0)
-    assert np.allclose(pos_da.values[:, 1, 0], 10.0)
+    # Shape should be zero everywhere (single keypoint -> no span)
+    assert np.allclose(shape_da.values, 0.0)
 
-    # Shape should be zero (no span)
-    assert np.allclose(shape_da.values[:, 0, 0], 0.0)  # width
-    assert np.allclose(shape_da.values[:, 1, 0], 0.0)  # height
+    # The bbox centroid should match the original "centroid" keypoint
+    np.testing.assert_allclose(
+        pos_da.values, position.sel(keypoints="centroid").values
+    )
 
 
-def test_poses_to_bboxes_with_nan(simple_position_da):
+def test_poses_to_bboxes_with_nan(valid_poses_dataset):
     """Test conversion with NaN values in positions.
 
     NaN keypoints should be ignored in the bbox calculation.
     """
-    # Create position keypoint data
-    position = simple_position_da.copy(deep=True)
-    # Set some frames all to NaN
-    position.sel(time=0, individuals="id_0", keypoints="kpt_0").values[:] = (
+    position = valid_poses_dataset.position.copy(deep=True)
+
+    # Set "left" keypoint of id_0 at frame 0 to NaN
+    position.loc[{"time": 0, "individuals": "id_0", "keypoints": "left"}] = (
         np.nan
     )
-    position.sel(time=1, individuals="id_1", keypoints="kpt_1").values[:] = (
+    # Set "right" keypoint of id_1 at frame 1 to NaN
+    position.loc[{"time": 1, "individuals": "id_1", "keypoints": "right"}] = (
         np.nan
     )
 
-    # Compute bboxes arrays
     pos_da, shape_da = poses_to_bboxes(position)
 
-    # Frame 0, individual 0: only 2 keypoints valid
-    # Remaining keypoints: (10,0), (10,10)
-    # -> centroid (10, 5), shape (0, 10)
-    expected_centroid_id_0 = (10.0, 5.0)
-    expected_shape_id_0 = (0.0, 10.0)
-    verify_bbox_result(
-        pos_da,
-        shape_da,
-        expected_centroid_id_0,
-        expected_shape_id_0,
-        ind_id=0,
-        frame_id=0,
-    )
+    # Frame 0, id_0: "left" is NaN,
+    # remaining: centroid (x=0,y=0), right (x=1,y=0)
+    # -> min (0,0), max (1,0) -> centroid (0.5, 0), shape (1, 0)
+    assert np.allclose(pos_da.sel(time=0, individuals="id_0"), [0.5, 0.0])
+    assert np.allclose(shape_da.sel(time=0, individuals="id_0"), [1.0, 0.0])
 
-    # Frame 1, individual 1: only 2 keypoints valid
-    # Remaining keypoints: (20,20), (30,30)
-    # -> centroid (25, 25), shape (10, 10)
-    expected_centroid_id_1 = (25.0, 25.0)
-    expected_shape_id_1 = (10.0, 10.0)
-    verify_bbox_result(
-        pos_da,
-        shape_da,
-        expected_centroid_id_1,
-        expected_shape_id_1,
-        ind_id=1,
-        frame_id=1,
-    )
+    # Frame 1, id_1: "right" is NaN,
+    # remaining: centroid (x=1,y=-1), left (x=0,y=-1)
+    # -> min (0,-1), max (1,-1) -> centroid (0.5, -1), shape (1, 0)
+    assert np.allclose(pos_da.sel(time=1, individuals="id_1"), [0.5, -1.0])
+    assert np.allclose(shape_da.sel(time=1, individuals="id_1"), [1.0, 0.0])
 
 
-def test_poses_to_bboxes_all_nan_frame():
+def test_poses_to_bboxes_all_nan_frame(valid_poses_dataset):
     """Test frame where all keypoints are NaN for an individual.
 
     The corresponding bbox position and shape should be NaN for
     that frame and individual.
     """
-    # Create pose data for 3 frames, 3 keypoints, 1 individual,
-    # all kpts at (5,5)
-    position = create_position_da(
-        n_frames=3,
-        n_keypoints=3,
-        n_individuals=1,
-        keypoint_positions={(0, i): (5.0, 5.0) for i in range(3)},
-    )
-    # Set all keypoints to NaN in frame 1
+    position = valid_poses_dataset.position.copy(deep=True)
+
+    # Set all keypoints to NaN for id_0 at frame 1
     position.sel(time=1, individuals="id_0").values[:] = np.nan
 
-    # Compute bboxes arrays
     pos_da, shape_da = poses_to_bboxes(position)
 
-    # Frame 1 should have all NaN
+    # Frame 1, id_0 should be all NaN
     assert np.all(np.isnan(pos_da.sel(time=1, individuals="id_0").values))
     assert np.all(np.isnan(shape_da.sel(time=1, individuals="id_0").values))
 
-    # Other frames should be valid (all keypoints at 5,5 -> zero-size bbox)
-    expected_centroid = (5.0, 5.0)
-    expected_shape = (0.0, 0.0)
-    verify_bbox_result(
-        pos_da, shape_da, expected_centroid, expected_shape, frame_id=0
-    )
-    verify_bbox_result(
-        pos_da, shape_da, expected_centroid, expected_shape, frame_id=2
-    )
+    # Frame 0, id_0 should be unaffected: centroid (0.5, 0.5), shape (1, 1)
+    assert np.allclose(pos_da.sel(time=0, individuals="id_0"), [0.5, 0.5])
+    assert np.allclose(shape_da.sel(time=0, individuals="id_0"), [1.0, 1.0])
+
+    # Frame 0, id_1 should be unaffected: centroid (-0.5, 0.5), shape (1, 1)
+    assert np.allclose(pos_da.sel(time=0, individuals="id_1"), [-0.5, 0.5])
+    assert np.allclose(shape_da.sel(time=0, individuals="id_1"), [1.0, 1.0])
+
+    # Frame 1, id_1 should be unaffected: centroid (0.5, -0.5), shape (1, 1)
+    assert np.allclose(pos_da.sel(time=1, individuals="id_1"), [0.5, -0.5])
+    assert np.allclose(shape_da.sel(time=1, individuals="id_1"), [1.0, 1.0])
 
 
 def test_poses_to_bboxes_partial_nan_keypoints():
@@ -749,22 +631,35 @@ def test_poses_to_bboxes_partial_nan_keypoints():
 
 def test_poses_to_bboxes_degenerate_bbox():
     """Test when all keypoints are co-located produces a zero-size bbox."""
-    # Create pose data for 2 frames, 3 keypoints, 1 individual,
-    # all kpts at (5,5)
-    common_position = (5.0, 5.0)
-    position = create_position_da(
-        n_frames=2,
-        n_keypoints=3,
-        n_individuals=1,
-        keypoint_positions={(0, i): common_position for i in range(3)},
+    position = xr.DataArray(
+        np.full((2, 2, 3, 1), 5.0),
+        dims=("time", "space", "keypoints", "individuals"),
+        coords={
+            "time": np.arange(2),
+            "space": ["x", "y"],
+            "keypoints": ["kpt_0", "kpt_1", "kpt_2"],
+            "individuals": ["id_0"],
+        },
     )
 
-    # Compute bboxes arrays
     pos_da, shape_da = poses_to_bboxes(position)
 
-    # Check bbox centroid matches the co-located keypoints and shape is zero
+    # Centroid should match the co-located keypoints, shape should be zero
     assert np.allclose(pos_da.sel(individuals="id_0"), [5.0, 5.0])
     assert np.allclose(shape_da.sel(individuals="id_0"), [0.0, 0.0])
+
+
+# A valid position DataArray for use in parametrized error tests.
+_VALID_POSITION_DA = xr.DataArray(
+    np.zeros((1, 2, 2, 1)),
+    dims=("time", "space", "keypoints", "individuals"),
+    coords={
+        "time": np.arange(2),
+        "space": ["x", "y"],
+        "keypoints": ["kpt_0", "kpt_1"],
+        "individuals": ["id_0"],
+    },
+)
 
 
 @pytest.mark.parametrize(
@@ -806,28 +701,27 @@ def test_poses_to_bboxes_degenerate_bbox():
             {},
             ValueError,
             "Input data must contain",
-            # missing required coords and dimensions
         ),
         (
-            create_position_da(n_frames=2, n_keypoints=2, n_individuals=1),
+            _VALID_POSITION_DA,
             {"padding": -5},
             ValueError,
             "padding must be non-negative",
         ),
         (
-            create_position_da(n_frames=2, n_keypoints=2, n_individuals=1),
+            _VALID_POSITION_DA,
             {"padding": "10"},
             TypeError,
             "padding must be a number",
         ),
         (
-            create_position_da(n_frames=2, n_keypoints=2, n_individuals=1),
+            _VALID_POSITION_DA,
             {"padding": [10]},
             TypeError,
             "padding must be a number",
         ),
         (
-            create_position_da(n_frames=2, n_keypoints=2, n_individuals=1),
+            _VALID_POSITION_DA,
             {"padding": None},
             TypeError,
             "padding must be a number",
