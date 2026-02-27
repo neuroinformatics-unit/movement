@@ -11,6 +11,7 @@ from movement.validators.files import (
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
     ValidNWBFile,
+    ValidROICollectionGeoJSON,
     ValidSleapAnalysis,
     ValidSleapLabels,
     ValidVIATracksCSV,
@@ -408,3 +409,130 @@ def test_nwb_file_validator(input, expected_context, request):
         file = file()
     with expected_context:
         ValidNWBFile(file)
+
+
+_POLYGON_FEATURE = (
+    '{"type": "Feature", "geometry": {"type": "Polygon", '
+    '"coordinates": [[[0,0],[1,0],[1,1],[0,0]]]}, "properties": {}}'
+)
+
+
+def _feature_collection(*features: str) -> str:
+    """Build a GeoJSON FeatureCollection string."""
+    joined = ", ".join(features)
+    return f'{{"type": "FeatureCollection", "features": [{joined}]}}'
+
+
+def _feature_with_roi_type(geom_type: str, coords: str, roi_type: str) -> str:
+    """Build a GeoJSON Feature string with an roi_type property."""
+    return (
+        f'{{"type": "Feature", '
+        f'"geometry": {{"type": "{geom_type}", '
+        f'"coordinates": {coords}}}, '
+        f'"properties": {{"roi_type": "{roi_type}"}}}}'
+    )
+
+
+@pytest.mark.parametrize(
+    "content, expected_context",
+    [
+        pytest.param(
+            _feature_collection(_POLYGON_FEATURE),
+            does_not_raise(),
+            id="valid FeatureCollection with polygon",
+        ),
+        pytest.param(
+            _feature_collection(),
+            does_not_raise(),
+            id="valid empty FeatureCollection",
+        ),
+        pytest.param(
+            "not valid json {",
+            pytest.raises(ValueError, match="not valid JSON"),
+            id="invalid JSON",
+        ),
+        pytest.param(
+            '{"type": "Feature", "geometry": null}',
+            pytest.raises(
+                ValueError,
+                match="'features' is a required property",
+            ),
+            id="not a FeatureCollection",
+        ),
+        pytest.param(
+            '{"type": "FeatureCollection"}',
+            pytest.raises(
+                ValueError,
+                match="'features' is a required property",
+            ),
+            id="missing features key",
+        ),
+        pytest.param(
+            _feature_collection('{"type": "Feature", "properties": {}}'),
+            pytest.raises(
+                ValueError,
+                match="'geometry' is a required property",
+            ),
+            id="feature missing geometry",
+        ),
+        pytest.param(
+            _feature_collection(
+                '{"type": "Feature", "geometry": null, "properties": {}}'
+            ),
+            pytest.raises(
+                ValueError,
+                match="None is not of type 'object'",
+            ),
+            id="feature with null geometry",
+        ),
+        pytest.param(
+            _feature_collection(
+                '{"type": "Feature", '
+                '"geometry": {"type": "Point", '
+                '"coordinates": [0, 0]}, "properties": {}}'
+            ),
+            pytest.raises(
+                ValueError,
+                match="'Point' is not one of "
+                "\\['Polygon', 'LineString', 'LinearRing'\\]",
+            ),
+            id="unsupported geometry type (Point)",
+        ),
+        pytest.param(
+            _feature_collection(
+                _feature_with_roi_type(
+                    "LineString",
+                    "[[0,0],[1,1]]",
+                    "PolygonOfInterest",
+                )
+            ),
+            pytest.raises(
+                TypeError,
+                match="does not match geometry type",
+            ),
+            id="roi_type mismatch: LineString/PolygonOfInterest",
+        ),
+        pytest.param(
+            _feature_collection(
+                _feature_with_roi_type(
+                    "Polygon",
+                    "[[[0,0],[1,0],[1,1],[0,0]]]",
+                    "UnknownROI",
+                )
+            ),
+            pytest.raises(
+                ValueError,
+                match="'UnknownROI' is not one of "
+                "\\['PolygonOfInterest', 'LineOfInterest'\\]",
+            ),
+            id="unknown roi_type",
+        ),
+    ],
+)
+def test_roi_collection_geojson_validator(content, expected_context, tmp_path):
+    """Test ValidROICollectionGeoJSON with valid and invalid inputs."""
+    file_path = tmp_path / "test.geojson"
+    file_path.write_text(content)
+    with expected_context:
+        validated = ValidROICollectionGeoJSON(file_path)
+        assert validated.file == file_path

@@ -13,7 +13,7 @@ The following features are being considered for the first stable version `v1.0`.
 - __Interactively visualise motion tracks__. We are experimenting with [napari](napari:) as a visualisation and GUI framework.
 - __Clean motion tracks__, including, but not limited to, handling of missing values, filtering, smoothing, and resampling.
 - __Derive kinematic variables__ like velocity, acceleration, joint angles, etc., focusing on those prevalent in neuroscience and ethology.
-- __Integrate spatial data about the animal's environment__ for combined analysis with motion tracks. This covers regions of interest (ROIs) such as the arena in which the animal is moving and the location of objects within it.
+- __Integrate spatial data about the animal's environment__ for combined analysis with motion tracks. This covers regions of interest (RoIs) such as the arena in which the animal is moving and the location of objects within it.
 - __Define and transform coordinate systems__. Coordinates can be relative to the camera, environment, or the animal itself (egocentric).
 - __Provide common metrics for specialised applications__. These applications could include gait analysis, pupillometry, spatial
 navigation, social interactions, etc.
