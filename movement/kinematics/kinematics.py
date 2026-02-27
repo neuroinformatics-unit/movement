@@ -532,14 +532,6 @@ def compute_sinuosity(
     """
     validate_dims_coords(data, {"time": [], "space": []})
 
-    if _is_stationary_trajectory(data):
-        result = xr.DataArray(
-            np.nan,
-            attrs={"units": "dimensionless"},
-        )
-        result.name = "sinuosity"
-        return result
-
     if _is_stationary_trajectory(data) or not _filter_valid_regions(data):
         return _make_nan_result("sinuosity")
 
@@ -641,14 +633,6 @@ def compute_straightness_index(
     """
     validate_dims_coords(data, {"time": [], "space": []})
 
-    if _is_stationary_trajectory(data):
-        result = xr.DataArray(
-            np.nan,
-            attrs={"units": "dimensionless"},
-        )
-        result.name = "straightness_index"
-        return result
-
     if _is_stationary_trajectory(data) or not _filter_valid_regions(data):
         return _make_nan_result("straightness_index")
 
@@ -717,7 +701,5 @@ def _is_stationary_trajectory(
     first_valid_idx = valid_mask.argmax(dim="time")
     first_pos = data.isel(time=first_valid_idx)
     valid_data = data.where(valid_mask, drop=True)
-    if valid_data.sizes["time"] == 0:
-        return True
     deviation = np.abs(valid_data - first_pos).max()
     return bool(deviation < tolerance)
