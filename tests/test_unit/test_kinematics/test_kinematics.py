@@ -344,11 +344,13 @@ def test_path_length_nan_warn_threshold(
 def test_forward_displacement_with_multiindex_coords():
     """Test compute_forward_displacement with DataArray from pandas MultiIndex.
 
-    This is a regression test for issue #794. When creating an xarray DataArray
-    from a pandas DataFrame with MultiIndex using .to_xarray(), the resulting
-    coordinates retain the _no_setting_name flag from pandas MultiIndex levels.
-    This caused a RuntimeError when xarray's .reindex() tried to set .name on
-    these indices.
+    This is a test for the fix of issue
+    [#794](https://github.com/neuroinformatics-unit/movement/issues/794).
+    When creating an xarray DataArray from a MultiIndex pandas DataFrame
+    using `.to_xarray()`, the resulting coordinates retain the
+    `_no_setting_name` flag from pandas MultiIndex levels.
+    This caused a RuntimeError when xarray's `.reindex()` tried to set
+    `.name` on these indices.
     """
     # Create DataFrame with MultiIndex (reproduction from issue #794)
     frames = range(3)
