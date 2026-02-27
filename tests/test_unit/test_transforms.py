@@ -649,21 +649,8 @@ def test_poses_to_bboxes_degenerate_bbox():
     assert np.allclose(shape_da.sel(individuals="id_0"), [0.0, 0.0])
 
 
-# A valid position DataArray for use in parametrized error tests.
-_VALID_POSITION_DA = xr.DataArray(
-    np.zeros((1, 2, 2, 1)),
-    dims=("time", "space", "keypoints", "individuals"),
-    coords={
-        "time": np.arange(2),
-        "space": ["x", "y"],
-        "keypoints": ["kpt_0", "kpt_1"],
-        "individuals": ["id_0"],
-    },
-)
-
-
 @pytest.mark.parametrize(
-    "position, kwargs, expected_exception, expected_message",
+    "position, expected_exception, expected_message",
     [
         (
             xr.DataArray(
@@ -676,7 +663,6 @@ _VALID_POSITION_DA = xr.DataArray(
                     "individuals": ["id_0"],
                 },
             ),
-            {},
             ValueError,
             "Dimension 'space' must only contain \\['x', 'y'\\]",
         ),
@@ -688,7 +674,6 @@ _VALID_POSITION_DA = xr.DataArray(
                     )
                 }
             ),
-            {},
             TypeError,
             "Expected an xarray DataArray",
         ),
@@ -698,39 +683,31 @@ _VALID_POSITION_DA = xr.DataArray(
                 dims=("foo", "bar"),
                 coords={"foo": ["x", "y"]},
             ),
-            {},
             ValueError,
             "Input data must contain",
         ),
-        (
-            _VALID_POSITION_DA,
-            {"padding": -5},
-            ValueError,
-            "padding must be non-negative",
-        ),
-        (
-            _VALID_POSITION_DA,
-            {"padding": "10"},
-            TypeError,
-            "padding must be a number",
-        ),
-        (
-            _VALID_POSITION_DA,
-            {"padding": [10]},
-            TypeError,
-            "padding must be a number",
-        ),
-        (
-            _VALID_POSITION_DA,
-            {"padding": None},
-            TypeError,
-            "padding must be a number",
-        ),
     ],
 )
-def test_poses_to_bboxes_invalid(
-    position, kwargs, expected_exception, expected_message
+def test_poses_to_bboxes_invalid_position(
+    position, expected_exception, expected_message
 ):
-    """Test that invalid inputs raise the expected errors."""
+    """Test that invalid position inputs raise the expected errors."""
     with pytest.raises(expected_exception, match=expected_message):
-        poses_to_bboxes(position, **kwargs)
+        poses_to_bboxes(position)
+
+
+@pytest.mark.parametrize(
+    "padding, expected_exception, expected_message",
+    [
+        (-5, ValueError, "padding must be non-negative"),
+        ("10", TypeError, "padding must be a number"),
+        ([10], TypeError, "padding must be a number"),
+        (None, TypeError, "padding must be a number"),
+    ],
+)
+def test_poses_to_bboxes_invalid_padding(
+    valid_poses_dataset, padding, expected_exception, expected_message
+):
+    """Test that invalid padding values raise the expected errors."""
+    with pytest.raises(expected_exception, match=expected_message):
+        poses_to_bboxes(valid_poses_dataset.position, padding=padding)
