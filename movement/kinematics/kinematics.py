@@ -13,6 +13,7 @@ public API may be revised to reflect this distinction more explicitly.
 import warnings
 from typing import Literal
 
+import numpy as np
 import xarray as xr
 
 from movement.utils.logging import logger
@@ -250,8 +251,6 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     compute_time_derivative : The underlying function used.
 
     """
-    # validate only presence of Cartesian space dimension
-    # (presence of time dimension will be checked in compute_time_derivative)
     validate_dims_coords(data, {"space": []})
     result = compute_time_derivative(data, order=1)
     result.name = "velocity"
@@ -388,7 +387,6 @@ def compute_path_length(
     """
     validate_dims_coords(data, {"time": [], "space": []})
     data = data.sel(time=slice(start, stop))
-    # Check that the data is not empty or too short
     n_time = data.sizes["time"]
     if n_time < 2:
         raise logger.error(
@@ -405,8 +403,8 @@ def compute_path_length(
         result = compute_norm(
             compute_backward_displacement(data.ffill(dim="time")).isel(
                 time=slice(1, None)
-            )  # skip first displacement (always 0)
-        ).sum(dim="time", min_count=1)  # return NaN if no valid segment
+            )
+        ).sum(dim="time", min_count=1)
     elif nan_policy == "scale":
         result = _compute_scaled_path_length(data)
     else:
@@ -484,13 +482,224 @@ def _compute_scaled_path_length(
         except ``time`` and ``space`` are removed.
 
     """
-    # Skip first displacement segment (always 0) to not mess up the scaling
     displacement = compute_backward_displacement(data).isel(
         time=slice(1, None)
     )
-    # count number of valid displacement segments per point track
     valid_segments = (~displacement.isnull()).all(dim="space").sum(dim="time")
-    # compute proportion of valid segments per point track
     valid_proportion = valid_segments / (data.sizes["time"] - 1)
-    # return scaled path length
     return compute_norm(displacement).sum(dim="time") / valid_proportion
+
+
+def _make_nan_result(name: str) -> xr.DataArray:
+    result = xr.DataArray(np.nan, attrs={"units": "dimensionless"})
+    result.name = name
+    return result
+
+
+def compute_sinuosity(
+    data: xr.DataArray,
+    nan_policy: Literal["ffill", "scale"] = "scale",
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    """Compute Benhamou's sinuosity index for trajectory data.
+
+    Sinuosity measures the tortuosity of a path as the ratio of the
+    path length to the net displacement, with values closer to 1
+    indicating straighter paths.
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        The input data containing position information, with
+        ``time`` and ``space`` (containing ``x`` and ``y``)
+        as required dimensions.
+    nan_policy : Literal["ffill", "scale"], optional
+        Policy to handle NaN values. Default is "scale".
+    nan_warn_threshold : float, optional
+        Proportion of NaN values above which to issue a warning.
+        Default is 0.2 (20%).
+
+    Returns
+    -------
+    xr.DataArray
+        An xarray DataArray containing the sinuosity index.
+
+    References
+    ----------
+    Benhamou, S. (2004). How to reliably estimate the tortuosity of
+    an animal's path. Journal of Theoretical Biology, 229(2), 209-220.
+
+    """
+    validate_dims_coords(data, {"time": [], "space": []})
+
+    if _is_stationary_trajectory(data) or not _filter_valid_regions(data):
+        return _make_nan_result("sinuosity")
+
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+
+    path_length = compute_path_length(data, nan_policy=nan_policy)
+
+    net_displacement = _compute_net_displacement(data)
+
+    sinuosity = xr.where(
+        net_displacement > 0,
+        path_length / net_displacement,
+        np.nan,
+    )
+
+    sinuosity.name = "sinuosity"
+    return sinuosity
+
+
+def _compute_net_displacement(data: xr.DataArray) -> xr.DataArray:
+    """Compute net displacement (start-to-end Euclidean distance)."""
+    start_pos = _get_first_valid_position(data)
+    end_pos = _get_last_valid_position(data)
+    diff = end_pos - start_pos
+    dist = np.sqrt((diff**2).sum(dim="space"))
+    return xr.DataArray(dist)
+
+
+def _get_first_valid_position(data: xr.DataArray) -> xr.DataArray:
+    """Get the first valid (non-NaN) position for each trajectory.
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        Position data with time and space dimensions.
+
+    Returns
+    -------
+    xr.DataArray
+        First valid position for each individual/keypoint.
+
+    """
+    valid_mask = ~data.isnull().any(dim="space")
+    first_valid_idx = valid_mask.argmax(dim="time")
+
+    return data.isel(time=first_valid_idx)
+
+
+def _get_last_valid_position(data: xr.DataArray) -> xr.DataArray:
+    """Get the last valid (non-NaN) position for each trajectory.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        Position data with time and space dimensions.
+
+    Returns
+    -------
+    xarray.DataArray
+        Last valid position for each individual/keypoint.
+
+    """
+    valid_mask = ~data.isnull().any(dim="space")
+
+    return data.where(valid_mask, drop=True).isel(time=-1)
+
+
+def compute_straightness_index(
+    data: xr.DataArray,
+    nan_policy: Literal["ffill", "scale"] = "scale",
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    """Compute straightness index for trajectory data.
+
+    The straightness index is the inverse of sinuosity, ranging from
+    0 (highly tortuous) to 1 (perfectly straight).
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        The input data containing position information, with
+        ``time`` and ``space`` as required dimensions.
+    nan_policy : Literal["ffill", "scale"], optional
+        Policy to handle NaN values. Default is "scale".
+    nan_warn_threshold : float, optional
+        Proportion of NaN values above which to issue a warning.
+        Default is 0.2 (20%).
+
+    Returns
+    -------
+    xr.DataArray
+        An xarray DataArray containing the straightness index.
+
+    Notes
+    -----
+    Straightness Index = net_displacement / path_length
+    This is the reciprocal of Benhamou's sinuosity.
+
+    """
+    validate_dims_coords(data, {"time": [], "space": []})
+
+    if _is_stationary_trajectory(data) or not _filter_valid_regions(data):
+        return _make_nan_result("straightness_index")
+
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+
+    path_length = compute_path_length(data, nan_policy=nan_policy)
+    net_displacement = _compute_net_displacement(data)
+    straightness = xr.where(
+        path_length > 0,
+        net_displacement / path_length,
+        np.nan,
+    )
+    straightness.name = "straightness_index"
+    return straightness
+
+
+def _filter_valid_regions(
+    data: xr.DataArray,
+    min_valid_points: int = 2,
+) -> bool:
+    """Check if trajectory has sufficient valid (non-NaN) data points.
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        The input data containing position information.
+    min_valid_points : int, optional
+        Minimum number of valid points required for a meaningful
+        computation. Default is 2.
+
+    Returns
+    -------
+    bool
+        True if trajectory has sufficient valid data, False otherwise.
+
+    """
+    valid_mask = ~data.isnull().any(dim="space")
+    valid_count = valid_mask.sum(dim="time")
+    return bool(valid_count >= min_valid_points)
+
+
+def _is_stationary_trajectory(
+    data: xr.DataArray,
+    tolerance: float = 1e-10,
+) -> bool:
+    """Check if a trajectory is stationary (no movement).
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        The input data containing position information.
+    tolerance : float, optional
+        Tolerance for considering positions as identical.
+        Default is 1e-10.
+
+    Returns
+    -------
+    bool
+        True if the trajectory is stationary, False otherwise.
+
+    """
+    valid_mask = ~data.isnull().any(dim="space")
+
+    if not valid_mask.any():
+        return True
+    first_valid_idx = valid_mask.argmax(dim="time")
+    first_pos = data.isel(time=first_valid_idx)
+    valid_data = data.where(valid_mask, drop=True)
+    deviation = np.abs(valid_data - first_pos).max()
+    return bool(deviation < tolerance)
