@@ -13,8 +13,11 @@ public API may be revised to reflect this distinction more explicitly.
 import warnings
 from typing import Literal
 
+import numpy as np
 import xarray as xr
+from scipy.stats import circmean as _circmean
 
+from movement.kinematics.orientation import compute_forward_vector_angle
 from movement.utils.logging import logger
 from movement.utils.reports import report_nan_values
 from movement.utils.vector import compute_norm
@@ -419,6 +422,176 @@ def compute_path_length(
 
     result.name = "path_length"
     return result
+
+
+def _rolling_circmean(arr: np.ndarray, window: int) -> np.ndarray:
+    """Apply a circular mean in a rolling window along a 1D array.
+
+    Uses :func:`scipy.stats.circmean` to correctly average angles near the
+    ±π boundary without unwrapping.
+
+    Parameters
+    ----------
+    arr : np.ndarray
+        1D array of angles in radians, in the range ``(-π, π]``.
+    window : int
+        Number of observations per window. The window is centred on each
+        sample; edge samples use a truncated window.
+
+    Returns
+    -------
+    np.ndarray
+        Smoothed array of the same shape as ``arr``.
+
+    """
+    half = window // 2
+    n = len(arr)
+    result = np.empty_like(arr, dtype=float)
+    for i in range(n):
+        lo = max(0, i - half)
+        hi = min(n, i + half + 1)
+        result[i] = _circmean(arr[lo:hi], high=np.pi, low=-np.pi)
+    return result
+
+
+def compute_head_angle_velocity(
+    data: xr.DataArray,
+    left_keypoint: str,
+    right_keypoint: str,
+    camera_view: Literal["top_down", "bottom_up"] = "top_down",
+    smoothing_window: int = 3,
+) -> xr.DataArray:
+    """Compute the angular velocity of the head direction over time.
+
+    The angular velocity is the first time-derivative of the head direction
+    angle. The head direction angle is the signed angle between a reference
+    vector [1, 0] and the animal's :func:`head direction vector
+    <movement.kinematics.compute_head_direction_vector>`.
+
+    Before differentiation, a circular rolling mean
+    (:func:`scipy.stats.circmean`) is applied to the angle signal to reduce
+    noise. The circular mean correctly handles the ±π boundary without
+    requiring unwrapping first. The smoothed angles are then unwrapped to
+    remove 2π discontinuities before the time derivative is computed.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data representing position. This must contain
+        the two symmetrical keypoints located on the left and
+        right sides of the head, respectively.
+    left_keypoint : str
+        Name of the left keypoint, e.g., ``"left_ear"``, used to compute
+        the head direction vector.
+    right_keypoint : str
+        Name of the right keypoint, e.g., ``"right_ear"``, used to compute
+        the head direction vector.
+    camera_view : Literal["top_down", "bottom_up"], optional
+        The camera viewing angle, used to determine the upward direction
+        of the animal. Can be either ``"top_down"`` (where the upward
+        direction is [0, 0, -1]) or ``"bottom_up"`` (where the upward
+        direction is [0, 0, 1]). Defaults to ``"top_down"``.
+    smoothing_window : int, optional
+        Number of frames in the centred rolling window used to compute the
+        circular mean of the head direction angle before differentiation.
+        Must be a positive integer. Larger values produce a smoother
+        angular velocity at the cost of temporal resolution. Defaults to
+        ``3``.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the angular velocity of the head
+        direction in radians per second, with the same dimensions as the
+        input data but without the ``space`` and ``keypoints`` dimensions.
+
+    Notes
+    -----
+    Using :func:`scipy.stats.circmean` for smoothing (rather than a standard
+    mean on unwrapped angles) is important because it respects the circular
+    nature of angles. A standard mean near the ±π boundary can produce
+    incorrect results (e.g., averaging 179° and −179° as 0° instead of
+    ±180°).
+
+    See Also
+    --------
+    movement.kinematics.compute_head_direction_vector :
+        The function used to compute the head direction vector.
+    movement.kinematics.compute_forward_vector_angle :
+        The function used to compute the signed angle of the head direction.
+    movement.kinematics.compute_velocity :
+        Analogous function for Cartesian velocity.
+
+    Examples
+    --------
+    Compute angular head velocity with the default smoothing window:
+
+    >>> from movement.kinematics import compute_head_angle_velocity
+    >>> angular_vel = compute_head_angle_velocity(
+    ...     ds.position, "left_ear", "right_ear"
+    ... )
+
+    Use a larger smoothing window for noisier data:
+
+    >>> angular_vel = compute_head_angle_velocity(
+    ...     ds.position, "left_ear", "right_ear", smoothing_window=11
+    ... )
+
+    Raises
+    ------
+    TypeError
+        If ``data`` is not an :class:`xarray.DataArray`.
+    TypeError
+        If ``smoothing_window`` is not an integer.
+    ValueError
+        If ``smoothing_window`` is less than 1.
+
+    """
+    if not isinstance(data, xr.DataArray):
+        raise logger.error(
+            TypeError(
+                "Input data must be an xarray.DataArray, "
+                f"but got {type(data)}."
+            )
+        )
+    if not isinstance(smoothing_window, int):
+        raise logger.error(
+            TypeError(
+                "smoothing_window must be an integer, "
+                f"but got {type(smoothing_window)}."
+            )
+        )
+    if smoothing_window < 1:
+        raise logger.error(
+            ValueError(
+                "smoothing_window must be a positive integer, "
+                f"but got {smoothing_window}."
+            )
+        )
+    head_direction_angle = compute_forward_vector_angle(
+        data=data,
+        left_keypoint=left_keypoint,
+        right_keypoint=right_keypoint,
+        camera_view=camera_view,
+    )
+    head_direction_angle = xr.apply_ufunc(
+        _rolling_circmean,
+        head_direction_angle,
+        kwargs={"window": smoothing_window},
+        input_core_dims=[["time"]],
+        output_core_dims=[["time"]],
+    )
+    head_direction_angle_unwrapped = xr.apply_ufunc(
+        np.unwrap,
+        head_direction_angle,
+        input_core_dims=[["time"]],
+        output_core_dims=[["time"]],
+    )
+    angular_head_velocity = compute_time_derivative(
+        head_direction_angle_unwrapped, 1
+    )
+    angular_head_velocity.name = "angular_head_velocity"
+    return angular_head_velocity
 
 
 def _warn_about_nan_proportion(
