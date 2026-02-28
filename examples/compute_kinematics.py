@@ -419,7 +419,7 @@ for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
     )
     ax.set_title(mouse_name)
     ax.set_xlabel("time (s)")
-    ax.set_ylabel("speed (px/s**2)")
+    ax.set_ylabel("acceleration (px/s**2)")
     ax.legend(loc="center right", bbox_to_anchor=(1.07, 1.07))
 fig.tight_layout()
 
