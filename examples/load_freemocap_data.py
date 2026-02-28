@@ -2,7 +2,7 @@
 ==========================================
 
 Load the ``.csv`` files from `FreeMoCap <https://freemocap.org>`_ into
-``movement`` and visualise them in 3D.
+movement and visualise them in 3D.
 """
 
 # %%
@@ -92,7 +92,7 @@ print(
 
 
 def read_freemocap_as_ds(output_data_dir):
-    """Read FreeMoCap output files as a single ``movement`` dataset.
+    """Read FreeMoCap output files as a single movement dataset.
 
     Parameters
     ----------
@@ -103,7 +103,7 @@ def read_freemocap_as_ds(output_data_dir):
     Returns
     -------
     xarray.Dataset
-        A ``movement`` dataset containing the data from all FreeMoCap output
+        A movement dataset containing the data from all FreeMoCap output
         files. The ``keypoints`` dimension will have the full set of keypoints
         as coordinates. The ``individuals`` dimension will have a single
         coordinate, ``id_0``. The confidence of all keypoints is set to

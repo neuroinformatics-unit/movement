@@ -1,6 +1,6 @@
 # Community
 
-`movement` is made possible by the generous contributions of [many people](target-people).
+movement is made possible by the generous contributions of [many people](target-people).
 
 We welcome and encourage contributions in any form—whether it is fixing a bug,
 developing a new feature, or improving the documentation—as long as you follow our
@@ -31,6 +31,7 @@ Learn how to set up your development environment and contribute code or document
 - [Contribution workflow](target-contribution-workflow)
 - [Development guidelines](target-dev-guidelines)
 - [Contributing documentation](target-contributing-docs)
+- [Text formatting guide](target-text-formatting-guide)
 - [Sample data](target-contributing-sample-data)
 :::
 ::::
@@ -50,6 +51,7 @@ people
 mission-scope
 roadmaps
 contributing
+text_formatting_guide
 resources
 related-projects
 code-of-conduct

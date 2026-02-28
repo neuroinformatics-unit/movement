@@ -62,17 +62,17 @@ def _cdist(
     ``ind2`` (i.e. interindividual distance for all keypoints)
     using the ``position`` data variable in the Dataset ``ds``:
 
-    >>> pos1 = ds.position.sel(individuals="ind1")
-    >>> pos2 = ds.position.sel(individuals="ind2")
-    >>> ind_dists = _cdist(pos1, pos2, dim="individuals")
+    >>> pos1 = ds.position.sel(individuals="ind1")  # doctest: +SKIP
+    >>> pos2 = ds.position.sel(individuals="ind2")  # doctest: +SKIP
+    >>> ind_dists = _cdist(pos1, pos2, dim="individuals")  # doctest: +SKIP
 
     Compute the Euclidean distance (default) between ``key1`` and
     ``key2`` (i.e. interkeypoint distance for all individuals)
     using the ``position`` data variable in the Dataset ``ds``:
 
-    >>> pos1 = ds.position.sel(keypoints="key1")
-    >>> pos2 = ds.position.sel(keypoints="key2")
-    >>> key_dists = _cdist(pos1, pos2, dim="keypoints")
+    >>> pos1 = ds.position.sel(keypoints="key1")  # doctest: +SKIP
+    >>> pos2 = ds.position.sel(keypoints="key2")  # doctest: +SKIP
+    >>> key_dists = _cdist(pos1, pos2, dim="keypoints")  # doctest: +SKIP
 
     See Also
     --------
@@ -177,6 +177,9 @@ def compute_pairwise_distances(
     Compute the Euclidean distance (default) between ``ind1`` and ``ind2``
     (i.e. interindividual distance), for all possible pairs of keypoints.
 
+    >>> import numpy as np
+    >>> import xarray as xr
+    >>> from movement.kinematics.distances import compute_pairwise_distances
     >>> position = xr.DataArray(
     ...     np.arange(36).reshape(2, 3, 3, 2),
     ...     coords={
@@ -191,12 +194,12 @@ def compute_pairwise_distances(
     ...     position, "individuals", {"ind1": "ind2"}
     ... )
     >>> dist_ind1_ind2
-    <xarray.DataArray (time: 2, ind1: 3, ind2: 3)> Size: 144B
+    <xarray.DataArray 'distance' (time: 2, ind1: 3, ind2: 3)> Size: 144B
     8.485 11.31 14.14 5.657 8.485 11.31 ... 5.657 8.485 11.31 2.828 5.657 8.485
     Coordinates:
-    * time     (time) int64 16B 0 1
-    * ind1     (ind1) <U4 48B 'key1' 'key2' 'key3'
-    * ind2     (ind2) <U4 48B 'key1' 'key2' 'key3'
+      * time     (time) int64 16B 0 1
+      * ind1     (ind1) <U4 48B 'key1' 'key2' 'key3'
+      * ind2     (ind2) <U4 48B 'key1' 'key2' 'key3'
 
     The resulting ``dist_ind1_ind2`` is a DataArray containing the computed
     distances between ``ind1`` and ``ind2`` for all keypoints
@@ -205,7 +208,7 @@ def compute_pairwise_distances(
     To obtain the distances between ``key1`` of ``ind1`` and
     ``key2`` of ``ind2``:
 
-    >>> dist_ind1_ind2.sel(ind1="key1", ind2="key2")
+    >>> _ = dist_ind1_ind2.sel(ind1="key1", ind2="key2")
 
     Compute the Euclidean distance (default) between ``key1`` and ``key2``
     (i.e. interkeypoint distance), for all possible pairs of individuals.
@@ -214,12 +217,12 @@ def compute_pairwise_distances(
     ...     position, "keypoints", {"key1": "key2"}
     ... )
     >>> dist_key1_key2
-    <xarray.DataArray (time: 2, key1: 3, key2: 3)> Size: 144B
+    <xarray.DataArray 'distance' (time: 2, key1: 3, key2: 3)> Size: 144B
     2.828 11.31 19.8 5.657 2.828 11.31 14.14 ... 2.828 11.31 14.14 5.657 2.828
     Coordinates:
-    * time     (time) int64 16B 0 1
-    * key1     (key1) <U4 48B 'ind1' 'ind2' 'ind3'
-    * key2     (key2) <U4 48B 'ind1' 'ind2' 'ind3'
+      * time     (time) int64 16B 0 1
+      * key1     (key1) <U4 48B 'ind1' 'ind2' 'ind3'
+      * key2     (key2) <U4 48B 'ind1' 'ind2' 'ind3'
 
     The resulting ``dist_key1_key2`` is a DataArray containing the computed
     distances between ``key1`` and ``key2`` for all individuals
@@ -227,12 +230,12 @@ def compute_pairwise_distances(
 
     To obtain the distances between ``key1`` and ``key2`` within ``ind1``:
 
-    >>> dist_key1_key2.sel(key1="ind1", key2="ind1")
+    >>> _ = dist_key1_key2.sel(key1="ind1", key2="ind1")
 
     To obtain the distances between ``key1`` of ``ind1`` and
     ``key2`` of ``ind2``:
 
-    >>> dist_key1_key2.sel(key1="ind1", key2="ind2")
+    >>> _ = dist_key1_key2.sel(key1="ind1", key2="ind2")
 
     Compute the city block or Manhattan distance for multiple pairs of
     keypoints using ``position``:

@@ -1,4 +1,4 @@
-"""Load data from various frameworks into ``movement``."""
+"""Load data from various frameworks into movement."""
 
 from collections.abc import Callable
 from functools import wraps
@@ -236,7 +236,7 @@ def load_dataset(
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from any supported third-party file.
+    """Create a movement dataset from any supported third-party file.
 
     Parameters
     ----------
@@ -264,7 +264,7 @@ def load_dataset(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose or bounding box tracks,
+        movement dataset containing the pose or bounding box tracks,
         confidence scores, and associated metadata.
 
 
@@ -275,8 +275,8 @@ def load_dataset(
 
     Examples
     --------
-    >>> from movement.io import load_dataset
-    >>> ds = load_dataset(
+    >>> from movement.io import load_dataset  # doctest: +SKIP
+    >>> ds = load_dataset(  # doctest: +SKIP
     ...     "path/to/file.h5", source_software="DeepLabCut", fps=30
     ... )
 
@@ -323,7 +323,7 @@ def load_multiview_dataset(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing data concatenated along a new
+        movement dataset containing data concatenated along a new
         ``view`` dimension.
 
     Notes

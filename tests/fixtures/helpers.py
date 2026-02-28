@@ -1,15 +1,15 @@
-"""Helpers fixture for ``movement`` test modules."""
+"""Helpers fixture for movement test modules."""
 
 import pytest
 import xarray as xr
 
 
 class Helpers:
-    """General helper methods for ``movement`` test modules."""
+    """General helper methods for movement test modules."""
 
     @staticmethod
     def assert_valid_dataset(dataset, expected_values):
-        """Assert the dataset is a valid ``movement`` Dataset.
+        """Assert the dataset is a valid movement Dataset.
 
         The validation includes:
         - checking the dataset is an xarray Dataset

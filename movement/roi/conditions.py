@@ -56,9 +56,9 @@ def compute_region_occupancy(
     ... )
     >>> occupancies = compute_region_occupancy(data, [square, triangle])
     >>> occupancies.sel(region="square").values
-    np.array([True, True])
+    array([ True,  True])
     >>> occupancies.sel(region="triangle").values
-    np.array([True, False])
+    array([ True, False])
 
     Notes
     -----

@@ -1,17 +1,17 @@
 (target-poses-and-bboxes-dataset)=
 # The movement datasets
 
-In `movement`, poses or bounding box tracks are represented
+In movement, poses or bounding box tracks are represented
 as an {class}`xarray.Dataset` object.
 
 An {class}`xarray.Dataset` object is a container for multiple arrays. Each array is an {class}`xarray.DataArray` object holding different aspects of the collected data (position, time, confidence scores...). You can think of a {class}`xarray.DataArray` object as a multi-dimensional {class}`numpy.ndarray`
 with pandas-style indexing and labelling.
 
-So a `movement` dataset is simply an {class}`xarray.Dataset` with a specific
-structure to represent pose tracks or bounding box tracks. Because pose data and bounding box data are somewhat different, `movement` provides two types of datasets: `poses` datasets and `bboxes` datasets.
+So a movement dataset is simply an {class}`xarray.Dataset` with a specific
+structure to represent pose tracks or bounding box tracks. Because pose data and bounding box data are somewhat different, movement provides two types of datasets: `poses` datasets and `bboxes` datasets.
 
-To discuss the specifics of both types of `movement` datasets, it is useful to clarify some concepts such as **data variables**, **dimensions**,
-**coordinates** and **attributes**. In the next section, we will describe these concepts and the `movement` datasets' structure in some detail.
+To discuss the specifics of both types of movement datasets, it is useful to clarify some concepts such as **data variables**, **dimensions**,
+**coordinates** and **attributes**. In the next section, we will describe these concepts and the movement datasets' structure in some detail.
 
 To learn more about `xarray` data structures in general, see the relevant
 [documentation](xarray:user-guide/data-structures.html).
@@ -23,10 +23,10 @@ To learn more about `xarray` data structures in general, see the relevant
 ```{figure} ../_static/dataset_structure.png
 :alt: movement dataset structure
 
-An {class}`xarray.Dataset` is a collection of several data arrays that share some dimensions. The schematic shows the data arrays that make up the `poses` and `bboxes` datasets in `movement`.
+An {class}`xarray.Dataset` is a collection of several data arrays that share some dimensions. The schematic shows the data arrays that make up the `poses` and `bboxes` datasets in movement.
 ```
 
-The structure of a `movement` dataset `ds` can be easily inspected by simply
+The structure of a movement dataset `ds` can be easily inspected by simply
 printing it.
 
 ::::{tab-set}
@@ -110,7 +110,7 @@ the labelled "ticks" along each axis are called **coordinates** (`coords`).
 
 ::::{tab-set}
 :::{tab-item} Poses dataset
-A `movement` poses dataset has the following **dimensions**:
+A movement poses dataset has the following **dimensions**:
 - `time`, with size equal to the number of frames in the video.
 - `space`, which is the number of spatial dimensions. Currently, we support only 2D poses.
 - `keypoints`, with size equal to the number of tracked keypoints per individual.
@@ -118,7 +118,7 @@ A `movement` poses dataset has the following **dimensions**:
 :::
 
 :::{tab-item} Bounding boxes dataset
-A `movement` bounding boxes dataset has the following **dimensions**s:
+A movement bounding boxes dataset has the following **dimensions**s:
 - `time`, with size equal to the number of frames in the video.
 - `space`, which is the number of spatial dimensions. Currently, we support only 2D bounding boxes data.
 - `individuals`, with size equal to the number of tracked individuals/instances.
@@ -136,7 +136,7 @@ In both cases, appropriate **coordinates** are assigned to each **dimension**.
 :color: info
 :icon: info
 The above **dimensions** and **coordinates** are created
-by default when loading a `movement` dataset from a single
+by default when loading a movement dataset from a single
 file containing pose or bounding box tracks.
 
 In some cases, you may encounter or create datasets with extra
@@ -147,19 +147,19 @@ with the **coordinates** being the names given to each camera view.
 :::
 
 ### Data variables
-The data variables in a `movement` dataset are the arrays that hold the actual data, as {class}`xarray.DataArray` objects.
+The data variables in a movement dataset are the arrays that hold the actual data, as {class}`xarray.DataArray` objects.
 
-The specific data variables stored are slightly different between a `movement` poses dataset and a `movement` bounding boxes dataset.
+The specific data variables stored are slightly different between a movement poses dataset and a movement bounding boxes dataset.
 
 ::::{tab-set}
 :::{tab-item} Poses dataset
-A `movement` poses dataset contains two **data variables**:
+A movement poses dataset contains two **data variables**:
 - `position`: the 2D or 3D locations of the keypoints over time, with shape (`time`, `space`, `keypoints`, `individuals`).
 - `confidence`: the confidence scores associated with each predicted keypoint (as reported by the pose estimation model), with shape (`time`, `keypoints`, `individuals`).
 :::
 
 :::{tab-item} Bounding boxes dataset
-A `movement` bounding boxes dataset contains three **data variables**:
+A movement bounding boxes dataset contains three **data variables**:
 - `position`: the 2D locations of the bounding box centroids over time, with shape (`time`, `space`, `individuals`).
 - `shape`: the width and height of the bounding boxes over time, with shape (`time`, `space`, `individuals`).
 - `confidence`: the confidence scores associated with each predicted bounding box, with shape (`time`, `individuals`).
@@ -172,9 +172,9 @@ share some common **dimensions**.
 
 ### Attributes
 
-Both poses and bounding boxes datasets in `movement` have associated metadata. These can be stored as dataset **attributes** (i.e. inside the specially designated `attrs` dictionary) in the form of key-value pairs.
+Both poses and bounding boxes datasets in movement have associated metadata. These can be stored as dataset **attributes** (i.e. inside the specially designated `attrs` dictionary) in the form of key-value pairs.
 
-Right after loading a `movement` dataset, the following **attributes** are created:
+Right after loading a movement dataset, the following **attributes** are created:
 - `fps`: the number of frames per second in the video (absent if not provided by the user during loading).
 - `time_unit`: the unit of the `time` **coordinates** (either `frames` or `seconds`).
 - `source_software`: the software that produced the pose or bounding box tracks.
@@ -182,7 +182,7 @@ Right after loading a `movement` dataset, the following **attributes** are creat
 - `ds_type`: the type of dataset loaded (either `poses` or `bboxes`).
 
 Some of the [sample datasets](target-sample-data) provided with
-the `movement` package have additional **attributes**, such as:
+the movement package have additional **attributes**, such as:
 - `video_path`: the path to the video file corresponding to the pose tracks.
 - `frame_path`: the path to a single still frame from the video.
 
@@ -199,7 +199,7 @@ ds.attrs["frame_offset"] = 142
 
 ### Using xarray's built-in functionality
 
-Since a `movement` dataset is an {class}`xarray.Dataset`, you can use all of `xarray`'s intuitive interface
+Since a movement dataset is an {class}`xarray.Dataset`, you can use all of `xarray`'s intuitive interface
 and rich built-in functionalities for data manipulation and analysis.
 
 Among other things, you can:

@@ -50,10 +50,10 @@ def _convert_fps_to_none_if_invalid(fps: float | None) -> float | None:
 
 @define(kw_only=True)
 class _BaseDatasetInputs(ABC):
-    """Abstract base class for validating ``movement`` dataset inputs.
+    """Abstract base class for validating movement dataset inputs.
 
     This base class centralises shared fields, validators, and default
-    assignment logic for creating ``movement`` datasets
+    assignment logic for creating movement datasets
     (e.g. poses, bounding boxes).
     It registers the attrs validators for required fields like
     ``position_array`` and optional fields like ``confidence_array`` and
@@ -217,12 +217,12 @@ class _BaseDatasetInputs(ABC):
 
     @abstractmethod
     def to_dataset(self) -> xr.Dataset:
-        """Convert validated inputs to a ``movement`` xarray.Dataset.
+        """Convert validated inputs to a movement xarray.Dataset.
 
         Returns
         -------
         xarray.Dataset
-            ``movement`` dataset containing the validated data and metadata.
+            movement dataset containing the validated data and metadata.
 
         """
         ...
@@ -242,7 +242,7 @@ class _BaseDatasetInputs(ABC):
             If the input is not an xarray Dataset.
         ValueError
             If the dataset is missing required data variables or dimensions
-            for a valid ``movement`` dataset.
+            for a valid movement dataset.
 
         """
         if not isinstance(ds, xr.Dataset):
@@ -361,7 +361,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
         Returns
         -------
         xarray.Dataset
-            ``movement`` dataset containing the pose tracks, confidence scores,
+            movement dataset containing the pose tracks, confidence scores,
             and associated metadata.
 
         """
@@ -522,7 +522,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
         Returns
         -------
         xarray.Dataset
-            ``movement`` dataset containing the bounding boxes tracks,
+            movement dataset containing the bounding boxes tracks,
             shapes, confidence scores and associated metadata.
 
         """

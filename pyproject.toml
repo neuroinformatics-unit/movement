@@ -112,7 +112,9 @@ exclude = ["tests", "docs*"]
 
 [tool.pytest.ini_options]
 # This config applies to all pytest runs (CLI, VS Code, tox, CI)
-addopts = "--cov=movement -m 'not benchmark'" # exclude benchmarks by default
+addopts = "--cov=movement -m 'not benchmark' --doctest-modules"
+testpaths = ["tests", "movement"]
+doctest_optionflags = ["NORMALIZE_WHITESPACE", "ELLIPSIS"]
 markers = [
     "benchmark: marks benchmarking tests (deselect with '-m \"not benchmark\"')",
 ]

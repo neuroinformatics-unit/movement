@@ -1,4 +1,4 @@
-"""Load bounding boxes tracking data into ``movement``."""
+"""Load bounding boxes tracking data into movement."""
 
 import ast
 import re
@@ -30,7 +30,7 @@ def from_numpy(
     fps: float | None = None,
     source_software: str | None = None,
 ) -> xr.Dataset:
-    """Create a ``movement`` bounding boxes dataset from NumPy arrays.
+    """Create a movement bounding boxes dataset from NumPy arrays.
 
     Parameters
     ----------
@@ -64,7 +64,7 @@ def from_numpy(
         these need to be integers sorted in increasing order.
     fps
         The video sampling rate. If None (default), the ``time`` coordinates
-        of the resulting ``movement`` dataset will be in frame numbers. If
+        of the resulting movement dataset will be in frame numbers. If
         ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
         the ``time`` coordinates are in seconds, they will indicate the
         elapsed time from the capture of the first frame (assumed to be frame
@@ -75,7 +75,7 @@ def from_numpy(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the position, shape, and confidence
+        movement dataset containing the position, shape, and confidence
         scores of the tracked bounding boxes, and any associated metadata.
 
     Examples
@@ -157,7 +157,7 @@ def from_file(
     use_frame_numbers_from_file: bool = False,
     frame_regexp: str = DEFAULT_FRAME_REGEXP,
 ) -> xr.Dataset:
-    """Create a ``movement`` bounding boxes dataset from a supported file.
+    """Create a movement bounding boxes dataset from a supported file.
 
     .. deprecated:: 0.14.0
         This function is deprecated and will be removed in a future release.
@@ -177,7 +177,7 @@ def from_file(
         See .
     fps
         The video sampling rate. If None (default), the ``time`` coordinates
-        of the resulting ``movement`` dataset will be in frame numbers. If
+        of the resulting movement dataset will be in frame numbers. If
         ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
         the ``time`` coordinates are in seconds, they will indicate the
         elapsed time from the capture of the first frame (assumed to be frame
@@ -201,7 +201,7 @@ def from_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the position, shape, and confidence
+        movement dataset containing the position, shape, and confidence
         scores of the tracked bounding boxes, and any associated metadata.
 
     See Also
@@ -218,12 +218,12 @@ def from_file(
     the time coordinates in seconds, and assuming t = 0 seconds corresponds to
     the first tracked frame in the file.
 
-    >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_file(
-    >>>     "path/to/file.csv",
-    >>>     source_software="VIA-tracks",
-    >>>     fps=30,
-    >>> )
+    >>> from movement.io import load_bboxes  # doctest: +SKIP
+    >>> ds = load_bboxes.from_file(  # doctest: +SKIP
+    ...     "path/to/file.csv",
+    ...     source_software="VIA-tracks",
+    ...     fps=30,
+    ... )
 
     """
     warnings.warn(
@@ -253,7 +253,7 @@ def from_via_tracks_file(
     use_frame_numbers_from_file: bool = False,
     frame_regexp: str = DEFAULT_FRAME_REGEXP,
 ) -> xr.Dataset:
-    """Create a ``movement`` dataset from a VIA tracks .csv file.
+    """Create a movement dataset from a VIA tracks .csv file.
 
     Parameters
     ----------
@@ -263,7 +263,7 @@ def from_via_tracks_file(
         tutorial for tracking [1]_.
     fps
         The video sampling rate. If None (default), the ``time`` coordinates
-        of the resulting ``movement`` dataset will be in frame numbers. If
+        of the resulting movement dataset will be in frame numbers. If
         ``fps`` is provided, the ``time`` coordinates  will be in seconds. If
         the ``time`` coordinates are in seconds, they will indicate the
         elapsed time from the capture of the first frame (assumed to be frame
@@ -285,19 +285,19 @@ def from_via_tracks_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the position, shape, and confidence
+        movement dataset containing the position, shape, and confidence
         scores of the tracked bounding boxes, and any associated metadata.
 
     Notes
     -----
     Note that the x,y coordinates in the input VIA tracks .csv file
     represent the the top-left corner of each bounding box. Instead the
-    corresponding ``movement`` dataset holds in its ``position`` array the
+    corresponding movement dataset holds in its ``position`` array the
     centroid of each bounding box.
 
     Additionally, the bounding boxes IDs specified in the "track" field of
     the VIA tracks .csv file are mapped to the ``individuals`` dimension in the
-    ``movement`` dataset. The individual names follow the format ``id_<N>``,
+    movement dataset. The individual names follow the format ``id_<N>``,
     with N being the bounding box ID.
 
     References
@@ -310,8 +310,8 @@ def from_via_tracks_file(
     the time coordinates in frames, and setting the first tracked frame in the
     file as frame 0.
 
-    >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_via_tracks_file(
+    >>> from movement.io import load_bboxes  # doctest: +SKIP
+    >>> ds = load_bboxes.from_via_tracks_file(  # doctest: +SKIP
     ...     "path/to/file.csv",
     ... )
 
@@ -319,8 +319,8 @@ def from_via_tracks_file(
     the time coordinates in seconds, and assuming t = 0 seconds corresponds to
     the first tracked frame in the file.
 
-    >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_via_tracks_file(
+    >>> from movement.io import load_bboxes  # doctest: +SKIP
+    >>> ds = load_bboxes.from_via_tracks_file(  # doctest: +SKIP
     ...     "path/to/file.csv",
     ...     fps=30,
     ... )
@@ -329,18 +329,18 @@ def from_via_tracks_file(
     the time coordinates in frames, and using the same frame numbers as
     in the VIA tracks .csv file.
 
-    >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_via_tracks_file(
+    >>> from movement.io import load_bboxes  # doctest: +SKIP
+    >>> ds = load_bboxes.from_via_tracks_file(  # doctest: +SKIP
     ...     "path/to/file.csv",
-    ...     use_frame_numbers_from_file=True.
+    ...     use_frame_numbers_from_file=True,
     ... )
 
     Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with
     the time coordinates in seconds, and assuming t = 0 seconds corresponds to
     the 0th frame in the full video.
 
-    >>> from movement.io import load_bboxes
-    >>> ds = load_bboxes.from_via_tracks_file(
+    >>> from movement.io import load_bboxes  # doctest: +SKIP
+    >>> ds = load_bboxes.from_via_tracks_file(  # doctest: +SKIP
     ...     "path/to/file.csv",
     ...     fps=30,
     ...     use_frame_numbers_from_file=True,

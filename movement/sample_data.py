@@ -64,7 +64,7 @@ def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
     """Download the metadata yaml file.
 
     This function downloads the yaml file containing sample metadata from
-    the ``movement`` data repository and saves it in the specified directory
+    the movement data repository and saves it in the specified directory
     with a temporary filename - temp_{file_name} - to avoid overwriting any
     existing files.
 
@@ -194,7 +194,7 @@ def list_datasets() -> list[str]:
 def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     """Get paths to sample dataset and any associated frames or videos.
 
-    The data are downloaded from the ``movement`` data repository to the user's
+    The data are downloaded from the movement data repository to the user's
     local machine upon first use and are stored in a local cache directory.
     The function stores the paths to the downloaded files in a dictionary.
 
@@ -221,19 +221,21 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     Fetch a sample dataset and get the paths to the file containing the
     predicted poses, as well as the associated frame and video files:
 
-    >>> from movement.sample_data import fetch_dataset_paths
-    >>> paths = fetch_dataset_paths(
-    ...     "DLC_single-mouse_EPM.predictions.h5", with_video=True
+    >>> from movement.sample_data import fetch_dataset_paths  # doctest: +SKIP
+    >>> paths = fetch_dataset_paths(  # doctest: +SKIP
+    ...     "DLC_single-mouse_EPM.``predictions.h5``", with_video=True
     ... )
-    >>> poses_path = paths["poses"]
-    >>> frame_path = paths["frame"]
-    >>> video_path = paths["video"]
+    >>> poses_path = paths["poses"]  # doctest: +SKIP
+    >>> frame_path = paths["frame"]  # doctest: +SKIP
+    >>> video_path = paths["video"]  # doctest: +SKIP
 
     If the sample dataset contains bounding boxes instead of
     poses, use ``paths["bboxes"]`` instead of ``paths["poses"]``:
 
-    >>> paths = fetch_dataset_paths("VIA_multiple-crabs_5-frames_labels.csv")
-    >>> bboxes_path = paths["bboxes"]
+    >>> paths = fetch_dataset_paths(  # doctest: +SKIP
+    ...     "``VIA_multiple-crabs_5-frames_labels.csv``"
+    ... )
+    >>> bboxes_path = paths["bboxes"]  # doctest: +SKIP
 
     See Also
     --------
@@ -284,7 +286,7 @@ def fetch_dataset(
 ) -> xarray.Dataset:
     """Load a sample dataset.
 
-    The data are downloaded from the ``movement`` data repository to the user's
+    The data are downloaded from the movement data repository to the user's
     local machine upon first use and are stored in a local cache directory.
     This function returns the data as an xarray Dataset.
     If there are any associated frames or videos, these files are also
@@ -309,12 +311,12 @@ def fetch_dataset(
     Fetch a sample dataset and get the paths to the associated frame and video
     files:
 
-    >>> from movement.sample_data import fetch_dataset
-    >>> ds = fetch_dataset(
-        "DLC_single-mouse_EPM.predictions.h5", with_video=True
+    >>> from movement.sample_data import fetch_dataset  # doctest: +SKIP
+    >>> ds = fetch_dataset(  # doctest: +SKIP
+        "DLC_single-mouse_EPM.``predictions.h5``", with_video=True
     )
-    >>> frame_path = ds.video_path
-    >>> video_path = ds.frame_path
+    >>> frame_path = ds.video_path  # doctest: +SKIP
+    >>> video_path = ds.frame_path  # doctest: +SKIP
 
     See Also
     --------

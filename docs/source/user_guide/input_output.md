@@ -3,23 +3,23 @@
 
 ## Overview
 
-Our goal with `movement` is to enable pipelines that are input-agnostic,
+Our goal with movement is to enable pipelines that are input-agnostic,
 meaning they are not tied to a specific motion tracking tool or data format.
 Therefore, our input/output functions are designed to facilitate data flows
 between various third-party formats and `movement`'s own native
 [data structure](target-poses-and-bboxes-dataset) based on [xarray](xarray:).
 
-It may be useful to think of `movement` supporting two types of data loading/saving:
+It may be useful to think of movement supporting two types of data loading/saving:
 
-- [Supported third-party formats](target-supported-formats). `movement` provides convenient functions for loading/saving data in formats written by popular motion tracking tools as well as established data specifications. You can think of these as "Import" and "Export/Save As" functions.
-- [Native saving and loading with netCDF](target-netCDF). `movement` leverages xarray's built-in netCDF support to save and load datasets while preserving all variables and metadata. **This is the recommended way to save your analysis state**, allowing your `movement`-powered workflows to resume exactly where they left off.
+- [Supported third-party formats](target-supported-formats). movement provides convenient functions for loading/saving data in formats written by popular motion tracking tools as well as established data specifications. You can think of these as "Import" and "Export/Save As" functions.
+- [Native saving and loading with netCDF](target-netCDF). movement leverages xarray's built-in netCDF support to save and load datasets while preserving all variables and metadata. **This is the recommended way to save your analysis state**, allowing your `movement`-powered workflows to resume exactly where they left off.
 
-You are also welcome to try `movement` by loading some [sample data](target-sample-data) included with the package.
+You are also welcome to try movement by loading some [sample data](target-sample-data) included with the package.
 
 (target-supported-formats)=
 ## Supported third-party formats
 
-`movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding box centroids (_bounding box tracks_),
+movement supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding box centroids (_bounding box tracks_),
 which are represented as [movement datasets](target-poses-and-bboxes-dataset)
 and can be loaded from and saved to various third-party formats.
 
@@ -33,10 +33,10 @@ and can be loaded from and saved to various third-party formats.
 | [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB          | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose)                                | Pose                 | Load & Save          |
 | Any                                                                         |              | Numpy arrays                                                                                                              | Pose or Bounding box | Load & Save\*        |
 
-\*Exporting any `movement` DataArray to a NumPy array is as simple as calling xarray's built-in {meth}`xarray.DataArray.to_numpy()` method, so no specialised "Export/Save As" function is needed, see [xarray's documentation](xarray:user-guide/duckarrays.html) for more details.
+\*Exporting any movement DataArray to a NumPy array is as simple as calling xarray's built-in {meth}`xarray.DataArray.to_numpy()` method, so no specialised "Export/Save As" function is needed, see [xarray's documentation](xarray:user-guide/duckarrays.html) for more details.
 
 :::{note}
-Currently, `movement` only works with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, across consecutive frames. For pose estimation, this means it only supports the predictions output by the supported software packages listed above. Loading manually labelled data—often defined over a non-continuous set of frames—is not currently supported.
+Currently, movement only works with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, across consecutive frames. For pose estimation, this means it only supports the predictions output by the supported software packages listed above. Loading manually labelled data—often defined over a non-continuous set of frames—is not currently supported.
 :::
 
 Below, we explain how to load pose and bounding box tracks from these supported formats, as well as how to save pose tracks back to some of them.
@@ -122,7 +122,7 @@ ds = load_poses.from_dlc_style_df(df, fps=30)
 ```
 
 :::{note}
-In `movement`, pose data can only be loaded if all individuals have the same set of keypoints (i.e., the same labeled body parts). While DeepLabCut supports assigning keypoints that are not shared across individuals (see the [DeepLabCut documentation for multi-animal projects](https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#b-configure-the-project)), this feature is not currently supported in `movement`.
+In movement, pose data can only be loaded if all individuals have the same set of keypoints (i.e., the same labeled body parts). While DeepLabCut supports assigning keypoints that are not shared across individuals (see the [DeepLabCut documentation for multi-animal projects](https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#b-configure-the-project)), this feature is not currently supported in movement.
 :::
 ::::
 
@@ -230,7 +230,7 @@ ds = load_bboxes.from_via_tracks_file("path/to/file.csv", fps=30)
 
 :::{admonition} Bounding boxes format
 :class: note
-Note that the x,y coordinates in the input VIA tracks .csv file represent the the top-left corner of each bounding box. Instead the corresponding `movement` dataset `ds` will hold in its `position` array the centroid of each bounding box.
+Note that the x,y coordinates in the input VIA tracks .csv file represent the the top-left corner of each bounding box. Instead the corresponding movement dataset `ds` will hold in its `position` array the centroid of each bounding box.
 :::
 ::::
 
@@ -308,7 +308,7 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 ::::
 
 ::::{tab-item} NWB
-To convert a `movement` poses dataset to {class}`NWBFile<pynwb.file.NWBFile>` objects:
+To convert a movement poses dataset to {class}`NWBFile<pynwb.file.NWBFile>` objects:
 
 ```python
 nwb_files = save_poses.to_nwb_file(ds)
@@ -354,7 +354,7 @@ By default the {func}`movement.io.save_bboxes.to_via_tracks_file` function will 
 ::::
 
 ::::{tab-item} Custom .csv file
-Below is an example of how you can export a `movement` bounding boxes dataset as a .csv file with a custom header:
+Below is an example of how you can export a movement bounding boxes dataset as a .csv file with a custom header:
 ```python
 # define name for output csv file
 filepath = "tracking_output.csv"
@@ -377,7 +377,7 @@ with open(filepath, mode="w", newline="") as file:
 ```
 :::{admonition} Using `pandas`
 :class: note
-If you prefer to work with `pandas`, you can alternatively convert the `movement` bounding boxes dataset to a `pandas` DataFrame with the {meth}`xarray.DataArray.to_dataframe` method, wrangle the dataframe as required, and then apply the {meth}`pandas.DataFrame.to_csv` method to save the data as a .csv file.
+If you prefer to work with `pandas`, you can alternatively convert the movement bounding boxes dataset to a `pandas` DataFrame with the {meth}`xarray.DataArray.to_dataframe` method, wrangle the dataframe as required, and then apply the {meth}`pandas.DataFrame.to_csv` method to save the data as a .csv file.
 :::
 
 ::::
@@ -387,7 +387,7 @@ If you prefer to work with `pandas`, you can alternatively convert the `movement
 (target-netcdf)=
 ## Native saving and loading with netCDF
 
-Because `movement` datasets are {class}`xarray.Dataset` objects, we can rely on
+Because movement datasets are {class}`xarray.Dataset` objects, we can rely on
 xarray's built-in [support for the netCDF file format](xarray:user-guide/io.html).
 
 netCDF is a binary file format for self-described datasets that originated in the geosciences,
@@ -409,7 +409,7 @@ ds = xr.open_dataset("my_data.nc")
 ```
 
 Similarly, an {class}`xarray.DataArray` object (e.g. the `position` variable
-of a `movement` dataset) can be saved to disk using the
+of a movement dataset) can be saved to disk using the
 {meth}`to_netcdf()<xarray.DataArray.to_netcdf()>` method, and loaded from disk using the
 {func}`xarray.open_dataarray()` function.
 As netCDF files correspond to Dataset objects,
@@ -447,7 +447,7 @@ ds.to_netcdf("my_data_processed.nc")
 
 :::{tip}
 In some cases you may want to use our [GUI](target-gui) to inspect
-motion tracks you've processed with `movement`.
+motion tracks you've processed with movement.
 If so, make sure to save them to a netCDF file that satisfies the
 [GUI compatibility requirements](target-gui-compatible-netcdf).
 :::
@@ -455,7 +455,7 @@ If so, make sure to save them to a netCDF file that satisfies the
 (target-sample-data)=
 ## Sample data
 
-`movement` includes some sample data files that you can use to
+movement includes some sample data files that you can use to
 try the package out. These files contain pose and bounding box tracks from
 various [supported third-party formats](target-supported-formats).
 
@@ -505,5 +505,5 @@ the `frame_path` attribute will not be set.
 :color: info
 :icon: info
 When you import the {mod}`sample_data<movement.sample_data>` module with `from movement import sample_data`,
-`movement` downloads a small metadata file to your local machine with information about the latest sample datasets available. Then, the first time you call the `fetch_dataset()` function, `movement` downloads the requested file to your machine and caches it in the `~/.movement/data` directory. On subsequent calls, the data are directly loaded from this local cache.
+movement downloads a small metadata file to your local machine with information about the latest sample datasets available. Then, the first time you call the `fetch_dataset()` function, movement downloads the requested file to your machine and caches it in the `~/.movement/data` directory. On subsequent calls, the data are directly loaded from this local cache.
 :::

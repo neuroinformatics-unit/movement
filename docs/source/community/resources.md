@@ -2,14 +2,14 @@
 # Resources
 
 Feel free to use and share the following resources when
-communicating about `movement`, whether to promote it, teach it,
+communicating about movement, whether to promote it, teach it,
 or acknowledge it in your own work.
 
 ## Brand & logo
 
-Use the project name `movement` in lowercase, even at the beginning of a sentence.
+Use the project name movement in lowercase, even at the beginning of a sentence.
 
-The official graphic assets for `movement` can be found below and on [Zenodo](https://doi.org/10.5281/zenodo.17902182),
+The official graphic assets for movement can be found below and on [Zenodo](https://doi.org/10.5281/zenodo.17902182),
 shared under the [CC BY 4.0 license](https://creativecommons.org/licenses/by/4.0/).
 
 ::::{grid} 1 1 3 3
@@ -44,7 +44,7 @@ Overview figure
 
 ## Typeface & colours
 
-The typeface appearing in `movement` graphics is [Barlow](https://fonts.google.com/specimen/Barlow), in various weights and styles.
+The typeface appearing in movement graphics is [Barlow](https://fonts.google.com/specimen/Barlow), in various weights and styles.
 
 The colours are taken from the [ColoBrewer](https://colorbrewer2.org) **Set2** palette:
 
@@ -78,7 +78,7 @@ The colours are taken from the [ColoBrewer](https://colorbrewer2.org) **Set2** p
 
 ## Presentations & media
 
-A selection of talks, posters, and blogposts about `movement`.
+A selection of talks, posters, and blogposts about movement.
 
 | Type | Venue | Date | Link |
 |-------|-------|------|------|
@@ -91,7 +91,7 @@ A selection of talks, posters, and blogposts about `movement`.
 
 ## Teaching materials
 
-`movement` is being taught as part of the
+movement is being taught as part of the
 [Animals in Motion](https://neuroinformatics.dev/open-software-summer-school/2026/animals-in-motion.html)
 workshop at the [Neuroinformatics Unit Open Software Summer School](https://neuroinformatics.dev/open-software-summer-school).
 

@@ -13,7 +13,7 @@ This post introduces recent improvements to how ``movement`` computes displaceme
 
 ## Background
 
-Computing kinematic properties is a core functionality since early versions of `movement`, when they where first introduced by [Chang Huan Lo](https://github.com/lochhh) in [#106](https://github.com/neuroinformatics-unit/movement/pull/106).
+Computing kinematic properties is a core functionality since early versions of movement, when they where first introduced by [Chang Huan Lo](https://github.com/lochhh) in [#106](https://github.com/neuroinformatics-unit/movement/pull/106).
 For a library dedicated to analysing motion-tracking data, quantifying how far a tracked point moves between consecutive frames is fundamental. This measure underpins subsequent computations, such as the total distance travelled along a path. That's why we introduced the `compute_displacement` function early on, and why it features in our {ref}`compute and visualise kinematics <sphx_glr_examples_compute_kinematics.py>` example<!--#compute-displacement-vectors heading-->.
 
 Its original implementation, however, produced results that were difficult to interpret. For a given individual and keypoint at timestep `t`, displacement was defined as the vector pointing from the previous position at `t-1` to the current position at `t`. This definition is somewhat counter-intuitive: it identifies the last spatial translation used by the keypoint to reach its current position. It indicates where the point _came from_ rather than where it is _going_.

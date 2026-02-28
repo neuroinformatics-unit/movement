@@ -70,18 +70,21 @@ def plot_occupancy(
     Simple use-case is to plot a histogram of the centroid of all
     keypoints, aggregated over all individuals.
 
-    >>> from movement import sample_data
-    >>> from movement.plots import plot_occupancy
-    >>> positions = sample_data.fetch_dataset(
-    ...     "DLC_two-mice.predictions.csv"
+    >>> from movement import sample_data  # doctest: +SKIP
+    >>> from movement.plots import plot_occupancy  # doctest: +SKIP
+    >>> positions = sample_data.fetch_dataset(  # doctest: +SKIP
+    ...     "DLC_two-mice.``predictions.csv``"
     ... ).position
-    >>> plot_occupancy(positions)
+    >>> plot_occupancy(positions)  # doctest: +SKIP
 
     However, one can restrict the histogram to only counting the positions of
     (the centroid of) certain keypoints and/or individuals.
 
-    >>> print("Available individuals:", positions["individuals"])
-    >>> plot_occupancy(
+    >>> print(  # doctest: +SKIP
+    ...     "Available individuals:",
+    ...     positions["individuals"],
+    ... )
+    >>> plot_occupancy(  # doctest: +SKIP
     ...     positions,
     ...     # plot the centroid of keypoints located on the head
     ...     keypoints=["snout", "leftear", "rightear"],
@@ -92,7 +95,7 @@ def plot_occupancy(
     ``kwargs`` are passed to the ``matplotlib`` backend as keyword-arguments to
     this function.
 
-    >>> plot_occupancy(
+    >>> plot_occupancy(  # doctest: +SKIP
     ...     positions,
     ...     # plot the centroid of keypoints located on the head
     ...     keypoints=["snout", "leftear", "rightear"],

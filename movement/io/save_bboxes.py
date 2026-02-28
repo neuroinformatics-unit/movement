@@ -1,4 +1,4 @@
-"""Save bounding boxes data from ``movement`` to VIA tracks .csv format."""
+"""Save bounding boxes data from movement to VIA tracks .csv format."""
 
 import csv
 import json
@@ -26,12 +26,12 @@ def to_via_tracks_file(
     image_file_prefix: str | None = None,
     image_file_suffix: str = ".png",
 ) -> Path:
-    """Save a ``movement`` bounding boxes dataset to a VIA tracks .csv file.
+    """Save a movement bounding boxes dataset to a VIA tracks .csv file.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        The ``movement`` bounding boxes dataset to export.
+        The movement bounding boxes dataset to export.
     file_path : str or pathlib.Path
         Path where the VIA tracks .csv file [1]_ will be saved.
     track_ids_from_trailing_numbers : bool, optional
@@ -70,56 +70,58 @@ def to_via_tracks_file(
 
     Examples
     --------
-    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
+    Export a movement bounding boxes dataset as a VIA tracks .csv file,
     deriving the track IDs from the numbers at the end of the individuals'
     names and assuming the image files are PNG files. The frame numbers in the
     image filenames are padded with at least one leading zero by default:
 
-    >>> from movement.io import save_bboxes
-    >>> save_bboxes.to_via_tracks_file(ds, "/path/to/output.csv")
+    >>> from movement.io import save_bboxes  # doctest: +SKIP
+    >>> save_bboxes.to_via_tracks_file(  # doctest: +SKIP
+    ...     ds, "/path/to/output.csv"
+    ... )
 
-    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
+    Export a movement bounding boxes dataset as a VIA tracks .csv file,
     assigning the track IDs sequentially based on the alphabetically sorted
     list of individuals' names, and assuming the image files are PNG files:
 
-    >>> from movement.io import save_bboxes
-    >>> save_bboxes.to_via_tracks_file(
+    >>> from movement.io import save_bboxes  # doctest: +SKIP
+    >>> save_bboxes.to_via_tracks_file(  # doctest: +SKIP
     ...     ds,
     ...     "/path/to/output.csv",
     ...     track_ids_from_trailing_numbers=False,
     ... )
 
-    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
+    Export a movement bounding boxes dataset as a VIA tracks .csv file,
     deriving the track IDs from the numbers at the end of the individuals'
     names, and assuming the image files are JPG files:
 
-    >>> from movement.io import save_bboxes
-    >>> save_bboxes.to_via_tracks_file(
+    >>> from movement.io import save_bboxes  # doctest: +SKIP
+    >>> save_bboxes.to_via_tracks_file(  # doctest: +SKIP
     ...     ds,
     ...     "/path/to/output.csv",
     ...     image_file_suffix=".jpg",
     ... )
 
-    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
+    Export a movement bounding boxes dataset as a VIA tracks .csv file,
     deriving the track IDs from the numbers at the end of the individuals'
     names and with image filenames following the format
     ``frame-<frame_number>.jpg``:
 
-    >>> from movement.io import save_bboxes
-    >>> save_bboxes.to_via_tracks_file(
+    >>> from movement.io import save_bboxes  # doctest: +SKIP
+    >>> save_bboxes.to_via_tracks_file(  # doctest: +SKIP
     ...     ds,
     ...     "/path/to/output.csv",
     ...     image_file_prefix="frame-",
     ...     image_file_suffix=".jpg",
     ... )
 
-    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
+    Export a movement bounding boxes dataset as a VIA tracks .csv file,
     deriving the track IDs from the numbers at the end of the individuals'
     names, and with frame numbers in the image filenames represented using 4
     digits (i.e., image filenames would be ``0000.png``, ``0001.png``, etc.):
 
-    >>> from movement.io import save_bboxes
-    >>> save_bboxes.to_via_tracks_file(
+    >>> from movement.io import save_bboxes  # doctest: +SKIP
+    >>> save_bboxes.to_via_tracks_file(  # doctest: +SKIP
     ...     ds,
     ...     "/path/to/output.csv",
     ...     frame_n_digits=4,

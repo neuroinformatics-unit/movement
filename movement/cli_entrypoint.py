@@ -1,4 +1,4 @@
-"""CLI entrypoint for the ``movement`` package."""
+"""CLI entrypoint for the movement package."""
 
 import argparse
 import platform

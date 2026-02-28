@@ -3,7 +3,7 @@
 
 ## Create a virtual environment
 
-While not strictly required, we strongly recommended installing `movement` in a
+While not strictly required, we strongly recommended installing movement in a
 clean virtual environment, using tools such as
 [conda](conda:) or [uv](uv:getting-started/installation/).
 
@@ -31,7 +31,7 @@ source .venv/bin/activate  # On macOS and Linux
 ::::
 
 ## Install the package
-With your environment activated, install `movement` using one of the methods below.
+With your environment activated, install movement using one of the methods below.
 
 ::::{tab-set}
 :::{tab-item} From conda-forge using conda
@@ -79,14 +79,14 @@ uv pip install "movement[napari]"
 :icon: info
 
 If you are using macOS 13 or earlier on Apple Silicon (M-series),
-we recommend installing `movement` via `conda-forge`.
+we recommend installing movement via `conda-forge`.
 Alternatively, upgrade to macOS 14 to use any of the installation methods above.
 :::
 
 :::{admonition} For developers
 :class: tip
 
-If you would like to contribute to `movement`, see our [contributing guide](target-contributing)
+If you would like to contribute to movement, see our [contributing guide](target-contributing)
 for detailed developer setup instructions and coding guidelines.
 :::
 
@@ -95,7 +95,7 @@ With your virtual environment activated, run:
 ```sh
 movement info
 ```
-You should see a printout including the version numbers of `movement`
+You should see a printout including the version numbers of movement
 and some of its dependencies.
 
 To test the GUI installation:
@@ -105,7 +105,7 @@ movement launch
 ```
 
 This is equivalent to running `napari -w movement` and should open the `napari`
-window with the `movement` widget docked on the right-hand side.
+window with the movement widget docked on the right-hand side.
 
 ## Update the package
 
@@ -113,7 +113,7 @@ window with the `movement` widget docked on the right-hand side.
 :icon: info
 :color: info
 
-If your environment was created with `conda`, first check which channel `movement` was installed from before updating.
+If your environment was created with `conda`, first check which channel movement was installed from before updating.
 Run `conda list movement` in your active `conda` environment and look at the **Channel** column:
 - If the channel is `conda-forge`, update using `conda`.
 - If the channel is `pypi`, update using `pip`.
@@ -142,7 +142,7 @@ uv pip install -U movement
 ::::
 
 
-If the above fails, try installing `movement` in a fresh new environment to avoid dependency conflicts.
+If the above fails, try installing movement in a fresh new environment to avoid dependency conflicts.
 
 First remove the existing environment:
 

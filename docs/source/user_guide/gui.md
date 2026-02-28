@@ -1,8 +1,8 @@
 (target-gui)=
 # Graphical User Interface
 
-The `movement` graphical user interface (GUI), powered by our custom plugin for
-[napari](napari:), makes it easy to view and explore `movement`
+The movement graphical user interface (GUI), powered by our custom plugin for
+[napari](napari:), makes it easy to view and explore movement
 motion tracks. Currently, you can use it to
 visualise 2D [movement datasets](target-poses-and-bboxes-dataset)
 as points, tracks, and rectangular bounding boxes (if defined) overlaid on video frames.
@@ -14,7 +14,7 @@ Please [get in touch](target-connect-with-us)
 if you find any bugs or have suggestions for improvements!
 :::
 
-The `napari` plugin is shipped with the `movement` package starting from
+The `napari` plugin is shipped with the movement package starting from
 version `0.1.0`.  To use it, you need to
 [install the package](target-installation) with a method that
 includes the `napari` dependency.
@@ -22,14 +22,14 @@ includes the `napari` dependency.
 
 ## Launch the GUI
 
-To launch the `movement` GUI, type the following command in your terminal:
+To launch the movement GUI, type the following command in your terminal:
 
 ```sh
 movement launch
 ```
 
 This is equivalent to running `napari -w movement` and will open the `napari`
-window with the `movement` widget docked on the
+window with the movement widget docked on the
 right-hand side, as in the [screenshot](target-widget-screenshot) below.
 
 In `napari`, data is typically loaded into [layers](napari:guides/layers.html),
@@ -132,7 +132,7 @@ Now you are ready to load some motion tracks over your chosen background layer.
 On the right-hand side of the window you should see
 an expanded `Load tracked data` menu. You can load data from
 one of the [supported third-party formats](target-supported-formats)
-or from a [netCDF file](target-netcdf) saved with `movement`
+or from a [netCDF file](target-netcdf) saved with movement
 (expand the dropdown below for the precise requirements).
 
 ::: {dropdown} netCDF files compatible with the GUI
@@ -152,7 +152,7 @@ Practically, this means:
 
 
 Below is a small example showing how to save a GUI-compatible
-netCDF file with `movement`:
+netCDF file with movement:
 
 ```python
 from movement.io import load_dataset

@@ -22,7 +22,7 @@ __Input/Output__
 
 - We have added the {func}`movement.io.load_poses.from_multiview_files` function to support loading pose tracking data from multiple camera views.
 - We have made several small improvements to reading bounding box tracks. See our new {ref}`example <sphx_glr_examples_load_and_upsample_bboxes.py>` to learn more about working with bounding boxes.
-- We have added a new {ref}`example <sphx_glr_examples_convert_file_formats.py>` on using `movement` to convert pose tracking data between different file formats.
+- We have added a new {ref}`example <sphx_glr_examples_convert_file_formats.py>` on using movement to convert pose tracking data between different file formats.
 
 __Kinematics__
 
@@ -69,11 +69,11 @@ because we've found the concept hard to convey to new users. All functions are h
 
 ## Looking to v0.1 and beyond
 
-Over the last 1.5 years, we have gradually built up the core functionalities we envisioned for `movement` version `v0.1`,
+Over the last 1.5 years, we have gradually built up the core functionalities we envisioned for movement version `v0.1`,
 as described in our [roadmap](target-roadmaps).
 These have included [input/output support](target-io) for a few popular animal tracking frameworks, as well as methods for data cleaning and computing kinematic variables.
 
-What we're still missing is a [napari](napari:) plugin for `movement`, which we envision both as an interactive visualisation framework for motion tracking data as well as a graphical user interface for `movement`.
+What we're still missing is a [napari](napari:) plugin for movement, which we envision both as an interactive visualisation framework for motion tracking data as well as a graphical user interface for movement.
 We have been working on a minimal version of this plugin for a while and are expecting to ship it as part of the `v0.1` release in early 2025.
 
 After `v0.1`, we'll be switching to [semantic versioning](https://semver.org/), as it applies to MINOR (new features) and PATCH (bug fixes) versions. Until we are ready for a `v1` MAJOR version, we cannot commit to backward compatibility, but any breaking changes will be clearly communicated in the release notes.
@@ -81,12 +81,12 @@ After `v0.1`, we'll be switching to [semantic versioning](https://semver.org/), 
 ## Announcing movement Community Calls
 
 We are committed to fostering openness, transparency, and a strong sense of
-community within the `movement` project.
+community within the movement project.
 Starting next year, we will host regular Community Calls via Zoom.
 
 The calls will take place every second Friday from **11:00 to 11:45 GMT**,
 beginning on **10 January 2025**.
-These calls are open to anyone interested in contributing to `movement` or
+These calls are open to anyone interested in contributing to movement or
 sharing feedback on the project's progress and direction.
 
 A few days before each call, we will post an announcement on Zulip with the Zoom link and agenda.

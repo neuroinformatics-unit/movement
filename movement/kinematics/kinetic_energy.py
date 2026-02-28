@@ -88,8 +88,9 @@ def compute_kinetic_energy(
 
     Compute total kinetic energy:
 
+    >>> rng = np.random.default_rng(seed=42)
     >>> position = xr.DataArray(
-    ...     np.random.rand(3, 2, 4, 2),
+    ...     rng.random((3, 2, 4, 2)),
     ...     coords={
     ...         "time": np.arange(3),
     ...         "individuals": ["id0", "id1"],
@@ -103,10 +104,10 @@ def compute_kinetic_energy(
 
     >>> kinetic_energy_total
     <xarray.DataArray (time: 3, individuals: 2)> Size: 48B
-    0.6579 0.7394 0.1304 0.05152 0.2436 0.5719
+    0.538 1.088 0.1456 0.0963 0.7412 0.8568
     Coordinates:
-    * time         (time) int64 24B 0 1 2
-    * individuals  (individuals) <U3 24B 'id0' 'id1'
+      * time         (time) int64 24B 0 1 2
+      * individuals  (individuals) <U3 24B 'id0' 'id1'
 
     Compute kinetic energy decomposed into translational
     and internal components:
@@ -115,11 +116,11 @@ def compute_kinetic_energy(
 
     >>> kinetic_energy
     <xarray.DataArray (time: 3, individuals: 2, energy: 2)> Size: 96B
-    0.0172 1.318 0.02069 0.6498 0.02933 ... 0.1716 0.07829 0.7942 0.06901 0.857
+    0.1625 0.3755 0.07512 1.012 0.1002 ... 0.0766 0.4867 0.2546 0.02091 0.8359
     Coordinates:
-    * time         (time) int64 24B 0 1 2
-    * individuals  (individuals) <U3 24B 'id0' 'id1'
-    * energy       (energy) <U13 104B 'translational' 'internal'
+      * time         (time) int64 24B 0 1 2
+      * individuals  (individuals) <U3 24B 'id0' 'id1'
+      * energy       (energy) <U13 104B 'translational' 'internal'
 
     Select the 'internal' component:
 

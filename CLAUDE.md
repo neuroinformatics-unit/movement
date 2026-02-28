@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-`movement` is a Python toolbox for analysing animal body movements across space and time. It provides a standardised, modular interface for processing motion tracking data from tools like DeepLabCut, SLEAP, LightningPose, Anipose, and VIA-tracks. The package handles data loading, cleaning, transformation, kinematic analysis, and visualization.
+movement is a Python toolbox for analysing animal body movements across space and time. It provides a standardised, modular interface for processing motion tracking data from tools like DeepLabCut, SLEAP, LightningPose, Anipose, and VIA-tracks. The package handles data loading, cleaning, transformation, kinematic analysis, and visualization.
 
 ## Development Commands
 

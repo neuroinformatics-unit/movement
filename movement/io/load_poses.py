@@ -1,4 +1,4 @@
-"""Load pose tracking data from various frameworks into ``movement``."""
+"""Load pose tracking data from various frameworks into movement."""
 
 import warnings
 from pathlib import Path
@@ -34,7 +34,7 @@ def from_numpy(
     fps: float | None = None,
     source_software: str | None = None,
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from NumPy arrays.
+    """Create a movement poses dataset from NumPy arrays.
 
     Parameters
     ----------
@@ -64,7 +64,7 @@ def from_numpy(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        movement dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     Examples
@@ -109,7 +109,7 @@ def from_file(
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from any supported file.
+    """Create a movement poses dataset from any supported file.
 
     .. deprecated:: 0.14.0
         This function is deprecated and will be removed in a future release.
@@ -140,7 +140,7 @@ def from_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        movement dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
 
@@ -154,8 +154,8 @@ def from_file(
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_file(
+    >>> from movement.io import load_poses  # doctest: +SKIP
+    >>> ds = load_poses.from_file(  # doctest: +SKIP
     ...     "path/to/file.h5", source_software="DeepLabCut", fps=30
     ... )
 
@@ -194,7 +194,7 @@ def from_dlc_style_df(
     fps: float | None = None,
     source_software: Literal["DeepLabCut", "LightningPose"] = "DeepLabCut",
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a DeepLabCut-style DataFrame.
+    """Create a movement poses dataset from a DeepLabCut-style DataFrame.
 
     Parameters
     ----------
@@ -212,7 +212,7 @@ def from_dlc_style_df(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        movement dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     Notes
@@ -276,7 +276,7 @@ def from_dlc_style_df(
     "SLEAP", file_validators=[ValidSleapLabels, ValidSleapAnalysis]
 )
 def from_sleap_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a SLEAP file.
+    """Create a movement poses dataset from a SLEAP file.
 
     Parameters
     ----------
@@ -291,7 +291,7 @@ def from_sleap_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        movement dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     Notes
@@ -325,8 +325,10 @@ def from_sleap_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_sleap_file("path/to/file.analysis.h5", fps=30)
+    >>> from movement.io import load_poses  # doctest: +SKIP
+    >>> ds = load_poses.from_sleap_file(  # doctest: +SKIP
+    ...     "path/to/file.``analysis.h5``", fps=30
+    ... )
 
     """
     valid_file = cast("ValidFile", file)
@@ -343,7 +345,7 @@ def from_sleap_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
 
 @register_loader("LightningPose", file_validators=[ValidDeepLabCutCSV])
 def from_lp_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a LightningPose file.
+    """Create a movement poses dataset from a LightningPose file.
 
     Parameters
     ----------
@@ -356,13 +358,15 @@ def from_lp_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        movement dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_lp_file("path/to/file.csv", fps=30)
+    >>> from movement.io import load_poses  # doctest: +SKIP
+    >>> ds = load_poses.from_lp_file(  # doctest: +SKIP
+    ...     "path/to/file.csv", fps=30
+    ... )
 
     """
     valid_file = cast("ValidFile", file)
@@ -385,7 +389,7 @@ def from_lp_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     "DeepLabCut", file_validators=[ValidDeepLabCutH5, ValidDeepLabCutCSV]
 )
 def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a DeepLabCut file.
+    """Create a movement poses dataset from a DeepLabCut file.
 
     Parameters
     ----------
@@ -399,7 +403,7 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        movement dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     See Also
@@ -408,17 +412,19 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
 
     Examples
     --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_dlc_file("path/to/file.h5", fps=30)
+    >>> from movement.io import load_poses  # doctest: +SKIP
+    >>> ds = load_poses.from_dlc_file(  # doctest: +SKIP
+    ...     "path/to/file.h5", fps=30
+    ... )
 
     Notes
     -----
-    In ``movement``, pose data can only be loaded if all individuals have
+    In movement, pose data can only be loaded if all individuals have
     the same set of keypoints (i.e., the same labeled body parts).
     While DeepLabCut supports assigning keypoints that are not shared across
     individuals (see the `DeepLabCut documentation for multi-animal projects
     <https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#b-configure-the-project>`_),
-    this feature is not currently supported in ``movement``.
+    this feature is not currently supported in movement.
 
     """
     return _ds_from_lp_or_dlc_file(
@@ -453,7 +459,7 @@ def from_multiview_files(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        movement dataset containing the pose tracks, confidence scores,
         and associated metadata, with an additional ``views`` dimension.
 
     """
@@ -478,7 +484,7 @@ def _ds_from_lp_or_dlc_file(
     source_software: Literal["LightningPose", "DeepLabCut"],
     fps: float | None = None,
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a LightningPose or DLC file.
+    """Create a movement poses dataset from a LightningPose or DLC file.
 
     Parameters
     ----------
@@ -493,7 +499,7 @@ def _ds_from_lp_or_dlc_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        movement dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     """
@@ -516,7 +522,7 @@ def _ds_from_lp_or_dlc_file(
 
 
 def _ds_from_sleap_analysis_file(file: Path, fps: float | None) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a SLEAP analysis (.h5) file.
+    """Create a movement poses dataset from a SLEAP analysis (.h5) file.
 
     Parameters
     ----------
@@ -529,7 +535,7 @@ def _ds_from_sleap_analysis_file(file: Path, fps: float | None) -> xr.Dataset:
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        movement dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     """
@@ -560,7 +566,7 @@ def _ds_from_sleap_analysis_file(file: Path, fps: float | None) -> xr.Dataset:
 
 
 def _ds_from_sleap_labels_file(file: Path, fps: float | None) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a SLEAP labels (.slp) file.
+    """Create a movement poses dataset from a SLEAP labels (.slp) file.
 
     Parameters
     ----------
@@ -573,7 +579,7 @@ def _ds_from_sleap_labels_file(file: Path, fps: float | None) -> xr.Dataset:
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        movement dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     """
@@ -704,7 +710,7 @@ def from_anipose_style_df(
     fps: float | None = None,
     individual_name: str = "id_0",
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from an Anipose 3D dataframe.
+    """Create a movement poses dataset from an Anipose 3D dataframe.
 
     Parameters
     ----------
@@ -719,7 +725,7 @@ def from_anipose_style_df(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        movement dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     Notes
@@ -774,7 +780,7 @@ def from_anipose_file(
     fps: float | None = None,
     individual_name: str = "id_0",
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from an Anipose 3D .csv file.
+    """Create a movement poses dataset from an Anipose 3D .csv file.
 
     Parameters
     ----------
@@ -789,7 +795,7 @@ def from_anipose_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
+        movement dataset containing the pose tracks, confidence scores,
         and associated metadata.
 
     Notes
@@ -812,7 +818,7 @@ def from_nwb_file(
     processing_module_key: str = "behavior",
     pose_estimation_key: str = "PoseEstimation",
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from an NWB file.
+    """Create a movement poses dataset from an NWB file.
 
     The input can be a path to an NWB file on disk or a
     :class:`pynwb.file.NWBFile` object.
@@ -838,7 +844,7 @@ def from_nwb_file(
     Returns
     -------
     xarray.Dataset
-        A single-individual ``movement`` dataset containing the pose tracks,
+        A single-individual movement dataset containing the pose tracks,
         confidence scores, and associated metadata.
 
     References
@@ -850,24 +856,27 @@ def from_nwb_file(
     Open an NWB file and load pose tracks from the
     :class:`pynwb.file.NWBFile` object:
 
-    >>> import pynwb
-    >>> import xarray as xr
-    >>> from movement.io import load_poses
-    >>> with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
+    >>> import pynwb  # doctest: +SKIP
+    >>> import xarray as xr  # doctest: +SKIP
+    >>> from movement.io import load_poses  # doctest: +SKIP
+    >>> nwb_path = "path/to/file.nwb"  # doctest: +SKIP
+    >>> with pynwb.NWBHDF5IO(  # doctest: +SKIP
+    ...     nwb_path, mode="r"
+    ... ) as io:
     ...     nwb_file = io.read()
     ...     ds = load_poses.from_nwb_file(nwb_file)
 
     Or, directly load pose tracks from an NWB file on disk:
 
-    >>> ds = load_poses.from_nwb_file("path/to/file.nwb")
+    >>> ds = load_poses.from_nwb_file("path/to/file.nwb")  # doctest: +SKIP
 
     Load two single-individual datasets from two NWB files and merge them
     into a multi-individual dataset:
 
-    >>> ds_singles = [
+    >>> ds_singles = [  # doctest: +SKIP
     ...     load_poses.from_nwb_file(f) for f in ["id1.nwb", "id2.nwb"]
     ... ]
-    >>> ds_multi = xr.merge(ds_singles)
+    >>> ds_multi = xr.merge(ds_singles)  # doctest: +SKIP
 
     """
     valid_file = cast("ValidFile", file)
@@ -893,7 +902,7 @@ def _ds_from_nwb_object(
     processing_module_key: str = "behavior",
     pose_estimation_key: str = "PoseEstimation",
 ) -> xr.Dataset:
-    """Extract a ``movement`` poses dataset from an NWBFile object.
+    """Extract a movement poses dataset from an NWBFile object.
 
     Parameters
     ----------
@@ -910,7 +919,7 @@ def _ds_from_nwb_object(
     Returns
     -------
     xarray.Dataset
-        A single-individual ``movement`` poses dataset
+        A single-individual movement poses dataset
 
     """
     pose_estimation = nwb_file.processing[processing_module_key][
