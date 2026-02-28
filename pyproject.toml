@@ -115,6 +115,8 @@ exclude = ["tests", "docs*"]
 addopts = "--cov=movement -m 'not benchmark'" # exclude benchmarks by default
 markers = [
     "benchmark: marks benchmarking tests (deselect with '-m \"not benchmark\"')",
+    "smoke: quick sanity checks (non-timing)",
+
 ]
 
 [tool.setuptools_scm]
