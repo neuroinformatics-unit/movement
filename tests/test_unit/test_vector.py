@@ -94,10 +94,13 @@ class TestVector:
         [
             ("cart_pol_dataset", does_not_raise()),
             ("cart_pol_dataset_with_nan", does_not_raise()),
-            ("cart_pol_dataset_missing_cart_dim", pytest.raises(ValueError)),
+            (
+                "cart_pol_dataset_missing_cart_dim",
+                pytest.raises(ValueError, match="Input data must contain"),
+            ),
             (
                 "cart_pol_dataset_missing_cart_coords",
-                pytest.raises(ValueError),
+                pytest.raises(ValueError, match="Input data must contain"),
             ),
         ],
     )
@@ -115,11 +118,11 @@ class TestVector:
             ("cart_pol_dataset_with_nan", does_not_raise()),
             (
                 "cart_pol_dataset_missing_pol_dim",
-                pytest.raises(ValueError),
+                pytest.raises(ValueError, match="Input data must contain"),
             ),
             (
                 "cart_pol_dataset_missing_pol_coords",
-                pytest.raises(ValueError),
+                pytest.raises(ValueError, match="Input data must contain"),
             ),
         ],
     )
@@ -135,10 +138,13 @@ class TestVector:
         [
             ("cart_pol_dataset", does_not_raise()),
             ("cart_pol_dataset_with_nan", does_not_raise()),
-            ("cart_pol_dataset_missing_cart_dim", pytest.raises(ValueError)),
+            (
+                "cart_pol_dataset_missing_cart_dim",
+                pytest.raises(ValueError, match="must contain"),
+            ),
             (
                 "cart_pol_dataset_missing_cart_coords",
-                pytest.raises(ValueError),
+                pytest.raises(ValueError, match="Input data must contain"),
             ),
         ],
     )
@@ -164,7 +170,10 @@ class TestVector:
         [
             ("cart_pol_dataset", does_not_raise()),
             ("cart_pol_dataset_with_nan", does_not_raise()),
-            ("cart_pol_dataset_missing_cart_dim", pytest.raises(ValueError)),
+            (
+                "cart_pol_dataset_missing_cart_dim",
+                pytest.raises(ValueError, match="must contain"),
+            ),
         ],
     )
     def test_convert_to_unit(self, ds, expected_exception, request):
