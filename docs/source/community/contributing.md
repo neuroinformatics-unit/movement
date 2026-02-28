@@ -28,7 +28,7 @@ These are especially suitable if you're new to the project, and we recommend sta
 (target-contribution-workflow)=
 ## Contribution workflow
 
-If you want to contribute to `movement` and don't have permission to make changes directly, you can create your own copy of the project, make updates, and then suggest those updates for inclusion in the main project. This process is often called a "fork and pull request" workflow.
+If you want to contribute to movement and don't have permission to make changes directly, you can create your own copy of the project, make updates, and then suggest those updates for inclusion in the main project. This process is often called a "fork and pull request" workflow.
 
 When you create your own copy (or "fork") of a project, it's like making a new workspace that shares code with the original project.
 Once you've made your changes in your copy, you can submit them as a pull request, which is a way to propose changes back to the main project.
@@ -47,7 +47,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](http
     cd movement
     ```
 
-3. Set the upstream remote to the base `movement` repository:
+3. Set the upstream remote to the base movement repository:
    This links your local copy to the original project so you can pull the latest changes.
 
     ```sh
@@ -61,7 +61,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](http
 
 Now that you have the repository locally, you need to set up a Python environment and install the project dependencies.
 
-1. Create an environment using [conda](conda:) or [uv](uv:getting-started/installation/) and install `movement` in editable mode, including development dependencies.
+1. Create an environment using [conda](conda:) or [uv](uv:getting-started/installation/) and install movement in editable mode, including development dependencies.
 
     ::::{tab-set}
 
@@ -128,7 +128,7 @@ A typical PR workflow would be:
 * Make sure to write tests for any new features or bug fixes. See [testing](#testing) below.
 * Don't forget to update the documentation, if necessary. See [contributing documentation](#contributing-documentation) below.
 * Push your changes to your fork on GitHub(`git push origin <branch-name>`).
-* Open a draft pull request from your fork to the upstream `movement` repository, with a meaningful title and a thorough description of the changes.
+* Open a draft pull request from your fork to the upstream movement repository, with a meaningful title and a thorough description of the changes.
   :::{note}
   When creating the PR, ensure the base repository is `neuroinformatics-unit/movement` (the `upstream`) and the head repository is your fork. GitHub sometimes defaults to comparing against your own fork. Also make sure to tick the "Allow edits by maintainers" checkbox, so that maintainers can make small fixes directly to your branch.
   :::
@@ -183,7 +183,7 @@ We use [pytest](https://docs.pytest.org/en/latest/) for testing, aiming for ~100
 
 Tests are stored in the `tests` directory, structured as follows:
 
-- `test_unit/`: Contains unit tests that closely follow the `movement` package structure.
+- `test_unit/`: Contains unit tests that closely follow the movement package structure.
 - `test_integration/`: Includes tests for interactions between different modules.
 - `fixtures/`: Holds reusable test data fixtures, automatically imported via `conftest.py`. Check for existing fixtures before adding new ones, to avoid duplication.
 
@@ -268,18 +268,18 @@ raise logger.exception(ValueError("message")) # with traceback
 We aim to adhere to the [When to use logging guide](inv:python#logging-basic-tutorial) to ensure consistency in our logging practices.
 In general:
 * Use {func}`print` for simple, non-critical messages that do not need to be logged.
-* Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within `movement`, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesInputs<movement.validators.datasets.ValidPosesInputs>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
+* Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within movement, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesInputs<movement.validators.datasets.ValidPosesInputs>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
 * Use {meth}`logger.info()<loguru._logger.Logger.info>` for informational messages about expected behaviours that do not indicate problems, e.g. where default values are assigned to optional parameters.
 
 ### Implementing new loaders
-Implementing a new loader to support additional [file formats](target-supported-formats) in `movement` involves the following steps:
+Implementing a new loader to support additional [file formats](target-supported-formats) in movement involves the following steps:
 
 1. Create validator classes for the file format (recommended).
 2. Implement the loader function.
 3. Update the `SourceSoftware` type alias.
 
 #### Create file validators
-`movement` enforces separation of concerns by decoupling file validation from data loading, so that loaders can focus solely on reading and parsing data, while validation logic is encapsulated in dedicated file validator classes.
+movement enforces separation of concerns by decoupling file validation from data loading, so that loaders can focus solely on reading and parsing data, while validation logic is encapsulated in dedicated file validator classes.
 Besides allowing users to get early feedback on file issues, this also makes it easier to reuse validation logic across different loaders that may support the same file format.
 
 All file validators are [`attrs`](attrs:)-based classes and live in {mod}`movement.validators.files`.
@@ -333,7 +333,7 @@ In the `ValidMySoftwareCSV` example, only files with a `.csv` extension are acce
 ##### Normalise input file and apply reusable validators
 An `attrs` {ref}`converter<attrs:converters>` is typically used to normalise input files into {class}`Path<pathlib.Path>` objects, along with one or more validators to ensure the file meets the expected criteria.
 
-In addition to the built-in `attrs` {mod}`validators<attrs.validators>`, `movement` provides several reusable file-specific validators (as callables) in {mod}`movement.validators.files`:
+In addition to the built-in `attrs` {mod}`validators<attrs.validators>`, movement provides several reusable file-specific validators (as callables) in {mod}`movement.validators.files`:
 
 - `_file_validator`: A composite validator that ensures `file` is a {class}`Path<pathlib.Path>`, is not a directory, is accessible with the required permission, and has one of the expected `suffixes` (if any).
 - `_hdf5_validator`: Checks that an HDF5 `file` contains the expected dataset(s).
@@ -486,7 +486,7 @@ We use [semantic versioning](https://semver.org/), which includes `MAJOR`.`MINOR
 * MINOR = new feature
 * MAJOR = breaking change
 
-We use [setuptools_scm](setuptools-scm:) to automatically version `movement`.
+We use [setuptools_scm](setuptools-scm:) to automatically version movement.
 It has been pre-configured in the `pyproject.toml` file.
 `setuptools_scm` will automatically [infer the version using git](setuptools-scm:usage#default-versioning-scheme).
 To manually set a new semantic version, create a tag and make sure the tag is pushed to GitHub.
@@ -534,6 +534,9 @@ and commit your changes. Submit your documentation changes via a pull request,
 following the [same guidelines as for code changes](#pull-requests).
 Make sure that the header levels in your `.md` or `.rst` files are incremented
 consistently (H1 > H2 > H3, etc.) without skipping any levels.
+
+#### Text formatting
+Please follow our [text formatting guide](target-text-formatting-guide) when writing documentation or Python docstrings to ensure consistent monospace formatting across the project.
 
 #### Adding new pages
 If you create a new documentation source file (e.g. `my_new_file.md` or `my_new_file.rst`),
@@ -592,7 +595,7 @@ Docstrings in the `.py` files for the [API reference](target-api) and the [examp
 #### Internal references
 ::::{tab-set}
 :::{tab-item} Markdown
-For referencing `movement` objects in `.md` files, use the `` {role}`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
+For referencing movement objects in `.md` files, use the `` {role}`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
 
 For example, to reference the {mod}`movement.io.load_poses` module, use:
 ```markdown
@@ -600,7 +603,7 @@ For example, to reference the {mod}`movement.io.load_poses` module, use:
 ```
 :::
 :::{tab-item} RestructuredText
-For referencing `movement` objects in `.rst` files, use the `` :role:`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
+For referencing movement objects in `.rst` files, use the `` :role:`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
 
 For example, to reference the {mod}`movement.io.load_poses` module, use:
 ```rst
@@ -761,23 +764,23 @@ The most important parts of this module are:
 1. The `SAMPLE_DATA` download manager object.
 2. The {func}`list_datasets()<movement.sample_data.list_datasets>` function, which returns a list of the available poses and bounding boxes datasets (file names of the data files).
 3. The {func}`fetch_dataset_paths()<movement.sample_data.fetch_dataset_paths>` function, which returns a dictionary containing local paths to the files associated with a particular sample dataset: `poses` or `bboxes`, `frame`, `video`. If the relevant files are not already cached locally, they will be downloaded.
-4. The {func}`fetch_dataset()<movement.sample_data.fetch_dataset>` function, which downloads the files associated with a given sample dataset (same as `fetch_dataset_paths()`) and additionally loads the pose or bounding box data into `movement`, returning an `xarray.Dataset` object. If available, the local paths to the associated video and frame files are stored as dataset attributes, with names `video_path` and `frame_path`, respectively.
+4. The {func}`fetch_dataset()<movement.sample_data.fetch_dataset>` function, which downloads the files associated with a given sample dataset (same as `fetch_dataset_paths()`) and additionally loads the pose or bounding box data into movement, returning an `xarray.Dataset` object. If available, the local paths to the associated video and frame files are stored as dataset attributes, with names `video_path` and `frame_path`, respectively.
 
 By default, the downloaded files are stored in the `~/.movement/data` folder.
 This can be changed by setting the `DATA_DIR` variable in the `sample_data.py` file.
 
 ### Adding new data
-Only core `movement` developers may add new files to the external data repository.
+Only core movement developers may add new files to the external data repository.
 Make sure to run the following procedure on a UNIX-like system, as we have observed some weird behaviour on Windows (some sha256sums may end up being different).
 To add a new file, you will need to:
 
 1. Create a [GIN](gin:) account.
 2. Request collaborator access to the [movement data repository](gin:neuroinformatics/movement-test-data) if you don't already have it.
 3. Install and configure the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) by running `gin login` in a terminal with your GIN credentials.
-4. Clone the `movement` data repository to your local machine using `gin get neuroinformatics/movement-test-data`, then run `gin download --content` to download all the files.
+4. Clone the movement data repository to your local machine using `gin get neuroinformatics/movement-test-data`, then run `gin download --content` to download all the files.
 5. Add your new files to the appropriate folders (`poses`, `bboxes`, `videos`, and/or `frames`) following the existing file naming conventions.
 6. Add metadata for your new files to `metadata.yaml` using the [example entry below](target-metadata-yaml) as a template. You can leave all `sha256sum` values as `null` for now.
-7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](gin:neuroinformatics/movement-test-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with `movement` installed](#creating-a-development-environment).
+7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](gin:neuroinformatics/movement-test-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with movement installed](#creating-a-development-environment).
 8. Commit your changes using `gin commit -m <message> <filename>` for specific files or `gin commit -m <message> .` for all changes.
 9. Upload your committed changes to the GIN repository with `gin upload`. Use `gin download` to pull the latest changes or `gin sync` to synchronise changes bidirectionally.
 10. [Verify](target-verify-sample-data) the new files can be fetched and loaded correctly using the {mod}`movement.sample_data` module.

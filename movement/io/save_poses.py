@@ -1,4 +1,4 @@
-"""Save pose tracking data from ``movement`` to various file formats."""
+"""Save pose tracking data from movement to various file formats."""
 
 from pathlib import Path
 from typing import Literal
@@ -22,12 +22,12 @@ from movement.validators.files import validate_file_path
 def _ds_to_dlc_style_df(
     ds: xr.Dataset, columns: pd.MultiIndex
 ) -> pd.DataFrame:
-    """Convert a ``movement`` dataset to a DeepLabCut-style DataFrame.
+    """Convert a movement dataset to a DeepLabCut-style DataFrame.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` dataset containing pose tracks, confidence scores,
+        movement dataset containing pose tracks, confidence scores,
         and associated metadata.
     columns : pandas.MultiIndex
         DeepLabCut-style multi-index columns
@@ -90,12 +90,12 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
 def to_dlc_style_df(
     ds: xr.Dataset, split_individuals: bool = False
 ) -> pd.DataFrame | dict[str, pd.DataFrame]:
-    """Convert a ``movement`` dataset to DeepLabCut-style DataFrame(s).
+    """Convert a movement dataset to DeepLabCut-style DataFrame(s).
 
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` dataset containing pose tracks, confidence scores,
+        movement dataset containing pose tracks, confidence scores,
         and associated metadata.
     split_individuals : bool, optional
         If True, return a dictionary of DataFrames per individual, with
@@ -166,12 +166,12 @@ def to_dlc_file(
     file_path: str | Path,
     split_individuals: bool | Literal["auto"] = "auto",
 ) -> None:
-    """Save a ``movement`` dataset to DeepLabCut file(s).
+    """Save a movement dataset to DeepLabCut file(s).
 
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` dataset containing pose tracks, confidence scores,
+        movement dataset containing pose tracks, confidence scores,
         and associated metadata.
     file_path : pathlib.Path or str
         Path to the file to save the poses to. The file extension
@@ -248,12 +248,12 @@ def to_lp_file(
     ds: xr.Dataset,
     file_path: str | Path,
 ) -> None:
-    """Save a ``movement`` dataset to a LightningPose file.
+    """Save a movement dataset to a LightningPose file.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` dataset containing pose tracks, confidence scores,
+        movement dataset containing pose tracks, confidence scores,
         and associated metadata.
     file_path : pathlib.Path or str
         Path to the file to save the poses to. File extension must be .csv.
@@ -281,12 +281,12 @@ def to_lp_file(
 
 
 def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
-    """Save a ``movement`` dataset to a SLEAP analysis file.
+    """Save a movement dataset to a SLEAP analysis file.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` dataset containing pose tracks, confidence scores,
+        movement dataset containing pose tracks, confidence scores,
         and associated metadata.
     file_path : pathlib.Path or str
         Path to the file to save the poses to. File extension must be .h5.
@@ -387,7 +387,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
 def to_nwb_file(
     ds: xr.Dataset, config: NWBFileSaveConfig | None = None
 ) -> pynwb.file.NWBFile | list[pynwb.file.NWBFile]:
-    """Save a ``movement`` dataset to one or more NWBFile objects.
+    """Save a movement dataset to one or more NWBFile objects.
 
     The data will be written to :class:`pynwb.file.NWBFile` object(s)
     in the "behavior" processing module, formatted according to the
@@ -399,7 +399,7 @@ def to_nwb_file(
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` poses dataset containing the data to be converted to
+        movement poses dataset containing the data to be converted to
         NWBFile(s).
     config : NWBFileSaveConfig, optional
         Configuration object containing keyword arguments to customise the
@@ -421,7 +421,7 @@ def to_nwb_file(
     Examples
     --------
     Create :class:`pynwb.file.NWBFile` objects for each individual in
-    a ``movement`` poses dataset ``ds`` and save them to disk:
+    a movement poses dataset ``ds`` and save them to disk:
 
     >>> from movement.sample_data import fetch_dataset  # doctest: +SKIP
     >>> from movement.io import save_poses  # doctest: +SKIP
@@ -533,7 +533,7 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
     Parameters
     ----------
     ds : xarray.Dataset
-        ``movement`` dataset containing pose tracks, confidence scores,
+        movement dataset containing pose tracks, confidence scores,
         and associated metadata.
 
     Returns

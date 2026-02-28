@@ -73,7 +73,7 @@ def plot_occupancy(
     >>> from movement import sample_data  # doctest: +SKIP
     >>> from movement.plots import plot_occupancy  # doctest: +SKIP
     >>> positions = sample_data.fetch_dataset(  # doctest: +SKIP
-    ...     "DLC_two-mice.predictions.csv"
+    ...     "DLC_two-mice.``predictions.csv``"
     ... ).position
     >>> plot_occupancy(positions)  # doctest: +SKIP
 

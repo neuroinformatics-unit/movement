@@ -64,7 +64,7 @@ def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
     """Download the metadata yaml file.
 
     This function downloads the yaml file containing sample metadata from
-    the ``movement`` data repository and saves it in the specified directory
+    the movement data repository and saves it in the specified directory
     with a temporary filename - temp_{file_name} - to avoid overwriting any
     existing files.
 
@@ -194,7 +194,7 @@ def list_datasets() -> list[str]:
 def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     """Get paths to sample dataset and any associated frames or videos.
 
-    The data are downloaded from the ``movement`` data repository to the user's
+    The data are downloaded from the movement data repository to the user's
     local machine upon first use and are stored in a local cache directory.
     The function stores the paths to the downloaded files in a dictionary.
 
@@ -223,7 +223,7 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
 
     >>> from movement.sample_data import fetch_dataset_paths  # doctest: +SKIP
     >>> paths = fetch_dataset_paths(  # doctest: +SKIP
-    ...     "DLC_single-mouse_EPM.predictions.h5", with_video=True
+    ...     "DLC_single-mouse_EPM.``predictions.h5``", with_video=True
     ... )
     >>> poses_path = paths["poses"]  # doctest: +SKIP
     >>> frame_path = paths["frame"]  # doctest: +SKIP
@@ -233,7 +233,7 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     poses, use ``paths["bboxes"]`` instead of ``paths["poses"]``:
 
     >>> paths = fetch_dataset_paths(  # doctest: +SKIP
-    ...     "VIA_multiple-crabs_5-frames_labels.csv"
+    ...     "``VIA_multiple-crabs_5-frames_labels.csv``"
     ... )
     >>> bboxes_path = paths["bboxes"]  # doctest: +SKIP
 
@@ -286,7 +286,7 @@ def fetch_dataset(
 ) -> xarray.Dataset:
     """Load a sample dataset.
 
-    The data are downloaded from the ``movement`` data repository to the user's
+    The data are downloaded from the movement data repository to the user's
     local machine upon first use and are stored in a local cache directory.
     This function returns the data as an xarray Dataset.
     If there are any associated frames or videos, these files are also
@@ -313,7 +313,7 @@ def fetch_dataset(
 
     >>> from movement.sample_data import fetch_dataset  # doctest: +SKIP
     >>> ds = fetch_dataset(  # doctest: +SKIP
-        "DLC_single-mouse_EPM.predictions.h5", with_video=True
+        "DLC_single-mouse_EPM.``predictions.h5``", with_video=True
     )
     >>> frame_path = ds.video_path  # doctest: +SKIP
     >>> video_path = ds.frame_path  # doctest: +SKIP

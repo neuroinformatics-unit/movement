@@ -1,4 +1,4 @@
-"""Helpers to convert between ``movement`` poses datasets and NWB files.
+"""Helpers to convert between movement poses datasets and NWB files.
 
 The pose tracks in NWB files are formatted according to the ``ndx-pose``
 NWB extension, see https://github.com/rly/ndx-pose.
@@ -30,7 +30,7 @@ class NWBFileSaveConfig:
 
     This class is used with :func:`movement.io.save_poses.to_nwb_file`
     to add custom metadata to the NWBFile(s) created from a given
-    ``movement`` dataset.
+    movement dataset.
 
     Attributes
     ----------
@@ -42,7 +42,7 @@ class NWBFileSaveConfig:
         ``identifier``.
 
         If ``nwbfile_kwargs`` is a dictionary of dictionaries, the outer keys
-        should correspond to individual names in the ``movement`` dataset,
+        should correspond to individual names in the movement dataset,
         and the inner dictionaries will be passed as keyword arguments to the
         :class:`pynwb.file.NWBFile` constructor.
 
@@ -60,7 +60,7 @@ class NWBFileSaveConfig:
 
         1. ``identifier`` in the inner dictionary
         2. ``nwbfile_kwargs["identifier"]`` (single-individual dataset only)
-        3. individual name in the ``movement`` dataset
+        3. individual name in the movement dataset
 
     processing_module_kwargs: dict[str, Any] or dict[str, dict[str, Any]], optional
         Keyword arguments for :class:`pynwb.base.ProcessingModule`.
@@ -70,7 +70,7 @@ class NWBFileSaveConfig:
 
         If ``processing_module_kwargs`` is a dictionary of dictionaries,
         the outer keys should correspond to individual names in the
-        ``movement`` dataset, and the inner dictionaries will be passed as
+        movement dataset, and the inner dictionaries will be passed as
         keyword arguments to the :class:`pynwb.file.ProcessingModule`
         constructor.
 
@@ -86,7 +86,7 @@ class NWBFileSaveConfig:
         arguments will be applied to all Subjects except for ``subject_id``.
 
         If ``subject_kwargs`` is a dictionary of dictionaries, the outer keys
-        should correspond to individual names in the ``movement`` dataset,
+        should correspond to individual names in the movement dataset,
         and the inner dictionaries will be passed as keyword arguments to the
         :class:`pynwb.file.Subject` constructor.
 
@@ -94,7 +94,7 @@ class NWBFileSaveConfig:
 
         1. ``subject_id`` in the inner dictionary
         2. ``subject_kwargs["subject_id"]`` (single-individual dataset only)
-        3. individual name in the ``movement`` dataset
+        3. individual name in the movement dataset
 
     pose_estimation_series_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional
         Keyword arguments for ``ndx_pose.PoseEstimationSeries`` [1]_.
@@ -104,7 +104,7 @@ class NWBFileSaveConfig:
 
         If ``pose_estimation_series_kwargs`` is a dictionary of dictionaries,
         the outer keys should correspond to keypoint names in the
-        ``movement`` dataset, and the inner dictionaries will be passed as
+        movement dataset, and the inner dictionaries will be passed as
         keyword arguments to the ``ndx_pose.PoseEstimationSeries`` constructor.
 
         The following arguments will be set based on the dataset and cannot
@@ -124,7 +124,7 @@ class NWBFileSaveConfig:
         1. ``name`` in the inner dictionary
         2. ``pose_estimation_series_kwargs["name"]`` (single-keypoint
            dataset only)
-        3. keypoint name in the ``movement`` dataset
+        3. keypoint name in the movement dataset
 
     pose_estimation_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional
         Keyword arguments for ``ndx_pose.PoseEstimation`` [1]_.
@@ -134,7 +134,7 @@ class NWBFileSaveConfig:
 
         If ``pose_estimation_kwargs`` is a dictionary of dictionaries,
         the outer keys should correspond to individual names in the
-        ``movement`` dataset, and the inner dictionaries will be passed as
+        movement dataset, and the inner dictionaries will be passed as
         keyword arguments to the ``ndx_pose.PoseEstimation`` constructor.
 
         The following arguments cannot be overwritten:
@@ -145,7 +145,7 @@ class NWBFileSaveConfig:
         The following arguments will have default values if not set:
 
         - ``source_software``: ``source_software`` attribute from the
-          ``movement`` dataset
+          movement dataset
         - ``description``: "Estimated positions of <keypoints> for
           <individual> using <source_software>."
 
@@ -154,7 +154,7 @@ class NWBFileSaveConfig:
 
         1. ``name`` in the inner dictionary
         2. ``pose_estimation_kwargs["name"]`` (single-individual dataset only)
-        3. individual name in the ``movement`` dataset
+        3. individual name in the movement dataset
 
     skeleton_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional
         Keyword arguments for ``ndx_pose.Skeleton`` [1]_.
@@ -164,7 +164,7 @@ class NWBFileSaveConfig:
 
         If ``skeleton_kwargs`` is a dictionary of dictionaries,
         the outer keys should correspond to individual names in the
-        ``movement`` dataset, and the inner dictionaries will be passed as
+        movement dataset, and the inner dictionaries will be passed as
         keyword arguments to the ``ndx_pose.Skeleton`` constructor.
 
         The following arguments cannot be overwritten:
@@ -181,7 +181,7 @@ class NWBFileSaveConfig:
 
         1. ``name`` in the inner dictionary
         2. ``skeleton_kwargs["name"]`` (single-individual dataset only)
-        3. individual name in the ``movement`` dataset
+        3. individual name in the movement dataset
 
     References
     ----------
@@ -190,7 +190,7 @@ class NWBFileSaveConfig:
     See Also
     --------
     movement.io.save_poses.to_nwb_file
-        Example usage of this class to save a ``movement`` dataset
+        Example usage of this class to save a movement dataset
         to an NWB file.
 
     """  # noqa: E501
@@ -221,7 +221,7 @@ class NWBFileSaveConfig:
 
         If the kwargs attribute (retrieved from ``attr_name``) is a
         dictionary of dictionaries, the outer keys should correspond to
-        individual or keypoint names in the ``movement`` dataset,
+        individual or keypoint names in the movement dataset,
         and the inner dictionaries will be returned as keyword arguments
         for an individual/keypoint.
 
@@ -524,12 +524,12 @@ def _ds_to_pose_and_skeletons(
     subject: pynwb.file.Subject | None = None,
     from_multi_individual: bool = False,
 ) -> tuple[ndx_pose.PoseEstimation, ndx_pose.Skeletons]:
-    """Create PoseEstimation and Skeletons objects from a ``movement`` dataset.
+    """Create PoseEstimation and Skeletons objects from a movement dataset.
 
     Parameters
     ----------
     ds : xarray.Dataset
-        A single-individual ``movement`` poses dataset.
+        A single-individual movement poses dataset.
     config : movement.io.nwb.NWBFileSaveConfig
         Configuration object containing keyword arguments to customise
         the PoseEstimation and Skeletons objects created from the dataset.

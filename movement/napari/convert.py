@@ -1,4 +1,4 @@
-"""Conversion functions from ``movement`` datasets to napari layers."""
+"""Conversion functions from movement datasets to napari layers."""
 
 import numpy as np
 import pandas as pd
@@ -6,7 +6,7 @@ import xarray as xr
 
 
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
-    """Construct a properties DataFrame from a ``movement`` dataset."""
+    """Construct a properties DataFrame from a movement dataset."""
     data = {
         "individual": ds.coords["individuals"].values,
         "time": ds.coords["time"].values,
@@ -24,7 +24,7 @@ def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
 def _construct_track_and_time_cols(
     ds: xr.Dataset,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Compute napari track_id and time columns from a ``movement`` dataset."""
+    """Compute napari track_id and time columns from a movement dataset."""
     n_frames = ds.sizes["time"]
     n_individuals = ds.sizes["individuals"]
     n_keypoints = ds.sizes.get("keypoints", 1)
@@ -40,12 +40,12 @@ def _construct_track_and_time_cols(
 def ds_to_napari_layers(
     ds: xr.Dataset,
 ) -> tuple[np.ndarray, np.ndarray | None, pd.DataFrame]:
-    """Convert ``movement`` dataset to napari Tracks array and properties.
+    """Convert movement dataset to napari Tracks array and properties.
 
     Parameters
     ----------
     ds : xr.Dataset
-        ``movement`` dataset containing pose or bounding box tracks,
+        movement dataset containing pose or bounding box tracks,
         confidence scores, and associated metadata.
 
     Returns

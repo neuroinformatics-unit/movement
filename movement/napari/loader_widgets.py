@@ -229,7 +229,7 @@ class DataLoader(QWidget):
         return True
 
     def _load_third_party_file(self) -> xr.Dataset:
-        """Load a third-party file as a ``movement`` dataset.
+        """Load a third-party file as a movement dataset.
 
         Validation is handled by the loader functions.
         """
@@ -237,10 +237,10 @@ class DataLoader(QWidget):
         return ds
 
     def _load_netcdf_file(self) -> xr.Dataset | None:
-        """Load and validate a netCDF file as a ``movement`` dataset.
+        """Load and validate a netCDF file as a movement dataset.
 
         If the file cannot be opened or does not contain a valid
-        ``movement`` dataset, an appropriate error message is shown
+        movement dataset, an appropriate error message is shown
         to the user and ``None`` is returned.
         """
         try:

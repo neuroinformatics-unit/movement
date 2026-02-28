@@ -1,4 +1,4 @@
-"""Filter and interpolate tracks in ``movement`` datasets."""
+"""Filter and interpolate tracks in movement datasets."""
 
 from typing import Any, Literal
 

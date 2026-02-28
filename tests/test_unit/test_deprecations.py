@@ -73,7 +73,7 @@ def test_deprecation(
     ["valid_poses_dataset", "valid_bboxes_dataset"],
 )
 def test_backwards_compatibility_displacement(valid_dataset, request):
-    """Test that compute_displacement produces the same output as
+    """Test that ``compute_displacement`` produces the same output as
     the negative of compute_backward_displacement.
     """
     position = request.getfixturevalue(valid_dataset).position

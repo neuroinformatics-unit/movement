@@ -1,4 +1,4 @@
-"""The main napari widget for the ``movement`` package."""
+"""The main napari widget for the movement package."""
 
 from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
@@ -7,7 +7,7 @@ from movement.napari.loader_widgets import DataLoader
 
 
 class MovementMetaWidget(CollapsibleWidgetContainer):
-    """The widget to rule all ``movement`` napari widgets.
+    """The widget to rule all movement napari widgets.
 
     This is a container of collapsible widgets, each responsible
     for handing specific tasks in the movement napari workflow.

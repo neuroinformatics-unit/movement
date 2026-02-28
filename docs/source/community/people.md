@@ -2,7 +2,7 @@
 # People
 
 ## Leadership
-`movement` is led by the [Neuroinformatics Unit](https://neuroinformatics.dev/) at the
+movement is led by the [Neuroinformatics Unit](https://neuroinformatics.dev/) at the
 [Sainsbury Wellcome Centre](https://www.sainsburywellcome.org/web/) by [Niko Sirmpilatze](https://github.com/niksirbi) and
 [Adam Tyson](https://github.com/adamltyson).
 The current active core development team is composed of:
@@ -388,7 +388,7 @@ providing sample data, or by actively participating in discussions).
 :::::
 
 ## Funders
-`movement` is made possible thanks to grant funding and the generous support of our host institutions:
+movement is made possible thanks to grant funding and the generous support of our host institutions:
 
 <div class="things-in-a-row">
     <a href="https://www.sainsburywellcome.org/" target="_blank">

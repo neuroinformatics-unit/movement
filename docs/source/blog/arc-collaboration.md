@@ -12,7 +12,7 @@ language: English
 
 _This is a short summary of the spatial navigation features introduced during Jan-Feb 2025._
 
-This work was part of a collaboration involving Sepiedeh Keshavarzi (Cambridge University), the Centre for Advanced Research Computing at University College London(UCL-ARC), and the core `movement` development team and has been funded by the Wellcome Trust.
+This work was part of a collaboration involving Sepiedeh Keshavarzi (Cambridge University), the Centre for Advanced Research Computing at University College London(UCL-ARC), and the core movement development team and has been funded by the Wellcome Trust.
 
 _At a glance_
 
@@ -22,13 +22,13 @@ _At a glance_
 
 ## Original Roadmap
 
-Between January and February 2025, the `movement` developer team decided to focus on expanding the suite of tools useful for the analysis of spatial navigation.
+Between January and February 2025, the movement developer team decided to focus on expanding the suite of tools useful for the analysis of spatial navigation.
 This work started with the creation of so-called "backend" functions that can perform general operations on vectors in an efficient manner, from which friendlier functions could be provided.
-Once these features were in place, development would start on supporting "Regions of Interest" (RoIs) within `movement`.
+Once these features were in place, development would start on supporting "Regions of Interest" (RoIs) within movement.
 RoIs are essentially labelled regions in space that have some significance in the experimental setup - the location of a nest, or the extent of the enclosure, for example.
-By providing a way to store and describe these objects within `movement`, analysis workflows can be simplified and can make use of the existing "backend" functions to provide convenient access to interesting quantities; such as the distance of each individual from a RoI, or the relative orientation of an individual from the nearest wall of the enclosure.
+By providing a way to store and describe these objects within movement, analysis workflows can be simplified and can make use of the existing "backend" functions to provide convenient access to interesting quantities; such as the distance of each individual from a RoI, or the relative orientation of an individual from the nearest wall of the enclosure.
 
-There were also a few independent bursts of development in other areas; including providing sample pupillometry data and an example workflow showing how `movement` can be used to explore different aspects of the data (e.g. position, velocity, and diameter of the pupil), and how to normalise and filter the data.
+There were also a few independent bursts of development in other areas; including providing sample pupillometry data and an example workflow showing how movement can be used to explore different aspects of the data (e.g. position, velocity, and diameter of the pupil), and how to normalise and filter the data.
 
 A copy of the original roadmap that was [shared on Zulip](movement-zulip:topic/Roadmap.3A.20Spatial.20Navigation/near/495022291) is provided below.
 
@@ -36,9 +36,9 @@ A copy of the original roadmap that was [shared on Zulip](movement-zulip:topic/R
 
 ## What's Been Introduced?
 
-In addition to the topics listed below, we have also introduced the following smaller, self-contained features to `movement`:
+In addition to the topics listed below, we have also introduced the following smaller, self-contained features to movement:
 
-- We have new sample datasets available, including two eye-movement tracking (pupillometry) datasets. An example of how to analyse this data using `movement` was introduced in [#429](movement-github:pull/429) and can be found {ref}`here <sphx_glr_examples_mouse_eye_movements.py>`.
+- We have new sample datasets available, including two eye-movement tracking (pupillometry) datasets. An example of how to analyse this data using movement was introduced in [#429](movement-github:pull/429) and can be found {ref}`here <sphx_glr_examples_mouse_eye_movements.py>`.
 - It is now possible to scale `DataArray`s expressed in pixels into other units via the {func}`movement.transforms.scale` function. Introduced in [#384](movement-github:pull/384).
 
 Additionally, we have begun planning our approach to supporting annotations in time, via what we are calling [condition arrays](movement-github:issues/418).
@@ -50,7 +50,7 @@ It is early days currently, but you can join in the conversation for what's plan
 
 ### Plotting Made Easier
 
-The {mod}`movement.plots` submodule has been created, which provides some helpful wrapper functions for producing some of the more common plot types that come out of the analysis of `movement` datasets.
+The {mod}`movement.plots` submodule has been created, which provides some helpful wrapper functions for producing some of the more common plot types that come out of the analysis of movement datasets.
 These plots can be added to existing figure axes you have created, and you can pass them the same formatting arguments as you would to the appropriate {mod}`matplotlib.pyplot`.
 Currently, the submodule has two wrappers to use:
 
@@ -63,7 +63,7 @@ Examples to showcase the use of these plotting functions are currently [being pr
 ### Broadcasting Methods
 
 Most of the time during analysis of experimental data, we want to repeat the same action multiple times across different coordinates, or individuals, or time-points.
-The data-structures that `movement` relies on - and the analysis methods it provides - go a long way to making this kind of analysis easy, thanks to array broadcasting.
+The data-structures that movement relies on - and the analysis methods it provides - go a long way to making this kind of analysis easy, thanks to array broadcasting.
 However when it comes to writing your own, custom analysis functions, most of the time it is much easier to write a function that takes in a single input, rather than writing an appropriate function that acts on an entire `DataArray`.
 But this approach typically means that you're then stuck writing a `for` loop over the values in your `DataArray`, and on top of that having to copy across the dimension labels or coordinates into the new array you're making as the `for` loop runs.
 
@@ -72,7 +72,7 @@ You can find a new {ref}`example <sphx_glr_examples_advanced_broadcasting_your_o
 
 ### Regions of Interest (RoIs)
 
-One of the biggest feature introductions to `movement` during this period is support for RoIs.
+One of the biggest feature introductions to movement during this period is support for RoIs.
 We now support one-dimensional regions of interest (segments, or piecewise-linear structures formed of multiple segments) as well as two-dimensional polygonal regions.
 You can create RoIs using the {class}`LineOfInterest <movement.roi.LineOfInterest>` and {class}`PolygonOfInterest <movement.roi.PolygonOfInterest>` classes respectively.
 There are more details about how the base class is implemented on top of [`shapely`](https://shapely.readthedocs.io/en/stable/) in the {class}`docstring <movement.roi.BaseRegionOfInterest>`, and a note about how the interior of 2D shapes is handled.

@@ -1,4 +1,4 @@
-"""Logging utilities for the ``movement`` package."""
+"""Logging utilities for the movement package."""
 
 import inspect
 import json

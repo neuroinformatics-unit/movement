@@ -31,7 +31,7 @@ def decaoctagonal_doughnut() -> PolygonOfInterest:
     """18-sided doughnut.
 
     This region matches (approximately) to the arena in the
-    "SLEAP_three-mice_Aeon_proofread.analysis.h5" dataset.
+    "SLEAP_three-mice_Aeon_proofread.``analysis.h5``" dataset.
     """
     centre = np.array([712.5, 541])
     width = 40.0
