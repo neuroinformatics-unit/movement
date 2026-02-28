@@ -26,10 +26,10 @@ We closely follow the [NumPy documentation style](https://numpydoc.readthedocs.i
 
 **Correct:**
 > To compute velocity, use `compute_velocity()`. The results will be saved to a `.csv` file in `~/.movement`.
-> 
+>
 > A movement dataset represents tracks...
 
 **Incorrect:**
 > To compute velocity, use compute_velocity(). The results will be saved to a .csv file in ~/.movement.
-> 
+>
 > A movement dataset represents tracks...
