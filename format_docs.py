@@ -5,7 +5,9 @@ import re
 
 # The regex is constructed from a controlled list of function names,
 # not from user input — this is safe.
-EXT_PATTERN = re.compile(r"(?<![`\w/])(\.?[\w-]+\.(?:csv|h5|slp|dlc))\b(?!`)")
+EXT_PATTERN = re.compile(
+    r"(?<![`\w/])(\.?[A-Za-z0-9_-]+\.(?:csv|h5|slp|dlc))\b(?!`)"
+)
 
 
 def replacer(match):
