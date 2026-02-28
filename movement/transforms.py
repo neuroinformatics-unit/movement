@@ -164,12 +164,14 @@ def poses_to_bboxes(
     --------
     Compute bounding boxes from a poses dataset with zero padding:
 
-    >>> from movement.transforms import poses_to_bboxes
-    >>> bbox_position, bbox_shape = poses_to_bboxes(poses_ds["position"])
+    >>> from movement.transforms import poses_to_bboxes  # doctest: +SKIP
+    >>> bbox_position, bbox_shape = poses_to_bboxes(
+    ...     poses_ds["position"]
+    ... )  # doctest: +SKIP
 
     Compute bounding boxes from a poses dataset with 10 pixels of padding:
 
-    >>> bbox_position, bbox_shape = poses_to_bboxes(
+    >>> bbox_position, bbox_shape = poses_to_bboxes(  # doctest: +SKIP
     ...     poses_ds["position"], padding=10
     ... )
 
