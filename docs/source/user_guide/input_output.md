@@ -31,6 +31,7 @@ and can be loaded from and saved to various third-party formats.
 | [Anipose](anipose:)                                                         |              | triangulation .csv file, or corresponding pandas DataFrame                                                                | Pose                 | Load                 |
 | [VGG Image Annotator](via:)                                                 | VIA          | .csv file for [tracks annotation](via:docs/face_track_annotation.html)                                                    | Bounding box         | Load & Save          |
 | [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB          | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose)                                | Pose                 | Load & Save          |
+| [COCO](https://cocodataset.org/#format-data)                                | COCO         | COCO keypoints .json file                                                                                                 | Pose                 | Load                 |
 | Any                                                                         |              | Numpy arrays                                                                                                              | Pose or Bounding box | Load & Save\*        |
 
 \*Exporting any `movement` DataArray to a NumPy array is as simple as calling xarray's built-in {meth}`xarray.DataArray.to_numpy()` method, so no specialised "Export/Save As" function is needed, see [xarray's documentation](xarray:user-guide/duckarrays.html) for more details.
@@ -186,6 +187,23 @@ with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
         nwb_file, pose_estimation_key="PoseEstimation"
     )
 ```
+::::
+
+::::{tab-item} COCO
+To load COCO keypoints JSON files:
+```python
+ds = load_poses.from_coco_file(
+    "path/to/coco_keypoints.json",
+    fps=30,  # Optional; time coords will be in seconds if provided
+)
+```
+
+The COCO format stores keypoints as a flat list `[x1, y1, v1, x2, y2, v2, ...]` where `v` is a visibility flag:
+- `v=0`: not labeled (confidence = 0.0)
+- `v=1`: labeled but occluded (confidence = 0.5)
+- `v=2`: labeled and visible (confidence = 1.0)
+
+Each image in the COCO file corresponds to a frame, and each annotation within an image represents an individual. Frames without annotations are filled with NaN values.
 ::::
 
 ::::{tab-item} From NumPy
