@@ -167,3 +167,24 @@ def test_compute_kinetic_energy_nan_keypoints():
     assert not np.isclose(translational_ke.item(), 1.5), (
         "Current implementation incorrectly uses all weights."
     )
+
+
+def test_compute_kinetic_energy_all_keypoints_nan_raises():
+    position = xr.DataArray(
+        np.array(
+            [
+                [[[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]],
+                [[[np.nan, np.nan], [np.nan, np.nan], [np.nan, np.nan]]],
+            ]
+        ),
+        dims=["time", "individuals", "keypoints", "space"],
+        coords={
+            "time": [0, 1],
+            "individuals": ["id0"],
+            "keypoints": ["a", "b", "c"],
+            "space": ["x", "y"],
+        },
+    )
+
+    with pytest.raises(ValueError):
+        compute_kinetic_energy(position, decompose=True)
