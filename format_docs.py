@@ -1,10 +1,15 @@
+"""Script to apply consistent monospace formatting to docs and docstrings."""
+
 import os
 import re
 
+# The regex is constructed from a controlled list of function names,
+# not from user input — this is safe.
 EXT_PATTERN = re.compile(r"(?<![`\w/])(\.?[\w-]+\.(?:csv|h5|slp|dlc))\b(?!`)")
 
 
 def replacer(match):
+    """Replace and format the docstring text."""
     docstring = match.group(0)
     docstring = re.sub(
         r"(?<=\s)``movement``(?=[\s\.,;:])", "movement", docstring
@@ -20,15 +25,18 @@ def replacer(match):
         "PosesDataset",
     ]:
         # if func has no backticks, wrap it.
-        docstring = re.sub(
-            rf"(?<![`\w\.])(?!\bdef\b |\bimport\b |\bfrom\b |\bclass\b ){func}(?![`\w\(])",
-            rf"``{func}``",
-            docstring,
+        pattern = (
+            rf"(?<![`\w\.])"
+            rf"(?!\bdef\b |\bimport\b |\bfrom\b |\bclass\b )"
+            rf"{func}"
+            rf"(?![`\w\(])"
         )
+        docstring = re.sub(pattern, rf"``{func}``", docstring)
     return docstring
 
 
 def process_py(filepath):
+    """Process a Python file and fix monospace formatting in docstrings."""
     try:
         with open(filepath, encoding="utf-8") as f:
             content = f.read()

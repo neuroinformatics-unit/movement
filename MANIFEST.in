@@ -4,6 +4,7 @@ include CITATION.CFF
 include movement/napari/napari.yaml
 include conftest.py
 include docs/source/community/text_formatting_guide.md
+include format_docs.py
 exclude .pre-commit-config.yaml
 exclude .cruft.json
 
