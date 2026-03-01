@@ -84,7 +84,7 @@ Or to load bounding box tracks from a VIA tracks .csv file while retaining the o
 ds = load_dataset(
     "/path/to/file.csv",
     source_software="VIA-tracks",
-    use_frame_numbers_load_dataset=True,
+    use_frame_numbers_from_file=True,
 )
 ```
 

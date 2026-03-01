@@ -143,7 +143,7 @@ for i, frame_idx in enumerate(list_frames):
 
     # set title and labels
     ax.set_title(f"Frame {frame_idx}")
-    ax.set_xlabel("x (pixles)")
+    ax.set_xlabel("x (pixels)")
     ax.set_ylabel("y (pixels)")
     ax.set_xlabel("")
     if frame_idx == 1:
