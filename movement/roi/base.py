@@ -4,13 +4,14 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Hashable, Sequence
-from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, Self, TypeAlias, TypeVar, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
 import shapely
 from shapely.coords import CoordinateSequence
 
+from movement.transforms import compute_homography_transform
 from movement.utils.broadcasting import broadcastable_method
 from movement.utils.vector import compute_signed_angle_2d
 
@@ -560,3 +561,35 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         if fig is None or ax is None:
             fig, ax = plt.subplots(1, 1)
         return self._plot(fig, ax, **matplotlib_kwargs)
+
+    def get_transform(self, other: Self) -> np.ndarray:
+        """Compute the homography transformation matrix to align with `other`.
+
+        Parameters
+        ----------
+        other : BaseRegionOfInterest
+            Another region of interest to which this region will be aligned.
+            It should be of the same type (line or polygon) and have
+            the same number of defining points.
+
+        Returns
+        -------
+        np.ndarray
+            A (3, 3) transformation matrix that aligns this region to
+            the `other` region.
+
+        Raises
+        ------
+        ValueError
+            If the number of coordinate points does not match
+            the number of coordinate points in the other region,
+            or if there are insufficient points to
+                compute the transformation,
+            or if the points are not 2-dimensional,
+            or if the points are degenerate or collinear,
+                making it impossible to compute a valid homography.
+
+        """
+        return compute_homography_transform(
+            np.array(self.coords), np.array(other.coords)
+        )
