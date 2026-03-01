@@ -4,6 +4,7 @@ from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 
 from movement.napari.loader_widgets import DataLoader
+from movement.napari.regions_widget import RegionsWidget
 
 
 class MovementMetaWidget(CollapsibleWidgetContainer):
@@ -24,5 +25,12 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             widget_title="Load tracked data",
         )
 
-        self.loader = self.collapsible_widgets[0]
-        self.loader.expand()  # expand the loader widget by default
+        # Add the Regions widget
+        self.add_widget(
+            RegionsWidget(napari_viewer, parent=self),
+            collapsible=True,
+            widget_title="Define regions of interest",
+        )
+
+        loader_collapsible = self.collapsible_widgets[0]
+        loader_collapsible.expand()  # expand the loader widget by default
