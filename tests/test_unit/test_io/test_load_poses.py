@@ -290,8 +290,22 @@ def test_from_file_delegates_correctly(source_software, fps, caplog):
         "NWB": "movement.io.load_poses.from_nwb_file",
     }
     if source_software == "Unknown":
-        with pytest.raises(ValueError, match="Unsupported source"):
+        with pytest.raises(ValueError, match="Unsupported source software"):
             load_poses.from_file("some_file", source_software)
+        try:
+            load_poses.from_file("some_file", source_software)
+        except ValueError as e:
+            assert "Supported options are:" in str(e)
+            assert any(
+                src in str(e)
+                for src in [
+                    "DeepLabCut",
+                    "SLEAP",
+                    "LightningPose",
+                    "Anipose",
+                    "NWB",
+                ]
+            )
     else:
         with patch(software_to_loader[source_software]) as mock_loader:
             load_poses.from_file("some_file", source_software, fps)
