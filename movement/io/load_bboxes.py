@@ -241,8 +241,12 @@ def from_file(
             frame_regexp=frame_regexp,
         )
     else:
+        valid_options = ["VIA-tracks"]
         raise logger.error(
-            ValueError(f"Unsupported source software: {source_software}")
+            ValueError(
+                f"Unsupported source software: '{source_software}'. "
+                f"Supported options are: {', '.join(valid_options)}"
+            )
         )
 
 
