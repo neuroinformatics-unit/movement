@@ -504,10 +504,10 @@ def _feature_with_roi_type(geom_type: str, coords: str, roi_type: str) -> str:
             id="valid empty FeatureCollection",
         ),
         pytest.param(
-            '{"type": "Feature", "geometry": null}',
+            '{"type": "FutureCollection", "features": []}',
             pytest.raises(
                 ValueError,
-                match="'features' is a required property",
+                match="'FeatureCollection' was expected",
             ),
             id="not a FeatureCollection",
         ),
