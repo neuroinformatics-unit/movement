@@ -32,6 +32,10 @@ class TestROICollectionSerialization:
     ):
         """Test that collection round-trip preserves region types,
         geometries, and names.
+
+        ``unit_square`` has an explicit name; ``segment_of_y_equals_x``
+        has none, so it falls back to the default ``"Un-named region"``.
+        Both cases are covered by the name assertions below.
         """
         original_rois = [unit_square, segment_of_y_equals_x]
         file_path = tmp_path / "rois.geojson"
@@ -44,6 +48,8 @@ class TestROICollectionSerialization:
         for original, loaded in zip(original_rois, loaded_rois, strict=True):
             assert loaded.region.equals(original.region)
             assert loaded.name == original.name
+        # Explicitly verify the default name is preserved for unnamed RoIs
+        assert loaded_rois[1].name == "Un-named region"
 
     def test_save_empty_collection(self, tmp_path):
         """Test that saving an empty collection works."""
