@@ -12,7 +12,9 @@ between various third-party formats and `movement`'s own native
 It may be useful to think of `movement` supporting two types of data loading/saving:
 
 - [Supported third-party formats](target-supported-formats). `movement` provides convenient functions for loading/saving data in formats written by popular motion tracking tools as well as established data specifications. You can think of these as "Import" and "Export/Save As" functions.
-- [Native saving and loading with netCDF](target-netCDF). `movement` leverages xarray's built-in netCDF support to save and load datasets while preserving all variables and metadata. **This is the recommended way to save your analysis state**, allowing your `movement`-powered workflows to resume exactly where they left off.
+- [Native saving and loading](target-native-formats). `movement` supports two native formats for persisting your analysis state:
+  - [netCDF](target-netCDF): a widely-used binary format that maps directly to xarray Datasets. **This is the recommended way to save your analysis state**, allowing your `movement`-powered workflows to resume exactly where they left off.
+  - [zarr](target-zarr): a chunked, compressed format suited for large datasets and cloud storage backends.
 
 You are also welcome to try `movement` by loading some [sample data](target-sample-data) included with the package.
 
@@ -384,8 +386,14 @@ If you prefer to work with `pandas`, you can alternatively convert the `movement
 :::::
 
 
+(target-native-formats)=
+## Native saving and loading
+
+Movement datasets are {class}`xarray.Dataset` objects, so we can rely on
+xarray's built-in support for native file formats.
+
 (target-netcdf)=
-## Native saving and loading with netCDF
+### Native saving and loading with netCDF
 
 Because `movement` datasets are {class}`xarray.Dataset` objects, we can rely on
 xarray's built-in [support for the netCDF file format](xarray:user-guide/io.html).
@@ -450,6 +458,48 @@ In some cases you may want to use our [GUI](target-gui) to inspect
 motion tracks you've processed with `movement`.
 If so, make sure to save them to a netCDF file that satisfies the
 [GUI compatibility requirements](target-gui-compatible-netcdf).
+:::
+
+(target-zarr)=
+### Native saving and loading with zarr
+
+[Zarr](https://zarr.dev/) is a format for chunked, compressed, N-dimensional
+arrays. Like netCDF, movement leverages xarray's built-in zarr support via
+the {mod}`movement.io.save_zarr` and {mod}`movement.io.load_zarr` modules.
+Zarr is particularly well-suited for large datasets, as it supports chunked
+storage, parallel I/O, and cloud storage backends (e.g. Amazon S3, Google
+Cloud Storage).
+
+To save a movement dataset to a zarr store:
+
+```python
+from movement.io import save_zarr
+
+save_zarr.to_zarr(ds, "/path/to/poses.zarr")
+```
+
+To load a movement dataset from a zarr store:
+
+```python
+from movement.io import load_zarr
+
+ds = load_zarr.from_zarr("/path/to/poses.zarr")
+```
+
+By default, data is loaded lazily using [dask](https://docs.dask.org/) arrays
+(controlled by the ``chunks="auto"`` default). To load all data eagerly into
+memory as NumPy arrays, pass ``chunks=None``:
+
+```python
+ds = load_zarr.from_zarr("/path/to/poses.zarr", chunks=None)
+```
+
+:::{note}
+A zarr store is a **directory**, not a single file. When you call
+{func}`save_zarr.to_zarr()<movement.io.save_zarr.to_zarr>`, the output
+``/path/to/poses.zarr`` will be a folder containing multiple files that
+together represent the dataset. This is different from netCDF, which
+produces a single ``.nc`` file.
 :::
 
 (target-sample-data)=
