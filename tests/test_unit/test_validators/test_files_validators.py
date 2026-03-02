@@ -17,6 +17,7 @@ from movement.validators.files import (
     ValidVIATracksCSV,
     _hdf5_validator,
     _if_instance_of,
+    _json_validator,
     validate_file_path,
 )
 
@@ -411,6 +412,59 @@ def test_nwb_file_validator(input, expected_context, request):
         ValidNWBFile(file)
 
 
+_SIMPLE_SCHEMA = {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": ["key"],
+    "properties": {"key": {"type": "string"}},
+}
+
+
+@pytest.mark.parametrize(
+    "content, schema, expected_context",
+    [
+        pytest.param(
+            '{"key": "value"}',
+            None,
+            does_not_raise(),
+            id="valid JSON, no schema",
+        ),
+        pytest.param(
+            "not valid json {",
+            None,
+            pytest.raises(ValueError, match="not valid JSON"),
+            id="invalid JSON",
+        ),
+        pytest.param(
+            '{"key": "value"}',
+            _SIMPLE_SCHEMA,
+            does_not_raise(),
+            id="valid JSON matching schema",
+        ),
+        pytest.param(
+            '{"other": "value"}',
+            _SIMPLE_SCHEMA,
+            pytest.raises(ValueError, match="does not match schema"),
+            id="valid JSON not matching schema",
+        ),
+    ],
+)
+def test_json_validator(content, schema, expected_context, tmp_path):
+    """Test `_json_validator` with (in)valid basic JSON content and schemas."""
+
+    @define
+    class _StubValidator:
+        file: Path = field(
+            converter=Path,
+            validator=_json_validator(schema=schema),
+        )
+
+    file_path = tmp_path / "test.json"
+    file_path.write_text(content)
+    with expected_context:
+        _StubValidator(file=file_path)
+
+
 _POLYGON_FEATURE = (
     '{"type": "Feature", "geometry": {"type": "Polygon", '
     '"coordinates": [[[0,0],[1,0],[1,1],[0,0]]]}, "properties": {}}'
@@ -445,11 +499,6 @@ def _feature_with_roi_type(geom_type: str, coords: str, roi_type: str) -> str:
             _feature_collection(),
             does_not_raise(),
             id="valid empty FeatureCollection",
-        ),
-        pytest.param(
-            "not valid json {",
-            pytest.raises(ValueError, match="not valid JSON"),
-            id="invalid JSON",
         ),
         pytest.param(
             '{"type": "Feature", "geometry": null}',
