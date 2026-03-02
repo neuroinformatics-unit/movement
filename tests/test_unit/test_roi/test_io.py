@@ -2,7 +2,12 @@
 
 import json
 
-from movement.roi import LineOfInterest, PolygonOfInterest
+from movement.roi import (
+    LineOfInterest,
+    PolygonOfInterest,
+    load_rois,
+    save_rois,
+)
 
 
 class TestROICollectionSerialization:
@@ -12,8 +17,6 @@ class TestROICollectionSerialization:
         self, unit_square, segment_of_y_equals_x, tmp_path
     ):
         """Test that save_rois creates a valid FeatureCollection."""
-        from movement.roi import save_rois
-
         file_path = tmp_path / "rois.geojson"
         save_rois([unit_square, segment_of_y_equals_x], file_path)
 
@@ -28,8 +31,6 @@ class TestROICollectionSerialization:
         self, unit_square, segment_of_y_equals_x, tmp_path
     ):
         """Test that load_rois returns a list of RoI objects."""
-        from movement.roi import load_rois, save_rois
-
         file_path = tmp_path / "rois.geojson"
         save_rois([unit_square, segment_of_y_equals_x], file_path)
 
@@ -42,8 +43,6 @@ class TestROICollectionSerialization:
         self, unit_square, segment_of_y_equals_x, tmp_path
     ):
         """Test that collection round-trip preserves RoI types."""
-        from movement.roi import load_rois, save_rois
-
         file_path = tmp_path / "rois.geojson"
         save_rois([unit_square, segment_of_y_equals_x], file_path)
 
@@ -56,8 +55,6 @@ class TestROICollectionSerialization:
         self, unit_square, segment_of_y_equals_x, tmp_path
     ):
         """Test that collection round-trip preserves geometry."""
-        from movement.roi import load_rois, save_rois
-
         original_rois = [unit_square, segment_of_y_equals_x]
         file_path = tmp_path / "rois.geojson"
         save_rois(original_rois, file_path)
@@ -71,8 +68,6 @@ class TestROICollectionSerialization:
         self, unit_square, segment_of_y_equals_x, tmp_path
     ):
         """Test that collection round-trip preserves names."""
-        from movement.roi import load_rois, save_rois
-
         original_rois = [unit_square, segment_of_y_equals_x]
         file_path = tmp_path / "rois.geojson"
         save_rois(original_rois, file_path)
@@ -84,8 +79,6 @@ class TestROICollectionSerialization:
 
     def test_save_empty_collection(self, tmp_path):
         """Test that saving an empty collection works."""
-        from movement.roi import load_rois, save_rois
-
         file_path = tmp_path / "empty.geojson"
         save_rois([], file_path)
 
@@ -100,8 +93,6 @@ class TestROICollectionSerialization:
         tmp_path,
     ):
         """Test collection with various RoI types."""
-        from movement.roi import load_rois, save_rois
-
         loop_line = LineOfInterest(
             [(0, 0), (1, 0), (1, 1)], loop=True, name="triangle_loop"
         )
