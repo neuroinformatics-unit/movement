@@ -36,9 +36,9 @@ def save_rois(
 
     Parameters
     ----------
-    rois : list of BaseRegionOfInterest
+    rois
         The regions of interest to save.
-    file : str or pathlib.Path
+    file
         Path to the output file.
         Should have a ``.geojson`` or a ``.json`` extension.
 
@@ -88,7 +88,7 @@ def load_rois(file: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
 
     Parameters
     ----------
-    file : str or pathlib.Path
+    file
         Path to the GeoJSON file to load.
 
     Returns
