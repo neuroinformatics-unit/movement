@@ -116,9 +116,10 @@ class TestROICollectionSerialization:
         save_rois(original_rois, file_path)
         loaded_rois = load_rois(file_path)
 
-        assert len(loaded_rois) == 4
-        assert isinstance(loaded_rois[0], PolygonOfInterest)
-        assert isinstance(loaded_rois[1], PolygonOfInterest)
-        assert isinstance(loaded_rois[2], LineOfInterest)
-        assert isinstance(loaded_rois[3], LineOfInterest)
-        assert loaded_rois[3].is_closed
+        assert [type(loaded) for loaded in loaded_rois] == [
+            PolygonOfInterest,
+            PolygonOfInterest,
+            LineOfInterest,
+            LineOfInterest,
+        ]
+        assert loaded_rois[-1].is_closed

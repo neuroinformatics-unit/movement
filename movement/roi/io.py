@@ -62,18 +62,17 @@ def save_rois(
         file, permission="w", suffixes=ValidROICollectionGeoJSON.suffixes
     )
 
-    features = []
-    for roi in rois:
-        geometry = json.loads(shapely.to_geojson(roi.region))
-        feature = {
+    features = [
+        {
             "type": "Feature",
-            "geometry": geometry,
+            "geometry": json.loads(shapely.to_geojson(roi.region)),
             "properties": {
                 "name": roi.name,
                 "roi_type": roi.__class__.__name__,
             },
         }
-        features.append(feature)
+        for roi in rois
+    ]
 
     feature_collection = {
         "type": "FeatureCollection",
@@ -103,15 +102,13 @@ def load_rois(file: str | Path) -> list[LineOfInterest | PolygonOfInterest]:
 
     Examples
     --------
-    Load a collection of RoIs from a GeoJSON file:
+    Load a collection of RoIs from a GeoJSON file and inspect their names:
 
     >>> from movement.roi import load_rois
     >>> rois = load_rois("/path/to/rois.geojson")
-
-    This returns a list of RoI objects, we can check their names:
-
+    >>> # rois is a list of RoI objects
     >>> [roi.name for roi in rois]
-    ['square', 'diagonal']
+    ["square", "diagonal"]
 
     """
     validated_file = ValidROICollectionGeoJSON(file)
@@ -124,19 +121,16 @@ def _feature_to_roi(
     feature: dict[str, Any],
 ) -> LineOfInterest | PolygonOfInterest:
     """Convert a validated GeoJSON feature to an RoI object."""
-    geometry_data = feature["geometry"]
-    properties = feature.get("properties") or {}
-
-    geometry = shapely.from_geojson(json.dumps(geometry_data))
-    name = properties.get("name")
+    geometry = shapely.from_geojson(json.dumps(feature["geometry"]))
+    name = (feature.get("properties") or {}).get("name")
 
     if isinstance(geometry, shapely.Polygon):
         holes = [interior.coords for interior in geometry.interiors]
         return PolygonOfInterest(
             geometry.exterior.coords,
-            holes=holes if holes else None,
+            holes=holes,
             name=name,
         )
-    else:  # Must be LineString or LinearRing (validator ensures that)
-        loop = isinstance(geometry, shapely.LinearRing)
-        return LineOfInterest(geometry.coords, loop=loop, name=name)
+
+    loop = isinstance(geometry, shapely.LinearRing)
+    return LineOfInterest(geometry.coords, loop=loop, name=name)
