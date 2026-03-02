@@ -1,3 +1,4 @@
+import json
 import re
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
@@ -456,13 +457,15 @@ def test_json_validator(content, schema, expected_context, tmp_path):
     class _StubValidator:
         file: Path = field(
             converter=Path,
-            validator=_json_validator(schema=schema),
+            validator=_json_validator(schema=schema, data_attr="stored_json"),
         )
+        stored_json: dict = field(init=False, factory=dict)
 
     file_path = tmp_path / "test.json"
     file_path.write_text(content)
     with expected_context:
-        _StubValidator(file=file_path)
+        valid_file = _StubValidator(file=file_path)
+        assert valid_file.stored_json == json.loads(content)
 
 
 _POLYGON_FEATURE = (
