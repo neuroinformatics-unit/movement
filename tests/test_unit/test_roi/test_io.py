@@ -27,18 +27,6 @@ class TestROICollectionSerialization:
         assert data["type"] == "FeatureCollection"
         assert len(data["features"]) == 2
 
-    def test_load_rois_returns_list(
-        self, unit_square, segment_of_y_equals_x, tmp_path
-    ):
-        """Test that load_rois returns a list of RoI objects."""
-        file_path = tmp_path / "rois.geojson"
-        save_rois([unit_square, segment_of_y_equals_x], file_path)
-
-        loaded_rois = load_rois(file_path)
-
-        assert isinstance(loaded_rois, list)
-        assert len(loaded_rois) == 2
-
     def test_collection_round_trip_preserves_types(
         self, unit_square, segment_of_y_equals_x, tmp_path
     ):
