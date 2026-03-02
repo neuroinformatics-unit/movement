@@ -198,6 +198,7 @@ linkcheck_anchors_ignore_for_url = [
     "https://gin.g-node.org/G-Node/Info/wiki/",
     "https://neuroinformatics.zulipchat.com/",
     "https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py",
+    "https://cocodataset.org/",  # JS-generated anchors
 ]
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [

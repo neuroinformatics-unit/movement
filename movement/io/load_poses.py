@@ -17,6 +17,7 @@ from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import (
     ValidAniposeCSV,
+    ValidCOCOJSON,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
     ValidFile,
@@ -944,3 +945,183 @@ def _ds_from_nwb_object(
     return xr.merge(
         single_keypoint_datasets, join="outer", compat="no_conflicts"
     )
+
+
+def _group_coco_annotations(
+    coco_data: dict,
+    image_id_to_idx: dict[int, int],
+) -> dict[int, list[dict]]:
+    """Group COCO annotations by image_id with validation.
+
+    Parameters
+    ----------
+    coco_data
+        Parsed COCO JSON data.
+    image_id_to_idx
+        Mapping from image IDs to frame indices.
+
+    Returns
+    -------
+    dict
+        Annotations grouped by image_id.
+
+    """
+    annotations_by_image: dict[int, list[dict]] = {}
+    for ann in coco_data["annotations"]:
+        if "keypoints" not in ann:
+            continue
+        image_id = ann["image_id"]
+        if image_id not in image_id_to_idx:
+            raise logger.error(
+                ValueError(
+                    f"COCO annotation references unknown image_id {image_id}."
+                )
+            )
+        if image_id not in annotations_by_image:
+            annotations_by_image[image_id] = []
+        annotations_by_image[image_id].append(ann)
+    return annotations_by_image
+
+
+@register_loader("COCO", file_validators=[ValidCOCOJSON])
+def from_coco_file(
+    file: str | Path,
+    fps: float | None = None,
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from a COCO keypoints JSON file.
+
+    Parameters
+    ----------
+    file
+        Path to the COCO format JSON file containing pose annotations.
+    fps
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
+
+    Notes
+    -----
+    The COCO keypoints format stores keypoints as a flat list:
+    [x1, y1, v1, x2, y2, v2, ...] where v is the visibility flag:
+
+    - v=0: not labeled
+    - v=1: labeled but not visible (occluded)
+    - v=2: labeled and visible
+
+    The visibility flags are converted to confidence scores:
+
+    - v=0 → confidence=0.0
+    - v=1 → confidence=0.5
+    - v=2 → confidence=1.0
+
+    Each image in the COCO file corresponds to a frame, and each annotation
+    within an image represents an individual. If multiple annotations exist
+    per image, they are treated as multiple individuals in that frame.
+    Frames without annotations are filled with NaN values.
+
+    Currently, only the first category's keypoint names are used if multiple
+    categories exist in the file.
+
+    Examples
+    --------
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_coco_file("path/to/coco_keypoints.json", fps=30)
+
+    """
+    valid_file = cast("ValidFile", file)
+    import json
+
+    with open(valid_file.file) as f:
+        coco_data = json.load(f)
+
+    # Extract keypoint names from the first category with keypoints
+    keypoint_names: list[str] = []
+    for category in coco_data["categories"]:
+        if "keypoints" in category:
+            keypoint_names = category["keypoints"]
+            break
+
+    n_keypoints = len(keypoint_names)
+
+    # Sort images by id for deterministic frame ordering
+    images = sorted(coco_data["images"], key=lambda x: x["id"])
+
+    # Create image_id to frame_idx mapping
+    image_id_to_idx = {img["id"]: idx for idx, img in enumerate(images)}
+    n_frames = len(images)
+
+    # Group annotations by image_id
+    annotations_by_image = _group_coco_annotations(coco_data, image_id_to_idx)
+
+    # Determine maximum number of individuals per frame
+    max_individuals = max(
+        (len(anns) for anns in annotations_by_image.values()),
+        default=1,
+    )
+
+    # Initialize arrays with NaNs
+    # position_array: (n_frames, n_space, n_keypoints, n_individuals)
+    position_array = np.full(
+        (n_frames, 2, n_keypoints, max_individuals),
+        np.nan,
+        dtype=np.float32,
+    )
+    # confidence_array: (n_frames, n_keypoints, n_individuals)
+    confidence_array = np.full(
+        (n_frames, n_keypoints, max_individuals),
+        np.nan,
+        dtype=np.float32,
+    )
+
+    # Parse annotations
+    for image_id, annotations in annotations_by_image.items():
+        frame_idx = image_id_to_idx[image_id]
+
+        for ind_idx, ann in enumerate(annotations):
+            raw_keypoints = ann["keypoints"]
+            if len(raw_keypoints) % 3 != 0:
+                raise logger.error(
+                    ValueError(
+                        f"Invalid number of keypoint values for "
+                        f"image_id {image_id}. "
+                        f"Expected multiple of 3, "
+                        f"got {len(raw_keypoints)}."
+                    )
+                )
+            keypoints = np.array(raw_keypoints).reshape(-1, 3)
+
+            # Extract x, y coordinates
+            position_array[frame_idx, 0, :, ind_idx] = keypoints[:, 0]  # x
+            position_array[frame_idx, 1, :, ind_idx] = keypoints[:, 1]  # y
+
+            # Convert visibility flags to confidence scores
+            # v=0 -> 0.0, v=1 -> 0.5, v=2 -> 1.0
+            visibility = keypoints[:, 2]
+            confidence = np.where(
+                visibility == 0,
+                0.0,
+                np.where(visibility == 1, 0.5, 1.0),
+            )
+            confidence_array[frame_idx, :, ind_idx] = confidence
+
+    # Generate individual names
+    individual_names = [f"individual_{i}" for i in range(max_individuals)]
+
+    ds = from_numpy(
+        position_array=position_array,
+        confidence_array=confidence_array,
+        individual_names=individual_names,
+        keypoint_names=keypoint_names,
+        fps=fps,
+        source_software="COCO",
+    )
+
+    # Add metadata
+    ds.attrs["source_file"] = valid_file.file.as_posix()
+    logger.info(f"Loaded pose tracks from {valid_file.file}:\n{ds}")
+    return ds
