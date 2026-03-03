@@ -394,3 +394,90 @@ plt.show()
 
 fr_visible = ds.position.sel(time=ds.gait_FR.isin(["stance", "swing"]))
 print(fr_visible)
+
+# %%
+# Segment data by stride
+# ----------------------
+# Building on the per-frame gait phase labels we have just attached, we can
+# perform a second 'level' of labelling by grouping consecutive stance-swing
+# cycles into individual strides. We define a stride as one complete
+# stance-swing sequence for a chosen reference limb, and assign a stride
+# index to each frame as a further non-dimension coordinate on the ``time``
+# dimension. Frames outside of a complete stride cycle are left as ``NaN``.
+
+# %%
+# First, we define a helper function to find the start and end frame indices
+# of contiguous blocks of a given phase label in a coordinate array.
+
+
+def find_phase_blocks(phase_coord, phase_label):
+    """Find start and end frame indices of contiguous blocks of a given phase.
+
+    Parameters
+    ----------
+    phase_coord : np.ndarray
+        Array of phase labels for each frame.
+    phase_label : str
+        The phase label to find blocks of.
+
+    Returns
+    -------
+    list of tuple
+        List of (start, end) frame index pairs for each contiguous block.
+
+    """
+    is_phase = (phase_coord == phase_label).astype(int)
+    transitions = np.diff(is_phase, prepend=0, append=0)
+    starts = np.where(transitions == 1)[0]
+    ends = np.where(transitions == -1)[0]
+    return list(zip(starts, ends, strict=True))
+
+
+# %%
+# Using the ``gait_FR`` coordinate already attached to ``ds``, we find all
+# contiguous stance and swing blocks for the front-right limb, then pair
+# each stance block with the immediately following swing block to form a
+# complete stride.
+
+gait_coord = ds.gait_FR.values
+
+stance_blocks = find_phase_blocks(gait_coord, "stance")
+swing_blocks = find_phase_blocks(gait_coord, "swing")
+
+stride_data = np.full(ds.time.size, np.nan)
+stride_idx = 0
+for stance_start, stance_end in stance_blocks:
+    # Find the swing block that starts immediately after this stance block
+    following_swings = [(s, e) for s, e in swing_blocks if s == stance_end]
+    if following_swings:
+        # Label all frames from stance onset to swing offset with the stride
+        # index
+        swing_start, swing_end = following_swings[0]
+        stride_data[stance_start:swing_end] = stride_idx
+        stride_idx += 1
+
+# Attach the stride index as a non-dimension coordinate on the time dimension
+ds = ds.assign_coords(stride_FR=("time", stride_data))
+
+print(ds.isel(time=np.arange(150, 350)))
+
+# %%
+# We can now select data by stride index in the same way as by gait phase.
+# For example, we plot the z-position of the right forepaw toe for each
+# stride overlaid on the same axes.
+
+n_strides = int(np.nanmax(ds.stride_FR.values)) + 1
+
+fig, ax = plt.subplots(figsize=(8, 3))
+
+for i in range(n_strides):
+    stride = ds.position.sel(
+        time=ds.stride_FR == i, keypoints="ForepawToeR", space="z"
+    )
+    ax.plot(stride.time, stride.values, label=f"Stride {i}")
+
+ax.set_xlabel("Time (s)")
+ax.set_ylabel("Z position (mm)")
+ax.legend()
+plt.tight_layout()
+plt.show()
