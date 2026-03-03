@@ -285,11 +285,13 @@ def savgol_filter(
         if "array must not contain infs or NaNs" in str(e):
             logger.error(
                 "mode='interp' does not support NaNs in edge windows; "
-                "use mode='nearest'/'mirror' or fill edge NaNs before filtering."
+                "use mode='nearest'/'mirror' or fill edge NaNs "
+                "before filtering."
             )
             raise ValueError(
                 "mode='interp' does not support NaNs in edge windows; "
-                "use mode='nearest'/'mirror' or fill edge NaNs before filtering."
+                "use mode='nearest'/'mirror' or fill edge NaNs "
+                "before filtering."
             ) from e
         raise
 
@@ -301,15 +303,20 @@ def savgol_filter(
         # If any of those first/last 'window' points are NaN, it should fail.
         start_slice = data.isel(time=slice(0, window))
         end_slice = data.isel(time=slice(-window, None))
-        if np.isnan(start_slice.values).any() or np.isnan(end_slice.values).any():
+        if (
+            np.isnan(start_slice.values).any()
+            or np.isnan(end_slice.values).any()
+        ):
             logger.error(
                 "mode='interp' does not support NaNs in edge windows; "
-                "use mode='nearest'/'mirror' or fill edge NaNs before filtering."
+                "use mode='nearest'/'mirror' or fill edge NaNs "
+                "before filtering."
             )
             # Match the regex expected by tests
             raise ValueError(
                 "mode='interp' does not support NaNs in edge windows; "
-                "use mode='nearest'/'mirror' or fill edge NaNs before filtering."
+                "use mode='nearest'/'mirror' or fill edge NaNs "
+                "before filtering."
             )
     if print_report:
         print(report_nan_values(data, "input"))

@@ -148,9 +148,7 @@ def reorder_keypoints(ds, ordered_keypoints):
 
 
 ds_reordered = reorder_keypoints(ds_deleted, ordered_keypoints)
-print(
-    "Keypoints in modified dataset:", ds_reordered.coords["keypoint"].values
-)
+print("Keypoints in modified dataset:", ds_reordered.coords["keypoint"].values)
 
 # %%
 # Save the modified dataset

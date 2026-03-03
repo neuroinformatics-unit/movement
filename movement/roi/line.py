@@ -82,7 +82,9 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
             )
         if len(points) < 3 and loop:
             logger.error("Cannot create a loop from a single line segment.")
-            raise ValueError("Cannot create a loop from a single line segment.")
+            raise ValueError(
+                "Cannot create a loop from a single line segment."
+            )
         line: LineLike = (
             shapely.LinearRing(coordinates=points)
             if loop

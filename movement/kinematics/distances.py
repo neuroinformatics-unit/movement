@@ -275,7 +275,9 @@ def compute_pairwise_distances(
             f"'dim' must be either 'individual' or 'keypoint', but got {dim}."
         )
     if isinstance(pairs, str) and pairs != "all":
-        logger.error(f"'pairs' must be a dictionary or 'all', but got {pairs}.")
+        logger.error(
+            f"'pairs' must be a dictionary or 'all', but got {pairs}."
+        )
         raise ValueError(
             f"'pairs' must be a dictionary or 'all', but got {pairs}."
         )
