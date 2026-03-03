@@ -1,5 +1,5 @@
-"""Label and load events with BORIS
-===================================
+"""Annotate and load events with BORIS
+======================================
 
 Label the gait phase of four limbs in BORIS and load into movement
 compatible format.
@@ -151,6 +151,7 @@ _ = sample_data.fetch_dataset(
 
 # sphinx_gallery_start_ignore
 import pathlib  # noqa: E402
+import tempfile  # noqa: E402
 
 csv_data = """\
 Behavior,Start (s),Stop (s)
@@ -211,7 +212,7 @@ FL_unknown,1.563,1.688
 HR_unknown,1.591,1.691
 HL_unknown,1.615,1.690
 """
-gait_labels_path = pathlib.Path("boris_gait_labels.csv")
+gait_labels_path = pathlib.Path(tempfile.mkdtemp()) / "boris_gait_labels.csv"
 gait_labels_path.write_text(csv_data)
 # sphinx_gallery_end_ignore
 
