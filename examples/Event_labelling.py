@@ -1,7 +1,7 @@
-"""Label and load events with Boris
+"""Label and load events with BORIS
 ===================================
 
-Label the gait phase of four limbs in Boris and load into movement
+Label the gait phase of four limbs in BORIS and load into movement
 compatible format.
 """
 # %%
@@ -10,18 +10,20 @@ compatible format.
 # This example demonstrates how to label gait phase events using
 # `BORIS (Behavioural Observation Research Interactive Software)
 # <https://www.boris.unito.it/>`_ and load them into a
-# `movement`-compatible format for downstream analysis.
+# ``movement``-compatible format for downstream analysis.
 #
 # Gait phase - whether each limb is in stance (in contact with the
-# ground) or swing (in the air) - is an example of a case where we want to
-# label events that are perhaps not easily defined by a simple threshold on
-# a single variable, but rather require visual inspection of the video
-# data. Such labels can be used directly for analysis in small datasets,
-# or as training data for supervised learning models.
+# ground), swing (in the air), or unknown (e.g. when the limb is off-screen
+# or occluded) - is an example of a case where we want to label events that
+# are perhaps not easily defined by a simple threshold on a single variable,
+# but rather require visual inspection of the video data. Such labels can be
+# used directly for analysis in small datasets, or as training data for
+# supervised learning models.
 #
 # In this example, we will use the ``DLC_single-mouse_DBTravelator_3D``
 # dataset, which contains 3D pose estimates of four limbs and other body
-# points for a single mouse locomoting on a dual-belt travelator.
+# points for a single mouse locomoting on a dual-belt travelator, where it
+# runs along one belt and onto a second faster belt.
 
 # %%
 # Imports
@@ -36,27 +38,32 @@ from movement import sample_data
 # Load sample dataset and media
 # -----------------------------
 # First, let's load the dataset and associated video file for visual
-# inspection and event labelling in Boris.
+# inspection and event labelling in BORIS.
 
 ds = sample_data.fetch_dataset(
     "DLC_single-mouse_DBTravelator_3D.predictions.h5"
 )
 
-# We need to load the associated 2D dataset, which contains the side camera
-# video file which formed part of the 3D dataset acquisition.
-ds_2D = sample_data.fetch_dataset(
+# The associated 2D dataset includes the side camera video, which we will
+# use for frame-by-frame event labelling in BORIS.
+_ = sample_data.fetch_dataset(
     "DLC_single-mouse_DBTravelator_2D.predictions.h5", with_video=True
 )
 
 # %%
-# Label gait phase events in Boris
+# Label gait phase events in BORIS
 # --------------------------------
+# The following steps describe how to label gait phase events for four limbs
+# in the ``DLC_single-mouse_DBTravelator_3D`` dataset. For a more complete
+# guide covering other use cases, refer to the
+# `BORIS user guide <https://www.boris.unito.it/user_guide/>`_.
+#
 # **Step 1: Install BORIS**
 #
 # Download and install BORIS from the
 # `BORIS website <https://www.boris.unito.it/>`_.
 # Full installation instructions can be found in the
-# `BORIS user guide <https://boris.readthedocs.io/en/latest/>`_.
+# `BORIS installation guide <https://www.boris.unito.it/user_guide/install/>`_.
 #
 # **Step 2: Create a new project**
 #
@@ -69,24 +76,28 @@ ds_2D = sample_data.fetch_dataset(
 #
 # **Step 3: Build the behaviour ethogram**
 #
-# Navigate to the **Ethogram** tab. For each combination of limb
+# Navigate to the **Ethogram** tab. An ethogram is a catalogue of all
+# behaviours to be annotated, where each behaviour is assigned a keyboard
+# shortcut for fast labelling. For each combination of limb
 # (``FL``, ``FR``, ``HL``, ``HR``) and phase (``stance``, ``swing``,
 # ``unknown``), add a new behaviour:
 #
 # 1. Click **Behaviour > Add new behaviour**.
-# 2. Under **Behaviour type**, select **State event**.
+# 2. Under **Behaviour type**, select **State event** - a state event has a
+#    duration, defined by a start and end time, as opposed to a point event
+#    which is instantaneous.
 # 3. Assign a unique **Key**, e.g. ``q`` for ``FL_stance``.
 # 4. Set the **Code**, e.g. ``FL_stance``.
+# 5. Repeat until all 12 behaviours (4 limbs × 3 phases) are defined.
 #
 # .. image:: /_static/events_ethogram.png
 #    :width: 600
 #
-# Repeat until all 12 behaviours (4 limbs × 3 phases) are defined.
-#
-# Because certain phases cannot co-occur within a limb, open the
-# **Exclusion matrix** and tick all mutually exclusive pairs
-# (e.g. ``FL_stance`` with ``FL_swing``). With this configured, starting
-# a new phase will automatically close the previous one for that limb.
+# 6. Because gait phase states cannot co-occur within a limb, open the
+#    **Exclusion matrix** and tick all mutually exclusive pairs
+#    (e.g. ``FL_stance`` with ``FL_swing``). With this configured, starting
+#    a new state within a limb will automatically close the previous state for
+#    the same limb.
 #
 # .. image:: /_static/events_exclusions.png
 #    :width: 600
@@ -98,21 +109,23 @@ ds_2D = sample_data.fetch_dataset(
 # - Set an **Observation ID**, e.g. ``individual_0``.
 # - Tick **Observation from media file(s)**.
 # - Click **Add media > with absolute path** and navigate to the video
-#   file fetched above::
+#   file fetched above with :func:`sample_data.fetch_dataset
+#   <movement.sample_data.fetch_dataset>`::
 #
 #       C:/Users/<username>/.movement/data/videos/single
-#       -mouse_DBTTravelator_video.avi.
-
+#       -mouse_DBTravelator_video.avi
+#
 # - Click **Start**.
 #
 # **Step 5: Label events**
 #
-# - Use the ``←`` and ``→`` arrow keys to step through the video
-#   frame-by-frame.
+# - Use the ``←`` and ``→`` arrow keys or the upper panel buttons to step
+#   through the video frame-by-frame.
 # - Press the selected keyboard shortcut for a behaviour to mark its start
 #   at the current frame.
-# - Once the full video is labelled, close any open state events via
-#   **Observations > Fix unpaired events**.
+# - Once the full video is labelled, close any remaining open state events
+#   (i.e. the final behaviour for each limb, which has no subsequent behaviour
+#   to trigger an automatic stop) via **Observations > Fix unpaired events**.
 #
 # .. image:: /_static/events_observation.png
 #    :width: 600
@@ -122,8 +135,22 @@ ds_2D = sample_data.fetch_dataset(
 # Export the annotations via
 # **Observations > Export events > Aggregated events** and save as a CSV.
 
+# %%
+# Import BORIS event data into movement
+# -------------------------------------
+# We now load the exported CSV file into a pandas DataFrame. If you have
+# created your own labels following the steps above, replace
+# ``gait_labels_path`` with the path to your exported CSV file, e.g.:
+#
+# .. code-block:: python
+#
+#     gait_labels_path = "/your/path/to/aggregated.csv"
+#
+# The CSV exported from BORIS contains one row per labelled event, with
+# columns including the behaviour code, start time, and stop time (in seconds).
+
 # sphinx_gallery_start_ignore
-import io  # noqa: E402
+import pathlib  # noqa: E402
 
 csv_data = """\
 Behavior,Start (s),Stop (s)
@@ -184,20 +211,22 @@ FL_unknown,1.563,1.688
 HR_unknown,1.591,1.691
 HL_unknown,1.615,1.690
 """
-df = pd.read_csv(io.StringIO(csv_data))
+gait_labels_path = pathlib.Path("boris_gait_labels.csv")
+gait_labels_path.write_text(csv_data)
 # sphinx_gallery_end_ignore
 
-# %%
-# Import BORIS event data into movement
-# -------------------------------------
-# We now load the exported CSV file into a pandas DataFrame at the location
-# where it was saved. In this example, we use a pre-labelled BORIS file.
-# The CSV exported from BORIS contains one row per labelled event, with
-# columns including the behaviour code, start time, and stop time (in seconds).
-#
-# Let's now transform the event data into a format compatible with movement.
+df = pd.read_csv(gait_labels_path)
+
+print(
+    f"Key columns from the gait labels:\n"
+    f"{df.loc[:5, ['Behavior', 'Start (s)', 'Stop (s)']]}"
+)
 
 # %%
+# Let's now transform the event data into a format compatible with movement.
+# We first parse the behaviour codes into a pandas DataFrame with separate
+# columns for limb, state, and frame indices.
+#
 # BORIS records event times in seconds. We convert these to frame indices by
 # multiplying by the frame rate and rounding to the nearest integer.
 
@@ -222,10 +251,14 @@ for limb in limbs:
     events.loc[last_idx, "stop_frame"] = n_frames
 
 # %%
-# To attach gait phase labels to the dataset as a coordinate along the
-# ``time`` dimension, we first construct a 2-D array of shape
-# ``(n_frames, n_limbs)`` initialised to ``NaN``, then populate each
-# element with the corresponding phase label.
+# In xarray, we can attach additional per-timepoint information to a dataset
+# as `non-dimension coordinates
+# <https://docs.xarray.dev/en/stable/user-guide/data-structures.html
+# #coordinates>`_ along the ``time`` dimension, effectively labelling each
+# frame with contextual information. Here we will attach the gait phase of each
+# limb as a separate coordinate. To prepare these labels, we first construct
+# a 2-D array of shape ``(n_frames, n_limbs)`` initialised to ``NaN``, then
+# populate each element with the corresponding phase label for that frame.
 
 phase_data = np.full((ds.time.size, len(limbs)), np.nan, dtype=object)
 
@@ -237,39 +270,46 @@ for limb_idx, limb in enumerate(limbs):
         ]
 
 # %%
-# We add the gait phase for each limb as a `non-dimension coordinate
-# <https://docs.xarray.dev/en/stable/user-guide/data-structures.html
-# #coordinates>`_ on the ``time`` dimension using
-# :meth:`xarray.Dataset.assign_coords`, following the naming convention
-# ``gait_<limb>``. This will allow us to filter any data variable in the
-# dataset by gait phase using :meth:`xarray.DataArray.sel`.
+# We add the gait phase for each limb as a non-dimension coordinate on the
+# ``time`` dimension using :meth:`xarray.Dataset.assign_coords`, following
+# the naming convention ``gait_<limb>``. This will allow us to filter any
+# data variable in the dataset by gait phase using
+# :meth:`xarray.DataArray.sel`.
 
 for limb_idx, limb in enumerate(limbs):
     ds = ds.assign_coords({f"gait_{limb}": ("time", phase_data[:, limb_idx])})
+
+print(ds)
+
+# %%
+# We now have four new coordinates on the ``time`` dimension - one per limb
+# - each containing the gait phase label for every frame.
 
 # %%
 # Select data by gait phase
 # -------------------------
 # With the gait phase coordinates in place, we can select subsets of the
 # dataset directly with :meth:`~xarray.DataArray.sel`. For example, all
-# timepoints where the front-left paw is in stance:
+# timepoints where the front-right paw is in stance:
 
-ds_fl_stance = ds.position.sel(time=ds.gait_FL == "stance")
-print(ds_fl_stance)
+ds_fr_stance = ds.position.sel(time=ds.gait_FR == "stance")
+print(ds_fr_stance)
 
 # %%
 # As a sanity check, we can visualise the z-position (height) of the right
-# forepaw toe, colour-coded by swing vs stance phase. We would expect the paw
-# to be elevated during swing and near the belt surface (z=0) during stance.
+# forepaw toe, colour-coded by gait phase. We would expect the paw to be
+# elevated during swing and near the belt surface (z=0) during stance.
 
+# Select the z-position of the right forepaw toe
 fr_z = ds.position.sel(keypoints="ForepawToeR", space="z")
 
+# Select frames by gait phase using the gait_FR coordinate
 fr_swing = fr_z.sel(time=ds.gait_FR == "swing")
 fr_stance = fr_z.sel(time=ds.gait_FR == "stance")
 
-fig, ax = plt.subplots(figsize=(10, 4))
-ax.scatter(fr_swing.time, fr_swing.values, s=5, label="Swing")
-ax.scatter(fr_stance.time, fr_stance.values, s=5, label="Stance")
+fig, ax = plt.subplots(figsize=(8, 3))
+ax.scatter(fr_swing.time, fr_swing.values, s=8, label="Swing")
+ax.scatter(fr_stance.time, fr_stance.values, s=8, label="Stance")
 ax.set_xlabel("Time (s)")
 ax.set_ylabel("Z position (mm)")
 ax.legend()
@@ -280,86 +320,76 @@ plt.show()
 # Indeed, we see a clear separation between swing and stance phases,
 # with the paw elevated during swing and near the belt surface during stance.
 # Note, that the position of the toe at the end of stance phase can be greater
-# in z than points in swing phase even in high confidence tracking data,
-# possibly reflecting subtle tracking inconsistencies when the foot is in
-# different positions. This illustrates why a simple threshold-based
-# approach may not always be sufficient for gait phase detection.
+# in z than time points in swing phase, possibly reflecting subtle tracking
+# inconsistencies when the foot is in different positions. This illustrates
+# why a simple threshold-based approach may not always be sufficient for
+# tasks like gait phase detection.
 
 # %%
 # To select frames where multiple conditions hold simultaneously, we can
-# also combine any number of boolean masks across limb coordinates.
+# combine any number of boolean masks across limb coordinates using ``&``.
 
+# Create a boolean mask for each limb in stance
 fl_stance = ds["gait_FL"] == "stance"
 fr_stance = ds["gait_FR"] == "stance"
 hl_stance = ds["gait_HL"] == "stance"
 hr_stance = ds["gait_HR"] == "stance"
 
+# Select frames where all four limbs are simultaneously in stance
 all_stance = ds.position.sel(
     time=fl_stance & fr_stance & hl_stance & hr_stance
 )
-
 print(all_stance)
-print(
-    f"\nX positions during all limbs in stance:\n"
-    f"{all_stance.sel(space='x', keypoints='Nose').values}"
-)
 
 # %%
-# Here we see that there are only 3 frames in which all four limbs are in
-# stance. Given the x positions are all greater than the position of the
-# transition between belts (x=470 mm), we can infer that these frames
-# correspond to a locomotor pause after transition onto the second faster belt.
+# Here we see that there are very few frames in which all four limbs are
+# simultaneously in stance, as expected during continuous locomotion.
 
 # %%
 # We can use the same approach to identify frames in which diagonal limb
-# pairs are simultaneously in swing. During trotting, quadrupeds typically move
-# diagonal limb pairs together (e.g. front-left with hind-right), so we
-# would expect the tail to occupy distinct positions for each diagonal pair.
+# pairs are simultaneously in swing. During trotting, quadrupeds typically
+# move diagonal limb pairs together (e.g. front-left with hind-right), so
+# we would expect the body to oscillate laterally (in ``y``) in opposite
+# directions for each diagonal pair.
 
+# Select the tail base position as a proxy for the rearward position of the
+# body
 tail = ds.position.sel(keypoints="Tail1")
 
+# Create boolean masks for each limb in swing
 fl_swing = tail["gait_FL"] == "swing"
 fr_swing = tail["gait_FR"] == "swing"
 hl_swing = tail["gait_HL"] == "swing"
 hr_swing = tail["gait_HR"] == "swing"
 
+# Select frames where each diagonal pair is simultaneously in swing
 fl_hr = tail.sel(time=fl_swing & hr_swing)
 fr_hl = tail.sel(time=fr_swing & hl_swing)
 
-fig, ax = plt.subplots(figsize=(10, 4))
+fig, ax = plt.subplots(figsize=(8, 3))
 
 # Plot the tail base position in the x-y plane during diagonal swing phases
-ax.scatter(
-    fl_hr.sel(space="x"), fl_hr.sel(space="y"), s=5, label="FL and HR swing"
-)
-ax.scatter(
-    fr_hl.sel(space="x"), fr_hl.sel(space="y"), s=5, label="FR and HL swing"
-)
+ax.scatter(fl_hr.time, fl_hr.sel(space="y"), s=8, label="FL and HR swing")
+ax.scatter(fr_hl.time, fr_hl.sel(space="y"), s=8, label="FR and HL swing")
 
-# Plot the position of the belt transition for reference
-ax.axvline(x=470, color="grey", linestyle="--")
-
-ax.set_xlabel("X position (mm)")
+ax.set_xlabel("Time (s)")
 ax.set_ylabel("Y position (mm)")
 ax.legend()
 plt.tight_layout()
 plt.show()
+# sphinx_gallery_thumbnail_number = 2
 
 # %%
-# Here we see that during front-left and hind-right swing, the tail moves
-# towards the right, whereas during front-right and hind-left swing,
-# the tail moves towards the left. This is consistent with the expected
-# diagonal limb coordination during trotting, and illustrates how event
-# labels can be used to isolate specific behavioural epochs for analysis.
-#
-# We also observe a break where no clear diagonal swing pattern is present,
-# which corresponds to the locomotor pause after transition onto the second
-# belt identified above.
+# As expected, the tail base occupies distinct y-positions for each diagonal
+# pair, shifting towards the right during FL and HR swing and towards the
+# left during FR and HL swing. This lateral oscillation is consistent with
+# the expected weight transfer during trotting gait.
 
 # %%
-# Finally, another way to select multiple events at once is to use the ``isin``
-# method, e.g. all timepoints where the front right limb is in either stance
-# or swing phase.
+# Finally, :meth:`~xarray.DataArray.isin` can be used to select frames where
+# a limb is in any one of multiple phases at once. For example, to retain
+# only frames where the front-right limb phase was confidently identified
+# (i.e. excluding ``"unknown"``):
 
-fr_visible = ds.sel(time=ds.gait_FR.isin(["stance", "swing"]))
+fr_visible = ds.position.sel(time=ds.gait_FR.isin(["stance", "swing"]))
 print(fr_visible)
