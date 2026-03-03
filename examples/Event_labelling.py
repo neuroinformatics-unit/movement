@@ -122,7 +122,6 @@ ds_2D = sample_data.fetch_dataset(
 # Export the annotations via
 # **Observations > Export events > Aggregated events** and save as a CSV.
 
-# %%
 # sphinx_gallery_start_ignore
 import io  # noqa: E402
 
