@@ -207,7 +207,7 @@ def plot_position_and_shape_xy_coords(ds_input_data, ds_filled, color_filled):
             ax.plot(
                 ds_filled.time,
                 ds_filled[data_array_str].sel(
-                    individuals="id_1", space=space_coord
+                    individual="id_1", space=space_coord
                 ),
                 marker=".",
                 linewidth=1,

@@ -49,7 +49,7 @@ habitat_fig.show()
 
 # %%
 # The habitat is divided up into three main sub-regions. The cuboidal structure
-# on the right-hand-side of the habitat is the nest of the three individuals
+# on the right-hand-side of the habitat is the nest of the three individual
 # taking part in the experiment. The majority of the habitat is an open
 # octadecagonal (18-sided) shape, which is the bright central region that
 # encompasses most of the image. This central region is surrounded by a
@@ -60,7 +60,7 @@ habitat_fig.show()
 # %%
 # Define regions of interest
 # --------------------------
-# In order to ask questions about the behaviour of our individuals with respect
+# In order to ask questions about the behaviour of our individual with respect
 # to the habitat, we first need to define the RoIs to represent the separate
 # pieces of the habitat programmatically. Since each part of the habitat is
 # two-dimensional, we will use :class:`movement.roi.PolygonOfInterest`
@@ -154,7 +154,7 @@ habitat_fig.show()
 # %%
 # View individual paths inside the habitat
 # ----------------------------------------
-# We can now overlay the paths that the individuals followed on top of our
+# We can now overlay the paths that the individual followed on top of our
 # image of the habitat and the RoIs that we have defined.
 
 habitat_fig, habitat_ax = plt.subplots(1, 1)
@@ -165,7 +165,7 @@ central_region.plot(habitat_ax, facecolor="lightblue", alpha=0.25)
 nest_region.plot(habitat_ax, facecolor="green", alpha=0.25)
 ring_region.plot(habitat_ax, facecolor="blue", alpha=0.25)
 
-# Plot trajectories of the individuals
+# Plot trajectories of the individual
 mouse_names_and_colours = list(
     zip(positions.individual.values, ["r", "g", "b"], strict=False)
 )
@@ -186,21 +186,21 @@ habitat_ax.legend()
 habitat_fig.show()
 
 # %%
-# At a glance, it looks like all the individuals remained inside the
+# At a glance, it looks like all the individual remained inside the
 # ring-region for the duration of the experiment. We can verify this
 # programmatically, by asking whether the ``ring_region``
-# contained the individuals' locations, at all recorded time-points.
+# contained the individual' locations, at all recorded time-points.
 
 # This is a DataArray with dimensions: time, keypoint, and individual.
 # The values of the DataArray are True/False values, indicating if at the given
 # time, the keypoint of individual was inside ring_region.
 individual_was_inside = ring_region.contains_point(positions)
-all_individuals_in_ring_at_all_times = individual_was_inside.all()
+all_individual_in_ring_at_all_times = individual_was_inside.all()
 
-if all_individuals_in_ring_at_all_times:
+if all_individual_in_ring_at_all_times:
     print(
         "All recorded positions, at all times,\n"
-        "and for all individuals, were inside ring_region."
+        "and for all individual, were inside ring_region."
     )
 else:
     print("At least one position was recorded outside the ring_region.")
@@ -215,7 +215,7 @@ else:
 # can query the ``nest_region`` that we created for this information.
 
 # Compute all distances to the nest; for all times, keypoints, and
-# individuals.
+# individual.
 distances_to_nest = nest_region.compute_distance_to(positions)
 distances_fig, distances_ax = plt.subplots(1, 1)
 for mouse_name, col in mouse_names_and_colours:
@@ -231,9 +231,9 @@ distances_fig.show()
 
 # %%
 # We can see that the ``AEON38_TP2`` individual appears to be moving towards
-# the nest during the experiment, whilst the other two individuals are
+# the nest during the experiment, whilst the other two individual are
 # moving away from the nest. The "plateau" in the figure between frames 200-400
-# is when the individuals meet in the ``ring_region``, and remain largely
+# is when the individual meet in the ``ring_region``, and remain largely
 # stationary in a group until they can pass each other.
 #
 # One other thing to note is that
@@ -260,7 +260,7 @@ approach_vectors = nest_region.compute_approach_vector(positions)
 # The ``boundary_only`` keyword
 # -----------------------------
 # From our plot of the distances to the nest, we saw a time-window
-# in which the individuals are grouped up, possibly trying to pass each other
+# in which the individual are grouped up, possibly trying to pass each other
 # as they approach from different directions.
 # We might be interested in whether they move to opposite walls of the ring
 # while doing so. To examine this, we can plot the distance between each
@@ -272,7 +272,7 @@ distances_to_ring_wall = ring_region.compute_distance_to(positions)
 distances_fig, distances_ax = plt.subplots(1, 1)
 for mouse_name, col in mouse_names_and_colours:
     distances_ax.plot(
-        distances_to_ring_wall.sel(individuals=mouse_name),
+        distances_to_ring_wall.sel(individual=mouse_name),
         c=col,
         label=mouse_name,
     )
@@ -305,7 +305,7 @@ distances_to_ring_wall = ring_region.compute_distance_to(
 distances_fig, distances_ax = plt.subplots(1, 1)
 for mouse_name, col in mouse_names_and_colours:
     distances_ax.plot(
-        distances_to_ring_wall.sel(individuals=mouse_name),
+        distances_to_ring_wall.sel(individual=mouse_name),
         c=col,
         label=mouse_name,
     )
@@ -324,7 +324,7 @@ distances_fig.show()
 # The resulting plot looks much more like what we expect, but is again
 # not very helpful; we get the distance to the closest point on *either*
 # the interior or exterior wall of the ``ring_region``. This means that we
-# can't tell if the individuals do move to opposite walls when passing each
+# can't tell if the individual do move to opposite walls when passing each
 # other. Instead, let's ask for the distance  to just the exterior wall.
 
 # Note that the exterior_boundary of the ring_region is a 1D RoI (a series of
@@ -345,15 +345,15 @@ distances_exterior_ax.set_ylabel("Distance to exterior wall (pixels)")
 distances_exterior_fig.show()
 
 # %%
-# This output is much more helpful. We see that the individuals are largely the
+# This output is much more helpful. We see that the individual are largely the
 # same distance from the exterior wall during frames 250-350, and then notice
 # that;
 #
 # - Individual ``AEON_TP1`` moves far away from the exterior wall,
 # - ``AEON3B_NTP`` moves almost up to the exterior wall,
-# - and ``AEON3B_TP2`` seems to remain between the other two individuals.
+# - and ``AEON3B_TP2`` seems to remain between the other two individual.
 #
-# After frame 400, the individuals appear to go back to chaotic distances from
+# After frame 400, the individual appear to go back to chaotic distances from
 # the exterior wall again, which is consistent with them having passed each
 # other in the ``ring_region`` and once again having the entire width of the
 # ring to explore.
@@ -361,7 +361,7 @@ distances_exterior_fig.show()
 # %%
 # Boundary angles
 # ---------------
-# Having observed the individuals' behaviour as they pass one another in the
+# Having observed the individual' behaviour as they pass one another in the
 # ``ring_region``, we can begin to ask questions about their orientation with
 # respect to the nest. ``movement`` currently supports the computation of two
 # such "boundary angles";
@@ -433,7 +433,7 @@ angle_plot.show()
 # individual's position relative to the RoI, not their forward vector. This
 # makes the allocentric angle graph resemble the distance-to-nest graph
 # (inverted on the y-axis), with a "plateau" during frames 200-400 when the
-# individuals are (largely) stationary while passing each other.
+# individual are (largely) stationary while passing each other.
 #
 # Egocentric angles, on the other hand, fluctuate more due to their sensitivity
 # to changes in the forward vector. Outside frames 200-400, we see trends:
@@ -441,13 +441,13 @@ angle_plot.show()
 # - ``AEON3B_TP2`` moves counter-clockwise around the ring, so its egocentric
 #   angle decreases ever so slightly with time - almost hitting an angle of 0
 #   degrees as it moves along the direction of closest approach after passing
-#   the other individuals.
-# - The other two individuals move clockwise, so their angles show a
-#   gradual increase with time. Because the two individuals occasionally get in
+#   the other individual.
+# - The other two individual move clockwise, so their angles show a
+#   gradual increase with time. Because the two individual occasionally get in
 #   each others' way, we see frequent "spikes" in their egocentric angles as
 #   their forward vectors rapidly change.
 #
 # During frames 200-400, rapid changes in direction cause large fluctuations in
-# the egocentric angles of all the individuals, reflecting the individuals'
+# the egocentric angles of all the individual, reflecting the individual'
 # attempts to avoid colliding with (and to make space to move passed) each
 # other.
