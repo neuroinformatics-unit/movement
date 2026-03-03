@@ -148,7 +148,7 @@ def valid_bboxes_path_and_ds_short(valid_bboxes_dataset, tmp_path):
 
     The fixture is derived from the ``valid_bboxes_dataset`` fixture.
     """
-    valid_bboxes_dataset = valid_bboxes_dataset.sel(time=slice(0, 5))
+    valid_bboxes_dataset = valid_bboxes_dataset.isel(time=slice(0, 5))
     out_path = tmp_path / "ds_bboxes_short.csv"
     save_bboxes.to_via_tracks_file(valid_bboxes_dataset, out_path)
     return (out_path, valid_bboxes_dataset)
