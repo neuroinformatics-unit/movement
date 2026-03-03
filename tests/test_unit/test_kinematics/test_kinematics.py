@@ -1,3 +1,4 @@
+import re
 from contextlib import nullcontext as does_not_raise
 from itertools import product
 
@@ -7,6 +8,7 @@ import pytest
 import xarray as xr
 
 from movement import kinematics
+from movement.kinematics.kinematics import _rolling_circmean
 
 
 @pytest.mark.parametrize(
@@ -378,4 +380,179 @@ def test_forward_displacement_with_multiindex_coords():
     # Verify correct output
     assert result.name == "forward_displacement"
     assert result.dims == position.dims
-    assert result.shape == position.shape
+
+
+class TestRollingCircmean:
+    """Test the private ``_rolling_circmean`` helper."""
+
+    @pytest.fixture
+    def uniform_angles(self) -> np.ndarray:
+        """Eight angles equally spaced in (−π, π]."""
+        return np.linspace(-np.pi, np.pi, num=8, endpoint=False)
+
+    def test_window_1_is_identity(self, uniform_angles):
+        """Window of 1 returns the input unchanged."""
+        result = _rolling_circmean(uniform_angles, window=1)
+        np.testing.assert_allclose(result, uniform_angles)
+
+    def test_constant_signal_unchanged(self):
+        """Circular mean of identical angles returns that angle."""
+        arr = np.full(10, np.pi / 4)
+        result = _rolling_circmean(arr, window=5)
+        np.testing.assert_allclose(result, arr)
+
+    def test_output_shape_preserved(self, uniform_angles):
+        """Output shape matches input for any window size."""
+        for w in [1, 3, 7]:
+            result = _rolling_circmean(uniform_angles, window=w)
+            assert result.shape == uniform_angles.shape
+
+    def test_circular_boundary_correct(self):
+        """Angles near ±π are averaged correctly (not collapsed to ~0)."""
+        eps = 0.1
+        arr = np.array([np.pi - eps, -(np.pi - eps)])
+        result = _rolling_circmean(arr, window=2)
+        # Naive (non-circular) mean would give ~0; circular mean should be ~±π
+        assert abs(result[0]) > np.pi / 2
+        assert abs(result[1]) > np.pi / 2
+
+
+class TestComputeHeadAngleVelocity:
+    """Test ``compute_head_angle_velocity``."""
+
+    @pytest.fixture
+    def spinning_on_the_spot(self) -> xr.DataArray:
+        """Position data for a head spinning at constant rate (π/4 rad/frame).
+
+        The left keypoint traces the unit circle counter-clockwise;
+        the right keypoint is always diametrically opposite.
+        8 frames complete one full rotation (2π rad).
+        """
+        n_frames = 8
+        angles = np.linspace(0, 2 * np.pi, num=n_frames, endpoint=False)
+        left_x = np.cos(angles)
+        left_y = np.sin(angles)
+        data = np.stack(
+            [
+                np.stack([left_x, left_y], axis=1),
+                np.stack([-left_x, -left_y], axis=1),
+            ],
+            axis=2,
+        )  # shape: (time, space, keypoints)
+        return xr.DataArray(
+            data,
+            dims=["time", "space", "keypoints"],
+            coords={
+                "time": np.arange(n_frames, dtype=float),
+                "space": ["x", "y"],
+                "keypoints": ["left", "right"],
+            },
+        )
+
+    def test_output_name(self, spinning_on_the_spot):
+        """Result DataArray is named ``angular_head_velocity``."""
+        result = kinematics.compute_head_angle_velocity(
+            spinning_on_the_spot, "left", "right", smoothing_window=1
+        )
+        assert result.name == "angular_head_velocity"
+
+    def test_output_dims(self, spinning_on_the_spot):
+        """Result has ``time`` but not ``space`` or ``keypoints`` dims."""
+        result = kinematics.compute_head_angle_velocity(
+            spinning_on_the_spot, "left", "right", smoothing_window=1
+        )
+        assert "time" in result.dims
+        assert "space" not in result.dims
+        assert "keypoints" not in result.dims
+
+    def test_constant_rotation_gives_constant_velocity(
+        self, spinning_on_the_spot
+    ):
+        """Uniform rotation produces constant angular velocity (π/4 rad/frame).
+
+        With ``smoothing_window=1`` the circmean is a no-op. The unwrapped
+        angle is exactly linear, so ``differentiate`` gives the exact slope
+        π/4 at every frame — including edges, where xarray uses second-order
+        one-sided differences (also exact for linear signals).
+
+        The time coordinate is ``[0, 1, …, 7]`` (frame numbers, not seconds),
+        so the result is in rad/frame and ``fps`` is irrelevant here.
+        ``atol=1e-6`` absorbs floating-point imprecision from ``sin(π)``.
+        """
+        result = kinematics.compute_head_angle_velocity(
+            spinning_on_the_spot, "left", "right", smoothing_window=1
+        )
+        np.testing.assert_allclose(result.values, np.pi / 4, atol=1e-6)
+
+    def test_larger_smoothing_window_returns_dataarray(
+        self, spinning_on_the_spot
+    ):
+        """Larger smoothing window returns a valid DataArray without error."""
+        result = kinematics.compute_head_angle_velocity(
+            spinning_on_the_spot, "left", "right", smoothing_window=3
+        )
+        assert isinstance(result, xr.DataArray)
+
+    @pytest.mark.parametrize(
+        "data, smoothing_window, expected_error, match_str",
+        [
+            pytest.param(
+                None,
+                3,
+                TypeError,
+                "must be an xarray.DataArray",
+                id="data_wrong_type",
+            ),
+            pytest.param(
+                "spinning_on_the_spot",
+                3.0,
+                TypeError,
+                "smoothing_window must be an integer",
+                id="smoothing_window_float",
+            ),
+            pytest.param(
+                "spinning_on_the_spot",
+                "3",
+                TypeError,
+                "smoothing_window must be an integer",
+                id="smoothing_window_string",
+            ),
+            pytest.param(
+                "spinning_on_the_spot",
+                0,
+                ValueError,
+                "smoothing_window must be a positive integer",
+                id="smoothing_window_zero",
+            ),
+            pytest.param(
+                "spinning_on_the_spot",
+                -5,
+                ValueError,
+                "smoothing_window must be a positive integer",
+                id="smoothing_window_negative",
+            ),
+        ],
+    )
+    def test_invalid_inputs(
+        self, data, smoothing_window, expected_error, match_str, request
+    ):
+        """Invalid arguments raise the expected error."""
+        if isinstance(data, str):
+            data = request.getfixturevalue(data)
+        with pytest.raises(expected_error, match=re.escape(match_str)):
+            kinematics.compute_head_angle_velocity(
+                data, "left", "right", smoothing_window=smoothing_window
+            )
+
+    def test_identical_keypoints_raises(self, spinning_on_the_spot):
+        """Identical left and right keypoints raise ``ValueError``.
+
+        This is validated by the downstream ``compute_forward_vector`` call.
+        The match string is coupled to that function's error message.
+        """
+        with pytest.raises(
+            ValueError, match=re.escape("may not be identical")
+        ):
+            kinematics.compute_head_angle_velocity(
+                spinning_on_the_spot, "left", "left"
+            )
