@@ -30,8 +30,9 @@ def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
     elif isinstance(value, Iterable):
         return [str(item) for item in value]
     else:
-        raise logger.error(
-            ValueError(f"Invalid value ({value}). Expected a list of strings.")
+        logger.error(f"Invalid value ({value}). Expected a list of strings.")
+        raise ValueError(
+            f"Invalid value ({value}). Expected a list of strings."
         )
 
 
@@ -131,11 +132,13 @@ class _BaseDatasetInputs(ABC):
         # Check array dimensions match the number of DIM_NAMES
         expected_ndim = len(self.DIM_NAMES)
         if value.ndim != expected_ndim:
-            raise logger.error(
-                ValueError(
-                    f"Expected '{attribute.name}' to have "
-                    f"{expected_ndim} dimensions, but got {value.ndim}."
-                )
+            logger.error(
+                f"Expected '{attribute.name}' to have "
+                f"{expected_ndim} dimensions, but got {value.ndim}."
+            )
+            raise ValueError(
+                f"Expected '{attribute.name}' to have "
+                f"{expected_ndim} dimensions, but got {value.ndim}."
             )
         # Check size of 'space' dimension
         allowed_axis_size = self._ALLOWED_SPACE_DIM_SIZE
@@ -146,11 +149,13 @@ class _BaseDatasetInputs(ABC):
             allowed_dims_str = " or ".join(
                 str(dim) for dim in allowed_axis_size
             )
-            raise logger.error(
-                ValueError(
-                    f"Expected '{attribute.name}' to have {allowed_dims_str} "
-                    f"spatial dimensions, but got {space_dim_size}."
-                )
+            logger.error(
+                f"Expected '{attribute.name}' to have {allowed_dims_str} "
+                f"spatial dimensions, but got {space_dim_size}."
+            )
+            raise ValueError(
+                f"Expected '{attribute.name}' to have {allowed_dims_str} "
+                f"spatial dimensions, but got {space_dim_size}."
             )
 
     @confidence_array.validator
@@ -181,11 +186,13 @@ class _BaseDatasetInputs(ABC):
     ):
         """Raise ValueError if the value does not have the expected shape."""
         if value.shape != expected_shape:
-            raise logger.error(
-                ValueError(
-                    f"Expected '{attribute.name}' to have shape "
-                    f"{expected_shape}, but got {value.shape}."
-                )
+            logger.error(
+                f"Expected '{attribute.name}' to have shape "
+                f"{expected_shape}, but got {value.shape}."
+            )
+            raise ValueError(
+                f"Expected '{attribute.name}' to have shape "
+                f"{expected_shape}, but got {value.shape}."
             )
 
     @staticmethod
@@ -194,11 +201,13 @@ class _BaseDatasetInputs(ABC):
     ):
         """Raise a ValueError if the list does not have the expected length."""
         if value is not None and len(value) != expected_length:
-            raise logger.error(
-                ValueError(
-                    f"Expected '{attribute.name}' to have "
-                    f"length {expected_length}, but got {len(value)}."
-                )
+            logger.error(
+                f"Expected '{attribute.name}' to have "
+                f"length {expected_length}, but got {len(value)}."
+            )
+            raise ValueError(
+                f"Expected '{attribute.name}' to have "
+                f"length {expected_length}, but got {len(value)}."
             )
 
     @staticmethod
@@ -207,12 +216,15 @@ class _BaseDatasetInputs(ABC):
     ):
         """Raise a ValueError if the list does not have unique elements."""
         if value is not None and len(value) != len(set(value)):
-            raise logger.error(
-                ValueError(
-                    f"Elements in '{attribute.name}' are not unique. "
-                    f"There are {len(value)} elements in the list, but "
-                    f"only {len(set(value))} are unique."
-                )
+            logger.error(
+                f"Elements in '{attribute.name}' are not unique. "
+                f"There are {len(value)} elements in the list, but "
+                f"only {len(set(value))} are unique."
+            )
+            raise ValueError(
+                f"Elements in '{attribute.name}' are not unique. "
+                f"There are {len(value)} elements in the list, but "
+                f"only {len(set(value))} are unique."
             )
 
     @abstractmethod
@@ -246,9 +258,8 @@ class _BaseDatasetInputs(ABC):
 
         """
         if not isinstance(ds, xr.Dataset):
-            raise logger.error(
-                TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
-            )
+            logger.error(f"Expected an xarray Dataset, but got {type(ds)}.")
+            raise TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
         missing_vars = set(cls.VAR_NAMES) - set(
             cast("Iterable[str]", ds.data_vars.keys())
         )

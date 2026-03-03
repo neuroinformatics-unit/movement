@@ -62,7 +62,7 @@ positions.loc[:, "y", :, "AEON3B_TP2"] += 100.0
 
 fig, ax = plt.subplots(1, 1)
 for mouse_name, col in zip(
-    positions.individuals.values, ["r", "g", "b"], strict=False
+    positions.individual.values, ["r", "g", "b"], strict=False
 ):
     plot_centroid_trajectory(
         positions,
@@ -126,8 +126,8 @@ data_shape = positions.shape
 in_slippery = np.zeros(
     shape=(
         len(positions["time"]),
-        len(positions["keypoints"]),
-        len(positions["individuals"]),
+        len(positions["keypoint"]),
+        len(positions["individual"]),
     ),
     dtype=bool,
 )  # We would save one result per time-point, per keypoint, per individual
@@ -137,15 +137,15 @@ in_slippery = np.zeros(
 # if you are running this code on your own machine.
 for time_index, time in enumerate(positions["time"].values):
     # print(f"At time {time}:")
-    for keypoint_index, keypoint in enumerate(positions["keypoints"].values):
+    for keypoint_index, keypoint in enumerate(positions["keypoint"].values):
         # print(f"\tAt keypoint {keypoint}")
         for individual_index, individual in enumerate(
-            positions["individuals"].values
+            positions["individual"].values
         ):
             xy_point = positions.sel(
                 time=time,
-                keypoints=keypoint,
-                individuals=individual,
+                keypoint=keypoint,
+                individual=individual,
             )
             was_in_slippery = in_slippery_region(xy_point)
             was_in_slippery_text = (
@@ -168,11 +168,11 @@ for time_index, time in enumerate(positions["time"].values):
 # access the results in the same way that we did our original data.
 was_in_slippery_region = xr.DataArray(
     in_slippery,
-    dims=["time", "keypoints", "individuals"],
+    dims=["time", "keypoint", "individual"],
     coords={
         "time": positions["time"],
-        "keypoints": positions["keypoints"],
-        "individuals": positions["individuals"],
+        "keypoint": positions["keypoint"],
+        "individual": positions["individual"],
     },
 )
 
@@ -187,7 +187,7 @@ was_in_slippery_region
 # slippery region now, by examining this ``DataArray``.
 i_id = "AEON3B_NTP"
 individual_0_centroid = was_in_slippery_region.sel(
-    individuals=i_id, keypoints="centroid"
+    individual=i_id, keypoint="centroid"
 )
 first_entry = individual_0_centroid["time"][individual_0_centroid].values[0]
 last_exit = individual_0_centroid["time"][individual_0_centroid].values[-1]
@@ -279,7 +279,7 @@ xr.testing.assert_equal(
 # ``DataArrays`` with different dimensions.
 # For example, we could have pre-selected one of our individuals beforehand.
 i_id = "AEON3B_NTP"
-individual_0 = positions.sel(individuals=i_id)
+individual_0 = positions.sel(individual=i_id)
 
 individual_0_in_slippery_region = in_slippery_region_broadcastable(
     individual_0,
