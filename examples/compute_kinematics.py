@@ -94,9 +94,7 @@ fig.show()
 # :func:`plot_centroid_trajectory()<movement.plots.plot_centroid_trajectory>`
 # when the ``c`` argument is not provided:
 fig, axes = plt.subplots(2, 2, sharey=True)
-for mouse_name, ax in zip(
-    position.individual.values, axes.flat, strict=False
-):
+for mouse_name, ax in zip(position.individual.values, axes.flat, strict=False):
     ax.invert_yaxis()
     fig, ax = plot_centroid_trajectory(
         position,

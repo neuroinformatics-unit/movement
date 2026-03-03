@@ -92,7 +92,9 @@ def _file_is_not_dir(_, __, value: Path) -> None:
     """Ensure the file does not point to a directory."""
     if value.is_dir():
         logger.error(f"Expected a file path but got a directory: {value}.")
-        raise IsADirectoryError(f"Expected a file path but got a directory: {value}.")
+        raise IsADirectoryError(
+            f"Expected a file path but got a directory: {value}."
+        )
 
 
 def _file_is_readable(value: Path) -> None:
