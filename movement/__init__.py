@@ -1,5 +1,6 @@
 from importlib.metadata import PackageNotFoundError, version
 
+from movement.io.load import load_dataset, load_multiview_dataset
 from movement.utils.logging import logger
 
 try:
@@ -15,3 +16,8 @@ xr.set_options(keep_attrs=True, display_expand_data=False)
 
 # Configure logging to stderr and a file
 logger.configure()
+
+__all__ = [
+    "load_dataset",
+    "load_multiview_dataset",
+]
