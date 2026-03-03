@@ -176,9 +176,7 @@ def valid_bboxes_path_and_ds_with_localised_nans(
         if nan_location["time"] == "start":
             time_point = 0
         elif nan_location["time"] == "middle":
-            time_point = ds.coords["time"][
-                ds.coords["time"].shape[0] // 2
-            ]
+            time_point = ds.coords["time"][ds.coords["time"].shape[0] // 2]
         elif nan_location["time"] == "end":
             time_point = ds.coords["time"][-1]
 

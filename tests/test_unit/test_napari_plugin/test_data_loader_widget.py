@@ -587,9 +587,7 @@ def test_dimension_slider_with_nans_bboxes(
         "time": nan_time_location,
         "individuals": ["id_0"],
     }
-    file_path, ds = valid_bboxes_path_and_ds_with_localised_nans(
-        nan_location
-    )
+    file_path, ds = valid_bboxes_path_and_ds_with_localised_nans(nan_location)
 
     # Define the expected frame index with the NaN value
     if nan_location["time"] == "start":
