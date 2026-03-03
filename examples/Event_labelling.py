@@ -254,7 +254,7 @@ for limb_idx, limb in enumerate(limbs):
 # dataset directly with :meth:`~xarray.DataArray.sel`. For example, all
 # timepoints where the front-left paw is in stance:
 
-ds_fl_stance = ds.position.sel(gait_FL="stance")
+ds_fl_stance = ds.position.sel(time=ds.gait_FL == "stance")
 print(ds_fl_stance)
 
 # %%
@@ -264,8 +264,8 @@ print(ds_fl_stance)
 
 fr_z = ds.position.sel(keypoints="ForepawToeR", space="z")
 
-fr_swing = fr_z.sel(gait_FR="swing")
-fr_stance = fr_z.sel(gait_FR="stance")
+fr_swing = fr_z.sel(time=ds.gait_FR == "swing")
+fr_stance = fr_z.sel(time=ds.gait_FR == "stance")
 
 fig, ax = plt.subplots(figsize=(10, 4))
 ax.scatter(fr_swing.time, fr_swing.values, s=5, label="Swing")
