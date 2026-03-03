@@ -118,6 +118,107 @@ def scale(
     return scaled_data
 
 
+def poses_to_bboxes(
+    position: xr.DataArray,
+    padding: float = 0.0,
+) -> tuple[xr.DataArray, xr.DataArray]:
+    """Compute bounding box centroid and shape from a poses position array.
+
+    This function computes bounding boxes from pose estimation keypoints by
+    finding the minimum and maximum coordinates across all keypoints for each
+    individual at each time point. The resulting bounding box is represented
+    by its centroid (center point) and shape (width and height).
+
+    Parameters
+    ----------
+    position : xarray.DataArray
+        A 2D poses position array with dimensions
+        ``(time, space, keypoints, individuals)``, where the ``space``
+        coordinate contains exactly ``["x", "y"]``.
+    padding : float, optional
+        Number of pixels to add as padding around the bounding box in all
+        directions. The padding increases both width and height by
+        ``2 * padding``. Default is 0.0 (no padding).
+
+    Returns
+    -------
+    tuple[xarray.DataArray, xarray.DataArray]
+        A tuple ``(position, shape)`` where:
+
+        - ``position``: bounding box centroids with dimensions
+          ``(time, space, individuals)``.
+        - ``shape``: bounding box width and height with dimensions
+          ``(time, space, individuals)``.
+
+    Raises
+    ------
+    TypeError
+        If ``position`` is not an :class:`xarray.DataArray` or if
+        ``padding`` is not numeric.
+    ValueError
+        If the position array is missing required dimensions or coordinates,
+        is not 2D, or ``padding`` is negative.
+
+    Notes
+    -----
+    - Keypoints with NaN in any spatial coordinate are excluded from bounding
+      box calculation. If all keypoints for an individual at a given time are
+      NaN, the resulting centroid and shape are NaN.
+    - The centroid is calculated as the midpoint of the bounding box:
+      ``(min + max) / 2`` for each spatial dimension.
+    - The shape is calculated as the span of coordinates plus padding:
+      ``width = max_x - min_x + 2*padding`` and
+      ``height = max_y - min_y + 2*padding``.
+    - When there is only one valid keypoint, the bounding box will have
+      zero width and/or height (before padding is applied).
+
+    Examples
+    --------
+    Compute bounding boxes from a poses dataset with zero padding:
+
+    >>> from movement.transforms import poses_to_bboxes
+    >>> bbox_position, bbox_shape = poses_to_bboxes(poses_ds["position"])
+
+    Compute bounding boxes from a poses dataset with 10 pixels of padding:
+
+    >>> bbox_position, bbox_shape = poses_to_bboxes(
+    ...     poses_ds["position"], padding=10
+    ... )
+
+    See Also
+    --------
+    movement.transforms.scale : Scale spatial coordinates
+
+    """
+    if not isinstance(position, xr.DataArray):
+        raise TypeError(
+            f"Expected an xarray DataArray, but got {type(position)}."
+        )
+    validate_dims_coords(
+        position,
+        {"time": [], "space": ["x", "y"], "keypoints": [], "individuals": []},
+        exact_coords=True,
+    )
+    if not isinstance(padding, int | float):
+        raise TypeError(
+            f"padding must be a number, got {type(padding).__name__}"
+        )
+    if padding < 0:
+        raise ValueError(f"padding must be non-negative, got {padding}")
+
+    # A keypoint is valid only if all spatial coordinates are present.
+    valid_mask = ~position.isnull().any(dim="space")
+    masked = position.where(valid_mask)
+
+    pos_min = masked.min(dim="keypoints", skipna=True)
+    pos_max = masked.max(dim="keypoints", skipna=True)
+
+    centroid = (pos_min + pos_max) / 2
+    shape = pos_max - pos_min + 2 * padding
+
+    return centroid, shape
+
+
 def compute_homography_transform(
     src_points: np.ndarray, dst_points: np.ndarray
 ) -> np.ndarray:
