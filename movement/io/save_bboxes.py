@@ -242,12 +242,15 @@ def _check_frame_required_digits(
     if frame_n_digits is None:
         return min_required_digits + 1  # pad with at least one zero
     elif frame_n_digits < min_required_digits:
-        raise logger.error(
-            ValueError(
-                "The requested number of digits cannot be used to represent "
-                f"all the frame numbers. Got {frame_n_digits}, but the "
-                f"maximum frame number has {min_required_digits} digits."
-            )
+        logger.error(
+            "The requested number of digits cannot be used to represent "
+            f"all the frame numbers. Got {frame_n_digits}, but the "
+            f"maximum frame number has {min_required_digits} digits."
+        )
+        raise ValueError(
+            "The requested number of digits cannot be used to represent "
+            f"all the frame numbers. Got {frame_n_digits}, but the "
+            f"maximum frame number has {min_required_digits} digits."
         )
     else:
         return frame_n_digits
@@ -324,18 +327,20 @@ def _extract_track_ids_from_individuals_names(
             track_id = int(match.group(1))
             map_individual_to_track_id[individual] = track_id
         else:
-            raise logger.error(
-                ValueError(f"Could not extract track ID from {individual}.")
-            )
+            logger.error(f"Could not extract track ID from {individual}.")
+            raise ValueError(f"Could not extract track ID from {individual}.")
 
     # Check that all individuals have a unique track ID
     if len(set(map_individual_to_track_id.values())) != len(set(individuals)):
-        raise logger.error(
-            ValueError(
-                "Could not extract a unique track ID for all individuals. "
-                f"Expected {len(set(individuals))} unique track IDs, "
-                f"but got {len(set(map_individual_to_track_id.values()))}."
-            )
+        logger.error(
+            "Could not extract a unique track ID for all individuals. "
+            f"Expected {len(set(individuals))} unique track IDs, "
+            f"but got {len(set(map_individual_to_track_id.values()))}."
+        )
+        raise ValueError(
+            "Could not extract a unique track ID for all individuals. "
+            f"Expected {len(set(individuals))} unique track IDs, "
+            f"but got {len(set(map_individual_to_track_id.values()))}."
         )
 
     return map_individual_to_track_id

@@ -149,11 +149,13 @@ def compute_kinetic_energy(
 
     # Validate that at least 2 keypoints exist for decomposition
     if decompose and position.sizes["keypoint"] < 2:
-        raise logger.error(
-            ValueError(
-                "At least 2 keypoints are required to decompose "
-                "kinetic energy into translational and internal components."
-            )
+        logger.error(
+            "At least 2 keypoints are required to decompose "
+            "kinetic energy into translational and internal components."
+        )
+        raise ValueError(
+            "At least 2 keypoints are required to decompose "
+            "kinetic energy into translational and internal components."
         )
 
     # Compute velocity from position

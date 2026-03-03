@@ -268,20 +268,19 @@ def compute_signed_angle_2d(
         elif v.ndim == 2:
             v_dims = ["time", "space"]
         else:
-            raise logger.error(
-                ValueError(f"v must be 1D or 2D, but got {v.ndim}D.")
-            )
+            logger.error(f"v must be 1D or 2D, but got {v.ndim}D.")
+            raise ValueError(f"v must be 1D or 2D, but got {v.ndim}D.")
         v = xr.DataArray(
             v,
             dims=v_dims,
             coords={d: u.coords[d] for d in v_dims},
         )
     elif not isinstance(v, xr.DataArray):
-        raise logger.error(
-            TypeError(
-                "v must be an xarray.DataArray or np.ndarray, "
-                f"but got {type(v)}."
-            )
+        logger.error(
+            f"v must be an xarray.DataArray or np.ndarray, but got {type(v)}."
+        )
+        raise TypeError(
+            f"v must be an xarray.DataArray or np.ndarray, but got {type(v)}."
         )
     validate_dims_coords(v, {"space": ["x", "y"]}, exact_coords=True)
 
@@ -308,9 +307,11 @@ def compute_signed_angle_2d(
 
 
 def _raise_error_for_missing_spatial_dim() -> NoReturn:
-    raise logger.error(
-        ValueError(
-            "Input data array must contain either 'space' or 'space_pol' "
-            "as dimensions."
-        )
+    logger.error(
+        "Input data array must contain either 'space' or 'space_pol' "
+        "as dimensions."
+    )
+    raise ValueError(
+        "Input data array must contain either 'space' or 'space_pol' "
+        "as dimensions."
     )

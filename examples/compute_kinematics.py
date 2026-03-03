@@ -62,7 +62,7 @@ fig, ax = plt.subplots(1, 1)
 ax.invert_yaxis()
 # Plot trajectories for each mouse on the same axes
 for mouse_name, col in zip(
-    position.individuals.values,
+    position.individual.values,
     ["r", "g", "b"],  # colours
     strict=False,
 ):
@@ -95,7 +95,7 @@ fig.show()
 # when the ``c`` argument is not provided:
 fig, axes = plt.subplots(2, 2, sharey=True)
 for mouse_name, ax in zip(
-    position.individuals.values, axes.flat, strict=False
+    position.individual.values, axes.flat, strict=False
 ):
     ax.invert_yaxis()
     fig, ax = plot_centroid_trajectory(
@@ -126,8 +126,8 @@ fig.show()
 # We can also inspect the components of the position vector against time
 # using ``xarray``'s built-in plotting methods. We use
 # :meth:`xarray.DataArray.squeeze` to
-# remove the dimension of length 1 from the data (the ``keypoints`` dimension).
-position.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
+# remove the dimension of length 1 from the data (the ``keypoint`` dimension).
+position.squeeze().plot.line(x="time", row="individual", aspect=2, size=2.5)
 plt.gcf().show()
 
 # %%
@@ -173,8 +173,8 @@ ax = fig.add_subplot()
 
 # plot position data
 sc = ax.scatter(
-    position.sel(individuals=mouse_name, space="x"),
-    position.sel(individuals=mouse_name, space="y"),
+    position.sel(individual=mouse_name, space="x"),
+    position.sel(individual=mouse_name, space="y"),
     s=15,
     c=position.time,
     cmap="viridis",
@@ -182,10 +182,10 @@ sc = ax.scatter(
 
 # plot forward displacement vectors: at t, vector from t to t+1
 ax.quiver(
-    position.sel(individuals=mouse_name, space="x"),
-    position.sel(individuals=mouse_name, space="y"),
-    forward_displacement.sel(individuals=mouse_name, space="x"),
-    forward_displacement.sel(individuals=mouse_name, space="y"),
+    position.sel(individual=mouse_name, space="x"),
+    position.sel(individual=mouse_name, space="y"),
+    forward_displacement.sel(individual=mouse_name, space="x"),
+    forward_displacement.sel(individual=mouse_name, space="y"),
     angles="xy",
     scale=1,
     scale_units="xy",
@@ -227,18 +227,18 @@ fig = plt.figure()
 ax = fig.add_subplot()
 
 sc = ax.scatter(
-    position.sel(individuals=mouse_name, space="x"),
-    position.sel(individuals=mouse_name, space="y"),
+    position.sel(individual=mouse_name, space="x"),
+    position.sel(individual=mouse_name, space="y"),
     s=15,
     c=position.time,
     cmap="viridis",
 )
 
 ax.quiver(
-    position.sel(individuals=mouse_name, space="x"),
-    position.sel(individuals=mouse_name, space="y"),
-    backward_displacement.sel(individuals=mouse_name, space="x"),
-    backward_displacement.sel(individuals=mouse_name, space="y"),
+    position.sel(individual=mouse_name, space="x"),
+    position.sel(individual=mouse_name, space="y"),
+    backward_displacement.sel(individual=mouse_name, space="x"),
+    backward_displacement.sel(individual=mouse_name, space="y"),
     angles="xy",
     scale=1,
     scale_units="xy",
@@ -268,12 +268,12 @@ fig.colorbar(sc, ax=ax, label="time (s)")
 
 # length of each forward displacement vector
 forward_displacement_lengths = compute_norm(
-    forward_displacement.sel(individuals=mouse_name)
+    forward_displacement.sel(individual=mouse_name)
 )
 
 # length of each backward displacement vector
 backward_displacement_lengths = compute_norm(
-    backward_displacement.sel(individuals=mouse_name)
+    backward_displacement.sel(individual=mouse_name)
 )
 
 # check their lengths are the same
@@ -307,10 +307,10 @@ print(
 
 path_lengths = kin.compute_path_length(ds.position)
 
-for mouse_name in path_lengths.individuals.values:
+for mouse_name in path_lengths.individual.values:
     print(
         f"Path length for {mouse_name}: "
-        f"{path_lengths.sel(individuals=mouse_name).values[0]:.2f} pixels"
+        f"{path_lengths.sel(individual=mouse_name).values[0]:.2f} pixels"
     )
 
 # %%
@@ -331,9 +331,9 @@ velocity = kin.compute_velocity(position)
 # We can plot the components of the velocity vector against time
 # using ``xarray``'s built-in plotting methods. We use
 # :meth:`xarray.DataArray.squeeze` to
-# remove the dimension of length 1 from the data (the ``keypoints`` dimension).
+# remove the dimension of length 1 from the data (the ``keypoint`` dimension).
 
-velocity.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
+velocity.squeeze().plot.line(x="time", row="individual", aspect=2, size=2.5)
 plt.gcf().show()
 
 # %%
@@ -348,9 +348,9 @@ plt.gcf().show()
 # We can also visualise the speed, as the magnitude (norm)
 # of the velocity vector:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-for mouse_name, ax in zip(velocity.individuals.values, axes, strict=False):
+for mouse_name, ax in zip(velocity.individual.values, axes, strict=False):
     # compute the magnitude of the velocity vector for one mouse
-    speed_one_mouse = compute_norm(velocity.sel(individuals=mouse_name))
+    speed_one_mouse = compute_norm(velocity.sel(individual=mouse_name))
     # plot speed against time
     ax.plot(speed_one_mouse)
     ax.set_title(mouse_name)
@@ -366,18 +366,18 @@ fig = plt.figure()
 ax = fig.add_subplot()
 # plot trajectory (position data)
 sc = ax.scatter(
-    position.sel(individuals=mouse_name, space="x"),
-    position.sel(individuals=mouse_name, space="y"),
+    position.sel(individual=mouse_name, space="x"),
+    position.sel(individual=mouse_name, space="y"),
     s=15,
     c=position.time,
     cmap="viridis",
 )
 # plot velocity vectors
 ax.quiver(
-    position.sel(individuals=mouse_name, space="x"),
-    position.sel(individuals=mouse_name, space="y"),
-    velocity.sel(individuals=mouse_name, space="x"),
-    velocity.sel(individuals=mouse_name, space="y"),
+    position.sel(individual=mouse_name, space="x"),
+    position.sel(individual=mouse_name, space="y"),
+    velocity.sel(individual=mouse_name, space="x"),
+    velocity.sel(individual=mouse_name, space="y"),
     angles="xy",
     scale=2,
     scale_units="xy",
@@ -406,15 +406,15 @@ accel = kin.compute_acceleration(position)
 # and plot of the components of the acceleration vector ``ax``, ``ay`` per
 # individual:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
+for mouse_name, ax in zip(accel.individual.values, axes, strict=False):
     # plot x-component of acceleration vector
     ax.plot(
-        accel.sel(individuals=mouse_name, space=["x"]).squeeze(),
+        accel.sel(individual=mouse_name, space=["x"]).squeeze(),
         label="ax",
     )
     # plot y-component of acceleration vector
     ax.plot(
-        accel.sel(individuals=mouse_name, space=["y"]).squeeze(),
+        accel.sel(individual=mouse_name, space=["y"]).squeeze(),
         label="ay",
     )
     ax.set_title(mouse_name)
@@ -427,9 +427,9 @@ fig.tight_layout()
 # We can also compute and visualise the magnitude (norm) of the
 # acceleration vector for each individual:
 fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
+for mouse_name, ax in zip(accel.individual.values, axes, strict=False):
     # compute magnitude of the acceleration vector for one mouse
-    accel_one_mouse = compute_norm(accel.sel(individuals=mouse_name))
+    accel_one_mouse = compute_norm(accel.sel(individual=mouse_name))
 
     # plot acceleration against time
     ax.plot(accel_one_mouse)

@@ -268,17 +268,16 @@ def compute_pairwise_distances(
 
     """
     if dim not in ["individual", "keypoint"]:
-        raise logger.error(
-            ValueError(
-                "'dim' must be either 'individual' or 'keypoint', "
-                f"but got {dim}."
-            )
+        logger.error(
+            f"'dim' must be either 'individual' or 'keypoint', but got {dim}."
+        )
+        raise ValueError(
+            f"'dim' must be either 'individual' or 'keypoint', but got {dim}."
         )
     if isinstance(pairs, str) and pairs != "all":
-        raise logger.error(
-            ValueError(
-                f"'pairs' must be a dictionary or 'all', but got {pairs}."
-            )
+        logger.error(f"'pairs' must be a dictionary or 'all', but got {pairs}.")
+        raise ValueError(
+            f"'pairs' must be a dictionary or 'all', but got {pairs}."
         )
     validate_dims_coords(data, {"time": [], "space": ["x", "y"], dim: []})
     # Find all possible pair combinations if 'all' is specified
@@ -296,9 +295,8 @@ def compute_pairwise_distances(
             )
         ]
     if not paired_elements:
-        raise logger.error(
-            ValueError("Could not find any pairs to compute distances for.")
-        )
+        logger.error("Could not find any pairs to compute distances for.")
+        raise ValueError("Could not find any pairs to compute distances for.")
     pairwise_distances = {
         f"dist_{elem1}_{elem2}": _cdist(
             data.sel({dim: elem1}),

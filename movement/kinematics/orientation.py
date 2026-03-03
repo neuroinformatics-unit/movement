@@ -85,17 +85,18 @@ def compute_forward_vector(
         },
     )
     if len(data.space) != 2:
-        raise logger.error(
-            ValueError(
-                "Input data must have exactly 2 spatial dimensions, but "
-                f"currently has {len(data.space)}."
-            )
+        logger.error(
+            "Input data must have exactly 2 spatial dimensions, but "
+            f"currently has {len(data.space)}."
+        )
+        raise ValueError(
+            "Input data must have exactly 2 spatial dimensions, but "
+            f"currently has {len(data.space)}."
         )
     # Validate input keypoints
     if left_keypoint == right_keypoint:
-        raise logger.error(
-            ValueError("The left and right keypoints may not be identical.")
-        )
+        logger.error("The left and right keypoints may not be identical.")
+        raise ValueError("The left and right keypoints may not be identical.")
     # Define right-to-left vector
     right_to_left_vector = data.sel(
         keypoint=left_keypoint, drop=True
@@ -273,9 +274,9 @@ def _validate_type_data_array(data: xr.DataArray) -> None:
 
     """
     if not isinstance(data, xr.DataArray):
-        raise logger.error(
-            TypeError(
-                "Input data must be an xarray.DataArray, "
-                f"but got {type(data)}."
-            )
+        logger.error(
+            f"Input data must be an xarray.DataArray, but got {type(data)}."
+        )
+        raise TypeError(
+            f"Input data must be an xarray.DataArray, but got {type(data)}."
         )

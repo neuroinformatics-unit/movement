@@ -167,7 +167,7 @@ ring_region.plot(habitat_ax, facecolor="blue", alpha=0.25)
 
 # Plot trajectories of the individuals
 mouse_names_and_colours = list(
-    zip(positions.individuals.values, ["r", "g", "b"], strict=False)
+    zip(positions.individual.values, ["r", "g", "b"], strict=False)
 )
 for mouse_name, col in mouse_names_and_colours:
     plot_centroid_trajectory(
@@ -220,7 +220,7 @@ distances_to_nest = nest_region.compute_distance_to(positions)
 distances_fig, distances_ax = plt.subplots(1, 1)
 for mouse_name, col in mouse_names_and_colours:
     distances_ax.plot(
-        distances_to_nest.sel(individuals=mouse_name),
+        distances_to_nest.sel(individual=mouse_name),
         c=col,
         label=mouse_name,
     )
@@ -335,7 +335,7 @@ distances_to_exterior = ring_region.exterior_boundary.compute_distance_to(
 distances_exterior_fig, distances_exterior_ax = plt.subplots(1, 1)
 for mouse_name, col in mouse_names_and_colours:
     distances_exterior_ax.plot(
-        distances_to_exterior.sel(individuals=mouse_name),
+        distances_to_exterior.sel(individual=mouse_name),
         c=col,
         label=mouse_name,
     )
@@ -409,12 +409,12 @@ allo_ax, ego_ax = angle_ax
 
 for mouse_name, col in mouse_names_and_colours:
     allo_ax.plot(
-        allocentric_angles.sel(individuals=mouse_name),
+        allocentric_angles.sel(individual=mouse_name),
         c=col,
         label=mouse_name,
     )
     ego_ax.plot(
-        egocentric_angles.sel(individuals=mouse_name),
+        egocentric_angles.sel(individual=mouse_name),
         c=col,
         label=mouse_name,
     )

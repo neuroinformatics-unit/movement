@@ -134,7 +134,8 @@ def _fetch_metadata(
                 f"{failed_msg} Will use the existing local version instead."
             )
         else:
-            raise logger.exception(RequestException(failed_msg)) from exc_info
+            logger.exception(failed_msg)
+            raise RequestException(failed_msg) from exc_info
 
     with open(local_file_path) as metadata_file:
         metadata = yaml.safe_load(metadata_file)
@@ -242,11 +243,13 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     """
     available_data_files = list_datasets()
     if filename not in available_data_files:
-        raise logger.error(
-            ValueError(
-                f"File '{filename}' is not in the registry. "
-                f"Valid filenames are: {available_data_files}"
-            )
+        logger.error(
+            f"File '{filename}' is not in the registry. "
+            f"Valid filenames are: {available_data_files}"
+        )
+        raise ValueError(
+            f"File '{filename}' is not in the registry. "
+            f"Valid filenames are: {available_data_files}"
         )
 
     frame_file_name = metadata[filename]["frame"]["file_name"]
@@ -323,10 +326,9 @@ def fetch_dataset(
     """
     # If the filename start with "TRex", raise an NotImplementedError
     if filename.startswith("TRex"):
-        raise logger.error(
-            NotImplementedError(
-                "The loading of TRex datasets is not implemented yet."
-            )
+        logger.error("The loading of TRex datasets is not implemented yet.")
+        raise NotImplementedError(
+            "The loading of TRex datasets is not implemented yet."
         )
 
     file_paths = fetch_dataset_paths(filename, with_video=with_video)

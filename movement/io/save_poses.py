@@ -212,11 +212,13 @@ def to_dlc_file(
         split_individuals = _auto_split_individuals(ds)
 
     elif not isinstance(split_individuals, bool):
-        raise logger.error(
-            ValueError(
-                "Expected 'split_individuals' to be a boolean or 'auto', "
-                f"but got {type(split_individuals)}."
-            )
+        logger.error(
+            f"Expected 'split_individuals' to be a boolean or 'auto', "
+            f"but got {type(split_individuals)}."
+        )
+        raise ValueError(
+            f"Expected 'split_individuals' to be a boolean or 'auto', "
+            f"but got {type(split_individuals)}."
         )
 
     if split_individuals:

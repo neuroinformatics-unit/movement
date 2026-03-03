@@ -5,7 +5,7 @@ import pytest
 import xarray as xr
 from attrs import define, field, validators
 from pytest import DATA_PATHS
-from requests_cache import Path
+from pathlib import Path
 
 from movement.io import load
 
