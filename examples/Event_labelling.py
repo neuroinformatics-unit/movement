@@ -26,8 +26,6 @@ compatible format.
 # %%
 # Imports
 # -------
-import io
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -126,6 +124,8 @@ ds_2D = sample_data.fetch_dataset(
 
 # %%
 # sphinx_gallery_start_ignore
+import io  # noqa: E402
+
 csv_data = """\
 Behavior,Start (s),Stop (s)
 FL_unknown,0.000,0.627
