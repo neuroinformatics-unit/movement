@@ -313,8 +313,8 @@ def fetch_dataset(
     >>> ds = fetch_dataset(
         "DLC_single-mouse_EPM.predictions.h5", with_video=True
     )
-    >>> frame_path = ds.video_path
-    >>> video_path = ds.frame_path
+    >>> frame_path = ds.frame_path
+    >>> video_path = ds.video_path
 
     See Also
     --------
