@@ -1,17 +1,20 @@
 """Save movement datasets to zarr format."""
 
 from pathlib import Path
+from typing import Literal
 
 import xarray as xr
 
 from movement.utils.logging import logger
+
+ZarrWriteMode = Literal["w", "w-", "a", "a-", "r+", "r"]
 
 
 def to_zarr(
     ds: xr.Dataset,
     store: str | Path,
     *,
-    mode: str = "w",
+    mode: ZarrWriteMode = "w",
     **kwargs,
 ) -> None:
     """Save a movement dataset to a zarr store.
