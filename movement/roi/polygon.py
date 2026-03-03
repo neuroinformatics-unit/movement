@@ -74,11 +74,13 @@ class PolygonOfInterest(BaseRegionOfInterest[RegionLike]):
 
         """
         if len(exterior_boundary) < 3:
-            raise logger.error(
-                ValueError(
-                    f"Need at least 3 points to define a "
-                    f"2D region (got {len(exterior_boundary)})."
-                )
+            logger.error(
+                f"Need at least 3 points to define a "
+                f"2D region (got {len(exterior_boundary)})."
+            )
+            raise ValueError(
+                f"Need at least 3 points to define a "
+                f"2D region (got {len(exterior_boundary)})."
             )
         polygon: RegionLike = shapely.Polygon(
             shell=exterior_boundary, holes=holes

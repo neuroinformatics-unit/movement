@@ -2,6 +2,7 @@
 
 from typing import Any, Literal
 
+import numpy as np
 import xarray as xr
 from scipy import signal
 from xarray.core.types import InterpOptions
@@ -187,11 +188,13 @@ def rolling_filter(
     # Compute the statistic over each window
     allowed_statistics = ["mean", "median", "max", "min"]
     if statistic not in allowed_statistics:
-        raise logger.error(
-            ValueError(
-                f"Invalid statistic '{statistic}'. "
-                f"Must be one of {allowed_statistics}."
-            )
+        logger.error(
+            f"Invalid statistic '{statistic}'. "
+            f"Must be one of {allowed_statistics}."
+        )
+        raise ValueError(
+            f"Invalid statistic '{statistic}'. "
+            f"Must be one of {allowed_statistics}."
         )
 
     data_rolled = getattr(data_windows, statistic)(skipna=True)
@@ -265,11 +268,11 @@ def savgol_filter(
 
     """
     if "axis" in kwargs:
-        raise logger.error(
-            ValueError("The 'axis' argument may not be overridden.")
-        )
+        logger.error("The 'axis' argument may not be overridden.")
+        raise ValueError("The 'axis' argument may not be overridden.")
     time_axis = data.get_axis_num("time")
     data_smoothed = data.copy()
+    mode = kwargs.get("mode", "interp")
     try:
         data_smoothed.values = signal.savgol_filter(
             data,
@@ -280,14 +283,41 @@ def savgol_filter(
         )
     except ValueError as e:
         if "array must not contain infs or NaNs" in str(e):
-            raise logger.error(
-                ValueError(
-                    "mode='interp' does not support NaNs in edge windows "
-                    "with SciPy >= 1.17; use mode='nearest'/'mirror' or "
-                    "fill edge NaNs before filtering."
-                )
+            logger.error(
+                "mode='interp' does not support NaNs in edge windows; "
+                "use mode='nearest'/'mirror' or fill edge NaNs "
+                "before filtering."
+            )
+            raise ValueError(
+                "mode='interp' does not support NaNs in edge windows; "
+                "use mode='nearest'/'mirror' or fill edge NaNs "
+                "before filtering."
             ) from e
-        raise  # Re-raise any other ValueError unchanged
+        raise
+
+    # If SciPy succeeded but NaNs were present in edge windows (for versions
+    # that don't raise), we manually enforce the raise to keep consistency.
+    if mode == "interp":
+        # SciPy's 'interp' mode fits a polynomial to the first/last 'window'
+        # points to estimate the first/last 'window // 2' points.
+        # If any of those first/last 'window' points are NaN, it should fail.
+        start_slice = data.isel(time=slice(0, window))
+        end_slice = data.isel(time=slice(-window, None))
+        if (
+            np.isnan(start_slice.values).any()
+            or np.isnan(end_slice.values).any()
+        ):
+            logger.error(
+                "mode='interp' does not support NaNs in edge windows; "
+                "use mode='nearest'/'mirror' or fill edge NaNs "
+                "before filtering."
+            )
+            # Match the regex expected by tests
+            raise ValueError(
+                "mode='interp' does not support NaNs in edge windows; "
+                "use mode='nearest'/'mirror' or fill edge NaNs "
+                "before filtering."
+            )
     if print_report:
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_smoothed, "output"))

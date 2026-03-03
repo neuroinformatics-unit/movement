@@ -1,11 +1,11 @@
 from contextlib import nullcontext as does_not_raise
+from pathlib import Path
 from typing import ClassVar
 
 import pytest
 import xarray as xr
 from attrs import define, field, validators
 from pytest import DATA_PATHS
-from requests_cache import Path
 
 from movement.io import load
 

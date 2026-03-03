@@ -128,13 +128,13 @@ def test_scale(
     [
         (["time", "space"], (3, 2)),
         (["space", "time"], (2, 3)),
-        (["time", "individuals", "keypoints", "space"], (3, 6, 4, 2)),
-        (["time", "individuals", "keypoints", "space"], (2, 2, 2, 2)),
+        (["time", "individual", "keypoint", "space"], (3, 6, 4, 2)),
+        (["time", "individual", "keypoint", "space"], (2, 2, 2, 2)),
     ],
     ids=[
         "time-space",
         "space-time",
-        "time-individuals-keypoints-space",
+        "time-individual-keypoint-space",
         "2x2x2x2",
     ],
 )
@@ -473,30 +473,26 @@ def test_poses_to_bboxes(valid_poses_dataset, padding, expected_shape):
     pos_da, shape_da = poses_to_bboxes(position, padding=padding)
 
     # Check dimensions and coordinates
-    assert pos_da.dims == ("time", "space", "individuals")
-    assert shape_da.dims == ("time", "space", "individuals")
+    assert pos_da.dims == ("time", "space", "individual")
+    assert shape_da.dims == ("time", "space", "individual")
     assert list(pos_da.coords["space"].values) == ["x", "y"]
-    assert list(pos_da.coords["individuals"].values) == ["id_0", "id_1"]
+    assert list(pos_da.coords["individual"].values) == ["id_0", "id_1"]
     np.testing.assert_array_equal(
         pos_da.coords["time"].values, position.coords["time"].values
     )
     # keypoints dimension must be gone
-    assert "keypoints" not in pos_da.dims
-    assert "keypoints" not in shape_da.dims
+    assert "keypoint" not in pos_da.dims
+    assert "keypoint" not in shape_da.dims
 
     # At frame 0:
     #   id_0 keypoints: centroid (0,0), left (0,1), right (1,0)
     #     -> bbox centroid (0.5, 0.5), shape (1, 1) + padding
     #   id_1 keypoints: centroid (0,0), left (-1,0), right (0,1)
     #     -> bbox centroid (-0.5, 0.5), shape (1, 1) + padding
-    assert np.allclose(pos_da.sel(time=0, individuals="id_0"), [0.5, 0.5])
-    assert np.allclose(
-        shape_da.sel(time=0, individuals="id_0"), expected_shape
-    )
-    assert np.allclose(pos_da.sel(time=0, individuals="id_1"), [-0.5, 0.5])
-    assert np.allclose(
-        shape_da.sel(time=0, individuals="id_1"), expected_shape
-    )
+    assert np.allclose(pos_da.sel(time=0, individual="id_0"), [0.5, 0.5])
+    assert np.allclose(shape_da.sel(time=0, individual="id_0"), expected_shape)
+    assert np.allclose(pos_da.sel(time=0, individual="id_1"), [-0.5, 0.5])
+    assert np.allclose(shape_da.sel(time=0, individual="id_1"), expected_shape)
 
 
 @pytest.mark.parametrize(
@@ -517,7 +513,7 @@ def test_poses_to_bboxes_single_keypoint(valid_poses_dataset):
 
     # The bbox centroid should match the original "centroid" keypoint
     np.testing.assert_allclose(
-        pos_da.values, position.sel(keypoints="centroid").values
+        pos_da.values, position.sel(keypoint="centroid").values
     )
 
 
@@ -529,11 +525,11 @@ def test_poses_to_bboxes_with_nan(valid_poses_dataset):
     position = valid_poses_dataset.position.copy(deep=True)
 
     # Set "left" keypoint of id_0 at frame 0 to NaN
-    position.loc[{"time": 0, "individuals": "id_0", "keypoints": "left"}] = (
+    position.loc[{"time": 0, "individual": "id_0", "keypoint": "left"}] = (
         np.nan
     )
     # Set "right" keypoint of id_1 at frame 1 to NaN
-    position.loc[{"time": 1, "individuals": "id_1", "keypoints": "right"}] = (
+    position.loc[{"time": 1, "individual": "id_1", "keypoint": "right"}] = (
         np.nan
     )
 
@@ -542,14 +538,14 @@ def test_poses_to_bboxes_with_nan(valid_poses_dataset):
     # Frame 0, id_0: "left" is NaN,
     # remaining: centroid (x=0,y=0), right (x=1,y=0)
     # -> min (0,0), max (1,0) -> centroid (0.5, 0), shape (1, 0)
-    assert np.allclose(pos_da.sel(time=0, individuals="id_0"), [0.5, 0.0])
-    assert np.allclose(shape_da.sel(time=0, individuals="id_0"), [1.0, 0.0])
+    assert np.allclose(pos_da.sel(time=0, individual="id_0"), [0.5, 0.0])
+    assert np.allclose(shape_da.sel(time=0, individual="id_0"), [1.0, 0.0])
 
     # Frame 1, id_1: "right" is NaN,
     # remaining: centroid (x=1,y=-1), left (x=0,y=-1)
     # -> min (0,-1), max (1,-1) -> centroid (0.5, -1), shape (1, 0)
-    assert np.allclose(pos_da.sel(time=1, individuals="id_1"), [0.5, -1.0])
-    assert np.allclose(shape_da.sel(time=1, individuals="id_1"), [1.0, 0.0])
+    assert np.allclose(pos_da.sel(time=1, individual="id_1"), [0.5, -1.0])
+    assert np.allclose(shape_da.sel(time=1, individual="id_1"), [1.0, 0.0])
 
 
 def test_poses_to_bboxes_all_nan_frame(valid_poses_dataset):
@@ -561,25 +557,25 @@ def test_poses_to_bboxes_all_nan_frame(valid_poses_dataset):
     position = valid_poses_dataset.position.copy(deep=True)
 
     # Set all keypoints to NaN for id_0 at frame 1
-    position.sel(time=1, individuals="id_0").values[:] = np.nan
+    position.sel(time=1, individual="id_0").values[:] = np.nan
 
     pos_da, shape_da = poses_to_bboxes(position)
 
     # Frame 1, id_0 should be all NaN
-    assert np.all(np.isnan(pos_da.sel(time=1, individuals="id_0").values))
-    assert np.all(np.isnan(shape_da.sel(time=1, individuals="id_0").values))
+    assert np.all(np.isnan(pos_da.sel(time=1, individual="id_0").values))
+    assert np.all(np.isnan(shape_da.sel(time=1, individual="id_0").values))
 
     # Frame 0, id_0 should be unaffected: centroid (0.5, 0.5), shape (1, 1)
-    assert np.allclose(pos_da.sel(time=0, individuals="id_0"), [0.5, 0.5])
-    assert np.allclose(shape_da.sel(time=0, individuals="id_0"), [1.0, 1.0])
+    assert np.allclose(pos_da.sel(time=0, individual="id_0"), [0.5, 0.5])
+    assert np.allclose(shape_da.sel(time=0, individual="id_0"), [1.0, 1.0])
 
     # Frame 0, id_1 should be unaffected: centroid (-0.5, 0.5), shape (1, 1)
-    assert np.allclose(pos_da.sel(time=0, individuals="id_1"), [-0.5, 0.5])
-    assert np.allclose(shape_da.sel(time=0, individuals="id_1"), [1.0, 1.0])
+    assert np.allclose(pos_da.sel(time=0, individual="id_1"), [-0.5, 0.5])
+    assert np.allclose(shape_da.sel(time=0, individual="id_1"), [1.0, 1.0])
 
     # Frame 1, id_1 should be unaffected: centroid (0.5, -0.5), shape (1, 1)
-    assert np.allclose(pos_da.sel(time=1, individuals="id_1"), [0.5, -0.5])
-    assert np.allclose(shape_da.sel(time=1, individuals="id_1"), [1.0, 1.0])
+    assert np.allclose(pos_da.sel(time=1, individual="id_1"), [0.5, -0.5])
+    assert np.allclose(shape_da.sel(time=1, individual="id_1"), [1.0, 1.0])
 
 
 def test_poses_to_bboxes_partial_nan_keypoints():
@@ -604,12 +600,12 @@ def test_poses_to_bboxes_partial_nan_keypoints():
     )
     position = xr.DataArray(
         data,
-        dims=("time", "space", "keypoints", "individuals"),
+        dims=("time", "space", "keypoint", "individual"),
         coords={
             "time": np.arange(2),
             "space": ["x", "y"],
-            "keypoints": ["kpt_0", "kpt_1", "kpt_2"],
-            "individuals": ["id_0"],
+            "keypoint": ["kpt_0", "kpt_1", "kpt_2"],
+            "individual": ["id_0"],
         },
     )
 
@@ -619,34 +615,34 @@ def test_poses_to_bboxes_partial_nan_keypoints():
     # Frame 0: middle keypoint should be ignored (y is NaN)
     # Valid keypoints (x,y): (1,1), (3,3)
     # -> centroid (2, 2), shape (2, 2)
-    assert np.allclose(pos_da.sel(time=0, individuals="id_0"), [2.0, 2.0])
-    assert np.allclose(shape_da.sel(time=0, individuals="id_0"), [2.0, 2.0])
+    assert np.allclose(pos_da.sel(time=0, individual="id_0"), [2.0, 2.0])
+    assert np.allclose(shape_da.sel(time=0, individual="id_0"), [2.0, 2.0])
 
     # Frame 1: all keypoints valid
     # Valid keypoints (x,y): (1,1), (2,2), (3,3)
     # -> centroid (2, 2), shape (2, 2)
-    assert np.allclose(pos_da.sel(time=1, individuals="id_0"), [2.0, 2.0])
-    assert np.allclose(shape_da.sel(time=1, individuals="id_0"), [2.0, 2.0])
+    assert np.allclose(pos_da.sel(time=1, individual="id_0"), [2.0, 2.0])
+    assert np.allclose(shape_da.sel(time=1, individual="id_0"), [2.0, 2.0])
 
 
 def test_poses_to_bboxes_degenerate_bbox():
     """Test when all keypoints are co-located produces a zero-size bbox."""
     position = xr.DataArray(
         np.full((2, 2, 3, 1), 5.0),
-        dims=("time", "space", "keypoints", "individuals"),
+        dims=("time", "space", "keypoint", "individual"),
         coords={
             "time": np.arange(2),
             "space": ["x", "y"],
-            "keypoints": ["kpt_0", "kpt_1", "kpt_2"],
-            "individuals": ["id_0"],
+            "keypoint": ["kpt_0", "kpt_1", "kpt_2"],
+            "individual": ["id_0"],
         },
     )
 
     pos_da, shape_da = poses_to_bboxes(position)
 
     # Centroid should match the co-located keypoints, shape should be zero
-    assert np.allclose(pos_da.sel(individuals="id_0"), [5.0, 5.0])
-    assert np.allclose(shape_da.sel(individuals="id_0"), [0.0, 0.0])
+    assert np.allclose(pos_da.sel(individual="id_0"), [5.0, 5.0])
+    assert np.allclose(shape_da.sel(individual="id_0"), [0.0, 0.0])
 
 
 @pytest.mark.parametrize(
@@ -655,12 +651,12 @@ def test_poses_to_bboxes_degenerate_bbox():
         (
             xr.DataArray(
                 np.full((2, 3, 2, 1), 5.0),
-                dims=("time", "space", "keypoints", "individuals"),
+                dims=("time", "space", "keypoint", "individual"),
                 coords={
                     "time": np.arange(2),
                     "space": ["x", "y", "z"],
-                    "keypoints": ["kpt_0", "kpt_1"],
-                    "individuals": ["id_0"],
+                    "keypoint": ["kpt_0", "kpt_1"],
+                    "individual": ["id_0"],
                 },
             ),
             ValueError,

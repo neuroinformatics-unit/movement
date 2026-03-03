@@ -91,36 +91,41 @@ def _file_validator(
 def _file_is_not_dir(_, __, value: Path) -> None:
     """Ensure the file does not point to a directory."""
     if value.is_dir():
-        raise logger.error(
-            IsADirectoryError(
-                f"Expected a file path but got a directory: {value}."
-            )
+        logger.error(f"Expected a file path but got a directory: {value}.")
+        raise IsADirectoryError(
+            f"Expected a file path but got a directory: {value}."
         )
 
 
 def _file_is_readable(value: Path) -> None:
     """Ensure the file exists and is readable."""
     if not value.exists():
-        raise logger.error(FileNotFoundError(f"File {value} does not exist."))
+        logger.error(f"File {value} does not exist.")
+        raise FileNotFoundError(f"File {value} does not exist.")
     if not os.access(value, os.R_OK):
-        raise logger.error(
-            PermissionError(
-                f"Unable to read file: {value}. "
-                "Make sure that you have read permissions."
-            )
+        logger.error(
+            f"Unable to read file: {value}. "
+            "Make sure that you have read permissions."
+        )
+        raise PermissionError(
+            f"Unable to read file: {value}. "
+            "Make sure that you have read permissions."
         )
 
 
 def _file_is_writable(value: Path) -> None:
     """Ensure the file does not exist and parent directory is writable."""
     if value.exists():
-        raise logger.error(FileExistsError(f"File {value} already exists."))
+        logger.error(f"File {value} already exists.")
+        raise FileExistsError(f"File {value} already exists.")
     if not os.access(value.parent, os.W_OK):
-        raise logger.error(
-            PermissionError(
-                f"Unable to write to file: {value}. "
-                "Make sure that you have write permissions."
-            )
+        logger.error(
+            f"Unable to write to file: {value}. "
+            "Make sure that you have write permissions."
+        )
+        raise PermissionError(
+            f"Unable to write to file: {value}. "
+            "Make sure that you have write permissions."
         )
 
 
@@ -129,11 +134,13 @@ def _file_is_accessible(
 ) -> Callable[[Any, Any, Path], None]:
     """Ensure the file can be accessed with the expected permission(s)."""
     if expected_permission not in {"r", "w", "rw"}:
-        raise logger.error(
-            ValueError(
-                f"expected_permission must be one of 'r', 'w', or 'rw', "
-                f"but got '{expected_permission}' instead."
-            )
+        logger.error(
+            f"expected_permission must be one of 'r', 'w', or 'rw', "
+            f"but got '{expected_permission}' instead."
+        )
+        raise ValueError(
+            f"expected_permission must be one of 'r', 'w', or 'rw', "
+            f"but got '{expected_permission}' instead."
         )
 
     def _validator(_, __, value: Path) -> None:
@@ -152,11 +159,13 @@ def _file_has_expected_suffix(
 
     def _validator(_, __, value: Path) -> None:
         if value.suffix not in suffixes:
-            raise logger.error(
-                ValueError(
-                    f"Expected file with suffix(es) {suffixes} "
-                    f"but got suffix {value.suffix} instead."
-                )
+            logger.error(
+                f"Expected file with suffix(es) {suffixes} "
+                f"but got suffix {value.suffix} instead."
+            )
+            raise ValueError(
+                f"Expected file with suffix(es) {suffixes} "
+                f"but got suffix {value.suffix} instead."
             )
 
     return _validator
@@ -189,12 +198,15 @@ def _hdf5_validator(
             with h5py.File(value, "r") as f:
                 diff = set(datasets).difference(set(f.keys()))
                 if len(diff) > 0:
-                    raise logger.error(
-                        ValueError(
-                            f"Could not find the expected dataset(s) {diff} "
-                            f"in file: {value}. Make sure that the file "
-                            "matches the expected source software format."
-                        )
+                    logger.error(
+                        f"Could not find the expected dataset(s) {diff} "
+                        f"in file: {value}. Make sure that the file "
+                        "matches the expected source software format."
+                    )
+                    raise ValueError(
+                        f"Could not find the expected dataset(s) {diff} "
+                        f"in file: {value}. Make sure that the file "
+                        "matches the expected source software format."
                     )
         except OSError as e:
             raise logger.error(
@@ -805,13 +817,17 @@ class ValidVIATracksCSV:
             if len(set(list_track_ids_one_filename)) != len(
                 list_track_ids_one_filename
             ):
-                raise logger.error(
-                    ValueError(
-                        f"{file}: "
-                        "multiple bounding boxes in this file "
-                        "have the same track ID. "
-                        "Please review the VIA tracks .csv file."
-                    )
+                logger.error(
+                    f"{file}: "
+                    "multiple bounding boxes in this file "
+                    "have the same track ID. "
+                    "Please review the VIA tracks .csv file."
+                )
+                raise ValueError(
+                    f"{file}: "
+                    "multiple bounding boxes in this file "
+                    "have the same track ID. "
+                    "Please review the VIA tracks .csv file."
                 )
 
 
@@ -862,12 +878,15 @@ def _check_roi_type_matches_geometry(data: Mapping[str, Any]) -> None:
         expected_geom_types = ROI_TYPE_TO_GEOMETRY.get(roi_type, ())
 
         if geom_type not in expected_geom_types:
-            raise logger.error(
-                TypeError(
-                    f"Feature {i}: roi_type '{roi_type}' "
-                    f"does not match geometry type "
-                    f"'{geom_type}'"
-                )
+            logger.error(
+                f"Feature {i}: roi_type '{roi_type}' "
+                f"does not match geometry type "
+                f"'{geom_type}'"
+            )
+            raise TypeError(
+                f"Feature {i}: roi_type '{roi_type}' "
+                f"does not match geometry type "
+                f"'{geom_type}'"
             )
 
 

@@ -120,9 +120,16 @@ def test_source_software_combo_connected_to_handler(
     [Points, Image, Tracks, Labels, Shapes, Surface, Vectors],
 )
 def test_on_layer_added_and_deleted(
-    layer_type, sample_layer_data, make_napari_viewer_proxy, mocker
+    layer_type,
+    sample_layer_data,
+    make_napari_viewer_proxy,
+    mocker,
+    monkeypatch,
 ):
     """Test the frame slider update is called when a layer is added/removed."""
+    # Set VisPy texture atlas size to a smaller value to avoid memory errors
+    monkeypatch.setenv("VISPY_TEXTURE_ATLAS_SIZE", "512")
+
     # Create a mock napari viewer
     data_loader_widget = DataLoader(make_napari_viewer_proxy())
 
@@ -549,8 +556,8 @@ def test_dimension_slider_with_nans(
     # Check the data contains nans where expected
     assert (
         ds.position.sel(
-            individuals=nan_location["individuals"],
-            keypoints=nan_location["keypoints"],
+            individual=nan_location["individuals"],
+            keypoint=nan_location["keypoints"],
             time=expected_frame,
         )
         .isnull()

@@ -139,10 +139,11 @@ def _validate_file(
         file_suffix = Path(file).suffix
     validator_cls = suffix_map.get(file_suffix)
     if validator_cls is None:
-        raise logger.error(
-            ValueError(
-                f"Unsupported format for '{source_software}': {file_suffix}."
-            )
+        logger.error(
+            f"Unsupported format for '{source_software}': {file_suffix}."
+        )
+        raise ValueError(
+            f"Unsupported format for '{source_software}': {file_suffix}."
         )
 
     validator_kwargs = _get_validator_kwargs(
@@ -282,9 +283,8 @@ def load_dataset(
 
     """
     if source_software not in _LOADER_REGISTRY:
-        raise logger.error(
-            ValueError(f"Unsupported source software: {source_software}")
-        )
+        logger.error(f"Unsupported source software: {source_software}")
+        raise ValueError(f"Unsupported source software: {source_software}")
     if source_software == "NWB":
         if fps is not None:
             logger.warning(

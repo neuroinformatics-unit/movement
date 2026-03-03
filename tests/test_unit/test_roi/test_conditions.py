@@ -140,7 +140,7 @@ def test_region_occupancy_multiple_dims(triangle, two_individuals):
     output_dims = set(occupancies.dims)
     shared_dims = input_dims & output_dims
 
-    assert shared_dims == {"time", "keypoints", "individuals"}
+    assert shared_dims == {"time", "keypoint", "individual"}
     assert input_dims - output_dims == {"space"}  # 'space' is removed
     assert output_dims - input_dims == {"region"}  # 'region' is added
     assert occupancies.region.shape == (len(regions),)

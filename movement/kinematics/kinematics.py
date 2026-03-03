@@ -48,11 +48,11 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
 
     """
     if not isinstance(order, int):
-        raise logger.error(
-            TypeError(f"Order must be an integer, but got {type(order)}.")
-        )
+        logger.error(f"Order must be an integer, but got {type(order)}.")
+        raise TypeError(f"Order must be an integer, but got {type(order)}.")
     if order <= 0:
-        raise logger.error(ValueError("Order must be a positive integer."))
+        logger.error("Order must be a positive integer.")
+        raise ValueError("Order must be a positive integer.")
     validate_dims_coords(data, {"time": []})
     result = data
     for _ in range(order):
@@ -391,12 +391,15 @@ def compute_path_length(
     # Check that the data is not empty or too short
     n_time = data.sizes["time"]
     if n_time < 2:
-        raise logger.error(
-            ValueError(
-                "At least 2 time points are required to compute path length, "
-                f"but {n_time} were found. "
-                "Double-check the start and stop times."
-            )
+        logger.error(
+            "At least 2 time points are required to compute path length, "
+            f"but {n_time} were found. "
+            "Double-check the start and stop times."
+        )
+        raise ValueError(
+            "At least 2 time points are required to compute path length, "
+            f"but {n_time} were found. "
+            "Double-check the start and stop times."
         )
 
     _warn_about_nan_proportion(data, nan_warn_threshold)
@@ -410,11 +413,13 @@ def compute_path_length(
     elif nan_policy == "scale":
         result = _compute_scaled_path_length(data)
     else:
-        raise logger.error(
-            ValueError(
-                f"Invalid value for nan_policy: {nan_policy}. "
-                "Must be one of 'ffill' or 'scale'."
-            )
+        logger.error(
+            f"Invalid value for nan_policy: {nan_policy}. "
+            "Must be one of 'ffill' or 'scale'."
+        )
+        raise ValueError(
+            f"Invalid value for nan_policy: {nan_policy}. "
+            "Must be one of 'ffill' or 'scale'."
         )
 
     result.name = "path_length"
@@ -442,9 +447,8 @@ def _warn_about_nan_proportion(
     """
     nan_warn_threshold = float(nan_warn_threshold)
     if not 0 <= nan_warn_threshold <= 1:
-        raise logger.error(
-            ValueError("nan_warn_threshold must be between 0 and 1.")
-        )
+        logger.error("nan_warn_threshold must be between 0 and 1.")
+        raise ValueError("nan_warn_threshold must be between 0 and 1.")
     n_nans = data.isnull().any(dim="space").sum(dim="time")
     data_to_warn_about = data.where(
         n_nans >= data.sizes["time"] * nan_warn_threshold, drop=True

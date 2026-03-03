@@ -51,7 +51,7 @@ def compute_forward_vector(
     xarray.DataArray
         An xarray DataArray representing the forward vector, with
         dimensions matching the input data array, but without the
-        ``keypoints`` dimension.
+        ``keypoint`` dimension.
 
     Notes
     -----
@@ -80,26 +80,27 @@ def compute_forward_vector(
         data,
         {
             "time": [],
-            "keypoints": [left_keypoint, right_keypoint],
+            "keypoint": [left_keypoint, right_keypoint],
             "space": [],
         },
     )
     if len(data.space) != 2:
-        raise logger.error(
-            ValueError(
-                "Input data must have exactly 2 spatial dimensions, but "
-                f"currently has {len(data.space)}."
-            )
+        logger.error(
+            "Input data must have exactly 2 spatial dimensions, but "
+            f"currently has {len(data.space)}."
+        )
+        raise ValueError(
+            "Input data must have exactly 2 spatial dimensions, but "
+            f"currently has {len(data.space)}."
         )
     # Validate input keypoints
     if left_keypoint == right_keypoint:
-        raise logger.error(
-            ValueError("The left and right keypoints may not be identical.")
-        )
+        logger.error("The left and right keypoints may not be identical.")
+        raise ValueError("The left and right keypoints may not be identical.")
     # Define right-to-left vector
     right_to_left_vector = data.sel(
-        keypoints=left_keypoint, drop=True
-    ) - data.sel(keypoints=right_keypoint, drop=True)
+        keypoint=left_keypoint, drop=True
+    ) - data.sel(keypoint=right_keypoint, drop=True)
     # Define upward vector
     # default: negative z direction in the image coordinate system
     upward_vector_arr = (
@@ -163,7 +164,7 @@ def compute_head_direction_vector(
     xarray.DataArray
         An xarray DataArray representing the head direction vector, with
         dimensions matching the input data array, but without the
-        ``keypoints`` dimension.
+        ``keypoint`` dimension.
 
     """
     result = compute_forward_vector(
@@ -224,7 +225,7 @@ def compute_forward_vector_angle(
     xarray.DataArray
         An xarray DataArray containing the computed forward vector angles,
         with dimensions matching the input data array,
-        but without the ``keypoints`` and ``space`` dimensions.
+        but without the ``keypoint`` and ``space`` dimensions.
 
     See Also
     --------
@@ -273,9 +274,9 @@ def _validate_type_data_array(data: xr.DataArray) -> None:
 
     """
     if not isinstance(data, xr.DataArray):
-        raise logger.error(
-            TypeError(
-                "Input data must be an xarray.DataArray, "
-                f"but got {type(data)}."
-            )
+        logger.error(
+            f"Input data must be an xarray.DataArray, but got {type(data)}."
+        )
+        raise TypeError(
+            f"Input data must be an xarray.DataArray, but got {type(data)}."
         )

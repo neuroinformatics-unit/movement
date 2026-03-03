@@ -30,8 +30,9 @@ def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
     elif isinstance(value, Iterable):
         return [str(item) for item in value]
     else:
-        raise logger.error(
-            ValueError(f"Invalid value ({value}). Expected a list of strings.")
+        logger.error(f"Invalid value ({value}). Expected a list of strings.")
+        raise ValueError(
+            f"Invalid value ({value}). Expected a list of strings."
         )
 
 
@@ -103,9 +104,9 @@ class _BaseDatasetInputs(ABC):
                 "Setting to an array of NaNs."
             )
         # individual_names default: id_0, id_1, ...
-        if self.individual_names is None and "individuals" in self.DIM_NAMES:
+        if self.individual_names is None and "individual" in self.DIM_NAMES:
             n_inds = self.position_array.shape[
-                self.DIM_NAMES.index("individuals")
+                self.DIM_NAMES.index("individual")
             ]
             self.individual_names = [f"id_{i}" for i in range(n_inds)]
             logger.info(
@@ -131,11 +132,13 @@ class _BaseDatasetInputs(ABC):
         # Check array dimensions match the number of DIM_NAMES
         expected_ndim = len(self.DIM_NAMES)
         if value.ndim != expected_ndim:
-            raise logger.error(
-                ValueError(
-                    f"Expected '{attribute.name}' to have "
-                    f"{expected_ndim} dimensions, but got {value.ndim}."
-                )
+            logger.error(
+                f"Expected '{attribute.name}' to have "
+                f"{expected_ndim} dimensions, but got {value.ndim}."
+            )
+            raise ValueError(
+                f"Expected '{attribute.name}' to have "
+                f"{expected_ndim} dimensions, but got {value.ndim}."
             )
         # Check size of 'space' dimension
         allowed_axis_size = self._ALLOWED_SPACE_DIM_SIZE
@@ -146,11 +149,13 @@ class _BaseDatasetInputs(ABC):
             allowed_dims_str = " or ".join(
                 str(dim) for dim in allowed_axis_size
             )
-            raise logger.error(
-                ValueError(
-                    f"Expected '{attribute.name}' to have {allowed_dims_str} "
-                    f"spatial dimensions, but got {space_dim_size}."
-                )
+            logger.error(
+                f"Expected '{attribute.name}' to have {allowed_dims_str} "
+                f"spatial dimensions, but got {space_dim_size}."
+            )
+            raise ValueError(
+                f"Expected '{attribute.name}' to have {allowed_dims_str} "
+                f"spatial dimensions, but got {space_dim_size}."
             )
 
     @confidence_array.validator
@@ -166,7 +171,7 @@ class _BaseDatasetInputs(ABC):
     def _validate_individual_names(self, attribute, value):
         """Validate individual_names length and uniqueness."""
         if value is not None:
-            individuals_dim_index = self.DIM_NAMES.index("individuals")
+            individuals_dim_index = self.DIM_NAMES.index("individual")
             self._validate_list_length(
                 attribute,
                 value,
@@ -181,11 +186,13 @@ class _BaseDatasetInputs(ABC):
     ):
         """Raise ValueError if the value does not have the expected shape."""
         if value.shape != expected_shape:
-            raise logger.error(
-                ValueError(
-                    f"Expected '{attribute.name}' to have shape "
-                    f"{expected_shape}, but got {value.shape}."
-                )
+            logger.error(
+                f"Expected '{attribute.name}' to have shape "
+                f"{expected_shape}, but got {value.shape}."
+            )
+            raise ValueError(
+                f"Expected '{attribute.name}' to have shape "
+                f"{expected_shape}, but got {value.shape}."
             )
 
     @staticmethod
@@ -194,11 +201,13 @@ class _BaseDatasetInputs(ABC):
     ):
         """Raise a ValueError if the list does not have the expected length."""
         if value is not None and len(value) != expected_length:
-            raise logger.error(
-                ValueError(
-                    f"Expected '{attribute.name}' to have "
-                    f"length {expected_length}, but got {len(value)}."
-                )
+            logger.error(
+                f"Expected '{attribute.name}' to have "
+                f"length {expected_length}, but got {len(value)}."
+            )
+            raise ValueError(
+                f"Expected '{attribute.name}' to have "
+                f"length {expected_length}, but got {len(value)}."
             )
 
     @staticmethod
@@ -207,12 +216,15 @@ class _BaseDatasetInputs(ABC):
     ):
         """Raise a ValueError if the list does not have unique elements."""
         if value is not None and len(value) != len(set(value)):
-            raise logger.error(
-                ValueError(
-                    f"Elements in '{attribute.name}' are not unique. "
-                    f"There are {len(value)} elements in the list, but "
-                    f"only {len(set(value))} are unique."
-                )
+            logger.error(
+                f"Elements in '{attribute.name}' are not unique. "
+                f"There are {len(value)} elements in the list, but "
+                f"only {len(set(value))} are unique."
+            )
+            raise ValueError(
+                f"Elements in '{attribute.name}' are not unique. "
+                f"There are {len(value)} elements in the list, but "
+                f"only {len(set(value))} are unique."
             )
 
     @abstractmethod
@@ -246,9 +258,8 @@ class _BaseDatasetInputs(ABC):
 
         """
         if not isinstance(ds, xr.Dataset):
-            raise logger.error(
-                TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
-            )
+            logger.error(f"Expected an xarray Dataset, but got {type(ds)}.")
+            raise TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
         missing_vars = set(cls.VAR_NAMES) - set(
             cast("Iterable[str]", ds.data_vars.keys())
         )
@@ -325,8 +336,8 @@ class ValidPosesInputs(_BaseDatasetInputs):
     DIM_NAMES: ClassVar[tuple[str, ...]] = (
         "time",
         "space",
-        "keypoints",
-        "individuals",
+        "keypoint",
+        "individual",
     )
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "confidence")
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[Iterable[int]] = (2, 3)
@@ -334,7 +345,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
         """Validate keypoint_names length and uniqueness."""
-        keypoints_dim_index = self.DIM_NAMES.index("keypoints")
+        keypoints_dim_index = self.DIM_NAMES.index("keypoint")
         self._validate_list_length(
             attribute, value, self.position_array.shape[keypoints_dim_index]
         )
@@ -344,7 +355,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
         """Assign default values to optional attributes (if None)."""
         super().__attrs_post_init__()
         position_array_shape = self.position_array.shape
-        keypoints_dim_index = self.DIM_NAMES.index("keypoints")
+        keypoints_dim_index = self.DIM_NAMES.index("keypoint")
         if self.keypoint_names is None:
             self.keypoint_names = [
                 f"keypoint_{i}"
@@ -470,7 +481,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
         validator=validators.optional(validators.instance_of(np.ndarray)),
     )
 
-    DIM_NAMES: ClassVar[tuple[str, ...]] = ("time", "space", "individuals")
+    DIM_NAMES: ClassVar[tuple[str, ...]] = ("time", "space", "individual")
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "shape", "confidence")
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[int] = 2
 

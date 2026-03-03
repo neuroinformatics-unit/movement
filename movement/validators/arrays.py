@@ -86,4 +86,5 @@ def validate_dims_coords(
                 )
 
     if error_message:
-        raise logger.error(ValueError(error_message))
+        logger.error(error_message)
+        raise ValueError(error_message)

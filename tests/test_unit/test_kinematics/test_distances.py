@@ -9,7 +9,7 @@ from movement.kinematics.distances import _cdist, compute_pairwise_distances
     "dim, expected_data",
     [
         (
-            "individuals",
+            "individual",
             np.array(
                 [
                     [
@@ -26,7 +26,7 @@ from movement.kinematics.distances import _cdist, compute_pairwise_distances
             ),
         ),
         (
-            "keypoints",
+            "keypoint",
             np.array(
                 [[[1.0, 1.0], [1.0, 1.0]], [[1.0, np.sqrt(5)], [3.0, 1.0]]]
             ),
@@ -35,7 +35,7 @@ from movement.kinematics.distances import _cdist, compute_pairwise_distances
 )
 def test_cdist_with_known_values(dim, expected_data, valid_poses_dataset):
     """Test the computation of pairwise distances with known values."""
-    labels_dim = "keypoints" if dim == "individuals" else "individuals"
+    labels_dim = "keypoint" if dim == "individual" else "individual"
     input_dataarray = valid_poses_dataset.position.sel(
         time=slice(0, 1)
     )  # Use only the first two frames for simplicity
@@ -71,37 +71,37 @@ def test_cdist_with_known_values(dim, expected_data, valid_poses_dataset):
         # bboxes: missing keypoints dim
         # e.g. comparing 2 individuals from the same data array
         lambda position: (
-            position.isel(individuals=0),
-            position.isel(individuals=1),
+            position.isel(individual=0),
+            position.isel(individual=1),
         ),
         # individuals dim is 1D
         # poses: multiple keypoints
-        # bboxes: missing keypoints dim
+        # bboxes: missing keypoint dim
         # e.g. comparing 2 single-individual data arrays
         lambda position: (
             position.where(
-                position.individuals == position.individuals[0], drop=True
+                position.individual == position.individual[0], drop=True
             ).squeeze(),
             position.where(
-                position.individuals == position.individuals[1], drop=True
+                position.individual == position.individual[1], drop=True
             ).squeeze(),
         ),
         # both individuals and keypoints dims are scalar (poses only)
         # e.g. comparing 2 individuals from the same data array,
         # at the same keypoint
         lambda position: (
-            position.isel(individuals=0, keypoints=0),
-            position.isel(individuals=1, keypoints=0),
+            position.isel(individual=0, keypoint=0),
+            position.isel(individual=1, keypoint=0),
         ),
-        # individuals dim is scalar, keypoints dim is 1D (poses only)
+        # individual dim is scalar, keypoint dim is 1D (poses only)
         # e.g. comparing 2 single-individual, single-keypoint data arrays
         lambda position: (
             position.where(
-                position.keypoints == position.keypoints[0], drop=True
-            ).isel(individuals=0),
+                position.keypoint == position.keypoint[0], drop=True
+            ).isel(individual=0),
             position.where(
-                position.keypoints == position.keypoints[0], drop=True
-            ).isel(individuals=1),
+                position.keypoint == position.keypoint[0], drop=True
+            ).isel(individual=1),
         ),
     ],
     ids=[
@@ -114,18 +114,18 @@ def test_cdist_with_known_values(dim, expected_data, valid_poses_dataset):
 def test_cdist_with_single_dim_inputs(valid_dataset, selection_fn, request):
     """Test that the pairwise distances data array is successfully
      returned regardless of whether the input DataArrays have
-    ``dim`` ("individuals") and ``labels_dim`` ("keypoints")
+    ``dim`` ("individual") and ``labels_dim`` ("keypoint")
     being either scalar (ndim=0) or 1D (ndim=1),
     or if ``labels_dim`` is missing.
     """
     if request.node.callspec.id not in [
         "labels_dim_has_ndim_0-valid_bboxes_dataset",
         "labels_dim_has_ndim_1-valid_bboxes_dataset",
-    ]:  # Skip tests with keypoints dim for bboxes
+    ]:  # Skip tests with keypoint dim for bboxes
         valid_dataset = request.getfixturevalue(valid_dataset)
         position = valid_dataset.position
         a, b = selection_fn(position)
-        result = _cdist(a, b, "individuals")
+        result = _cdist(a, b, "individual")
         assert result.name == "distance"
         assert isinstance(result, xr.DataArray)
 
@@ -133,23 +133,23 @@ def test_cdist_with_single_dim_inputs(valid_dataset, selection_fn, request):
 @pytest.mark.parametrize(
     "dim, pairs, expected_data_vars",
     [
-        ("individuals", {"id_0": ["id_1"]}, None),  # list input
-        ("individuals", {"id_0": "id_1"}, None),  # string input
+        ("individual", {"id_0": ["id_1"]}, None),  # list input
+        ("individual", {"id_0": "id_1"}, None),  # string input
         (
-            "individuals",
+            "individual",
             {"id_0": ["id_1"], "id_1": "id_0"},
             [("id_0", "id_1"), ("id_1", "id_0")],
         ),
-        ("individuals", "all", None),  # all pairs
-        ("keypoints", {"centroid": ["left"]}, None),  # list input
-        ("keypoints", {"centroid": "left"}, None),  # string input
+        ("individual", "all", None),  # all pairs
+        ("keypoint", {"centroid": ["left"]}, None),  # list input
+        ("keypoint", {"centroid": "left"}, None),  # string input
         (
-            "keypoints",
+            "keypoint",
             {"centroid": ["left"], "left": "right"},
             [("centroid", "left"), ("left", "right")],
         ),
         (
-            "keypoints",
+            "keypoint",
             "all",
             [("centroid", "left"), ("centroid", "right"), ("left", "right")],
         ),  # all pairs
@@ -187,14 +187,14 @@ def test_compute_pairwise_distances_with_valid_pairs(
         ),  # invalid dim
         (
             "valid_poses_dataset",
-            "keypoints",
+            "keypoint",
             "invalid_string",
         ),  # invalid pairs
-        ("valid_poses_dataset", "individuals", {}),  # empty pairs
-        ("missing_dim_poses_dataset", "keypoints", "all"),  # invalid dataset
+        ("valid_poses_dataset", "individual", {}),  # empty pairs
+        ("missing_dim_poses_dataset", "keypoint", "all"),  # invalid dataset
         (
             "missing_dim_bboxes_dataset",
-            "individuals",
+            "individual",
             "all",
         ),  # invalid dataset
     ],

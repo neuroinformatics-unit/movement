@@ -241,9 +241,8 @@ def from_file(
             frame_regexp=frame_regexp,
         )
     else:
-        raise logger.error(
-            ValueError(f"Unsupported source software: {source_software}")
-        )
+        logger.error(f"Unsupported source software: {source_software}")
+        raise ValueError(f"Unsupported source software: {source_software}")
 
 
 @register_loader("VIA-tracks", file_validators=[ValidVIATracksCSV])

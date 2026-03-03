@@ -59,9 +59,9 @@ for ds_name, ds in ds_dict.items():
 fig, ax = plt.subplots(1, 2, figsize=(7.5, 4))
 for i, (da_name, ds) in enumerate(ds_dict.items()):
     ax[i].imshow(ds.video[0], cmap="gray")  # plot first video frame
-    for keypoint in ds.keypoints.values:
-        x = ds.position.sel(time=0, space="x", keypoints=keypoint)
-        y = ds.position.sel(time=0, space="y", keypoints=keypoint)
+    for keypoint in ds.keypoint.values:
+        x = ds.position.sel(time=0, space="x", keypoint=keypoint)
+        y = ds.position.sel(time=0, space="y", keypoint=keypoint)
         ax[i].scatter(x, y, label=keypoint)  # plot keypoints
     ax[i].legend()
     ax[i].set_title(f"{da_name} (First Frame)")
@@ -113,7 +113,7 @@ positions.coords["lighting"] = ["black", "uniform"]
 #  Define plotting parameters for reuse.
 plot_params = {
     "x": "time",
-    "hue": "keypoints",
+    "hue": "keypoint",
     "col": "space",
     "row": "lighting",
     "aspect": 1.5,
@@ -133,7 +133,7 @@ plt.show()
 # subtracting the position of the eye's midpoint, we effectively transform the
 # data into a moving coordinate system, with the eye's midpoint as the origin.
 # In the rest of the example, the normalised data will be used.
-eye_midpoint = positions.sel(keypoints=["eye-L", "eye-R"]).mean("keypoints")
+eye_midpoint = positions.sel(keypoint=["eye-L", "eye-R"]).mean("keypoint")
 positions_norm = positions - eye_midpoint
 # %%
 # We plot the x and y positions again, but now using the normalised data.
@@ -149,17 +149,17 @@ plt.show()
 # :meth:`xarray.DataArray.assign_coords`.
 
 pupil_centroid = (
-    positions_norm.sel(keypoints=["pupil-L", "pupil-R"])
-    .mean("keypoints")
-    .assign_coords({"keypoints": "pupil-C"})
+    positions_norm.sel(keypoint=["pupil-L", "pupil-R"])
+    .mean("keypoint")
+    .assign_coords({"keypoint": "pupil-C"})
 )
 # %%
 # The pupil centroid keypoint ``pupil-C`` is be added to the ``positions_norm``
 # using :func:`xarray.concat`.
-positions_norm = xr.concat([positions_norm, pupil_centroid], dim="keypoints")
+positions_norm = xr.concat([positions_norm, pupil_centroid], dim="keypoint")
 # %%
 # Now the position of the pupil centroid ``pupil-C`` can be plotted.
-positions_norm.sel(keypoints="pupil-C", **sel).squeeze().plot.line(
+positions_norm.sel(keypoint="pupil-C", **sel).squeeze().plot.line(
     x="time", hue="space", row="lighting", aspect=3.5, size=1.5
 )
 plt.show()
@@ -179,7 +179,7 @@ plt.show()
 # centroid is plotted. To do this, we use
 # :func:`movement.kinematics.compute_velocity`
 # to calculate the velocity of the eye movements.
-pupil_velocity = kin.compute_velocity(positions_norm.sel(keypoints="pupil-C"))
+pupil_velocity = kin.compute_velocity(positions_norm.sel(keypoint="pupil-C"))
 pupil_velocity.name = "pupil velocity"
 pupil_velocity.sel(**sel).squeeze().plot.line(
     x="time", hue="space", row="lighting", aspect=3.5, size=1.5
@@ -196,7 +196,7 @@ plt.show()
 # keypoints. We use :func:`movement.kinematics.compute_pairwise_distances`
 # to calculate the Euclidean distance between ``pupil-L`` and ``pupil-R``.
 pupil_diameter: xr.DataArray = kin.compute_pairwise_distances(
-    positions_norm, dim="keypoints", pairs={"pupil-L": "pupil-R"}
+    positions_norm, dim="keypoint", pairs={"pupil-L": "pupil-R"}
 )
 pupil_diameter.name = "pupil diameter"
 # %%
@@ -211,7 +211,7 @@ plt.show()
 # By looking at the distance between the two eye keypoints we can get an idea
 # of whether (and when) the animal is blinking or squinting.
 distance_between_eye_keypoints: xr.DataArray = kin.compute_pairwise_distances(
-    positions_norm, dim="keypoints", pairs={"eye-L": "eye-R"}
+    positions_norm, dim="keypoint", pairs={"eye-L": "eye-R"}
 )
 distance_between_eye_keypoints.name = "distance (eye-L - eye-R)"
 

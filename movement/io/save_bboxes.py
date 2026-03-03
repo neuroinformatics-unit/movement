@@ -143,7 +143,7 @@ def to_via_tracks_file(
     )
     # Map individuals' names to track IDs
     map_individual_to_track_id = _compute_individuals_to_track_ids_map(
-        ds.coords["individuals"].values,
+        ds.coords["individual"].values,
         track_ids_from_trailing_numbers,
     )
     # Write file
@@ -242,12 +242,15 @@ def _check_frame_required_digits(
     if frame_n_digits is None:
         return min_required_digits + 1  # pad with at least one zero
     elif frame_n_digits < min_required_digits:
-        raise logger.error(
-            ValueError(
-                "The requested number of digits cannot be used to represent "
-                f"all the frame numbers. Got {frame_n_digits}, but the "
-                f"maximum frame number has {min_required_digits} digits."
-            )
+        logger.error(
+            "The requested number of digits cannot be used to represent "
+            f"all the frame numbers. Got {frame_n_digits}, but the "
+            f"maximum frame number has {min_required_digits} digits."
+        )
+        raise ValueError(
+            "The requested number of digits cannot be used to represent "
+            f"all the frame numbers. Got {frame_n_digits}, but the "
+            f"maximum frame number has {min_required_digits} digits."
         )
     else:
         return frame_n_digits
@@ -324,18 +327,20 @@ def _extract_track_ids_from_individuals_names(
             track_id = int(match.group(1))
             map_individual_to_track_id[individual] = track_id
         else:
-            raise logger.error(
-                ValueError(f"Could not extract track ID from {individual}.")
-            )
+            logger.error(f"Could not extract track ID from {individual}.")
+            raise ValueError(f"Could not extract track ID from {individual}.")
 
     # Check that all individuals have a unique track ID
     if len(set(map_individual_to_track_id.values())) != len(set(individuals)):
-        raise logger.error(
-            ValueError(
-                "Could not extract a unique track ID for all individuals. "
-                f"Expected {len(set(individuals))} unique track IDs, "
-                f"but got {len(set(map_individual_to_track_id.values()))}."
-            )
+        logger.error(
+            "Could not extract a unique track ID for all individuals. "
+            f"Expected {len(set(individuals))} unique track IDs, "
+            f"but got {len(set(map_individual_to_track_id.values()))}."
+        )
+        raise ValueError(
+            "Could not extract a unique track ID for all individuals. "
+            f"Expected {len(set(individuals))} unique track IDs, "
+            f"but got {len(set(map_individual_to_track_id.values()))}."
         )
 
     return map_individual_to_track_id
@@ -398,10 +403,10 @@ def _write_via_tracks_csv(
             region_id = 0
 
             # Loop through individuals
-            for indiv in ds.individuals.values:
+            for indiv in ds.individual.values:
                 # Get position and shape data
-                xy_data = ds.position.sel(time=time, individuals=indiv).values
-                wh_data = ds.shape.sel(time=time, individuals=indiv).values
+                xy_data = ds.position.sel(time=time, individual=indiv).values
+                wh_data = ds.shape.sel(time=time, individual=indiv).values
 
                 # If the position or shape data contain NaNs, do not write
                 # this bounding box to file
@@ -410,7 +415,7 @@ def _write_via_tracks_csv(
 
                 # Get confidence score
                 confidence = ds.confidence.sel(
-                    time=time, individuals=indiv
+                    time=time, individual=indiv
                 ).values
                 if np.isnan(confidence):
                     confidence = None  # pass as None if confidence is NaN

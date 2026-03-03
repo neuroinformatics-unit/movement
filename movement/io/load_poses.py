@@ -184,9 +184,8 @@ def from_file(
             )
         return from_nwb_file(file, **kwargs)
     else:
-        raise logger.error(
-            ValueError(f"Unsupported source software: {source_software}")
-        )
+        logger.error(f"Unsupported source software: {source_software}")
+        raise ValueError(f"Unsupported source software: {source_software}")
 
 
 def from_dlc_style_df(
@@ -369,14 +368,17 @@ def from_lp_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     ds = _ds_from_lp_or_dlc_file(
         valid_file=valid_file, source_software="LightningPose", fps=fps
     )
-    n_individuals = ds.sizes.get("individuals", 1)
+    n_individuals = ds.sizes.get("individual", 1)
     if n_individuals > 1:
-        raise logger.error(
-            ValueError(
-                "LightningPose only supports single-individual datasets, "
-                f"but the loaded dataset has {n_individuals} individuals. "
-                "Did you mean to load from a DeepLabCut file instead?"
-            )
+        logger.error(
+            "LightningPose only supports single-individual datasets, "
+            f"but the loaded dataset has {n_individuals} individuals. "
+            "Did you mean to load from a DeepLabCut file instead?"
+        )
+        raise ValueError(
+            "LightningPose only supports single-individual datasets, "
+            f"but the loaded dataset has {n_individuals} individuals. "
+            "Did you mean to load from a DeepLabCut file instead?"
         )
     return ds
 
