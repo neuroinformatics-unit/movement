@@ -242,7 +242,7 @@ def test_from_file(
         "VIA-tracks": "movement.io.load_bboxes.from_via_tracks_file",
     }
     if source_software == "Unknown":
-        with pytest.raises(ValueError, match="Unsupported source"):
+        with pytest.raises(ValueError, match="Unsupported source software"):
             load_bboxes.from_file(
                 "some_file",
                 source_software,
@@ -250,6 +250,17 @@ def test_from_file(
                 use_frame_numbers_from_file=use_frame_numbers_from_file,
                 frame_regexp=frame_regexp,
             )
+        try:
+            load_bboxes.from_file(
+                "some_file",
+                source_software,
+                fps,
+                use_frame_numbers_from_file=use_frame_numbers_from_file,
+                frame_regexp=frame_regexp,
+            )
+        except ValueError as e:
+            assert "Supported options are:" in str(e)
+            assert "VIA-tracks" in str(e)
     else:
         with patch(software_to_loader[source_software]) as mock_loader:
             load_bboxes.from_file(
