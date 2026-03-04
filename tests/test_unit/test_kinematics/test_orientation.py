@@ -133,9 +133,7 @@ def test_compute_perpendicular_vector(
     assert perp_vector_flipped.name == "perpendicular_vector"
     assert head_vector.name == "head_direction_vector"
 
-    known_vectors = np.array(
-        [[[0, -1]], [[1, 0]], [[0, 1]], [[-1, 0]]]
-    )
+    known_vectors = np.array([[[0, -1]], [[1, 0]], [[0, 1]], [[-1, 0]]])
 
     for output_array in [
         perp_vector,
@@ -150,15 +148,11 @@ def test_compute_perpendicular_vector(
         ]:
             assert np.all(
                 output_array[preserved_coord]
-                == valid_data_array_for_forward_vector[
-                    preserved_coord
-                ]
+                == valid_data_array_for_forward_vector[preserved_coord]
             )
         assert set(output_array["space"].values) == {"x", "y"}
     assert np.equal(perp_vector.values, known_vectors).all()
-    assert np.equal(
-        perp_vector_flipped.values, known_vectors * -1
-    ).all()
+    assert np.equal(perp_vector_flipped.values, known_vectors * -1).all()
     assert head_vector.equals(perp_vector)
 
 
@@ -230,9 +224,7 @@ def test_compute_perpendicular_vector_with_invalid_input(
     input_data = request.getfixturevalue(input_data)
 
     # Catch error
-    with pytest.raises(
-        expected_error, match=re.escape(expected_match_str)
-    ):
+    with pytest.raises(expected_error, match=re.escape(expected_match_str)):
         kinematics.compute_perpendicular_vector(
             input_data, keypoints[0], keypoints[1]
         )
@@ -257,9 +249,7 @@ def test_nan_behavior_perpendicular_vector(
     for preserved_coord in ["time", "space", "individuals"]:
         assert np.all(
             perp_vector[preserved_coord]
-            == valid_data_array_for_forward_vector_with_nan[
-                preserved_coord
-            ]
+            == valid_data_array_for_forward_vector_with_nan[preserved_coord]
         )
     assert set(perp_vector["space"].values) == {"x", "y"}
     # Should have NaN values at time 1
@@ -273,9 +263,7 @@ def test_nan_behavior_perpendicular_vector(
         perp_vector.sel(
             time=[
                 t
-                for t in (
-                    valid_data_array_for_forward_vector_with_nan.time
-                )
+                for t in (valid_data_array_for_forward_vector_with_nan.time)
                 if t != nan_time
             ]
         )
@@ -285,9 +273,7 @@ def test_nan_behavior_perpendicular_vector(
 class TestVectorFromTo:
     """Test the compute_vector_from_to function."""
 
-    def test_basic_output(
-        self, valid_data_array_for_vector_from_to
-    ):
+    def test_basic_output(self, valid_data_array_for_vector_from_to):
         """Test that correct unit direction vectors are computed
         from a valid mock dataset.
         """
@@ -315,13 +301,9 @@ class TestVectorFromTo:
                 [[0.0, -1.0]],
             ]
         )
-        np.testing.assert_allclose(
-            result.values, expected, atol=1e-10
-        )
+        np.testing.assert_allclose(result.values, expected, atol=1e-10)
 
-    def test_coord_preservation(
-        self, valid_data_array_for_vector_from_to
-    ):
+    def test_coord_preservation(self, valid_data_array_for_vector_from_to):
         """Test that time, space, and individuals coords are
         preserved, but keypoints is dropped.
         """
@@ -332,17 +314,14 @@ class TestVectorFromTo:
         )
         for coord in ["time", "space", "individuals"]:
             assert np.all(
-                result[coord]
-                == valid_data_array_for_vector_from_to[coord]
+                result[coord] == valid_data_array_for_vector_from_to[coord]
             )
 
     def test_identical_keypoints_raises(
         self, valid_data_array_for_vector_from_to
     ):
         """Test identical from/to keypoints raise ValueError."""
-        with pytest.raises(
-            ValueError, match="may not be identical"
-        ):
+        with pytest.raises(ValueError, match="may not be identical"):
             kinematics.compute_vector_from_to(
                 valid_data_array_for_vector_from_to,
                 from_keypoint="neck",
@@ -351,35 +330,26 @@ class TestVectorFromTo:
 
     def test_invalid_type_raises(self):
         """Test that non-DataArray input raises TypeError."""
-        with pytest.raises(
-            TypeError, match="must be an xarray.DataArray"
-        ):
+        with pytest.raises(TypeError, match="must be an xarray.DataArray"):
             kinematics.compute_vector_from_to(
                 np.array([1, 2, 3]),
                 from_keypoint="a",
                 to_keypoint="b",
             )
 
-    def test_nan_propagation(
-        self, valid_data_array_for_vector_from_to
-    ):
+    def test_nan_propagation(self, valid_data_array_for_vector_from_to):
         """Test that NaN in one keypoint propagates to output."""
-        data_with_nan = (
-            valid_data_array_for_vector_from_to.astype(float)
-            .copy(deep=True)
+        data_with_nan = valid_data_array_for_vector_from_to.astype(float).copy(
+            deep=True
         )
-        data_with_nan.loc[
-            {"time": 1, "keypoints": "neck"}
-        ] = np.nan
+        data_with_nan.loc[{"time": 1, "keypoints": "neck"}] = np.nan
         result = kinematics.compute_vector_from_to(
             data_with_nan,
             from_keypoint="neck",
             to_keypoint="nose",
         )
         assert np.isnan(result.sel(time=1)).all()
-        assert not np.isnan(
-            result.sel(time=[0, 2, 3])
-        ).any()
+        assert not np.isnan(result.sel(time=[0, 2, 3])).any()
 
 
 class TestVectorAngle:
@@ -393,8 +363,8 @@ class TestVectorAngle:
         """Return vectors pointing in 4 cardinal directions."""
         data = np.array(
             [
-                [1.0, 0.0],   # right (0 rad)
-                [0.0, 1.0],   # down (pi/2)
+                [1.0, 0.0],  # right (0 rad)
+                [0.0, 1.0],  # down (pi/2)
                 [-1.0, 0.0],  # left (pi)
                 [0.0, -1.0],  # up (-pi/2)
             ]
@@ -414,12 +384,8 @@ class TestVectorAngle:
             simple_vectors, reference_vector=self.x_axis
         )
         assert angles.name == "vector_angle"
-        expected = np.array(
-            [0.0, np.pi / 2, np.pi, -np.pi / 2]
-        )
-        np.testing.assert_allclose(
-            angles.values, expected, atol=1e-10
-        )
+        expected = np.array([0.0, np.pi / 2, np.pi, -np.pi / 2])
+        np.testing.assert_allclose(angles.values, expected, atol=1e-10)
 
     def test_in_degrees(self, simple_vectors):
         """Test angle conversion to degrees."""
@@ -431,9 +397,7 @@ class TestVectorAngle:
         )
         assert in_rad.name == "vector_angle"
         assert in_deg.name == "vector_angle"
-        xr.testing.assert_allclose(
-            in_deg, np.rad2deg(in_rad)
-        )
+        xr.testing.assert_allclose(in_deg, np.rad2deg(in_rad))
 
     def test_tuple_and_list_reference(self, simple_vectors):
         """Test that tuple/list references are cast properly."""
@@ -473,21 +437,13 @@ class TestVectorAngle:
         # time 1: vector [0,1], ref [1,0] -> pi/2
         # time 2: vector [-1,0], ref [0,1] -> pi/2
         # time 3: vector [0,-1], ref [0,1] -> pi
-        expected = np.array(
-            [0.0, np.pi / 2, np.pi / 2, np.pi]
-        )
-        np.testing.assert_allclose(
-            angles.values, expected, atol=1e-10
-        )
+        expected = np.array([0.0, np.pi / 2, np.pi / 2, np.pi])
+        np.testing.assert_allclose(angles.values, expected, atol=1e-10)
 
     def test_invalid_input_type(self):
         """Test that non-DataArray input raises TypeError."""
-        with pytest.raises(
-            TypeError, match="must be an xarray.DataArray"
-        ):
-            kinematics.compute_vector_angle(
-                np.array([1.0, 0.0])
-            )
+        with pytest.raises(TypeError, match="must be an xarray.DataArray"):
+            kinematics.compute_vector_angle(np.array([1.0, 0.0]))
 
 
 class TestForwardVectorAngle:
@@ -536,9 +492,7 @@ class TestForwardVectorAngle:
             coords={"space": ["x", "y"], "keypoints": ["left", "right"]},
         )
 
-    @pytest.mark.filterwarnings(
-        "ignore:.*deprecated:DeprecationWarning"
-    )
+    @pytest.mark.filterwarnings("ignore:.*deprecated:DeprecationWarning")
     @pytest.mark.parametrize(
         ["swap_left_right", "swap_camera_view"],
         [
@@ -612,9 +566,7 @@ class TestForwardVectorAngle:
             with_orientations_swapped, expected_orientations
         )
 
-    @pytest.mark.filterwarnings(
-        "ignore:.*deprecated:DeprecationWarning"
-    )
+    @pytest.mark.filterwarnings("ignore:.*deprecated:DeprecationWarning")
     def test_in_degrees_toggle(
         self, spinning_on_the_spot: xr.DataArray
     ) -> None:
@@ -642,9 +594,7 @@ class TestForwardVectorAngle:
 
         xr.testing.assert_allclose(in_degrees, np.rad2deg(in_radians))
 
-    @pytest.mark.filterwarnings(
-        "ignore:.*deprecated:DeprecationWarning"
-    )
+    @pytest.mark.filterwarnings("ignore:.*deprecated:DeprecationWarning")
     @pytest.mark.parametrize(
         ["transformation"],
         [pytest.param("scale"), pytest.param("translation")],
@@ -707,9 +657,7 @@ class TestForwardVectorAngle:
 
         xr.testing.assert_allclose(untranslated_output, translated_output)
 
-    @pytest.mark.filterwarnings(
-        "ignore:.*deprecated:DeprecationWarning"
-    )
+    @pytest.mark.filterwarnings("ignore:.*deprecated:DeprecationWarning")
     def test_casts_from_tuple(
         self, spinning_on_the_spot: xr.DataArray
     ) -> None:

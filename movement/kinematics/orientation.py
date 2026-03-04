@@ -105,10 +105,7 @@ def compute_perpendicular_vector(
     # Validate input keypoints
     if left_keypoint == right_keypoint:
         raise logger.error(
-            ValueError(
-                "The left and right keypoints may not be "
-                "identical."
-            )
+            ValueError("The left and right keypoints may not be identical.")
         )
     # Define right-to-left vector
     right_to_left_vector = data.sel(
@@ -135,12 +132,8 @@ def compute_perpendicular_vector(
     # (right-to-left) cross (forward) = up
     forward_vector = cast(
         "xr.DataArray",
-        xr.cross(
-            right_to_left_vector, upward_vector, dim="space"
-        ),
-    ).drop_sel(
-        space="z"
-    )  # keep only the first 2 spatial dimensions
+        xr.cross(right_to_left_vector, upward_vector, dim="space"),
+    ).drop_sel(space="z")  # keep only the first 2 spatial dimensions
     # Return unit vector
     result = convert_to_unit(forward_vector)
     result.name = "perpendicular_vector"
@@ -210,14 +203,13 @@ def compute_vector_from_to(
     if from_keypoint == to_keypoint:
         raise logger.error(
             ValueError(
-                "The from_keypoint and to_keypoint may not be "
-                "identical."
+                "The from_keypoint and to_keypoint may not be identical."
             )
         )
     # Compute direction vector
-    direction_vector = data.sel(
-        keypoints=to_keypoint, drop=True
-    ) - data.sel(keypoints=from_keypoint, drop=True)
+    direction_vector = data.sel(keypoints=to_keypoint, drop=True) - data.sel(
+        keypoints=from_keypoint, drop=True
+    )
     # Return unit vector
     result = convert_to_unit(direction_vector)
     result.name = "vector_from_to"
@@ -288,14 +280,10 @@ def compute_vector_angle(
 
     """
     _validate_type_data_array(vector)
-    validate_dims_coords(
-        vector, {"space": ["x", "y"]}, exact_coords=True
-    )
+    validate_dims_coords(vector, {"space": ["x", "y"]}, exact_coords=True)
 
     # Convert reference vector to np.array if needed
-    if not isinstance(
-        reference_vector, np.ndarray | xr.DataArray
-    ):
+    if not isinstance(reference_vector, np.ndarray | xr.DataArray):
         reference_vector = np.array(reference_vector)
 
     # Compute signed angle between reference and input vector
@@ -305,9 +293,7 @@ def compute_vector_angle(
 
     # Convert to degrees
     if in_degrees:
-        angle_array = cast(
-            "xr.DataArray", np.rad2deg(angle_array)
-        )
+        angle_array = cast("xr.DataArray", np.rad2deg(angle_array))
 
     angle_array.name = "vector_angle"
     return angle_array
