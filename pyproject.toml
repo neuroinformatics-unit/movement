@@ -32,6 +32,7 @@ dependencies = [
   "loguru",
   "pynwb",
   "ndx-pose>=0.2.1",
+  "jsonschema",
 ]
 
 classifiers = [
@@ -77,6 +78,7 @@ dev = [
   "pytest-qt",
   "scipy-stubs",
   "types-shapely",
+  "types-jsonschema",
   "movement[napari]",
 ]
 docs = [
