@@ -61,7 +61,7 @@ def ds_to_napari_layers(
         and progressing in counterclockwise order) with the columns
         (track_id, frame, y, x). Returns None when the input dataset doesn't
         have a "shape" variable.
-    properties : pd.DataFrame
+    properties : pandas.DataFrame
         DataFrame with properties (individual, keypoint, time, confidence)
         for use with napari layers.
 
