@@ -537,6 +537,8 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
     """
     all_nan = ds.position.isnull().all(dim=["keypoints", "space", "time"])
     return ds.where(~all_nan, drop=True)
+
+
 def to_motion_bids(
     ds: xr.Dataset,
     file_path: str | Path,
@@ -564,7 +566,9 @@ def to_motion_bids(
     """
     import json
 
-    valid_path = validate_file_path(file_path, permission="w", suffixes={".tsv"})
+    valid_path = validate_file_path(
+        file_path, permission="w", suffixes={".tsv"}
+    )
     ValidPosesInputs.validate(ds)
 
     # Flatten the dataset into BIDS format: [joint]_[axis]
@@ -587,8 +591,8 @@ def to_motion_bids(
 
     # Reorder position data: [time, keypoints, space] -> [time, columns]
     # Current ds.position is [time, space, keypoints, individuals]
-    pos_data = ds.position.values.squeeze(axis=-1) # [time, space, keypoints]
-    pos_data = pos_data.transpose(0, 2, 1) # [time, keypoints, space]
+    pos_data = ds.position.values.squeeze(axis=-1)  # [time, space, keypoints]
+    pos_data = pos_data.transpose(0, 2, 1)  # [time, keypoints, space]
     flat_data = pos_data.reshape(ds.sizes["time"], -1)
 
     df = pd.DataFrame(data=flat_data, columns=columns)
@@ -598,8 +602,10 @@ def to_motion_bids(
 
     # Save sidecar JSON
     metadata = {
-        "SamplingFrequency": float(ds.fps) if hasattr(ds, "fps") and ds.fps else None,
-        "Units": "px", # Default for movement
+        "SamplingFrequency": float(ds.fps)
+        if hasattr(ds, "fps") and ds.fps
+        else None,
+        "Units": "px",  # Default for movement
     }
     sidecar_path = valid_path.with_suffix(".json")
     with open(sidecar_path, "w") as f:

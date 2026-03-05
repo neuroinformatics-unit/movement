@@ -27,7 +27,6 @@ from movement.validators.files import (
     ValidNWBFile,
     ValidSleapAnalysis,
     ValidSleapLabels,
-    validate_file_path,
 )
 
 
@@ -913,9 +912,15 @@ def from_motion_bids(
 
     # BIDS motion columns are typically [joint]_[axis]
     # Axes are usually x, y, z
-    keypoint_cols = [c for c in df.columns if any(c.endswith(f"_{a}") for a in ["x", "y", "z"])]
+    keypoint_cols = [
+        c
+        for c in df.columns
+        if any(c.endswith(f"_{a}") for a in ["x", "y", "z"])
+    ]
     if not keypoint_cols:
-         raise logger.error(ValueError(f"No motion columns found in BIDS file: {file_path}"))
+        raise logger.error(
+            ValueError(f"No motion columns found in BIDS file: {file_path}")
+        )
 
     keypoints = sorted(list(set(c.rsplit("_", 1)[0] for c in keypoint_cols)))
     axes = sorted(list(set(c.rsplit("_", 1)[1] for c in keypoint_cols)))
@@ -946,7 +951,9 @@ def from_motion_bids(
         position_array=position_array,
         keypoint_names=keypoints,
         fps=fps,
-        individual_names=["individual1"], # BIDS motion files are typically per-subject
+        individual_names=[
+            "individual1"
+        ],  # BIDS motion files are typically per-subject
         source_software="MotionBIDS",
     )
     ds.attrs["source_file"] = file_path.as_posix()
