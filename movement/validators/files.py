@@ -27,6 +27,13 @@ class ValidFile(Protocol):
     """Path to the file to validate or an NWBFile object."""
 
 
+class ValidDir(Protocol):
+    """Protocol for directory validation classes."""
+
+    file: Path
+    """Path to the directory to validate."""
+
+
 # --- Composable attrs validators --- #
 
 
@@ -230,6 +237,43 @@ def _if_instance_of(
             validator(instance, attribute, value)
 
     return _validator
+
+
+def _dir_validator(
+    *,
+    permission: Literal["r", "w", "rw"] = "r",
+) -> Callable[[Any, Attribute, Any], Any]:
+    """Return a validator that composes directory checks.
+
+    The validator ensures that the path:
+
+    - is a directory,
+    - exists if it is meant to be read,
+    - has the expected access permission(s).
+
+    Parameters
+    ----------
+    permission
+        Expected access permission(s) for the directory.
+        Default is "r".
+
+    """
+    v = [
+        validators.instance_of(Path),
+        _path_is_dir,
+        _file_is_accessible(permission),
+    ]
+    return validators.and_(*v)
+
+
+def _path_is_dir(_, __, value: Path) -> None:
+    """Ensure the path points to a directory."""
+    if not value.is_dir():
+        raise logger.error(
+            NotADirectoryError(
+                f"Expected a directory path but got a file: {value}."
+            )
+        )
 
 
 # --- Helper functions --- #
@@ -777,4 +821,37 @@ class ValidNWBFile:
                 _file_validator(permission="r", suffixes=suffixes),
             ),
         ),
+    )
+
+
+@define
+class ValidMMPoseJSON:
+    """Class for validating MMPose JSON files."""
+
+    suffixes: ClassVar[set[str]] = {".json"}
+    file: Path = field(
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
+    )
+
+
+@define
+class ValidCOCOJSON:
+    """Class for validating COCO keypoint JSON files."""
+
+    suffixes: ClassVar[set[str]] = {".json"}
+    file: Path = field(
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
+    )
+
+
+@define
+class ValidFreeMocapDir:
+    """Class for validating FreeMocap session/output directories."""
+
+    suffixes: ClassVar[set[str]] = {""}  # Empty string = directory
+    file: Path = field(
+        converter=Path,
+        validator=_dir_validator(permission="r"),
     )

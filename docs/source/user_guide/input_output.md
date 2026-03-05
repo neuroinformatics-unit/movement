@@ -31,6 +31,9 @@ and can be loaded from and saved to various third-party formats.
 | [Anipose](anipose:)                                                         |              | triangulation .csv file, or corresponding pandas DataFrame                                                                | Pose                 | Load                 |
 | [VGG Image Annotator](via:)                                                 | VIA          | .csv file for [tracks annotation](via:docs/face_track_annotation.html)                                                    | Bounding box         | Load & Save          |
 | [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB          | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose)                                | Pose                 | Load & Save          |
+| [MMPose](https://github.com/open-mmlab/mmpose)                              | MMPose       | JSON output file                                                                                                          | Pose                 | Load                 |
+| [COCO](https://cocodataset.org/#keypoints-2020)                             | COCO         | keypoints JSON file                                                                                                       | Pose                 | Load                 |
+| [FreeMoCap](https://freemocap.org/)                                         | FreeMocap    | session/output directory containing .csv files                                                                             | Pose                 | Load                 |
 | Any                                                                         |              | Numpy arrays                                                                                                              | Pose or Bounding box | Load & Save\*        |
 
 \*Exporting any `movement` DataArray to a NumPy array is as simple as calling xarray's built-in {meth}`xarray.DataArray.to_numpy()` method, so no specialised "Export/Save As" function is needed, see [xarray's documentation](xarray:user-guide/duckarrays.html) for more details.
@@ -185,6 +188,27 @@ with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
     ds = load_poses.from_nwb_file(
         nwb_file, pose_estimation_key="PoseEstimation"
     )
+```
+::::
+
+::::{tab-item} MMPose
+To load MMPose JSON output files:
+```python
+ds = load_poses.from_mmpose_file("/path/to/file.json", fps=30)
+```
+::::
+
+::::{tab-item} COCO
+To load COCO keypoint JSON files:
+```python
+ds = load_poses.from_coco_file("/path/to/file.json", fps=30)
+```
+::::
+
+::::{tab-item} FreeMocap
+To load FreeMoCap output data (select the directory containing the `output_data` or the `output_data` directory itself):
+```python
+ds = load_poses.from_freemocap_dir("/path/to/freemocap_session/", fps=30)
 ```
 ::::
 

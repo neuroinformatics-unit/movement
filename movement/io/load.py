@@ -29,6 +29,9 @@ SourceSoftware: TypeAlias = Literal[
     "Anipose",
     "NWB",
     "VIA-tracks",
+    "MMPose",
+    "COCO",
+    "FreeMocap",
 ]
 
 
@@ -135,6 +138,8 @@ def _validate_file(
     """
     if isinstance(file, pynwb.file.NWBFile):
         file_suffix = ".nwb"
+    elif Path(file).is_dir():
+        file_suffix = ""  # Directories don't have a specific suffix in our map
     else:
         file_suffix = Path(file).suffix
     validator_cls = suffix_map.get(file_suffix)

@@ -17,9 +17,12 @@ from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import (
     ValidAniposeCSV,
+    ValidCOCOJSON,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
     ValidFile,
+    ValidFreeMocapDir,
+    ValidMMPoseJSON,
     ValidNWBFile,
     ValidSleapAnalysis,
     ValidSleapLabels,
@@ -804,6 +807,239 @@ def from_anipose_file(
     return from_anipose_style_df(
         anipose_df, fps=fps, individual_name=individual_name
     )
+
+
+@register_loader("MMPose", file_validators=[ValidMMPoseJSON])
+def from_mmpose_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from an MMPose JSON file.
+
+    Parameters
+    ----------
+    file
+        Path to the MMPose output JSON file.
+    fps
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks.
+
+    """
+    import json
+
+    file_path = cast("ValidFile", file).file
+    with open(file_path) as f:
+        data = json.load(f)
+
+    # MMPose output structure can vary, but typically has 'instance_info'
+    # per frame or a list of frames.
+    all_instances = []
+    if isinstance(data, list):
+        # Format: list of frames, each frame is a dict with 'instances'
+        for frame_data in data:
+            all_instances.append(frame_data.get("instances", []))
+    elif "res" in data:
+        # Another common MMPose format
+        all_instances = data["res"]
+
+    if not all_instances:
+        raise logger.error(
+            ValueError(f"No pose data found in MMPose file: {file_path}")
+        )
+
+    n_frames = len(all_instances)
+    # Peek at first frame to get number of keypoints and individuals
+    n_individuals = max(len(frame) for frame in all_instances)
+    if n_individuals == 0:
+        raise logger.error(
+            ValueError(f"No individuals found in MMPose file: {file_path}")
+        )
+
+    # Find a frame with at least one individual to get keypoint count
+    first_valid_frame = next(f for f in all_instances if len(f) > 0)
+    sample_kp = np.array(first_valid_frame[0]["keypoints"])
+    n_keypoints = sample_kp.shape[0]
+
+    position_array = np.full((n_frames, 2, n_keypoints, n_individuals), np.nan)
+    confidence_array = np.full((n_frames, n_keypoints, n_individuals), np.nan)
+
+    for i, frame_instances in enumerate(all_instances):
+        for j, inst in enumerate(frame_instances):
+            if j >= n_individuals:
+                break
+            kp = np.array(inst["keypoints"])  # (n_keypoints, 2)
+            scores = np.array(
+                inst.get("keypoint_scores", [np.nan] * n_keypoints)
+            )
+            position_array[i, :, :, j] = kp.T
+            confidence_array[i, :, j] = scores
+
+    ds = from_numpy(
+        position_array=position_array,
+        confidence_array=confidence_array,
+        fps=fps,
+        source_software="MMPose",
+    )
+    ds.attrs["source_file"] = file_path.as_posix()
+    return ds
+
+
+@register_loader("COCO", file_validators=[ValidCOCOJSON])
+def from_coco_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from a COCO keypoint JSON file.
+
+    Parameters
+    ----------
+    file
+        Path to the COCO JSON file.
+    fps
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks.
+
+    """
+    import json
+    from collections import defaultdict
+
+    file_path = cast("ValidFile", file).file
+    with open(file_path) as f:
+        data = json.load(f)
+
+    if "annotations" not in data or "images" not in data:
+        raise logger.error(
+            ValueError(f"Invalid COCO JSON format in {file_path}")
+        )
+
+    # Map image_id to frame index
+    image_ids = [img["id"] for img in data["images"]]
+    image_id_to_idx = {id: i for i, id in enumerate(sorted(image_ids))}
+    n_frames = len(image_ids)
+
+    # Get keypoint names if available in categories
+    keypoint_names = None
+    if "categories" in data and len(data["categories"]) > 0:
+        keypoint_names = data["categories"][0].get("keypoints")
+
+    # Group annotations by image_id
+    ann_by_image = defaultdict(list)
+    individual_ids = set()
+    for ann in data["annotations"]:
+        ann_by_image[ann["image_id"]].append(ann)
+        individual_ids.add(ann.get("track_id", ann["id"]))
+
+    n_individuals = len(individual_ids)
+    sorted_ind_ids = sorted(list(individual_ids))
+    ind_id_to_idx = {id: i for i, id in enumerate(sorted_ind_ids)}
+
+    sample_ann = next(
+        (ann for ann in data["annotations"] if "keypoints" in ann), None
+    )
+    if not sample_ann:
+        raise logger.error(
+            ValueError(f"No keypoints found in COCO file: {file_path}")
+        )
+    n_keypoints = len(sample_ann["keypoints"]) // 3
+
+    position_array = np.full((n_frames, 2, n_keypoints, n_individuals), np.nan)
+    confidence_array = np.full((n_frames, n_keypoints, n_individuals), np.nan)
+
+    for image_id, anns in ann_by_image.items():
+        if image_id not in image_id_to_idx:
+            continue
+        f_idx = image_id_to_idx[image_id]
+        for ann in anns:
+            ind_idx = ind_id_to_idx[ann.get("track_id", ann["id"])]
+            kp_data = np.array(ann["keypoints"]).reshape(n_keypoints, 3)
+            position_array[f_idx, :, :, ind_idx] = kp_data[:, :2].T
+            confidence_array[f_idx, :, ind_idx] = kp_data[:, 2]
+
+    ds = from_numpy(
+        position_array=position_array,
+        confidence_array=confidence_array,
+        keypoint_names=keypoint_names,
+        fps=fps,
+        source_software="COCO",
+    )
+    ds.attrs["source_file"] = file_path.as_posix()
+    return ds
+
+
+@register_loader("FreeMocap", file_validators=[ValidFreeMocapDir])
+def from_freemocap_dir(
+    file: str | Path,
+    fps: float | None = None,
+    individual_name: str = "id_0",
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from a FreeMoCap output directory.
+
+    Parameters
+    ----------
+    file
+        Path to the FreeMoCap 'output_data' directory containing .csv files.
+    fps
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame numbers.
+    individual_name
+        Name of the individual to assign to the data. Defaults to "id_0".
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the merged pose tracks.
+
+    """
+    dir_path = cast("ValidFile", file).file
+    if (
+        dir_path.name != "output_data"
+        and dir_path.joinpath("output_data").is_dir()
+    ):
+        dir_path = dir_path.joinpath("output_data")
+
+    csv_files = list(dir_path.glob("*.csv"))
+    if not csv_files:
+        raise logger.error(
+            ValueError(
+                f"No .csv files found in FreeMocap directory: {dir_path}"
+            )
+        )
+
+    list_datasets = []
+    for csv_file in csv_files:
+        if not csv_file.name.endswith("_3d_xyz.csv"):
+            continue
+
+        data_pd = pd.read_csv(csv_file)
+        list_keypoints = [h[:-2] for h in data_pd.columns[::3]]
+        data = data_pd.to_numpy()
+        n_frames = data.shape[0]
+        n_kpts = len(list_keypoints)
+
+        data = data.reshape(n_frames, n_kpts, 3)
+        data = np.transpose(data, [0, 2, 1])[..., None]
+
+        ds = from_numpy(
+            position_array=data,
+            keypoint_names=list_keypoints,
+            fps=fps,
+            source_software="FreeMocap",
+            individual_names=[individual_name],
+        )
+        list_datasets.append(ds)
+
+    if not list_datasets:
+        raise logger.error(
+            ValueError(f"No valid FreeMocap 3D CSV files found in {dir_path}")
+        )
+
+    ds_merged = xr.merge(list_datasets, join="outer", compat="no_conflicts")
+    ds_merged.attrs["source_file"] = dir_path.as_posix()
+    return ds_merged
 
 
 @register_loader("NWB", file_validators=[ValidNWBFile])
