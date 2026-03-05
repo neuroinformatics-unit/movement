@@ -1,5 +1,4 @@
-"""
-Loading Human Pose Tracking Data
+"""Loading Human Pose Tracking Data
 ================================
 
 This example demonstrates how to load human pose tracking data from various
@@ -11,8 +10,6 @@ into a standardized ``xarray.Dataset`` structure.
 
 import matplotlib.pyplot as plt
 import numpy as np
-from movement.io import load_dataset
-from movement.sample_data import fetch_dataset
 
 # %%
 # Loading COCO Keypoint Data
