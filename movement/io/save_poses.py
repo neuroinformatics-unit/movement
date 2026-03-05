@@ -555,9 +555,10 @@ def to_motion_bids(
 
     Notes
     -----
-    This function saves the position data to a tab-separated values (.tsv) file
-    following the BIDS motion tracking extension. A sidecar .json file will also
-    be created containing metadata such as the sampling frequency.
+    This function saves the position data to a tab-separated values (.tsv)
+    file following the BIDS motion tracking extension. A sidecar .json
+    file will also be created containing metadata such as the sampling
+    frequency.
 
     References
     ----------
@@ -572,7 +573,6 @@ def to_motion_bids(
     ValidPosesInputs.validate(ds)
 
     # Flatten the dataset into BIDS format: [joint]_[axis]
-    time = ds.time.values
     keypoints = ds.keypoints.values
     space = ds.space.values  # x, y, z
 

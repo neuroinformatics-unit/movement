@@ -118,7 +118,10 @@ def test_from_freemocap_dir(tmp_path):
 
 def test_from_motion_bids(tmp_path):
     # Create a dummy Motion-BIDS tsv file
-    tsv_content = "L_Ankle_x\tL_Ankle_y\tR_Ankle_x\tR_Ankle_y\n10\t20\t30\t40\n11\t21\t31\t41\n"
+    tsv_content = (
+        "L_Ankle_x\tL_Ankle_y\tR_Ankle_x\tR_Ankle_y\n"
+        "10\t20\t30\t40\n11\t21\t31\t41\n"
+    )
     tsv_path = tmp_path / "test_motion.tsv"
     tsv_path.write_text(tsv_content)
 
