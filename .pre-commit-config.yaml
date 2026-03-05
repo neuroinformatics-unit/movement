@@ -47,6 +47,7 @@ repos:
                 - types-attrs
                 - types-PyYAML
                 - types-requests
+                - types-jsonschema
                 - xarray
                 - scipy-stubs
                 - types-shapely
