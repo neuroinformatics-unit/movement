@@ -1,15 +1,21 @@
 """1-dimensional lines of interest."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import numpy as np
 import shapely
-import xarray as xr
-from matplotlib.axes import Axes
-from matplotlib.figure import Figure, SubFigure
-from numpy.typing import ArrayLike
 
 from movement.roi.base import BaseRegionOfInterest, LineLike, PointLikeList
 from movement.utils.broadcasting import broadcastable_method
 from movement.utils.logging import logger
+
+if TYPE_CHECKING:
+    import xarray as xr
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure, SubFigure
+    from numpy.typing import ArrayLike
 
 
 class LineOfInterest(BaseRegionOfInterest[LineLike]):
