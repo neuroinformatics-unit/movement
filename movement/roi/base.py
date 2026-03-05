@@ -443,6 +443,13 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
             the argument of the same name that is passed to
             :func:`compute_signed_angle_2d`. Default ``(1., 0.)``.
 
+        Returns
+        -------
+        xarray.DataArray
+            Signed angle(s) between the approach vector and
+            the reference vector.
+            Returned in radians unless ``in_degrees=True``.
+
         See Also
         --------
         compute_approach_vector :
@@ -493,7 +500,7 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
             An array of vectors representing a given direction,
             e.g., the forward vector(s).
         position
-            `DataArray` of spatial positions, considered the origin of the
+            ``DataArray`` of spatial positions, considered the origin of the
             ``direction`` vector.
         boundary_only
             Passed to :func:`compute_approach_vector`
@@ -501,6 +508,13 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         in_degrees
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
+
+        Returns
+        -------
+        xarray.DataArray
+            Signed angle(s) between the approach vector and
+            the reference vector.
+            Returned in radians unless ``in_degrees=True``.
 
         See Also
         --------
