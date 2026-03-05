@@ -981,7 +981,7 @@ class ValidROICollectionGeoJSON:
     See Also
     --------
     movement.roi.save_rois : Save a collection of RoIs to a GeoJSON file.
-    movement.roi.load_rois : Load a collection of RoIs from a GeoROICollectionGeoJSON file.
+    movement.roi.load_rois : Load a collection of RoIs from a GeoJSON file.
 
     """
 

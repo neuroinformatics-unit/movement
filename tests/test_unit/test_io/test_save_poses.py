@@ -1,3 +1,4 @@
+import json
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 
@@ -613,3 +614,27 @@ def test_remove_unoccupied_tracks(valid_poses_dataset):
     ds = valid_poses_dataset.reindex(individuals=new_individuals)
     ds = save_poses._remove_unoccupied_tracks(ds)
     xr.testing.assert_equal(ds, valid_poses_dataset)
+
+
+def test_to_motion_bids(tmp_path, valid_poses_dataset):
+    """Test that saving a valid pose dataset to a Motion-BIDS file
+    returns the expected result.
+    """
+    file_path = tmp_path / "test_motion.tsv"
+    save_poses.to_motion_bids(valid_poses_dataset, file_path)
+
+    assert file_path.is_file()
+    assert file_path.with_suffix(".json").is_file()
+
+    # Load back and verify
+    df = pd.read_csv(file_path, sep="\t")
+    # Expected columns: [joint]_[axis]
+    # valid_poses_dataset has keypoints: centroid, left, right
+    # and space: x, y
+    for kp in ["centroid", "left", "right"]:
+        for axis in ["x", "y"]:
+            assert f"{kp}_{axis}" in df.columns
+
+    with open(file_path.with_suffix(".json")) as f:
+        metadata = json.load(f)
+        assert metadata["SamplingFrequency"] == float(valid_poses_dataset.fps)

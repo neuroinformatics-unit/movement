@@ -114,3 +114,24 @@ def test_from_freemocap_dir(tmp_path):
     assert np.allclose(
         ds.position.sel(time=1, space="z", keypoints="kp2"), 6.1
     )
+
+
+def test_from_motion_bids(tmp_path):
+    # Create a dummy Motion-BIDS tsv file
+    tsv_content = "L_Ankle_x\tL_Ankle_y\tR_Ankle_x\tR_Ankle_y\n10\t20\t30\t40\n11\t21\t31\t41\n"
+    tsv_path = tmp_path / "test_motion.tsv"
+    tsv_path.write_text(tsv_content)
+
+    # sidecar json
+    json_path = tmp_path / "test_motion.json"
+    with open(json_path, "w") as f:
+        json.dump({"SamplingFrequency": 30}, f)
+
+    ds = load_poses.from_motion_bids(tsv_path)
+    assert isinstance(ds, xr.Dataset)
+    assert ds.position.shape == (2, 2, 2, 1)
+    assert ds.fps == 30
+    assert "L_Ankle" in ds.keypoints
+    assert np.allclose(
+        ds.position.sel(time=0, space="x", keypoints="L_Ankle"), 10
+    )
