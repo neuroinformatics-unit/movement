@@ -32,6 +32,7 @@ SourceSoftware: TypeAlias = Literal[
     "MMPose",
     "COCO",
     "FreeMocap",
+    "MotionBIDS",
 ]
 
 

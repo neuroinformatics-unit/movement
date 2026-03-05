@@ -23,9 +23,11 @@ from movement.validators.files import (
     ValidFile,
     ValidFreeMocapDir,
     ValidMMPoseJSON,
+    ValidMotionBIDS,
     ValidNWBFile,
     ValidSleapAnalysis,
     ValidSleapLabels,
+    validate_file_path,
 )
 
 
@@ -881,6 +883,71 @@ def from_mmpose_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
         confidence_array=confidence_array,
         fps=fps,
         source_software="MMPose",
+    )
+    ds.attrs["source_file"] = file_path.as_posix()
+    return ds
+
+
+@register_loader("MotionBIDS", file_validators=[ValidMotionBIDS])
+def from_motion_bids(
+    file: str | Path,
+) -> xr.Dataset:
+    """Create a ``movement`` dataset from a Motion-BIDS (.tsv) file.
+
+    Parameters
+    ----------
+    file : pathlib.Path or str
+        Path to the Motion-BIDS .tsv file.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
+
+    """
+    import json
+
+    file_path = cast("ValidFile", file).file
+    df = pd.read_csv(file_path, sep="\t")
+
+    # BIDS motion columns are typically [joint]_[axis]
+    # Axes are usually x, y, z
+    keypoint_cols = [c for c in df.columns if any(c.endswith(f"_{a}") for a in ["x", "y", "z"])]
+    if not keypoint_cols:
+         raise logger.error(ValueError(f"No motion columns found in BIDS file: {file_path}"))
+
+    keypoints = sorted(list(set(c.rsplit("_", 1)[0] for c in keypoint_cols)))
+    axes = sorted(list(set(c.rsplit("_", 1)[1] for c in keypoint_cols)))
+
+    n_frames = len(df)
+    n_keypoints = len(keypoints)
+    n_axes = len(axes)
+
+    position_array = np.full((n_frames, n_axes, n_keypoints, 1), np.nan)
+    for i, kp in enumerate(keypoints):
+        for j, axis in enumerate(axes):
+            col = f"{kp}_{axis}"
+            if col in df.columns:
+                position_array[:, j, i, 0] = df[col].values
+
+    # Try to load sidecar JSON for metadata
+    sidecar_path = file_path.with_suffix(".json")
+    fps = None
+    if sidecar_path.exists():
+        try:
+            with open(sidecar_path) as f:
+                metadata = json.load(f)
+                fps = metadata.get("SamplingFrequency")
+        except Exception as e:
+            logger.warning(f"Could not load sidecar JSON {sidecar_path}: {e}")
+
+    ds = from_numpy(
+        position_array=position_array,
+        keypoint_names=keypoints,
+        fps=fps,
+        individual_names=["individual1"], # BIDS motion files are typically per-subject
+        source_software="MotionBIDS",
     )
     ds.attrs["source_file"] = file_path.as_posix()
     return ds

@@ -537,3 +537,72 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
     """
     all_nan = ds.position.isnull().all(dim=["keypoints", "space", "time"])
     return ds.where(~all_nan, drop=True)
+def to_motion_bids(
+    ds: xr.Dataset,
+    file_path: str | Path,
+) -> None:
+    """Save a ``movement`` dataset to a Motion-BIDS (.tsv) file.
+
+    Parameters
+    ----------
+    ds : xarray.Dataset
+        ``movement`` dataset containing pose tracks, confidence scores,
+        and associated metadata.
+    file_path : pathlib.Path or str
+        Path to the file to save the poses to. File extension must be .tsv.
+
+    Notes
+    -----
+    This function saves the position data to a tab-separated values (.tsv) file
+    following the BIDS motion tracking extension. A sidecar .json file will also
+    be created containing metadata such as the sampling frequency.
+
+    References
+    ----------
+    .. [1] https://bids-specification.readthedocs.io/en/stable/appendices/motion.html
+
+    """
+    import json
+
+    valid_path = validate_file_path(file_path, permission="w", suffixes={".tsv"})
+    ValidPosesInputs.validate(ds)
+
+    # Flatten the dataset into BIDS format: [joint]_[axis]
+    time = ds.time.values
+    keypoints = ds.keypoints.values
+    space = ds.space.values  # x, y, z
+
+    # Only support one individual for now in BIDS (typical per-file structure)
+    if ds.sizes["individuals"] > 1:
+        logger.warning(
+            "Motion-BIDS typically stores one subject per file. "
+            "Only the first individual will be saved."
+        )
+        ds = ds.isel(individuals=0)
+
+    columns = []
+    for kp in keypoints:
+        for axis in space:
+            columns.append(f"{kp}_{axis}")
+
+    # Reorder position data: [time, keypoints, space] -> [time, columns]
+    # Current ds.position is [time, space, keypoints, individuals]
+    pos_data = ds.position.values.squeeze(axis=-1) # [time, space, keypoints]
+    pos_data = pos_data.transpose(0, 2, 1) # [time, keypoints, space]
+    flat_data = pos_data.reshape(ds.sizes["time"], -1)
+
+    df = pd.DataFrame(data=flat_data, columns=columns)
+
+    # Save TSV
+    df.to_csv(valid_path, sep="\t", index=False)
+
+    # Save sidecar JSON
+    metadata = {
+        "SamplingFrequency": float(ds.fps) if hasattr(ds, "fps") and ds.fps else None,
+        "Units": "px", # Default for movement
+    }
+    sidecar_path = valid_path.with_suffix(".json")
+    with open(sidecar_path, "w") as f:
+        json.dump(metadata, f, indent=4)
+
+    logger.info(f"Saved Motion-BIDS data to {valid_path}")

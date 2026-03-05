@@ -999,3 +999,14 @@ class ValidROICollectionGeoJSON:
         ),
     )
     data: dict = field(init=False, factory=dict)
+
+
+@define
+class ValidMotionBIDS:
+    """Class for validating Motion-BIDS (.tsv) files."""
+
+    suffixes: ClassVar[set[str]] = {".tsv"}
+    file: Path = field(
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
+    )
