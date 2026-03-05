@@ -292,3 +292,114 @@ def savgol_filter(
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_smoothed, "output"))
     return data_smoothed
+
+
+@log_to_attrs
+def filter_valid_regions(
+    data: xr.DataArray,
+    max_nan_fraction: float = 0.0,
+    min_length: int = 2,
+) -> xr.DataArray:
+    """Select the longest contiguous region with an acceptable NaN fraction.
+
+    Scans the ``time`` dimension and finds the longest contiguous stretch of
+    frames in which the fraction of NaN values (computed across all non-time
+    dimensions) does not exceed ``max_nan_fraction``.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data to filter. Must contain a ``time`` dimension.
+    max_nan_fraction : float
+        The maximum fraction of NaN values allowed at a single time step,
+        computed across all non-time dimensions (e.g. space, keypoints,
+        individuals). Must be between 0 and 1 (inclusive).
+        Default is ``0.0`` (no NaNs allowed at any time step).
+    min_length : int
+        The minimum number of consecutive time frames required for a region
+        to be kept. Default is ``2``.
+
+    Returns
+    -------
+    xarray.DataArray
+        The input data sliced to the longest contiguous time region that
+        satisfies ``max_nan_fraction``. The ``time`` coordinates are
+        preserved from the original array.
+
+    Raises
+    ------
+    ValueError
+        If ``max_nan_fraction`` is not between 0 and 1.
+    ValueError
+        If ``min_length`` is less than 1.
+    ValueError
+        If no valid region of at least ``min_length`` frames exists.
+
+    Examples
+    --------
+    Keep only the longest contiguous stretch with no NaNs:
+
+    >>> position_clean = filter_valid_regions(position)
+
+    Allow up to 20 % NaNs per time frame, requiring at least 100 frames:
+
+    >>> position_clean = filter_valid_regions(
+    ...     position, max_nan_fraction=0.2, min_length=100
+    ... )
+
+    See Also
+    --------
+    movement.filtering.interpolate_over_time :
+        Fill NaN gaps by interpolation before or after filtering.
+
+    """
+    if not (0.0 <= max_nan_fraction <= 1.0):
+        raise logger.error(
+            ValueError(
+                f"'max_nan_fraction' must be between 0 and 1, "
+                f"got {max_nan_fraction!r}."
+            )
+        )
+    if min_length < 1:
+        raise logger.error(
+            ValueError(f"'min_length' must be at least 1, got {min_length!r}.")
+        )
+
+    # Compute NaN fraction at each time step across all non-time dimensions.
+    other_dims = [dim for dim in data.dims if dim != "time"]
+    if other_dims:
+        n_non_time = data.size // data.sizes["time"]
+        nan_fraction = data.isnull().sum(dim=other_dims) / n_non_time
+    else:
+        nan_fraction = data.isnull().astype(float)
+
+    valid_mask = (nan_fraction <= max_nan_fraction).values  # 1-D bool array
+
+    # Find the longest contiguous run of True values.
+    best_start = 0
+    best_length = 0
+    current_start = 0
+    current_length = 0
+
+    for i, is_valid in enumerate(valid_mask):
+        if is_valid:
+            if current_length == 0:
+                current_start = i
+            current_length += 1
+            if current_length > best_length:
+                best_length = current_length
+                best_start = current_start
+        else:
+            current_length = 0
+
+    if best_length < min_length:
+        raise logger.error(
+            ValueError(
+                f"No valid region of at least {min_length} frame(s) found. "
+                f"The longest valid region has {best_length} frame(s). "
+                f"Try increasing 'max_nan_fraction' or decreasing "
+                f"'min_length'."
+            )
+        )
+
+    return data.isel(time=slice(best_start, best_start + best_length))

@@ -1,10 +1,12 @@
 from contextlib import nullcontext as does_not_raise
 
+import numpy as np
 import pytest
 import xarray as xr
 
 from movement.filtering import (
     filter_by_confidence,
+    filter_valid_regions,
     interpolate_over_time,
     rolling_filter,
     savgol_filter,
@@ -279,3 +281,99 @@ def test_filter_by_confidence_on_position(
     n_low_confidence_kpts = 5
     assert isinstance(position_filtered, xr.DataArray)
     assert n_nans == valid_input_dataset.sizes["space"] * n_low_confidence_kpts
+
+
+# ---------------------------------------------------------------------------
+# Helpers for TestFilterValidRegions
+# ---------------------------------------------------------------------------
+
+
+def _make_da(n_frames: int, nan_at: list[int] | None = None) -> xr.DataArray:
+    """Return a (time, space) DataArray with optional all-NaN time steps."""
+    data = np.ones((n_frames, 2), dtype=float)
+    if nan_at:
+        for t in nan_at:
+            data[t] = np.nan
+    return xr.DataArray(
+        data,
+        dims=["time", "space"],
+        coords={"time": np.arange(n_frames), "space": ["x", "y"]},
+    )
+
+
+class TestFilterValidRegions:
+    """Tests for :func:`movement.filtering.filter_valid_regions`."""
+
+    def test_clean_data_returns_full_array(self):
+        """All frames valid → entire array is returned."""
+        da = _make_da(10)
+        result = filter_valid_regions(da)
+        assert result.sizes["time"] == 10
+        assert list(result.time.values) == list(range(10))
+
+    def test_returns_longest_valid_run(self):
+        """NaNs at frames 3-5 split the data; longest run (frames 6-9) returned."""
+        da = _make_da(10, nan_at=[3, 4, 5])
+        result = filter_valid_regions(da)
+        assert result.sizes["time"] == 4
+        assert list(result.time.values) == [6, 7, 8, 9]
+
+    def test_max_nan_fraction_allows_partial_nan_frame(self):
+        """A frame with 50% NaN is valid when max_nan_fraction=0.5."""
+        da = _make_da(5)
+        da.values[2, 0] = np.nan  # x at time=2 → 1/2 = 50% NaN
+        result = filter_valid_regions(da, max_nan_fraction=0.5)
+        assert result.sizes["time"] == 5
+
+    def test_time_coordinates_preserved(self):
+        """Returned slice carries the correct original time coordinates."""
+        times = np.array([0.0, 0.1, 0.2, 0.3, 0.4])
+        data = np.ones((5, 2), dtype=float)
+        data[1] = np.nan  # frame 1 NaN
+        data[2] = np.nan  # frame 2 NaN
+        da = xr.DataArray(
+            data,
+            dims=["time", "space"],
+            coords={"time": times, "space": ["x", "y"]},
+        )
+        # valid runs: frame 0 (len 1), frames 3-4 (len 2)
+        result = filter_valid_regions(da, min_length=2)
+        assert result.sizes["time"] == 2
+        np.testing.assert_allclose(result.time.values, [0.3, 0.4])
+
+    def test_no_valid_region_raises(self):
+        """All frames have NaNs → ValueError because longest run < min_length."""
+        da = _make_da(4, nan_at=[0, 1, 2, 3])
+        with pytest.raises(ValueError, match="No valid region"):
+            filter_valid_regions(da)
+
+    def test_min_length_exceeds_best_run_raises(self):
+        """Longest valid run (4 frames) < min_length=5 → ValueError."""
+        da = _make_da(10, nan_at=[3, 4, 5])
+        with pytest.raises(ValueError, match="No valid region"):
+            filter_valid_regions(da, min_length=5)
+
+    @pytest.mark.parametrize(
+        "bad_fraction, match_str",
+        [
+            (-0.1, "max_nan_fraction"),
+            (1.5, "max_nan_fraction"),
+        ],
+    )
+    def test_invalid_max_nan_fraction_raises(self, bad_fraction, match_str):
+        """max_nan_fraction outside [0, 1] raises ValueError."""
+        da = _make_da(5)
+        with pytest.raises(ValueError, match=match_str):
+            filter_valid_regions(da, max_nan_fraction=bad_fraction)
+
+    def test_invalid_min_length_raises(self):
+        """min_length < 1 raises ValueError."""
+        da = _make_da(5)
+        with pytest.raises(ValueError, match="min_length"):
+            filter_valid_regions(da, min_length=0)
+
+    def test_result_is_dataarray(self):
+        """Return type is always xarray.DataArray."""
+        da = _make_da(5)
+        result = filter_valid_regions(da)
+        assert isinstance(result, xr.DataArray)
