@@ -50,11 +50,11 @@ def ds_to_napari_layers(
 
     Returns
     -------
-    points_as_napari
+    points_as_napari : numpy.ndarray
         position data as a napari Tracks array with shape (N, 4),
         where N is n_keypoints * n_individuals * n_frames
         and the 4 columns are (track_id, frame_idx, y, x).
-    bboxes_as_napari
+    bboxes_as_napari : numpy.ndarray | None
         bounding box data as a napari Shapes array with shape (N, 4, 4),
         where N is n_individuals * n_frames and each (4, 4) entry is
         a matrix of 4 rows (1 per corner vertex, starting from upper left

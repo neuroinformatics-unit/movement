@@ -119,6 +119,13 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
             points are given, one normal vector is returned for each point
             given. By default, the origin is used.
 
+        Returns
+        -------
+        numpy.ndarray
+            Unit normal vector(s) perpendicular to the line segment, pointing
+            toward the half-plane containing the
+            sample point ``on_same_side_as``.
+
         Raises
         ------
         ValueError
@@ -164,6 +171,13 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
         in_degrees
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
+
+        Returns
+        -------
+        xarray.DataArray
+            The signed angle between the segment normal and the provided
+            direction vector(s). Returned in radians unless
+            ``in_degrees=True``.
 
         See Also
         --------
