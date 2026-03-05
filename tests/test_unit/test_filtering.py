@@ -312,7 +312,7 @@ class TestFilterValidRegions:
         assert list(result.time.values) == list(range(10))
 
     def test_returns_longest_valid_run(self):
-        """NaNs at frames 3-5 split the data; longest run (frames 6-9) returned."""
+        """NaNs at frames 3-5 split data; longest run (6-9) returned."""
         da = _make_da(10, nan_at=[3, 4, 5])
         result = filter_valid_regions(da)
         assert result.sizes["time"] == 4
@@ -342,7 +342,7 @@ class TestFilterValidRegions:
         np.testing.assert_allclose(result.time.values, [0.3, 0.4])
 
     def test_no_valid_region_raises(self):
-        """All frames have NaNs → ValueError because longest run < min_length."""
+        """All frames NaN → ValueError because longest run < min_length."""
         da = _make_da(4, nan_at=[0, 1, 2, 3])
         with pytest.raises(ValueError, match="No valid region"):
             filter_valid_regions(da)
