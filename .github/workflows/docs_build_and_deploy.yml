@@ -41,7 +41,7 @@ jobs:
           restore-keys: cached-test-data
       - uses: neuroinformatics-unit/actions/build_sphinx_docs@main
         with:
-          python-version: 3.12
+          python-version: 3.13
           use-make: true
           fetch-tags: true
           use-artifactci: lazy
