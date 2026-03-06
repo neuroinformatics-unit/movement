@@ -897,103 +897,61 @@ def from_mmpose_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     ----------
     file
         Path to the JSON file containing MMPose predictions.
-        The file can contain a single frame dictionary or a list of
-        frame dictionaries.
     fps
-        The number of frames per second in the video. If None (default),
-        the ``time`` coordinates will be in frame numbers.
+        The number of frames per second in the video.
 
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
-        and associated metadata.
-
-    Examples
-    --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_mmpose_file("path/to/file.json", fps=30)
+        ``movement`` dataset containing the pose tracks and metadata.
 
     """
     import json
 
     valid_file = cast("ValidFile", file)
-    file_path = valid_file.file
-    with open(file_path) as f:
+    with open(valid_file.file) as f:
         data = json.load(f)
 
-    # Ensure data is a list of frame dictionaries
     if isinstance(data, dict):
         data = [data]
-
-    # Sort frames by frame_id to ensure chronological order
     data.sort(key=lambda x: x["frame_id"])
 
-    # Extract unique keypoint names (assumed consistent across frames/instances)
-    # MMPose JSON doesn't explicitly store keypoint names.
-    # We will use default names "keypoint_0", "keypoint_1", etc.
-    # unless we can find a way to infer them.
-    # For now, let's determine the number of keypoints from the first instance.
-    n_keypoints = 0
-    if data and data[0]["instances"]:
-        n_keypoints = len(data[0]["instances"][0]["keypoints"])
-
-    # Determine individuals (instances)
-    # If track_id is present, use it. Otherwise use instance index.
-    track_ids = set()
-    for frame in data:
-        for inst in frame["instances"]:
-            track_ids.add(inst.get("track_id", None))
-
+    # Determine individual names
+    track_ids = {
+        inst.get("track_id") for frame in data for inst in frame["instances"]
+    }
     if None in track_ids:
-        # If any instance lacks a track_id, we fall back to using instance
-        # indices as identifiers, assuming the number of individuals is
-        # the maximum number of instances in any single frame.
-        max_instances = max(len(frame["instances"]) for frame in data)
-        individual_names = [f"id_{i}" for i in range(max_instances)]
+        n_ind = max(len(frame["instances"]) for frame in data)
+        individual_names = [f"id_{i}" for i in range(n_ind)]
     else:
-        # Use track_ids as individual names
         individual_names = [f"track_{tid}" for tid in sorted(list(track_ids))]
 
-    n_frames = len(data)
-    n_individuals = len(individual_names)
-    n_space = 2  # MMPose 2D keypoints
-
-    # Initialize arrays
-    position_array = np.full(
-        (n_frames, n_space, n_keypoints, n_individuals), np.nan
+    # Determine keypoints and initialize arrays
+    n_kpts = (
+        len(data[0]["instances"][0]["keypoints"])
+        if data and data[0]["instances"]
+        else 0
     )
-    confidence_array = np.full((n_frames, n_keypoints, n_individuals), np.nan)
+    n_frames, n_ind = len(data), len(individual_names)
 
-    frame_id_to_idx = {frame["frame_id"]: i for i, frame in enumerate(data)}
+    pos = np.full((n_frames, 2, n_kpts, n_ind), np.nan, dtype="float32")
+    conf = np.full((n_frames, n_kpts, n_ind), np.nan, dtype="float32")
 
     for i, frame in enumerate(data):
         for j, inst in enumerate(frame["instances"]):
-            # Determine individual index
-            if "track_id" in inst:
-                ind_idx = individual_names.index(f"track_{inst['track_id']}")
-            else:
-                ind_idx = j
+            tid = inst.get("track_id")
+            idx = (
+                individual_names.index(f"track_{tid}")
+                if tid is not None
+                else j
+            )
+            if idx < n_ind:
+                pos[i, ..., idx] = np.array(inst["keypoints"]).T
+                conf[i, ..., idx] = inst["keypoint_scores"]
 
-            if ind_idx < n_individuals:
-                # Extract keypoints (n_keypoints, 2)
-                kp = np.array(inst["keypoints"])
-                # Extract scores (n_keypoints,)
-                scores = np.array(inst["keypoint_scores"])
-
-                position_array[i, :, :, ind_idx] = kp.T
-                confidence_array[i, :, ind_idx] = scores
-
-    ds = from_numpy(
-        position_array=position_array.astype(np.float32),
-        confidence_array=confidence_array.astype(np.float32),
-        individual_names=individual_names,
-        keypoint_names=None,  # Will default to keypoint_0, keypoint_1, etc.
-        fps=fps,
-        source_software="MMPose",
-    )
-    ds.attrs["source_file"] = file_path.as_posix()
-    logger.info(f"Loaded pose tracks from {file_path}:\n{ds}")
+    ds = from_numpy(pos, conf, individual_names, None, fps, "MMPose")
+    ds.attrs["source_file"] = valid_file.file.as_posix()
+    logger.info(f"Loaded {n_frames} frames from {valid_file.file}")
     return ds
 
 
