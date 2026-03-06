@@ -455,7 +455,7 @@ If so, make sure to save them to a netCDF file that satisfies the
 (target-zarr)=
 ## Saving and loading with Zarr
 
-[Zarr](https://zarr.readthedocs.io/) is an open format for storing
+[Zarr](https://zarr.readthedocs.io/en/stable/) is an open format for storing
 chunked, compressed N-dimensional arrays. It is particularly well-suited
 for large datasets and cloud or remote storage.
 Like netCDF, Zarr is natively supported by xarray.
