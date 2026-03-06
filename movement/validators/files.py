@@ -16,6 +16,7 @@ from pynwb import NWBFile
 
 from movement.utils.logging import logger
 from movement.validators._json_schemas import (
+    MMPOSE_SCHEMA,
     ROI_COLLECTION_SCHEMA,
     ROI_TYPE_TO_GEOMETRY,
 )
@@ -922,3 +923,17 @@ class ValidROICollectionGeoJSON:
         ),
     )
     data: dict = field(init=False, factory=dict)
+
+
+@define
+class ValidMMPoseJSON:
+    """Class for validating MMPose output JSON files."""
+
+    suffixes: ClassVar[set[str]] = {".json"}
+    file: Path = field(
+        converter=Path,
+        validator=validators.and_(
+            _file_validator(permission="r", suffixes=suffixes),
+            _json_validator(schema=MMPOSE_SCHEMA),
+        ),
+    )
