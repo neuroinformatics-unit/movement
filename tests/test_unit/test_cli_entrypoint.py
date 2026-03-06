@@ -18,7 +18,7 @@ from movement.cli_entrypoint import main
         ),  # Valid arg
         (
             ["movement", "invalid"],
-            pytest.raises(SystemExit),
+            pytest.raises(SystemExit, match=r"^2$"),
         ),  # Invalid arg
         (["movement"], does_not_raise("usage: movement")),  # Empty arg
     ],

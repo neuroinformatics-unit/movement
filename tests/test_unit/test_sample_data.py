@@ -182,15 +182,17 @@ def test_fetch_dataset(sample_dataset, with_video):
 
 
 @pytest.mark.parametrize(
-    "sample_name, expected_exception",
+    "sample_name, expected_exception, expected_match",
     [
-        ("nonexistent-dataset", ValueError),
-        ("TRex_five-locusts.zip", NotImplementedError),
+        ("nonexistent-dataset", ValueError, "is not in the registry"),
+        ("TRex_five-locusts.zip", NotImplementedError, "not implemented yet"),
     ],
     ids=["invalid_file", "TRex_folder_zip"],
 )
-def test_fetch_dataset_invalid(sample_name, expected_exception):
-    with pytest.raises(expected_exception):
+def test_fetch_dataset_invalid(
+    sample_name, expected_exception, expected_match
+):
+    with pytest.raises(expected_exception, match=expected_match):
         fetch_dataset(sample_name)
 
 
@@ -324,7 +326,10 @@ def test_hash_filter_removed_after_context(raise_exception):
     initial_filter_count = len(logger.filters)
 
     if raise_exception:
-        with pytest.raises(ValueError), _hide_pooch_hash_logs():
+        with (
+            pytest.raises(ValueError, match="Test exception"),
+            _hide_pooch_hash_logs(),
+        ):
             assert len(logger.filters) == initial_filter_count + 1
             raise ValueError("Test exception")
     else:

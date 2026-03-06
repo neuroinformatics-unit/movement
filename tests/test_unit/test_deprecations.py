@@ -55,8 +55,12 @@ def test_deprecation(
     """Test that calling a deprecated function raises a DeprecationWarning
     with the expected message.
     """
-    with patch_context, pytest.warns(DeprecationWarning) as record:
+    with (
+        patch_context,
+        pytest.warns(DeprecationWarning, match="deprecated") as record,
+    ):
         _ = deprecated_function(**mocked_inputs)
+    # match= checks the message; assert below verifies the function name
     assert f"{deprecated_function.__name__}` is deprecated" in str(
         record[0].message
     )
@@ -78,7 +82,7 @@ def test_backwards_compatibility_displacement(valid_dataset, request):
     """
     position = request.getfixturevalue(valid_dataset).position
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(DeprecationWarning, match="deprecated"):
         result = kinematics.compute_displacement(position)
 
     expected_result = -kinematics.compute_backward_displacement(position)
