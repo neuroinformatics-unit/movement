@@ -54,4 +54,5 @@ resources
 related-projects
 code-of-conduct
 license
+text_formatting_guide
 ```

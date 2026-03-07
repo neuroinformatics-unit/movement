@@ -38,7 +38,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](http
 ### Forking the repository
 
 1. Fork the [repository](movement-github:) on GitHub.
-   You can read more about [forking in the GitHub docs](https://docs.github.com/en/get-started/quickstart/fork-a-repo).
+   You can read more about [forking in the GitHub docs](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo).
 
 2. Clone your fork to your local machine and navigate to the repository folder:
 
@@ -512,7 +512,7 @@ Its source files are located in the `docs` folder of this repository.
 They are written in either [Markdown](myst-parser:syntax/typography.html)
 or [reStructuredText](https://docutils.sourceforge.io/rst.html).
 The `index.md` file corresponds to the homepage of the documentation website.
-Other `.md`  or `.rst` files are linked to the homepage via the `toctree` directive.
+Other `.md` or `.rst` files are linked to the homepage via the `toctree` directive.
 
 We use [Sphinx](sphinx-doc:) and the [PyData Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html)
 to build the source files into HTML output.
@@ -688,8 +688,8 @@ we recommend removing existing build files first.
 The following command will remove all generated files in `docs/`,
 including the auto-generated files `source/api_index.rst` and
 `source/snippets/admonitions.md`, as well as all files in
- `build/`, `source/api/`, and `source/examples/`.
- It will then re-build the documentation:
+`build/`, `source/api/`, and `source/examples/`.
+It will then re-build the documentation:
 
 ```sh
 make clean html
@@ -740,7 +740,7 @@ GIN has a GitHub-like interface and git-like
 Currently, the data repository contains sample pose estimation data files
 stored in the `poses` folder, and tracked bounding boxes data files under the `bboxes` folder. For some of these files, we also host
 the associated video file (in the `videos` folder) and/or a single
-video frame (in the `frames`) folder. These can be used to develop and
+video frame (in the `frames` folder). These can be used to develop and
 test visualisations, e.g. to overlay the data on video frames.
 The `metadata.yaml` file holds metadata for each sample dataset,
 including information on data provenance as well as the mapping between data files and related
@@ -803,7 +803,7 @@ SLEAP_three-mice_Aeon_proofread.analysis.h5:
     file_name: three-mice_Aeon_video.avi
     sha256sum: null
   note: All labels were proofread (user-defined) and can be considered ground truth.
-    It was exported from the .slp file with the same prefix.
+    It was exported from the `.slp` file with the same prefix.
 ```
 
 (target-verify-sample-data)=
