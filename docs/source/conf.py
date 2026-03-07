@@ -110,6 +110,8 @@ sphinx_gallery_conf = {
     "filename_pattern": "/*.py",  # which files to execute before inclusion
     "gallery_dirs": ["examples"],  # output directory
     "run_stale_examples": True,  # re-run examples on each build
+    # Warn (don't fail) if an example script errors (e.g. network timeout on gin.g-node.org)
+    "only_warn_on_example_error": True,
     # Integration with Binder, see https://sphinx-gallery.github.io/stable/configuration.html#generate-binder-links-for-gallery-notebooks-experimental
     "binder": {
         "org": "neuroinformatics-unit",
@@ -216,6 +218,7 @@ linkcheck_ignore = [
     "https://doi.org/10.5281/zenodo.*",
     "https://abide.ics.ulisboa.pt/*",  # flaky
     r"https://zarr\.readthedocs\.io/.*",  # zarr docs redirect between stable/latest
+    r"https://gin\.g-node\.org/.*",  # gin data server blocks/times out in CI
 ]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {
