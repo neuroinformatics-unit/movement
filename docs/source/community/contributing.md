@@ -38,7 +38,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](http
 ### Forking the repository
 
 1. Fork the [repository](movement-github:) on GitHub.
-   You can read more about [forking in the GitHub docs](https://docs.github.com/en/get-started/quickstart/fork-a-repo).
+   You can read more about [forking in the GitHub docs](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo).
 
 2. Clone your fork to your local machine and navigate to the repository folder:
 

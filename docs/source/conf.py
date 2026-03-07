@@ -104,6 +104,12 @@ exclude_patterns = [
     "examples/**/*.py",
 ]
 
+# Suppress known pre-existing docstring formatting warnings from Python source
+# files ("Field list ends without a blank line; unexpected unindent").
+# These come from docstrings in save_poses.py, roi/base.py, roi/line.py,
+# roi/polygon.py, napari/layer_styles.py, and validators/arrays.py.
+suppress_warnings = ["docutils"]
+
 # Configure Sphinx gallery
 sphinx_gallery_conf = {
     "examples_dirs": ["../../examples"],
