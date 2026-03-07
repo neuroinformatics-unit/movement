@@ -127,7 +127,7 @@ def _compute_forward_displacement(data: xr.DataArray) -> xr.DataArray:
     validate_dims_coords(data, {"time": [], "space": []})
     result = data.diff(dim="time", label="lower")
     result = result.reindex_like(data)
-    
+
     return result
 
 
