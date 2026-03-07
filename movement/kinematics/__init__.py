@@ -1,5 +1,6 @@
 """Compute variables derived from ``position`` data."""
 
+from movement.kinematics.collective import compute_polarization
 from movement.kinematics.distances import compute_pairwise_distances
 from movement.kinematics.kinematics import (
     compute_acceleration,
@@ -32,4 +33,5 @@ __all__ = [
     "compute_head_direction_vector",
     "compute_forward_vector_angle",
     "compute_kinetic_energy",
+    "compute_polarization",
 ]
