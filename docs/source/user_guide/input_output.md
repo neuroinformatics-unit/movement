@@ -452,6 +452,47 @@ If so, make sure to save them to a netCDF file that satisfies the
 [GUI compatibility requirements](target-gui-compatible-netcdf).
 :::
 
+(target-zarr)=
+## Saving and loading with Zarr
+
+[Zarr](https://zarr.readthedocs.io/en/stable/) is an open format for storing
+chunked, compressed N-dimensional arrays. It is particularly well-suited
+for large datasets and cloud or remote storage.
+Like netCDF, Zarr is natively supported by xarray.
+
+To save any xarray dataset `ds` to a Zarr store:
+```python
+ds.to_zarr("path/to/dataset.zarr", consolidated=True)
+```
+
+To load it back:
+```python
+import xarray as xr
+
+ds = xr.open_zarr("path/to/dataset.zarr", consolidated=True)
+```
+
+Similarly, an {class}`xarray.DataArray` object (e.g. the `position` variable
+of a `movement` dataset) can be saved to a Zarr store using the
+{meth}`to_zarr()<xarray.DataArray.to_zarr()>` method.
+Because Zarr stores correspond to Dataset objects, the DataArray is internally
+converted to a Dataset before saving. To load a specific DataArray back,
+load the store as a Dataset and select the variable by name:
+
+```python
+da.to_zarr("path/to/dataarray.zarr", consolidated=True)
+
+import xarray as xr
+
+da_loaded = xr.open_zarr("path/to/dataarray.zarr", consolidated=True)["position"]
+```
+
+:::{note}
+For more details on Zarr I/O options (chunking, compression, cloud
+storage backends), refer to the
+[xarray documentation on Zarr](https://docs.xarray.dev/en/stable/user-guide/io.html#zarr).
+:::
+
 (target-sample-data)=
 ## Sample data
 

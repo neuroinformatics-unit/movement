@@ -214,7 +214,9 @@ linkcheck_ignore = [
     "https://zenodo.org/doi/*",
     "https://zenodo.org/records/*",
     "https://doi.org/10.5281/zenodo.*",
-    "https://abide.ics.ulisboa.pt/*"  # flaky
+    "https://abide.ics.ulisboa.pt/*",  # flaky
+    "https://zarr.readthedocs.io/.*",  # 403 error due to bot protection
+    "https://docs.xarray.dev/.*",  # 403 error due to bot protection
 ]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {

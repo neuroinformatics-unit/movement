@@ -1,4 +1,4 @@
-"""Test saving movement datasets to NetCDF files."""
+"""Test saving movement datasets to Zarr stores."""
 
 import pytest
 import xarray as xr
@@ -17,26 +17,25 @@ import xarray as xr
         "dataset_with_datetime_index",
     ],
 )
-@pytest.mark.parametrize("engine", ["netcdf4", "scipy", "h5netcdf"])
-def test_ds_save_and_load_netcdf(dataset, engine, tmp_path, request):
-    """Test that saving a movement dataset to a NetCDF file and then
+def test_ds_save_and_load_zarr(dataset, tmp_path, request):
+    """Test that saving a movement dataset to a Zarr store and then
     loading it back returns the same Dataset.
-
-    We test across all 3 NetCDF engines supported by xarray.
     """
     ds = request.getfixturevalue(dataset)
-    netcdf_file = tmp_path / "test_dataset.nc"
-    ds.to_netcdf(netcdf_file, engine=engine)
-    loaded_ds = xr.load_dataset(netcdf_file)
+    zarr_store = tmp_path / "test_dataset.zarr"
+    ds.to_zarr(zarr_store, consolidated=True)
+    loaded_ds = xr.open_zarr(zarr_store, consolidated=True)
+    loaded_ds.load()
     xr.testing.assert_allclose(loaded_ds, ds)
     assert loaded_ds.attrs == ds.attrs
 
 
-def test_da_save_and_load_netcdf(valid_poses_dataset, tmp_path):
-    """Test saving a DataArray to a NetCDF file and loading it back."""
+def test_da_save_and_load_zarr(valid_poses_dataset, tmp_path):
+    """Test saving a DataArray to a Zarr store and loading it back."""
     da = valid_poses_dataset["position"]
-    netcdf_file = tmp_path / "test_dataarray.nc"
-    da.to_netcdf(netcdf_file)
-    loaded_da = xr.load_dataarray(netcdf_file)
+    zarr_store = tmp_path / "test_dataarray.zarr"
+    da.to_zarr(zarr_store, consolidated=True)
+    loaded_da = xr.open_zarr(zarr_store, consolidated=True)["position"]
+    loaded_da.load()
     xr.testing.assert_allclose(loaded_da, da)
     assert loaded_da.attrs == da.attrs
