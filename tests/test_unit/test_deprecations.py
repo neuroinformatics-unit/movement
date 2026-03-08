@@ -1,11 +1,9 @@
 from contextlib import nullcontext
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
-import xarray as xr
 
 import movement.kinematics as kinematics
-from movement.io import load_bboxes, load_poses
 
 
 @pytest.mark.parametrize(
@@ -16,36 +14,6 @@ from movement.io import load_bboxes, load_poses
             {"data": MagicMock(dims=["time", "space"])},
             nullcontext(),
             ["compute_forward_displacement", "compute_backward_displacement"],
-        ),
-        (
-            load_poses.from_file,
-            {"file": "dummy_path", "source_software": "SLEAP"},
-            patch(
-                "movement.io.load_poses.from_sleap_file",
-                return_value=xr.Dataset(),
-            ),
-            ["load_dataset"],
-        ),
-        (
-            load_poses.from_multiview_files,
-            {
-                "file_dict": {"dummy_view": "dummy_path"},
-                "source_software": "SLEAP",
-            },
-            patch(
-                "movement.io.load_poses.from_sleap_file",
-                return_value=xr.Dataset(),
-            ),
-            ["load_multiview_dataset"],
-        ),
-        (
-            load_bboxes.from_file,
-            {"file": "dummy_path", "source_software": "VIA-tracks"},
-            patch(
-                "movement.io.load_bboxes.from_via_tracks_file",
-                return_value=xr.Dataset(),
-            ),
-            ["load_dataset"],
         ),
     ],
 )
