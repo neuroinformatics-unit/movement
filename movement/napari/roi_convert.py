@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import warnings
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
@@ -81,7 +80,6 @@ def napari_shape_to_roi(
 
     Ellipses are approximated as polygons because neither ``movement`` nor
     its underlying geometry library (``shapely``) has a native ellipse type.
-    A :class:`UserWarning` is emitted whenever an ellipse is converted.
     The number of vertices in the approximation is controlled by
     ``ellipse_n_vertices``; the default of ``64`` is sufficient for most
     practical purposes at typical image resolutions.
@@ -136,11 +134,9 @@ def _ellipse_to_roi(
 
     which handles both axis-aligned and rotated ellipses.
     """
-    warnings.warn(
+    logger.info(
         f"Ellipse '{name or 'Un-named'}' will be approximated as a "
-        f"PolygonOfInterest with {n_vertices} vertices.",
-        UserWarning,
-        stacklevel=3,
+        f"PolygonOfInterest with {n_vertices} vertices."
     )
 
     centre = (xy[0] + xy[2]) / 2
