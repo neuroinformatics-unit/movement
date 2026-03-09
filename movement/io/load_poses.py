@@ -183,8 +183,18 @@ def from_file(
             )
         return from_nwb_file(file, **kwargs)
     else:
+        valid_options = [
+            "Anipose",
+            "DeepLabCut",
+            "LightningPose",
+            "NWB",
+            "SLEAP",
+        ]
         raise logger.error(
-            ValueError(f"Unsupported source software: {source_software}")
+            ValueError(
+                f"Unsupported source software: '{source_software}'. "
+                f"Supported options are: {', '.join(valid_options)}"
+            )
         )
 
 
