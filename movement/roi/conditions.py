@@ -186,13 +186,10 @@ def compute_entry_exits(
     valid_modes = {"centroid", "all", "any", "majority"}
     if mode not in valid_modes:
         raise ValueError(
-            f"Invalid mode {mode!r}. "
-            f"Expected one of {sorted(valid_modes)}."
+            f"Invalid mode {mode!r}. Expected one of {sorted(valid_modes)}."
         )
     if min_frames < 1:
-        raise ValueError(
-            f"min_frames must be >= 1, got {min_frames}."
-        )
+        raise ValueError(f"min_frames must be >= 1, got {min_frames}.")
 
     # Collapse keypoints via spatial centroid before computing occupancy
     if mode == "centroid" and "keypoints" in data.dims:
