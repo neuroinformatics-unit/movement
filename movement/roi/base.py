@@ -513,7 +513,7 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         -------
         xarray.DataArray
             Signed angle(s) between the approach vector and
-            the reference vector.
+            the ``direction`` vector.
             Returned in radians unless ``in_degrees=True``.
 
         See Also
