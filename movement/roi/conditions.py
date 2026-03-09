@@ -1,6 +1,7 @@
 """Functions for computing condition arrays involving RoIs."""
 
 from collections import defaultdict
+from typing import Literal
 
 import numpy as np
 import xarray as xr
@@ -96,3 +97,129 @@ def compute_region_occupancy(
     return xr.concat(occupancies.values(), dim="region").assign_coords(
         region=list(occupancies.keys())
     )
+
+
+def compute_entry_exits(
+    data: xr.DataArray,
+    regions: ROICollection,
+    mode: Literal["centroid", "all", "any", "majority"] = "centroid",
+    min_frames: int = 1,
+) -> xr.DataArray:
+    """Return an array indicating when keypoints entered or exited regions.
+
+    Detects transitions into and out of Regions of Interest (RoIs) and
+    returns an integer ``DataArray`` where ``+1`` marks an entry event
+    and ``-1`` marks an exit event.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        Position data to check against the ``regions``. Must contain at
+        least ``time`` and ``space`` dimensions. If a ``keypoints``
+        dimension is present, it is collapsed according to ``mode``.
+    regions : Sequence[BaseRegionOfInterest]
+        Regions of Interest to detect entries and exits for.
+    mode : {"centroid", "all", "any", "majority"}, optional
+        How to aggregate across the ``keypoints`` dimension when present.
+
+        - ``"centroid"``: compute the spatial mean across keypoints
+          first, then check occupancy of the resulting centroid point.
+        - ``"all"``: the subject is inside only if **all** keypoints
+          are inside the region.
+        - ``"any"``: the subject is inside if **any** keypoint is
+          inside the region.
+        - ``"majority"``: the subject is inside if **more than half**
+          of the keypoints are inside the region.
+
+        If no ``keypoints`` dimension is present, ``mode`` has no
+        effect. Default is ``"centroid"``.
+    min_frames : int, optional
+        Minimum number of consecutive frames a subject must remain in
+        the new state (inside or outside) for the transition to be
+        registered. Transitions that last fewer than ``min_frames``
+        frames are treated as noise and suppressed. Default is ``1``
+        (no filtering).
+
+    Returns
+    -------
+    xarray.DataArray
+        An integer ``DataArray`` with the same dimensions as the output
+        of :func:`compute_region_occupancy` — i.e. ``space`` and
+        ``keypoints`` are removed, and ``region`` is added. Values:
+
+        - ``+1`` at time points where an entry event occurred.
+        - ``-1`` at time points where an exit event occurred.
+        - ``0`` at all other time points.
+
+        At ``time=0``, the value is ``+1`` if the subject starts
+        inside the region, and ``0`` otherwise.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> import xarray as xr
+    >>> from movement.roi import PolygonOfInterest, compute_entry_exits
+    >>> square = PolygonOfInterest(
+    ...     [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)],
+    ...     name="square",
+    ... )
+    >>> positions = xr.DataArray(
+    ...     np.array([[1.5, 1.5], [0.5, 0.5], [0.5, 0.5], [1.5, 1.5]]),
+    ...     dims=["time", "space"],
+    ...     coords={"space": ["x", "y"], "time": [0, 1, 2, 3]},
+    ... )
+    >>> events = compute_entry_exits(positions, [square])
+    >>> events.sel(region="square").values
+    array([ 0,  1,  0, -1])
+
+    Notes
+    -----
+    The ``min_frames`` parameter uses a backward-looking rolling
+    minimum over the occupancy array. A transition is only registered
+    after the new state has been maintained for ``min_frames``
+    consecutive frames, introducing a lag of ``min_frames - 1`` frames
+    in event detection.
+
+    """
+    # Collapse keypoints via spatial centroid before computing occupancy
+    if mode == "centroid" and "keypoints" in data.dims:
+        position_data = data.mean(dim="keypoints")
+    else:
+        position_data = data
+
+    # Compute per-region boolean occupancy
+    occupancy = compute_region_occupancy(position_data, regions)
+
+    # Reduce keypoints dimension for non-centroid modes
+    if "keypoints" in occupancy.dims:
+        if mode == "all":
+            occupancy = occupancy.all(dim="keypoints")
+        elif mode == "any":
+            occupancy = occupancy.any(dim="keypoints")
+        elif mode == "majority":
+            n_kp = occupancy.sizes["keypoints"]
+            occupancy = occupancy.sum(dim="keypoints") > (n_kp / 2)
+
+    # Suppress brief border noise: require sustained occupancy
+    if min_frames > 1:
+        occupancy = (
+            occupancy.astype(int)
+            .rolling(time=min_frames, min_periods=min_frames)
+            .min()
+            .fillna(0)
+            .astype(bool)
+        )
+
+    # Compute transitions: diff gives +1 (entry) or -1 (exit)
+    # diff removes the first time point; we prepend t=0 separately
+    transitions = occupancy.astype(int).diff(dim="time")
+
+    # At t=0: +1 if the subject starts inside, 0 otherwise
+    initial = occupancy.isel(time=0).astype(int).expand_dims("time")
+
+    result = xr.concat([initial, transitions], dim="time")
+
+    # Ensure region is the leading dimension, consistent with
+    # compute_region_occupancy
+    dims_order = ["region"] + [d for d in result.dims if d != "region"]
+    return result.transpose(*dims_order)
