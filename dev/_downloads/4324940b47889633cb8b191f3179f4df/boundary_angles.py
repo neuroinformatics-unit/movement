@@ -136,6 +136,22 @@ habitat_ax.legend()
 habitat_fig.show()
 
 # %%
+# .. note::
+#
+#    Once you have defined your RoIs, you can save them to a GeoJSON file
+#    using :func:`save_rois()<movement.roi.save_rois>` and load them back
+#    later with :func:`load_rois()<movement.roi.load_rois>`. This is useful
+#    for sharing RoI definitions with collaborators or reusing them across
+#    multiple analysis scripts.
+#
+#    .. code-block:: python
+#
+#       from movement.roi import save_rois, load_rois
+#
+#       save_rois([central_region, nest_region, ring_region], "rois.geojson")
+#       loaded_rois = load_rois("rois.geojson")
+
+# %%
 # View individual paths inside the habitat
 # ----------------------------------------
 # We can now overlay the paths that the individuals followed on top of our

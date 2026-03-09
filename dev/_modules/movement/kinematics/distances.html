@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -488,25 +488,25 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    a : xarray.DataArray</span>
+<span class="sd">    a</span>
 <span class="sd">        The first input data containing position information of a</span>
 <span class="sd">        single individual or keypoint, with ``time``, ``space``</span>
 <span class="sd">        (in Cartesian coordinates), and ``individuals`` or ``keypoints``</span>
 <span class="sd">        (as specified by ``dim``) as required dimensions.</span>
-<span class="sd">    b : xarray.DataArray</span>
+<span class="sd">    b</span>
 <span class="sd">        The second input data containing position information of a</span>
 <span class="sd">        single individual or keypoint, with ``time``, ``space``</span>
 <span class="sd">        (in Cartesian coordinates), and ``individuals`` or ``keypoints``</span>
 <span class="sd">        (as specified by ``dim``) as required dimensions.</span>
-<span class="sd">    dim : str</span>
+<span class="sd">    dim</span>
 <span class="sd">        The dimension to compute the distances for. Must be either</span>
 <span class="sd">        ``&#39;individuals&#39;`` or ``&#39;keypoints&#39;``.</span>
-<span class="sd">    metric : str, optional</span>
+<span class="sd">    metric</span>
 <span class="sd">        The distance metric to use. Must be one of the options supported</span>
 <span class="sd">        by :func:`scipy.spatial.distance.cdist`, e.g. ``&#39;cityblock&#39;``,</span>
 <span class="sd">        ``&#39;euclidean&#39;``, etc.</span>
 <span class="sd">        Defaults to ``&#39;euclidean&#39;``.</span>
-<span class="sd">    **kwargs : dict</span>
+<span class="sd">    **kwargs</span>
 <span class="sd">        Additional keyword arguments to pass to</span>
 <span class="sd">        :func:`scipy.spatial.distance.cdist`.</span>
 
@@ -588,15 +588,15 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data containing position information, with ``time``,</span>
 <span class="sd">        ``space`` (in Cartesian coordinates), and</span>
 <span class="sd">        ``individuals`` or ``keypoints`` (as specified by ``dim``)</span>
 <span class="sd">        as required dimensions.</span>
-<span class="sd">    dim : Literal[&quot;individuals&quot;, &quot;keypoints&quot;]</span>
+<span class="sd">    dim</span>
 <span class="sd">        The dimension to compute the distances for. Must be either</span>
 <span class="sd">        ``&#39;individuals&#39;`` or ``&#39;keypoints&#39;``.</span>
-<span class="sd">    pairs : dict[str, str | list[str]] or &#39;all&#39;</span>
+<span class="sd">    pairs</span>
 <span class="sd">        Specifies the pairs of elements (either individuals or keypoints)</span>
 <span class="sd">        for which to compute distances, depending on the value of ``dim``.</span>
 
@@ -609,12 +609,12 @@
 <span class="sd">        - Alternatively, use the special keyword ``&#39;all&#39;`` to compute distances</span>
 <span class="sd">          for all possible pairs of individuals or keypoints</span>
 <span class="sd">          (depending on ``dim``).</span>
-<span class="sd">    metric : str, optional</span>
+<span class="sd">    metric</span>
 <span class="sd">        The distance metric to use. Must be one of the options supported</span>
 <span class="sd">        by :func:`scipy.spatial.distance.cdist`, e.g. ``&#39;cityblock&#39;``,</span>
 <span class="sd">        ``&#39;euclidean&#39;``, etc.</span>
 <span class="sd">        Defaults to ``&#39;euclidean&#39;``.</span>
-<span class="sd">    **kwargs : dict</span>
+<span class="sd">    **kwargs</span>
 <span class="sd">        Additional keyword arguments to pass to</span>
 <span class="sd">        :func:`scipy.spatial.distance.cdist`.</span>
 
@@ -789,9 +789,9 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data to validate.</span>
-<span class="sd">    dim : str</span>
+<span class="sd">    dim</span>
 <span class="sd">        The dimension to validate.</span>
 
 <span class="sd">    Returns</span>

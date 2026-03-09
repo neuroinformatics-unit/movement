@@ -1,0 +1,11 @@
+﻿movement.validators.\_json\_schemas
+===================================
+
+.. rubric:: Description
+
+.. automodule:: movement.validators._json_schemas
+
+.. currentmodule:: movement.validators._json_schemas
+
+
+

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -584,22 +584,21 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    file : pathlib.Path or str</span>
+<span class="sd">    file</span>
 <span class="sd">        Path to the file containing predicted poses. The file format must</span>
 <span class="sd">        be among those supported by the ``from_dlc_file()``,</span>
 <span class="sd">        ``from_slp_file()`` or ``from_lp_file()`` functions. One of these</span>
 <span class="sd">        these functions will be called internally, based on</span>
 <span class="sd">        the value of ``source_software``.</span>
-<span class="sd">    source_software : {&quot;DeepLabCut&quot;, &quot;SLEAP&quot;, &quot;LightningPose&quot;, &quot;Anipose&quot;, \</span>
-<span class="sd">        &quot;NWB&quot;}</span>
+<span class="sd">    source_software</span>
 <span class="sd">        The source software of the file.</span>
-<span class="sd">    fps : float, optional</span>
+<span class="sd">    fps</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
 <span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
 <span class="sd">        This argument is ignored when ``source_software`` is &quot;NWB&quot;, as the</span>
 <span class="sd">        frame rate will be directly read or estimated from metadata in</span>
 <span class="sd">        the NWB file.</span>
-<span class="sd">    **kwargs : dict, optional</span>
+<span class="sd">    **kwargs</span>
 <span class="sd">        Additional keyword arguments to pass to the software-specific</span>
 <span class="sd">        loading functions that are listed under &quot;See Also&quot;.</span>
 
@@ -923,11 +922,11 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    file_dict : dict[str, Union[Path, str]]</span>
+<span class="sd">    file_dict</span>
 <span class="sd">        A dict whose keys are the view names and values are the paths to load.</span>
-<span class="sd">    source_software : {&#39;LightningPose&#39;, &#39;SLEAP&#39;, &#39;DeepLabCut&#39;}</span>
+<span class="sd">    source_software</span>
 <span class="sd">        The source software of the file.</span>
-<span class="sd">    fps : float, optional</span>
+<span class="sd">    fps</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
 <span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
 

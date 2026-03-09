@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -482,7 +482,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data array containing either ``space`` or ``space_pol``</span>
 <span class="sd">        as a dimension.</span>
 
@@ -530,7 +530,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data array containing either ``space`` or ``space_pol``</span>
 <span class="sd">        as a dimension.</span>
 
@@ -570,7 +570,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data containing ``space`` as a dimension,</span>
 <span class="sd">        with ``x`` and ``y`` in the dimension coordinate.</span>
 
@@ -635,7 +635,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data containing ``space_pol`` as a dimension,</span>
 <span class="sd">        with ``rho`` and ``phi`` in the dimension coordinate.</span>
 
@@ -682,15 +682,15 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    u : xarray.DataArray</span>
+<span class="sd">    u</span>
 <span class="sd">        An array of position vectors containing the ``space``</span>
 <span class="sd">        dimension with only ``&quot;x&quot;`` and ``&quot;y&quot;`` coordinates.</span>
-<span class="sd">    v : xarray.DataArray | numpy.ndarray</span>
+<span class="sd">    v</span>
 <span class="sd">        A 2D vector (or array of 2D vectors) against which to</span>
 <span class="sd">        compare ``u``. May either be an xarray</span>
 <span class="sd">        DataArray containing the ``&quot;space&quot;``  dimension or a numpy</span>
 <span class="sd">        array containing one or more 2D vectors. (See Notes)</span>
-<span class="sd">    v_as_left_operand : bool, default False</span>
+<span class="sd">    v_as_left_operand</span>
 <span class="sd">        If True, the signed angle between ``v`` and ``u`` is returned, instead</span>
 <span class="sd">        of the signed angle between ``u`` and ``v``. This is a convenience</span>
 <span class="sd">        wrapper for when one of the two vectors to be used does not have time</span>
@@ -698,7 +698,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    xarray.DataArray :</span>
+<span class="sd">    xarray.DataArray</span>
 <span class="sd">        An xarray DataArray containing signed angle between</span>
 <span class="sd">        ``u`` and ``v`` for every time point. Matches the dimensions of</span>
 <span class="sd">        ``u``, but without the ``space`` dimension.</span>

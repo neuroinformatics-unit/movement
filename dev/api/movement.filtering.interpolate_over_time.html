@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -501,6 +501,8 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.roi.LineOfInterest.html">LineOfInterest</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.roi.PolygonOfInterest.html">PolygonOfInterest</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.roi.compute_region_occupancy.html">compute_region_occupancy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.roi.load_rois.html">load_rois</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.roi.save_rois.html">save_rois</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.sample_data.html">movement.sample_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -540,6 +542,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.pol2cart.html">pol2cart</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.validators._json_schemas.html">movement.validators._json_schemas</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.validators.arrays.html">movement.validators.arrays</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.arrays.validate_dims_coords.html">validate_dims_coords</a></li>
 </ul>
@@ -555,6 +558,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutH5.html">ValidDeepLabCutH5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidFile.html">ValidFile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidNWBFile.html">ValidNWBFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidROICollectionGeoJSON.html">ValidROICollectionGeoJSON</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapAnalysis.html">ValidSleapAnalysis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapLabels.html">ValidSleapLabels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidVIATracksCSV.html">ValidVIATracksCSV</a></li>
@@ -635,17 +639,17 @@ See the xarray documentation for more details.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><em>xarray.DataArray</em></a>) – The input data to be interpolated.</p></li>
-<li><p><strong>method</strong> (<em>{&quot;linear&quot;</em><em>, </em><em>&quot;nearest&quot;</em><em>, </em><em>&quot;zero&quot;</em><em>, </em><em>&quot;slinear&quot;</em><em>, </em><em>&quot;quadratic&quot;</em><em>, </em><em>&quot;cubic&quot;</em><em>,         </em><em>&quot;polynomial&quot;</em><em>, </em><em>&quot;barycentric&quot;</em><em>, </em><em>&quot;krogh&quot;</em><em>, </em><em>&quot;pchip&quot;</em><em>, </em><em>&quot;spline&quot;</em><em>, </em><em>&quot;akima&quot;}</em>) – String indicating which method to use for interpolation.
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input data to be interpolated.</p></li>
+<li><p><strong>method</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'linear'</span></code>, <code class="docutils literal notranslate"><span class="pre">'nearest'</span></code>, <code class="docutils literal notranslate"><span class="pre">'zero'</span></code>, <code class="docutils literal notranslate"><span class="pre">'slinear'</span></code>, <code class="docutils literal notranslate"><span class="pre">'quadratic'</span></code>, <code class="docutils literal notranslate"><span class="pre">'cubic'</span></code>, <code class="docutils literal notranslate"><span class="pre">'quintic'</span></code>, <code class="docutils literal notranslate"><span class="pre">'polynomial'</span></code>], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'barycentric'</span></code>, <code class="docutils literal notranslate"><span class="pre">'krogh'</span></code>, <code class="docutils literal notranslate"><span class="pre">'pchip'</span></code>, <code class="docutils literal notranslate"><span class="pre">'spline'</span></code>, <code class="docutils literal notranslate"><span class="pre">'akima'</span></code>, <code class="docutils literal notranslate"><span class="pre">'makima'</span></code>], <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'linear'</span></code>, <code class="docutils literal notranslate"><span class="pre">'nearest'</span></code>, <code class="docutils literal notranslate"><span class="pre">'slinear'</span></code>, <code class="docutils literal notranslate"><span class="pre">'cubic'</span></code>, <code class="docutils literal notranslate"><span class="pre">'quintic'</span></code>, <code class="docutils literal notranslate"><span class="pre">'pchip'</span></code>]]</span>) – String indicating which method to use for interpolation.
 Default is <code class="docutils literal notranslate"><span class="pre">linear</span></code>.</p></li>
-<li><p><strong>max_gap</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>optional</em>) – Maximum size of gap, a continuous sequence of missing observations
+<li><p><strong>max_gap</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Maximum size of gap, a continuous sequence of missing observations
 (represented as NaNs), to fill.
 The default value is <code class="docutils literal notranslate"><span class="pre">None</span></code> (no limit).
 Gap size is defined as the number of consecutive NaNs
 (see Notes for more information).</p></li>
-<li><p><strong>print_report</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to print a report on the number of NaNs in the dataset
+<li><p><strong>print_report</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Whether to print a report on the number of NaNs in the dataset
 before and after interpolation. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-<li><p><strong>**kwargs</strong> (<em>Any</em>) – Any <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> accepted by <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.interpolate_na.html#xarray.DataArray.interpolate_na" title="(in xarray v2026.2.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.interpolate_na()</span></code></a>,
+<li><p><strong>**kwargs</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a></span>) – Any <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code> accepted by <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.interpolate_na.html#xarray.DataArray.interpolate_na" title="(in xarray v2026.2.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.interpolate_na()</span></code></a>,
 which in turn passes them verbatim to the underlying
 interpolation methods.</p></li>
 </ul>
@@ -655,7 +659,7 @@ interpolation methods.</p></li>
 using the parameters provided.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)">xarray.DataArray</a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>

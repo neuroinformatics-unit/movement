@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -548,14 +548,14 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    f : Callable</span>
+<span class="sd">    f</span>
 <span class="sd">        Function that takes 1D inputs and returns either scalar or 1D outputs.</span>
 <span class="sd">        This will be cast across the ``dimension`` of the ``data``.</span>
-<span class="sd">    data: xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        Values to be cast over.</span>
-<span class="sd">    dimension : str</span>
+<span class="sd">    dimension</span>
 <span class="sd">        Dimension of ``data`` to broadcast ``f`` across.</span>
-<span class="sd">    new_dimension_name : str, optional</span>
+<span class="sd">    new_dimension_name</span>
 <span class="sd">        If ``f`` returns non-scalar values, the dimension in the output that</span>
 <span class="sd">        these values are returned along is given the name</span>
 <span class="sd">        ``new_dimension_name``. Defaults to ``&quot;result&quot;``.</span>
@@ -631,16 +631,16 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    is_classmethod : bool</span>
+<span class="sd">    is_classmethod</span>
 <span class="sd">        Whether the target of the decoration is a class method which takes</span>
 <span class="sd">        the ``self`` argument, or a standalone function that receives no</span>
 <span class="sd">        implicit arguments.</span>
-<span class="sd">    only_broadcastable_along : str, optional</span>
+<span class="sd">    only_broadcastable_along</span>
 <span class="sd">        Whether the decorated function should only support broadcasting along</span>
 <span class="sd">        this dimension. The returned function will not take the</span>
 <span class="sd">        ``broadcast_dimension`` argument, and will use the dimension provided</span>
 <span class="sd">        here as the value for this argument.</span>
-<span class="sd">    new_dimension_name : str, optional</span>
+<span class="sd">    new_dimension_name</span>
 <span class="sd">        Passed to :func:`apply_along_da_axis`.</span>
 
 <span class="sd">    Returns</span>

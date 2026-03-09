@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -487,10 +487,10 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">    ds</span>
 <span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
 <span class="sd">        and associated metadata.</span>
-<span class="sd">    columns : pandas.MultiIndex</span>
+<span class="sd">    columns</span>
 <span class="sd">        DeepLabCut-style multi-index columns</span>
 
 <span class="sd">    Returns</span>
@@ -535,10 +535,10 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    filepath : pathlib.Path</span>
+<span class="sd">    filepath</span>
 <span class="sd">        Path of the file to save the dataframe to. The file extension</span>
 <span class="sd">        must be either .h5 (recommended) or .csv.</span>
-<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">    df</span>
 <span class="sd">        Pandas Dataframe to save</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -557,10 +557,10 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">    ds</span>
 <span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
 <span class="sd">        and associated metadata.</span>
-<span class="sd">    split_individuals : bool, optional</span>
+<span class="sd">    split_individuals</span>
 <span class="sd">        If True, return a dictionary of DataFrames per individual, with</span>
 <span class="sd">        individual names as keys. If False (default), return a single</span>
 <span class="sd">        DataFrame for all individuals (see Notes).</span>
@@ -636,13 +636,13 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">    ds</span>
 <span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
 <span class="sd">        and associated metadata.</span>
-<span class="sd">    file_path : pathlib.Path or str</span>
+<span class="sd">    file_path</span>
 <span class="sd">        Path to the file to save the poses to. The file extension</span>
 <span class="sd">        must be either .h5 (recommended) or .csv.</span>
-<span class="sd">    split_individuals : bool or &quot;auto&quot;, optional</span>
+<span class="sd">    split_individuals</span>
 <span class="sd">        Whether to save individuals to separate files or to the same file</span>
 <span class="sd">        (see Notes). Defaults to &quot;auto&quot;.</span>
 
@@ -714,10 +714,10 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">    ds</span>
 <span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
 <span class="sd">        and associated metadata.</span>
-<span class="sd">    file_path : pathlib.Path or str</span>
+<span class="sd">    file_path</span>
 <span class="sd">        Path to the file to save the poses to. File extension must be .csv.</span>
 
 <span class="sd">    Notes</span>
@@ -750,10 +750,10 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">    ds</span>
 <span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
 <span class="sd">        and associated metadata.</span>
-<span class="sd">    file_path : pathlib.Path or str</span>
+<span class="sd">    file_path</span>
 <span class="sd">        Path to the file to save the poses to. File extension must be .h5.</span>
 
 <span class="sd">    Notes</span>
@@ -866,10 +866,10 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">    ds</span>
 <span class="sd">        ``movement`` poses dataset containing the data to be converted to</span>
 <span class="sd">        NWBFile(s).</span>
-<span class="sd">    config : NWBFileSaveConfig, optional</span>
+<span class="sd">    config</span>
 <span class="sd">        Configuration object containing keyword arguments to customise the</span>
 <span class="sd">        :class:`pynwb.file.NWBFile` (s) that will be created</span>
 <span class="sd">        for each individual.</span>
@@ -1001,7 +1001,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">    ds</span>
 <span class="sd">        ``movement`` dataset containing pose tracks, confidence scores,</span>
 <span class="sd">        and associated metadata.</span>
 

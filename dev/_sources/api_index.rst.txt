@@ -33,6 +33,7 @@ Information on specific functions, classes, and methods.
     movement.utils.logging
     movement.utils.reports
     movement.utils.vector
+    movement.validators._json_schemas
     movement.validators.arrays
     movement.validators.datasets
     movement.validators.files

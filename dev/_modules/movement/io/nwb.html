@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -697,20 +697,20 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        attr_name : str</span>
+<span class="sd">        attr_name</span>
 <span class="sd">            The name of the attribute in the class (e.g. ``nwbfile_kwargs``,</span>
 <span class="sd">            ``subject_kwargs``, ``pose_estimation_series_kwargs``) to be</span>
 <span class="sd">            resolved.</span>
-<span class="sd">        entity : str or None</span>
+<span class="sd">        entity</span>
 <span class="sd">            Individual or keypoint name.</span>
-<span class="sd">        entity_type : str or None</span>
+<span class="sd">        entity_type</span>
 <span class="sd">            Type of entity (i.e. &quot;individual&quot;, &quot;keypoint&quot;). Used in error</span>
 <span class="sd">            or warning messages.</span>
-<span class="sd">        id_key : str</span>
+<span class="sd">        id_key</span>
 <span class="sd">            The key in ``cfg`` corresponding to the entity identifier/name</span>
 <span class="sd">            (e.g. ``identifier``, ``subject_id``, ``name``) to be set in the</span>
 <span class="sd">            returned dictionary.</span>
-<span class="sd">        prioritise_entity : bool, optional</span>
+<span class="sd">        prioritise_entity</span>
 <span class="sd">            Flag indicating whether ``entity`` should take precedence over</span>
 <span class="sd">            the ``id_key`` when the attribute is a shared config</span>
 <span class="sd">            (i.e. a single dictionary). Default is False.</span>
@@ -767,11 +767,11 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        individual : str, optional</span>
+<span class="sd">        individual</span>
 <span class="sd">            Individual name. If provided, the method will attempt to retrieve</span>
 <span class="sd">            individual-specific settings or fall back to shared or default</span>
 <span class="sd">            settings.</span>
-<span class="sd">        prioritise_individual: bool, optional</span>
+<span class="sd">        prioritise_individual</span>
 <span class="sd">            Flag indicating whether ``individual`` should take precedence over</span>
 <span class="sd">            the ``identifier`` in shared ``nwbfile_kwargs``. Default is True.</span>
 
@@ -803,7 +803,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        individual : str, optional</span>
+<span class="sd">        individual</span>
 <span class="sd">            Individual name. If provided, the method will attempt to retrieve</span>
 <span class="sd">            individual-specific settings or fall back to shared or default</span>
 <span class="sd">            settings.</span>
@@ -831,11 +831,11 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        individual : str, optional</span>
+<span class="sd">        individual</span>
 <span class="sd">            Individual name. If provided, the method will attempt to retrieve</span>
 <span class="sd">            individual-specific settings or fall back to shared or default</span>
 <span class="sd">            settings.</span>
-<span class="sd">        prioritise_individual: bool, optional</span>
+<span class="sd">        prioritise_individual</span>
 <span class="sd">            Flag indicating whether ``individual`` should take precedence over</span>
 <span class="sd">            the ``subject_id`` in shared ``subject_kwargs``. Default is True.</span>
 
@@ -860,11 +860,11 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        keypoint : str, optional</span>
+<span class="sd">        keypoint</span>
 <span class="sd">            Keypoint name. If provided, the method will attempt to retrieve</span>
 <span class="sd">            keypoint-specific settings or fall back to shared or default</span>
 <span class="sd">            settings.</span>
-<span class="sd">        prioritise_keypoint: bool, optional</span>
+<span class="sd">        prioritise_keypoint</span>
 <span class="sd">            Flag indicating whether ``keypoint`` should take precedence over</span>
 <span class="sd">            the ``name`` in shared ``pose_estimation_series_kwargs``.</span>
 <span class="sd">            Default is True.</span>
@@ -894,14 +894,14 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        individual : str, optional</span>
+<span class="sd">        individual</span>
 <span class="sd">            Individual name. If provided, the method will attempt to retrieve</span>
 <span class="sd">            individual-specific settings or fall back to shared or default</span>
 <span class="sd">            settings.</span>
-<span class="sd">        prioritise_individual: bool, optional</span>
+<span class="sd">        prioritise_individual</span>
 <span class="sd">            Flag indicating whether ``individual`` should take precedence over</span>
 <span class="sd">            the ``name`` in shared ``pose_estimation_kwargs``. Default is True.</span>
-<span class="sd">        defaults : dict, optional</span>
+<span class="sd">        defaults</span>
 <span class="sd">            Dataset-specific default values to be used.</span>
 
 <span class="sd">        Returns</span>
@@ -934,14 +934,14 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        individual : str, optional</span>
+<span class="sd">        individual</span>
 <span class="sd">            Individual name. If provided, the method will attempt to retrieve</span>
 <span class="sd">            individual-specific settings or fall back to shared or default</span>
 <span class="sd">            settings.</span>
-<span class="sd">        prioritise_individual: bool, optional</span>
+<span class="sd">        prioritise_individual</span>
 <span class="sd">            Flag indicating whether ``individual`` should take precedence over</span>
 <span class="sd">            the ``name`` in shared ``skeleton_kwargs``. Default is True.</span>
-<span class="sd">        defaults : dict, optional</span>
+<span class="sd">        defaults</span>
 <span class="sd">            Dataset-specific default values to be used.</span>
 
 <span class="sd">        Returns</span>
@@ -992,16 +992,16 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ds : xarray.Dataset</span>
+<span class="sd">    ds</span>
 <span class="sd">        A single-individual ``movement`` poses dataset.</span>
-<span class="sd">    config : movement.io.nwb.NWBFileSaveConfig</span>
+<span class="sd">    config</span>
 <span class="sd">        Configuration object containing keyword arguments to customise</span>
 <span class="sd">        the PoseEstimation and Skeletons objects created from the dataset.</span>
 <span class="sd">        If None (default), default values will be used.</span>
 <span class="sd">        See :class:`movement.io.nwb.NWBFileSaveConfig` for more details.</span>
-<span class="sd">    subject : pynwb.file.Subject, optional</span>
+<span class="sd">    subject</span>
 <span class="sd">        Subject object to be linked in the Skeleton object.</span>
-<span class="sd">    from_multi_individual : bool, optional</span>
+<span class="sd">    from_multi_individual</span>
 <span class="sd">        Flag indicating whether ``ds`` originates from a multi-individual</span>
 <span class="sd">        dataset. Passed to the ``NWBFileSaveConfig`` methods to determine</span>
 <span class="sd">        whether to prioritise individual names in the dataset over ``name``</span>
@@ -1090,17 +1090,17 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    nwb_file : pynwb.file.NWBFile</span>
+<span class="sd">    nwb_file</span>
 <span class="sd">        The NWBFile object to which the data will be added.</span>
-<span class="sd">    processing_module_kwargs : dict[str, Any]</span>
+<span class="sd">    processing_module_kwargs</span>
 <span class="sd">        Keyword arguments for the :class:`pynwb.base.ProcessingModule` in the</span>
 <span class="sd">        NWB file. The ``name`` key will be used to determine the</span>
 <span class="sd">        ProcessingModule to which the data will be added.</span>
 <span class="sd">        If the ProcessingModule does not exist, it will be created with these</span>
 <span class="sd">        keyword arguments.</span>
-<span class="sd">    pose_estimation : ndx_pose.PoseEstimation</span>
+<span class="sd">    pose_estimation</span>
 <span class="sd">        PoseEstimation object containing the pose data for an individual.</span>
-<span class="sd">    skeletons : ndx_pose.Skeletons</span>
+<span class="sd">    skeletons</span>
 <span class="sd">        Skeletons object containing the skeleton data for an individual.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>

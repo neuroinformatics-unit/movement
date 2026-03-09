@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -504,6 +504,8 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.roi.LineOfInterest.html">LineOfInterest</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.roi.PolygonOfInterest.html">PolygonOfInterest</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.roi.compute_region_occupancy.html">compute_region_occupancy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.roi.load_rois.html">load_rois</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.roi.save_rois.html">save_rois</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.sample_data.html">movement.sample_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -543,6 +545,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.vector.pol2cart.html">pol2cart</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1"><a class="reference internal" href="movement.validators._json_schemas.html">movement.validators._json_schemas</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.validators.arrays.html">movement.validators.arrays</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.arrays.validate_dims_coords.html">validate_dims_coords</a></li>
 </ul>
@@ -558,6 +561,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidDeepLabCutH5.html">ValidDeepLabCutH5</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidFile.html">ValidFile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidNWBFile.html">ValidNWBFile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidROICollectionGeoJSON.html">ValidROICollectionGeoJSON</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapAnalysis.html">ValidSleapAnalysis</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidSleapLabels.html">ValidSleapLabels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.validators.files.ValidVIATracksCSV.html">ValidVIATracksCSV</a></li>
@@ -639,25 +643,25 @@ unless <code class="docutils literal notranslate"><span class="pre">in_degrees</
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><em>xarray.DataArray</em></a>) – The input data representing position. This must contain
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input data representing position. This must contain
 the two symmetrical keypoints located on the left and
 right sides of the body, respectively.</p></li>
-<li><p><strong>left_keypoint</strong> (<em>Hashable</em>) – Name of the left keypoint, e.g., “left_ear”, used to compute the
+<li><p><strong>left_keypoint</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Hashable" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Hashable</span></code></a></span>) – Name of the left keypoint, e.g., “left_ear”, used to compute the
 forward vector.</p></li>
-<li><p><strong>right_keypoint</strong> (<em>Hashable</em>) – Name of the right keypoint, e.g., “right_ear”, used to compute the
+<li><p><strong>right_keypoint</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Hashable" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Hashable</span></code></a></span>) – Name of the right keypoint, e.g., “right_ear”, used to compute the
 forward vector.</p></li>
-<li><p><strong>reference_vector</strong> (<em>xr.DataArray</em><em> | </em><em>ArrayLike</em><em>, </em><em>optional</em>) – The reference vector against which the <code class="docutils literal notranslate"><span class="pre">forward_vector</span></code> is
+<li><p><strong>reference_vector</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a> | <code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code></span>) – The reference vector against which the <code class="docutils literal notranslate"><span class="pre">forward_vector</span></code> is
 compared to compute 2D heading. Must be a two-dimensional vector,
 in the form [x,y] - where <code class="docutils literal notranslate"><span class="pre">reference_vector[0]</span></code> corresponds to the
 x-coordinate and <code class="docutils literal notranslate"><span class="pre">reference_vector[1]</span></code> corresponds to the
 y-coordinate. If left unspecified, the vector [1, 0] is used by
 default.</p></li>
-<li><p><strong>camera_view</strong> (<em>Literal</em><em>[</em><em>&quot;top_down&quot;</em><em>, </em><em>&quot;bottom_up&quot;</em><em>]</em><em>, </em><em>optional</em>) – The camera viewing angle, used to determine the upwards
+<li><p><strong>camera_view</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'top_down'</span></code>, <code class="docutils literal notranslate"><span class="pre">'bottom_up'</span></code>]</span>) – The camera viewing angle, used to determine the upwards
 direction of the animal. Can be either <code class="docutils literal notranslate"><span class="pre">&quot;top_down&quot;</span></code> (where the
 upwards direction is [0, 0, -1]), or <code class="docutils literal notranslate"><span class="pre">&quot;bottom_up&quot;</span></code> (where the
 upwards direction is [0, 0, 1]). If left unspecified, the camera
 view is assumed to be <code class="docutils literal notranslate"><span class="pre">&quot;top_down&quot;</span></code>.</p></li>
-<li><p><strong>in_degrees</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the returned heading array is given in degrees.
+<li><p><strong>in_degrees</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, the returned heading array is given in degrees.
 Otherwise, the array is given in radians. Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
 </dd>
@@ -667,7 +671,7 @@ with dimensions matching the input data array,
 but without the <code class="docutils literal notranslate"><span class="pre">keypoints</span></code> and <code class="docutils literal notranslate"><span class="pre">space</span></code> dimensions.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)">xarray.DataArray</a></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 </dl>
 <div class="admonition seealso">

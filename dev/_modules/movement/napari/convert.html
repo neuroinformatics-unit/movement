@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -507,24 +507,24 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    ds : xr.Dataset</span>
+<span class="sd">    ds</span>
 <span class="sd">        ``movement`` dataset containing pose or bounding box tracks,</span>
 <span class="sd">        confidence scores, and associated metadata.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    points_as_napari : np.ndarray</span>
+<span class="sd">    points_as_napari : numpy.ndarray</span>
 <span class="sd">        position data as a napari Tracks array with shape (N, 4),</span>
 <span class="sd">        where N is n_keypoints * n_individuals * n_frames</span>
 <span class="sd">        and the 4 columns are (track_id, frame_idx, y, x).</span>
-<span class="sd">    bboxes_as_napari : np.ndarray | None</span>
+<span class="sd">    bboxes_as_napari : numpy.ndarray | None</span>
 <span class="sd">        bounding box data as a napari Shapes array with shape (N, 4, 4),</span>
 <span class="sd">        where N is n_individuals * n_frames and each (4, 4) entry is</span>
 <span class="sd">        a matrix of 4 rows (1 per corner vertex, starting from upper left</span>
 <span class="sd">        and progressing in counterclockwise order) with the columns</span>
 <span class="sd">        (track_id, frame, y, x). Returns None when the input dataset doesn&#39;t</span>
 <span class="sd">        have a &quot;shape&quot; variable.</span>
-<span class="sd">    properties : pd.DataFrame</span>
+<span class="sd">    properties : pandas.DataFrame</span>
 <span class="sd">        DataFrame with properties (individual, keypoint, time, confidence)</span>
 <span class="sd">        for use with napari layers.</span>
 

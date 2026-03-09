@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -484,16 +484,16 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data to be scaled.</span>
-<span class="sd">    factor : ArrayLike or float</span>
+<span class="sd">    factor</span>
 <span class="sd">        The scaling factor to apply to the data. If factor is a scalar (a</span>
 <span class="sd">        single float), the data array is uniformly scaled by the same factor.</span>
 <span class="sd">        If factor is an object that can be converted to a 1D numpy array (e.g.</span>
 <span class="sd">        a list of floats), the length of the resulting array must match the</span>
 <span class="sd">        length of data array&#39;s space dimension along which it will be</span>
 <span class="sd">        broadcasted.</span>
-<span class="sd">    space_unit : str or None</span>
+<span class="sd">    space_unit</span>
 <span class="sd">        The unit of the scaled data stored as a property in</span>
 <span class="sd">        ``xarray.DataArray.attrs[&#39;space_unit&#39;]``. In case of the default</span>
 <span class="sd">        (``None``) the ``space_unit`` attribute is dropped.</span>
@@ -695,16 +695,16 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    src_points : np.ndarray</span>
+<span class="sd">    src_points</span>
 <span class="sd">        An array of shape (N, 2) representing N source points</span>
 <span class="sd">        in 2-dimensional space. N &gt;= 4.</span>
-<span class="sd">    dst_points : np.ndarray</span>
+<span class="sd">    dst_points</span>
 <span class="sd">        An array of shape (N, 2) representing N destination points</span>
 <span class="sd">        in 2-dimensional space. N &gt;= 4.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    np.ndarray</span>
+<span class="sd">    numpy.ndarray</span>
 <span class="sd">        A (3, 3) transformation matrix that aligns the</span>
 <span class="sd">        source points to the destination points.</span>
 

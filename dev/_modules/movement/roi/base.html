@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -626,16 +626,16 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        position : xarray.DataArray</span>
+<span class="sd">        position</span>
 <span class="sd">            Spatial position data, that is passed to</span>
 <span class="sd">            ``how_to_compute_vector_to_region`` and used to compute the</span>
 <span class="sd">            &quot;vector to the region&quot;.</span>
-<span class="sd">        reference_vector : xarray.DataArray | np.ndarray</span>
+<span class="sd">        reference_vector</span>
 <span class="sd">            Constant or time-varying vector to take signed angle with the</span>
 <span class="sd">            &quot;vector to the region&quot;.</span>
-<span class="sd">        how_to_compute_vector_to_region : Callable</span>
+<span class="sd">        how_to_compute_vector_to_region</span>
 <span class="sd">            How to compute the &quot;vector to the region&quot; from ``position``.</span>
-<span class="sd">        in_degrees : bool</span>
+<span class="sd">        in_degrees</span>
 <span class="sd">            If ``True``, angles are returned in degrees. Otherwise angles are</span>
 <span class="sd">            returned in radians. Default ``False``.</span>
 
@@ -662,9 +662,9 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        da : xarray.DataArray</span>
+<span class="sd">        da</span>
 <span class="sd">            ``DataArray`` lacking a &quot;space&quot; dimension, that is to be assigned.</span>
-<span class="sd">        old_dimension : Hashable</span>
+<span class="sd">        old_dimension</span>
 <span class="sd">            The dimension that should be renamed to &quot;space&quot;, and reassigned</span>
 <span class="sd">            coordinates.</span>
 
@@ -686,9 +686,9 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        geometry : shapely.Geometry</span>
+<span class="sd">        geometry</span>
 <span class="sd">            The ``shapely`` geometry that defines the region of interest.</span>
-<span class="sd">        name : str, default None</span>
+<span class="sd">        name</span>
 <span class="sd">            Human-readable name to assign to the given region, for</span>
 <span class="sd">            user-friendliness. Default name given is &#39;Un-named region&#39; if no</span>
 <span class="sd">            explicit name is provided.</span>
@@ -727,10 +727,10 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        position : ArrayLike</span>
+<span class="sd">        position</span>
 <span class="sd">            Spatial coordinates [x, y, [z]] to check as being inside the</span>
 <span class="sd">            region.</span>
-<span class="sd">        include_boundary : bool</span>
+<span class="sd">        include_boundary</span>
 <span class="sd">            Whether to treat a position on the region&#39;s boundary as inside the</span>
 <span class="sd">            region (True) or outside the region (False). Default True.</span>
 
@@ -760,10 +760,10 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        point : ArrayLike</span>
+<span class="sd">        point</span>
 <span class="sd">            Coordinates of a point, from which to find the nearest point in the</span>
 <span class="sd">            region defined by ``self``.</span>
-<span class="sd">        boundary_only : bool, optional</span>
+<span class="sd">        boundary_only</span>
 <span class="sd">            If ``True``, compute the distance from ``point`` to the boundary of</span>
 <span class="sd">            the region, rather than the closest point belonging to the region.</span>
 <span class="sd">            Default ``False``.</span>
@@ -797,16 +797,16 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        position : ArrayLike</span>
+<span class="sd">        position</span>
 <span class="sd">            Coordinates of a point, from which to find the nearest point in the</span>
 <span class="sd">            region.</span>
-<span class="sd">        boundary_only : bool, optional</span>
+<span class="sd">        boundary_only</span>
 <span class="sd">            If ``True``, compute the nearest point to ``position`` that is on</span>
 <span class="sd">            the  boundary of ``self``. Default ``False``.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
+<span class="sd">        numpy.ndarray</span>
 <span class="sd">            Coordinates of the point on ``self`` that is closest to</span>
 <span class="sd">            ``position``.</span>
 
@@ -842,19 +842,19 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        point : ArrayLike</span>
+<span class="sd">        point</span>
 <span class="sd">            Coordinates of a point to compute the vector to (or from) the</span>
 <span class="sd">            region.</span>
-<span class="sd">        boundary_only : bool</span>
+<span class="sd">        boundary_only</span>
 <span class="sd">            If ``True``, the approach vector to the boundary of the region is</span>
 <span class="sd">            computed. Default ``False``.</span>
-<span class="sd">        unit : bool</span>
+<span class="sd">        unit</span>
 <span class="sd">            If ``True``, the approach vector is returned normalised, otherwise</span>
 <span class="sd">            it is not normalised. Default is ``False``.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
+<span class="sd">        numpy.ndarray</span>
 <span class="sd">            Approach vector from the point to the region.</span>
 
 <span class="sd">        See Also</span>
@@ -907,18 +907,25 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        position : xarray.DataArray</span>
+<span class="sd">        position</span>
 <span class="sd">            ``DataArray`` of spatial positions.</span>
-<span class="sd">        boundary_only : bool</span>
+<span class="sd">        boundary_only</span>
 <span class="sd">            If ``True``, the allocentric angle to the closest boundary point of</span>
 <span class="sd">            the region is computed. Default ``False``.</span>
-<span class="sd">        in_degrees : bool</span>
+<span class="sd">        in_degrees</span>
 <span class="sd">            If ``True``, angles are returned in degrees. Otherwise angles are</span>
 <span class="sd">            returned in radians. Default ``False``.</span>
-<span class="sd">        reference_vector : np.ndarray or xarray.DataArray or None</span>
+<span class="sd">        reference_vector</span>
 <span class="sd">            The reference vector to be used. Dimensions must be compatible with</span>
 <span class="sd">            the argument of the same name that is passed to</span>
 <span class="sd">            :func:`compute_signed_angle_2d`. Default ``(1., 0.)``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xarray.DataArray</span>
+<span class="sd">            Signed angle(s) between the approach vector and</span>
+<span class="sd">            the reference vector.</span>
+<span class="sd">            Returned in radians unless ``in_degrees=True``.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
@@ -969,27 +976,34 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        direction : xarray.DataArray</span>
+<span class="sd">        direction</span>
 <span class="sd">            An array of vectors representing a given direction,</span>
 <span class="sd">            e.g., the forward vector(s).</span>
-<span class="sd">        position : xarray.DataArray</span>
-<span class="sd">            `DataArray` of spatial positions, considered the origin of the</span>
+<span class="sd">        position</span>
+<span class="sd">            ``DataArray`` of spatial positions, considered the origin of the</span>
 <span class="sd">            ``direction`` vector.</span>
-<span class="sd">        boundary_only : bool</span>
+<span class="sd">        boundary_only</span>
 <span class="sd">            Passed to :func:`compute_approach_vector`</span>
 <span class="sd">            (see Notes). Default ``False``.</span>
-<span class="sd">        in_degrees : bool</span>
+<span class="sd">        in_degrees</span>
 <span class="sd">            If ``True``, angles are returned in degrees. Otherwise angles are</span>
 <span class="sd">            returned in radians. Default ``False``.</span>
 
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xarray.DataArray</span>
+<span class="sd">            Signed angle(s) between the approach vector and</span>
+<span class="sd">            the ``direction`` vector.</span>
+<span class="sd">            Returned in radians unless ``in_degrees=True``.</span>
+
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>
-<span class="sd">        compute_allocentric_angle_to_nearest_point :</span>
+<span class="sd">        compute_allocentric_angle_to_nearest_point</span>
 <span class="sd">            Related class method for computing the egocentric angle to the</span>
 <span class="sd">            region.</span>
-<span class="sd">        compute_approach_vector :</span>
+<span class="sd">        compute_approach_vector</span>
 <span class="sd">            The method used to compute the approach vector.</span>
-<span class="sd">        movement.utils.vector.compute_signed_angle_2d :</span>
+<span class="sd">        movement.utils.vector.compute_signed_angle_2d</span>
 <span class="sd">            The underlying function used to compute the signed angle between</span>
 <span class="sd">            the approach vector and the reference vector.</span>
 
@@ -1016,10 +1030,10 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        ax : matplotlib.axes.Axes or None, optional</span>
+<span class="sd">        ax</span>
 <span class="sd">            Axes object on which to draw the region. If None, a new</span>
 <span class="sd">            figure and axes are created.</span>
-<span class="sd">        matplotlib_kwargs : Any</span>
+<span class="sd">        matplotlib_kwargs</span>
 <span class="sd">            Keyword arguments passed to the :mod:`matplotlib.pyplot` plotting</span>
 <span class="sd">            function.</span>
 

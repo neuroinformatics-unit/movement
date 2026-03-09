@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -493,9 +493,9 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data containing ``time`` as a required dimension.</span>
-<span class="sd">    order : int</span>
+<span class="sd">    order</span>
 <span class="sd">        The order of the time-derivative. For an input containing position</span>
 <span class="sd">        data, use 1 to compute velocity, and 2 to compute acceleration. Value</span>
 <span class="sd">        must be a positive integer.</span>
@@ -543,7 +543,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data containing position information, with ``time``</span>
 <span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
 
@@ -612,7 +612,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data containing position information, with ``time``</span>
 <span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
 
@@ -658,7 +658,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data containing position information, with ``time``</span>
 <span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
 
@@ -701,7 +701,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data containing position information, with ``time``</span>
 <span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
 
@@ -745,7 +745,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data containing position information, with ``time``</span>
 <span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
 
@@ -790,7 +790,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data containing position information, with ``time``</span>
 <span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
 
@@ -827,20 +827,20 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data containing position information, with ``time``</span>
 <span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
-<span class="sd">    start : float, optional</span>
+<span class="sd">    start</span>
 <span class="sd">        The start time of the path. If None (default),</span>
 <span class="sd">        the minimum time coordinate in the data is used.</span>
-<span class="sd">    stop : float, optional</span>
+<span class="sd">    stop</span>
 <span class="sd">        The end time of the path. If None (default),</span>
 <span class="sd">        the maximum time coordinate in the data is used.</span>
-<span class="sd">    nan_policy : Literal[&quot;ffill&quot;, &quot;scale&quot;], optional</span>
+<span class="sd">    nan_policy</span>
 <span class="sd">        Policy to handle NaN (missing) values. Can be one of the ``&quot;ffill&quot;``</span>
 <span class="sd">        or ``&quot;scale&quot;``. Defaults to ``&quot;ffill&quot;`` (forward fill).</span>
 <span class="sd">        See Notes for more details on the two policies.</span>
-<span class="sd">    nan_warn_threshold : float, optional</span>
+<span class="sd">    nan_warn_threshold</span>
 <span class="sd">        If any point track in the data has at least (:math:`\ge`)</span>
 <span class="sd">        this proportion of values missing, a warning will be emitted.</span>
 <span class="sd">        Defaults to 0.2 (20%).</span>
@@ -918,9 +918,9 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data array.</span>
-<span class="sd">    nan_warn_threshold : float</span>
+<span class="sd">    nan_warn_threshold</span>
 <span class="sd">        The threshold for the proportion of NaN values. Must be a number</span>
 <span class="sd">        between 0 and 1.</span>
 
@@ -957,7 +957,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data containing position information, with ``time``</span>
 <span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
 

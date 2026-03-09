@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -461,16 +461,22 @@
                    <h1>Source code for movement.roi.line</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;1-dimensional lines of interest.&quot;&quot;&quot;</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.axes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span><span class="p">,</span> <span class="n">SubFigure</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseRegionOfInterest</span><span class="p">,</span> <span class="n">LineLike</span><span class="p">,</span> <span class="n">PointLikeList</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.broadcasting</span><span class="w"> </span><span class="kn">import</span> <span class="n">broadcastable_method</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.axes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span><span class="p">,</span> <span class="n">SubFigure</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
 
 
 <div class="viewcode-block" id="LineOfInterest">
@@ -502,14 +508,14 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        points : tuple of (x, y) pairs</span>
+<span class="sd">        points</span>
 <span class="sd">            The points (in sequence) that make up the line segment. At least</span>
 <span class="sd">            two points must be provided.</span>
-<span class="sd">        loop : bool, default False</span>
+<span class="sd">        loop</span>
 <span class="sd">            If True, the final point in ``points`` will be connected by an</span>
 <span class="sd">            additional line segment to the first, creating a closed loop.</span>
 <span class="sd">            (See Notes).</span>
-<span class="sd">        name : str, optional</span>
+<span class="sd">        name</span>
 <span class="sd">            Name of the LoI that is to be created. A default name will be</span>
 <span class="sd">            inherited from the base class if not provided, and</span>
 <span class="sd">            defaults are inherited from.</span>
@@ -579,10 +585,17 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        on_same_side_as : ArrayLike</span>
+<span class="sd">        on_same_side_as</span>
 <span class="sd">            A sample point in the (x,y) plane the normal is in. If multiple</span>
 <span class="sd">            points are given, one normal vector is returned for each point</span>
 <span class="sd">            given. By default, the origin is used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        numpy.ndarray</span>
+<span class="sd">            Unit normal vector(s) perpendicular to the line segment, pointing</span>
+<span class="sd">            toward the half-plane containing the</span>
+<span class="sd">            sample point ``on_same_side_as``.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -624,14 +637,21 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        direction : xarray.DataArray</span>
+<span class="sd">        direction</span>
 <span class="sd">            An array of vectors representing a given direction,</span>
 <span class="sd">            e.g., the forward vector(s).</span>
-<span class="sd">        position : xr.DataArray</span>
+<span class="sd">        position</span>
 <span class="sd">            Spatial positions, considered the origin of the ``direction``.</span>
-<span class="sd">        in_degrees : bool</span>
+<span class="sd">        in_degrees</span>
 <span class="sd">            If ``True``, angles are returned in degrees. Otherwise angles are</span>
 <span class="sd">            returned in radians. Default ``False``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xarray.DataArray</span>
+<span class="sd">            The signed angle between the segment normal and the provided</span>
+<span class="sd">            direction vector(s). Returned in radians unless</span>
+<span class="sd">            ``in_degrees=True``.</span>
 
 <span class="sd">        See Also</span>
 <span class="sd">        --------</span>

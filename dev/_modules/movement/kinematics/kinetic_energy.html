@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -485,17 +485,17 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    position : xr.DataArray</span>
+<span class="sd">    position</span>
 <span class="sd">        The input data containing position information, with ``time``,</span>
 <span class="sd">        ``space`` and ``keypoints`` as required dimensions.</span>
-<span class="sd">    keypoints : list, optional</span>
+<span class="sd">    keypoints</span>
 <span class="sd">        A list of keypoint names to include in the computation.</span>
 <span class="sd">        By default, all are used.</span>
-<span class="sd">    masses : dict, optional</span>
+<span class="sd">    masses</span>
 <span class="sd">        A dictionary mapping keypoint names to masses, e.g.</span>
 <span class="sd">        {&quot;snout&quot;: 1.2, &quot;tail&quot;: 0.8}.</span>
 <span class="sd">        By default, unit mass is assumed for all keypoints.</span>
-<span class="sd">    decompose : bool, optional</span>
+<span class="sd">    decompose</span>
 <span class="sd">        If True, the kinetic energy is decomposed into &quot;translational&quot; and</span>
 <span class="sd">        &quot;internal&quot; components (see Notes). This requires at least two keypoints</span>
 <span class="sd">        per individual, but more would be desirable for a meaningful</span>
@@ -504,7 +504,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    xr.DataArray</span>
+<span class="sd">    xarray.DataArray</span>
 <span class="sd">        A data array containing the kinetic energy per individual, for every</span>
 <span class="sd">        time point. Note that the output array lacks ``space`` and</span>
 <span class="sd">        ``keypoints`` dimensions.</span>

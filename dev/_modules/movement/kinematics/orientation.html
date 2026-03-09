@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -494,15 +494,15 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data representing position. This must contain</span>
 <span class="sd">        the two symmetrical keypoints located on the left and</span>
 <span class="sd">        right sides of the body, respectively.</span>
-<span class="sd">    left_keypoint : Hashable</span>
+<span class="sd">    left_keypoint</span>
 <span class="sd">        Name of the left keypoint, e.g., &quot;left_ear&quot;</span>
-<span class="sd">    right_keypoint : Hashable</span>
+<span class="sd">    right_keypoint</span>
 <span class="sd">        Name of the right keypoint, e.g., &quot;right_ear&quot;</span>
-<span class="sd">    camera_view : Literal[&quot;top_down&quot;, &quot;bottom_up&quot;], optional</span>
+<span class="sd">    camera_view</span>
 <span class="sd">        The camera viewing angle, used to determine the upwards</span>
 <span class="sd">        direction of the animal. Can be either ``&quot;top_down&quot;`` (where the</span>
 <span class="sd">        upwards direction is [0, 0, -1]), or ``&quot;bottom_up&quot;`` (where the</span>
@@ -599,7 +599,7 @@
     <span class="n">left_keypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">right_keypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">camera_view</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;top_down&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom_up&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;top_down&quot;</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the 2D head direction vector given two keypoints on the head.</span>
 
 <span class="sd">    This function is an alias for :func:`compute_forward_vector()\</span>
@@ -609,15 +609,15 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data representing position. This must contain</span>
 <span class="sd">        the two chosen keypoints corresponding to the left and</span>
 <span class="sd">        right of the head.</span>
-<span class="sd">    left_keypoint : str</span>
+<span class="sd">    left_keypoint</span>
 <span class="sd">        Name of the left keypoint, e.g., &quot;left_ear&quot;</span>
-<span class="sd">    right_keypoint : str</span>
+<span class="sd">    right_keypoint</span>
 <span class="sd">        Name of the right keypoint, e.g., &quot;right_ear&quot;</span>
-<span class="sd">    camera_view : Literal[&quot;top_down&quot;, &quot;bottom_up&quot;], optional</span>
+<span class="sd">    camera_view</span>
 <span class="sd">        The camera viewing angle, used to determine the upwards</span>
 <span class="sd">        direction of the animal. Can be either ``&quot;top_down&quot;`` (where the</span>
 <span class="sd">        upwards direction is [0, 0, -1]), or ``&quot;bottom_up&quot;`` (where the</span>
@@ -661,30 +661,30 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data representing position. This must contain</span>
 <span class="sd">        the two symmetrical keypoints located on the left and</span>
 <span class="sd">        right sides of the body, respectively.</span>
-<span class="sd">    left_keypoint : Hashable</span>
+<span class="sd">    left_keypoint</span>
 <span class="sd">        Name of the left keypoint, e.g., &quot;left_ear&quot;, used to compute the</span>
 <span class="sd">        forward vector.</span>
-<span class="sd">    right_keypoint : Hashable</span>
+<span class="sd">    right_keypoint</span>
 <span class="sd">        Name of the right keypoint, e.g., &quot;right_ear&quot;, used to compute the</span>
 <span class="sd">        forward vector.</span>
-<span class="sd">    reference_vector : xr.DataArray | ArrayLike, optional</span>
+<span class="sd">    reference_vector</span>
 <span class="sd">        The reference vector against which the ``forward_vector`` is</span>
 <span class="sd">        compared to compute 2D heading. Must be a two-dimensional vector,</span>
 <span class="sd">        in the form [x,y] - where ``reference_vector[0]`` corresponds to the</span>
 <span class="sd">        x-coordinate and ``reference_vector[1]`` corresponds to the</span>
 <span class="sd">        y-coordinate. If left unspecified, the vector [1, 0] is used by</span>
 <span class="sd">        default.</span>
-<span class="sd">    camera_view : Literal[&quot;top_down&quot;, &quot;bottom_up&quot;], optional</span>
+<span class="sd">    camera_view</span>
 <span class="sd">        The camera viewing angle, used to determine the upwards</span>
 <span class="sd">        direction of the animal. Can be either ``&quot;top_down&quot;`` (where the</span>
 <span class="sd">        upwards direction is [0, 0, -1]), or ``&quot;bottom_up&quot;`` (where the</span>
 <span class="sd">        upwards direction is [0, 0, 1]). If left unspecified, the camera</span>
 <span class="sd">        view is assumed to be ``&quot;top_down&quot;``.</span>
-<span class="sd">    in_degrees : bool</span>
+<span class="sd">    in_degrees</span>
 <span class="sd">        If ``True``, the returned heading array is given in degrees.</span>
 <span class="sd">        Otherwise, the array is given in radians. Default ``False``.</span>
 
@@ -733,7 +733,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data to validate.</span>
 
 <span class="sd">    Raises</span>

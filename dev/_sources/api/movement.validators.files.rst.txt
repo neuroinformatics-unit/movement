@@ -24,6 +24,8 @@
     
     ValidNWBFile
     
+    ValidROICollectionGeoJSON
+    
     ValidSleapAnalysis
     
     ValidSleapLabels

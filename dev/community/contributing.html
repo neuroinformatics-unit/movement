@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -810,6 +810,7 @@ In the <code class="docutils literal notranslate"><span class="pre">ValidMySoftw
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">_file_validator</span></code>: A composite validator that ensures <code class="docutils literal notranslate"><span class="pre">file</span></code> is a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>, is not a directory, is accessible with the required permission, and has one of the expected <code class="docutils literal notranslate"><span class="pre">suffixes</span></code> (if any).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">_hdf5_validator</span></code>: Checks that an HDF5 <code class="docutils literal notranslate"><span class="pre">file</span></code> contains the expected dataset(s).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_json_validator</span></code>: Checks that a <code class="docutils literal notranslate"><span class="pre">file</span></code> contains valid JSON and optionally validates it against a <a class="reference external" href="https://json-schema.org/">JSON Schema</a>. Schemas are defined as Python dicts in <code class="docutils literal notranslate"><span class="pre">movement/validators/_json_schemas.py</span></code>. Custom validation checks and an optional attribute name for storing the parsed data can also be provided.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">_if_instance_of</span></code>: Conditionally applies a validator only when <code class="docutils literal notranslate"><span class="pre">file</span></code> is an instance of a given class.</p></li>
 </ul>
 <p>In the current example, the <code class="docutils literal notranslate"><span class="pre">_file_validator</span></code> is used to ensure that the input <code class="docutils literal notranslate"><span class="pre">file</span></code> is a readable CSV file.</p>

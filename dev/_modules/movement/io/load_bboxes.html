@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../../../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -1000,7 +1000,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    np.ndarray</span>
+<span class="sd">    numpy.ndarray</span>
 <span class="sd">        A numpy array of size (n_bboxes, ) containing the bounding boxes</span>
 <span class="sd">        confidence scores.</span>
 
@@ -1039,7 +1039,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    np.ndarray</span>
+<span class="sd">    numpy.ndarray</span>
 <span class="sd">        A numpy array of size (n_frames, ) containing the frame numbers.</span>
 <span class="sd">        In the VIA tracks .csv file, the frame number is expected to be</span>
 <span class="sd">        defined as a &#39;file_attribute&#39; , or encoded in the filename as an</span>
@@ -1096,12 +1096,12 @@
 <span class="sd">    list_keys</span>
 <span class="sd">        The list of keys whose values we want to extract from the literal</span>
 <span class="sd">        dictionaries in the ``via_column_name`` column.</span>
-<span class="sd">    cast_fn : type, optional</span>
+<span class="sd">    cast_fn</span>
 <span class="sd">        The type function to cast the values to. By default ``float``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    np.ndarray</span>
+<span class="sd">    numpy.ndarray</span>
 <span class="sd">        A numpy array holding the extracted values. If ``len(list_keys) &gt; 1``</span>
 <span class="sd">        the array is two-dimensional with shape ``(N, len(list_keys))``, where</span>
 <span class="sd">        ``N`` is the number of rows in the input dataframe ``df``. If</span>

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=23f8087c"></script>
+    <script src="../_static/documentation_options.js?v=d6fdd3a4"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -139,7 +139,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.14.1.dev8</p>
+    <p class="title logo__title">movement v0.14.1.dev10</p>
   
 </a></div>
     
@@ -627,7 +627,21 @@ can actually support multiple (non-overlapping) holes, which is why the
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.show.html#matplotlib.figure.Figure.show" title="matplotlib.figure.Figure.show" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">habitat_fig</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_boundary_angles_002.png" srcset="../_images/sphx_glr_boundary_angles_002.png" alt="boundary angles" class = "sphx-glr-single-img"/></section>
+<img src="../_images/sphx_glr_boundary_angles_002.png" srcset="../_images/sphx_glr_boundary_angles_002.png" alt="boundary angles" class = "sphx-glr-single-img"/><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Once you have defined your RoIs, you can save them to a GeoJSON file
+using <a class="reference internal" href="../api/movement.roi.save_rois.html#movement.roi.save_rois" title="movement.roi.save_rois"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_rois()</span></code></a> and load them back
+later with <a class="reference internal" href="../api/movement.roi.load_rois.html#movement.roi.load_rois" title="movement.roi.load_rois"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_rois()</span></code></a>. This is useful
+for sharing RoI definitions with collaborators or reusing them across
+multiple analysis scripts.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_rois</span><span class="p">,</span> <span class="n">load_rois</span>
+
+<span class="n">save_rois</span><span class="p">([</span><a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">central_region</span></a><span class="p">,</span> <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nest_region</span></a><span class="p">,</span> <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_region</span></a><span class="p">],</span> <span class="s2">&quot;rois.geojson&quot;</span><span class="p">)</span>
+<span class="n">loaded_rois</span> <span class="o">=</span> <span class="n">load_rois</span><span class="p">(</span><span class="s2">&quot;rois.geojson&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
 <section id="view-individual-paths-inside-the-habitat">
 <h2>View individual paths inside the habitat<a class="headerlink" href="#view-individual-paths-inside-the-habitat" title="Link to this heading">#</a></h2>
 <p>We can now overlay the paths that the individuals followed on top of our
@@ -920,7 +934,7 @@ their forward vectors rapidly change.</p></li>
 the egocentric angles of all the individuals, reflecting the individuals’
 attempts to avoid colliding with (and to make space to move passed) each
 other.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.321 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.326 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-boundary-angles-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/boundary_angles.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
