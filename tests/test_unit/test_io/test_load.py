@@ -61,8 +61,18 @@ def test_load_dataset_delegates_correctly(
     according to the source_software.
     """
     if source_software == "Unknown":
-        with pytest.raises(ValueError, match="Unsupported source"):
+        with pytest.raises(ValueError, match="Unsupported source software"):
             load.load_dataset("some_file", source_software)
+        # Verify error message lists valid options
+        try:
+            load.load_dataset("some_file", source_software)
+        except ValueError as e:
+            assert "Supported options are:" in str(e)
+            # Check that at least one valid source is mentioned
+            assert any(
+                src in str(e)
+                for src in ["DeepLabCut", "SLEAP", "LightningPose", "Anipose"]
+            )
     else:
         mock_loader = mocker.patch(loader_fn)
         mocker.patch.dict(
