@@ -300,8 +300,9 @@ def test_entry_exits_modes(unit_square, mode, expected_events):
         pytest.param(
             2,
             # brief single-frame inside at t=1 is suppressed;
-            # sustained entry at t=3,4 registers with 1-frame lag at t=4
-            [0, 0, 0, 0, 1, -1],
+            # sustained entry at t=3,4 fires at t=4;
+            # single-frame exit at t=5 is also suppressed (debounce)
+            [0, 0, 0, 0, 1, 0],
             id="min_frames=2",
         ),
     ],
@@ -325,6 +326,33 @@ def test_entry_exits_min_frames(unit_square, min_frames, expected_events):
     np.testing.assert_array_equal(
         events.sel(region="Unit square").values,
         np.array(expected_events),
+    )
+
+
+def test_entry_exits_starts_inside_with_min_frames(unit_square):
+    """Test that starts-inside yields +1 at t=0 even when min_frames > 1.
+
+    Validates the documented behaviour: ``time=0`` is always accepted
+    as-is by the debounce logic, so a subject that begins inside the
+    region records an entry at the very first frame regardless of
+    ``min_frames``.  Also confirms that a brief single-frame exit is
+    suppressed symmetrically.
+    """
+    # Occupancy pattern: T F T T
+    # Brief exit at t=1 should be suppressed with min_frames=2.
+    coords_xy = [
+        (0.5, 0.5),  # inside  (initial)
+        (1.5, 1.5),  # outside (brief — only 1 frame)
+        (0.5, 0.5),  # inside  (sustained)
+        (0.5, 0.5),  # inside
+    ]
+    positions = _make_positions(coords_xy)
+    events = compute_entry_exits(positions, [unit_square], min_frames=2)
+
+    # Only the initial entry at t=0 is recorded; brief exit suppressed
+    np.testing.assert_array_equal(
+        events.sel(region="Unit square").values,
+        np.array([1, 0, 0, 0]),
     )
 
 

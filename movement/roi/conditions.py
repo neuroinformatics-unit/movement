@@ -174,13 +174,26 @@ def compute_entry_exits(
 
     Notes
     -----
-    The ``min_frames`` parameter uses a backward-looking rolling
-    minimum over the occupancy array. A transition is only registered
-    after the new state has been maintained for ``min_frames``
-    consecutive frames, introducing a lag of ``min_frames - 1`` frames
-    in event detection.
+    The ``min_frames`` parameter uses a debounce approach: a state
+    change (entry or exit) is only registered after the new state has
+    been sustained for ``min_frames`` consecutive frames.  Both brief
+    entries and brief exits are suppressed symmetrically.  The
+    subject's state at ``time=0`` is always accepted as-is, so a
+    ``+1`` entry is correctly recorded at the first frame when the
+    subject starts inside a region.
 
     """
+    valid_modes = {"centroid", "all", "any", "majority"}
+    if mode not in valid_modes:
+        raise ValueError(
+            f"Invalid mode {mode!r}. "
+            f"Expected one of {sorted(valid_modes)}."
+        )
+    if min_frames < 1:
+        raise ValueError(
+            f"min_frames must be >= 1, got {min_frames}."
+        )
+
     # Collapse keypoints via spatial centroid before computing occupancy
     if mode == "centroid" and "keypoints" in data.dims:
         position_data = data.mean(dim="keypoints")
@@ -200,15 +213,42 @@ def compute_entry_exits(
             n_kp = occupancy.sizes["keypoints"]
             occupancy = occupancy.sum(dim="keypoints") > (n_kp / 2)
 
-    # Suppress brief border noise: require sustained occupancy
+    # Suppress brief border noise: debounce state changes so that a new
+    # state (inside or outside) must be sustained for ``min_frames``
+    # consecutive frames before it takes effect.  Applies symmetrically
+    # to both entries and exits; time=0 is always accepted as-is.
     if min_frames > 1:
-        occupancy = (
-            occupancy.astype(int)
-            .rolling(time=min_frames, min_periods=min_frames)
-            .min()
-            .fillna(0)
-            .astype(bool)
-        )
+        time_axis = occupancy.get_axis_num("time")
+        occ_np = occupancy.values
+        occ_time_first = np.moveaxis(occ_np, time_axis, 0)
+        T = occ_time_first.shape[0]
+        if T > 0:
+            flat = occ_time_first.reshape(T, -1)
+            debounced = flat.copy()
+            for col in range(flat.shape[1]):
+                state = bool(flat[0, col])
+                debounced[0, col] = state
+                diff_run = 0
+                for t in range(1, T):
+                    v = bool(flat[t, col])
+                    if v == state:
+                        diff_run = 0
+                        debounced[t, col] = state
+                    else:
+                        diff_run += 1
+                        if diff_run >= min_frames:
+                            state = v
+                            debounced[t, col] = state
+                            diff_run = 0
+                        else:
+                            debounced[t, col] = state
+            debounced = debounced.reshape(occ_time_first.shape)
+            debounced = np.moveaxis(debounced, 0, time_axis)
+            occupancy = xr.DataArray(
+                debounced.astype(bool),
+                coords=occupancy.coords,
+                dims=occupancy.dims,
+            )
 
     # Compute transitions: diff gives +1 (entry) or -1 (exit)
     # diff removes the first time point; we prepend t=0 separately
