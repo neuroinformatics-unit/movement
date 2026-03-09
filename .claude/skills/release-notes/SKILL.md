@@ -18,12 +18,24 @@ Your job is to organise these into meaningful sections.
 3. **Organise PRs into sections** using the format below. Keep the original PR bullet points intact (do not rewrite them).
 4. **Write section descriptions** for highlights. Include:
    - A shoutout to the main contributor(s) of the feature — especially if they are new or external contributors.
-   - A brief explanation of the change and why it matters.
+   - A brief explanation of the change and why it matters. When describing new functions or APIs, follow the docstrings closely — use their wording for what the function does and base code examples on the docstring examples (if any exist).
+   - Where possible, link to relevant docs pages using the pattern `[`movement.module.function()`](https://movement.neuroinformatics.dev/latest/api/movement.module.function.html)`. For new gallery examples, link to the rendered page.
    - Code snippets showing the new API/syntax.
    - For deprecations: list deprecated functions in a `> [!WARNING]` block, and provide before/after migration examples.
    - For breaking changes: show old vs new syntax.
 5. **Acknowledge new contributors** — keep the `## New Contributors` section as-is.
 6. **Verify completeness** — confirm every PR from the original list appears exactly once in the final notes.
+7. **Test code snippets** — run all code snippets included in the release notes to verify they execute correctly.
+8. **Save both output variants** to markdown files in the repo root:
+   - `release_notes_v<VERSION>.md` — the full GitHub release notes (all sections, PR bullets, New Contributors, Full Changelog link).
+   - `release_zulip_v<VERSION>.md` — a shorter Zulip announcement covering only the highlights. Differences from the GitHub variant:
+     - Starts with `## Release [v<VERSION>](https://github.com/neuroinformatics-unit/movement/releases/tag/v<VERSION>) is out`
+     - Uses Zulip emoji syntax (`:high_voltage:` instead of ⚡️)
+     - Omits the PR bullet points from each highlight section (keeps only the descriptive text and code snippets)
+     - Omits non-highlight sections (bug fixes, docs, housekeeping, etc.)
+     - Omits the New Contributors / Full Changelog sections
+     - Ends with `See the [release notes](https://github.com/neuroinformatics-unit/movement/releases/tag/v<VERSION>) for more info and a full list of changes.`
+     - Uses `Python` (capitalised) in code fence language tags
 
 ## Section format
 
@@ -36,9 +48,12 @@ To update movement to the latest version, see the [update guide](https://movemen
 
 ## What's Changed
 
-### ⚡️ Highlight: <short description>
+### ⚡️ Highlight 1: <short description>
 (descriptive text, code snippets, deprecation warnings, migration guide)
 * PR bullet ...
+
+### ⚡️ Highlight 2: <short description>
+...
 
 ### 🐛 Bug fixes
 * PR bullet ...
@@ -65,7 +80,7 @@ Other sections you might use depending on the release:
 
 ## Categorisation guidelines
 
-- **Highlight**: Flagship features or breaking changes the user wants to showcase. Ask the user which PR(s) to highlight if they don't specify.
+- **Highlight**: Flagship features or breaking changes the user wants to showcase. When there are multiple highlights, number them (Highlight 1, Highlight 2, etc.). Ask the user which PR(s) to highlight if they don't specify.
 - **Bug fixes**: PRs that fix incorrect behaviour (code bugs, not doc typos).
 - **Improving the contributor experience**: Contributing guide updates, benchmarks, dev tooling improvements (e.g. tox-uv, moving dev config to pyproject.toml), restructured community docs.
 - **Documentation**: Doc fixes, new examples, link fixes, doc page additions.
