@@ -275,7 +275,7 @@ annotations, and plot the annotated bounding box and centroid at each frame.
 
         # set title and labels
         ax.set_title(f"Frame {frame_idx}")
-        ax.set_xlabel("x (pixles)")
+        ax.set_xlabel("x (pixels)")
         ax.set_ylabel("y (pixels)")
         ax.set_xlabel("")
         if frame_idx == 1:
@@ -761,7 +761,7 @@ code.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.482 seconds)
+   **Total running time of the script:** (0 minutes 3.507 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_upsample_bboxes.py:
