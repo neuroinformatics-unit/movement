@@ -1,0 +1,9 @@
+poses\_to\_bboxes
+=================
+
+.. currentmodule:: movement.transforms
+
+.. autofunction:: poses_to_bboxes
+
+.. minigallery:: movement.transforms.poses_to_bboxes
+   :add-heading: Examples using ``poses_to_bboxes``

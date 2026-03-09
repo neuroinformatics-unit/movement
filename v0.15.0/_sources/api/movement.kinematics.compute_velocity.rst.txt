@@ -1,0 +1,9 @@
+﻿compute\_velocity
+=================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_velocity
+
+.. minigallery:: movement.kinematics.compute_velocity
+   :add-heading: Examples using ``compute_velocity``

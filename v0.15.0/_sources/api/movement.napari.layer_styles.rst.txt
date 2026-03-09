@@ -1,0 +1,27 @@
+﻿movement.napari.layer\_styles
+=============================
+
+.. rubric:: Description
+
+.. automodule:: movement.napari.layer_styles
+
+.. currentmodule:: movement.napari.layer_styles
+
+
+.. rubric:: Classes
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    BoxesStyle
+    
+    LayerStyle
+    
+    PointsStyle
+    
+    TracksStyle
+    
+
+
+

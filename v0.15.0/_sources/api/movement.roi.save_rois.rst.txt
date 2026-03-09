@@ -1,0 +1,9 @@
+﻿save\_rois
+==========
+
+.. currentmodule:: movement.roi
+
+.. autofunction:: save_rois
+
+.. minigallery:: movement.roi.save_rois
+   :add-heading: Examples using ``save_rois``

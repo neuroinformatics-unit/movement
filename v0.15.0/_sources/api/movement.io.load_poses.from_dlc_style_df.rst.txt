@@ -1,0 +1,9 @@
+from\_dlc\_style\_df
+====================
+
+.. currentmodule:: movement.io.load_poses
+
+.. autofunction:: from_dlc_style_df
+
+.. minigallery:: movement.io.load_poses.from_dlc_style_df
+   :add-heading: Examples using ``from_dlc_style_df``

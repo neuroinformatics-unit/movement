@@ -1,0 +1,9 @@
+broadcastable\_method
+=====================
+
+.. currentmodule:: movement.utils.broadcasting
+
+.. autofunction:: broadcastable_method
+
+.. minigallery:: movement.utils.broadcasting.broadcastable_method
+   :add-heading: Examples using ``broadcastable_method``
