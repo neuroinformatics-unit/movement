@@ -70,9 +70,9 @@ def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
 
     Parameters
     ----------
-    file_name : str
+    file_name
         Name of the metadata file to fetch.
-    data_dir : pathlib.Path, optional
+    data_dir
         Directory to store the metadata file in. Defaults to the constant
         ``DATA_DIR``. Can be overridden for testing purposes.
 
@@ -105,9 +105,9 @@ def _fetch_metadata(
 
     Parameters
     ----------
-    file_name : str
+    file_name
         Name of the metadata file to fetch.
-    data_dir : pathlib.Path, optional
+    data_dir
         Directory to store the metadata file in. Defaults to
         the constant ``DATA_DIR``. Can be overridden for testing purposes.
 
@@ -149,7 +149,7 @@ def _generate_file_registry(metadata: dict[str, dict]) -> dict[str, str]:
 
     Parameters
     ----------
-    metadata : dict
+    metadata
         List of dictionaries containing metadata for each sample dataset.
 
     Returns
@@ -200,9 +200,9 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
 
     Parameters
     ----------
-    filename : str
+    filename
         Name of the sample data file to fetch.
-    with_video : bool, optional
+    with_video
         Whether to download the associated video file (if available). If set
         to False, the "video" entry in the returned dictionary will be None.
         Defaults to False.
@@ -292,9 +292,9 @@ def fetch_dataset(
 
     Parameters
     ----------
-    filename : str
+    filename
         Name of the file to fetch.
-    with_video : bool, optional
+    with_video
         Whether to download the associated video file (if available). If set
         to False, the "video" entry in the returned dictionary will be None.
         Defaults to False.
@@ -353,9 +353,9 @@ def _fetch_and_unzip(data_type: str, file_name: str | Path) -> Path:
 
     Parameters
     ----------
-    data_type : str
+    data_type
         Type of data to fetch, e.g. "poses", "bboxes".
-    file_name : str
+    file_name
         Name of the .zip file to fetch, e.g. "TRex_five-locusts.zip"
 
     Returns
