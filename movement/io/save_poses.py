@@ -159,7 +159,6 @@ def to_dlc_style_df(
 
     else:
         if dlc_df_format == "multi-animal":
-
             index_levels = ["scorer", "individuals", "bodyparts", "coords"]
 
             columns = pd.MultiIndex.from_product(
@@ -168,7 +167,6 @@ def to_dlc_style_df(
             )
 
         else:  # single-animal format
-
             index_levels = ["scorer", "bodyparts", "coords"]
 
             columns = pd.MultiIndex.from_product(
@@ -184,6 +182,7 @@ def to_dlc_style_df(
 
 
 from typing import Literal
+
 
 def to_dlc_file(
     ds: xr.Dataset,
@@ -240,7 +239,6 @@ def to_dlc_file(
         split_individuals = False
 
     if split_individuals:
-
         df_dict = to_dlc_style_df(
             ds,
             split_individuals=True,
@@ -248,7 +246,6 @@ def to_dlc_file(
         )
 
         for key, df in df_dict.items():
-
             filepath = f"{valid_path.with_suffix('')}_{key}{valid_path.suffix}"
 
             if isinstance(df, pd.DataFrame):
@@ -257,7 +254,6 @@ def to_dlc_file(
             logger.info(f"Saved poses for individual {key} to {valid_path}.")
 
     else:
-
         df_all = to_dlc_style_df(
             ds,
             split_individuals=False,
@@ -268,6 +264,8 @@ def to_dlc_file(
             _save_dlc_df(valid_path, df_all)
 
         logger.info(f"Saved poses dataset to {valid_path}.")
+
+
 def to_lp_file(
     ds: xr.Dataset,
     file_path: str | Path,
