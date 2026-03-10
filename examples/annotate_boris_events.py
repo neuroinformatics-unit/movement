@@ -291,10 +291,8 @@ events = (
 events["start_frame"] = df["Image index start"]
 events["stop_frame"] = df["Image index stop"]
 
-# Snap the final stop frame per limb to n_frames so the last frame is included
-events.loc[events.groupby("limb")["stop_frame"].idxmax(), "stop_frame"] = (
-    ds.time.size
-)
+# Increment the final stop frame per limb by 1 so the last frame is included
+events.loc[events.groupby("limb")["stop_frame"].idxmax(), "stop_frame"] += 1
 
 print(f"Parsed events:\n{events.head()}")
 
