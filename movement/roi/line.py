@@ -1,15 +1,21 @@
 """1-dimensional lines of interest."""
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 import numpy as np
 import shapely
-import xarray as xr
-from matplotlib.axes import Axes
-from matplotlib.figure import Figure, SubFigure
-from numpy.typing import ArrayLike
 
 from movement.roi.base import BaseRegionOfInterest, LineLike, PointLikeList
 from movement.utils.broadcasting import broadcastable_method
 from movement.utils.logging import logger
+
+if TYPE_CHECKING:
+    import xarray as xr
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure, SubFigure
+    from numpy.typing import ArrayLike
 
 
 class LineOfInterest(BaseRegionOfInterest[LineLike]):
@@ -39,14 +45,14 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
 
         Parameters
         ----------
-        points : tuple of (x, y) pairs
+        points
             The points (in sequence) that make up the line segment. At least
             two points must be provided.
-        loop : bool, default False
+        loop
             If True, the final point in ``points`` will be connected by an
             additional line segment to the first, creating a closed loop.
             (See Notes).
-        name : str, optional
+        name
             Name of the LoI that is to be created. A default name will be
             inherited from the base class if not provided, and
             defaults are inherited from.
@@ -114,10 +120,17 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
 
         Parameters
         ----------
-        on_same_side_as : ArrayLike
+        on_same_side_as
             A sample point in the (x,y) plane the normal is in. If multiple
             points are given, one normal vector is returned for each point
             given. By default, the origin is used.
+
+        Returns
+        -------
+        numpy.ndarray
+            Unit normal vector(s) perpendicular to the line segment, pointing
+            toward the half-plane containing the
+            sample point ``on_same_side_as``.
 
         Raises
         ------
@@ -156,14 +169,21 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
 
         Parameters
         ----------
-        direction : xarray.DataArray
+        direction
             An array of vectors representing a given direction,
             e.g., the forward vector(s).
-        position : xr.DataArray
+        position
             Spatial positions, considered the origin of the ``direction``.
-        in_degrees : bool
+        in_degrees
             If ``True``, angles are returned in degrees. Otherwise angles are
             returned in radians. Default ``False``.
+
+        Returns
+        -------
+        xarray.DataArray
+            The signed angle between the segment normal and the provided
+            direction vector(s). Returned in radians unless
+            ``in_degrees=True``.
 
         See Also
         --------
