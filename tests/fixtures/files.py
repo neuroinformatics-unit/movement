@@ -554,3 +554,111 @@ def invalid_dstype_netcdf_file(tmp_path_factory):
     ds.to_netcdf(invalid_path)
 
     yield str(invalid_path)
+
+
+# ---------------- COCO JSON file fixtures ----------------------------
+# Constants for COCO fixtures
+COCO_FRAME_001 = "frame_001.jpg"
+
+
+@pytest.fixture
+def valid_coco_json_file(tmp_path):
+    """Return a path to a valid COCO keypoints JSON file with
+    3 frames, 2 individuals, and 3 keypoints.
+    """
+    import json
+
+    coco_data = {
+        "images": [
+            {"id": 1, "file_name": COCO_FRAME_001},
+            {"id": 2, "file_name": "frame_002.jpg"},
+            {"id": 3, "file_name": "frame_003.jpg"},
+        ],
+        "annotations": [
+            {
+                "id": 1,
+                "image_id": 1,
+                "category_id": 1,
+                "keypoints": [10, 20, 2, 30, 40, 1, 50, 60, 0],
+            },
+            {
+                "id": 2,
+                "image_id": 1,
+                "category_id": 1,
+                "keypoints": [15, 25, 2, 35, 45, 2, 55, 65, 1],
+            },
+            {
+                "id": 3,
+                "image_id": 2,
+                "category_id": 1,
+                "keypoints": [11, 21, 1, 31, 41, 0, 51, 61, 2],
+            },
+        ],
+        "categories": [
+            {
+                "id": 1,
+                "name": "person",
+                "keypoints": ["nose", "left_eye", "right_eye"],
+            }
+        ],
+    }
+    file_path = tmp_path / "valid_coco.json"
+    with open(file_path, "w") as f:
+        json.dump(coco_data, f)
+    return file_path
+
+
+@pytest.fixture
+def coco_json_missing_categories(tmp_path):
+    """Return path to a COCO JSON file missing 'categories' key."""
+    import json
+
+    coco_data = {
+        "images": [{"id": 1, "file_name": COCO_FRAME_001}],
+        "annotations": [
+            {
+                "id": 1,
+                "image_id": 1,
+                "category_id": 1,
+                "keypoints": [10, 20, 2],
+            }
+        ],
+    }
+    file_path = tmp_path / "coco_missing_categories.json"
+    with open(file_path, "w") as f:
+        json.dump(coco_data, f)
+    return file_path
+
+
+@pytest.fixture
+def coco_json_missing_keypoints(tmp_path):
+    """Return path to a COCO JSON file with categories
+    but no keypoints field.
+    """
+    import json
+
+    coco_data = {
+        "images": [{"id": 1, "file_name": COCO_FRAME_001}],
+        "annotations": [
+            {
+                "id": 1,
+                "image_id": 1,
+                "category_id": 1,
+                "keypoints": [10, 20, 2],
+            }
+        ],
+        "categories": [{"id": 1, "name": "person"}],
+    }
+    file_path = tmp_path / "coco_missing_keypoints.json"
+    with open(file_path, "w") as f:
+        json.dump(coco_data, f)
+    return file_path
+
+
+@pytest.fixture
+def invalid_json_file(tmp_path):
+    """Return path to an invalid JSON file (not parseable)."""
+    file_path = tmp_path / "invalid.json"
+    with open(file_path, "w") as f:
+        f.write("{this is not valid JSON")
+    return file_path
