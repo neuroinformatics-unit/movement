@@ -25,10 +25,12 @@ for more background.
 """
 
 from napari.layers import Shapes
+from napari.utils.notifications import show_error
 from napari.viewer import Viewer
 from qtpy.QtCore import QAbstractTableModel, QModelIndex, Qt
 from qtpy.QtWidgets import (
     QComboBox,
+    QFileDialog,
     QGroupBox,
     QHBoxLayout,
     QPushButton,
@@ -38,6 +40,11 @@ from qtpy.QtWidgets import (
 )
 
 from movement.napari.layer_styles import RegionsColorManager, RegionsStyle
+from movement.napari.roi_convert import (
+    rois_to_shapes_layer_data,
+    shapes_layer_to_rois,
+)
+from movement.roi import load_rois, save_rois
 
 DEFAULT_REGION_NAME = "Un-named"
 
@@ -135,12 +142,33 @@ class RegionsWidget(QWidget):
         return layer_controls_layout
 
     def _setup_table_view_layout(self):
-        """Create the table view layout.
+        """Create the table view layout with save/load buttons below.
 
-        Returns a QVBoxLayout containing the RegionsTableView widget.
+        Returns a QVBoxLayout containing the RegionsTableView widget and
+        a row of Save/Load buttons below it.
         """
         table_view_layout = QVBoxLayout()
         table_view_layout.addWidget(self.region_table_view)
+
+        io_buttons_layout = QHBoxLayout()
+
+        self.save_regions_button = QPushButton("Save regions")
+        self.save_regions_button.setEnabled(False)
+        self.save_regions_button.setToolTip(
+            "Save regions in the selected layer to a GeoJSON file."
+        )
+        self.save_regions_button.clicked.connect(self._save_regions)
+
+        self.load_regions_button = QPushButton("Load regions")
+        self.load_regions_button.setToolTip(
+            "Load regions from a GeoJSON file into a new layer."
+        )
+        self.load_regions_button.clicked.connect(self._load_regions)
+
+        io_buttons_layout.addWidget(self.save_regions_button)
+        io_buttons_layout.addWidget(self.load_regions_button)
+        table_view_layout.addLayout(io_buttons_layout)
+
         return table_view_layout
 
     def _connect_layer_signals(self):
@@ -386,7 +414,7 @@ class RegionsWidget(QWidget):
         self.region_table_view.setModel(None)
 
     def _update_table_tooltip(self):
-        """Update the table tooltip based on current state.
+        """Update the table tooltip and I/O buttons based on current state.
 
         Shows contextual hints:
 
@@ -417,6 +445,74 @@ class RegionsWidget(QWidget):
                 "Press Delete to remove it.\n"
                 "Double-click a name to rename."
             )
+
+        has_shapes = (
+            self.region_table_model is not None
+            and self.region_table_model.rowCount() > 0
+        )
+        self.save_regions_button.setEnabled(has_shapes)
+
+    def _save_regions(self):
+        """Save regions in the current layer to a GeoJSON file.
+
+        Opens a file dialog to choose the output path, converts the shapes
+        in the active layer to movement RoI objects, and writes them via
+        :func:`~movement.roi.save_rois`.
+        """
+        layer = (
+            self.region_table_model.layer
+            if self.region_table_model is not None
+            else None
+        )
+        if layer is None or len(layer.data) == 0:
+            show_error("No regions to save. Draw some shapes first.")
+            return
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save regions to file",
+            "",
+            "GeoJSON files (*.geojson *.json)",
+        )
+        if not file_path:
+            return
+
+        try:
+            rois = shapes_layer_to_rois(layer)
+            save_rois(rois, file_path)
+        except Exception as e:
+            show_error(str(e))
+
+    def _load_regions(self):
+        """Load regions from a GeoJSON file into a new layer.
+
+        Opens a file dialog to choose the source file, reads movement RoI
+        objects via :func:`~movement.roi.load_rois`, and adds them to the
+        viewer as a new region layer.
+        """
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Load regions from file",
+            "",
+            "GeoJSON files (*.geojson *.json)",
+        )
+        if not file_path:
+            return
+
+        try:
+            rois = load_rois(file_path)
+            layer_data = rois_to_shapes_layer_data(rois)
+        except Exception as e:
+            show_error(str(e))
+            return
+
+        new_layer = self.viewer.add_shapes(
+            layer_data["data"],
+            shape_type=layer_data["shape_type"],
+            name="Regions",
+        )
+        self._mark_as_region_layer(new_layer)
+        new_layer.properties = layer_data["properties"]
 
     def closeEvent(self, event):
         """Clean up signal connections when widget is closed.

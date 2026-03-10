@@ -8,6 +8,7 @@ from qtpy.QtCore import QItemSelection, QModelIndex, Qt
 from qtpy.QtWidgets import (
     QComboBox,
     QGroupBox,
+    QPushButton,
     QTableView,
 )
 
@@ -72,6 +73,12 @@ def test_widget_has_expected_ui_elements(regions_widget):
     assert regions_widget.findChild(QComboBox) is not None
     assert regions_widget.add_layer_button is not None
     assert regions_widget.findChild(QTableView) is not None
+    assert regions_widget.save_regions_button is not None
+    assert regions_widget.load_regions_button is not None
+    buttons = regions_widget.findChildren(QPushButton)
+    button_texts = [b.text() for b in buttons]
+    assert "Save regions" in button_texts
+    assert "Load regions" in button_texts
 
 
 def test_widget_with_custom_colormap(make_napari_viewer_proxy):
@@ -653,3 +660,183 @@ def test_model_header_data_edge_cases(
     widget, _ = regions_widget_with_layer
     header = widget.region_table_model.headerData(0, orientation, role)
     assert header == expected
+
+
+# ------------------- Tests for save/load buttons ----------------------------#
+
+
+def test_save_button_disabled_with_no_layer(regions_widget):
+    """Save button is disabled when no region layer is selected."""
+    assert not regions_widget.save_regions_button.isEnabled()
+
+
+def test_save_button_disabled_with_empty_layer(make_napari_viewer_proxy):
+    """Save button is disabled when the selected layer has no shapes."""
+    viewer = make_napari_viewer_proxy()
+    viewer.add_shapes(name="Regions")
+    widget = RegionsWidget(viewer)
+    assert not widget.save_regions_button.isEnabled()
+
+
+def test_save_button_enabled_with_shapes(regions_widget_with_layer):
+    """Save button is enabled when the selected layer has shapes."""
+    widget, _ = regions_widget_with_layer
+    assert widget.save_regions_button.isEnabled()
+
+
+def test_save_button_disabled_after_all_shapes_removed(
+    regions_widget_with_layer,
+):
+    """Save button is disabled again after all shapes are removed."""
+    widget, layer = regions_widget_with_layer
+    layer.selected_data = set(range(len(layer.data)))
+    layer.remove_selected()
+    assert not widget.save_regions_button.isEnabled()
+
+
+def test_load_button_always_enabled(regions_widget):
+    """Load button is always enabled regardless of layer state."""
+    assert regions_widget.load_regions_button.isEnabled()
+
+
+def test_save_button_click_triggers_save(
+    regions_widget_with_layer, mocker, tmp_path
+):
+    """Clicking Save regions invokes save_rois with the chosen path."""
+    widget, _ = regions_widget_with_layer
+    out_file = str(tmp_path / "regions.geojson")
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getSaveFileName",
+        return_value=(out_file, ""),
+    )
+    mock_save = mocker.patch("movement.napari.regions_widget.save_rois")
+    widget.save_regions_button.click()
+    mock_save.assert_called_once()
+
+
+def test_load_button_click_triggers_load(regions_widget, mocker, tmp_path):
+    """Clicking Load regions invokes load_rois with the chosen path."""
+    from movement.roi import LineOfInterest
+
+    in_file = str(tmp_path / "regions.geojson")
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getOpenFileName",
+        return_value=(in_file, ""),
+    )
+    mock_load = mocker.patch(
+        "movement.napari.regions_widget.load_rois",
+        return_value=[LineOfInterest([(0, 0), (1, 1)], name="line")],
+    )
+    regions_widget.load_regions_button.click()
+    mock_load.assert_called_once()
+
+
+def test_save_regions_cancelled_dialog(regions_widget_with_layer, mocker):
+    """Cancelling the save dialog does not raise and does not write a file."""
+    widget, _ = regions_widget_with_layer
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getSaveFileName",
+        return_value=("", ""),
+    )
+    mock_save = mocker.patch("movement.napari.regions_widget.save_rois")
+    with does_not_raise():
+        widget._save_regions()
+    mock_save.assert_not_called()
+
+
+def test_load_regions_cancelled_dialog(regions_widget, mocker):
+    """Cancelling the load dialog does not raise and does not read a file."""
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getOpenFileName",
+        return_value=("", ""),
+    )
+    mock_load = mocker.patch("movement.napari.regions_widget.load_rois")
+    with does_not_raise():
+        regions_widget._load_regions()
+    mock_load.assert_not_called()
+
+
+def test_save_regions_writes_file(
+    regions_widget_with_layer, mocker, tmp_path
+):
+    """Save regions calls save_rois with the chosen path."""
+    widget, _ = regions_widget_with_layer
+    out_file = str(tmp_path / "regions.geojson")
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getSaveFileName",
+        return_value=(out_file, ""),
+    )
+    mock_save = mocker.patch("movement.napari.regions_widget.save_rois")
+    widget._save_regions()
+    mock_save.assert_called_once()
+    args = mock_save.call_args
+    assert args[0][1] == out_file
+
+
+def test_load_regions_adds_new_layer(
+    regions_widget, mocker, tmp_path
+):
+    """Load regions calls load_rois and adds a new region layer."""
+    from movement.roi import LineOfInterest
+
+    in_file = str(tmp_path / "regions.geojson")
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getOpenFileName",
+        return_value=(in_file, ""),
+    )
+    mocker.patch(
+        "movement.napari.regions_widget.load_rois",
+        return_value=[LineOfInterest([(0, 0), (1, 1)], name="test line")],
+    )
+    regions_widget._load_regions()
+
+    region_layers = [
+        layer
+        for layer in regions_widget.viewer.layers
+        if isinstance(layer, Shapes)
+    ]
+    assert len(region_layers) == 1
+    assert region_layers[0].metadata.get("movement_region_layer") is True
+    assert list(region_layers[0].properties["name"]) == ["test line"]
+
+
+def test_save_regions_shows_error_on_empty_layer(
+    regions_widget, mocker
+):
+    """_save_regions shows an error when there is no layer or no shapes."""
+    mock_error = mocker.patch("movement.napari.regions_widget.show_error")
+    regions_widget._save_regions()
+    mock_error.assert_called_once()
+
+
+def test_save_regions_shows_error_on_io_failure(
+    regions_widget_with_layer, mocker, tmp_path
+):
+    """_save_regions shows an error when save_rois raises."""
+    widget, _ = regions_widget_with_layer
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getSaveFileName",
+        return_value=(str(tmp_path / "out.geojson"), ""),
+    )
+    mocker.patch(
+        "movement.napari.regions_widget.save_rois",
+        side_effect=ValueError("disk error"),
+    )
+    mock_error = mocker.patch("movement.napari.regions_widget.show_error")
+    widget._save_regions()
+    mock_error.assert_called_once_with("disk error")
+
+
+def test_load_regions_shows_error_on_io_failure(regions_widget, mocker):
+    """_load_regions shows an error when load_rois raises."""
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getOpenFileName",
+        return_value=("/bad/path.geojson", ""),
+    )
+    mocker.patch(
+        "movement.napari.regions_widget.load_rois",
+        side_effect=FileNotFoundError("file not found"),
+    )
+    mock_error = mocker.patch("movement.napari.regions_widget.show_error")
+    regions_widget._load_regions()
+    mock_error.assert_called_once_with("file not found")
