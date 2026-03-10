@@ -40,7 +40,7 @@ def napari_shape_to_roi(
         Shape coordinates as stored in ``layer.data[i]``.
         Rows are points; columns are ``(y, x)`` (napari convention).
         A leading frame-index column — i.e. ``(frame, y, x)`` — is stripped
-        (an info message is logged).
+        if present.
     shape_type
         One of the napari shape types.
     name
@@ -79,7 +79,8 @@ def napari_shape_to_roi(
     Ellipses are approximated as polygons because neither ``movement`` nor
     its underlying geometry library (``shapely``) has a native ellipse type.
     The approximation uses :func:`shapely.Point.buffer` scaled and rotated
-    to match the ellipse geometry.
+    to match the ellipse geometry. This approach was inspired by
+    https://gis.stackexchange.com/questions/243459/drawing-ellipse-with-shapely
 
     """
     data = np.asarray(data, dtype=float)
