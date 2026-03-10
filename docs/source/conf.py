@@ -13,7 +13,7 @@ import setuptools_scm
 
 # Used when building API docs, put the dependencies
 # of any class you are documenting here
-autodoc_mock_imports = []
+autodoc_mock_imports = ["napari"]
 
 # Add the module path to sys.path here.
 # If the directory is relative to the documentation root,
