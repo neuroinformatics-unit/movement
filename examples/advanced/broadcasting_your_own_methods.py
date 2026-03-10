@@ -1,22 +1,29 @@
-"""Broadcast functions across multi-dimensional data
-=====================================================
+"""Apply custom functions across movement data dimensions
+=========================================================
 
-Use the @make_broadcastable decorator
-to efficiently apply functions across any data dimension.
+Use the ``@make_broadcastable`` decorator to run your own analysis functions
+across all individuals, keypoints, and time frames—without nested loops.
 """
 
 # %%
 # Summary
 # -------
-# :func:`@make_broadcastable()<movement.utils.broadcasting.\
-# make_broadcastable>` is particularly useful when you need to
-# apply the same operation to multiple individuals or time points
-# while avoiding the need to write complex loops.
+# When analysing movement data it is common to write a function that operates
+# on a single (x, y) position—for example, to check whether an animal is
+# inside a region of interest. Applying this function to an entire dataset
+# (across all time frames, keypoints, and individuals) usually requires writing
+# nested ``for`` loops, which are verbose, error-prone, and tightly coupled to
+# the shape of a particular dataset.
 #
-# The example walks through a practical case study of detecting when animals
-# enter a specific region of interest, showing how to convert a simple
-# point-in-rectangle check into a function that works on a data array
-# with many time-varying point trajectories.
+# The :func:`@make_broadcastable()<movement.utils.broadcasting.\
+# make_broadcastable>` decorator solves this problem. Decorate your function
+# once, and it will automatically accept an entire ``xarray.DataArray`` as
+# input, apply itself along the dimension you specify (e.g. ``"space"``), and
+# return a new ``DataArray`` with all remaining coordinates intact.
+#
+# This example walks through a practical case study—detecting when animals
+# enter a rectangular region of interest—to illustrate the step-by-step
+# transition from a simple per-point check to a fully broadcastable function.
 
 # %%
 # Imports
