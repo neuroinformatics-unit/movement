@@ -365,3 +365,34 @@ def test_entry_exits_preserves_individuals_dim(unit_square, two_individuals):
     assert "space" not in events.dims
     assert "region" in events.dims
     assert "time" in events.dims
+
+
+def test_entry_exits_invalid_mode(unit_square):
+    """Test that an invalid mode raises ValueError."""
+    positions = _make_positions([(0.5, 0.5), (1.5, 1.5)])
+    with pytest.raises(ValueError, match="Invalid mode"):
+        compute_entry_exits(positions, [unit_square], mode="invalid_mode")
+
+
+def test_entry_exits_invalid_min_frames(unit_square):
+    """Test that min_frames < 1 raises ValueError."""
+    positions = _make_positions([(0.5, 0.5), (1.5, 1.5)])
+    with pytest.raises(ValueError, match="min_frames must be >= 1"):
+        compute_entry_exits(positions, [unit_square], min_frames=0)
+
+
+def test_debounce_occupancy_empty_data(unit_square):
+    """Test that _debounce_occupancy handles empty time-axis gracefully.
+
+    When the DataArray has zero time points, ``_debounce_occupancy``
+    should return the input unchanged rather than raising an error.
+    """
+    from movement.roi.conditions import _debounce_occupancy
+
+    empty = xr.DataArray(
+        np.empty((0,), dtype=bool),
+        dims=["time"],
+        coords={"time": np.array([], dtype=int)},
+    )
+    result = _debounce_occupancy(empty, min_frames=2)
+    xr.testing.assert_identical(result, empty)
