@@ -13,6 +13,10 @@ from movement.roi.polygon import PolygonOfInterest
 from movement.utils.logging import logger
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    import napari.layers
+
     from movement.roi.base import BaseRegionOfInterest
 
 NapariShapeType = Literal["line", "path", "polygon", "rectangle", "ellipse"]
@@ -150,3 +154,125 @@ def _ellipse_to_polygon(
         f"PolygonOfInterest with {n_vertices} vertices."
     )
     return PolygonOfInterest(ellipse_polygon.exterior.coords, name=name)
+
+
+def shapes_layer_to_rois(
+    layer: napari.layers.Shapes,
+) -> list[LineOfInterest | PolygonOfInterest]:
+    """Convert all shapes in a napari Shapes layer to movement RoI objects.
+
+    Parameters
+    ----------
+    layer
+        A napari Shapes layer, typically one created by ``RegionsWidget``
+        (i.e. ``layer.metadata["movement_region_layer"] is True``).
+
+    Returns
+    -------
+    list[LineOfInterest | PolygonOfInterest]
+        One RoI per shape in the layer, in the same order as
+        ``layer.data``.
+
+    Notes
+    -----
+    Region names are read from ``layer.properties["name"]`` when present.
+    Shapes whose name entry is missing or ``None`` receive the default
+    name defined by :class:`~movement.roi.BaseRegionOfInterest`.
+
+    See Also
+    --------
+    movement.roi.save_rois :
+        Save the returned list directly to a GeoJSON file.
+    rois_to_shapes_layer_data :
+        Convert the returned list back to napari shapes (round-trip).
+
+    """
+    names = list(layer.properties.get("name", []))
+    rois = []
+    for i, (data, shape_type) in enumerate(
+        zip(layer.data, layer.shape_type, strict=True)
+    ):
+        name = names[i] if i < len(names) else None
+        rois.append(napari_shape_to_roi(data, shape_type, name=name))
+    return rois
+
+
+def roi_to_napari_shape(
+    roi: BaseRegionOfInterest,
+) -> tuple[np.ndarray, str]:
+    """Convert a single movement RoI to a napari shape.
+
+    Parameters
+    ----------
+    roi
+        A :class:`~movement.roi.LineOfInterest` or
+        :class:`~movement.roi.PolygonOfInterest`.
+
+    Returns
+    -------
+    data : numpy.ndarray
+        Shape coordinates in napari ``(y, x)`` convention.
+    shape_type : str
+        ``"path"`` for :class:`~movement.roi.LineOfInterest`,
+        ``"polygon"`` for :class:`~movement.roi.PolygonOfInterest`.
+
+    Notes
+    -----
+    The inverse of :func:`napari_shape_to_roi`.  Coordinates are swapped
+    from movement ``(x, y)`` convention back to napari ``(y, x)``.
+
+    """
+    if isinstance(roi, PolygonOfInterest):
+        # exterior.coords has a duplicate closing vertex; drop it
+        xy = np.array(roi.coords)[:-1]
+        shape_type = "polygon"
+    else:
+        xy = np.array(roi.coords)
+        shape_type = "path"
+
+    # Swap (x, y) → (y, x) to match napari's coordinate convention
+    yx = xy[:, ::-1]
+    return yx, shape_type
+
+
+def rois_to_shapes_layer_data(
+    rois: Sequence[BaseRegionOfInterest],
+) -> dict:
+    """Convert a sequence of movement RoIs to napari ``add_shapes`` kwargs.
+
+    Parameters
+    ----------
+    rois
+        Sequence of :class:`~movement.roi.LineOfInterest` and/or
+        :class:`~movement.roi.PolygonOfInterest` objects.
+
+    Returns
+    -------
+    dict
+        A dictionary with keys ``"data"``, ``"shape_type"``, and
+        ``"properties"`` (containing a ``"name"`` list).  It can be
+        passed directly to ``viewer.add_shapes(**result)`` or used to
+        populate an existing Shapes layer.
+
+    See Also
+    --------
+    movement.roi.load_rois :
+        Load RoIs from a GeoJSON file; the result can be passed directly
+        to this function to populate a shapes layer.
+    shapes_layer_to_rois :
+        Convert a shapes layer to RoIs (inverse direction).
+
+    """
+    data = []
+    shape_types = []
+    names = []
+    for roi in rois:
+        yx, shape_type = roi_to_napari_shape(roi)
+        data.append(yx)
+        shape_types.append(shape_type)
+        names.append(roi.name)
+    return {
+        "data": data,
+        "shape_type": shape_types,
+        "properties": {"name": names},
+    }

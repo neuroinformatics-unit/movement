@@ -6,8 +6,14 @@ from contextlib import nullcontext as does_not_raise
 import numpy as np
 import pytest
 import shapely
+from napari.layers import Shapes
 
-from movement.napari.roi_convert import napari_shape_to_roi
+from movement.napari.roi_convert import (
+    napari_shape_to_roi,
+    roi_to_napari_shape,
+    rois_to_shapes_layer_data,
+    shapes_layer_to_rois,
+)
 from movement.roi import LineOfInterest, PolygonOfInterest
 
 # ---------------------------------------------------------------------------
@@ -23,7 +29,6 @@ from movement.roi import LineOfInterest, PolygonOfInterest
 def line_yx():
     """Two-point line in napari (y, x) convention."""
     return np.array([[2.0, 1.0], [4.0, 3.0]])
-
 
 
 @pytest.fixture
@@ -215,3 +220,96 @@ def test_three_column_strips_frame_index(line_yx):
     assert shapely.normalize(roi.region) == shapely.normalize(
         shapely.LineString([[1.0, 2.0], [3.0, 4.0]])
     )
+
+
+# ---------------------------------------------------------------------------
+# roi_to_napari_shape
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ["roi", "expected_shape_type"],
+    [
+        pytest.param(
+            LineOfInterest([[1.0, 2.0], [3.0, 4.0]]),
+            "path",
+            id="LineOfInterest → shape_type 'path'",
+        ),
+        pytest.param(
+            PolygonOfInterest([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]),
+            "polygon",
+            id="PolygonOfInterest → shape_type 'polygon'",
+        ),
+    ],
+)
+def test_roi_to_napari_shape_type(roi, expected_shape_type):
+    """Each RoI class maps to the correct napari shape type."""
+    _, shape_type = roi_to_napari_shape(roi)
+    assert shape_type == expected_shape_type
+
+
+def test_roi_to_napari_shape_line_coords(line_yx):
+    """Line: (x, y) coords are swapped back to napari (y, x) exactly."""
+    roi = napari_shape_to_roi(line_yx, "line")
+    yx, _ = roi_to_napari_shape(roi)
+    assert np.allclose(yx, line_yx)
+
+
+def test_roi_to_napari_shape_polygon_no_closing_vertex(square_yx):
+    """Polygon: the closing vertex from shapely exterior is dropped."""
+    roi = napari_shape_to_roi(square_yx, "polygon")
+    yx, _ = roi_to_napari_shape(roi)
+    # shapely exterior.coords has N+1 points; we should return N
+    assert len(yx) == len(square_yx)
+
+
+# ---------------------------------------------------------------------------
+# rois_to_shapes_layer_data
+# ---------------------------------------------------------------------------
+
+
+def test_rois_to_shapes_layer_data_structure(line_yx, square_yx):
+    """Returned dict has the expected keys, lengths, and names."""
+    rois = [
+        napari_shape_to_roi(line_yx, "line", name="boundary"),
+        napari_shape_to_roi(square_yx, "polygon", name="arena"),
+    ]
+    result = rois_to_shapes_layer_data(rois)
+
+    assert set(result.keys()) == {"data", "shape_type", "properties"}
+    assert len(result["data"]) == 2
+    assert result["shape_type"] == ["path", "polygon"]
+    assert result["properties"]["name"] == ["boundary", "arena"]
+
+
+# ---------------------------------------------------------------------------
+# shapes_layer_to_rois
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def shapes_layer(line_yx, square_yx):
+    """Return a Shapes layer with one line and one polygon, both named."""
+    layer = Shapes(
+        data=[line_yx, square_yx],
+        shape_type=["line", "polygon"],
+    )
+    layer.properties = {"name": ["my line", "my square"]}
+    return layer
+
+
+def test_shapes_layer_to_rois_types_and_names(shapes_layer):
+    """Each shape in the layer becomes the correct RoI type with its name."""
+    rois = shapes_layer_to_rois(shapes_layer)
+    assert len(rois) == 2
+    assert isinstance(rois[0], LineOfInterest)
+    assert isinstance(rois[1], PolygonOfInterest)
+    assert rois[0].name == "my line"
+    assert rois[1].name == "my square"
+
+
+def test_shapes_layer_to_rois_no_name_property(line_yx):
+    """Shapes without a 'name' property receive the default RoI name."""
+    layer = Shapes(data=[line_yx], shape_type=["line"])
+    rois = shapes_layer_to_rois(layer)
+    assert rois[0].name == "Un-named region"
