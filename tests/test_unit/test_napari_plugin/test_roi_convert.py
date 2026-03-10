@@ -169,13 +169,6 @@ def test_ellipse_returns_polygon(ellipse_yx):
     assert isinstance(roi, PolygonOfInterest)
 
 
-def test_ellipse_vertex_count_matches_n_vertices(ellipse_yx):
-    n = 32
-    roi = napari_shape_to_roi(ellipse_yx, "ellipse", ellipse_n_vertices=n)
-    # shapely closes the ring, so coords has n+1 entries
-    assert len(roi.coords) == n + 1
-
-
 def test_ellipse_contains_centre(ellipse_yx, ellipse_centre_xy):
     roi = napari_shape_to_roi(ellipse_yx, "ellipse")
     assert roi.contains_point(ellipse_centre_xy)
@@ -187,7 +180,7 @@ def test_ellipse_approximate_bounds(
     """Bounding box of the approximated polygon should match the semi-axes."""
     semi_x, semi_y = ellipse_semi_axes
     cx, cy = ellipse_centre_xy
-    roi = napari_shape_to_roi(ellipse_yx, "ellipse", ellipse_n_vertices=256)
+    roi = napari_shape_to_roi(ellipse_yx, "ellipse")
     minx, miny, maxx, maxy = roi.region.bounds
     assert minx == pytest.approx(cx - semi_x, abs=0.01)
     assert maxx == pytest.approx(cx + semi_x, abs=0.01)

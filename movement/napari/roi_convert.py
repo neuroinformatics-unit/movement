@@ -5,6 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 import numpy as np
+import shapely
+import shapely.affinity
 
 from movement.roi.line import LineOfInterest
 from movement.roi.polygon import PolygonOfInterest
@@ -29,7 +31,6 @@ def napari_shape_to_roi(
     data: np.ndarray,
     shape_type: NapariShapeType,
     name: str | None = None,
-    ellipse_n_vertices: int = 64,
 ) -> BaseRegionOfInterest:
     """Convert a single napari shape to a movement RegionOfInterest (RoI).
 
@@ -46,9 +47,6 @@ def napari_shape_to_roi(
         Name to assign to the resulting RoI. If ``None``, the RoI
         receives the default name defined by
         :class:`~movement.roi.BaseRegionOfInterest`.
-    ellipse_n_vertices
-        Number of polygon vertices used to approximate ellipses.
-        Default ``64``.
 
     Returns
     -------
@@ -80,9 +78,8 @@ def napari_shape_to_roi(
 
     Ellipses are approximated as polygons because neither ``movement`` nor
     its underlying geometry library (``shapely``) has a native ellipse type.
-    The number of vertices in the approximation is controlled by
-    ``ellipse_n_vertices``; the default of ``64`` is sufficient for most
-    practical purposes at typical image resolutions.
+    The approximation uses :func:`shapely.Point.buffer` scaled and rotated
+    to match the ellipse geometry.
 
     """
     data = np.asarray(data, dtype=float)
@@ -110,13 +107,12 @@ def napari_shape_to_roi(
     if roi_class is not None:
         return roi_class(xy, name=name)
 
-    return _ellipse_to_roi(xy, name=name, n_vertices=ellipse_n_vertices)
+    return _ellipse_to_polygon(xy, name=name)
 
 
-def _ellipse_to_roi(
+def _ellipse_to_polygon(
     xy: np.ndarray,
     name: str | None,
-    n_vertices: int,
 ) -> PolygonOfInterest:
     """Approximate a napari ellipse as a PolygonOfInterest.
 
@@ -128,25 +124,28 @@ def _ellipse_to_roi(
     - ``xy[2]``: opposite end of the first semi-axis
     - ``xy[3]``: opposite end of the second semi-axis
 
-    The ellipse is parameterised as:
-
-        point(t) = centre + cos(t) * axis1 + sin(t) * axis2
-
-    which handles both axis-aligned and rotated ellipses.
+    A unit circle is created at the ellipse centre, scaled to the semi-axis
+    lengths, and rotated to match the ellipse orientation.
     """
+    centre = (xy[0] + xy[2]) / 2
+    axis1 = xy[0] - centre
+    axis2 = xy[1] - centre
+    semi_a = float(np.linalg.norm(axis1))
+    semi_b = float(np.linalg.norm(axis2))
+    angle = float(np.degrees(np.arctan2(axis1[1], axis1[0])))
+
+    ellipse_polygon = shapely.affinity.rotate(
+        shapely.affinity.scale(
+            shapely.Point(centre).buffer(1),
+            semi_a,
+            semi_b,
+        ),
+        angle,
+    )
+
+    n_vertices = len(ellipse_polygon.exterior.coords) - 1
     logger.info(
         f"Ellipse '{name or 'Un-named'}' will be approximated as a "
         f"PolygonOfInterest with {n_vertices} vertices."
     )
-
-    centre = (xy[0] + xy[2]) / 2
-    axis1 = xy[0] - centre
-    axis2 = xy[1] - centre
-
-    angles = np.linspace(0, 2 * np.pi, n_vertices, endpoint=False)
-    vertices = (
-        centre
-        + np.outer(np.cos(angles), axis1)
-        + np.outer(np.sin(angles), axis2)
-    )
-    return PolygonOfInterest(vertices, name=name)
+    return PolygonOfInterest(ellipse_polygon.exterior.coords, name=name)
