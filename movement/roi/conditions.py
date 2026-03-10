@@ -99,6 +99,86 @@ def compute_region_occupancy(
     )
 
 
+def _debounce_columns(flat: np.ndarray, min_frames: int) -> np.ndarray:
+    """Debounce each column of a 2-D boolean array along axis 0.
+
+    A state change is only accepted after it has been sustained for
+    ``min_frames`` consecutive frames.  The initial state at row 0 is
+    always accepted as-is.
+
+    Parameters
+    ----------
+    flat : np.ndarray
+        2-D boolean array of shape ``(T, n_cols)``.
+    min_frames : int
+        Minimum number of consecutive frames required for a state change
+        to be accepted.
+
+    Returns
+    -------
+    np.ndarray
+        Debounced boolean array of the same shape as ``flat``.
+
+    """
+    T, n_cols = flat.shape
+    debounced = flat.copy()
+    for col in range(n_cols):
+        state = bool(flat[0, col])
+        debounced[0, col] = state
+        diff_run = 0
+        for t in range(1, T):
+            v = bool(flat[t, col])
+            if v == state:
+                diff_run = 0
+                debounced[t, col] = state
+            else:
+                diff_run += 1
+                if diff_run >= min_frames:
+                    state = v
+                    debounced[t, col] = state
+                    diff_run = 0
+                else:
+                    debounced[t, col] = state
+    return debounced
+
+
+def _debounce_occupancy(
+    occupancy: xr.DataArray, min_frames: int
+) -> xr.DataArray:
+    """Apply a symmetric debounce filter along the time axis.
+
+    Parameters
+    ----------
+    occupancy : xr.DataArray
+        Boolean DataArray containing occupancy information.
+    min_frames : int
+        Minimum number of consecutive frames required for a state change
+        to be accepted.
+
+    Returns
+    -------
+    xr.DataArray
+        Debounced boolean DataArray with the same shape and coordinates
+        as ``occupancy``.
+
+    """
+    time_axis = occupancy.get_axis_num("time")
+    occ_np = occupancy.values
+    occ_time_first = np.moveaxis(occ_np, time_axis, 0)
+    T = occ_time_first.shape[0]
+    if T == 0:
+        return occupancy
+    flat = occ_time_first.reshape(T, -1)
+    debounced_2d = _debounce_columns(flat, min_frames)
+    debounced_nd = debounced_2d.reshape(occ_time_first.shape)
+    result_np = np.moveaxis(debounced_nd, 0, time_axis)
+    return xr.DataArray(
+        result_np.astype(bool),
+        coords=occupancy.coords,
+        dims=occupancy.dims,
+    )
+
+
 def compute_entry_exits(
     data: xr.DataArray,
     regions: ROICollection,
@@ -210,42 +290,10 @@ def compute_entry_exits(
             n_kp = occupancy.sizes["keypoints"]
             occupancy = occupancy.sum(dim="keypoints") > (n_kp / 2)
 
-    # Suppress brief border noise: debounce state changes so that a new
-    # state (inside or outside) must be sustained for ``min_frames``
-    # consecutive frames before it takes effect.  Applies symmetrically
-    # to both entries and exits; time=0 is always accepted as-is.
+    # Suppress brief border noise: debounce state changes symmetrically
+    # for both entries and exits; time=0 is always accepted as-is.
     if min_frames > 1:
-        time_axis = occupancy.get_axis_num("time")
-        occ_np = occupancy.values
-        occ_time_first = np.moveaxis(occ_np, time_axis, 0)
-        T = occ_time_first.shape[0]
-        if T > 0:
-            flat = occ_time_first.reshape(T, -1)
-            debounced = flat.copy()
-            for col in range(flat.shape[1]):
-                state = bool(flat[0, col])
-                debounced[0, col] = state
-                diff_run = 0
-                for t in range(1, T):
-                    v = bool(flat[t, col])
-                    if v == state:
-                        diff_run = 0
-                        debounced[t, col] = state
-                    else:
-                        diff_run += 1
-                        if diff_run >= min_frames:
-                            state = v
-                            debounced[t, col] = state
-                            diff_run = 0
-                        else:
-                            debounced[t, col] = state
-            debounced = debounced.reshape(occ_time_first.shape)
-            debounced = np.moveaxis(debounced, 0, time_axis)
-            occupancy = xr.DataArray(
-                debounced.astype(bool),
-                coords=occupancy.coords,
-                dims=occupancy.dims,
-            )
+        occupancy = _debounce_occupancy(occupancy, min_frames)
 
     # Compute transitions: diff gives +1 (entry) or -1 (exit)
     # diff removes the first time point; we prepend t=0 separately
