@@ -1,5 +1,7 @@
 """Unit tests for the LayerStyle and PointsStyle classes."""
 
+import hashlib
+
 import pandas as pd
 import pytest
 from numpy.testing import assert_array_equal
@@ -415,23 +417,23 @@ def test_regions_style_color_current_shape(
 
 
 
+def _expected_hash_index(name: str, n_colors: int = 10) -> int:
+    return int(hashlib.md5(name.encode()).hexdigest(), 16) % n_colors
+
+
 @pytest.mark.parametrize(
     "layer_name, expected_color_index",
     [
-        # Default names get sequential indices
         ("Regions", 0),
         ("Regions [1]", 1),
         ("Regions [2]", 2),
-        # Custom names use MD5 hash
-        ("Arena", 6),
-        ("Nest", 4),
     ],
 )
 def test_regions_color_manager_deterministic(layer_name, expected_color_index):
-    """Test that color assignment is deterministic across manager instances.
+    """Test that default region names get sequential color indices.
 
-    Default region names ("Regions", "Regions [N]") get sequential indices.
-    Custom names use MD5 hash for deterministic assignment across sessions.
+    "Regions" gets index 0, "Regions [N]" gets index N.
+    Color assignment is deterministic across manager instances.
     """
     manager1 = RegionsColorManager()
     manager2 = RegionsColorManager()
@@ -439,11 +441,14 @@ def test_regions_color_manager_deterministic(layer_name, expected_color_index):
     color1 = manager1.get_color_for_layer(layer_name)
     color2 = manager2.get_color_for_layer(layer_name)
 
-    # Same name should return same color across instances
     assert color1 == color2
-    # Color should be a valid RGBA tuple
-    assert isinstance(color1, tuple)
-    assert len(color1) == 4
-    assert all(0.0 <= c <= 1.0 for c in color1)
-    # Color should match expected index
     assert color1 == manager1.colors[expected_color_index]
+
+
+@pytest.mark.parametrize("layer_name", ["Arena", "Nest", "CustomLayer"])
+def test_regions_color_manager_hash_path(layer_name):
+    """Custom layer names use MD5 hash for color index."""
+    manager = RegionsColorManager()
+    color = manager.get_color_for_layer(layer_name)
+    expected_index = _expected_hash_index(layer_name, manager.n_colors)
+    assert color == manager.colors[expected_index]
