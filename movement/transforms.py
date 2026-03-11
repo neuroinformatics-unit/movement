@@ -26,8 +26,10 @@ def scale(
     factor : ArrayLike, float, or xarray.DataArray
         The scaling factor to apply to the data. If factor is a scalar (a
         single float), the data array is uniformly scaled by the same factor.
-        If factor is a 1D array-like object, broadcasting follows
-        xarray / NumPy default rules.
+        If factor is an array-like object, it is converted to a NumPy array and its
+        leading axes are aligned with the leading axes of ``data``. If the array has
+        fewer dimensions than ``data``, trailing singleton dimensions are added
+        automatically.
         If factor is an ``xarray.DataArray``, its dimensions are
         aligned by name with ``data`` and broadcasting is handled
         automatically by xarray.
@@ -51,6 +53,8 @@ def scale(
     - It adds a new entry to the ``log`` attribute of the data array, which
       contains a record of the operations performed, including the
       parameters used, as well as the datetime of the function call.
+    - Using an ``xarray.DataArray`` for ``factor`` is recommended when the
+      intended broadcasting dimension should be explicit.
 
     Examples
     --------
@@ -78,7 +82,8 @@ def scale(
 
     We can also scale the two spatial dimensions by different factors.
 
-    >>> ds["position"] = scale(ds["position"], factor=[10, 20])
+    >>> import numpy as np
+    >>> ds["position"] = scale(ds["position"], factor=np.array([10, 20])[None, :])
 
     The second scale operation restored the x axis to its original scale,
     and scaled up the y axis to twice its original size.
@@ -88,11 +93,10 @@ def scale(
     >>> "space_unit" in ds["position"].attrs
     False
 
+    >>> import xarray as xr
     >>> factor = xr.DataArray([1.0, 2.0, 3.0], dims=("time",))
     >>> ds["position"] = scale(ds["position"], factor=factor)
 
-    Using an ``xarray.DataArray`` for ``factor`` is recommended when the
-    intended broadcasting dimension should be explicit.
 
     """
     if len(data.coords["space"]) == 2:
@@ -102,10 +106,10 @@ def scale(
 
     if not np.isscalar(factor) and not isinstance(factor, xr.DataArray):
         factor = np.asarray(factor)
-        if factor.ndim > 1:
-            raise ValueError(
-                "Factor must be a scalar or 1D array, "
-                f"got array with {factor.ndim} dimensions."
+
+        if factor.ndim < data.ndim:
+            factor = factor.reshape(
+                factor.shape + (1,) * (data.ndim - factor.ndim)
             )
 
     scaled_data = data * factor
@@ -114,6 +118,7 @@ def scale(
         scaled_data.attrs["space_unit"] = space_unit
     else:
         scaled_data.attrs.pop("space_unit", None)
+
     return scaled_data
 
 
