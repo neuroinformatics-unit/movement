@@ -35,14 +35,16 @@ def two_polygons():
 
 @pytest.fixture
 def regions_widget(make_napari_viewer_proxy):
-    """Return a RegionsWidget with an empty viewer."""
+    """Return a viewer with a Regions widget."""
     viewer = make_napari_viewer_proxy()
     return RegionsWidget(viewer)
 
 
 @pytest.fixture
 def regions_widget_with_layer(make_napari_viewer_proxy, two_polygons):
-    """Return a RegionsWidget with a viewer and shapes layer with 2 regions."""
+    """Return a viewer with a RegionsWidget
+    and a shapes layer with 2 regions.
+    """
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes(
         two_polygons,
