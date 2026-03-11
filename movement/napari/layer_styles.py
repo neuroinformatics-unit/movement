@@ -233,14 +233,6 @@ class RegionsStyle(LayerStyle):
 
         napari uses current_* for new shapes.
         """
-        # Only proceed if there are valid selected shapes
-        if hasattr(layer, "selected_data") and layer.selected_data:
-            valid_selected = {
-                i for i in layer.selected_data if 0 <= i <= len(layer.data) - 1
-            }
-            if not valid_selected:
-                return
-
         layer.current_face_color = self.face_color
         layer.current_edge_color = self.edge_and_text_color
         layer.current_edge_width = self.edge_width

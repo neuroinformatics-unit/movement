@@ -336,8 +336,7 @@ def test_regions_style_colors(color, expected_rgb):
     text must be opaque.
     """
     # Create a Regions style object
-    regions_style = RegionsStyle()
-    regions_style.color = color
+    regions_style = RegionsStyle(color=color)
 
     # Convert expected_rgb to RGBA for comparison
     expected_rgba = expected_rgb + (1.0,)
@@ -382,9 +381,11 @@ def test_regions_style_color_all_shapes_empty_layer(make_napari_viewer_proxy):
     """Test that color_all_shapes handles empty layers gracefully."""
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes()
+    # Assert it's an empty layer
+    assert len(layer.data) == 0
 
-    regions_style = RegionsStyle(color="red")
     # Should not raise an error
+    regions_style = RegionsStyle(color="red")
     regions_style.color_all_shapes(layer)
 
 
@@ -398,7 +399,9 @@ def test_regions_style_color_all_shapes_empty_layer(make_napari_viewer_proxy):
 def test_regions_style_color_current_shape(
     make_napari_viewer_proxy, selected_data
 ):
-    """Test that color_current_shape runs without error."""
+    """Test that color_current_shape runs without error,
+    regardless of whether the layer is selected or not.
+    """
     viewer = make_napari_viewer_proxy()
 
     # Create a shape
@@ -410,28 +413,6 @@ def test_regions_style_color_current_shape(
     # Should not raise - exercises the method
     regions_style.color_current_shape(layer)
 
-
-def test_regions_style_color_current_shape_invalid_selection():
-    """Test color_current_shape returns early for invalid selection indices."""
-
-    class MockLayer:
-        selected_data = {99}  # Invalid index
-        data = [[0, 0]]  # Only 1 shape
-        current_face_color_set = False
-
-        @property
-        def current_face_color(self):
-            return None
-
-        @current_face_color.setter
-        def current_face_color(self, _value):
-            self.current_face_color_set = True
-
-    mock_layer = MockLayer()
-    RegionsStyle().color_current_shape(mock_layer)
-
-    # Should return early - current_face_color should NOT be set
-    assert not mock_layer.current_face_color_set
 
 
 @pytest.mark.parametrize(
