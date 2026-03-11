@@ -4,7 +4,7 @@ import ast
 import re
 from collections.abc import Callable
 from pathlib import Path
-from typing import Literal, cast
+from typing import cast
 
 import numpy as np
 import pandas as pd
