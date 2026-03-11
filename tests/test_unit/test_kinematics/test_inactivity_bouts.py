@@ -88,17 +88,13 @@ class TestComputeInactivityBoutsBasic:
         assert set(bout_ids) == {1}
 
     def test_moving_no_bouts(self, moving_position):
-        """A fast-moving individual produces no inactivity bouts (all zeros)."""
-        result = compute_inactivity_bouts(
-            moving_position, speed_threshold=0.5
-        )
+        """No inactivity bouts for a fast-moving individual (all zeros)."""
+        result = compute_inactivity_bouts(moving_position, speed_threshold=0.5)
         assert (result == 0).all()
 
     def test_two_bouts_in_mixed_trajectory(self, mixed_position):
         """Still–moving–still trajectory yields exactly two bouts."""
-        result = compute_inactivity_bouts(
-            mixed_position, speed_threshold=0.5
-        )
+        result = compute_inactivity_bouts(mixed_position, speed_threshold=0.5)
         bout_ids = result.isel(individuals=0).values
         unique_ids = sorted(set(bout_ids[bout_ids > 0]))
         assert unique_ids == [1, 2], (
@@ -107,9 +103,7 @@ class TestComputeInactivityBoutsBasic:
 
     def test_bout_ids_ordered_by_onset(self, mixed_position):
         """Bout IDs increase monotonically across time."""
-        result = compute_inactivity_bouts(
-            mixed_position, speed_threshold=0.5
-        )
+        result = compute_inactivity_bouts(mixed_position, speed_threshold=0.5)
         bout_ids = result.isel(individuals=0).values
         # The first non-zero id encountered should be 1, the second 2, ...
         seen = []
@@ -120,9 +114,7 @@ class TestComputeInactivityBoutsBasic:
 
     def test_output_dimensions_match_speed(self, moving_position):
         """Output shape equals speed shape (space dim removed)."""
-        result = compute_inactivity_bouts(
-            moving_position, speed_threshold=0.5
-        )
+        result = compute_inactivity_bouts(moving_position, speed_threshold=0.5)
         assert "space" not in result.dims
         assert "time" in result.dims
         assert "individuals" in result.dims
@@ -136,9 +128,7 @@ class TestComputeInactivityBoutsBasic:
 
     def test_zero_threshold_no_bouts(self, moving_position):
         """With threshold=0, no frame can be inactive (speed >= 0)."""
-        result = compute_inactivity_bouts(
-            moving_position, speed_threshold=0.0
-        )
+        result = compute_inactivity_bouts(moving_position, speed_threshold=0.0)
         assert (result == 0).all()
 
 
@@ -176,8 +166,9 @@ class TestMinBoutDuration:
         This produces exactly one isolated inactive frame (frame 5) with
         bout duration=0 s.  It must be kept when min_bout_duration=0.0.
         """
-        pos = np.arange(10, dtype=float).reshape(-1, 1) * np.array([[5.0, 5.0]])
-        pos[6, :] = pos[4, :]  # velocity at frame 5 = (pos[6]-pos[4])/(2*dt) = 0
+        pos = np.arange(10, dtype=float).reshape(-1, 1)
+        pos = pos * np.array([[5.0, 5.0]])
+        pos[6, :] = pos[4, :]  # zero central-diff velocity at frame 5
         position = _make_position(pos)
         result = compute_inactivity_bouts(
             position, speed_threshold=0.5, min_bout_duration=0.0
@@ -185,8 +176,9 @@ class TestMinBoutDuration:
         assert result.isel(time=5, individuals=0).item() == 1
 
     def test_positive_min_duration_drops_single_frame_bout(self):
-        """Single-frame bout (duration=0) is removed for any positive duration."""
-        pos = np.arange(10, dtype=float).reshape(-1, 1) * np.array([[5.0, 5.0]])
+        """Single-frame bout is removed for any positive min_bout_duration."""
+        pos = np.arange(10, dtype=float).reshape(-1, 1)
+        pos = pos * np.array([[5.0, 5.0]])
         pos[6, :] = pos[4, :]  # isolated zero-speed frame at index 5
         position = _make_position(pos)
         result = compute_inactivity_bouts(
@@ -260,9 +252,7 @@ class TestMultipleIndividuals:
     def test_mixed_activity_across_individuals(self):
         """Two individuals can have different bout patterns."""
         still = np.zeros((10, 2))
-        moving = np.column_stack(
-            [np.arange(10) * 5.0, np.arange(10) * 5.0]
-        )
+        moving = np.column_stack([np.arange(10) * 5.0, np.arange(10) * 5.0])
         data = np.stack([still, moving], axis=-1)
         position = xr.DataArray(
             data,
@@ -286,9 +276,7 @@ class TestInvalidInputs:
     def test_negative_speed_threshold_raises(self, stationary_position):
         """A negative speed_threshold must raise a ValueError."""
         with pytest.raises(ValueError, match="speed_threshold"):
-            compute_inactivity_bouts(
-                stationary_position, speed_threshold=-1.0
-            )
+            compute_inactivity_bouts(stationary_position, speed_threshold=-1.0)
 
     def test_negative_min_bout_duration_raises(self, stationary_position):
         """A negative min_bout_duration must raise a ValueError."""
@@ -301,9 +289,7 @@ class TestInvalidInputs:
 
     def test_missing_time_dim_raises(self):
         """Data without a ``time`` dimension must raise a ValueError."""
-        bad = xr.DataArray(
-            np.ones((3, 2)), dims=["space", "individuals"]
-        )
+        bad = xr.DataArray(np.ones((3, 2)), dims=["space", "individuals"])
         with pytest.raises(ValueError):
             compute_inactivity_bouts(bad, speed_threshold=1.0)
 

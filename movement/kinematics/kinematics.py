@@ -567,9 +567,7 @@ def compute_inactivity_bouts(
     """
     validate_dims_coords(data, {"time": [], "space": []})
     if speed_threshold < 0:
-        raise logger.error(
-            ValueError("speed_threshold must be non-negative.")
-        )
+        raise logger.error(ValueError("speed_threshold must be non-negative."))
     if min_bout_duration < 0:
         raise logger.error(
             ValueError("min_bout_duration must be non-negative.")
@@ -600,12 +598,12 @@ def compute_inactivity_bouts(
         """
         padded = np.concatenate([[False], inactive_1d, [False]])
         diff = np.diff(padded.view(np.int8))
-        starts = np.where(diff == 1)[0]   # False → True (bout start)
-        ends = np.where(diff == -1)[0]    # True → False (exclusive end index)
+        starts = np.where(diff == 1)[0]  # False → True (bout start)
+        ends = np.where(diff == -1)[0]  # True → False (exclusive end index)
 
         labels = np.zeros(len(inactive_1d), dtype=np.int64)
         bout_id = 0
-        for s, e in zip(starts, ends):
+        for s, e in zip(starts, ends, strict=False):
             # Duration from first to last frame of this bout
             duration = time_coords[e - 1] - time_coords[s]
             if duration >= min_bout_duration:
