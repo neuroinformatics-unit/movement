@@ -68,11 +68,11 @@ class RegionsWidget(QWidget):
         self.region_table_view = RegionsTableView(self)
         self._connected_layers: set[Shapes] = set()
 
-        self._setup_ui()
+        self._setup_regions_ui()
         self._connect_layer_signals()
         self._update_layer_dropdown()
 
-    def _setup_ui(self):
+    def _setup_regions_ui(self):
         """Set up the user interface with two groupboxes.
 
         The first groupbox contains the region layer controls:
@@ -90,15 +90,15 @@ class RegionsWidget(QWidget):
             "or add a new one.\nOnly shapes layers that start with "
             "'Region' are considered."
         )
-        layer_controls_group.setLayout(self._setup_layer_controls_layout())
+        layer_controls_group.setLayout(self._setup_region_layer_controls())
         main_layout.addWidget(layer_controls_group)
 
         # Create table view group box
         table_view_group = QGroupBox("Regions drawn in this layer")
-        table_view_group.setLayout(self._setup_table_view_layout())
+        table_view_group.setLayout(self._setup_regions_table())
         main_layout.addWidget(table_view_group)
 
-    def _setup_layer_controls_layout(self):
+    def _setup_region_layer_controls(self):
         """Create the region layer controls layout.
 
         Returns a QHBoxLayout containing:
@@ -121,7 +121,7 @@ class RegionsWidget(QWidget):
 
         return layer_controls_layout
 
-    def _setup_table_view_layout(self):
+    def _setup_regions_table(self):
         """Create the table view layout.
 
         Returns a QVBoxLayout containing the RegionsTableView widget.
