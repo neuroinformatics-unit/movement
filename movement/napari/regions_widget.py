@@ -1,10 +1,5 @@
 """Widget for defining regions of interest.
 
-Regions are drawn as shapes in a napari Shapes layer and displayed in a table.
-The widget can handle multiple region layers, allowing the user to select
-which layer to work with via a dropdown. It also allows users to edit
-the region names and applies consistent styling.
-
 This module uses Qt's Model/View architecture to separate data from display:
 
 - ``RegionsTableModel`` (Model): Wraps a napari Shapes layer and exposes
@@ -49,15 +44,6 @@ class RegionsWidget(QWidget):
     drawn as shapes in napari. It coordinates the napari viewer,
     the RegionsTableModel, and the RegionsTableView.
 
-    Features:
-
-    - Dropdown to select existing region layers
-    - Button to create new region layers
-    - Table view displaying regions in the selected layer
-    - Bidirectional selection sync: clicking a table row selects the
-      shape in napari, and vice versa
-    - Allows renaming regions via inline table editing
-    - Consistent color styling per layer
     """
 
     def __init__(self, napari_viewer: Viewer, cmap_name="tab10", parent=None):
