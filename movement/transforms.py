@@ -26,10 +26,10 @@ def scale(
     factor : ArrayLike, float, or xarray.DataArray
         The scaling factor to apply to the data. If factor is a scalar (a
         single float), the data array is uniformly scaled by the same factor.
-        If factor is an array-like object, it is converted to a NumPy array and its
-        leading axes are aligned with the leading axes of ``data``. If the array has
-        fewer dimensions than ``data``, trailing singleton dimensions are added
-        automatically.
+        If factor is an array-like object, it is converted to a NumPy array
+        and its leading axes are aligned with the leading axes of ``data``.
+        If the array has fewer dimensions than ``data``, trailing singleton
+        dimensions are added automatically.
         If factor is an ``xarray.DataArray``, its dimensions are
         aligned by name with ``data`` and broadcasting is handled
         automatically by xarray.
@@ -83,7 +83,9 @@ def scale(
     We can also scale the two spatial dimensions by different factors.
 
     >>> import numpy as np
-    >>> ds["position"] = scale(ds["position"], factor=np.array([10, 20])[None, :])
+    >>> ds["position"] = scale(
+    ...     ds["position"], factor=np.array([10, 20])[None, :]
+    ... )
 
     The second scale operation restored the x axis to its original scale,
     and scaled up the y axis to twice its original size.

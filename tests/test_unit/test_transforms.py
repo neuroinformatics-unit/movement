@@ -133,7 +133,6 @@ def test_scale(
 )
 def test_scale_space_dimension(dims: list[str], data_shape):
     """Test scaling with factors aligned by xarray dimension broadcasting."""
-
     factor = xr.DataArray([0.5, 2], dims=("space",))
     numerical_data = np.arange(np.prod(data_shape)).reshape(data_shape)
     data = xr.DataArray(numerical_data, dims=dims, coords=SPATIAL_COORDS_2D)
@@ -190,7 +189,9 @@ def test_scale_twice(
 
 
 @pytest.mark.parametrize(
-    "factor", [2, np.array([1, 2, 0.5])[None, :]], ids=["uniform scaling", "multi-axis scaling"]
+    "factor",
+    [2, np.array([1, 2, 0.5])[None, :]],
+    ids=["uniform scaling", "multi-axis scaling"],
 )
 def test_scale_3d_space(factor, sample_data_3d: xr.DataArray):
     """Test scaling a DataArray with 3D space."""
@@ -203,8 +204,9 @@ def test_scale_3d_space(factor, sample_data_3d: xr.DataArray):
 
 
 def test_scale_numpy_nd_factor():
-    """Scaling with an n-dimensional numpy factor should match xarray multiplication."""
-
+    """Scaling with an n-dimensional numpy factor should xarray
+    multiplication.
+    """
     data = xr.DataArray(
         np.ones((3, 2)),
         dims=("time", "space"),
@@ -267,7 +269,6 @@ def test_scale_log(sample_data_2d: xr.DataArray):
 
 def test_scale_time_dependent_factor():
     """Scaling with a factor defined over time should broadcast correctly."""
-
     time_array = [1.0, 2.0, 3.0]
     space = ["x", "y"]
 
@@ -304,7 +305,6 @@ def test_scale_time_dependent_factor():
 )
 def test_scale_various_factor_types(sample_data_2d, factor):
     """Test scale with scalar, numpy array, and xarray factors."""
-
     scaled = scale(sample_data_2d, factor=factor)
 
     if not isinstance(factor, xr.DataArray):
