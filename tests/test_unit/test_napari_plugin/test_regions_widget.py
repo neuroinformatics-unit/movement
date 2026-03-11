@@ -361,15 +361,15 @@ def test_new_drawn_shape_gets_default_name(
 
 
 # ------------------- Tests for RegionsTableModel ----------------------------#
-def test_model_row_and_column_count(regions_widget_with_layer):
-    """Test that model dimensions match the data."""
+def test_table_model_row_and_column_count(regions_widget_with_layer):
+    """Test that table model dimensions match the data."""
     widget, _ = regions_widget_with_layer
     assert widget.region_table_model.rowCount() == 2
     assert widget.region_table_model.columnCount() == 2
 
 
-def test_model_header_labels(regions_widget_with_layer):
-    """Test that model header labels are correct."""
+def test_table_model_header_labels(regions_widget_with_layer):
+    """Test that table model header labels are correct."""
     widget, _ = regions_widget_with_layer
     assert widget.region_table_model.headerData(0, Qt.Horizontal) == "Name"
     assert (
@@ -387,10 +387,10 @@ def test_model_header_labels(regions_widget_with_layer):
     ],
     ids=["display_name", "display_shape", "edit_name", "edit_shape_col"],
 )
-def test_model_data_returns_correct_values(
+def test_table_model_data_returns_correct_values(
     regions_widget_with_layer, row, column, role, expected
 ):
-    """Test that model returns correct data for each column and role."""
+    """Test that tablemodel returns correct data for each column and role."""
     widget, _ = regions_widget_with_layer
     index = widget.region_table_model.index(row, column)
     assert widget.region_table_model.data(index, role) == expected
@@ -420,20 +420,26 @@ def test_table_model_with_stale_index(
     assert result == expected
 
 
-def test_model_setData_updates_region_name(regions_widget_with_layer):
+def test_table_model_setData_updates_region_name(regions_widget_with_layer):
     """Test that setData updates the region name column.
 
     The `name` column is column index = 0.
     """
     widget, layer = regions_widget_with_layer
     index = widget.region_table_model.index(0, 0)
-    result = widget.region_table_model.setData(index, "New Name", Qt.EditRole)
 
+    # Assert that name is initially default
+    assert layer.properties["name"][0] == DEFAULT_REGION_NAME
+
+    # Edit the name via the model and assert it updates in layer properties
+    result = widget.region_table_model.setData(index, "New Name", Qt.EditRole)
     assert result is True
     assert layer.properties["name"][0] == "New Name"
 
 
-def test_model_setData_rejects_shape_type_edit(regions_widget_with_layer):
+def test_table_model_setData_rejects_shape_type_edit(
+    regions_widget_with_layer,
+):
     """Test that setData returns False for shape_type column.
 
     The `shape_type` column is column index = 1 .
@@ -444,13 +450,12 @@ def test_model_setData_rejects_shape_type_edit(regions_widget_with_layer):
     assert result is False
 
 
-
 @pytest.mark.parametrize(
     "column, expected_editable",
     [(0, True), (1, False)],
     ids=["name_editable", "shape_type_not_editable"],
 )
-def test_model_column_editability(
+def test_table_model_column_editability(
     regions_widget_with_layer, column, expected_editable
 ):
     """Test that only the name column is editable."""
@@ -460,8 +465,10 @@ def test_model_column_editability(
     assert bool(flags & Qt.ItemIsEditable) == expected_editable
 
 
-def test_model_updates_on_shape_added(regions_widget_with_layer, two_polygons):
-    """Test that adding a shape updates the model."""
+def test_table_model_updates_on_shape_added(
+    regions_widget_with_layer, two_polygons
+):
+    """Test that adding a shape updates the table model."""
     widget, layer = regions_widget_with_layer
     initial_count = widget.region_table_model.rowCount()
     layer.add(two_polygons[:1])
@@ -485,8 +492,8 @@ def test_sync_names_assigns_default_to_new_shapes(
     assert layer.properties["name"][2] == DEFAULT_REGION_NAME
 
 
-def test_model_updates_on_shape_removed(regions_widget_with_layer):
-    """Test that removing a shape updates the model."""
+def test_table_model_updates_on_shape_removed(regions_widget_with_layer):
+    """Test that removing a shape updates the table model."""
     widget, layer = regions_widget_with_layer
     initial_count = widget.region_table_model.rowCount()
     layer.selected_data = {0}
@@ -495,10 +502,10 @@ def test_model_updates_on_shape_removed(regions_widget_with_layer):
     assert widget.region_table_model.rowCount() == initial_count - 1
 
 
-def test_set_data_handler_updates_model_and_preserves_names(
+def test_table_model_set_data_handler_updates_model_and_preserves_names(
     regions_widget_with_layer, two_polygons
 ):
-    """Test that _on_layer_set_data updates model and preserves names.
+    """Test that _on_layer_set_data updates table model and preserves names.
 
     This handler is triggered by copy-paste operations. It should detect
     shape count changes and update the model without overwriting names.
@@ -523,17 +530,17 @@ def test_set_data_handler_updates_model_and_preserves_names(
     assert list(layer.properties["name"]) == expected_names
 
 
-def test_model_cleared_on_layer_deletion(regions_widget_with_layer):
-    """Test that deleting the layer clears the model."""
+def test_table_model_cleared_on_layer_deletion(regions_widget_with_layer):
+    """Test that deleting the layer clears the table model."""
     widget, layer = regions_widget_with_layer
     widget.viewer.layers.remove(layer)
     assert widget.region_table_model is None
 
 
-def test_model_ignores_other_layer_deletion(
+def test_table_model_ignores_other_layer_deletion(
     regions_widget_with_layer, two_polygons
 ):
-    """Test that model ignores deletion of unrelated layers."""
+    """Test that table model ignores deletion of unrelated layers."""
     widget, layer = regions_widget_with_layer
     other_layer = widget.viewer.add_shapes(two_polygons, name="Other layer")
     widget.viewer.layers.remove(other_layer)
@@ -558,8 +565,10 @@ def test_layer_event_handlers_return_early_when_no_layer(
         method(event=None)
 
 
-def test_on_layer_deleted_cleans_up_model(regions_widget_with_layer, mocker):
-    """Test that _on_layer_deleted disconnects and clears the model."""
+def test_on_layer_deleted_cleans_up_table_model(
+    regions_widget_with_layer, mocker
+):
+    """Test that _on_layer_deleted disconnects and clears the table model."""
     widget, layer = regions_widget_with_layer
     model = widget.region_table_model
     # Create mock event with the layer as value
@@ -617,7 +626,7 @@ def test_table_tooltip_reflects_state(
 
 # ------------------- Tests for edge cases -----------------------------------#
 def test_empty_shapes_layer(make_napari_viewer_proxy):
-    """Test widget handles empty shapes layer."""
+    """Test table handles empty shapes layer."""
     viewer = make_napari_viewer_proxy()
     viewer.add_shapes(name="Regions")
     with does_not_raise():
@@ -626,8 +635,7 @@ def test_empty_shapes_layer(make_napari_viewer_proxy):
     assert widget.region_table_model.rowCount() == 0
 
 
-
-def test_model_flags_invalid_index(regions_widget_with_layer):
+def test_table_model_flags_invalid_index(regions_widget_with_layer):
     """Test flags returns NoItemFlags for invalid index."""
     widget, _ = regions_widget_with_layer
     invalid_index = QModelIndex()
@@ -659,7 +667,7 @@ def test_table_view_selection_with_empty_indexes(regions_widget_with_layer):
     ],
     ids=["vertical_header", "non_display_role"],
 )
-def test_model_header_data_edge_cases(
+def test_table_model_header_data_edge_cases(
     regions_widget_with_layer, orientation, role, expected
 ):
     """Test headerData for vertical orientation and non-display roles."""
