@@ -104,12 +104,20 @@ exclude_patterns = [
     "examples/**/*.py",
 ]
 
+# Suppress known pre-existing docstring formatting warnings from Python source
+# files ("Field list ends without a blank line; unexpected unindent").
+# These come from docstrings in save_poses.py, roi/base.py, roi/line.py,
+# roi/polygon.py, napari/layer_styles.py, and validators/arrays.py.
+suppress_warnings = ["docutils"]
+
 # Configure Sphinx gallery
 sphinx_gallery_conf = {
     "examples_dirs": ["../../examples"],
     "filename_pattern": "/*.py",  # which files to execute before inclusion
     "gallery_dirs": ["examples"],  # output directory
     "run_stale_examples": True,  # re-run examples on each build
+    # Warn (don't fail) if an example script errors (e.g. network timeout on gin.g-node.org)
+    "only_warn_on_example_error": True,
     # Integration with Binder, see https://sphinx-gallery.github.io/stable/configuration.html#generate-binder-links-for-gallery-notebooks-experimental
     "binder": {
         "org": "neuroinformatics-unit",
@@ -214,7 +222,9 @@ linkcheck_ignore = [
     "https://zenodo.org/doi/*",
     "https://zenodo.org/records/*",
     "https://doi.org/10.5281/zenodo.*",
-    "https://abide.ics.ulisboa.pt/*"  # flaky
+    "https://abide.ics.ulisboa.pt/*",  # flaky
+    r"https://zarr\.readthedocs\.io/.*",  # zarr docs redirect between stable/latest
+    r"https://gin\.g-node\.org/.*",  # gin data server blocks/times out in CI
 ]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {

@@ -25,12 +25,12 @@ and can be loaded from and saved to various third-party formats.
 
 | Source Software                                                             | Abbreviation | Source Format                                                                                                             | Dataset Type         | Supported Operations |
 | --------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
-| [DeepLabCut](dlc:)                                                          | DLC          | DLC-style .h5 or .csv file, or corresponding pandas DataFrame                                                             | Pose                 | Load & Save          |
-| [SLEAP](sleap:)                                                             | SLEAP        | [analysis](sleap-docs:tutorial/exporting-the-results/#analysis-hdf5) .h5 or .slp file                                     | Pose                 | Load & Save          |
-| [LightningPose](lp:)                                                        | LP           | DLC-style .csv file, or corresponding pandas DataFrame                                                                    | Pose                 | Load & Save          |
-| [Anipose](anipose:)                                                         |              | triangulation .csv file, or corresponding pandas DataFrame                                                                | Pose                 | Load                 |
-| [VGG Image Annotator](via:)                                                 | VIA          | .csv file for [tracks annotation](via:docs/face_track_annotation.html)                                                    | Bounding box         | Load & Save          |
-| [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB          | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose)                                | Pose                 | Load & Save          |
+| [DeepLabCut](dlc:)                                                          | DLC          | DLC-style `.h5` or `.csv` file, or corresponding pandas DataFrame                                                         | Pose                 | Load & Save          |
+| [SLEAP](sleap:)                                                             | SLEAP        | [analysis](sleap-docs:tutorial/exporting-the-results/#analysis-hdf5) `.h5` or `.slp` file                                | Pose                 | Load & Save          |
+| [LightningPose](lp:)                                                        | LP           | DLC-style `.csv` file, or corresponding pandas DataFrame                                                                  | Pose                 | Load & Save          |
+| [Anipose](anipose:)                                                         |              | triangulation `.csv` file, or corresponding pandas DataFrame                                                              | Pose                 | Load                 |
+| [VGG Image Annotator](via:)                                                 | VIA          | `.csv` file for [tracks annotation](via:docs/face_track_annotation.html)                                                  | Bounding box         | Load & Save          |
+| [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB          | `.nwb` file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose)                             | Pose                 | Load & Save          |
 | Any                                                                         |              | Numpy arrays                                                                                                              | Pose or Bounding box | Load & Save\*        |
 
 \*Exporting any `movement` DataArray to a NumPy array is as simple as calling xarray's built-in {meth}`xarray.DataArray.to_numpy()` method, so no specialised "Export/Save As" function is needed, see [xarray's documentation](xarray:user-guide/duckarrays.html) for more details.
@@ -450,6 +450,47 @@ In some cases you may want to use our [GUI](target-gui) to inspect
 motion tracks you've processed with `movement`.
 If so, make sure to save them to a netCDF file that satisfies the
 [GUI compatibility requirements](target-gui-compatible-netcdf).
+:::
+
+(target-zarr)=
+## Saving and loading with Zarr
+
+[Zarr](https://zarr.readthedocs.io/en/latest/) is an open format for storing
+chunked, compressed N-dimensional arrays. It is particularly well-suited
+for large datasets and cloud or remote storage.
+Like netCDF, Zarr is natively supported by xarray.
+
+To save any xarray dataset `ds` to a Zarr store:
+```python
+ds.to_zarr("path/to/dataset.zarr", consolidated=True)
+```
+
+To load it back:
+```python
+import xarray as xr
+
+ds = xr.open_zarr("path/to/dataset.zarr", consolidated=True)
+```
+
+Similarly, an {class}`xarray.DataArray` object (e.g. the `position` variable
+of a `movement` dataset) can be saved to a Zarr store using the
+{meth}`to_zarr()<xarray.DataArray.to_zarr()>` method.
+Because Zarr stores correspond to Dataset objects, the DataArray is internally
+converted to a Dataset before saving. To load a specific DataArray back,
+load the store as a Dataset and select the variable by name:
+
+```python
+da.to_zarr("path/to/dataarray.zarr", consolidated=True)
+
+import xarray as xr
+
+da_loaded = xr.open_zarr("path/to/dataarray.zarr", consolidated=True)["position"]
+```
+
+:::{note}
+For more details on Zarr I/O options (chunking, compression, cloud
+storage backends), refer to the
+[xarray documentation on Zarr](https://docs.xarray.dev/en/stable/user-guide/io.html#zarr).
 :::
 
 (target-sample-data)=
