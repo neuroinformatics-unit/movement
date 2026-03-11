@@ -36,7 +36,7 @@ class TestFilteringValidDataset:
         ("filter_func, filter_kwargs"),
         [
             (rolling_filter, {"window": 3, "statistic": "median"}),
-            (savgol_filter, {"window": 3, "polyorder": 2}),
+            (savgol_filter, {"window": 3, "polyorder": 2, "mode": "nearest"}),
         ],
     )
     def test_filter_with_nans_on_position(
@@ -75,6 +75,10 @@ class TestFilteringValidDataset:
             ({"mode": "nearest", "print_report": True}, does_not_raise()),
             ({"axis": 1}, pytest.raises(ValueError)),
             ({"mode": "nearest", "axis": 1}, pytest.raises(ValueError)),
+            (  # polyorder >= window: re-raised unchanged by savgol_filter
+                {"polyorder": 5},
+                pytest.raises(ValueError, match="polyorder"),
+            ),
         ],
     )
     def test_savgol_filter_kwargs_override(
@@ -193,7 +197,9 @@ class TestFilteringValidDatasetWithNaNs:
         kwargs = {"window": window}
         if filter_func == savgol_filter:
             kwargs["polyorder"] = 2
-        # Filter position
+            # Use 'nearest' to avoid edge NaNs errors with 'interp' mode
+            kwargs["mode"] = "nearest"
+
         valid_input_dataset = request.getfixturevalue(valid_dataset_with_nan)
         position_filtered = filter_func(
             valid_input_dataset.position,
@@ -212,6 +218,37 @@ class TestFilteringValidDatasetWithNaNs:
         assert (
             n_total_nans_filtered - n_total_nans_initial <= max_nans_increase
         )
+
+    @pytest.mark.parametrize(
+        "mode, expected_exception",
+        [
+            (None, pytest.raises(ValueError, match="mode='interp'")),
+            ("interp", pytest.raises(ValueError, match="mode='interp'")),
+            ("nearest", does_not_raise()),
+            ("mirror", does_not_raise()),
+        ],
+        ids=[
+            "default mode (interp): raise error",
+            "explicitly pass mode=interp: raise error",
+            "explicitly pass mode=nearest: no error",
+            "explicitly pass mode=mirror: no error",
+        ],
+    )
+    def test_savgol_filter_mode_edge_nans(
+        self, valid_dataset_with_nan, mode, expected_exception, request
+    ):
+        """Test savgol_filter edge-NaN behavior across modes.
+
+        When mode is 'interp' and there are NaNs in the edge windows
+        (which is the case for both types of valid_dataset_with_nan),
+        a ValueError should be raised.
+        """
+        dataset = request.getfixturevalue(valid_dataset_with_nan)
+        with expected_exception:
+            kwargs = {"window": 3, "polyorder": 2}
+            if mode is not None:
+                kwargs["mode"] = mode
+            savgol_filter(dataset.position, **kwargs)
 
 
 @pytest.mark.parametrize(

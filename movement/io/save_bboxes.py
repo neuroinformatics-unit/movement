@@ -12,7 +12,7 @@ import xarray as xr
 
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs
-from movement.validators.files import _validate_file_path
+from movement.validators.files import validate_file_path
 
 if TYPE_CHECKING:
     import _csv
@@ -30,25 +30,25 @@ def to_via_tracks_file(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         The ``movement`` bounding boxes dataset to export.
-    file_path : str or pathlib.Path
+    file_path
         Path where the VIA tracks .csv file [1]_ will be saved.
-    track_ids_from_trailing_numbers : bool, optional
+    track_ids_from_trailing_numbers
         If True, extract track IDs from the numbers at the end of the
         individuals' names (e.g. `mouse_1` -> track ID 1). If False, the
         track IDs will be assigned sequentially (0, 1, 2, ...) based on
         the alphabetically sorted list of individuals' names. Default is True.
-    frame_n_digits : int, optional
+    frame_n_digits
         The number of digits to use to represent frame numbers in the image
         filenames (including leading zeros). If None, the number of digits is
         automatically determined from the largest frame number in the dataset,
         plus one (to have at least one leading zero). Default is None.
-    image_file_prefix : str, optional
+    image_file_prefix
         Prefix to apply to every image filename. It is prepended to the frame
         number which is padded with leading zeros. If None or an empty string,
         nothing will be prepended to the padded frame number. Default is None.
-    image_file_suffix : str, optional
+    image_file_suffix
         Suffix to add to every image filename holding the file extension.
         Strings with or without the dot are accepted. Default is '.png'.
 
@@ -127,37 +127,34 @@ def to_via_tracks_file(
 
     """
     # Validate file path and dataset
-    file = _validate_file_path(file_path, expected_suffix=[".csv"])
+    valid_path = validate_file_path(
+        file_path, permission="w", suffixes={".csv"}
+    )
     ValidBboxesInputs.validate(ds)
-
     # Check the number of digits required to represent the frame numbers
     frame_n_digits = _check_frame_required_digits(
         ds=ds, frame_n_digits=frame_n_digits
     )
-
     # Define format string for image filenames
     img_filename_template = _get_image_filename_template(
         frame_n_digits=frame_n_digits,
         image_file_prefix=image_file_prefix,
         image_file_suffix=image_file_suffix,
     )
-
     # Map individuals' names to track IDs
     map_individual_to_track_id = _compute_individuals_to_track_ids_map(
         ds.coords["individuals"].values,
         track_ids_from_trailing_numbers,
     )
-
     # Write file
     _write_via_tracks_csv(
         ds,
-        file.path,
+        valid_path,
         map_individual_to_track_id,
         img_filename_template,
     )
-
-    logger.info(f"Saved bounding boxes dataset to {file.path}.")
-    return file.path
+    logger.info(f"Saved bounding boxes dataset to {valid_path}.")
+    return valid_path
 
 
 def _get_image_filename_template(
@@ -173,13 +170,13 @@ def _get_image_filename_template(
 
     Parameters
     ----------
-    frame_n_digits : int
+    frame_n_digits
         Number of digits used to represent the frame number, including any
         leading zeros.
-    image_file_prefix : str | None
+    image_file_prefix
         Prefix for each image filename, prepended to the frame number. If
         None or an empty string, nothing will be prepended.
-    image_file_suffix : str
+    image_file_suffix
         Suffix to add to each image filename to represent the file extension.
 
     Returns
@@ -213,9 +210,9 @@ def _check_frame_required_digits(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         A movement dataset.
-    frame_n_digits : int | None
+    frame_n_digits
         The proposed number of digits to use to represent the frame numbers
         in the image filenames (including leading zeros). If None, the number
         of digits is inferred based on the largest frame number in the dataset.
@@ -264,9 +261,9 @@ def _compute_individuals_to_track_ids_map(
 
     Parameters
     ----------
-    individuals : Iterable[str]
+    individuals
         List of individuals' names.
-    track_ids_from_trailing_numbers : bool
+    track_ids_from_trailing_numbers
         If True, extract track ID from the last consecutive digits in
         the individuals' names. If False, the track IDs will be assigned
         sequentially (0, 1, 2, ...) based on the alphabetically
@@ -300,7 +297,7 @@ def _extract_track_ids_from_individuals_names(
 
     Parameters
     ----------
-    individuals : Iterable[str]
+    individuals
         List of individuals' names.
 
     Returns
@@ -354,13 +351,13 @@ def _write_via_tracks_csv(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         A movement bounding boxes dataset.
-    file_path : str or pathlib.Path
+    file_path
         Path where the VIA tracks .csv file will be saved.
-    map_individual_to_track_id : dict
+    map_individual_to_track_id
         Dictionary mapping individuals' names to track IDs.
-    img_filename_template : str
+    img_filename_template
         Format string for the images' filenames.
 
     """
@@ -453,25 +450,25 @@ def _write_single_row(
 
     Parameters
     ----------
-    writer : csv.writer
+    writer
         CSV writer object.
-    xy_values : np.ndarray
+    xy_values
         Array with the x, y coordinates of the bounding box centroid.
-    wh_values : np.ndarray
+    wh_values
         Array with the width and height of the bounding box.
-    confidence : float | None
+    confidence
         Confidence score for the bounding box detection.
-    track_id : int
+    track_id
         Integer identifying a single track of bounding boxes across frames.
-    region_count : int
+    region_count
         Total number of bounding boxes in the current frame.
-    region_id : int
+    region_id
         Integer that identifies the bounding boxes in a frame starting from 0.
         Note that it is the result of an enumeration, and it does not
         necessarily match the track ID.
-    img_filename : str
+    img_filename
         Filename of the image file corresponding to the current frame.
-    image_size : int | None
+    image_size
         File size in bytes. If None, the file size is set to 0.
 
     Returns

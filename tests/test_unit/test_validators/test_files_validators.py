@@ -1,347 +1,590 @@
-import stat
+import json
+import re
+from contextlib import nullcontext as does_not_raise
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
+from attrs import define, field
 
 from movement.validators.files import (
     ValidAniposeCSV,
     ValidDeepLabCutCSV,
-    ValidFile,
-    ValidHDF5,
+    ValidDeepLabCutH5,
     ValidNWBFile,
+    ValidROICollectionGeoJSON,
+    ValidSleapAnalysis,
+    ValidSleapLabels,
     ValidVIATracksCSV,
-    _validate_file_path,
+    _hdf5_validator,
+    _if_instance_of,
+    _json_validator,
+    validate_file_path,
 )
 
 
-@pytest.fixture
-def sample_file_path():
-    """Return a factory of file paths with a given file extension suffix."""
-
-    def _sample_file_path(tmp_path: Path, suffix: str):
-        """Return a path for a file under the pytest temporary directory
-        with the given file extension.
-        """
-        file_path = tmp_path / f"test.{suffix}"
-        return file_path
-
-    return _sample_file_path
-
-
-@pytest.mark.parametrize("suffix", [".txt", ".csv"])
-def test_validate_file_path_valid_file(sample_file_path, tmp_path, suffix):
-    """Test file path validation with a correct file."""
-    file_path = sample_file_path(tmp_path, suffix)
-    validated_file = _validate_file_path(file_path, [suffix])
-
-    assert isinstance(validated_file, ValidFile)
-    assert validated_file.path == file_path
-
-
-@pytest.mark.parametrize("suffix", [".txt", ".csv"])
-def test_validate_file_path_invalid_permission(
-    sample_file_path, tmp_path, suffix
+@pytest.mark.parametrize(
+    "input, permission, suffixes, expected_context",
+    [
+        ("readable_csv_file", "r", None, does_not_raise()),
+        ("readable_csv_file", "r", {".csv"}, does_not_raise()),
+        ("readable_csv_file", "r", {".csv", ".h5"}, does_not_raise()),
+        ("new_csv_file", "w", None, does_not_raise()),
+        ("unreadable_file", "r", None, pytest.raises(PermissionError)),
+        ("unwriteable_file", "w", None, pytest.raises(PermissionError)),
+        ("fake_h5_file", "w", None, pytest.raises(FileExistsError)),
+        (
+            "wrong_extension_file",
+            "r",
+            {".h5", ".csv"},
+            pytest.raises(ValueError),
+        ),
+        ("nonexistent_file", "r", None, pytest.raises(FileNotFoundError)),
+        ("directory", "r", None, pytest.raises(IsADirectoryError)),
+        ("new_csv_file", "x", None, pytest.raises(ValueError)),
+    ],
+    ids=[
+        "has read permission, exists, and is not a directory",
+        "has expected suffix",
+        "has one of the expected suffixes",
+        "has write permission and does not exist",
+        "lacks read permission",
+        "lacks write permission",
+        "write permission is expected, but file already exists",
+        "invalid file suffix",
+        "read permission is expected, but file does not exist",
+        "path is a directory",
+        "invalid expected permission",
+    ],
+)
+def test_validate_file_path(
+    input, permission, suffixes, expected_context, request
 ):
-    """Test file path validation with a file that has invalid permissions.
-
-    We use the following permissions:
-    - S_IRUSR: Read permission for owner
-    - S_IRGRP: Read permission for group
-    - S_IROTH: Read permission for others
+    """Test `validate_file_path` and the underlying `_file_validator`.
+    If input is valid, the returned value is a Path object, otherwise
+    the appropriate error is raised.
     """
-    # Create a sample file with read-only permission
-    file_path = sample_file_path(tmp_path, suffix)
-    file_path.touch()
-    file_path.chmod(stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
-
-    # Try to validate the file path
-    # (should raise an OSError since we require write permissions)
-    with pytest.raises(OSError):
-        _validate_file_path(file_path, [suffix])
-
-
-@pytest.mark.parametrize("suffix", [".txt", ".csv"])
-def test_validate_file_path_file_exists(sample_file_path, tmp_path, suffix):
-    """Test file path validation with a file that already exists.
-
-    We use the following permissions to create a file with the right
-    permissions:
-    - S_IRUSR: Read permission for owner
-    - S_IWUSR: Write permission for owner
-    - S_IRGRP: Read permission for group
-    - S_IWGRP: Write permission for group
-    - S_IROTH: Read permission for others
-    - S_IWOTH: Write permission for others
-
-    We include both read and write permissions because in real-world
-    scenarios it's very rare to have a file that is writable but not readable.
-    """
-    # Create a sample file with read and write permissions
-    file_path = sample_file_path(tmp_path, suffix)
-    file_path.touch()
-    file_path.chmod(
-        stat.S_IRUSR
-        | stat.S_IWUSR
-        | stat.S_IRGRP
-        | stat.S_IWGRP
-        | stat.S_IROTH
-        | stat.S_IWOTH
-    )
-
-    # Try to validate the file path
-    # (should raise an OSError since the file already exists)
-    with pytest.raises(OSError):
-        _validate_file_path(file_path, [suffix])
-
-
-@pytest.mark.parametrize("invalid_suffix", [".foo", "", None])
-def test_validate_file_path_invalid_suffix(
-    sample_file_path, tmp_path, invalid_suffix
-):
-    """Test file path validation with an invalid file suffix."""
-    # Create a file path with an invalid suffix
-    file_path = sample_file_path(tmp_path, invalid_suffix)
-
-    # Try to validate using a .txt suffix
-    with pytest.raises(ValueError):
-        _validate_file_path(file_path, [".txt"])
-
-
-@pytest.mark.parametrize("suffix", [".txt", ".csv"])
-def test_validate_file_path_multiple_suffixes(
-    sample_file_path, tmp_path, suffix
-):
-    """Test file path validation with multiple valid suffixes."""
-    # Create a valid txt file path
-    file_path = sample_file_path(tmp_path, suffix)
-
-    # Validate using multiple valid suffixes
-    validated_file = _validate_file_path(file_path, [".txt", ".csv"])
-
-    assert isinstance(validated_file, ValidFile)
-    assert validated_file.path == file_path
-
-
-@pytest.mark.parametrize(
-    "invalid_input, expected_exception",
-    [
-        ("unreadable_file", pytest.raises(PermissionError)),
-        ("unwriteable_file", pytest.raises(PermissionError)),
-        ("fake_h5_file", pytest.raises(FileExistsError)),
-        ("wrong_extension_file", pytest.raises(ValueError)),
-        ("nonexistent_file", pytest.raises(FileNotFoundError)),
-        ("directory", pytest.raises(IsADirectoryError)),
-    ],
-)
-def test_file_validator_with_invalid_input(
-    invalid_input, expected_exception, request
-):
-    """Test that invalid files raise the appropriate errors."""
-    invalid_dict = request.getfixturevalue(invalid_input)
-    with expected_exception:
-        ValidFile(
-            invalid_dict.get("file_path"),
-            expected_permission=invalid_dict.get("expected_permission"),
-            expected_suffix=invalid_dict.get("expected_suffix", []),
+    file_path = request.getfixturevalue(input)
+    with expected_context:
+        validated_file = validate_file_path(
+            file_path,
+            permission=permission,
+            suffixes=suffixes,
         )
+        assert isinstance(validated_file, Path)
 
 
 @pytest.mark.parametrize(
-    "invalid_input, expected_exception",
-    [
-        ("no_dataframe_h5_file", pytest.raises(ValueError)),
-        ("fake_h5_file", pytest.raises(ValueError)),
-    ],
-)
-def test_hdf5_validator_with_invalid_input(
-    invalid_input, expected_exception, request
-):
-    """Test that invalid HDF5 files raise the appropriate errors."""
-    invalid_dict = request.getfixturevalue(invalid_input)
-    with expected_exception:
-        ValidHDF5(
-            invalid_dict.get("file_path"),
-            expected_datasets=invalid_dict.get("expected_datasets"),
-        )
-
-
-@pytest.mark.parametrize(
-    "invalid_input, expected_exception",
-    [
-        ("invalid_single_individual_csv_file", pytest.raises(ValueError)),
-        ("invalid_multi_individual_csv_file", pytest.raises(ValueError)),
-    ],
-)
-def test_deeplabcut_csv_validator_with_invalid_input(
-    invalid_input, expected_exception, request
-):
-    """Test that invalid CSV files raise the appropriate errors."""
-    file_path = request.getfixturevalue(invalid_input)
-    with expected_exception:
-        ValidDeepLabCutCSV(file_path)
-
-
-@pytest.mark.parametrize(
-    "invalid_input, error_type, log_message",
+    "input, expected_datasets, expected_context",
     [
         (
+            "data_as_list_h5_file",
+            {"dataframe"},
+            pytest.raises(
+                ValueError, match="Could not find the expected dataset"
+            ),
+        ),
+        (
+            "fake_h5_file",
+            set(),
+            pytest.raises(ValueError, match="Could not open file as HDF5"),
+        ),
+        ("data_as_list_h5_file", {"data_as_list"}, does_not_raise()),
+    ],
+)
+def test_hdf5_validator(input, expected_datasets, expected_context, request):
+    """Test `_hdf5_validator` with valid and invalid inputs."""
+
+    @define
+    class _StubValidator:
+        file: Path = field(
+            converter=Path,
+            validator=_hdf5_validator(datasets=expected_datasets),
+        )
+
+    with expected_context:
+        _StubValidator(file=request.getfixturevalue(input))
+
+
+@pytest.mark.parametrize(
+    "value, validator_should_be_called",
+    [
+        (1, True),
+        (1.00, False),
+    ],
+)
+def test_if_instance_of(value, validator_should_be_called):
+    """Test the `_if_instance_of` validator.
+
+    The validator should only apply the mocked validator if the value
+    is an instance of the specified type (int in this case).
+    """
+    mock_validator = Mock()
+
+    @define
+    class _StubValidator:
+        value: int | float = field(
+            validator=_if_instance_of(int, mock_validator)
+        )
+
+    _StubValidator(value=value)
+    if validator_should_be_called:
+        mock_validator.assert_called_once()
+    else:
+        mock_validator.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "validator_cls, file_fixture, expected_context",
+    [
+        (ValidSleapAnalysis, "sleap_analysis_file", does_not_raise()),
+        (
+            ValidSleapAnalysis,
+            "sleap_slp_file",
+            pytest.raises(ValueError, match="Expected file with suffix"),
+        ),
+        (
+            ValidSleapAnalysis,
+            "dlc_h5_file",
+            pytest.raises(
+                ValueError, match="Could not find the expected dataset"
+            ),
+        ),
+        (ValidSleapLabels, "sleap_slp_file", does_not_raise()),
+        (
+            ValidSleapLabels,
+            "sleap_analysis_file",
+            pytest.raises(ValueError, match="Expected file with suffix"),
+        ),
+    ],
+    ids=[
+        "Analysis file validator used with SLEAP analysis file",
+        "Analysis file validator used with SLEAP labels file",
+        "Analysis file validator used with DeepLabCut .h5 file",
+        "Labels file validator used with SLEAP labels file",
+        "Labels file validator used with SLEAP analysis file",
+    ],
+)
+def test_sleap_validators(
+    validator_cls, file_fixture, expected_context, request
+):
+    """Test SLEAP validators with valid and invalid inputs."""
+    file = request.getfixturevalue(file_fixture)
+    with expected_context:
+        validator_cls(file)
+
+
+@pytest.mark.parametrize(
+    "validator_cls, file_fixture, expected_context",
+    [
+        (ValidDeepLabCutCSV, "dlc_csv_file", does_not_raise()),
+        (
+            ValidDeepLabCutCSV,
+            "dlc_h5_file",
+            pytest.raises(ValueError, match="Expected file with suffix"),
+        ),
+        (
+            ValidDeepLabCutCSV,
+            "invalid_single_individual_csv_file",
+            pytest.raises(ValueError, match="header rows do not match"),
+        ),
+        (
+            ValidDeepLabCutCSV,
+            "invalid_multi_individual_csv_file",
+            pytest.raises(ValueError, match="header rows do not match"),
+        ),
+        (ValidDeepLabCutH5, "dlc_h5_file", does_not_raise()),
+        (
+            ValidDeepLabCutH5,
+            "dlc_csv_file",
+            pytest.raises(ValueError, match="Expected file with suffix"),
+        ),
+        (
+            ValidDeepLabCutH5,
+            "sleap_analysis_file",
+            pytest.raises(
+                ValueError, match="Could not find the expected dataset"
+            ),
+        ),
+    ],
+    ids=[
+        "CSV file validator used with DLC .csv file",
+        "CSV file validator used with DLC .h5 file",
+        "Invalid single-individual DLC .csv file",
+        "Invalid multi-individual DLC .csv file",
+        "H5 file validator used with DLC .h5 file",
+        "H5 file validator used with DLC .csv file",
+        "H5 file validator used with SLEAP analysis file",
+    ],
+)
+def test_deeplabcut_validators(
+    validator_cls, file_fixture, expected_context, request
+):
+    """Test DeepLabCut validators with valid and invalid inputs."""
+    file = request.getfixturevalue(file_fixture)
+    with expected_context:
+        validator_cls(file)
+
+
+@pytest.mark.parametrize(
+    "mode, param, expected_context",
+    [
+        (
+            "file",
             "via_invalid_header",
-            ValueError,
-            ".csv header row does not match the known format for "
-            "VIA tracks .csv files. "
-            "Expected "
-            "['filename', 'file_size', 'file_attributes', "
-            "'region_count', 'region_id', 'region_shape_attributes', "
-            "'region_attributes'] "
-            "but got ['filename', 'file_size', 'file_attributes'].",
+            pytest.raises(ValueError, match=".csv header row does not match"),
         ),
         (
+            "file",
             "via_frame_number_in_file_attribute_not_integer",
-            ValueError,
-            "04.09.2023-04-Right_RE_test_frame_A.png (row 0): "
-            "'frame' file attribute cannot be cast as an integer. "
-            "Please review the file attributes: "
-            "{'clip': 123, 'frame': 'FOO'}.",
+            pytest.raises(
+                ValueError,
+                match="'frame' file attribute cannot be cast as an integer",
+            ),
         ),
         (
+            "file",
             "via_frame_number_in_filename_wrong_pattern",
-            AttributeError,
-            "04.09.2023-04-Right_RE_test_frame_1.png (row 0): "
-            r"The provided frame regexp ((0\d*)\.\w+$) did not return "
-            "any matches and a "
-            "frame number could not be extracted from the "
-            "filename.",
+            pytest.raises(
+                AttributeError,
+                match="provided frame regexp .* did not return any matches",
+            ),
         ),
         (
+            "file",
             "via_more_frame_numbers_than_filenames",
-            ValueError,
-            "The number of unique frame numbers does not match the number "
-            "of unique image files. Please review the VIA tracks .csv file "
-            "and ensure a unique frame number is defined for each file. ",
+            pytest.raises(
+                ValueError,
+                match="number of unique frame numbers does not match",
+            ),
         ),
         (
+            "file",
             "via_less_frame_numbers_than_filenames",
-            ValueError,
-            "The number of unique frame numbers does not match the number "
-            "of unique image files. Please review the VIA tracks .csv file "
-            "and ensure a unique frame number is defined for each file. ",
+            pytest.raises(
+                ValueError,
+                match="number of unique frame numbers does not match",
+            ),
         ),
         (
+            "file",
             "via_region_shape_attribute_not_rect",
-            ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
-            "bounding box shape must be 'rect' (rectangular) "
-            "but instead got 'circle'.",
+            pytest.raises(
+                ValueError, match="bounding box shape must be 'rect'"
+            ),
         ),
         (
+            "file",
             "via_region_shape_attribute_missing_x",
-            ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
-            "missing bounding box shape parameter(s). "
-            "Expected 'x', 'y', 'width', 'height' to exist as "
-            "'region_shape_attributes', but got "
-            "'['name', 'y', 'width', 'height']'.",
+            pytest.raises(
+                ValueError, match="missing bounding box shape parameter"
+            ),
         ),
         (
+            "file",
             "via_region_attribute_missing_track",
-            ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
-            "bounding box does not have a 'track' attribute defined "
-            "under 'region_attributes'. "
-            "Please review the VIA tracks .csv file.",
+            pytest.raises(
+                ValueError,
+                match="bounding box does not have a 'track' attribute",
+            ),
         ),
         (
+            "file",
             "via_track_id_not_castable_as_int",
-            ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png (row 0): "
-            "the track ID for the bounding box cannot be cast "
-            "as an integer. "
-            "Please review the VIA tracks .csv file.",
+            pytest.raises(
+                ValueError,
+                match="the track ID for the bounding box cannot be cast",
+            ),
         ),
         (
+            "file",
             "via_track_ids_not_unique_per_frame",
-            ValueError,
-            "04.09.2023-04-Right_RE_test_frame_01.png: "
-            "multiple bounding boxes in this file have the same track ID. "
-            "Please review the VIA tracks .csv file.",
+            pytest.raises(
+                ValueError,
+                match="multiple bounding boxes .* have the same track ID",
+            ),
         ),
+        (
+            "regexp",
+            r"*",
+            pytest.raises(re.error, match="could not be compiled"),
+        ),
+        (
+            "regexp",
+            r"_(0\d*)_$",
+            pytest.raises(
+                AttributeError,
+                match="provided frame regexp .* did not return any matches",
+            ),
+        ),
+        (
+            "regexp",
+            r"(0\d*\.\w+)$",
+            pytest.raises(
+                ValueError,
+                match="frame number .* could not be cast as an integer",
+            ),
+        ),
+        ("valid", None, does_not_raise()),
     ],
 )
-def test_via_tracks_csv_validator_with_invalid_input(
-    invalid_via_tracks_csv_file, invalid_input, error_type, log_message
+def test_via_tracks_csv_validator(
+    invalid_via_tracks_csv_file, via_tracks_csv, mode, param, expected_context
 ):
-    """Test that invalid VIA tracks .csv files raise the appropriate errors.
+    """Test ValidVIATracksCSV with valid and invalid inputs.
 
-    Errors to check:
-    - error if .csv header is wrong
-    - error if frame number is not defined in the file
-        (frame number extracted either from the filename or from attributes)
-    - error if extracted frame numbers are not 1-based integers
-    - error if region_shape_attributes "name" is not "rect"
-    - error if not all region_attributes have key "track"
-        (i.e., all regions must have an ID assigned)
-    - error if IDs are unique per frame
-        (i.e., bboxes IDs must exist only once per frame)
-    - error if bboxes IDs are not 1-based integers
+    Errors to check
+    - file errors
+        - .csv header is wrong
+        - frame number is not defined in the file
+          (frame number extracted either from the filename or from attributes)
+        - extracted frame numbers cannot be cast as integers
+        - region_shape_attributes "name" is not "rect"
+        - not all region_attributes have key "track"
+          (i.e., all regions must have an ID assigned)
+        - IDs are unique per frame
+          (i.e., bboxes IDs must exist only once per frame)
+        - bboxes IDs cannot be cast as integers
+    - invalid frame_regexp
+        - regexp cannot be compiled
+        - regexp does not return any matches
+        - extracted frame numbers cannot be cast as integers
     """
-    file_path = invalid_via_tracks_csv_file(invalid_input)
-    with pytest.raises(error_type) as excinfo:
-        ValidVIATracksCSV(file_path)
-
-    assert str(excinfo.value) == log_message
+    file_path = (
+        invalid_via_tracks_csv_file(param)
+        if mode == "file"
+        else via_tracks_csv
+    )
+    with expected_context:
+        if mode != "regexp":
+            ValidVIATracksCSV(file_path)
+        else:
+            ValidVIATracksCSV(file_path, frame_regexp=param)
 
 
 @pytest.mark.parametrize(
-    "invalid_input, log_message",
+    "input, expected_context",
     [
         (
             "invalid_single_individual_csv_file",
-            "CSV file is missing some expected columns.",
+            pytest.raises(ValueError, match="missing some expected columns"),
         ),
         (
             "missing_keypoint_columns_anipose_csv_file",
-            "Keypoint kp0 is missing some expected suffixes.",
+            pytest.raises(ValueError, match="missing some expected suffixes"),
         ),
         (
             "spurious_column_anipose_csv_file",
-            "Column funny_column ends with an unexpected suffix.",
+            pytest.raises(ValueError, match="ends with an unexpected suffix"),
         ),
+        ("anipose_csv_file", does_not_raise()),
     ],
 )
-def test_anipose_csv_validator_with_invalid_input(
-    invalid_input, log_message, request
-):
-    """Test that invalid Anipose .csv files raise the appropriate errors.
+def test_anipose_csv_validator(input, expected_context, request):
+    """Test ValidAniposeCSV with valid and invalid inputs.
 
     Errors to check:
-    - error if .csv is missing some columns
-    - error if .csv misses some of the expected columns for a keypoint
-    - error if .csv has columns that are not expected
-    (either common ones or keypoint-specific ones)
+    - .csv is missing some columns
+    - .csv misses some of the expected columns for a keypoint
+    - .csv has columns that are not expected (common or keypoint-specific)
     """
-    file_path = request.getfixturevalue(invalid_input)
-    with pytest.raises(ValueError) as excinfo:
+    file_path = request.getfixturevalue(input)
+    with expected_context:
         ValidAniposeCSV(file_path)
-
-    assert log_message in str(excinfo.value)
 
 
 @pytest.mark.parametrize(
-    "invalid_input, expected_exception",
+    "input, expected_context",
     [
-        ("wrong_extension_file", pytest.raises(ValueError)),
-        (123, pytest.raises(TypeError)),
-        (None, pytest.raises(TypeError)),
+        ("nwb_file", does_not_raise()),
+        ("nwbfile_object", does_not_raise()),
+        (
+            "dlc_csv_file",
+            pytest.raises(ValueError, match="Expected file with suffix"),
+        ),
     ],
 )
-def test_nwb_file_validator_with_invalid_input(
-    invalid_input, expected_exception, request
-):
-    """Test that invalid NWB file inputs raise the appropriate errors."""
-    with expected_exception:
-        invalid_input = (
-            request.getfixturevalue(invalid_input).get("file_path")
-            if invalid_input == "wrong_extension_file"
-            else invalid_input
+def test_nwb_file_validator(input, expected_context, request):
+    """Test ValidNWBFile with valid and invalid inputs."""
+    file = request.getfixturevalue(input)
+    if input.startswith("nwb"):
+        file = file()
+    with expected_context:
+        ValidNWBFile(file)
+
+
+_SIMPLE_SCHEMA = {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": ["key"],
+    "properties": {"key": {"type": "string"}},
+}
+
+
+@pytest.mark.parametrize(
+    "content, schema, expected_context",
+    [
+        pytest.param(
+            '{"key": "value"}',
+            None,
+            does_not_raise(),
+            id="valid JSON, no schema",
+        ),
+        pytest.param(
+            "not valid json {",
+            None,
+            pytest.raises(ValueError, match="not valid JSON"),
+            id="invalid JSON",
+        ),
+        pytest.param(
+            '{"key": "value"}',
+            _SIMPLE_SCHEMA,
+            does_not_raise(),
+            id="valid JSON matching schema",
+        ),
+        pytest.param(
+            '{"other": "value"}',
+            _SIMPLE_SCHEMA,
+            pytest.raises(ValueError, match="does not match schema"),
+            id="valid JSON not matching schema",
+        ),
+    ],
+)
+def test_json_validator(content, schema, expected_context, tmp_path):
+    """Test `_json_validator` with (in)valid basic JSON content and schemas."""
+
+    @define
+    class _StubValidator:
+        file: Path = field(
+            converter=Path,
+            validator=_json_validator(schema=schema, data_attr="stored_json"),
         )
-        ValidNWBFile(invalid_input)
+        stored_json: dict = field(init=False, factory=dict)
+
+    file_path = tmp_path / "test.json"
+    file_path.write_text(content)
+    with expected_context:
+        valid_file = _StubValidator(file=file_path)
+        assert valid_file.stored_json == json.loads(content)
+
+
+_POLYGON_FEATURE = (
+    '{"type": "Feature", "geometry": {"type": "Polygon", '
+    '"coordinates": [[[0,0],[1,0],[1,1],[0,0]]]}, "properties": {}}'
+)
+
+
+def _feature_collection(*features: str) -> str:
+    """Build a GeoJSON FeatureCollection string."""
+    joined = ", ".join(features)
+    return f'{{"type": "FeatureCollection", "features": [{joined}]}}'
+
+
+def _feature_with_roi_type(geom_type: str, coords: str, roi_type: str) -> str:
+    """Build a GeoJSON Feature string with an roi_type property."""
+    return (
+        f'{{"type": "Feature", '
+        f'"geometry": {{"type": "{geom_type}", '
+        f'"coordinates": {coords}}}, '
+        f'"properties": {{"roi_type": "{roi_type}"}}}}'
+    )
+
+
+@pytest.mark.parametrize(
+    "content, expected_context",
+    [
+        pytest.param(
+            _feature_collection(_POLYGON_FEATURE),
+            does_not_raise(),
+            id="valid FeatureCollection with polygon",
+        ),
+        pytest.param(
+            _feature_collection(),
+            does_not_raise(),
+            id="valid empty FeatureCollection",
+        ),
+        pytest.param(
+            '{"type": "FutureCollection", "features": []}',
+            pytest.raises(
+                ValueError,
+                match="'FeatureCollection' was expected",
+            ),
+            id="not a FeatureCollection",
+        ),
+        pytest.param(
+            '{"type": "FeatureCollection"}',
+            pytest.raises(
+                ValueError,
+                match="'features' is a required property",
+            ),
+            id="missing features key",
+        ),
+        pytest.param(
+            _feature_collection('{"type": "Feature", "properties": {}}'),
+            pytest.raises(
+                ValueError,
+                match="'geometry' is a required property",
+            ),
+            id="feature missing geometry",
+        ),
+        pytest.param(
+            _feature_collection(
+                '{"type": "Feature", "geometry": null, "properties": {}}'
+            ),
+            pytest.raises(
+                ValueError,
+                match="None is not of type 'object'",
+            ),
+            id="feature with null geometry",
+        ),
+        pytest.param(
+            _feature_collection(
+                '{"type": "Feature", '
+                '"geometry": {"type": "Point", '
+                '"coordinates": [0, 0]}, "properties": {}}'
+            ),
+            pytest.raises(
+                ValueError,
+                match="'Point' is not one of "
+                "\\['Polygon', 'LineString', 'LinearRing'\\]",
+            ),
+            id="unsupported geometry type (Point)",
+        ),
+        pytest.param(
+            _feature_collection(
+                _feature_with_roi_type(
+                    "LineString",
+                    "[[0,0],[1,1]]",
+                    "PolygonOfInterest",
+                )
+            ),
+            pytest.raises(
+                TypeError,
+                match="does not match geometry type",
+            ),
+            id="roi_type mismatch: LineString/PolygonOfInterest",
+        ),
+        pytest.param(
+            _feature_collection(
+                _feature_with_roi_type(
+                    "Polygon",
+                    "[[[0,0],[1,0],[1,1],[0,0]]]",
+                    "UnknownROI",
+                )
+            ),
+            pytest.raises(
+                ValueError,
+                match="'UnknownROI' is not one of "
+                "\\['PolygonOfInterest', 'LineOfInterest'\\]",
+            ),
+            id="unknown roi_type",
+        ),
+    ],
+)
+def test_roi_collection_geojson_validator(content, expected_context, tmp_path):
+    """Test ValidROICollectionGeoJSON with valid and invalid inputs."""
+    file_path = tmp_path / "test.geojson"
+    file_path.write_text(content)
+    with expected_context:
+        validated = ValidROICollectionGeoJSON(file_path)
+        assert validated.file == file_path

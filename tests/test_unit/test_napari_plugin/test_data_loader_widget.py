@@ -853,6 +853,16 @@ def test_add_points_and_tracks_layer_style(
     if source_software == "VIA-tracks":
         bboxes_layer = viewer.layers[2]
 
+    # Check that _factorized columns are excluded from Points layer properties
+    # (these are internal and should not appear in tooltips)
+    points_props_cols = list(points_layer.properties.keys())
+    assert not any(col.endswith("_factorized") for col in points_props_cols)
+
+    # Check that _factorized column is present in Tracks layer properties
+    # (needed for coloring)
+    tracks_props_cols = list(tracks_layer.properties.keys())
+    assert any(col.endswith("_factorized") for col in tracks_props_cols)
+
     # Check the text follows the expected property
     assert points_layer.text.string.feature == expected_text_property
     if source_software == "VIA-tracks":

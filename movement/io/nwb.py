@@ -234,20 +234,20 @@ class NWBFileSaveConfig:
 
         Parameters
         ----------
-        attr_name : str
+        attr_name
             The name of the attribute in the class (e.g. ``nwbfile_kwargs``,
             ``subject_kwargs``, ``pose_estimation_series_kwargs``) to be
             resolved.
-        entity : str or None
+        entity
             Individual or keypoint name.
-        entity_type : str or None
+        entity_type
             Type of entity (i.e. "individual", "keypoint"). Used in error
             or warning messages.
-        id_key : str
+        id_key
             The key in ``cfg`` corresponding to the entity identifier/name
             (e.g. ``identifier``, ``subject_id``, ``name``) to be set in the
             returned dictionary.
-        prioritise_entity : bool, optional
+        prioritise_entity
             Flag indicating whether ``entity`` should take precedence over
             the ``id_key`` when the attribute is a shared config
             (i.e. a single dictionary). Default is False.
@@ -304,11 +304,11 @@ class NWBFileSaveConfig:
 
         Parameters
         ----------
-        individual : str, optional
+        individual
             Individual name. If provided, the method will attempt to retrieve
             individual-specific settings or fall back to shared or default
             settings.
-        prioritise_individual: bool, optional
+        prioritise_individual
             Flag indicating whether ``individual`` should take precedence over
             the ``identifier`` in shared ``nwbfile_kwargs``. Default is True.
 
@@ -340,7 +340,7 @@ class NWBFileSaveConfig:
 
         Parameters
         ----------
-        individual : str, optional
+        individual
             Individual name. If provided, the method will attempt to retrieve
             individual-specific settings or fall back to shared or default
             settings.
@@ -368,11 +368,11 @@ class NWBFileSaveConfig:
 
         Parameters
         ----------
-        individual : str, optional
+        individual
             Individual name. If provided, the method will attempt to retrieve
             individual-specific settings or fall back to shared or default
             settings.
-        prioritise_individual: bool, optional
+        prioritise_individual
             Flag indicating whether ``individual`` should take precedence over
             the ``subject_id`` in shared ``subject_kwargs``. Default is True.
 
@@ -397,11 +397,11 @@ class NWBFileSaveConfig:
 
         Parameters
         ----------
-        keypoint : str, optional
+        keypoint
             Keypoint name. If provided, the method will attempt to retrieve
             keypoint-specific settings or fall back to shared or default
             settings.
-        prioritise_keypoint: bool, optional
+        prioritise_keypoint
             Flag indicating whether ``keypoint`` should take precedence over
             the ``name`` in shared ``pose_estimation_series_kwargs``.
             Default is True.
@@ -431,14 +431,14 @@ class NWBFileSaveConfig:
 
         Parameters
         ----------
-        individual : str, optional
+        individual
             Individual name. If provided, the method will attempt to retrieve
             individual-specific settings or fall back to shared or default
             settings.
-        prioritise_individual: bool, optional
+        prioritise_individual
             Flag indicating whether ``individual`` should take precedence over
             the ``name`` in shared ``pose_estimation_kwargs``. Default is True.
-        defaults : dict, optional
+        defaults
             Dataset-specific default values to be used.
 
         Returns
@@ -471,14 +471,14 @@ class NWBFileSaveConfig:
 
         Parameters
         ----------
-        individual : str, optional
+        individual
             Individual name. If provided, the method will attempt to retrieve
             individual-specific settings or fall back to shared or default
             settings.
-        prioritise_individual: bool, optional
+        prioritise_individual
             Flag indicating whether ``individual`` should take precedence over
             the ``name`` in shared ``skeleton_kwargs``. Default is True.
-        defaults : dict, optional
+        defaults
             Dataset-specific default values to be used.
 
         Returns
@@ -528,16 +528,16 @@ def _ds_to_pose_and_skeletons(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         A single-individual ``movement`` poses dataset.
-    config : movement.io.nwb.NWBFileSaveConfig
+    config
         Configuration object containing keyword arguments to customise
         the PoseEstimation and Skeletons objects created from the dataset.
         If None (default), default values will be used.
         See :class:`movement.io.nwb.NWBFileSaveConfig` for more details.
-    subject : pynwb.file.Subject, optional
+    subject
         Subject object to be linked in the Skeleton object.
-    from_multi_individual : bool, optional
+    from_multi_individual
         Flag indicating whether ``ds`` originates from a multi-individual
         dataset. Passed to the ``NWBFileSaveConfig`` methods to determine
         whether to prioritise individual names in the dataset over ``name``
@@ -626,17 +626,17 @@ def _write_processing_module(
 
     Parameters
     ----------
-    nwb_file : pynwb.file.NWBFile
+    nwb_file
         The NWBFile object to which the data will be added.
-    processing_module_kwargs : dict[str, Any]
+    processing_module_kwargs
         Keyword arguments for the :class:`pynwb.base.ProcessingModule` in the
         NWB file. The ``name`` key will be used to determine the
         ProcessingModule to which the data will be added.
         If the ProcessingModule does not exist, it will be created with these
         keyword arguments.
-    pose_estimation : ndx_pose.PoseEstimation
+    pose_estimation
         PoseEstimation object containing the pose data for an individual.
-    skeletons : ndx_pose.Skeletons
+    skeletons
         Skeletons object containing the skeleton data for an individual.
 
     """

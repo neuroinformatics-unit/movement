@@ -16,7 +16,6 @@ license-files = ["LICENSE"]
 dependencies = [
   "numpy>=2.0.0",
   "pandas",
-  "scipy<1.17.0",
   "h5py",
   "netCDF4<1.7.3",
   "tables>=3.10.1",
@@ -33,6 +32,7 @@ dependencies = [
   "loguru",
   "pynwb",
   "ndx-pose>=0.2.1",
+  "jsonschema",
 ]
 
 classifiers = [
@@ -78,16 +78,17 @@ dev = [
   "pytest-qt",
   "scipy-stubs",
   "types-shapely",
+  "types-jsonschema",
   "movement[napari]",
 ]
 docs = [
   "movement[napari]",
-  "ablog",
+  "ablog>=0.11.13",
   "linkify-it-py",
   "myst-parser",
   "nbsphinx",
   "pydata-sphinx-theme",
-  "sphinx<9",
+  "sphinx",
   "sphinx-autodoc-typehints",
   "sphinx-design",
   "sphinx-gallery",
@@ -187,7 +188,7 @@ per-file-ignores = { "tests/*" = [
 docstring-code-format = true # Also format code in docstrings
 
 [tool.codespell]
-skip = '.git,.tox,*.svg'
+skip = '.git,.tox,*.svg,docs/source/community/people.md'
 check-hidden = true
 
 [tool.tox]
