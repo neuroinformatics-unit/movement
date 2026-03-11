@@ -583,26 +583,32 @@ def test_table_allows_name_editing(regions_widget_with_layer):
 
 
 # ------------------- Tests for tooltips -------------------------------------#
-def test_tooltip_no_layers(regions_widget):
-    """Test tooltip when no region layers exist."""
-    tooltip = regions_widget.region_table_view.toolTip()
-    assert "No region layers" in tooltip
-
-
-def test_tooltip_empty_layer(make_napari_viewer_proxy):
-    """Test tooltip when layer has no shapes."""
+@pytest.mark.parametrize(
+    "add_shapes_kwargs, expected_text",
+    [
+        pytest.param(None, "No region layers", id="no_layers"),
+        pytest.param(
+            {"name": "Regions"}, "No regions in this layer", id="empty_layer"
+        ),
+        pytest.param(
+            {
+                "name": "Regions",
+                "data": [[[0, 0], [0, 10], [10, 10], [10, 0]]],
+            },
+            "Click a row",
+            id="with_shapes",
+        ),
+    ],
+)
+def test_table_tooltip_reflects_state(
+    make_napari_viewer_proxy, add_shapes_kwargs, expected_text
+):
+    """Test table tooltip text reflects current widget state."""
     viewer = make_napari_viewer_proxy()
-    viewer.add_shapes(name="Regions")
+    if add_shapes_kwargs is not None:
+        viewer.add_shapes(**add_shapes_kwargs)
     widget = RegionsWidget(viewer)
-    tooltip = widget.region_table_view.toolTip()
-    assert "No regions in this layer" in tooltip
-
-
-def test_tooltip_with_shapes(regions_widget_with_layer):
-    """Test tooltip when layer has shapes."""
-    widget, _ = regions_widget_with_layer
-    tooltip = widget.region_table_view.toolTip()
-    assert "Click a row" in tooltip
+    assert expected_text in widget.region_table_view.toolTip()
 
 
 # ------------------- Tests for edge cases -----------------------------------#
