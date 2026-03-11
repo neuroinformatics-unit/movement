@@ -41,19 +41,16 @@ def regions_widget(make_napari_viewer_proxy):
 
 
 @pytest.fixture
-def regions_widget_with_layer(make_napari_viewer_proxy, two_polygons):
-    """Return a viewer with a RegionsWidget
-    and a shapes layer with 2 regions.
-    """
-    viewer = make_napari_viewer_proxy()
+def regions_widget_with_layer(regions_widget, two_polygons):
+    """Return a RegionsWidget and a shapes layer with 2 regions."""
+    viewer = regions_widget.viewer
     layer = viewer.add_shapes(
         two_polygons,
         shape_type="polygon",
         name="Regions",
     )
     layer.properties = {"name": [DEFAULT_REGION_NAME, DEFAULT_REGION_NAME]}
-    widget = RegionsWidget(viewer)
-    return widget, layer
+    return regions_widget, layer
 
 
 # ------------------- Tests for widget instantiation -------------------------#
