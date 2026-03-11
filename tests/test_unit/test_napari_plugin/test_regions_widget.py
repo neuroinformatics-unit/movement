@@ -108,7 +108,7 @@ def test_auto_assign_names_pads_missing_name_property(
     RegionsWidget(viewer)
     # Names should be created and filled to match shape count
     assert len(layer.properties["name"]) == 2
-
+assert all(name == DEFAULT_REGION_NAME for name in layer.properties["name"])
 
 # ------------------- Tests for signal/event connections ---------------------#
 def test_add_layer_button_connected_to_handler(
@@ -132,12 +132,15 @@ def test_dropdown_connected_to_layer_selection_handler(
     )
     viewer = make_napari_viewer_proxy()
     viewer.add_shapes(name="Regions")
+	# Create second layer to switch to
     viewer.add_shapes(name="Regions [1]")
     widget = RegionsWidget(viewer)
 
+	# Reset calls to mock since the widget initialisation triggers `_on_layer_selected` internally 
+	# (when the dropdown is populated and a layer is auto-selected)
     mock_method.reset_mock()
     widget.layer_dropdown.setCurrentText("Regions [1]")
-    mock_method.assert_called()
+    mock_method.assert_called_once()
 
 
 def test_layer_added_triggers_dropdown_update(
@@ -152,29 +155,30 @@ def test_layer_added_triggers_dropdown_update(
 
     mock_method.reset_mock()
     viewer.add_shapes(name="Regions")
-    mock_method.assert_called()
+    mock_method.assert_called_once()
 
 
 def test_layer_removed_triggers_dropdown_update(
     make_napari_viewer_proxy, mocker
 ):
     """Test that removing a layer triggers dropdown update."""
-    viewer = make_napari_viewer_proxy()
-    layer = viewer.add_shapes(name="Regions")
-    mock_method = mocker.patch(
+	mock_method = mocker.patch(
         "movement.napari.regions_widget.RegionsWidget._update_layer_dropdown"
     )
-    _ = RegionsWidget(viewer)  # must stay alive to receive signal
+    viewer = make_napari_viewer_proxy()
+    layer = viewer.add_shapes(name="Regions")
+    
+    _ = RegionsWidget(viewer)  # _ to avoid it being gc (must stay alive to receive signal)
 
     mock_method.reset_mock()
     viewer.layers.remove(layer)
-    mock_method.assert_called()
+    mock_method.assert_called_once()
 
 
 def test_shape_data_change_triggers_model_update(
     regions_widget_with_layer, mocker
 ):
-    """Test that adding a shape triggers model's data change handler."""
+    """Test that adding a shape to an existing layer triggers model's data change handler."""
     widget, layer = regions_widget_with_layer
     mock_method = mocker.patch.object(
         widget.region_table_model, "_on_layer_data_changed"
@@ -189,7 +193,10 @@ def test_set_data_event_triggers_handler(regions_widget_with_layer, mocker):
     mock_method = mocker.patch.object(
         widget.region_table_model, "_on_layer_set_data"
     )
-    layer.events.set_data()
+	# setting data to empty list
+    layer.data = []
+    # or scaling the region
+    layer.data = [shape * 2 for shape in layer.data]
     mock_method.assert_called()
 
 
@@ -236,6 +243,8 @@ def test_dropdown_ignores_non_region_layers(make_napari_viewer_proxy):
     viewer.add_shapes(name="Other shapes")
     widget = RegionsWidget(viewer)
     assert widget.layer_dropdown.currentText() == "Select a layer"
+    # the dropdown count should hold placeholder text only
+    assert widget.layer_dropdown.count() == 1
 
 
 def test_dropdown_includes_layer_with_region_metadata(
@@ -273,10 +282,8 @@ def test_renaming_layer_updates_dropdown(regions_widget_with_layer):
     """Test that renaming a layer updates the dropdown."""
     widget, layer = regions_widget_with_layer
     layer.name = "Regions renamed"
-    assert "Regions renamed" in [
-        widget.layer_dropdown.itemText(i)
-        for i in range(widget.layer_dropdown.count())
-    ]
+    assert widget.layer_dropdown.findText("Regions renamed") != -1
+    # findText returns the index of the matching item or -1 if not found
 
 
 def test_renaming_to_region_pattern_marks_as_region_layer(
@@ -287,6 +294,7 @@ def test_renaming_to_region_pattern_marks_as_region_layer(
     layer = viewer.add_shapes(name="Other shapes")
     widget = RegionsWidget(viewer)
     assert widget.layer_dropdown.currentText() == "Select a layer"
+    assert "movement_region_layer" not in layer.metadata
 
     layer.name = "Region-Arena"
     assert widget.layer_dropdown.currentText() == "Region-Arena"
@@ -307,46 +315,35 @@ def test_close_cleans_up(regions_widget_with_layer):
 def test_fills_empty_or_none_names(make_napari_viewer_proxy, empty_value):
     """Test that empty/None names are filled with default name."""
     viewer = make_napari_viewer_proxy()
-    layer = viewer.add_shapes(
-        [[[0, 0], [0, 10], [10, 10], [10, 0]]],
-        shape_type="polygon",
-        name="Regions",
-    )
+    viewer.add_shapes(sample_shapes_data[:1], shape_type="polygon", name="Regions")
     layer.properties = {"name": [empty_value]}
 
     RegionsWidget(viewer)
-    names = list(layer.properties.get("name", []))
-    assert names[0] == DEFAULT_REGION_NAME
+    assert layer.properties["name"][0] == DEFAULT_REGION_NAME
 
 
 def test_preserves_user_names(make_napari_viewer_proxy):
     """Test that user-assigned names are preserved."""
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes(
-        [
-            [[0, 0], [0, 10], [10, 10], [10, 0]],
-            [[20, 20], [20, 30], [30, 30], [30, 20]],
-        ],
+        sample_shapes_data[:2],
         shape_type="polygon",
         name="Regions",
     )
     layer.properties = {"name": ["Arena", ""]}
 
     RegionsWidget(viewer)
-    names = list(layer.properties.get("name", []))
-    assert names[0] == "Arena"
-    assert names[1] == DEFAULT_REGION_NAME
+    assert all(layer.properties["name"] == ["Arena", DEFAULT_REGION_NAME])
 
 
 def test_new_drawn_shape_gets_default_name(regions_widget_with_layer):
     """Test that newly drawn shapes get the default name."""
     _, layer = regions_widget_with_layer
-    layer.add([[60, 60], [60, 70], [70, 70], [70, 60]])
+    layer.add(sample_shapes_data[:1])
 
-    names = list(layer.properties.get("name", []))
-    assert len(names) == 3
-    # Drawn shapes get default name (layer.add emits "added" event)
-    assert names[2] == DEFAULT_REGION_NAME
+    assert len(layer.properties["name"]) == 3
+    # The last drawn shape gets default name (layer.add emits "added" event)
+    assert layer.properties["name"][-1] == DEFAULT_REGION_NAME
 
 
 # ------------------- Tests for RegionsTableModel ----------------------------#
@@ -392,12 +389,15 @@ def test_model_data_returns_none_for_stale_index(regions_widget_with_layer):
     index = widget.region_table_model.index(1, 0)
     # Remove all shapes, making the index stale
     layer.data = []
-    # Index is still structurally valid but row >= len(layer.data)
+    # Index is still structurally valid but display value is None because row >= len(layer.data)
     assert widget.region_table_model.data(index, Qt.DisplayRole) is None
 
 
 def test_model_setData_updates_region_name(regions_widget_with_layer):
-    """Test that setData updates the region name."""
+    """Test that setData updates the region name column.
+    
+    The `name` column is column index = 0.
+    """
     widget, layer = regions_widget_with_layer
     index = widget.region_table_model.index(0, 0)
     result = widget.region_table_model.setData(index, "New Name", Qt.EditRole)
@@ -407,7 +407,10 @@ def test_model_setData_updates_region_name(regions_widget_with_layer):
 
 
 def test_model_setData_rejects_shape_type_edit(regions_widget_with_layer):
-    """Test that setData returns False for shape type column."""
+    """Test that setData returns False for shape_type column.
+    
+    The `shape_type` column is column index = 1 .
+    """
     widget, _ = regions_widget_with_layer
     index = widget.region_table_model.index(0, 1)
     result = widget.region_table_model.setData(index, "rectangle", Qt.EditRole)
@@ -424,7 +427,7 @@ def test_model_setData_rejects_stale_index(regions_widget_with_layer):
 
 
 @pytest.mark.parametrize(
-    "column, is_editable",
+    "column, expected_editable",
     [(0, True), (1, False)],
     ids=["name_editable", "shape_type_not_editable"],
 )
@@ -442,7 +445,7 @@ def test_model_updates_on_shape_added(regions_widget_with_layer):
     """Test that adding a shape updates the model."""
     widget, layer = regions_widget_with_layer
     initial_count = widget.region_table_model.rowCount()
-    layer.add([[60, 60], [60, 70], [70, 70], [70, 60]])
+    layer.add(layer.add(sample_shapes_data[:1]))
 
     assert widget.region_table_model.rowCount() == initial_count + 1
 
@@ -451,8 +454,8 @@ def test_sync_names_assigns_default_to_new_shapes(regions_widget_with_layer):
     """Test that _sync_names_on_shape_change assigns default name to new."""
     widget, layer = regions_widget_with_layer
     model = widget.region_table_model
-    # Add a shape so layer has 3 shapes
-    layer.add([[60, 60], [60, 70], [70, 70], [70, 60]])
+	# Add a shape so layer has 2 shapes
+    layer.add(sample_shapes_data[:1)
     # Reset _last_shape_count to simulate state before shape was added
     model._last_shape_count = 2
     # Call sync with assign_default_to_new=True
@@ -483,7 +486,7 @@ def test_set_data_handler_updates_model_and_preserves_names(
     model = widget.region_table_model
 
     # Add a third shape with a custom copied name directly to the layer
-    layer.add([[60, 60], [60, 70], [70, 70], [70, 60]])
+    layer.add(sample_shapes_data[:1])
     layer.properties = {"name": ["Region-A", "Region-B", "Region-B"]}
 
     # Simulate the state before a "paste" by resetting the shape count tracker
@@ -625,7 +628,7 @@ def test_model_flags_invalid_index(regions_widget_with_layer):
 
 
 def test_table_view_selection_with_no_model(regions_widget):
-    """Test table view handles selection when model is None."""
+   """Test _on_selection_changed does not raise when no table model is linked."""
     with does_not_raise():
         regions_widget.region_table_view._on_selection_changed(None, None)
 
