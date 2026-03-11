@@ -221,6 +221,24 @@ def test_scale_numpy_nd_factor():
     xr.testing.assert_allclose(scaled_position, scaled_position_2)
 
 
+def test_scale_numpy_factor_reshape_branch():
+    """Test that numpy factors with fewer dimensions are reshaped for
+    broadcasting.
+    """
+    data = xr.DataArray(
+        np.ones((3, 2, 4)),
+        dims=("time", "space", "individuals"),
+        coords={"space": ["x", "y"]},
+    )
+
+    factor = np.array([1, 2, 3])
+
+    scaled = scale(data, factor=factor)
+    expected = data * factor.reshape(3, 1, 1)
+
+    xr.testing.assert_allclose(scaled, expected)
+
+
 @pytest.mark.parametrize(
     "factor",
     [2, [1, 2, 0.5]],
