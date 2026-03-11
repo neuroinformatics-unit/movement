@@ -24,12 +24,11 @@ pytestmark = pytest.mark.filterwarnings(
 
 # ------------------- Fixtures -----------------------------------------------#
 @pytest.fixture
-def sample_shapes_data():
-    """Return sample shapes data for testing."""
+def two_polygons():
+    """Return data for 2 sample polygon shapes."""
     return [
         [[0, 0], [0, 10], [10, 10], [10, 0]],
         [[20, 20], [20, 30], [30, 30], [30, 20]],
-        [[40, 40], [40, 50], [50, 50], [50, 40]],
     ]
 
 
@@ -41,11 +40,11 @@ def regions_widget(make_napari_viewer_proxy):
 
 
 @pytest.fixture
-def regions_widget_with_layer(make_napari_viewer_proxy, sample_shapes_data):
+def regions_widget_with_layer(make_napari_viewer_proxy, two_polygons):
     """Return a RegionsWidget with a viewer and shapes layer with 2 regions."""
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes(
-        sample_shapes_data[:2],
+        two_polygons,
         shape_type="polygon",
         name="Regions",
     )
@@ -98,12 +97,12 @@ def test_dropdown_populated_with_existing_region_layer(
 
 
 def test_auto_assign_names_pads_missing_name_property(
-    make_napari_viewer_proxy, sample_shapes_data
+    make_napari_viewer_proxy, two_polygons
 ):
     """Test that missing name property gets created and filled."""
     viewer = make_napari_viewer_proxy()
     # Create layer with shapes but no "name" property
-    layer = viewer.add_shapes(sample_shapes_data[:2], name="Regions")
+    layer = viewer.add_shapes(two_polygons, name="Regions")
     # Creating widget triggers _auto_assign_region_names which pads names
     RegionsWidget(viewer)
     # Names should be created and filled to match shape count
@@ -204,7 +203,7 @@ def test_set_data_event_triggers_handler(regions_widget_with_layer, mocker):
         widget.region_table_model, "_on_layer_set_data"
     )
     layer.data = [shape * 2 for shape in layer.data]  # scale existing shapes
-    mock_method.assert_called_once()
+    mock_method.assert_called()  # napari fires set_data multiple times
 
 
 # ------------------- Tests for widget methods -------------------------------#
@@ -319,11 +318,13 @@ def test_close_cleans_up(regions_widget_with_layer):
 
 # ------------------- Tests for region auto-naming ---------------------------#
 @pytest.mark.parametrize("empty_value", ["", None])
-def test_fills_empty_or_none_names(make_napari_viewer_proxy, empty_value):
+def test_fills_empty_or_none_names(
+    make_napari_viewer_proxy, two_polygons, empty_value
+):
     """Test that empty/None names are filled with default name."""
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes(
-        sample_shapes_data[:1], shape_type="polygon", name="Regions"
+        two_polygons[:1], shape_type="polygon", name="Regions"
     )
     layer.properties = {"name": [empty_value]}
 
@@ -331,11 +332,11 @@ def test_fills_empty_or_none_names(make_napari_viewer_proxy, empty_value):
     assert layer.properties["name"][0] == DEFAULT_REGION_NAME
 
 
-def test_preserves_user_names(make_napari_viewer_proxy):
+def test_preserves_user_names(make_napari_viewer_proxy, two_polygons):
     """Test that user-assigned names are preserved."""
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes(
-        sample_shapes_data[:2],
+        two_polygons,
         shape_type="polygon",
         name="Regions",
     )
@@ -345,10 +346,12 @@ def test_preserves_user_names(make_napari_viewer_proxy):
     assert all(layer.properties["name"] == ["Arena", DEFAULT_REGION_NAME])
 
 
-def test_new_drawn_shape_gets_default_name(regions_widget_with_layer):
+def test_new_drawn_shape_gets_default_name(
+    regions_widget_with_layer, two_polygons
+):
     """Test that newly drawn shapes get the default name."""
     _, layer = regions_widget_with_layer
-    layer.add(sample_shapes_data[:1])
+    layer.add(two_polygons[:1])
 
     assert len(layer.properties["name"]) == 3
     # The last drawn shape gets default name (layer.add emits "added" event)
@@ -451,21 +454,23 @@ def test_model_column_editability(
     assert bool(flags & Qt.ItemIsEditable) == expected_editable
 
 
-def test_model_updates_on_shape_added(regions_widget_with_layer):
+def test_model_updates_on_shape_added(regions_widget_with_layer, two_polygons):
     """Test that adding a shape updates the model."""
     widget, layer = regions_widget_with_layer
     initial_count = widget.region_table_model.rowCount()
-    layer.add(layer.add(sample_shapes_data[:1]))
+    layer.add(two_polygons[:1])
 
     assert widget.region_table_model.rowCount() == initial_count + 1
 
 
-def test_sync_names_assigns_default_to_new_shapes(regions_widget_with_layer):
+def test_sync_names_assigns_default_to_new_shapes(
+    regions_widget_with_layer, two_polygons
+):
     """Test that _sync_names_on_shape_change assigns default name to new."""
     widget, layer = regions_widget_with_layer
     model = widget.region_table_model
     # Add a shape so layer has 2 shapes
-    layer.add(sample_shapes_data[:1])
+    layer.add(two_polygons[:1])
     # Reset _last_shape_count to simulate state before shape was added
     model._last_shape_count = 2
     # Call sync with assign_default_to_new=True
@@ -485,7 +490,7 @@ def test_model_updates_on_shape_removed(regions_widget_with_layer):
 
 
 def test_set_data_handler_updates_model_and_preserves_names(
-    regions_widget_with_layer,
+    regions_widget_with_layer, two_polygons
 ):
     """Test that _on_layer_set_data updates model and preserves names.
 
@@ -496,8 +501,8 @@ def test_set_data_handler_updates_model_and_preserves_names(
     model = widget.region_table_model
 
     # Add a third shape with a custom copied name directly to the layer
-    layer.add(sample_shapes_data[:1])
-    layer.properties = {"name": ["Region-A", "Region-B", "Region-B"]}
+    layer.add(two_polygons[:1])
+    layer.properties = {"name": ["Region-A", "Region-B", "Region-A"]}
 
     # Simulate the state before a "paste" by resetting the shape count tracker
     model._last_shape_count = 2
@@ -508,7 +513,7 @@ def test_set_data_handler_updates_model_and_preserves_names(
     # Verify model updated and all names preserved
     assert model.rowCount() == 3
     assert model._last_shape_count == 3
-    expected_names = ["Region-A", "Region-B", "Region-B"]
+    expected_names = ["Region-A", "Region-B", "Region-A"]
     assert list(layer.properties["name"]) == expected_names
 
 
@@ -520,13 +525,11 @@ def test_model_cleared_on_layer_deletion(regions_widget_with_layer):
 
 
 def test_model_ignores_other_layer_deletion(
-    regions_widget_with_layer, sample_shapes_data
+    regions_widget_with_layer, two_polygons
 ):
     """Test that model ignores deletion of unrelated layers."""
     widget, layer = regions_widget_with_layer
-    other_layer = widget.viewer.add_shapes(
-        sample_shapes_data[:1], name="Other layer"
-    )
+    other_layer = widget.viewer.add_shapes(two_polygons, name="Other layer")
     widget.viewer.layers.remove(other_layer)
 
     assert widget.region_table_model is not None
