@@ -136,7 +136,7 @@ def test_dropdown_connected_to_layer_selection_handler(
     viewer.add_shapes(name="Regions [1]")
     widget = RegionsWidget(viewer)
 
-	# Reset calls to mock since the widget initialisation triggers `_on_layer_selected` internally 
+	# Reset calls to mock since the widget initialisation triggers `_on_layer_selected` internally
 	# (when the dropdown is populated and a layer is auto-selected)
     mock_method.reset_mock()
     widget.layer_dropdown.setCurrentText("Regions [1]")
@@ -167,7 +167,7 @@ def test_layer_removed_triggers_dropdown_update(
     )
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes(name="Regions")
-    
+
     _ = RegionsWidget(viewer)  # _ to avoid it being gc (must stay alive to receive signal)
 
     mock_method.reset_mock()
@@ -395,7 +395,7 @@ def test_model_data_returns_none_for_stale_index(regions_widget_with_layer):
 
 def test_model_setData_updates_region_name(regions_widget_with_layer):
     """Test that setData updates the region name column.
-    
+
     The `name` column is column index = 0.
     """
     widget, layer = regions_widget_with_layer
@@ -408,7 +408,7 @@ def test_model_setData_updates_region_name(regions_widget_with_layer):
 
 def test_model_setData_rejects_shape_type_edit(regions_widget_with_layer):
     """Test that setData returns False for shape_type column.
-    
+
     The `shape_type` column is column index = 1 .
     """
     widget, _ = regions_widget_with_layer
