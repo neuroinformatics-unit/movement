@@ -307,7 +307,7 @@ class RegionsWidget(QWidget):
         # Apply a consistent style to all shapes in the layer
         layer_color = self.color_manager.get_color_for_layer(region_layer.name)
         region_style = RegionsStyle(color=layer_color)
-        region_style.color_all_shapes(region_layer)
+        region_style.set_color_all_shapes(region_layer)
 
         # Create new model and link it to the table view
         self.region_table_model = RegionsTableModel(region_layer, region_style)
@@ -648,7 +648,7 @@ class RegionsTableModel(QAbstractTableModel):
             self._sync_names_on_shape_change(n_shapes)
         else:
             # Shape edited (moved, resized) - just update styling
-            self.region_style.color_current_shape(self.layer)
+            self.region_style.set_style_for_new_shapes(self.layer)
 
     def _on_layer_set_data(self, event=None):
         """Handle set_data events from copy-paste operations.
@@ -696,7 +696,7 @@ class RegionsTableModel(QAbstractTableModel):
         self._last_shape_count = n_shapes
 
         # Reapply styling and update model
-        self.region_style.color_all_shapes(self.layer)
+        self.region_style.set_color_all_shapes(self.layer)
         self.beginResetModel()
         self.endResetModel()
 

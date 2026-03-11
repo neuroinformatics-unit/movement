@@ -228,17 +228,17 @@ class RegionsStyle(LayerStyle):
         color[-1] = 1.0
         return color
 
-    def color_current_shape(self, layer: Shapes) -> None:
-        """Color the current shape in a napari Shapes layer.
+    def set_style_for_new_shapes(self, layer: Shapes) -> None:
+        """Set the style that napari will apply to newly drawn shapes.
 
-        napari uses current_* for new shapes.
+        napari uses current_* properties to style shapes as they are drawn.
         """
         layer.current_face_color = self.face_color
         layer.current_edge_color = self.edge_and_text_color
         layer.current_edge_width = self.edge_width
 
-    def color_all_shapes(self, layer: Shapes) -> None:
-        """Color all shapes in a napari Shapes layer, including new ones."""
+    def set_color_all_shapes(self, layer: Shapes) -> None:
+        """Set colors on all existing shapes in a napari Shapes layer."""
         n_shapes = len(layer.data)
         if n_shapes > 0:
             layer.face_color = [self.face_color] * n_shapes
@@ -252,7 +252,7 @@ class RegionsStyle(LayerStyle):
             layer.text.color = self.edge_and_text_color
             layer.text.string = "{name}"
 
-        self.color_current_shape(layer)
+        self.set_style_for_new_shapes(layer)
 
 
 @dataclass

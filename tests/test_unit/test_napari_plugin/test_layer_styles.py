@@ -349,8 +349,10 @@ def test_regions_style_colors(color, expected_rgb):
 
 
 @pytest.mark.parametrize("n_shapes", [1, 3])
-def test_regions_style_color_all_shapes(make_napari_viewer_proxy, n_shapes):
-    """Test that color_all_shapes applies colors to all shapes in a layer."""
+def test_regions_style_set_color_all_shapes(
+    make_napari_viewer_proxy, n_shapes
+):
+    """Test that set_color_all_shapes applies colors to all shapes."""
     viewer = make_napari_viewer_proxy()
 
     # Create shapes data (rectangles)
@@ -368,7 +370,7 @@ def test_regions_style_color_all_shapes(make_napari_viewer_proxy, n_shapes):
 
     # Apply style
     regions_style = RegionsStyle(color="blue")
-    regions_style.color_all_shapes(layer)
+    regions_style.set_color_all_shapes(layer)
 
     # Check face and edge colors are applied to all shapes
     assert len(layer.face_color) == n_shapes
@@ -379,8 +381,10 @@ def test_regions_style_color_all_shapes(make_napari_viewer_proxy, n_shapes):
     assert "{name}" in str(layer.text)
 
 
-def test_regions_style_color_all_shapes_empty_layer(make_napari_viewer_proxy):
-    """Test that color_all_shapes handles empty layers gracefully."""
+def test_regions_style_set_color_all_shapes_empty_layer(
+    make_napari_viewer_proxy,
+):
+    """Test that set_color_all_shapes handles empty layers gracefully."""
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes()
     # Assert it's an empty layer
@@ -388,7 +392,7 @@ def test_regions_style_color_all_shapes_empty_layer(make_napari_viewer_proxy):
 
     # Should not raise an error
     regions_style = RegionsStyle(color="red")
-    regions_style.color_all_shapes(layer)
+    regions_style.set_color_all_shapes(layer)
 
 
 @pytest.mark.parametrize(
@@ -398,10 +402,10 @@ def test_regions_style_color_all_shapes_empty_layer(make_napari_viewer_proxy):
         pytest.param(set(), id="no_selection"),
     ],
 )
-def test_regions_style_color_current_shape(
+def test_regions_style_set_style_for_new_shapes(
     make_napari_viewer_proxy, selected_data
 ):
-    """Test that color_current_shape runs without error,
+    """Test that set_style_for_new_shapes runs without error,
     regardless of whether the layer is selected or not.
     """
     viewer = make_napari_viewer_proxy()
@@ -413,8 +417,7 @@ def test_regions_style_color_current_shape(
 
     regions_style = RegionsStyle(color="green")
     # Should not raise - exercises the method
-    regions_style.color_current_shape(layer)
-
+    regions_style.set_style_for_new_shapes(layer)
 
 
 def _expected_hash_index(name: str, n_colors: int = 10) -> int:
