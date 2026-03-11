@@ -35,6 +35,7 @@ from qtpy.QtWidgets import (
 from movement.napari.layer_styles import RegionsColorManager, RegionsStyle
 
 DEFAULT_REGION_NAME = "Un-named"
+DROPDOWN_PLACEHOLDER = "No region layers"
 
 
 class RegionsWidget(QWidget):
@@ -226,6 +227,7 @@ class RegionsWidget(QWidget):
 
         self.layer_dropdown.clear()
         if region_layer_names:
+            self.layer_dropdown.setStyleSheet("")
             self.layer_dropdown.addItems(region_layer_names)
             # Determine which layer to select
             if renamed_to_region:
@@ -238,7 +240,9 @@ class RegionsWidget(QWidget):
                 # Fall back to the first layer
                 self.layer_dropdown.setCurrentIndex(0)
         else:
-            self.layer_dropdown.addItem("Select a layer")
+            self.layer_dropdown.setStyleSheet("color: gray;")
+            self.layer_dropdown.addItem(DROPDOWN_PLACEHOLDER)
+            self.layer_dropdown.model().item(0).setEnabled(False)
 
     def _on_layer_selected(self, layer_name: str):
         """Handle layer selection from dropdown.
@@ -248,7 +252,7 @@ class RegionsWidget(QWidget):
         - When no layer is selected (placeholder text), clears the table model
           and the napari layer selection.
         """
-        if not layer_name or layer_name == "Select a layer":
+        if not layer_name or layer_name == DROPDOWN_PLACEHOLDER:
             self._clear_region_table_model()
             self.viewer.layers.selection.clear()
             self._update_table_tooltip()
@@ -382,7 +386,7 @@ class RegionsWidget(QWidget):
         """
         layer_name = self.layer_dropdown.currentText()
 
-        if not layer_name or layer_name == "Select a layer":
+        if not layer_name or layer_name == DROPDOWN_PLACEHOLDER:
             # No region layers exist
             self.region_table_view.setToolTip(
                 "No region layers found.\nClick 'Add new layer' to create one."

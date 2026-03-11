@@ -13,6 +13,7 @@ from qtpy.QtWidgets import (
 
 from movement.napari.regions_widget import (
     DEFAULT_REGION_NAME,
+    DROPDOWN_PLACEHOLDER,
     RegionsTableView,
     RegionsWidget,
 )
@@ -82,7 +83,8 @@ def test_widget_with_custom_colormap(make_napari_viewer_proxy):
 
 def test_dropdown_shows_placeholder_when_no_layers(regions_widget):
     """Test dropdown shows placeholder when no region layers exist."""
-    assert regions_widget.layer_dropdown.currentText() == "Select a layer"
+    assert regions_widget.layer_dropdown.currentText() == DROPDOWN_PLACEHOLDER
+    assert not regions_widget.layer_dropdown.model().item(0).isEnabled()
 
 
 def test_dropdown_populated_with_existing_region_layer(
@@ -240,7 +242,7 @@ def test_update_layer_dropdown_on_layer_removed(regions_widget_with_layer):
     assert widget.layer_dropdown.count() == 1
 
     widget.viewer.layers.remove(layer)
-    assert widget.layer_dropdown.currentText() == "Select a layer"
+    assert widget.layer_dropdown.currentText() == DROPDOWN_PLACEHOLDER
 
 
 def test_dropdown_ignores_non_region_layers(make_napari_viewer_proxy):
@@ -248,7 +250,7 @@ def test_dropdown_ignores_non_region_layers(make_napari_viewer_proxy):
     viewer = make_napari_viewer_proxy()
     viewer.add_shapes(name="Other shapes")
     widget = RegionsWidget(viewer)
-    assert widget.layer_dropdown.currentText() == "Select a layer"
+    assert widget.layer_dropdown.currentText() == DROPDOWN_PLACEHOLDER
     # the dropdown count should hold placeholder text only
     assert widget.layer_dropdown.count() == 1
 
@@ -299,7 +301,7 @@ def test_renaming_to_region_pattern_marks_as_region_layer(
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes(name="Other shapes")
     widget = RegionsWidget(viewer)
-    assert widget.layer_dropdown.currentText() == "Select a layer"
+    assert widget.layer_dropdown.currentText() == DROPDOWN_PLACEHOLDER
     assert "movement_region_layer" not in layer.metadata
 
     layer.name = "Region-Arena"
