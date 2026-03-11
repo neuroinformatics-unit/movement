@@ -396,16 +396,28 @@ def test_model_data_returns_correct_values(
     assert widget.region_table_model.data(index, role) == expected
 
 
-def test_model_data_returns_none_for_stale_index(regions_widget_with_layer):
-    """Test that data returns None when index row exceeds layer data."""
+@pytest.mark.parametrize(
+    "method, args, expected",
+    [
+        pytest.param("data", (Qt.DisplayRole,), None, id="data_returns_none"),
+        pytest.param(
+            "setData", ("Name", Qt.EditRole), False, id="setData_returns_false"
+        ),
+    ],
+)
+def test_table_model_with_stale_index(
+    regions_widget_with_layer, method, args, expected
+):
+    """Test table model methods return appropriate values for a stale index.
+
+    A stale index is one that was valid when created but whose row
+    exceeds the layer data after shapes are removed.
+    """
     widget, layer = regions_widget_with_layer
-    # Get valid index for row 1 (layer has 2 shapes)
     index = widget.region_table_model.index(1, 0)
-    # Remove all shapes, making the index stale
     layer.data = []
-    # Index is still structurally valid but
-    # display value is None because row >= len(layer.data)
-    assert widget.region_table_model.data(index, Qt.DisplayRole) is None
+    result = getattr(widget.region_table_model, method)(index, *args)
+    assert result == expected
 
 
 def test_model_setData_updates_region_name(regions_widget_with_layer):
@@ -431,14 +443,6 @@ def test_model_setData_rejects_shape_type_edit(regions_widget_with_layer):
     result = widget.region_table_model.setData(index, "rectangle", Qt.EditRole)
     assert result is False
 
-
-def test_model_setData_rejects_stale_index(regions_widget_with_layer):
-    """Test that setData returns False when index row exceeds layer data."""
-    widget, layer = regions_widget_with_layer
-    index = widget.region_table_model.index(1, 0)
-    layer.data = []
-    result = widget.region_table_model.setData(index, "Name", Qt.EditRole)
-    assert result is False
 
 
 @pytest.mark.parametrize(
@@ -621,23 +625,6 @@ def test_empty_shapes_layer(make_napari_viewer_proxy):
 
     assert widget.region_table_model.rowCount() == 0
 
-
-@pytest.mark.parametrize(
-    "method, args, expected",
-    [
-        ("data", (Qt.DisplayRole,), None),
-        ("setData", ("Name", Qt.EditRole), False),
-    ],
-    ids=["data_returns_none", "setData_returns_false"],
-)
-def test_model_with_invalid_row_index(
-    regions_widget_with_layer, method, args, expected
-):
-    """Test model methods return appropriate values for invalid index."""
-    widget, _ = regions_widget_with_layer
-    invalid_index = widget.region_table_model.index(99, 0)
-    result = getattr(widget.region_table_model, method)(invalid_index, *args)
-    assert result == expected
 
 
 def test_model_flags_invalid_index(regions_widget_with_layer):
