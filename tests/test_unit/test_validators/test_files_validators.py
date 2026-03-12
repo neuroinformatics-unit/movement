@@ -3,6 +3,7 @@ from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest.mock import MagicMock, Mock
 
+import numpy as np
 import pandas as pd
 import pytest
 from attrs import define, field
@@ -223,6 +224,111 @@ def test_deeplabcut_validators(
     file = request.getfixturevalue(file_fixture)
     with expected_context:
         validator_cls(file)
+
+
+def test_via_tracks_validator_parsed_values(tmp_path):
+    """Test that ValidVIATracksCSV correctly parses bbox geometry,
+    track IDs, frame numbers, and confidence from a valid file.
+    """
+    header = (
+        "filename,file_size,file_attributes,region_count,"
+        "region_id,region_shape_attributes,region_attributes\n"
+    )
+    row = (
+        "frame_001.png,"
+        "12345,"
+        '"{""frame"":42}",'
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":10,""y"":20,'
+        '""width"":30,""height"":40}",'
+        '"{""track"":""1"",""confidence"":0.9}"'
+    )
+    file_path = tmp_path / "test_via.csv"
+    file_path.write_text(header + row)
+
+    via = ValidVIATracksCSV(file_path)
+
+    assert via.ids == [1]
+    assert via.frame_numbers == [42]
+    assert via.x == [10.0]
+    assert via.y == [20.0]
+    assert via.w == [30.0]
+    assert via.h == [40.0]
+    assert via.confidence == [pytest.approx(0.9)]
+
+
+@pytest.mark.parametrize(
+    "region_attributes, expected_confidence",
+    [
+        ('"{""track"":""1""}"', np.nan),
+        ('"{""track"":""1"", ""confidence"":0.75}"', 0.75),
+    ],
+    ids=["no_confidence", "with_confidence"],
+)
+def test_via_tracks_validator_confidence(
+    region_attributes, expected_confidence, tmp_path
+):
+    """Test that ValidVIATracksCSV returns NaN for confidence when not
+    defined, and the actual value when defined.
+    """
+    header = (
+        "filename,file_size,file_attributes,region_count,"
+        "region_id,region_shape_attributes,region_attributes\n"
+    )
+    row = (
+        "frame_001.png,"
+        "12345,"
+        '"{""frame"":1}",'
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":10,""y"":20,'
+        '""width"":30,""height"":40}",'
+        f"{region_attributes}"
+    )
+    file_path = tmp_path / "test_via.csv"
+    file_path.write_text(header + row)
+
+    via = ValidVIATracksCSV(file_path)
+
+    if np.isnan(expected_confidence):
+        assert all(np.isnan(c) for c in via.confidence)
+    else:
+        assert via.confidence == [expected_confidence]
+
+
+@pytest.mark.parametrize(
+    "filename, file_attributes, expected_frame_number",
+    [
+        ("any_filename.png", '"{""frame"": 42}"', 42),
+        ("frame_0275.png", '"{""foo"": 123}"', 275),
+        ("0275.png", '"{""foo"": 123}"', 275),
+    ],
+)
+def test_via_tracks_validator_frame_number_extraction(
+    filename, file_attributes, expected_frame_number, tmp_path
+):
+    """Test frame number extraction from file_attributes and filename."""
+    header = (
+        "filename,file_size,file_attributes,region_count,"
+        "region_id,region_shape_attributes,region_attributes\n"
+    )
+    row = (
+        f"{filename},"
+        "12345,"
+        f"{file_attributes},"
+        "1,"
+        "0,"
+        '"{""name"":""rect"",""x"":10,""y"":20,'
+        '""width"":30,""height"":40}",'
+        '"{""track"":""1""}"'
+    )
+    file_path = tmp_path / "test_via.csv"
+    file_path.write_text(header + row)
+
+    via = ValidVIATracksCSV(file_path)
+
+    assert via.frame_numbers == [expected_frame_number]
 
 
 @pytest.mark.parametrize(
