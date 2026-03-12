@@ -547,6 +547,10 @@ class ValidVIATracksCSV:
     @file.validator
     def _validate_via_tracks_file(self, attribute, value):
         """Run all VIA tracks validations and cache parsed attributes."""
+        # Validate frame_regexp first since file
+        # validation depends on it
+        self._frame_regexp_valid(self.frame_regexp)
+
         # Read csv as a dataframe
         df = pd.read_csv(value)
 
@@ -566,6 +570,40 @@ class ValidVIATracksCSV:
         self.h = h
         self.ids = ids
         self.confidence = confidence_values
+
+    @frame_regexp.validator
+    def _validate_frame_regexp(self, attribute, value):
+        """Validate the frame_regexp attribute.
+
+        This also runs when the frame_regexp field is reassigned.
+        """
+        self._frame_regexp_valid(value)
+
+    def _frame_regexp_valid(self, value):
+        """Ensure the frame regexp pattern is valid.
+
+        Checks regexp pattern can be compiled and that it contains
+        exactly one capture group.
+        """
+        # Check if the regexp pattern can be compiled
+        try:
+            compiled_pattern = re.compile(value)
+        except re.error as e:
+            raise logger.error(
+                ValueError(
+                    "The provided regular expression for "
+                    "the frame numbers "
+                    f"({value}) could not be compiled. "
+                    "Please review its syntax."
+                )
+            ) from e
+
+        # Check it contains one capture group
+        if compiled_pattern.groups != 1:
+            raise ValueError(
+                "The regexp pattern must contain exactly one capture "
+                f"group for the frame number (got {value})."
+            )
 
     def _file_contains_valid_header(self, df: pd.DataFrame):
         """Ensure the VIA tracks .csv file contains the expected header."""
@@ -618,26 +656,6 @@ class ValidVIATracksCSV:
         # If there is any None in the list, try extracting
         # the frame number from the filename
         if frame_numbers.isna().any():
-            # Check if the regexp pattern can be compiled
-            try:
-                compiled_pattern = re.compile(self.frame_regexp)
-            except re.error as e:
-                raise logger.error(
-                    ValueError(
-                        "The provided regular expression for "
-                        "the frame numbers "
-                        f"({self.frame_regexp}) could not be compiled. "
-                        "Please review its syntax."
-                    )
-                ) from e
-
-            # Check if the regexp pattern is ill-defined
-            if compiled_pattern.groups != 1:
-                raise ValueError(
-                    "The regexp pattern must contain exactly one capture "
-                    f"group for the frame number (got {self.frame_regexp})."
-                )
-
             # Extract frame number from filename
             frame_numbers = df["filename"].str.extract(
                 self.frame_regexp,
