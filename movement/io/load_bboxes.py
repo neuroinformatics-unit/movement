@@ -439,7 +439,7 @@ def _numpy_arrays_from_valid_file_object(
 
 
 def _parsed_df_from_valid_file_object(
-    valid_via_file: ValidVIATracksCSV,
+    valid_file: ValidVIATracksCSV,
 ) -> pd.DataFrame:
     """Build a sorted DataFrame from a validated VIA file object.
 

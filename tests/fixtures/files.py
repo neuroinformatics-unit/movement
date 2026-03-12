@@ -312,12 +312,14 @@ def via_tracks_csv():
 
 @pytest.fixture
 def via_tracks_csv_factory(tmp_path, request):
-    """Return the file path for an invalid VIA tracks .csv file."""
+    """Return the file path for a VIA tracks .csv file with
+    content defined by the given fixture name.
+    """
 
-    def _via_tracks_csv_factory(invalid_content):
+    def _via_tracks_csv_factory(content):
         file_path = tmp_path / "test_via_tracks.csv"
         with open(file_path, "w") as f:
-            f.write(request.getfixturevalue(invalid_content))
+            f.write(request.getfixturevalue(content))
         return file_path
 
     return _via_tracks_csv_factory

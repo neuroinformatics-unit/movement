@@ -332,14 +332,12 @@ def test_from_via_tracks_file_invalid_frame_regexp(
     raises a ValueError.
     """
     input_file = pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv")
-    with pytest.raises(error_type) as excinfo:
+    with pytest.raises(error_type, match=log_message):
         load_bboxes.from_via_tracks_file(
             input_file,
             use_frame_numbers_from_file=True,
             frame_regexp=frame_regexp,
         )
-
-    assert str(excinfo.value) == log_message
 
 
 @pytest.mark.parametrize(

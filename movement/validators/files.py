@@ -545,7 +545,7 @@ class ValidVIATracksCSV:
     h: list[float] = field(init=False, factory=list)
     ids: list[int] = field(init=False, factory=list)
     frame_numbers: list[int] = field(init=False, factory=list)
-    confidence_values: list[float] = field(init=False, factory=list)
+    confidence: list[float] = field(init=False, factory=list)
 
     def __attrs_post_init__(self):
         """Clear the dataframe attribute after validation is complete."""
@@ -555,7 +555,7 @@ class ValidVIATracksCSV:
     def _file_contains_valid_header(self, attribute, value):
         """Ensure the VIA tracks .csv file contains the expected header."""
         # Read CSV once and store for later use
-        df = pd.read_csv(value, sep=",", header=0)
+        df = pd.read_csv(value) 
         expected_header = [
             "filename",
             "file_size",
