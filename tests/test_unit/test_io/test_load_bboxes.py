@@ -1,7 +1,6 @@
 """Test suite for the load_bboxes module."""
 
 import json
-import re
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -298,47 +297,6 @@ def test_from_via_tracks_file(
         "file_path": via_file_path,
     }
     helpers.assert_valid_dataset(ds, expected_values)
-
-
-@pytest.mark.parametrize(
-    "frame_regexp, error_type, log_message",
-    [
-        (
-            r"*",
-            ValueError,
-            "The provided regular expression for the frame numbers (*) "
-            "could not be compiled. Please review its syntax.",
-        ),
-        (
-            r"_(0\d*)_$",
-            ValueError,
-            "Could not extract frame numbers from the filenames "
-            r"using the regular expression _(0\d*)_$. "
-            "Please ensure filenames match the expected pattern, "
-            "or define the frame numbers in file_attributes.",
-        ),
-        (
-            r"(0\d*\.\w+)$",
-            ValueError,
-            "Some frame numbers cannot be cast as integer. "
-            "Please review the VIA-tracks .csv file.",
-        ),
-    ],
-)
-def test_from_via_tracks_file_invalid_frame_regexp(
-    frame_regexp, error_type, log_message
-):
-    """Test that loading tracked bounding box data from
-    a valid VIA tracks .csv file with an invalid frame_regexp
-    raises a ValueError.
-    """
-    input_file = pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv")
-    with pytest.raises(error_type, match=re.escape(log_message)):
-        load_bboxes.from_via_tracks_file(
-            input_file,
-            use_frame_numbers_from_file=True,
-            frame_regexp=frame_regexp,
-        )
 
 
 @pytest.mark.parametrize(

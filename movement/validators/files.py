@@ -575,7 +575,7 @@ class ValidVIATracksCSV:
     def _validate_frame_regexp(self, attribute, value):
         """Validate the frame_regexp attribute.
 
-        This also runs when the frame_regexp field is reassigned.
+        It also runs when the frame_regexp field is reassigned.
         """
         self._frame_regexp_valid(value)
 

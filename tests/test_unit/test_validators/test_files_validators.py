@@ -1,3 +1,4 @@
+import re
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest.mock import Mock
@@ -315,23 +316,33 @@ def test_via_tracks_csv_validator_with_invalid_input(
 
 
 @pytest.mark.parametrize(
-    "invalid_regexp",
+    "frame_regexp, log_message",
     [
-        r"\d+",  # no capture group
-        r"(\d+)\.(\w+)",  # two capture groups
+        (
+            r"\d+",
+            "The regexp pattern must contain exactly one capture "
+            r"group for the frame number (got \d+).",
+        ),  # no capture group
+        (
+            r"(\d+)\.(\w+)",
+            "The regexp pattern must contain exactly one capture "
+            r"group for the frame number (got (\d+)\.(\w+)).",
+        ),  # two capture groups
+        (
+            r"*",
+            "regular expression for the frame numbers (*) "
+            "could not be compiled.",
+        ),  # compilation error
     ],
 )
 def test_via_tracks_csv_validator_with_invalid_regexp(
-    via_tracks_csv, invalid_regexp
+    via_tracks_csv, frame_regexp, log_message
 ):
-    """Test regexp with wrong number of capture groups raises ValueError."""
-    with pytest.raises(ValueError) as excinfo:
-        ValidVIATracksCSV(via_tracks_csv, frame_regexp=invalid_regexp)
-
-    assert (
-        "The regexp pattern must contain exactly one capture group for the "
-        rf"frame number (got {invalid_regexp})."
-    ) in str(excinfo.value)
+    """Test that ValidVIATracksCSV with an invalid frame_regexp
+    raises a ValueError.
+    """
+    with pytest.raises(ValueError, match=re.escape(log_message)):
+        ValidVIATracksCSV(via_tracks_csv, frame_regexp=frame_regexp)
 
 
 def test_via_tracks_csv_validator_attributes(
