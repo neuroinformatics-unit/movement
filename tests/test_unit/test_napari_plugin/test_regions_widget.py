@@ -432,8 +432,9 @@ def test_table_model_with_stale_index(
     exceeds the layer data after shapes are removed.
     """
     widget, layer = regions_widget_with_layer
+    assert len(layer.data) == 2  # row 1 is valid before clearing
     index = widget.region_table_model.index(1, 0)
-    layer.data = []
+    layer.data = []  # makes index stale
     result = getattr(widget.region_table_model, method)(index, *args)
     assert result == expected
 
