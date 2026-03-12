@@ -782,21 +782,26 @@ def test_deletion_all_layers(make_napari_viewer_proxy):
         viewer.layers.clear()
 
 
-def test_add_empty_shapes_layer(make_napari_viewer_proxy):
-    """Test adding an empty shapes layer doesn't cause an error.
+@pytest.mark.parametrize(
+    "add_layer",
+    [
+        pytest.param(lambda v: v.add_shapes(), id="empty_shapes"),
+        pytest.param(lambda v: v.add_points(), id="empty_points"),
+    ],
+)
+def test_empty_layer_excluded_from_frame_slider_update(
+    make_napari_viewer_proxy, add_layer
+):
+    """Test that empty layers don't cause an error in frame slider update.
 
-    This is a regression test for the case where max_frame_idx is -1
-    because the shapes layer has no data. The _update_frame_slider_range
-    method should return early without error.
+    Empty Shapes and Points layers are excluded from the candidate layers
+    in _update_frame_slider_range, so max() is never called on an empty
+    sequence.
     """
     viewer = make_napari_viewer_proxy()
     loader = DataLoader(viewer)
+    add_layer(viewer)
 
-    # Add an empty shapes layer
-    viewer.add_shapes(name="Empty Shapes Layer")
-
-    # Explicitly call _update_frame_slider_range to ensure it handles
-    # the empty layer case (max_frame_idx = -1) without error
     with does_not_raise():
         loader._update_frame_slider_range()
 
