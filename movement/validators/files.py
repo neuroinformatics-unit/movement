@@ -518,7 +518,7 @@ class ValidVIATracksCSV:
         List of track IDs of the tracked bounding boxes.
     frame_numbers : list of int
         List of frame numbers of the tracked bounding boxes.
-    confidence_values : list of float
+    confidence : list of float
         List of confidence values of the tracked bounding boxes.
 
     Raises
@@ -555,7 +555,7 @@ class ValidVIATracksCSV:
     def _file_contains_valid_header(self, attribute, value):
         """Ensure the VIA tracks .csv file contains the expected header."""
         # Read CSV once and store for later use
-        df = pd.read_csv(value) 
+        df = pd.read_csv(value)
         expected_header = [
             "filename",
             "file_size",
@@ -771,7 +771,7 @@ class ValidVIATracksCSV:
         self.w = w
         self.h = h
         self.ids = ids  # already an integer
-        self.confidence_values = confidence_values  # nan if not defined
+        self.confidence = confidence_values  # nan if not defined
 
     @file.validator
     def _file_contains_unique_track_ids_per_filename(self, attribute, value):

@@ -1,6 +1,7 @@
 """Test suite for the load_bboxes module."""
 
 import json
+import re
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -332,7 +333,7 @@ def test_from_via_tracks_file_invalid_frame_regexp(
     raises a ValueError.
     """
     input_file = pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv")
-    with pytest.raises(error_type, match=log_message):
+    with pytest.raises(error_type, match=re.escape(log_message)):
         load_bboxes.from_via_tracks_file(
             input_file,
             use_frame_numbers_from_file=True,
@@ -599,7 +600,7 @@ def test_parsed_df_from_valid_file_object_fill(input_data, expected_df):
     mock_via_file.y = input_data["y"]
     mock_via_file.w = input_data["w"]
     mock_via_file.h = input_data["h"]
-    mock_via_file.confidence_values = input_data["confidence_values"]
+    mock_via_file.confidence = input_data["confidence_values"]
 
     # Compute parsed dataframe
     df = load_bboxes._parsed_df_from_valid_file_object(mock_via_file)

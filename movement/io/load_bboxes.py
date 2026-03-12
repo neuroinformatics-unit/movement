@@ -451,7 +451,7 @@ def _parsed_df_from_valid_file_object(
 
     Parameters
     ----------
-    valid_via_file : ValidVIATracksCSV
+    valid_file : ValidVIATracksCSV
         A validated VIA tracks file object.
 
     Returns
@@ -463,15 +463,13 @@ def _parsed_df_from_valid_file_object(
     # Build dataframe from file validator object data, then sort and reindex
     df = pd.DataFrame(
         {
-            "ID": valid_via_file.ids,
-            "frame_number": valid_via_file.frame_numbers,
-            "x": np.array(valid_via_file.x, dtype=np.float32),
-            "y": np.array(valid_via_file.y, dtype=np.float32),
-            "w": np.array(valid_via_file.w, dtype=np.float32),
-            "h": np.array(valid_via_file.h, dtype=np.float32),
-            "confidence": np.array(
-                valid_via_file.confidence_values, dtype=np.float32
-            ),
+            "ID": valid_file.ids,
+            "frame_number": valid_file.frame_numbers,
+            "x": np.array(valid_file.x, dtype=np.float32),
+            "y": np.array(valid_file.y, dtype=np.float32),
+            "w": np.array(valid_file.w, dtype=np.float32),
+            "h": np.array(valid_file.h, dtype=np.float32),
+            "confidence": np.array(valid_file.confidence, dtype=np.float32),
         }
     )
 

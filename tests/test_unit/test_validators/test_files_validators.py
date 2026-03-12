@@ -355,7 +355,7 @@ def test_via_tracks_csv_validator_attributes(
     assert isinstance(validator.h, list)
     assert isinstance(validator.ids, list)
     assert isinstance(validator.frame_numbers, list)
-    assert isinstance(validator.confidence_values, list)
+    assert isinstance(validator.confidence, list)
 
 
 @pytest.mark.parametrize(
