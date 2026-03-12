@@ -100,13 +100,15 @@ def test_dropdown_populated_with_existing_region_layer(
 def test_auto_assign_names_pads_missing_name_property(
     make_napari_viewer_proxy, two_polygons
 ):
-    """Test that missing name property gets created and filled."""
+    """Test that missing region name property gets created and filled."""
     viewer = make_napari_viewer_proxy()
-    # Create layer with shapes but no "name" property
+    # Create layer with shapes but no "name" assigned to each shape
+    # (Note that "Regions" is the name of the layer)
     layer = viewer.add_shapes(two_polygons, name="Regions")
-    # Creating widget triggers _auto_assign_region_names which pads names
+    # Creating widget triggers _auto_assign_region_names which pads
+    # the list of region names to match the number of shapes in the layer
     RegionsWidget(viewer)
-    # Names should be created and filled to match shape count
+    # Region names should be created and filled to match shape count
     assert len(layer.properties["name"]) == 2
     assert all(
         name == DEFAULT_REGION_NAME for name in layer.properties["name"]
