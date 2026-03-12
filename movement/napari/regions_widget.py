@@ -459,38 +459,69 @@ class RegionsTableView(QTableView):
         )
         self.current_model: RegionsTableModel | None = None
 
+        # Guard flag to prevent circular updates between the two sync
+        # handlers: row selection → napari shape selection → row selection...
+        self._syncing_selection = False
+
     def setModel(self, model):
         """Set the table model and connect selection signals.
 
         Overrides QTableView.setModel to additionally connect the
         selection changed signal for syncing with napari layer selection.
         """
+        # Disconnect the highlight event from the previous layer.
+        # _disconnect_table_model_signals only handles model-managed events
+        # (data, set_data). The highlight connection is view-managed (made in
+        # setModel), so the view must clean it up here.
+        prev_layer = getattr(self.current_model, "layer", None)
+        if self.current_model is not None and prev_layer is not None:
+            prev_layer.events.highlight.disconnect(
+                self._on_shape_selection_changed
+            )
+
         super().setModel(model)
         self.current_model = model
 
         if model is not None:
             self.selectionModel().selectionChanged.connect(
-                self._on_selection_changed
+                self._on_row_selection_changed
             )
+            if model.layer is not None:
+                model.layer.events.highlight.connect(
+                    self._on_shape_selection_changed
+                )
 
-    def _on_selection_changed(self, selected, deselected):
-        """Sync table row selection to napari shape selection.
-
-        When user clicks a row in the table, selects the corresponding
-        shape in the napari Shapes layer.
-        """
+    def _on_row_selection_changed(self, selected, deselected):
+        """Sync row selection in the table to shape selection in napari."""
+        if self._syncing_selection:
+            return
         if self.current_model is None or self.current_model.layer is None:
             return
 
-        # Get the selected row index
         indexes = selected.indexes()
         if not indexes:
             return
 
-        # Select the corresponding shape in napari
         row = indexes[0].row()
         if row < len(self.current_model.layer.data):
+            self._syncing_selection = True
             self.current_model.layer.selected_data = {row}
+            self._syncing_selection = False
+
+    def _on_shape_selection_changed(self, event=None):
+        """Sync shape selection in napari to row highlight in the table."""
+        if self._syncing_selection:
+            return
+        if self.current_model is None or self.current_model.layer is None:
+            return
+
+        selected = self.current_model.layer.selected_data
+        self._syncing_selection = True
+        if len(selected) == 1:
+            self.selectRow(next(iter(selected)))
+        else:
+            self.clearSelection()
+        self._syncing_selection = False
 
 
 class RegionsTableModel(QAbstractTableModel):

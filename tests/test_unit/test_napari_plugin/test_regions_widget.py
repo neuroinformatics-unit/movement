@@ -600,11 +600,28 @@ def test_on_layer_deleted_cleans_up_table_model(
 
 
 # ------------------- Tests for RegionsTableView -----------------------------#
-def test_table_selection_syncs_to_layer(regions_widget_with_layer):
+def test_table_row_selection_syncs_to_shape(regions_widget_with_layer):
     """Test that selecting a row in table selects shape in layer."""
     widget, layer = regions_widget_with_layer
     widget.region_table_view.selectRow(0)
     assert layer.selected_data == {0}
+
+
+def test_shape_selection_syncs_to_table_row(regions_widget_with_layer):
+    """Test that selecting a shape in napari highlights the table row.
+    This is the inverse of the previous test, ensuring a bidirectional sync.
+    """
+    widget, layer = regions_widget_with_layer
+    layer.selected_data = {1}
+    assert widget.region_table_view.currentIndex().row() == 1
+
+
+def test_shape_deselection_clears_table_selection(regions_widget_with_layer):
+    """Test that deselecting shapes in napari clears the table selection."""
+    widget, layer = regions_widget_with_layer
+    layer.selected_data = {0}
+    layer.selected_data = set()
+    assert not widget.region_table_view.selectionModel().hasSelection()
 
 
 def test_table_allows_name_editing(regions_widget_with_layer):
@@ -662,12 +679,25 @@ def test_table_model_flags_invalid_index(regions_widget_with_layer):
     assert flags == Qt.NoItemFlags
 
 
-def test_table_view_selection_with_no_model(regions_widget):
-    """Test _on_selection_changed does not raise
-    when no table model is linked.
-    """
+@pytest.mark.parametrize(
+    "call_handler",
+    [
+        pytest.param(
+            lambda v: v._on_row_selection_changed(None, None),
+            id="row_selection",
+        ),
+        pytest.param(
+            lambda v: v._on_shape_selection_changed(),
+            id="shape_selection",
+        ),
+    ],
+)
+def test_table_view_selection_handlers_return_early_with_no_model(
+    regions_widget, call_handler
+):
+    """Test selection handlers do not raise when no table model is linked."""
     with does_not_raise():
-        regions_widget.region_table_view._on_selection_changed(None, None)
+        call_handler(regions_widget.region_table_view)
 
 
 def test_table_view_selection_with_empty_indexes(regions_widget_with_layer):
@@ -675,7 +705,7 @@ def test_table_view_selection_with_empty_indexes(regions_widget_with_layer):
     widget, _ = regions_widget_with_layer
     empty_selection = QItemSelection()
     with does_not_raise():
-        widget.region_table_view._on_selection_changed(empty_selection, None)
+        widget.region_table_view._on_row_selection_changed(empty_selection, None)
 
 
 @pytest.mark.parametrize(
