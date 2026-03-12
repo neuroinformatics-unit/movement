@@ -379,22 +379,39 @@ def test_table_model_header_labels(regions_widget_with_layer):
 
 
 @pytest.mark.parametrize(
-    "row, column, role, expected",
+    "column_index",
     [
-        (0, 0, Qt.DisplayRole, DEFAULT_REGION_NAME),
-        (0, 1, Qt.DisplayRole, "polygon"),
-        (0, 0, Qt.EditRole, DEFAULT_REGION_NAME),
-        (0, 1, Qt.EditRole, None),  # EditRole only supported for col 0
+        pytest.param(0, id="name_column"),
+        pytest.param(1, id="shape_type_column"),
     ],
-    ids=["display_name", "display_shape", "edit_name", "edit_shape_col"],
+)
+@pytest.mark.parametrize(
+    "role",
+    [
+        pytest.param(Qt.DisplayRole, id="display_role"),
+        pytest.param(Qt.EditRole, id="edit_role"),
+    ],
 )
 def test_table_model_data_returns_correct_values(
-    regions_widget_with_layer, row, column, role, expected
+    regions_widget_with_layer, column_index, role
 ):
-    """Test that tablemodel returns correct data for each column and role."""
+    """Test that table model returns correct data for each column and role.
+
+    The role captures the reason why Qt calls the .data() method of the
+    model. Qt.DisplayRole means Qt wants the data for display.
+    Qt.EditRole means Qt wants the data to pre-fill an editor.
+    """
+    expected = {
+        0: {
+            Qt.DisplayRole: DEFAULT_REGION_NAME,
+            Qt.EditRole: DEFAULT_REGION_NAME,
+        },
+        1: {Qt.DisplayRole: "polygon", Qt.EditRole: None},
+    }
     widget, _ = regions_widget_with_layer
-    index = widget.region_table_model.index(row, column)
-    assert widget.region_table_model.data(index, role) == expected
+    index = widget.region_table_model.index(0, column_index)
+    result = widget.region_table_model.data(index, role)
+    assert result == expected[column_index][role]
 
 
 @pytest.mark.parametrize(
