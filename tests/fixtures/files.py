@@ -326,21 +326,6 @@ def via_tracks_csv_factory(tmp_path, request):
 
 
 @pytest.fixture
-def via_valid():
-    """Return the content of a VIA tracks .csv file with valid data."""
-    return (
-        via_tracks_csv_file_valid_header
-        + "04.09.2023-04-Right_RE_test_frame_01.png,"
-        "26542080,"
-        '"{""clip"":123}",'
-        "1,"
-        "0,"
-        '"{""name"":""rect"",""x"":526.236,""y"":393.281,""width"":46,""height"":38}",'
-        '"{""track"":""71""}"'
-    )
-
-
-@pytest.fixture
 def via_invalid_header():
     """Return the content of a VIA tracks .csv file with invalid header."""
     return "filename,file_size,file_attributes\n1,2,3"

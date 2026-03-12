@@ -322,12 +322,11 @@ def test_via_tracks_csv_validator_with_invalid_input(
     ],
 )
 def test_via_tracks_csv_validator_with_invalid_regexp(
-    via_tracks_csv_factory, invalid_regexp
+    via_tracks_csv, invalid_regexp
 ):
     """Test regexp with wrong number of capture groups raises ValueError."""
-    file_path = via_tracks_csv_factory("via_valid")
     with pytest.raises(ValueError) as excinfo:
-        ValidVIATracksCSV(file_path, frame_regexp=invalid_regexp)
+        ValidVIATracksCSV(via_tracks_csv, frame_regexp=invalid_regexp)
 
     assert (
         "The regexp pattern must contain exactly one capture group for the "
@@ -336,15 +335,14 @@ def test_via_tracks_csv_validator_with_invalid_regexp(
 
 
 def test_via_tracks_csv_validator_attributes(
-    via_tracks_csv_factory,
+    via_tracks_csv,
 ):
     """Test that the attributes are as expected after validation.
 
     The dataframe attribute should be cleared after validation.
     The pre-parsed data should be defined.
     """
-    file_path = via_tracks_csv_factory("via_valid")
-    validator = ValidVIATracksCSV(file_path)
+    validator = ValidVIATracksCSV(via_tracks_csv)
 
     # Check that the pre-parsed data is defined
     assert isinstance(validator.x, list)
