@@ -340,6 +340,9 @@ def from_via_tracks_file(
     ... )
 
     """
+    # Note: the @register_loader decorator has already validated
+    # `file` as a ValidVIATracksCSV, and forwarded `frame_regexp`
+    # to it via _get_validator_kwargs.
     valid_file = cast("ValidVIATracksCSV", file)
 
     # Create an xarray.Dataset from the data
