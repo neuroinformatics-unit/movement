@@ -320,7 +320,7 @@ def test_from_via_tracks_file(
         (
             r"(0\d*\.\w+)$",
             ValueError,
-            "Extracted frame number '00000.jpg' cannot be cast as integer. "
+            "Some frame numbers cannot be cast as integer. "
             "Please review the VIA-tracks .csv file.",
         ),
     ],
