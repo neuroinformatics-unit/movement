@@ -470,30 +470,19 @@ def _df_from_valid_via_object(
         }
     )
 
-    # If every ID is defined for every frame:
-    # just sort and reindex (does not add rows)
-    if len(df) == df["ID"].nunique() * df["frame_number"].nunique():
-        df = df.sort_values(
-            by=["ID", "frame_number"],
-            axis=0,
-        ).reset_index(drop=True)
+    # Desired index: all combinations of ID and frame number
+    multi_index = pd.MultiIndex.from_product(
+        [df["ID"].unique().tolist(), df["frame_number"].unique().tolist()],
+        # these unique lists may not be sorted!
+        names=["ID", "frame_number"],
+    )
 
-    # If some combinations of ID and frame number are missing:
-    # fill with nan
-    else:
-        # Desired index: all combinations of ID and frame number
-        multi_index = pd.MultiIndex.from_product(
-            [df["ID"].unique().tolist(), df["frame_number"].unique().tolist()],
-            # these unique lists may not be sorted!
-            names=["ID", "frame_number"],
-        )
-
-        # Set index to (ID, frame number), fill in values with nans,
-        # sort by ID and frame_number, and reset to new index
-        df = (
-            df.set_index(["ID", "frame_number"])
-            .reindex(multi_index)  # fills missing rows with nan
-            .sort_values(by=["ID", "frame_number"], axis=0)
-            .reset_index()
-        )
+    # Set index to (ID, frame number), fill in values with nans,
+    # sort by ID and frame_number, and reset to new index
+    df = (
+        df.set_index(["ID", "frame_number"])
+        .reindex(multi_index)  # fills missing rows with nan
+        .sort_values(by=["ID", "frame_number"], axis=0)
+        .reset_index()
+    )
     return df
