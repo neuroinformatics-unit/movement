@@ -648,38 +648,26 @@ def test_position_array_from_valid_via_object(via_file_path):
     # Compute centroid positions from the dataframe
     # (go through in the same order as ID array)
     id_order = [identifier.item() for identifier in bboxes_arrays["ID_array"]]
-    centroids_df = df.assign(
+    df = df.assign(
         x_centroid=df["x"] + df["w"] / 2,
         y_centroid=df["y"] + df["h"] / 2,
     )
-    x_centroids = centroids_df.pivot(
-        index="frame_number",
-        columns="ID",
-        values="x_centroid",
-    )[id_order].to_numpy()
-    y_centroids = centroids_df.pivot(
-        index="frame_number",
-        columns="ID",
-        values="y_centroid",
-    )[id_order].to_numpy()
-    derived_centroids = np.stack([x_centroids, y_centroids], axis=1)
+    derived_centroids = np.stack(
+        [
+            df.pivot(index="frame_number", columns="ID", values=col)[
+                id_order
+            ].to_numpy()
+            for col in ["x_centroid", "y_centroid"]
+        ],
+        # list of arrays of size (n_frames, n_individuals) -
+        # one per spatial coordinate
+        axis=1,
+    )
 
     # Compare to extracted position array
     assert np.allclose(
         bboxes_arrays["position_array"],  # frames, xy, individuals
         derived_centroids,
-    )
-    for id in bboxes_arrays["ID_array"]:
-        df_one_id = df[df["ID"] == id.item()]
-        centroid_position = np.array(
-            [df_one_id.x + df_one_id.w / 2, df_one_id.y + df_one_id.h / 2]
-        ).T  # frames, xy
-        list_derived_centroids.append(centroid_position)
-
-    # Compare to extracted position array
-    assert np.allclose(
-        bboxes_arrays["position_array"],  # frames, xy, individuals
-        np.stack(list_derived_centroids, axis=-1),
     )
 
 
@@ -687,11 +675,10 @@ def test_position_array_from_valid_via_object(via_file_path):
 @pytest.mark.parametrize(
     "via_file_path",
     [
-        # pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-        # # multiple individuals present in all 5 frames
-        # pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
-        # # single individual present in 35 non-consecutive frames
-        "/Users/sofia/arc/project_Zoo_crabs/loops_tracking_above_10th_percentile_slurm_1825237_SAMPLE/04.09.2023-05-Right-Loop04_tracks.csv",
+        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        # multiple individuals present in all 5 frames
+        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+        # single individual present in 35 non-consecutive frames
     ],
 )
 def test_benchmark_from_via_tracks_file(via_file_path, benchmark):
@@ -703,11 +690,10 @@ def test_benchmark_from_via_tracks_file(via_file_path, benchmark):
 @pytest.mark.parametrize(
     "via_file_path",
     [
-        # pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-        # # multiple individuals present in all 5 frames
-        # pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
-        # # single individual present in 35 non-consecutive frames
-        "/Users/sofia/arc/project_Zoo_crabs/loops_tracking_above_10th_percentile_slurm_1825237_SAMPLE/04.09.2023-05-Right-Loop04_tracks.csv",
+        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        # multiple individuals present in all 5 frames
+        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+        # single individual present in 35 non-consecutive frames
     ],
 )
 def test_benchmark_df_from_valid_via_object(via_file_path, benchmark):
