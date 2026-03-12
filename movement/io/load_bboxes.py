@@ -448,7 +448,7 @@ def _df_from_valid_via_object(
 
     Parameters
     ----------
-    valid_file : ValidVIATracksCSV
+    valid_file
         A validated VIA tracks file object.
 
     Returns
