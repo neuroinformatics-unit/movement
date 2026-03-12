@@ -1,12 +1,14 @@
 import re
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
-from unittest.mock import Mock
+from unittest.mock import MagicMock, Mock
 
+import pandas as pd
 import pytest
 from attrs import define, field
 
 from movement.validators.files import (
+    DEFAULT_FRAME_REGEXP,
     ValidAniposeCSV,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
@@ -223,22 +225,6 @@ def test_deeplabcut_validators(
         validator_cls(file)
 
 
-def test_validate_via_tracks_file(
-    via_tracks_csv,
-):
-    """Test that the pre-parsed data is defined after validation."""
-    validator = ValidVIATracksCSV(via_tracks_csv)
-
-    # Check that the pre-parsed data is defined
-    assert isinstance(validator.x, list)
-    assert isinstance(validator.y, list)
-    assert isinstance(validator.w, list)
-    assert isinstance(validator.h, list)
-    assert isinstance(validator.ids, list)
-    assert isinstance(validator.frame_numbers, list)
-    assert isinstance(validator.confidence, list)
-
-
 @pytest.mark.parametrize(
     "frame_regexp, log_message",
     [
@@ -259,101 +245,113 @@ def test_validate_via_tracks_file(
         ),  # compilation error
     ],
 )
-def test_validate_via_tracks_file_invalid_regexp(
-    via_tracks_csv, frame_regexp, log_message
-):
-    """Test that ValidVIATracksCSV with an invalid frame_regexp
-    raises a ValueError.
-    """
+def test_via_tracks_validator_invalid_frame_regexp(frame_regexp, log_message):
+    """Test _frame_regexp_valid rejects invalid patterns."""
     with pytest.raises(ValueError, match=re.escape(log_message)):
-        ValidVIATracksCSV(via_tracks_csv, frame_regexp=frame_regexp)
+        ValidVIATracksCSV._frame_regexp_valid(None, frame_regexp)
+
+
+def test_via_tracks_validator_invalid_header(via_tracks_csv_factory):
+    """Test _file_contains_valid_header rejects a wrong header."""
+    invalid_df = pd.read_csv(via_tracks_csv_factory("via_invalid_header"))
+    with pytest.raises(
+        ValueError, match=re.escape(".csv header row does not match")
+    ):
+        ValidVIATracksCSV._file_contains_valid_header(None, invalid_df)
 
 
 @pytest.mark.parametrize(
-    "invalid_input, error_type, log_message",
+    "invalid_input, log_message",
     [
         (
-            "via_invalid_header",
-            ValueError,
-            ".csv header row does not match",
-        ),
-        (
             "via_frame_number_in_file_attribute_not_integer",
-            ValueError,
             "Some frame numbers cannot be cast as integer. ",
         ),
         (
             "via_frame_number_in_filename_wrong_pattern",
-            ValueError,
-            "Could not extract frame numbers from the filenames using "
-            r"the regular expression (0\d*)\.\w+$.",
+            "Could not extract frame numbers from the filenames "
+            r"using the regular expression (0\d*)\.\w+$.",
         ),
         (
             "via_more_frame_numbers_than_filenames",
-            ValueError,
             "number of unique frame numbers does not match",
         ),
         (
             "via_less_frame_numbers_than_filenames",
-            ValueError,
             "number of unique frame numbers does not match",
         ),
+    ],
+)
+def test_via_tracks_validator_invalid_frame_numbers(
+    via_tracks_csv_factory, invalid_input, log_message
+):
+    """Test _file_contains_valid_frame_numbers rejects bad frames."""
+    invalid_df = pd.read_csv(via_tracks_csv_factory(invalid_input))
+
+    # mock "self" with default frame regexp attribute
+    mock_self = MagicMock()
+    mock_self.frame_regexp = DEFAULT_FRAME_REGEXP
+    with pytest.raises(ValueError, match=re.escape(log_message)):
+        ValidVIATracksCSV._file_contains_valid_frame_numbers(
+            mock_self, invalid_df
+        )
+
+
+@pytest.mark.parametrize(
+    "invalid_input, log_message",
+    [
         (
             "via_region_shape_attribute_not_rect",
-            ValueError,
-            "The bounding box in row 1 shape was expected to be 'rect' "
-            "(rectangular) but instead got circle.",
+            "The bounding box in row 1 shape was expected to be "
+            "'rect' (rectangular) but instead got circle.",
         ),
         (
             "via_region_shape_attribute_missing_x",
-            ValueError,
             "The bounding box in row 1 is missing "
             "a geometric parameter (x, y, width, height). ",
         ),
         (
             "via_region_attribute_missing_track",
-            ValueError,
             "The bounding box in row 1 is missing a track ID. ",
         ),
         (
             "via_track_id_not_castable_as_int",
-            ValueError,
             "The track ID of the bounding box in row 1 cannot be "
             "cast as an integer (got track ID 'FOO').",
         ),
-        (
-            "via_track_ids_not_unique_per_frame",
-            ValueError,
-            "Duplicate track IDs found in the following files: "
-            "['04.09.2023-04-Right_RE_test_frame_01.png']. ",
-        ),
     ],
 )
-def test_validate_via_tracks_file_invalid_input(
-    via_tracks_csv_factory, invalid_input, error_type, log_message
+def test_via_tracks_validator_invalid_tracked_bboxes(
+    via_tracks_csv_factory, invalid_input, log_message
 ):
-    """Test ValidVIATracksCSV with valid and invalid inputs.
+    """Test _file_contains_tracked_bboxes rejects bad bbox data."""
+    invalid_df = pd.read_csv(via_tracks_csv_factory(invalid_input))
+    with pytest.raises(ValueError, match=re.escape(log_message)):
+        ValidVIATracksCSV._file_contains_tracked_bboxes(None, invalid_df)
 
-    Errors to check
-    - file errors
-        - .csv header is wrong
-        - frame number is not defined in the file
-          (frame number extracted either from the filename or from attributes)
-        - extracted frame numbers cannot be cast as integers
-        - region_shape_attributes "name" is not "rect"
-        - not all region_attributes have key "track"
-          (i.e., all regions must have an ID assigned)
-        - IDs are unique per frame
-          (i.e., bboxes IDs must exist only once per frame)
-        - bboxes IDs cannot be cast as integers
-    - invalid frame_regexp
-        - regexp cannot be compiled
-        - regexp does not return any matches
-        - extracted frame numbers cannot be cast as integers
+
+def test_via_tracks_validator_duplicate_track_ids_per_frame(
+    via_tracks_csv_factory,
+):
+    """Test _file_contains_unique_track_ids_per_filename rejects
+    duplicate IDs within a frame.
     """
-    file_path = via_tracks_csv_factory(invalid_input)
-    with pytest.raises(error_type, match=re.escape(log_message)):
-        ValidVIATracksCSV(file_path)
+    invalid_df = pd.read_csv(
+        via_tracks_csv_factory("via_track_ids_not_unique_per_frame")
+    )
+    _, _, _, _, ids, _ = ValidVIATracksCSV._file_contains_tracked_bboxes(
+        None, invalid_df
+    )
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Duplicate track IDs found in the following files: "
+            "['04.09.2023-04-Right_RE_test_frame_01.png']. "
+        ),
+    ):
+        ValidVIATracksCSV._file_contains_unique_track_ids_per_filename(
+            None, invalid_df, ids
+        )
 
 
 @pytest.mark.parametrize(
