@@ -343,7 +343,7 @@ def from_via_tracks_file(
     valid_file = cast("ValidVIATracksCSV", file)
 
     # Create an xarray.Dataset from the data
-    bboxes_arrays = _numpy_arrays_from_valid_file_object(valid_file)
+    bboxes_arrays = _numpy_arrays_from_valid_via_object(valid_file)
     ds = from_numpy(
         position_array=bboxes_arrays["position_array"],
         shape_array=bboxes_arrays["shape_array"],
@@ -368,7 +368,7 @@ def from_via_tracks_file(
     return ds
 
 
-def _numpy_arrays_from_valid_file_object(
+def _numpy_arrays_from_valid_via_object(
     valid_via_file: ValidVIATracksCSV,
 ) -> dict:
     """Extract numpy arrays from VIA tracks file object.
@@ -402,7 +402,7 @@ def _numpy_arrays_from_valid_file_object(
     # Extract 2D dataframe from input data
     # (sort data by ID and frame number, and
     # fill empty frame-ID pairs with nans)
-    df = _parsed_df_from_valid_file_object(valid_via_file)
+    df = _df_from_valid_via_object(valid_via_file)
 
     # Extract numpy arrays
     n_individuals = df["ID"].nunique()
@@ -436,19 +436,8 @@ def _numpy_arrays_from_valid_file_object(
         "frame_array": df["frame_number"].unique().reshape(-1, 1),
     }
 
-    # Transform position_array to represent centroid of bbox,
-    # rather than top-left corner
-    # (top left corner: corner of the bbox with minimum x and y coordinates)
-    array_dict["position_array"] += array_dict["shape_array"] / 2
 
-    # Add remaining arrays to dict
-    array_dict["ID_array"] = df["ID"].unique().reshape(-1, 1)
-    array_dict["frame_array"] = df["frame_number"].unique().reshape(-1, 1)
-
-    return array_dict
-
-
-def _parsed_df_from_valid_file_object(
+def _df_from_valid_via_object(
     valid_file: ValidVIATracksCSV,
 ) -> pd.DataFrame:
     """Build a sorted DataFrame from a validated VIA file object.
