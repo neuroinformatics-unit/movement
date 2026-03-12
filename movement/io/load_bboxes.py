@@ -409,24 +409,32 @@ def _numpy_arrays_from_valid_file_object(
     n_frames = df["frame_number"].nunique()
     # copy = True to return a writable numpy array if
     # copy-on-write is enabled (default for pandas >= 3.0)
-    all_data = df[["x", "y", "w", "h", "confidence"]].to_numpy(copy=True)
+    all_data = (
+        df[["x", "y", "w", "h", "confidence"]]
+        .to_numpy(copy=True)
+        .reshape(n_individuals, n_frames, 5)
+        .transpose(1, 2, 0)
+    )
+    # split along the 2nd axis into x, y | w, h | confidence
+    position_array, shape_array, confidence_array = np.split(
+        all_data,
+        [2, 4],
+        axis=1,
+    )
+    confidence_array = confidence_array.squeeze(axis=1)
 
-    array_dict: dict[str, np.ndarray] = {}
-    array_dict["position_array"] = (
-        all_data[:, 0:2]  # x,y
-        .reshape(n_individuals, n_frames, 2)
-        .transpose(1, 2, 0)
-    )
-    array_dict["shape_array"] = (
-        all_data[:, 2:4]  # w,h
-        .reshape(n_individuals, n_frames, 2)
-        .transpose(1, 2, 0)
-    )
-    array_dict["confidence_array"] = (
-        all_data[:, 4]  # confidence
-        .reshape(n_individuals, n_frames)
-        .transpose()
-    )
+    # Transform position_array to represent centroid of bbox,
+    # rather than top-left corner
+    # (top left corner: corner of the bbox with minimum x and y coordinates)
+    position_array += shape_array / 2
+
+    return {
+        "position_array": position_array,
+        "shape_array": shape_array,
+        "confidence_array": confidence_array,
+        "ID_array": df["ID"].unique().reshape(-1, 1),
+        "frame_array": df["frame_number"].unique().reshape(-1, 1),
+    }
 
     # Transform position_array to represent centroid of bbox,
     # rather than top-left corner
