@@ -19,6 +19,8 @@ See the `Qt Model/View framework
 for more background.
 """
 
+import re
+
 from napari.layers import Shapes
 from napari.viewer import Viewer
 from qtpy.QtCore import QAbstractTableModel, QModelIndex, Qt
@@ -34,7 +36,7 @@ from qtpy.QtWidgets import (
 
 from movement.napari.layer_styles import RegionsColorManager, RegionsStyle
 
-DEFAULT_REGION_NAME = "Un-named"
+DEFAULT_REGION_NAME = "Region"
 DROPDOWN_PLACEHOLDER = "No region layers"
 
 
@@ -644,19 +646,21 @@ class RegionsTableModel(QAbstractTableModel):
     def _on_layer_set_data(self, event=None):
         """Handle set_data events from copy-paste operations.
 
-        Copy-paste in napari emits set_data (not data) events.
-        We preserve the copied name (as is napari's default behavior).
+        Copy-paste in napari emits set_data (not data) events. Newly pasted
+        shapes get unique names derived from the copied name (e.g. pasting
+        "Region" when "Region" already exists yields "Region [1]").
         """
         if self.layer is None:
             return
 
         n_shapes = len(self.layer.data)
         if n_shapes != self._last_shape_count:
-            # Shape count changed via copy-paste - sync without overriding name
             self._sync_names_on_shape_change(n_shapes)
 
     def _sync_names_on_shape_change(
-        self, n_shapes: int, assign_default_to_new: bool = False
+        self,
+        n_shapes: int,
+        assign_default_to_new: bool = False,
     ):
         """Sync names list with current shape count and update model.
 
@@ -665,8 +669,10 @@ class RegionsTableModel(QAbstractTableModel):
         n_shapes
             Current number of shapes in the layer.
         assign_default_to_new
-            If True, assigns DEFAULT_REGION_NAME to newly added shapes.
-            Use for drawn shapes (not copy-pasted ones). Default is False.
+            If True, newly added shapes get a unique default name (e.g.
+            "Region", "Region [1]"). Use for drawn shapes. If False,
+            the existing name (e.g. from a copy-paste) is kept as the base
+            and made unique if needed. Default is False.
 
         """
         current_names = list(self.layer.properties.get("name", []))
@@ -678,10 +684,15 @@ class RegionsTableModel(QAbstractTableModel):
         # Truncate if list is too long (shapes were removed)
         current_names = current_names[:n_shapes]
 
-        # Override names for newly drawn shapes
-        if assign_default_to_new and n_shapes > self._last_shape_count:
+        # Assign unique names to newly added shapes
+        if n_shapes > self._last_shape_count:
             for i in range(self._last_shape_count, n_shapes):
-                current_names[i] = DEFAULT_REGION_NAME
+                base = (
+                    DEFAULT_REGION_NAME
+                    if assign_default_to_new
+                    else current_names[i]
+                )
+                current_names[i] = _unique_name(base, current_names[:i])
 
         self.layer.properties = {"name": current_names}
         self._last_shape_count = n_shapes
@@ -707,6 +718,32 @@ class RegionsTableModel(QAbstractTableModel):
             self.endResetModel()
 
 
+def _unique_name(base: str, existing_names: list) -> str:
+    """Return base if not already taken, else base [1], base [2], etc.
+
+    Parameters
+    ----------
+    base
+        Desired name.
+    existing_names
+        Names already in use.
+
+    Returns
+    -------
+    str
+        A name that does not appear in existing_names.
+
+    """
+    # Strip existing " [N]" suffixes
+    root = re.sub(r"( \[\d+\])+$", "", base)
+    if root not in existing_names:
+        return root
+    i = 1
+    while f"{root} [{i}]" in existing_names:
+        i += 1
+    return f"{root} [{i}]"
+
+
 def _fill_empty_region_names(existing_names: list) -> list:
     """Fill empty/None region names with DEFAULT_REGION_NAME.
 
@@ -721,7 +758,8 @@ def _fill_empty_region_names(existing_names: list) -> list:
         Updated list with default names where needed.
 
     """
-    return [
-        name if isinstance(name, str) and name.strip() else DEFAULT_REGION_NAME
-        for name in existing_names
-    ]
+    result = list(existing_names)
+    for i, name in enumerate(result):
+        if not isinstance(name, str) or not name.strip():
+            result[i] = _unique_name(DEFAULT_REGION_NAME, result[:i])
+    return result

@@ -366,7 +366,7 @@ def test_regions_style_set_color_all_shapes(
         for i in range(n_shapes)
     ]
     layer = viewer.add_shapes(shapes_data, shape_type="polygon")
-    layer.properties = {"name": [f"ROI-{i}" for i in range(n_shapes)]}
+    layer.properties = {"name": [f"Region-{i}" for i in range(n_shapes)]}
 
     # Apply style
     regions_style = RegionsStyle(color="blue")

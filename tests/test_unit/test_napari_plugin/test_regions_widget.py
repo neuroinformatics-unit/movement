@@ -16,6 +16,7 @@ from movement.napari.regions_widget import (
     DROPDOWN_PLACEHOLDER,
     RegionsTableView,
     RegionsWidget,
+    _unique_name,
 )
 
 pytestmark = pytest.mark.filterwarnings(
@@ -114,11 +115,11 @@ def test_auto_assign_names_pads_missing_name_property(
     # Creating widget triggers _auto_assign_region_names which pads
     # the list of region names to match the number of shapes in the layer
     RegionsWidget(viewer)
-    # Region names should be created and filled to match shape count
-    assert len(layer.properties["name"]) == 2
-    assert all(
-        name == DEFAULT_REGION_NAME for name in layer.properties["name"]
-    )
+    # Region names should be created, filled, and made unique
+    names = layer.properties["name"]
+    assert len(names) == 2
+    assert all(name.startswith(DEFAULT_REGION_NAME) for name in names)
+    assert len(set(names)) == 2  # all unique
 
 
 # ------------------- Tests for signal/event connections ---------------------#
@@ -299,7 +300,6 @@ def test_layer_selection_links_to_model(regions_widget_with_layer):
     assert widget.region_table_model.layer == layer
 
 
-
 def test_renaming_layer_updates_dropdown(regions_widget_with_layer):
     """Test that renaming a layer updates the dropdown."""
     widget, layer = regions_widget_with_layer
@@ -308,13 +308,43 @@ def test_renaming_layer_updates_dropdown(regions_widget_with_layer):
     # findText returns the index of the matching item or -1 if not found
 
 
-
 def test_close_cleans_up(regions_widget_with_layer):
     """Test that closing widget disconnects signals and clears model."""
     widget, _ = regions_widget_with_layer
     with does_not_raise():
         widget.close()
     assert widget.region_table_model is None
+
+
+# ------------------- Tests for _unique_name ---------------------------------#
+@pytest.mark.parametrize(
+    "base, existing, expected",
+    [
+        pytest.param("Region", [], "Region", id="no_conflict"),
+        pytest.param("Region", ["Region"], "Region [1]", id="one_conflict"),
+        pytest.param(
+            "Region",
+            ["Region", "Region [1]"],
+            "Region [2]",
+            id="two_conflicts",
+        ),
+        pytest.param(
+            "Region [1]",
+            ["Region", "Region [1]"],
+            "Region [2]",
+            id="suffix_stripped_before_search",
+        ),
+        pytest.param(
+            "Region [1]",
+            ["Region", "Region [1]", "Region [2]"],
+            "Region [3]",
+            id="suffix_stripped_counts_up",
+        ),
+    ],
+)
+def test_unique_name(base, existing, expected):
+    """Test that _unique_name returns a unique name."""
+    assert _unique_name(base, existing) == expected
 
 
 # ------------------- Tests for region auto-naming ---------------------------#
@@ -344,13 +374,15 @@ def test_preserves_user_names(make_napari_viewer_proxy, two_polygons):
 def test_new_drawn_shape_gets_default_name(
     regions_widget_with_layer, two_polygons
 ):
-    """Test that newly drawn shapes get the default name."""
+    """Test that newly drawn shapes get a unique default name."""
     _, layer = regions_widget_with_layer
     layer.add(two_polygons[:1])
 
-    assert len(layer.properties["name"]) == 3
-    # The last drawn shape gets default name (layer.add emits "added" event)
-    assert layer.properties["name"][-1] == DEFAULT_REGION_NAME
+    names = layer.properties["name"]
+    assert len(names) == 3
+    # The last drawn shape gets a unique name derived from DEFAULT_REGION_NAME
+    assert names[-1].startswith(DEFAULT_REGION_NAME)
+    assert names[-1] not in names[:-1]  # new name is unique among prior names
 
 
 # ------------------- Tests for RegionsTableModel ----------------------------#
@@ -490,17 +522,19 @@ def test_table_model_updates_on_shape_added(
 def test_sync_names_assigns_default_to_new_shapes(
     regions_widget_with_layer, two_polygons
 ):
-    """Test that _sync_names_on_shape_change assigns default name to new."""
+    """Test that _sync_names_on_shape_change assigns a unique default name."""
     widget, layer = regions_widget_with_layer
     model = widget.region_table_model
-    # Add a shape so layer has 2 shapes
+    # Add a shape so layer has 3 shapes
     layer.add(two_polygons[:1])
     # Reset _last_shape_count to simulate state before shape was added
     model._last_shape_count = 2
     # Call sync with assign_default_to_new=True
     model._sync_names_on_shape_change(n_shapes=3, assign_default_to_new=True)
-    # New shape should have default name
-    assert layer.properties["name"][2] == DEFAULT_REGION_NAME
+    # New shape gets a unique name derived from DEFAULT_REGION_NAME
+    names = layer.properties["name"]
+    assert names[2].startswith(DEFAULT_REGION_NAME)
+    assert names[2] not in names[:2]  # new name is unique among prior names
 
 
 def test_table_model_updates_on_shape_removed(regions_widget_with_layer):
@@ -513,18 +547,18 @@ def test_table_model_updates_on_shape_removed(regions_widget_with_layer):
     assert widget.region_table_model.rowCount() == initial_count - 1
 
 
-def test_table_model_set_data_handler_updates_model_and_preserves_names(
+def test_table_model_set_data_handler_uniquifies_pasted_names(
     regions_widget_with_layer, two_polygons
 ):
-    """Test that _on_layer_set_data updates table model and preserves names.
+    """Test that _on_layer_set_data uniquifies duplicate names from copy-paste.
 
     This handler is triggered by copy-paste operations. It should detect
-    shape count changes and update the model without overwriting names.
+    shape count changes and give pasted shapes unique names.
     """
     widget, layer = regions_widget_with_layer
     model = widget.region_table_model
 
-    # Add a third shape with a custom copied name directly to the layer
+    # Add a third shape with a name that duplicates an existing one
     layer.add(two_polygons[:1])
     layer.properties = {"name": ["Region-A", "Region-B", "Region-A"]}
 
@@ -534,10 +568,10 @@ def test_table_model_set_data_handler_updates_model_and_preserves_names(
     # Call the handler (as would happen on set_data event)
     model._on_layer_set_data()
 
-    # Verify model updated and all names preserved
+    # Verify model updated and duplicate name was made unique
     assert model.rowCount() == 3
     assert model._last_shape_count == 3
-    expected_names = ["Region-A", "Region-B", "Region-A"]
+    expected_names = ["Region-A", "Region-B", "Region-A [1]"]
     assert list(layer.properties["name"]) == expected_names
 
 
@@ -724,7 +758,9 @@ def test_table_view_selection_with_empty_indexes(regions_widget_with_layer):
     widget, _ = regions_widget_with_layer
     empty_selection = QItemSelection()
     with does_not_raise():
-        widget.region_table_view._on_row_selection_changed(empty_selection, None)
+        widget.region_table_view._on_row_selection_changed(
+            empty_selection, None
+        )
 
 
 @pytest.mark.parametrize(
