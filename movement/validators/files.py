@@ -536,9 +536,6 @@ class ValidVIATracksCSV:
     frame_regexp: str = field(default=DEFAULT_FRAME_REGEXP)
 
     # Bboxes pre-parsed data
-    df: pd.DataFrame = field(
-        init=False, factory=pd.DataFrame
-    )  # this dataframe attribute is deleted after validation
     x: list[float] = field(init=False, factory=list)
     y: list[float] = field(init=False, factory=list)
     w: list[float] = field(init=False, factory=list)
@@ -547,15 +544,32 @@ class ValidVIATracksCSV:
     frame_numbers: list[int] = field(init=False, factory=list)
     confidence: list[float] = field(init=False, factory=list)
 
-    def __attrs_post_init__(self):
-        """Clear the dataframe attribute after validation is complete."""
-        object.__setattr__(self, "df", None)
-
     @file.validator
-    def _file_contains_valid_header(self, attribute, value):
+    def _validate_via_tracks_file(self, attribute, value):
+        """Run all VIA tracks validations and cache parsed attributes."""
+        # Read csv as a dataframe
+        df = pd.read_csv(value)
+
+        # Run all validation steps
+        self._file_contains_valid_header(df)
+        frame_numbers = self._file_contains_valid_frame_numbers(df)
+        x, y, w, h, ids, confidence_values = (
+            self._file_contains_tracked_bboxes(df)
+        )
+        self._file_contains_unique_track_ids_per_filename(df, ids)
+
+        # If all checks pass, add parsed attributes to the object
+        self.frame_numbers = frame_numbers
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.ids = ids
+        self.confidence = confidence_values
+
+    def _file_contains_valid_header(self, df: pd.DataFrame):
         """Ensure the VIA tracks .csv file contains the expected header."""
         # Read CSV once and store for later use
-        df = pd.read_csv(value)
         expected_header = [
             "filename",
             "file_size",
@@ -575,12 +589,9 @@ class ValidVIATracksCSV:
                 )
             )
 
-        # Store dataframe for other validation steps
-        # (deleted once validation is complete)
-        self.df = df
-
-    @file.validator
-    def _file_contains_valid_frame_numbers(self, attribute, value):
+    def _file_contains_valid_frame_numbers(
+        self, df: pd.DataFrame
+    ) -> list[int]:
         """Ensure that the VIA tracks .csv file contains valid frame numbers.
 
         This involves:
@@ -601,7 +612,7 @@ class ValidVIATracksCSV:
         # Try extracting frame number from the file attributes
         # (returns None if not defined)
         frame_numbers = []
-        for row in self.df["file_attributes"]:
+        for row in df["file_attributes"]:
             frame_numbers.append(orjson.loads(row).get("frame"))
 
         # If there is any None in the list, try extracting
@@ -628,13 +639,17 @@ class ValidVIATracksCSV:
                 )
 
             # Extract frame number from filename
-            frame_numbers = self.df["filename"].str.extract(
-                self.frame_regexp,
-                expand=False,  # to return a series if one capture group
+            frame_numbers = (
+                df["filename"]
+                .str.extract(
+                    self.frame_regexp,
+                    expand=False,  # to return a series if one capture group
+                )
+                .tolist()
             )
 
             # Check if there are no matches
-            if frame_numbers.isna().any():
+            if None in frame_numbers:
                 raise logger.error(
                     ValueError(
                         "Could not extract frame numbers from the filenames "
@@ -659,7 +674,7 @@ class ValidVIATracksCSV:
             ) from e
 
         # Check we have as many unique frame numbers as unique image files
-        if len(set(frame_numbers)) != self.df["filename"].nunique():
+        if len(set(frame_numbers)) != df["filename"].nunique():
             raise logger.error(
                 ValueError(
                     "The number of unique frame numbers does not match "
@@ -669,11 +684,19 @@ class ValidVIATracksCSV:
                 )
             )
 
-        # If all checks pass, add as attribute
-        self.frame_numbers = frame_numbers  # already cast as integer
+        # If all checks pass, return
+        return frame_numbers  # already cast as integer
 
-    @file.validator
-    def _file_contains_tracked_bboxes(self, attribute, value):
+    def _file_contains_tracked_bboxes(
+        self, df: pd.DataFrame
+    ) -> tuple[
+        list[float],
+        list[float],
+        list[float],
+        list[float],
+        list[int],
+        list[float],
+    ]:
         """Ensure that the VIA tracks .csv contains tracked bounding boxes.
 
         This involves:
@@ -688,8 +711,8 @@ class ValidVIATracksCSV:
         x, y, w, h, ids, confidence_values = [], [], [], [], [], []
         for k, (shape_row, attr_row) in enumerate(
             zip(
-                self.df["region_shape_attributes"],
-                self.df["region_attributes"],
+                df["region_shape_attributes"],
+                df["region_attributes"],
                 strict=True,
             )
         ):
@@ -765,29 +788,27 @@ class ValidVIATracksCSV:
             ids.append(track_id)
             confidence_values.append(confidence)
 
-        # If all checks pass, add relevant lists as attributes
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-        self.ids = ids  # already an integer
-        self.confidence = confidence_values  # nan if not defined
+        # If all checks pass, return lists
+        # ids is already cast as integer, confidence_values is nan
+        # if not defined
+        return x, y, w, h, ids, confidence_values
 
-    @file.validator
-    def _file_contains_unique_track_ids_per_filename(self, attribute, value):
+    def _file_contains_unique_track_ids_per_filename(
+        self, df: pd.DataFrame, ids: list[int]
+    ):
         """Ensure the VIA tracks .csv contains unique track IDs per filename.
 
         It checks that bounding boxes IDs are defined once per image file.
         """
         # Use a temporary series for the check by using `.assign`
         # (so that we don't modify self.df)
-        has_duplicates = self.df.assign(ID=self.ids).duplicated(
+        has_duplicates = df.assign(ID=ids).duplicated(
             subset=["filename", "ID"],
             keep=False,
         )
         if has_duplicates.any():
             problem_files = (
-                self.df.loc[has_duplicates, "filename"].unique().tolist()
+                df.loc[has_duplicates, "filename"].unique().tolist()
             )
             raise logger.error(
                 ValueError(

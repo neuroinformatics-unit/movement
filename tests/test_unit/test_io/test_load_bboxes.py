@@ -764,10 +764,11 @@ def test_position_array_from_valid_via_object(via_file_path):
 @pytest.mark.parametrize(
     "via_file_path",
     [
-        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-        # multiple individuals present in all 5 frames
-        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
-        # single individual present in 35 non-consecutive frames
+        # pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        # # multiple individuals present in all 5 frames
+        # pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+        # # single individual present in 35 non-consecutive frames
+        "/Users/sofia/arc/project_Zoo_crabs/loops_tracking_above_10th_percentile_slurm_1825237_SAMPLE/04.09.2023-05-Right-Loop04_tracks.csv",
     ],
 )
 def test_benchmark_from_via_tracks_file(via_file_path, benchmark):
@@ -779,13 +780,14 @@ def test_benchmark_from_via_tracks_file(via_file_path, benchmark):
 @pytest.mark.parametrize(
     "via_file_path",
     [
-        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-        # multiple individuals present in all 5 frames
-        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
-        # single individual present in 35 non-consecutive frames
+        # pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
+        # # multiple individuals present in all 5 frames
+        # pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
+        # # single individual present in 35 non-consecutive frames
+        "/Users/sofia/arc/project_Zoo_crabs/loops_tracking_above_10th_percentile_slurm_1825237_SAMPLE/04.09.2023-05-Right-Loop04_tracks.csv",
     ],
 )
-def test_benchmark_df_from_via_tracks_file(via_file_path, benchmark):
-    """Benchmark the `_df_from_via_tracks_file` function."""
+def test_benchmark_df_from_valid_via_object(via_file_path, benchmark):
+    """Benchmark the `_df_from_valid_via_object` function."""
     valid_via = ValidVIATracksCSV(via_file_path)
     benchmark(load_bboxes._df_from_valid_via_object, valid_via)

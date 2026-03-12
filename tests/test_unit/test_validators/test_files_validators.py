@@ -345,9 +345,6 @@ def test_via_tracks_csv_validator_attributes(
     file_path = via_tracks_csv_factory("via_valid")
     validator = ValidVIATracksCSV(file_path)
 
-    # Check that the dataframe attribute is cleared
-    assert validator.df is None
-
     # Check that the pre-parsed data is defined
     assert isinstance(validator.x, list)
     assert isinstance(validator.y, list)
