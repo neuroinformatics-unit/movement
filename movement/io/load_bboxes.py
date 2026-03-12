@@ -341,7 +341,7 @@ def from_via_tracks_file(
 
     """
     valid_file = cast("ValidVIATracksCSV", file)
-    file_path = valid_file.file
+
     # Create an xarray.Dataset from the data
     bboxes_arrays = _numpy_arrays_from_valid_file_object(valid_file)
     ds = from_numpy(
@@ -359,7 +359,9 @@ def from_via_tracks_file(
         fps=fps,
         source_software="VIA-tracks",
     )  # it validates the dataset via ValidBboxesInputs
+
     # Add metadata as attributes
+    file_path = valid_file.file
     ds.attrs["source_software"] = "VIA-tracks"
     ds.attrs["source_file"] = file_path.as_posix()
     logger.info(f"Loaded bounding boxes tracks from {file_path}:\n{ds}")
@@ -388,7 +390,7 @@ def _numpy_arrays_from_valid_file_object(
 
     Parameters
     ----------
-    valid_via_file : ValidVIATracksCSV
+    valid_via_file
         A validated VIA tracks file object.
 
     Returns
