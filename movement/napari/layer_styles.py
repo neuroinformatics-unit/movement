@@ -209,7 +209,7 @@ class RegionsStyle(LayerStyle):
     opacity: float = 1.0  # applies to the whole layer
     text: dict = field(
         default_factory=lambda: {
-            "visible": True,
+            "visible": False,
             "anchor": "center",
         }
     )

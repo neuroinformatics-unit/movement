@@ -90,7 +90,7 @@ def default_style_attributes():
             "edge_width": 5.0,
             "opacity": 1.0,
             "text": {
-                "visible": True,
+                "visible": False,
                 "anchor": "center",
             },
         },
