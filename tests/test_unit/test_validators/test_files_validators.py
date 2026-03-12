@@ -233,7 +233,8 @@ def test_deeplabcut_validators(
         (
             "via_frame_number_in_file_attribute_not_integer",
             ValueError,
-            "Extracted frame number 'FOO' cannot be cast as integer. ",
+            "Some frame numbers cannot be cast as integer. "
+            "Please review the VIA-tracks .csv file.",
         ),
         (
             "via_frame_number_in_filename_wrong_pattern",

@@ -611,13 +611,13 @@ class ValidVIATracksCSV:
         """
         # Try extracting frame number from the file attributes
         # (returns None if not defined)
-        frame_numbers = []
-        for row in df["file_attributes"]:
-            frame_numbers.append(orjson.loads(row).get("frame"))
+        frame_numbers = pd.Series(
+            [orjson.loads(row).get("frame") for row in df["file_attributes"]]
+        )
 
         # If there is any None in the list, try extracting
         # the frame number from the filename
-        if None in frame_numbers:
+        if frame_numbers.isna().any():
             # Check if the regexp pattern can be compiled
             try:
                 compiled_pattern = re.compile(self.frame_regexp)
@@ -639,17 +639,13 @@ class ValidVIATracksCSV:
                 )
 
             # Extract frame number from filename
-            frame_numbers = (
-                df["filename"]
-                .str.extract(
-                    self.frame_regexp,
-                    expand=False,  # to return a series if one capture group
-                )
-                .tolist()
+            frame_numbers = df["filename"].str.extract(
+                self.frame_regexp,
+                expand=False,  # to return a series if one capture group
             )
 
             # Check if there are no matches
-            if None in frame_numbers:
+            if frame_numbers.isna().any():
                 raise logger.error(
                     ValueError(
                         "Could not extract frame numbers from the filenames "
@@ -661,20 +657,17 @@ class ValidVIATracksCSV:
 
         # Check all frame numbers are castable as integer
         try:
-            frame_numbers_int = []
-            for f in frame_numbers:
-                frame_numbers_int.append(int(f))
-            frame_numbers = frame_numbers_int
-        except ValueError as e:
+            frame_numbers = frame_numbers.astype(int)
+        except (ValueError, TypeError) as e:
             raise logger.error(
                 ValueError(
-                    f"Extracted frame number '{f}' cannot be cast as integer. "
+                    "Some frame numbers cannot be cast as integer. "
                     "Please review the VIA-tracks .csv file."
                 )
             ) from e
 
         # Check we have as many unique frame numbers as unique image files
-        if len(set(frame_numbers)) != df["filename"].nunique():
+        if frame_numbers.nunique() != df["filename"].nunique():
             raise logger.error(
                 ValueError(
                     "The number of unique frame numbers does not match "
@@ -685,7 +678,7 @@ class ValidVIATracksCSV:
             )
 
         # If all checks pass, return
-        return frame_numbers  # already cast as integer
+        return frame_numbers.tolist()  # already cast as integer
 
     def _file_contains_tracked_bboxes(
         self, df: pd.DataFrame
