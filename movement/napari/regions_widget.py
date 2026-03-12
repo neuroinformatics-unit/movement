@@ -34,10 +34,21 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from movement.napari.layer_styles import RegionsColorManager, RegionsStyle
+from movement.napari.layer_styles import RegionsStyle, _sample_colormap
 
 DEFAULT_REGION_NAME = "Region"
 DROPDOWN_PLACEHOLDER = "No region layers"
+
+# Metadata keys stored on napari Shapes layers managed by this widget.
+# - REGIONS_LAYER_KEY: marks the layer as a movement regions layer on creation.
+# - REGIONS_COLOR_IDX_KEY stores the palette index assigned to the regions
+#   layer so its color remains stable across re-linking.
+REGIONS_LAYER_KEY: str = "movement_regions_layer"
+REGIONS_COLOR_IDX_KEY: str = "movement_regions_color_idx"
+
+# Fixed palette of colours assigned sequentially
+# to regions layers as they are first linked to the widget.
+REGIONS_COLORS: list[tuple] = _sample_colormap(10, "tab10")
 
 
 class RegionsWidget(QWidget):
@@ -49,23 +60,20 @@ class RegionsWidget(QWidget):
 
     """
 
-    def __init__(self, napari_viewer: Viewer, cmap_name="tab10", parent=None):
+    def __init__(self, napari_viewer: Viewer, parent=None):
         """Initialise the regions widget.
 
         Parameters
         ----------
         napari_viewer
             The napari viewer instance.
-        cmap_name
-            Name of the napari colormap to use for region colors.
-            Default is "tab10".
         parent
             The parent widget.
 
         """
         super().__init__(parent=parent)
         self.viewer = napari_viewer
-        self.color_manager = RegionsColorManager(cmap_name=cmap_name)
+        self._next_color_idx = 0
         self.region_table_model: RegionsTableModel | None = None
         self.region_table_view = RegionsTableView(self)
 
@@ -147,9 +155,11 @@ class RegionsWidget(QWidget):
             self._on_napari_layer_selection_changed
         )
 
-    def _is_region_layer(self, layer: Shapes) -> bool:
-        """Check if a Shapes layer is a movement region layer."""
-        return layer.metadata.get("movement_regions_layer", False)
+    def _is_region_layer(self, layer) -> bool:
+        """Check if a layer is a movement regions layer."""
+        return isinstance(layer, Shapes) and bool(
+            layer.metadata.get(REGIONS_LAYER_KEY, False)
+        )
 
     def _get_region_layers(self) -> dict[str, Shapes]:
         """Get all region layers.
@@ -159,7 +169,7 @@ class RegionsWidget(QWidget):
         return {
             layer.name: layer
             for layer in self.viewer.layers
-            if isinstance(layer, Shapes) and self._is_region_layer(layer)
+            if self._is_region_layer(layer)
         }
 
     def _on_layer_removed(self, event=None):
@@ -223,11 +233,7 @@ class RegionsWidget(QWidget):
 
         active = self.viewer.layers.selection.active
         # Return early if no regions layer is active
-        if (
-            active is None
-            or not isinstance(active, Shapes)
-            or not self._is_region_layer(active)
-        ):
+        if not self._is_region_layer(active):
             return
 
         # Return early if the active layer is already selected in the dropdown
@@ -247,7 +253,7 @@ class RegionsWidget(QWidget):
         """Create a new Regions layer and select it."""
         new_layer = self.viewer.add_shapes(
             name="Regions",
-            metadata={"movement_regions_layer": True},
+            metadata={REGIONS_LAYER_KEY: True},
         )
         self.layer_dropdown.setCurrentText(new_layer.name)
 
@@ -268,13 +274,22 @@ class RegionsWidget(QWidget):
         # Auto-assign names if the layer has shapes without names.
         self._auto_assign_region_names(region_layer)
 
-        # Apply a consistent style to all shapes in the layer
-        layer_color = self.color_manager.get_color_for_layer(region_layer.name)
-        region_style = RegionsStyle(color=layer_color)
-        region_style.set_color_all_shapes(region_layer)
+        # On first link, assign the next palette color and apply it to all
+        # existing shapes (also primes current_* so the first drawn shape
+        # gets the palette color). On re-link, napari restores each layer's
+        # own current_* automatically — no intervention needed.
+        if REGIONS_COLOR_IDX_KEY not in region_layer.metadata:
+            region_layer.metadata[REGIONS_COLOR_IDX_KEY] = self._next_color_idx
+            self._next_color_idx += 1
+            idx = region_layer.metadata[REGIONS_COLOR_IDX_KEY] % len(
+                REGIONS_COLORS
+            )
+            RegionsStyle(color=REGIONS_COLORS[idx]).set_color_all_shapes(
+                region_layer
+            )
 
         # Create new model and link it to the table view
-        self.region_table_model = RegionsTableModel(region_layer, region_style)
+        self.region_table_model = RegionsTableModel(region_layer)
         self.region_table_view.setModel(self.region_table_model)
 
         # The model will listen to napari layer removal and renaming events
@@ -505,28 +520,22 @@ class RegionsTableModel(QAbstractTableModel):
     - Column 1: Shape type (e.g., "rectangle", "polygon")
 
     Listens to layer data events and emits Qt signals when shapes are
-    added, removed, or modified. Also handles auto-naming of new shapes
-    and applies consistent styling via RegionsStyle.
+    added, removed, or modified. Also handles auto-naming of new shapes.
     """
 
-    def __init__(
-        self, shapes_layer: Shapes, region_style: RegionsStyle, parent=None
-    ):
-        """Initialize the model with a Shapes layer and style.
+    def __init__(self, shapes_layer: Shapes, parent=None):
+        """Initialize the model with a Shapes layer.
 
         Parameters
         ----------
         shapes_layer
             The napari Shapes layer containing the regions.
-        region_style
-            The style to apply to the regions.
         parent
             The parent widget.
 
         """
         super().__init__(parent)
         self.layer = shapes_layer
-        self.region_style = region_style
         # Track shape count to detect new shapes
         self._last_shape_count = len(shapes_layer.data)
         # Listen to layer data changes (drawing, editing, deleting shapes)
@@ -623,7 +632,7 @@ class RegionsTableModel(QAbstractTableModel):
 
         For "added" events (drawing new shapes): assigns default name.
         For "removed" events: syncs model with remaining shapes.
-        For other events (e.g., moving/resizing): updates current shape style.
+        Moves/resizes do not affect names and are ignored.
         """
         if self.layer is None:
             return
@@ -631,17 +640,11 @@ class RegionsTableModel(QAbstractTableModel):
         n_shapes = len(self.layer.data)
 
         if event.action == "added":
-            # New shape drawn - assign default name to override napari's
-            # property copying behavior
             self._sync_names_on_shape_change(
                 n_shapes, assign_default_to_new=True
             )
         elif event.action == "removed":
-            # Shape deleted - just sync names list
             self._sync_names_on_shape_change(n_shapes)
-        else:
-            # Shape edited (moved, resized) - just update styling
-            self.region_style.set_style_for_new_shapes(self.layer)
 
     def _on_layer_set_data(self, event=None):
         """Handle set_data events from copy-paste operations.
@@ -697,8 +700,11 @@ class RegionsTableModel(QAbstractTableModel):
         self.layer.properties = {"name": current_names}
         self._last_shape_count = n_shapes
 
-        # Reapply styling and update model
-        self.region_style.set_color_all_shapes(self.layer)
+        # Connect text labels to the name property now that it is populated.
+        # Guarded so we don't trigger a napari warning on empty layers.
+        if n_shapes > 0:
+            self.layer.text.string = "{name}"
+
         self.beginResetModel()
         self.endResetModel()
 

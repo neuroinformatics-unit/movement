@@ -1,7 +1,5 @@
 """Unit tests for the LayerStyle and PointsStyle classes."""
 
-import hashlib
-
 import pandas as pd
 import pytest
 from numpy.testing import assert_array_equal
@@ -11,7 +9,6 @@ from movement.napari.layer_styles import (
     BoxesStyle,
     LayerStyle,
     PointsStyle,
-    RegionsColorManager,
     RegionsStyle,
     TracksStyle,
     _sample_colormap,
@@ -394,6 +391,9 @@ def test_regions_style_set_color_all_shapes_empty_layer(
     regions_style = RegionsStyle(color="red")
     regions_style.set_color_all_shapes(layer)
 
+    # '{name}' must not be set on an empty layer (would cause RuntimeWarning)
+    assert "{name}" not in str(layer.text.string)
+
 
 @pytest.mark.parametrize(
     "selected_data",
@@ -418,40 +418,3 @@ def test_regions_style_set_style_for_new_shapes(
     regions_style = RegionsStyle(color="green")
     # Should not raise - exercises the method
     regions_style.set_style_for_new_shapes(layer)
-
-
-def _expected_hash_index(name: str, n_colors: int = 10) -> int:
-    return int(hashlib.md5(name.encode()).hexdigest(), 16) % n_colors
-
-
-@pytest.mark.parametrize(
-    "layer_name, expected_color_index",
-    [
-        ("Regions", 0),
-        ("Regions [1]", 1),
-        ("Regions [2]", 2),
-    ],
-)
-def test_regions_color_manager_deterministic(layer_name, expected_color_index):
-    """Test that default region names get sequential color indices.
-
-    "Regions" gets index 0, "Regions [N]" gets index N.
-    Color assignment is deterministic across manager instances.
-    """
-    manager1 = RegionsColorManager()
-    manager2 = RegionsColorManager()
-
-    color1 = manager1.get_color_for_layer(layer_name)
-    color2 = manager2.get_color_for_layer(layer_name)
-
-    assert color1 == color2
-    assert color1 == manager1.colors[expected_color_index]
-
-
-@pytest.mark.parametrize("layer_name", ["Arena", "Nest", "CustomLayer"])
-def test_regions_color_manager_hash_path(layer_name):
-    """Custom layer names use MD5 hash for color index."""
-    manager = RegionsColorManager()
-    color = manager.get_color_for_layer(layer_name)
-    expected_index = _expected_hash_index(layer_name, manager.n_colors)
-    assert color == manager.colors[expected_index]

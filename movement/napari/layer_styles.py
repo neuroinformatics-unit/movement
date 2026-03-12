@@ -1,7 +1,5 @@
 """Dataclasses containing layer styles for napari."""
 
-import hashlib
-import re
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -239,84 +237,21 @@ class RegionsStyle(LayerStyle):
 
     def set_color_all_shapes(self, layer: Shapes) -> None:
         """Set colors on all existing shapes in a napari Shapes layer."""
+        # Configure text appearance
+        text_dict = layer.text.dict()
+        text_dict.update(self.text)
+        layer.text = text_dict
+        layer.text.color = self.edge_and_text_color
+
+        # Set face and edge colors for all shapes
         n_shapes = len(layer.data)
         if n_shapes > 0:
             layer.face_color = [self.face_color] * n_shapes
             layer.edge_color = [self.edge_and_text_color] * n_shapes
             layer.edge_width = [self.edge_width] * n_shapes
-
-            # Set text properties
-            text_dict = layer.text.dict()
-            text_dict.update(self.text)
-            layer.text = text_dict
-            layer.text.color = self.edge_and_text_color
             layer.text.string = "{name}"
 
         self.set_style_for_new_shapes(layer)
-
-
-@dataclass
-class RegionsColorManager:
-    """Manages colors for Regions layers.
-
-    It makes sure that Regions layers are each assigned a color
-    deterministically based on the layer name (using a hash), sampled
-    from a napari colormap. This ensures the same layer name always gets
-    the same color, even after deletion and recreation.
-    """
-
-    cmap_name: str = "tab10"
-    n_colors: int = 10
-    _color_cache: dict = field(default_factory=dict)
-    colors: list = field(init=False)
-
-    def __post_init__(self):
-        """Initialize the colors after the dataclass is created."""
-        self.colors = _sample_colormap(self.n_colors, self.cmap_name)
-
-    # Pattern for default region layer names: "Regions" or "Regions [N]"
-    _region_pattern = re.compile(r"^Regions(?: \[(\d+)\])?$")
-
-    def get_color_for_layer(self, layer_name: str) -> tuple:
-        """Get a deterministic color for a layer based on its name.
-
-        For default region layer names ("Regions", "Regions [1]", etc.),
-        colors are assigned sequentially to avoid collisions.
-        For custom names, uses MD5 hash for deterministic color selection
-        across Python sessions. Results are cached for efficiency.
-
-        Parameters
-        ----------
-        layer_name
-            The name of the layer.
-
-        Returns
-        -------
-        tuple
-            The RGBA color tuple for the layer.
-
-        """
-        if layer_name not in self._color_cache:
-            color_index = self._get_color_index(layer_name)
-            self._color_cache[layer_name] = self.colors[color_index]
-
-        return self._color_cache[layer_name]
-
-    def _get_color_index(self, layer_name: str) -> int:
-        """Get the color index for a layer name.
-
-        Sequential indices for default names, hash-based for custom names.
-        """
-        match = self._region_pattern.match(layer_name)
-        if match:
-            # "Regions" → 0, "Regions [1]" → 1, "Regions [2]" → 2, etc.
-            suffix = match.group(1)
-            index = int(suffix) if suffix else 0
-            return index % len(self.colors)
-
-        # Fall back to MD5 hash for custom names
-        hash_digest = hashlib.md5(layer_name.encode()).hexdigest()
-        return int(hash_digest, 16) % len(self.colors)
 
 
 def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:

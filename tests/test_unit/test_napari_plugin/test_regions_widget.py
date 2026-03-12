@@ -14,6 +14,8 @@ from qtpy.QtWidgets import (
 from movement.napari.regions_widget import (
     DEFAULT_REGION_NAME,
     DROPDOWN_PLACEHOLDER,
+    REGIONS_COLOR_IDX_KEY,
+    REGIONS_LAYER_KEY,
     RegionsTableView,
     RegionsWidget,
     _unique_name,
@@ -30,7 +32,7 @@ def add_regions_layer(viewer, data=None, name="Regions", **kwargs):
     return viewer.add_shapes(
         data,
         name=name,
-        metadata={"movement_regions_layer": True},
+        metadata={REGIONS_LAYER_KEY: True},
         **kwargs,
     )
 
@@ -80,11 +82,29 @@ def test_widget_has_expected_ui_elements(regions_widget):
     assert regions_widget.findChild(QTableView) is not None
 
 
-def test_widget_with_custom_colormap(make_napari_viewer_proxy):
-    """Test that the widget can be instantiated with a custom colormap."""
+def test_color_assignment_is_sequential_and_stable(make_napari_viewer_proxy):
+    """Test that palette colors are assigned sequentially and stay stable.
+
+    Each layer receives the next palette color on first link (stored in
+    metadata). Re-linking an already-colored layer must not change its index
+    or consume a new palette slot.
+    """
     viewer = make_napari_viewer_proxy()
-    widget = RegionsWidget(viewer, cmap_name="viridis")
-    assert widget.color_manager.cmap_name == "viridis"
+    layer_a = add_regions_layer(viewer, name="Regions-A")
+    layer_b = add_regions_layer(viewer, name="Regions-B")
+    widget = RegionsWidget(viewer)
+
+    # layer_a is auto-linked on init (first item in dropdown)
+    assert layer_a.metadata[REGIONS_COLOR_IDX_KEY] == 0
+    # Link layer_b: it gets the next palette index
+    widget.layer_dropdown.setCurrentText("Regions-B")
+    assert layer_b.metadata[REGIONS_COLOR_IDX_KEY] == 1
+    assert widget._next_color_idx == 2
+
+    # Re-link layer_a: index and counter must be unchanged
+    widget.layer_dropdown.setCurrentText("Regions-A")
+    assert layer_a.metadata[REGIONS_COLOR_IDX_KEY] == 0
+    assert widget._next_color_idx == 2
 
 
 def test_dropdown_shows_placeholder_when_no_layers(regions_widget):
@@ -225,7 +245,7 @@ def test_add_new_layer(regions_widget):
     layer = regions_widget.viewer.layers[0]
     assert isinstance(layer, Shapes)
     assert layer.name.startswith("Regions")
-    assert layer.metadata.get("movement_regions_layer") is True
+    assert layer.metadata.get(REGIONS_LAYER_KEY) is True
     assert regions_widget.layer_dropdown.currentText() == layer.name
 
 
@@ -269,7 +289,7 @@ def test_dropdown_includes_layer_with_region_metadata(
     """Test dropdown includes layers marked with region metadata."""
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes(name="Custom name")
-    layer.metadata["movement_regions_layer"] = True
+    layer.metadata[REGIONS_LAYER_KEY] = True
     widget = RegionsWidget(viewer)
     assert widget.layer_dropdown.count() == 1
     assert widget.layer_dropdown.currentText() == "Custom name"
@@ -714,6 +734,18 @@ def test_table_tooltip_reflects_state(
 
 
 # ------------------- Tests for edge cases -----------------------------------#
+def test_text_label_deferred_until_first_shape_drawn(
+    regions_widget, two_polygons
+):
+    """Test that text.string is only set to '{name}' once a shape exists."""
+    viewer = regions_widget.viewer
+    layer = add_regions_layer(viewer)  # triggers link with no shapes
+
+    assert "{name}" not in str(layer.text.string)
+    layer.add(two_polygons[:1])  # draw first shape
+    assert "{name}" in str(layer.text.string)
+
+
 def test_empty_shapes_layer(make_napari_viewer_proxy):
     """Test table handles empty shapes layer."""
     viewer = make_napari_viewer_proxy()
