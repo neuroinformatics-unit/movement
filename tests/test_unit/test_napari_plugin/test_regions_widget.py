@@ -23,6 +23,17 @@ pytestmark = pytest.mark.filterwarnings(
 )
 
 
+# ------------------- Helpers ------------------------------------------------#
+def add_regions_layer(viewer, data=None, name="Regions", **kwargs):
+    """Add a shapes layer marked as a movement region layer to a viewer."""
+    return viewer.add_shapes(
+        data,
+        name=name,
+        metadata={"movement_regions_layer": True},
+        **kwargs,
+    )
+
+
 # ------------------- Fixtures -----------------------------------------------#
 @pytest.fixture
 def two_polygons():
@@ -44,11 +55,7 @@ def regions_widget(make_napari_viewer_proxy):
 def regions_widget_with_layer(regions_widget, two_polygons):
     """Return a RegionsWidget and a shapes layer with 2 regions."""
     viewer = regions_widget.viewer
-    layer = viewer.add_shapes(
-        two_polygons,
-        shape_type="polygon",
-        name="Regions",
-    )
+    layer = add_regions_layer(viewer, two_polygons, shape_type="polygon")
     layer.properties = {"name": [DEFAULT_REGION_NAME, DEFAULT_REGION_NAME]}
     return regions_widget, layer
 
@@ -61,7 +68,6 @@ def test_widget_has_expected_attributes(make_napari_viewer_proxy):
     assert widget.viewer == viewer
     assert widget.region_table_model is None
     assert isinstance(widget.region_table_view, RegionsTableView)
-    assert len(widget._connected_layers) == 0
 
 
 def test_widget_has_expected_ui_elements(regions_widget):
@@ -91,7 +97,7 @@ def test_dropdown_populated_with_existing_region_layer(
 ):
     """Test dropdown is populated when region layer exists at init."""
     viewer = make_napari_viewer_proxy()
-    viewer.add_shapes(name="Regions")
+    add_regions_layer(viewer)
     widget = RegionsWidget(viewer)
     assert widget.layer_dropdown.count() == 1
     assert widget.layer_dropdown.currentText() == "Regions"
@@ -104,7 +110,7 @@ def test_auto_assign_names_pads_missing_name_property(
     viewer = make_napari_viewer_proxy()
     # Create layer with shapes but no "name" assigned to each shape
     # (Note that "Regions" is the name of the layer)
-    layer = viewer.add_shapes(two_polygons, name="Regions")
+    layer = add_regions_layer(viewer, two_polygons)
     # Creating widget triggers _auto_assign_region_names which pads
     # the list of region names to match the number of shapes in the layer
     RegionsWidget(viewer)
@@ -136,10 +142,10 @@ def test_dropdown_connected_to_layer_selection_handler(
         "movement.napari.regions_widget.RegionsWidget._on_layer_selected"
     )
     viewer = make_napari_viewer_proxy()
-    viewer.add_shapes(name="Regions")
+    add_regions_layer(viewer)
 
     # Create second layer to switch to
-    viewer.add_shapes(name="Regions [1]")
+    add_regions_layer(viewer, name="Regions [1]")
     widget = RegionsWidget(viewer)
 
     # Reset calls to mock since the widget initialisation
@@ -218,7 +224,7 @@ def test_add_new_layer(regions_widget):
     layer = regions_widget.viewer.layers[0]
     assert isinstance(layer, Shapes)
     assert layer.name.startswith("Regions")
-    assert layer.metadata.get("movement_region_layer") is True
+    assert layer.metadata.get("movement_regions_layer") is True
     assert regions_widget.layer_dropdown.currentText() == layer.name
 
 
@@ -232,7 +238,7 @@ def test_add_multiple_layers_increments_name(regions_widget):
 
 def test_update_layer_dropdown_on_layer_added(regions_widget):
     """Test dropdown is updated when a new region layer is added."""
-    regions_widget.viewer.add_shapes(name="Regions")
+    add_regions_layer(regions_widget.viewer)
     assert regions_widget.layer_dropdown.count() == 1
     assert regions_widget.layer_dropdown.currentText() == "Regions"
 
@@ -262,7 +268,7 @@ def test_dropdown_includes_layer_with_region_metadata(
     """Test dropdown includes layers marked with region metadata."""
     viewer = make_napari_viewer_proxy()
     layer = viewer.add_shapes(name="Custom name")
-    layer.metadata["movement_region_layer"] = True
+    layer.metadata["movement_regions_layer"] = True
     widget = RegionsWidget(viewer)
     assert widget.layer_dropdown.count() == 1
     assert widget.layer_dropdown.currentText() == "Custom name"
@@ -277,11 +283,11 @@ def test_dropdown_follows_napari_when_new_region_layer_added(
     the dropdown syncs to it (bidirectional layer selection).
     """
     viewer = make_napari_viewer_proxy()
-    viewer.add_shapes(name="Regions")
+    add_regions_layer(viewer)
     widget = RegionsWidget(viewer)
     widget.layer_dropdown.setCurrentText("Regions")
 
-    viewer.add_shapes(name="Regions [1]")
+    add_regions_layer(viewer, name="Regions [1]")
     # napari makes the newly added layer active, so the dropdown follows
     assert widget.layer_dropdown.currentText() == "Regions [1]"
 
@@ -293,6 +299,7 @@ def test_layer_selection_links_to_model(regions_widget_with_layer):
     assert widget.region_table_model.layer == layer
 
 
+
 def test_renaming_layer_updates_dropdown(regions_widget_with_layer):
     """Test that renaming a layer updates the dropdown."""
     widget, layer = regions_widget_with_layer
@@ -301,27 +308,12 @@ def test_renaming_layer_updates_dropdown(regions_widget_with_layer):
     # findText returns the index of the matching item or -1 if not found
 
 
-def test_renaming_to_region_pattern_marks_as_region_layer(
-    make_napari_viewer_proxy,
-):
-    """Test that renaming to Region pattern marks it as a region layer."""
-    viewer = make_napari_viewer_proxy()
-    layer = viewer.add_shapes(name="Other shapes")
-    widget = RegionsWidget(viewer)
-    assert widget.layer_dropdown.currentText() == DROPDOWN_PLACEHOLDER
-    assert "movement_region_layer" not in layer.metadata
-
-    layer.name = "Region-Arena"
-    assert widget.layer_dropdown.currentText() == "Region-Arena"
-    assert layer.metadata.get("movement_region_layer") is True
-
 
 def test_close_cleans_up(regions_widget_with_layer):
     """Test that closing widget disconnects signals and clears model."""
     widget, _ = regions_widget_with_layer
     with does_not_raise():
         widget.close()
-    assert len(widget._connected_layers) == 0
     assert widget.region_table_model is None
 
 
@@ -332,9 +324,7 @@ def test_fills_empty_or_none_names(
 ):
     """Test that empty/None names are filled with default name."""
     viewer = make_napari_viewer_proxy()
-    layer = viewer.add_shapes(
-        two_polygons[:1], shape_type="polygon", name="Regions"
-    )
+    layer = add_regions_layer(viewer, two_polygons[:1], shape_type="polygon")
     layer.properties = {"name": [empty_value]}
 
     RegionsWidget(viewer)
@@ -344,11 +334,7 @@ def test_fills_empty_or_none_names(
 def test_preserves_user_names(make_napari_viewer_proxy, two_polygons):
     """Test that user-assigned names are preserved."""
     viewer = make_napari_viewer_proxy()
-    layer = viewer.add_shapes(
-        two_polygons,
-        shape_type="polygon",
-        name="Regions",
-    )
+    layer = add_regions_layer(viewer, two_polygons, shape_type="polygon")
     layer.properties = {"name": ["Arena", ""]}
 
     RegionsWidget(viewer)
@@ -633,8 +619,8 @@ def test_shape_deselection_clears_table_selection(regions_widget_with_layer):
 def test_napari_layer_selection_syncs_to_dropdown(regions_widget):
     """Test that selecting a region layer in napari updates the dropdown."""
     viewer = regions_widget.viewer
-    layer_a = viewer.add_shapes(name="Regions-A")
-    layer_b = viewer.add_shapes(name="Regions-B")
+    layer_a = add_regions_layer(viewer, name="Regions-A")
+    layer_b = add_regions_layer(viewer, name="Regions-B")
 
     viewer.layers.selection.active = layer_a
     assert regions_widget.layer_dropdown.currentText() == "Regions-A"
@@ -646,7 +632,7 @@ def test_napari_layer_selection_syncs_to_dropdown(regions_widget):
 def test_non_region_layer_selection_does_not_change_dropdown(regions_widget):
     """Test that selecting a non-region layer leaves the dropdown unchanged."""
     viewer = regions_widget.viewer
-    viewer.add_shapes(name="Regions-A")
+    add_regions_layer(viewer, name="Regions-A")
     other_layer = viewer.add_shapes(name="Other shapes")
 
     regions_widget.layer_dropdown.setCurrentText("Regions-A")
@@ -668,7 +654,9 @@ def test_table_allows_name_editing(regions_widget_with_layer):
     [
         pytest.param(None, "No region layers", id="no_layers"),
         pytest.param(
-            {"name": "Regions"}, "No regions in this layer", id="empty_layer"
+            {"name": "Regions"},
+            "No regions in this layer",
+            id="empty_layer",
         ),
         pytest.param(
             {
@@ -686,7 +674,7 @@ def test_table_tooltip_reflects_state(
     """Test table tooltip text reflects current widget state."""
     viewer = make_napari_viewer_proxy()
     if add_shapes_kwargs is not None:
-        viewer.add_shapes(**add_shapes_kwargs)
+        add_regions_layer(viewer, **add_shapes_kwargs)
     widget = RegionsWidget(viewer)
     assert expected_text in widget.region_table_view.toolTip()
 
@@ -695,7 +683,7 @@ def test_table_tooltip_reflects_state(
 def test_empty_shapes_layer(make_napari_viewer_proxy):
     """Test table handles empty shapes layer."""
     viewer = make_napari_viewer_proxy()
-    viewer.add_shapes(name="Regions")
+    add_regions_layer(viewer)
     with does_not_raise():
         widget = RegionsWidget(viewer)
 

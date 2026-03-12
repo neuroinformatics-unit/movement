@@ -66,7 +66,6 @@ class RegionsWidget(QWidget):
         self.color_manager = RegionsColorManager(cmap_name=cmap_name)
         self.region_table_model: RegionsTableModel | None = None
         self.region_table_view = RegionsTableView(self)
-        self._connected_layers: set[Shapes] = set()
 
         # Guard flag to prevent circular updates between the two sync
         # handlers: napari layer selection → dropdown → _on_layer_selected
@@ -138,7 +137,7 @@ class RegionsWidget(QWidget):
     def _connect_layer_signals(self):
         """Connect layer lifecycle signals to widget handlers.
 
-        Handles layer insertion, removal, and name changes.
+        Handles layer insertion, removal, and selection changes.
         """
         self.viewer.layers.events.inserted.connect(self._update_layer_dropdown)
         self.viewer.layers.events.removed.connect(self._on_layer_removed)
@@ -146,36 +145,9 @@ class RegionsWidget(QWidget):
             self._on_napari_layer_selection_changed
         )
 
-        # Connect to name change events for all existing shapes layers
-        for layer in self.viewer.layers:
-            if isinstance(layer, Shapes):
-                self._connect_layer_name_signal(layer)
-
-    def _connect_layer_name_signal(self, layer: Shapes) -> None:
-        """Connect to layer name change signal if not already connected."""
-        if layer not in self._connected_layers:
-            layer.events.name.connect(self._update_layer_dropdown)
-            self._connected_layers.add(layer)
-
-    def _disconnect_layer_name_signal(self, layer: Shapes) -> None:
-        """Disconnect from layer name change signal."""
-        if layer in self._connected_layers:
-            layer.events.name.disconnect(self._update_layer_dropdown)
-            self._connected_layers.discard(layer)
-
     def _is_region_layer(self, layer: Shapes) -> bool:
-        """Check if a Shapes layer is a region layer.
-
-        First checks for explicit metadata marker, then falls back to
-        case-insensitive name matching.
-        """
-        if layer.metadata.get("movement_region_layer", False):
-            return True
-        return layer.name.upper().startswith("REGION")
-
-    def _mark_as_region_layer(self, layer: Shapes) -> None:
-        """Mark a Shapes layer as a region layer via metadata."""
-        layer.metadata["movement_region_layer"] = True
+        """Check if a Shapes layer is a movement region layer."""
+        return layer.metadata.get("movement_regions_layer", False)
 
     def _get_region_layers(self) -> dict[str, Shapes]:
         """Get all region layers.
@@ -189,47 +161,16 @@ class RegionsWidget(QWidget):
         }
 
     def _on_layer_removed(self, event=None):
-        """Handle layer removal from viewer.
-
-        Disconnects name change signals from the removed layer and
-        updates the dropdown to reflect available layers.
-        """
-        if event is not None and hasattr(event, "value"):
-            layer = event.value
-            if isinstance(layer, Shapes):
-                self._disconnect_layer_name_signal(layer)
+        """Handle layer removal from viewer."""
         self._update_layer_dropdown(event)
 
-    def _update_layer_dropdown(self, event=None):
+    def _update_layer_dropdown(self, _event=None):
         """Refresh the layer dropdown with current region layers.
 
-        Called when layers are added, removed, or renamed. Handles:
-
-        - Connecting name change signals for new Shapes layers
-        - Auto-marking layers renamed to "Region*" as region layers
-        - Preserving the current selection when possible
-        - Showing placeholder text when no region layers exist
+        Called when layers are added, removed, or renamed. Preserves the
+        current selection when possible; falls back to the first layer.
+        Shows placeholder text when no region layers exist.
         """
-        # Connect to name change events for any new Shapes layers
-        if event is not None and hasattr(event, "value"):
-            layer = event.value
-            if isinstance(layer, Shapes):
-                self._connect_layer_name_signal(layer)
-
-        # Check if a layer was renamed to a region name pattern
-        # and mark it with metadata if so
-        renamed_to_region = False
-        if (
-            event is not None
-            and hasattr(event, "source")
-            and isinstance(event.source, Shapes)
-        ):
-            layer = event.source
-            if self._is_region_layer(layer):
-                # Mark with metadata so it stays a region layer even if renamed
-                self._mark_as_region_layer(layer)
-                renamed_to_region = True
-
         current_text = self.layer_dropdown.currentText()
         region_layer_names = list(self._get_region_layers().keys())
 
@@ -237,15 +178,9 @@ class RegionsWidget(QWidget):
         if region_layer_names:
             self.layer_dropdown.setStyleSheet("")
             self.layer_dropdown.addItems(region_layer_names)
-            # Determine which layer to select
-            if renamed_to_region:
-                # Auto-select the newly renamed region layer
-                self.layer_dropdown.setCurrentText(event.source.name)
-            elif current_text in region_layer_names:
-                # Next, try restoring the previous selection
+            if current_text in region_layer_names:
                 self.layer_dropdown.setCurrentText(current_text)
             else:
-                # Fall back to the first layer
                 self.layer_dropdown.setCurrentIndex(0)
         else:
             self.layer_dropdown.setStyleSheet("color: gray;")
@@ -308,8 +243,10 @@ class RegionsWidget(QWidget):
 
     def _add_new_layer(self):
         """Create a new Regions layer and select it."""
-        new_layer = self.viewer.add_shapes(name="Regions")
-        self._mark_as_region_layer(new_layer)
+        new_layer = self.viewer.add_shapes(
+            name="Regions",
+            metadata={"movement_regions_layer": True},
+        )
         self.layer_dropdown.setCurrentText(new_layer.name)
 
     def _link_layer_to_model(self, region_layer: Shapes):
@@ -447,14 +384,9 @@ class RegionsWidget(QWidget):
         """Clean up signal connections when widget is closed.
 
         Overrides QWidget.closeEvent to ensure proper cleanup of:
-            - Layer name change signals
             - Viewer-level layer insertion/removal/selection signals
             - Table model connections
         """
-        # Disconnect all layer name signals
-        for layer in list(self._connected_layers):
-            self._disconnect_layer_name_signal(layer)
-
         # Disconnect viewer-level signals
         self.viewer.layers.events.inserted.disconnect(
             self._update_layer_dropdown
