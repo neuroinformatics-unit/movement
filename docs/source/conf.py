@@ -214,6 +214,7 @@ linkcheck_ignore = [
     "https://zenodo.org/doi/*",
     "https://zenodo.org/records/*",
     "https://doi.org/10.5281/zenodo.*",
+    "https://abide.ics.ulisboa.pt/*"  # flaky
 ]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {
@@ -262,6 +263,7 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "attrs": ("https://www.attrs.org/en/stable/", None),
+    "shapely": ("https://shapely.readthedocs.io/en/stable/", None),
 }
 
 # What to show on the 404 page
