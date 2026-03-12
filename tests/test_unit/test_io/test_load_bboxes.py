@@ -398,8 +398,8 @@ def test_from_numpy(
         ),
     ],
 )
-def test_df_from_valid_via_object_fill(input_data, expected_df):
-    """Test sorting and gap-filling of ID/frame combinations."""
+def test_df_from_valid_via_object(input_data, expected_df):
+    """Test parsed dataframe is computed correctly."""
     # Mock valid VIA file object based on input
     mock_via_file = Mock()
     mock_via_file.ids = input_data["ids"]
