@@ -176,7 +176,7 @@ def register_loader(
 
     Returns
     -------
-    Callable
+    collections.abc.Callable
         A decorator that registers the loader function.
 
     Notes
