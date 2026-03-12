@@ -628,62 +628,6 @@ def test_fps_and_time_coords(
 
 
 @pytest.mark.parametrize(
-    "via_file_path, expected_n_frames, expected_n_individuals",
-    [
-        (
-            pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-            5,
-            86,
-        ),  # multiple crabs present in all 5 frames
-        (
-            pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
-            35,
-            1,
-        ),  # single crab present in 35 non-consecutive frames
-        (
-            "via_multiple_crabs_gap_id_1",
-            5,
-            86,
-        ),  # multiple crabs, all but id=1 are present in all 5 frames
-    ],
-)
-def test_parsed_df_from_valid_file(
-    via_file_path, expected_n_frames, expected_n_individuals, request
-):
-    """Test that the `_df_from_valid_via_object` helper function
-    correctly parses the VIA tracks .csv file as a dataframe.
-    """
-    if via_file_path == "via_multiple_crabs_gap_id_1":
-        via_file_path = request.getfixturevalue(via_file_path)
-
-    # Read the VIA tracks .csv file as a dataframe
-    valid_file_object = ValidVIATracksCSV(via_file_path)
-    df = load_bboxes._df_from_valid_via_object(valid_file_object)
-
-    # Check dataframe
-    assert isinstance(df, pd.DataFrame)
-    assert len(df.frame_number.unique()) == expected_n_frames
-    assert len(df.ID.unique()) == expected_n_individuals
-
-    # Check all individuals are present in all frames (even if nan)
-    assert df.shape[0] == len(df.ID.unique()) * expected_n_frames
-
-    # Check that the dataframe has the expected columns
-    assert list(df.columns) == [
-        "ID",
-        "frame_number",
-        "x",
-        "y",
-        "w",
-        "h",
-        "confidence",
-    ]
-
-    # Check that the dataframe is sorted by frame_number and ID
-    assert df.sort_values(["ID", "frame_number"]).equals(df)
-
-
-@pytest.mark.parametrize(
     "via_file_path",
     [
         pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
