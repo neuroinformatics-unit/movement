@@ -68,6 +68,11 @@ class RegionsWidget(QWidget):
         self.region_table_view = RegionsTableView(self)
         self._connected_layers: set[Shapes] = set()
 
+        # Guard flag to prevent circular updates between the two sync
+        # handlers: napari layer selection → dropdown → _on_layer_selected
+        # → viewer.layers.selection.add() → napari layer selection...
+        self._syncing_layer_selection = False
+
         self._setup_regions_ui()
         self._connect_layer_signals()
         self._update_layer_dropdown()
@@ -137,6 +142,9 @@ class RegionsWidget(QWidget):
         """
         self.viewer.layers.events.inserted.connect(self._update_layer_dropdown)
         self.viewer.layers.events.removed.connect(self._on_layer_removed)
+        self.viewer.layers.selection.events.changed.connect(
+            self._on_napari_layer_selection_changed
+        )
 
         # Connect to name change events for all existing shapes layers
         for layer in self.viewer.layers:
@@ -265,6 +273,33 @@ class RegionsWidget(QWidget):
             self.viewer.layers.selection.add(region_layer)
             # Connect the region layer to the table model
             self._link_layer_to_model(region_layer)
+
+    def _on_napari_layer_selection_changed(self, event=None):
+        """Sync napari layer list selection to the dropdown and table.
+
+        When the user clicks a region layer in napari's layer list,
+        the dropdown and table update to reflect that layer.
+        """
+        # Return early if we're already syncing to avoid circular updates
+        if self._syncing_layer_selection:
+            return
+
+        active = self.viewer.layers.selection.active
+        # Return early if no regions layer is active
+        if (
+            active is None
+            or not isinstance(active, Shapes)
+            or not self._is_region_layer(active)
+        ):
+            return
+
+        # Return early if the active layer is already selected in the dropdown
+        if self.layer_dropdown.currentText() == active.name:
+            return
+
+        self._syncing_layer_selection = True
+        self.layer_dropdown.setCurrentText(active.name)
+        self._syncing_layer_selection = False
 
     def _on_layer_renamed(self, event=None):
         """Handle layer renaming by updating the dropdown."""
@@ -413,7 +448,7 @@ class RegionsWidget(QWidget):
 
         Overrides QWidget.closeEvent to ensure proper cleanup of:
             - Layer name change signals
-            - Viewer-level layer insertion/removal signals
+            - Viewer-level layer insertion/removal/selection signals
             - Table model connections
         """
         # Disconnect all layer name signals
@@ -425,6 +460,9 @@ class RegionsWidget(QWidget):
             self._update_layer_dropdown
         )
         self.viewer.layers.events.removed.disconnect(self._on_layer_removed)
+        self.viewer.layers.selection.events.changed.disconnect(
+            self._on_napari_layer_selection_changed
+        )
 
         # Clean up table model
         self._clear_region_table_model()
@@ -461,7 +499,7 @@ class RegionsTableView(QTableView):
 
         # Guard flag to prevent circular updates between the two sync
         # handlers: row selection → napari shape selection → row selection...
-        self._syncing_selection = False
+        self._syncing_row_selection = False
 
     def setModel(self, model):
         """Set the table model and connect selection signals.
@@ -493,7 +531,7 @@ class RegionsTableView(QTableView):
 
     def _on_row_selection_changed(self, selected, deselected):
         """Sync row selection in the table to shape selection in napari."""
-        if self._syncing_selection:
+        if self._syncing_row_selection:
             return
         if self.current_model is None or self.current_model.layer is None:
             return
@@ -504,24 +542,24 @@ class RegionsTableView(QTableView):
 
         row = indexes[0].row()
         if row < len(self.current_model.layer.data):
-            self._syncing_selection = True
+            self._syncing_row_selection = True
             self.current_model.layer.selected_data = {row}
-            self._syncing_selection = False
+            self._syncing_row_selection = False
 
     def _on_shape_selection_changed(self, event=None):
         """Sync shape selection in napari to row highlight in the table."""
-        if self._syncing_selection:
+        if self._syncing_row_selection:
             return
         if self.current_model is None or self.current_model.layer is None:
             return
 
         selected = self.current_model.layer.selected_data
-        self._syncing_selection = True
+        self._syncing_row_selection = True
         if len(selected) == 1:
             self.selectRow(next(iter(selected)))
         else:
             self.clearSelection()
-        self._syncing_selection = False
+        self._syncing_row_selection = False
 
 
 class RegionsTableModel(QAbstractTableModel):

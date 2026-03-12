@@ -268,15 +268,21 @@ def test_dropdown_includes_layer_with_region_metadata(
     assert widget.layer_dropdown.currentText() == "Custom name"
 
 
-def test_dropdown_preserves_selection_on_update(make_napari_viewer_proxy):
-    """Test dropdown preserves current selection when updated."""
+def test_dropdown_follows_napari_when_new_region_layer_added(
+    make_napari_viewer_proxy,
+):
+    """Test dropdown follows napari's active layer when a new region is added.
+
+    When napari adds a new region layer, it becomes the active layer, so
+    the dropdown syncs to it (bidirectional layer selection).
+    """
     viewer = make_napari_viewer_proxy()
     viewer.add_shapes(name="Regions")
-    viewer.add_shapes(name="Regions [1]")
     widget = RegionsWidget(viewer)
-    widget.layer_dropdown.setCurrentText("Regions [1]")
-    viewer.add_shapes(name="Regions [2]")
+    widget.layer_dropdown.setCurrentText("Regions")
 
+    viewer.add_shapes(name="Regions [1]")
+    # napari makes the newly added layer active, so the dropdown follows
     assert widget.layer_dropdown.currentText() == "Regions [1]"
 
 
@@ -622,6 +628,31 @@ def test_shape_deselection_clears_table_selection(regions_widget_with_layer):
     layer.selected_data = {0}
     layer.selected_data = set()
     assert not widget.region_table_view.selectionModel().hasSelection()
+
+
+def test_napari_layer_selection_syncs_to_dropdown(regions_widget):
+    """Test that selecting a region layer in napari updates the dropdown."""
+    viewer = regions_widget.viewer
+    layer_a = viewer.add_shapes(name="Regions-A")
+    layer_b = viewer.add_shapes(name="Regions-B")
+
+    viewer.layers.selection.active = layer_a
+    assert regions_widget.layer_dropdown.currentText() == "Regions-A"
+
+    viewer.layers.selection.active = layer_b
+    assert regions_widget.layer_dropdown.currentText() == "Regions-B"
+
+
+def test_non_region_layer_selection_does_not_change_dropdown(regions_widget):
+    """Test that selecting a non-region layer leaves the dropdown unchanged."""
+    viewer = regions_widget.viewer
+    viewer.add_shapes(name="Regions-A")
+    other_layer = viewer.add_shapes(name="Other shapes")
+
+    regions_widget.layer_dropdown.setCurrentText("Regions-A")
+    viewer.layers.selection.active = other_layer
+
+    assert regions_widget.layer_dropdown.currentText() == "Regions-A"
 
 
 def test_table_allows_name_editing(regions_widget_with_layer):
