@@ -52,12 +52,12 @@ class RegionsWidget(QWidget):
 
         Parameters
         ----------
-        napari_viewer : Viewer
+        napari_viewer
             The napari viewer instance.
-        cmap_name : str, optional
+        cmap_name
             Name of the napari colormap to use for region colors.
             Default is "tab10".
-        parent : QWidget, optional
+        parent
             The parent widget.
 
         """
@@ -513,11 +513,11 @@ class RegionsTableModel(QAbstractTableModel):
 
         Parameters
         ----------
-        shapes_layer : Shapes
+        shapes_layer
             The napari Shapes layer containing the regions.
-        region_style : RegionsStyle
+        region_style
             The style to apply to the regions.
-        parent : QWidget, optional
+        parent
             The parent widget.
 
         """
@@ -661,9 +661,9 @@ class RegionsTableModel(QAbstractTableModel):
 
         Parameters
         ----------
-        n_shapes : int
+        n_shapes
             Current number of shapes in the layer.
-        assign_default_to_new : bool, optional
+        assign_default_to_new
             If True, assigns DEFAULT_REGION_NAME to newly added shapes.
             Use for drawn shapes (not copy-pasted ones). Default is False.
 
@@ -711,7 +711,7 @@ def _fill_empty_region_names(existing_names: list) -> list:
 
     Parameters
     ----------
-    existing_names : list
+    existing_names
         Current list of region names.
 
     Returns

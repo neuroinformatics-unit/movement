@@ -287,7 +287,7 @@ class RegionsColorManager:
 
         Parameters
         ----------
-        layer_name : str
+        layer_name
             The name of the layer.
 
         Returns
