@@ -647,7 +647,28 @@ def test_position_array_from_valid_via_object(via_file_path):
 
     # Compute centroid positions from the dataframe
     # (go through in the same order as ID array)
-    list_derived_centroids = []
+    id_order = [identifier.item() for identifier in bboxes_arrays["ID_array"]]
+    centroids_df = df.assign(
+        x_centroid=df["x"] + df["w"] / 2,
+        y_centroid=df["y"] + df["h"] / 2,
+    )
+    x_centroids = centroids_df.pivot(
+        index="frame_number",
+        columns="ID",
+        values="x_centroid",
+    )[id_order].to_numpy()
+    y_centroids = centroids_df.pivot(
+        index="frame_number",
+        columns="ID",
+        values="y_centroid",
+    )[id_order].to_numpy()
+    derived_centroids = np.stack([x_centroids, y_centroids], axis=1)
+
+    # Compare to extracted position array
+    assert np.allclose(
+        bboxes_arrays["position_array"],  # frames, xy, individuals
+        derived_centroids,
+    )
     for id in bboxes_arrays["ID_array"]:
         df_one_id = df[df["ID"] == id.item()]
         centroid_position = np.array(
