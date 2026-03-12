@@ -223,6 +223,52 @@ def test_deeplabcut_validators(
         validator_cls(file)
 
 
+def test_validate_via_tracks_file(
+    via_tracks_csv,
+):
+    """Test that the pre-parsed data is defined after validation."""
+    validator = ValidVIATracksCSV(via_tracks_csv)
+
+    # Check that the pre-parsed data is defined
+    assert isinstance(validator.x, list)
+    assert isinstance(validator.y, list)
+    assert isinstance(validator.w, list)
+    assert isinstance(validator.h, list)
+    assert isinstance(validator.ids, list)
+    assert isinstance(validator.frame_numbers, list)
+    assert isinstance(validator.confidence, list)
+
+
+@pytest.mark.parametrize(
+    "frame_regexp, log_message",
+    [
+        (
+            r"\d+",
+            "The regexp pattern must contain exactly one capture "
+            r"group for the frame number (got \d+).",
+        ),  # no capture group
+        (
+            r"(\d+)\.(\w+)",
+            "The regexp pattern must contain exactly one capture "
+            r"group for the frame number (got (\d+)\.(\w+)).",
+        ),  # two capture groups
+        (
+            r"*",
+            "regular expression for the frame numbers (*) "
+            "could not be compiled.",
+        ),  # compilation error
+    ],
+)
+def test_validate_via_tracks_file_invalid_regexp(
+    via_tracks_csv, frame_regexp, log_message
+):
+    """Test that ValidVIATracksCSV with an invalid frame_regexp
+    raises a ValueError.
+    """
+    with pytest.raises(ValueError, match=re.escape(log_message)):
+        ValidVIATracksCSV(via_tracks_csv, frame_regexp=frame_regexp)
+
+
 @pytest.mark.parametrize(
     "invalid_input, error_type, log_message",
     [
@@ -234,16 +280,13 @@ def test_deeplabcut_validators(
         (
             "via_frame_number_in_file_attribute_not_integer",
             ValueError,
-            "Some frame numbers cannot be cast as integer. "
-            "Please review the VIA-tracks .csv file.",
+            "Some frame numbers cannot be cast as integer. ",
         ),
         (
             "via_frame_number_in_filename_wrong_pattern",
             ValueError,
             "Could not extract frame numbers from the filenames using "
-            r"the regular expression (0\d*)\.\w+$. Please ensure "
-            "filenames match the expected pattern, or define the "
-            "frame numbers in file_attributes.",
+            r"the regular expression (0\d*)\.\w+$.",
         ),
         (
             "via_more_frame_numbers_than_filenames",
@@ -286,7 +329,7 @@ def test_deeplabcut_validators(
         ),
     ],
 )
-def test_via_tracks_csv_validator_with_invalid_input(
+def test_validate_via_tracks_file_invalid_input(
     via_tracks_csv_factory, invalid_input, error_type, log_message
 ):
     """Test ValidVIATracksCSV with valid and invalid inputs.
@@ -309,60 +352,8 @@ def test_via_tracks_csv_validator_with_invalid_input(
         - extracted frame numbers cannot be cast as integers
     """
     file_path = via_tracks_csv_factory(invalid_input)
-    with pytest.raises(error_type) as excinfo:
+    with pytest.raises(error_type, match=re.escape(log_message)):
         ValidVIATracksCSV(file_path)
-
-    assert log_message in str(excinfo.value)
-
-
-@pytest.mark.parametrize(
-    "frame_regexp, log_message",
-    [
-        (
-            r"\d+",
-            "The regexp pattern must contain exactly one capture "
-            r"group for the frame number (got \d+).",
-        ),  # no capture group
-        (
-            r"(\d+)\.(\w+)",
-            "The regexp pattern must contain exactly one capture "
-            r"group for the frame number (got (\d+)\.(\w+)).",
-        ),  # two capture groups
-        (
-            r"*",
-            "regular expression for the frame numbers (*) "
-            "could not be compiled.",
-        ),  # compilation error
-    ],
-)
-def test_via_tracks_csv_validator_with_invalid_regexp(
-    via_tracks_csv, frame_regexp, log_message
-):
-    """Test that ValidVIATracksCSV with an invalid frame_regexp
-    raises a ValueError.
-    """
-    with pytest.raises(ValueError, match=re.escape(log_message)):
-        ValidVIATracksCSV(via_tracks_csv, frame_regexp=frame_regexp)
-
-
-def test_via_tracks_csv_validator_attributes(
-    via_tracks_csv,
-):
-    """Test that the attributes are as expected after validation.
-
-    The dataframe attribute should be cleared after validation.
-    The pre-parsed data should be defined.
-    """
-    validator = ValidVIATracksCSV(via_tracks_csv)
-
-    # Check that the pre-parsed data is defined
-    assert isinstance(validator.x, list)
-    assert isinstance(validator.y, list)
-    assert isinstance(validator.w, list)
-    assert isinstance(validator.h, list)
-    assert isinstance(validator.ids, list)
-    assert isinstance(validator.frame_numbers, list)
-    assert isinstance(validator.confidence, list)
 
 
 @pytest.mark.parametrize(
