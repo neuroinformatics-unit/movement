@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Literal, cast
 
 import numpy as np
-import pandas as pd
 import xarray as xr
 
 from movement.io.load import register_loader
@@ -411,7 +410,7 @@ def _numpy_arrays_from_valid_via_object(
     frame_numbers = np.asarray(valid_via_file.frame_numbers, dtype=np.int64)
     confidence = np.asarray(valid_via_file.confidence, dtype=np.float32)
 
-    # Compute sorted unique IDs and frames
+    # Compute **sorted** unique IDs and frames
     unique_ids = np.unique(ids)
     unique_frames = np.unique(frame_numbers)
 
@@ -447,54 +446,3 @@ def _numpy_arrays_from_valid_via_object(
         "ID_array": unique_ids.reshape(-1, 1),
         "frame_array": unique_frames.reshape(-1, 1),
     }
-
-
-def _df_from_valid_via_object(
-    valid_file: ValidVIATracksCSV,
-) -> pd.DataFrame:
-    """Build a sorted DataFrame from a validated VIA tracks file object.
-
-    Creates a DataFrame with ID, frame_number, x, y, w, h, and confidence
-    columns. Missing (ID, frame_number) combinations are filled with NaNs,
-    and the result is sorted by ID and frame_number.
-
-    Parameters
-    ----------
-    valid_file
-        A validated VIA tracks file object.
-
-    Returns
-    -------
-    pd.DataFrame
-        Sorted DataFrame with all ID/frame combinations.
-
-    """
-    # Build dataframe from file validator object data, then sort and reindex
-    df = pd.DataFrame(
-        {
-            "ID": valid_file.ids,
-            "frame_number": valid_file.frame_numbers,
-            "x": np.array(valid_file.x, dtype=np.float32),
-            "y": np.array(valid_file.y, dtype=np.float32),
-            "w": np.array(valid_file.w, dtype=np.float32),
-            "h": np.array(valid_file.h, dtype=np.float32),
-            "confidence": np.array(valid_file.confidence, dtype=np.float32),
-        }
-    )
-
-    # Desired index: all combinations of ID and frame number
-    multi_index = pd.MultiIndex.from_product(
-        [df["ID"].unique().tolist(), df["frame_number"].unique().tolist()],
-        # these unique lists may not be sorted!
-        names=["ID", "frame_number"],
-    )
-
-    # Set index to (ID, frame number), fill in values with nans,
-    # sort by ID and frame_number, and reset to new index
-    df = (
-        df.set_index(["ID", "frame_number"])
-        .reindex(multi_index)  # fills missing rows with nan
-        .sort_values(by=["ID", "frame_number"], axis=0)
-        .reset_index()
-    )
-    return df
