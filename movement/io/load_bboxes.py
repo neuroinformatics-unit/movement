@@ -416,17 +416,8 @@ def _numpy_arrays_from_valid_via_object(
     unique_frames = np.unique(frame_numbers)
 
     # Map each observation's ID and frame to an index in the output arrays
-    id_to_arr_idx = {int(id_): i for i, id_ in enumerate(unique_ids)}
-    frame_to_arr_idx = {int(f): i for i, f in enumerate(unique_frames)}
-    id_indices_per_obs = np.array(
-        [id_to_arr_idx[int(i)] for i in ids],
-        dtype=np.intp,  # array indices type
-    )
-    frame_indices_per_obs = np.array(
-        [frame_to_arr_idx[int(f)] for f in frame_numbers], dtype=np.intp
-    )
-    # id_indices_per_obs = np.searchsorted(unique_ids, ids)
-    # frame_indices_per_obs = np.searchsorted(unique_frames, frame_numbers)
+    id_indices_per_obs = np.searchsorted(unique_ids, ids)
+    frame_indices_per_obs = np.searchsorted(unique_frames, frame_numbers)
 
     # Initialise output dense arrays and fill with NaNs
     n_individuals = len(unique_ids)
