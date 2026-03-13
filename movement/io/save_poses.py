@@ -105,7 +105,8 @@ def to_dlc_style_df(
     dlc_df_format
         Specifies the DLC dataframe format. "single-animal" produces the
         older DLC (<2.0) format without the "individuals" column level,
-        while "multi-animal" includes it (DLC >=2.0). Default is "multi-animal".
+        while "multi-animal" includes it (DLC >=2.0).
+        Default is "multi-animal".
 
     Returns
     -------
@@ -136,7 +137,7 @@ def to_dlc_style_df(
     individuals = ds.coords["individuals"].data.tolist()
 
     if split_individuals:
-        df_dict = {}
+        df_dict: dict[str, pd.DataFrame] = {}
 
         for individual in individuals:
             individual_data = ds.sel(individuals=individual)
@@ -151,9 +152,9 @@ def to_dlc_style_df(
 
             df_dict[individual] = df
 
-        logger.info(
-            "Converted poses dataset to DeepLabCut-style DataFrames per individual."
-        )
+            logger.info(
+                f"Converted poses for individual {individual} to DataFrame."
+            )
 
         return df_dict
 
@@ -180,10 +181,10 @@ def to_dlc_style_df(
 
         return df_all
 
+        raise RuntimeError("Unexpected state in to_dlc_style_df.")
 
-from typing import Literal
 
-
+# noqa: C901
 def to_dlc_file(
     ds: xr.Dataset,
     file_path: str | Path,
@@ -234,7 +235,9 @@ def to_dlc_file(
         import warnings
 
         warnings.warn(
-            "split_individuals=True ignored because dataset contains only one individual."
+            "split_individuals=True ignored because dataset contains "
+            "only one individual.",
+            stacklevel=2,
         )
         split_individuals = False
 
@@ -251,7 +254,7 @@ def to_dlc_file(
             if isinstance(df, pd.DataFrame):
                 _save_dlc_df(Path(filepath), df)
 
-            logger.info(f"Saved poses for individual {key} to {valid_path}.")
+            logger.info(f"Saved poses for individual {key} to {filepath}.")
 
     else:
         df_all = to_dlc_style_df(
