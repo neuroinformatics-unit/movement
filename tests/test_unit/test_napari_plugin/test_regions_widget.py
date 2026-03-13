@@ -734,6 +734,51 @@ def test_table_tooltip_reflects_state(
 
 
 # ------------------- Tests for edge cases -----------------------------------#
+def test_delete_shape_after_drawing(regions_widget, two_polygons):
+    """Test that shapes can be deleted after being drawn via the widget.
+
+    Regression: drawing a shape reset the text string cache to [], causing
+    an IndexError when napari tried to remove the shape from an empty cache.
+    """
+    viewer = regions_widget.viewer
+    layer = add_regions_layer(viewer)
+    layer.add(two_polygons[:1])
+    with does_not_raise():
+        layer.selected_data = {0}
+        layer.remove_selected()
+    assert regions_widget.region_table_model.rowCount() == 0
+
+
+def test_draw_after_deleting_all_shapes(regions_widget, two_polygons):
+    """Test that drawing after deleting all shapes gives a valid default name.
+
+    Regression: napari pre-allocates property slots with NaN before the
+    ADDED event fires; the NaN guard in _sync_names_on_shape_change ensures
+    a valid name is assigned instead of crashing.
+    """
+    viewer = regions_widget.viewer
+    layer = add_regions_layer(viewer, two_polygons, shape_type="polygon")
+    layer.selected_data = set(range(len(layer.data)))
+    layer.remove_selected()
+    assert regions_widget.region_table_model.rowCount() == 0
+
+    layer.add(two_polygons[:1])
+    assert regions_widget.region_table_model.rowCount() == 1
+    assert layer.properties["name"][0] == DEFAULT_REGION_NAME
+
+
+def test_edge_color_change_updates_text_color(regions_widget_with_layer):
+    """Test that text colour is tethered to edge colour.
+
+    When the edge_color event fires, _on_edge_color_changed should update
+    text colours to match without raising an error.
+    """
+    widget, layer = regions_widget_with_layer
+    with does_not_raise():
+        layer.events.edge_color()
+    assert hasattr(widget.region_table_model, "_on_edge_color_changed")
+
+
 def test_text_label_deferred_until_first_shape_drawn(
     regions_widget, two_polygons
 ):

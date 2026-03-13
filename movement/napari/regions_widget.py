@@ -347,6 +347,9 @@ class RegionsWidget(QWidget):
                 self.region_table_model.layer.events.set_data.disconnect(
                     self.region_table_model._on_layer_set_data
                 )
+                self.region_table_model.layer.events.edge_color.disconnect(
+                    self.region_table_model._on_edge_color_changed
+                )
                 self.region_table_model.layer.events.name.disconnect(
                     self._on_layer_renamed
                 )
@@ -542,6 +545,8 @@ class RegionsTableModel(QAbstractTableModel):
         self.layer.events.data.connect(self._on_layer_data_changed)
         # Listen to set_data events (copy-paste emits this, not data)
         self.layer.events.set_data.connect(self._on_layer_set_data)
+        # Keep text colour tethered to edge colour
+        self.layer.events.edge_color.connect(self._on_edge_color_changed)
 
     def rowCount(self, parent=QModelIndex()):  # noqa: B008
         """Return the number of regions (shapes) in the layer."""
@@ -646,6 +651,11 @@ class RegionsTableModel(QAbstractTableModel):
         elif event.action == "removed":
             self._sync_names_on_shape_change(n_shapes)
 
+    def _on_edge_color_changed(self, event=None):
+        """Tether text colour to edge colour when the user recolours shapes."""
+        if self.layer is not None and len(self.layer.data) > 0:
+            self.layer.text.color = self.layer.edge_color
+
     def _on_layer_set_data(self, event=None):
         """Handle set_data events from copy-paste operations.
 
@@ -690,20 +700,22 @@ class RegionsTableModel(QAbstractTableModel):
         # Assign unique names to newly added shapes
         if n_shapes > self._last_shape_count:
             for i in range(self._last_shape_count, n_shapes):
-                base = (
-                    DEFAULT_REGION_NAME
-                    if assign_default_to_new
-                    else current_names[i]
-                )
+                base = current_names[i]
+                if assign_default_to_new or not isinstance(base, str):
+                    base = DEFAULT_REGION_NAME
                 current_names[i] = _unique_name(base, current_names[:i])
+
+        # text.string must be set before properties.
+        if n_shapes > 0:
+            self.layer.text.string = "{name}"
 
         self.layer.properties = {"name": current_names}
         self._last_shape_count = n_shapes
 
-        # Connect text labels to the name property now that it is populated.
-        # Guarded so we don't trigger a napari warning on empty layers.
+        # text.refresh() (inside the properties setter) resets text colours
+        # to the default encoding, so re-tether them to edge colours.
         if n_shapes > 0:
-            self.layer.text.string = "{name}"
+            self.layer.text.color = self.layer.edge_color
 
         self.beginResetModel()
         self.endResetModel()
@@ -719,6 +731,9 @@ class RegionsTableModel(QAbstractTableModel):
         if event.value == self.layer:
             self.layer.events.data.disconnect(self._on_layer_data_changed)
             self.layer.events.set_data.disconnect(self._on_layer_set_data)
+            self.layer.events.edge_color.disconnect(
+                self._on_edge_color_changed
+            )
             self.layer = None
             self.beginResetModel()
             self.endResetModel()

@@ -250,6 +250,7 @@ class RegionsStyle(LayerStyle):
             layer.edge_color = [self.edge_and_text_color] * n_shapes
             layer.edge_width = [self.edge_width] * n_shapes
             layer.text.string = "{name}"
+            layer.text.refresh(layer.features)
 
         self.set_style_for_new_shapes(layer)
 
