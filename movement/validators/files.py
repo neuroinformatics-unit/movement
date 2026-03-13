@@ -571,20 +571,20 @@ class ValidVIATracksCSV:
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed
         by the file extension.
-    x : list of float
-        List of x coordinates of the tracked bounding boxes.
-    y : list of float
-        List of y coordinates of the tracked bounding boxes.
-    w : list of float
-        List of width coordinates of the tracked bounding boxes.
-    h : list of float
-        List of height coordinates of the tracked bounding boxes.
-    ids : list of int
-        List of track IDs of the tracked bounding boxes.
-    frame_numbers : list of int
-        List of frame numbers of the tracked bounding boxes.
-    confidence : list of float
-        List of confidence values of the tracked bounding boxes.
+    x
+        Array of x coordinates of the tracked bounding boxes.
+    y
+        Array of y coordinates of the tracked bounding boxes.
+    w
+        Array of width coordinates of the tracked bounding boxes.
+    h
+        Array of height coordinates of the tracked bounding boxes.
+    ids
+        Array of track IDs of the tracked bounding boxes.
+    frame_numbers
+        Array of frame numbers of the tracked bounding boxes.
+    confidence
+        Array of confidence values of the tracked bounding boxes.
 
     Raises
     ------
@@ -601,13 +601,13 @@ class ValidVIATracksCSV:
     frame_regexp: str = field(default=DEFAULT_FRAME_REGEXP)
 
     # Bboxes pre-parsed data
-    x: list[float] = field(init=False, factory=list)
-    y: list[float] = field(init=False, factory=list)
-    w: list[float] = field(init=False, factory=list)
-    h: list[float] = field(init=False, factory=list)
-    ids: list[int] = field(init=False, factory=list)
-    frame_numbers: list[int] = field(init=False, factory=list)
-    confidence: list[float] = field(init=False, factory=list)
+    x: np.ndarray = field(init=False, factory=lambda: np.array([]))
+    y: np.ndarray = field(init=False, factory=lambda: np.array([]))
+    w: np.ndarray = field(init=False, factory=lambda: np.array([]))
+    h: np.ndarray = field(init=False, factory=lambda: np.array([]))
+    ids: np.ndarray = field(init=False, factory=lambda: np.array([]))
+    frame_numbers: np.ndarray = field(init=False, factory=lambda: np.array([]))
+    confidence: np.ndarray = field(init=False, factory=lambda: np.array([]))
 
     @file.validator
     def _validate_via_tracks_file(self, attribute, value):
@@ -694,7 +694,7 @@ class ValidVIATracksCSV:
 
     def _file_contains_valid_frame_numbers(
         self, df: pd.DataFrame
-    ) -> list[int]:
+    ) -> np.ndarray:
         """Ensure that the VIA tracks .csv file contains valid frame numbers.
 
         This involves:
@@ -761,7 +761,7 @@ class ValidVIATracksCSV:
             )
 
         # If all checks pass, return
-        return frame_numbers.tolist()  # already cast as integer
+        return np.asarray(frame_numbers.values)  # already cast as integer
 
     def _file_contains_tracked_bboxes(
         self, df: pd.DataFrame
@@ -870,7 +870,7 @@ class ValidVIATracksCSV:
         return x, y, w, h, ids, confidence_values
 
     def _file_contains_unique_track_ids_per_filename(
-        self, df: pd.DataFrame, ids: list[int]
+        self, df: pd.DataFrame, ids: np.ndarray
     ):
         """Ensure the VIA tracks .csv contains unique track IDs per filename.
 
