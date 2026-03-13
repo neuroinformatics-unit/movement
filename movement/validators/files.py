@@ -790,8 +790,7 @@ class ValidVIATracksCSV:
                 df["region_shape_attributes"],
                 df["region_attributes"],
                 strict=True,
-            ),
-            start=1,
+            )
         ):
             # Parse dicts
             shape_attrs = orjson.loads(shape_row)
@@ -816,7 +815,7 @@ class ValidVIATracksCSV:
             if shape_name != "rect":
                 raise logger.error(
                     ValueError(
-                        f"The bounding box in row {k} shape was "
+                        f"The bounding box in row {k + 1} shape was "
                         "expected to be 'rect' (rectangular) but instead got "
                         f"{shape_name}. Please review the VIA tracks "
                         ".csv file."
@@ -824,10 +823,10 @@ class ValidVIATracksCSV:
                 )
 
             # Throw error if missing geometry
-            if any(value is None for value in (sx, sy, sw, sh)):
+            if sx is None or sy is None or sw is None or sh is None:
                 raise logger.error(
                     ValueError(
-                        f"The bounding box in row {k} is "
+                        f"The bounding box in row {k + 1} is "
                         "missing a geometric "
                         "parameter (x, y, width, height). Please review the "
                         "VIA tracks .csv file."
@@ -838,7 +837,7 @@ class ValidVIATracksCSV:
             if track_id is None:
                 raise logger.error(
                     ValueError(
-                        f"The bounding box in row {k} is "
+                        f"The bounding box in row {k + 1} is "
                         "missing a track ID. "
                         "Please review the VIA tracks .csv file."
                     )
@@ -850,7 +849,7 @@ class ValidVIATracksCSV:
             except ValueError as e:
                 raise logger.error(
                     ValueError(
-                        f"The track ID of the bounding box in row {k} "
+                        f"The track ID of the bounding box in row {k + 1} "
                         "cannot be cast as an integer "
                         f"(got track ID '{track_id}'). Please "
                         "review the VIA tracks .csv file."
