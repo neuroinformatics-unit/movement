@@ -289,5 +289,4 @@ def test_rolling_filter_window_1():
         coords={"time": np.arange(10)}
     )
     result = rolling_filter(data, window=1)
-    print(result, data)
-    xr.testing.assert_equal(result, data)
+    xr.testing.ass
