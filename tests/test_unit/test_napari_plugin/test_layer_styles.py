@@ -2,12 +2,14 @@
 
 import pandas as pd
 import pytest
+from numpy.testing import assert_array_equal
 
 from movement.napari.layer_styles import (
     DEFAULT_COLORMAP,
     BoxesStyle,
     LayerStyle,
     PointsStyle,
+    RegionsStyle,
     TracksStyle,
     _sample_colormap,
 )
@@ -79,12 +81,22 @@ def default_style_attributes():
                 "translation": 5,
             },
         },
+        # Additional attributes for RoiStyle
+        RegionsStyle: {
+            "color": "red",
+            "edge_width": 5.0,
+            "opacity": 1.0,
+            "text": {
+                "visible": False,
+                "anchor": "center",
+            },
+        },
     }
 
 
 @pytest.mark.parametrize(
     "layer_class",
-    [LayerStyle, PointsStyle, TracksStyle, BoxesStyle],
+    [LayerStyle, PointsStyle, TracksStyle, BoxesStyle, RegionsStyle],
 )
 def test_layer_style_initialization(
     sample_layer_style, layer_class, default_style_attributes
@@ -260,7 +272,7 @@ def test_tracks_style_color_by(
         ("property_2", 2),
     ],
 )
-def test_shapes_style_set_color_by(
+def test_boxes_style_set_color_by(
     color_property,
     n_unique_values,
     sample_layer_style,
@@ -304,3 +316,105 @@ def test_shapes_style_set_color_by(
         isinstance(c, tuple) and len(c) == 4
         for c in boxes_style.edge_color_cycle
     )
+
+
+@pytest.mark.parametrize(
+    ["color", "expected_rgb"],
+    [
+        pytest.param("blue", (0.0, 0.0, 1.0), id="blue_as_str"),
+        pytest.param("red", (1.0, 0.0, 0.0), id="red_as_str"),
+        pytest.param((1.0, 0.0, 0.0, 1.0), (1.0, 0.0, 0.0), id="red_as_tuple"),
+        pytest.param(
+            (0.0, 0.0, 1.0, 0.5), (0.0, 0.0, 1.0), id="blue_as_tuple_alpha"
+        ),
+    ],
+)
+def test_regions_style_colors(color, expected_rgb):
+    """Test that setting the color attribute updates the face, edge,
+    and text colors. The face color must be transparent, while edges and
+    text must be opaque.
+    """
+    # Create a Regions style object
+    regions_style = RegionsStyle(color=color)
+
+    # Convert expected_rgb to RGBA for comparison
+    expected_rgba = expected_rgb + (1.0,)
+    expected_face_rgba = expected_rgb + (0.25,)
+
+    assert_array_equal(regions_style.edge_and_text_color, expected_rgba)
+    assert_array_equal(regions_style.face_color, expected_face_rgba)
+
+
+@pytest.mark.parametrize("n_shapes", [1, 3])
+def test_regions_style_set_color_all_shapes(
+    make_napari_viewer_proxy, n_shapes
+):
+    """Test that set_color_all_shapes applies colors to all shapes."""
+    viewer = make_napari_viewer_proxy()
+
+    # Create shapes data (rectangles)
+    shapes_data = [
+        [
+            [10 * i, 10 * i],
+            [10 * i, 20 + 10 * i],
+            [20 + 10 * i, 20 + 10 * i],
+            [20 + 10 * i, 10 * i],
+        ]
+        for i in range(n_shapes)
+    ]
+    layer = viewer.add_shapes(shapes_data, shape_type="polygon")
+    layer.properties = {"name": [f"Region-{i}" for i in range(n_shapes)]}
+
+    # Apply style
+    regions_style = RegionsStyle(color="blue")
+    regions_style.set_color_all_shapes(layer)
+
+    # Check face and edge colors are applied to all shapes
+    assert len(layer.face_color) == n_shapes
+    assert len(layer.edge_color) == n_shapes
+    assert len(layer.edge_width) == n_shapes
+
+    # Check that text string format is set
+    assert "{name}" in str(layer.text)
+
+
+def test_regions_style_set_color_all_shapes_empty_layer(
+    make_napari_viewer_proxy,
+):
+    """Test that set_color_all_shapes handles empty layers gracefully."""
+    viewer = make_napari_viewer_proxy()
+    layer = viewer.add_shapes()
+    # Assert it's an empty layer
+    assert len(layer.data) == 0
+
+    # Should not raise an error
+    regions_style = RegionsStyle(color="red")
+    regions_style.set_color_all_shapes(layer)
+
+    # '{name}' must not be set on an empty layer (would cause RuntimeWarning)
+    assert "{name}" not in str(layer.text.string)
+
+
+@pytest.mark.parametrize(
+    "selected_data",
+    [
+        pytest.param({0}, id="valid_selection"),
+        pytest.param(set(), id="no_selection"),
+    ],
+)
+def test_regions_style_set_style_for_new_shapes(
+    make_napari_viewer_proxy, selected_data
+):
+    """Test that set_style_for_new_shapes runs without error,
+    regardless of whether the layer is selected or not.
+    """
+    viewer = make_napari_viewer_proxy()
+
+    # Create a shape
+    shapes_data = [[[0, 0], [0, 10], [10, 10], [10, 0]]]
+    layer = viewer.add_shapes(shapes_data, shape_type="polygon")
+    layer.selected_data = selected_data
+
+    regions_style = RegionsStyle(color="green")
+    # Should not raise - exercises the method
+    regions_style.set_style_for_new_shapes(layer)
