@@ -294,5 +294,3 @@ def test_rolling_filter_window_1():
 
     result = rolling_filter(data, window=1)
     xr.testing.assert_equal(result, data)
-
->>>>>>> f26cdbb (Fix SonarCloud warnings in rolling_filter window=1 test)
