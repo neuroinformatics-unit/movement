@@ -402,41 +402,59 @@ def _numpy_arrays_from_valid_via_object(
         The validated bounding boxes arrays.
 
     """
-    # Extract 2D dataframe from input data
-    # (sort data by ID and frame number, and
-    # fill empty frame-ID pairs with nans)
-    df = _df_from_valid_via_object(valid_via_file)
+    # Get 1D data from the validator
+    x = np.asarray(valid_via_file.x, dtype=np.float32)
+    y = np.asarray(valid_via_file.y, dtype=np.float32)
+    w = np.asarray(valid_via_file.w, dtype=np.float32)
+    h = np.asarray(valid_via_file.h, dtype=np.float32)
+    ids = np.asarray(valid_via_file.ids, dtype=np.int32)
+    frame_numbers = np.asarray(valid_via_file.frame_numbers, dtype=np.int64)
+    confidence = np.asarray(valid_via_file.confidence, dtype=np.float32)
 
-    # Extract numpy arrays
-    n_individuals = df["ID"].nunique()
-    n_frames = df["frame_number"].nunique()
-    # copy = True to return a writable numpy array if
-    # copy-on-write is enabled (default for pandas >= 3.0)
-    all_data = (
-        df[["x", "y", "w", "h", "confidence"]]
-        .to_numpy(copy=True)
-        .reshape(n_individuals, n_frames, 5)
-        .transpose(1, 2, 0)
-    )
-    # split along the 2nd axis into x, y | w, h | confidence
-    position_array, shape_array, confidence_array = np.split(
-        all_data,
-        [2, 4],
-        axis=1,
-    )
-    confidence_array = confidence_array.squeeze(axis=1)
+    # Compute sorted unique IDs and frames
+    unique_ids = np.unique(ids)
+    unique_frames = np.unique(frame_numbers)
 
-    # Transform position_array to represent centroid of bbox,
-    # rather than top-left corner
-    # (top left corner: corner of the bbox with minimum x and y coordinates)
-    position_array += shape_array / 2
+    # Map each observation's ID and frame to an index in the output arrays
+    id_to_arr_idx = {int(id_): i for i, id_ in enumerate(unique_ids)}
+    frame_to_arr_idx = {int(f): i for i, f in enumerate(unique_frames)}
+    id_indices_per_obs = np.array(
+        [id_to_arr_idx[int(i)] for i in ids],
+        dtype=np.intp,  # array indices type
+    )
+    frame_indices_per_obs = np.array(
+        [frame_to_arr_idx[int(f)] for f in frame_numbers], dtype=np.intp
+    )
+    # id_indices_per_obs = np.searchsorted(unique_ids, ids)
+    # frame_indices_per_obs = np.searchsorted(unique_frames, frame_numbers)
+
+    # Initialise output dense arrays and fill with NaNs
+    n_individuals = len(unique_ids)
+    n_frames = len(unique_frames)
+    position_array = np.full(
+        (n_frames, 2, n_individuals), np.nan, dtype=np.float32
+    )
+    shape_array = np.full(
+        (n_frames, 2, n_individuals), np.nan, dtype=np.float32
+    )
+    confidence_array = np.full(
+        (n_frames, n_individuals), np.nan, dtype=np.float32
+    )
+
+    # Place sparse values directly into the output
+    # Position = centroid = top-left corner + half the bbox size
+    position_array[frame_indices_per_obs, 0, id_indices_per_obs] = x + w / 2
+    position_array[frame_indices_per_obs, 1, id_indices_per_obs] = y + h / 2
+    shape_array[frame_indices_per_obs, 0, id_indices_per_obs] = w
+    shape_array[frame_indices_per_obs, 1, id_indices_per_obs] = h
+    confidence_array[frame_indices_per_obs, id_indices_per_obs] = confidence
 
     return {
         "position_array": position_array,
         "shape_array": shape_array,
         "confidence_array": confidence_array,
-        "ID_array": df["ID"].unique().reshape(-1, 1),
-        "frame_array": df["frame_number"].unique().reshape(-1, 1),
+        "ID_array": unique_ids.reshape(-1, 1),
+        "frame_array": unique_frames.reshape(-1, 1),
     }
 
 
