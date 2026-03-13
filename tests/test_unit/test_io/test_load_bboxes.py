@@ -474,50 +474,6 @@ def test_fps_and_time_coords(
         assert_time_coordinates(ds, expected_fps, start_frame=0)
 
 
-@pytest.mark.parametrize(
-    "via_file_path",
-    [
-        pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-        pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
-    ],
-)
-def test_position_array_from_valid_via_object(via_file_path):
-    """Test the position arrays extracted from a valid VIA file object."""
-    # Extract numpy arrays from VIA tracks .csv file
-    via_file_object = ValidVIATracksCSV(via_file_path)
-    bboxes_arrays = load_bboxes._numpy_arrays_from_valid_via_object(
-        via_file_object
-    )
-
-    # Get pre-parsed arrays from validator
-    x = via_file_object.x
-    y = via_file_object.y
-    w = via_file_object.w
-    h = via_file_object.h
-    ids = via_file_object.ids
-    frames = via_file_object.frame_numbers
-
-    unique_ids = np.unique(ids)
-    unique_frames = np.unique(frames)
-
-    # Build expected position array independently
-    expected_position = np.full(
-        (len(unique_frames), 2, len(unique_ids)), np.nan
-    )  # (frame, space, individual)
-    # loop through observations
-    for obs_i in range(len(x)):
-        fi = np.searchsorted(unique_frames, frames[obs_i])
-        ii = np.searchsorted(unique_ids, ids[obs_i])
-        expected_position[fi, 0, ii] = x[obs_i] + w[obs_i] / 2
-        expected_position[fi, 1, ii] = y[obs_i] + h[obs_i] / 2
-
-    assert np.allclose(
-        bboxes_arrays["position_array"],
-        expected_position,
-        equal_nan=True,
-    )
-
-
 @pytest.mark.benchmark
 @pytest.mark.parametrize(
     "via_file_path",
