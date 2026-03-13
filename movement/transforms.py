@@ -14,7 +14,7 @@ from movement.validators.arrays import validate_dims_coords
 @log_to_attrs
 def scale(
     data: xr.DataArray,
-    factor: ArrayLike | float = 1.0,
+    factor: ArrayLike | float,
     space_unit: str | None = None,
 ) -> xr.DataArray:
     """Scale data by a given factor with an optional unit.
