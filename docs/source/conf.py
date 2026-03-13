@@ -6,6 +6,8 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
+"""Sphinx configuration for the movement documentation."""
+
 import os
 import sys
 
@@ -119,12 +121,14 @@ sphinx_gallery_conf = {
         "dependencies": ["../../.binder/requirements.txt"],
     },
     "reference_url": {"movement": None},
-    "default_thumb_file": "source/_static/data_icon.png",  # default thumbnail image
-    # Do not render config comments with the pattern # sphinx_gallery_config [= value]
+    "default_thumb_file": "source/_static/data_icon.png",
+    # default thumbnail image
+    # Do not render config comments with the pattern
+    # sphinx_gallery_config [= value]
     "remove_config_comments": True,
     # Mini-galleries config, see https://sphinx-gallery.github.io/stable/configuration.html#add-mini-galleries-for-api-documentation
-    "backreferences_dir": "api/backreferences",  # directory where function/class granular galleries are stored
-    "doc_module": ("movement",),  # module for which to generate mini-galleries
+    "backreferences_dir": "api/backreferences",
+    # directory where function/class granular galleries are stored
 }
 
 
@@ -274,7 +278,10 @@ notfound_context = {
 
 <p>Sorry, we couldn't find that page.</p>
 
-<p>We occasionally restructure the movement website, and some links may have broken.</p> 
+<p>
+We occasionally restructure the movement website,
+and some links may have broken.
+</p>
 
 <p>Try using the search box or go to the homepage.</p>
 """,
