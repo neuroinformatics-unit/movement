@@ -287,9 +287,7 @@ def test_rolling_filter_window_1():
     rng = np.random.default_rng()
 
     data = xr.DataArray(
-        rng.random(10),
-        dims=["time"],
-        coords={"time": np.arange(10)}
+        rng.random(10), dims=["time"], coords={"time": np.arange(10)}
     )
 
     result = rolling_filter(data, window=1)
