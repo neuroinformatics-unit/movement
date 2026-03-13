@@ -229,7 +229,17 @@ def test_deeplabcut_validators(
         validator_cls(file)
 
 
-def test_via_tracks_validator_parsed_values(tmp_path):
+@pytest.mark.parametrize(
+    "region_attributes, expected_confidence",
+    [
+        ('"{""track"":""1""}"', np.nan),
+        ('"{""track"":""1"",""confidence"":0.9}"', 0.9),
+    ],
+    ids=["no_confidence", "with_confidence"],
+)
+def test_via_tracks_validator_parsed_values(
+    region_attributes, expected_confidence, tmp_path
+):
     """Test that ValidVIATracksCSV correctly parses bbox geometry,
     track IDs, frame numbers, and confidence from a valid file.
     """
@@ -245,7 +255,7 @@ def test_via_tracks_validator_parsed_values(tmp_path):
         "0,"
         '"{""name"":""rect"",""x"":10,""y"":20,'
         '""width"":30,""height"":40}",'
-        '"{""track"":""1"",""confidence"":0.9}"'
+        f"{region_attributes}"
     )
     file_path = tmp_path / "test_via.csv"
     file_path.write_text(header + row)
@@ -254,50 +264,14 @@ def test_via_tracks_validator_parsed_values(tmp_path):
 
     assert via.ids == [1]
     assert via.frame_numbers == [42]
-    assert via.x == [10.0]
-    assert via.y == [20.0]
-    assert via.w == [30.0]
-    assert via.h == [40.0]
-    assert via.confidence == [pytest.approx(0.9)]
-
-
-@pytest.mark.parametrize(
-    "region_attributes, expected_confidence",
-    [
-        ('"{""track"":""1""}"', np.nan),
-        ('"{""track"":""1"", ""confidence"":0.75}"', 0.75),
-    ],
-    ids=["no_confidence", "with_confidence"],
-)
-def test_via_tracks_validator_confidence(
-    region_attributes, expected_confidence, tmp_path
-):
-    """Test that ValidVIATracksCSV returns NaN for confidence when not
-    defined, and the actual value when defined.
-    """
-    header = (
-        "filename,file_size,file_attributes,region_count,"
-        "region_id,region_shape_attributes,region_attributes\n"
-    )
-    row = (
-        "frame_001.png,"
-        "12345,"
-        '"{""frame"":1}",'
-        "1,"
-        "0,"
-        '"{""name"":""rect"",""x"":10,""y"":20,'
-        '""width"":30,""height"":40}",'
-        f"{region_attributes}"
-    )
-    file_path = tmp_path / "test_via.csv"
-    file_path.write_text(header + row)
-
-    via = ValidVIATracksCSV(file_path)
-
+    assert via.x == pytest.approx([10.0])
+    assert via.y == pytest.approx([20.0])
+    assert via.w == pytest.approx([30.0])
+    assert via.h == pytest.approx([40.0])
     if np.isnan(expected_confidence):
         assert all(np.isnan(c) for c in via.confidence)
     else:
-        assert via.confidence == [expected_confidence]
+        assert via.confidence == pytest.approx([expected_confidence])
 
 
 @pytest.mark.parametrize(
