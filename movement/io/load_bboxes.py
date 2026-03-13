@@ -443,7 +443,7 @@ def _numpy_arrays_from_valid_via_object(
 def _df_from_valid_via_object(
     valid_file: ValidVIATracksCSV,
 ) -> pd.DataFrame:
-    """Build a sorted DataFrame from a validated VIA file object.
+    """Build a sorted DataFrame from a validated VIA tracks file object.
 
     Creates a DataFrame with ID, frame_number, x, y, w, h, and confidence
     columns. Missing (ID, frame_number) combinations are filled with NaNs,

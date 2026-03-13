@@ -765,14 +765,7 @@ class ValidVIATracksCSV:
 
     def _file_contains_tracked_bboxes(
         self, df: pd.DataFrame
-    ) -> tuple[
-        list[float],
-        list[float],
-        list[float],
-        list[float],
-        list[int],
-        list[float],
-    ]:
+    ) -> tuple[np.ndarray, ...]:
         """Ensure that the VIA tracks .csv contains tracked bounding boxes.
 
         This involves:
@@ -784,7 +777,14 @@ class ValidVIATracksCSV:
         - Checking that the track ID can be cast as an integer.
         """
         # Extract region shape data
-        x, y, w, h, ids, confidence_values = [], [], [], [], [], []
+        n_rows = len(df)
+        x = np.empty(n_rows, dtype=np.float32)
+        y = np.empty(n_rows, dtype=np.float32)
+        w = np.empty(n_rows, dtype=np.float32)
+        h = np.empty(n_rows, dtype=np.float32)
+        ids = np.empty(n_rows, dtype=np.int32)
+        confidence_values = np.full(n_rows, np.nan, dtype=np.float32)
+
         for k, (shape_row, attr_row) in enumerate(
             zip(
                 df["region_shape_attributes"],
@@ -857,12 +857,12 @@ class ValidVIATracksCSV:
                 ) from e
 
             # Append values to list
-            x.append(sx)
-            y.append(sy)
-            w.append(sw)
-            h.append(sh)
-            ids.append(track_id)
-            confidence_values.append(confidence)
+            x[k] = sx
+            y[k] = sy
+            w[k] = sw
+            h[k] = sh
+            ids[k] = track_id
+            confidence_values[k] = confidence
 
         # If all checks pass, return lists
         # ids is already cast as integer, confidence_values is nan
