@@ -1,6 +1,6 @@
 from contextlib import nullcontext as does_not_raise
-import numpy as np
 
+import numpy as np
 import pytest
 import xarray as xr
 
@@ -281,12 +281,11 @@ def test_filter_by_confidence_on_position(
     assert isinstance(position_filtered, xr.DataArray)
     assert n_nans == valid_input_dataset.sizes["space"] * n_low_confidence_kpts
 
+
 def test_rolling_filter_window_1():
     """window=1 should return data unchanged."""
     data = xr.DataArray(
-        np.random.rand(10),
-        dims=["time"],
-        coords={"time": np.arange(10)}
+        np.random.rand(10), dims=["time"], coords={"time": np.arange(10)}
     )
     result = rolling_filter(data, window=1)
     xr.testing.ass
