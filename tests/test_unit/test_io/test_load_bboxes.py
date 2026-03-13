@@ -340,80 +340,77 @@ def test_from_numpy(
 
 
 @pytest.mark.parametrize(
-    "input_data, expected_df",
+    "input_data",
     [
         # Case 1: all IDs are defined for all frames
         # expected df is just sorted
-        (
-            {
-                "ids": [1, 2, 1, 2],
-                "frame_numbers": [1, 1, 0, 0],
-                "x": [10.0, 20.0, 30.0, 40.0],
-                "y": [1.0, 2.0, 3.0, 4.0],
-                "w": [5.0, 5.0, 5.0, 5.0],
-                "h": [5.0, 5.0, 5.0, 5.0],
-                "confidence_values": [1.0, 1.0, 1.0, 1.0],
-            },
-            pd.DataFrame(
-                {
-                    "ID": [1, 1, 2, 2],
-                    "frame_number": [0, 1, 0, 1],
-                    "x": np.array([30.0, 10.0, 40.0, 20.0], dtype=np.float32),
-                    "y": np.array([3.0, 1.0, 4.0, 2.0], dtype=np.float32),
-                    "w": np.array([5.0, 5.0, 5.0, 5.0], dtype=np.float32),
-                    "h": np.array([5.0, 5.0, 5.0, 5.0], dtype=np.float32),
-                    "confidence": np.array(
-                        [1.0, 1.0, 1.0, 1.0], dtype=np.float32
-                    ),
-                }
-            ),
-        ),
+        {
+            "ids": np.array([1, 2, 1, 2]),
+            "frame_numbers": np.array([1, 1, 0, 0]),
+            "x": np.array([10.0, 20.0, 30.0, 40.0]),
+            "y": np.array([1.0, 2.0, 3.0, 4.0]),
+            "w": np.array([5.0, 5.0, 5.0, 5.0]),
+            "h": np.array([5.0, 5.0, 5.0, 5.0]),
+            "confidence": np.array([1.0, 1.0, 1.0, 1.0]),
+        },
         # Case 2: ID=2 is not defined for frame 1
         # (nan should be added)
-        (
-            {
-                "ids": [1, 1, 2],
-                "frame_numbers": [0, 1, 0],
-                "x": [10.0, 20.0, 30.0],
-                "y": [1.0, 2.0, 3.0],
-                "w": [5.0, 5.0, 5.0],
-                "h": [5.0, 5.0, 5.0],
-                "confidence_values": [1.0, 1.0, 1.0],
-            },
-            pd.DataFrame(
-                {
-                    "ID": [1, 1, 2, 2],
-                    "frame_number": [0, 1, 0, 1],
-                    "x": np.array(
-                        [10.0, 20.0, 30.0, np.nan], dtype=np.float32
-                    ),
-                    "y": np.array([1.0, 2.0, 3.0, np.nan], dtype=np.float32),
-                    "w": np.array([5.0, 5.0, 5.0, np.nan], dtype=np.float32),
-                    "h": np.array([5.0, 5.0, 5.0, np.nan], dtype=np.float32),
-                    "confidence": np.array(
-                        [1.0, 1.0, 1.0, np.nan], dtype=np.float32
-                    ),
-                }
-            ),
-        ),
+        {
+            "ids": np.array([1, 1, 2]),
+            "frame_numbers": np.array([0, 1, 0]),
+            "x": np.array([10.0, 20.0, 30.0]),
+            "y": np.array([1.0, 2.0, 3.0]),
+            "w": np.array([5.0, 5.0, 5.0]),
+            "h": np.array([5.0, 5.0, 5.0]),
+            "confidence": np.array([1.0, 1.0, 1.0]),
+        },
     ],
 )
-def test_df_from_valid_via_object(input_data, expected_df):
-    """Test parsed dataframe is computed correctly."""
-    # Mock valid VIA file object based on input
-    mock_via_file = Mock()
-    mock_via_file.ids = input_data["ids"]
-    mock_via_file.frame_numbers = input_data["frame_numbers"]
-    mock_via_file.x = input_data["x"]
-    mock_via_file.y = input_data["y"]
-    mock_via_file.w = input_data["w"]
-    mock_via_file.h = input_data["h"]
-    mock_via_file.confidence = input_data["confidence_values"]
+def test_numpy_arrays_from_valid_via_object(input_data):
+    """Test all arrays extracted from a valid VIA file object."""
+    mock_via = Mock()
+    for key, val in input_data.items():
+        setattr(mock_via, key, val)
 
-    # Compute parsed dataframe
-    df = load_bboxes._df_from_valid_via_object(mock_via_file)
+    result = load_bboxes._numpy_arrays_from_valid_via_object(mock_via)
 
-    pd.testing.assert_frame_equal(df, expected_df)
+    # Parse input data
+    x, y, w, h, ids, frames = (
+        input_data[k] for k in ["x", "y", "w", "h", "ids", "frame_numbers"]
+    )
+
+    # Compute expected arrays
+    unique_ids = np.unique(ids)
+    unique_frames = np.unique(frames)
+    n_individuals, n_frames = len(unique_ids), len(unique_frames)
+
+    expected_position = np.full((n_frames, 2, n_individuals), np.nan)
+    expected_shape = np.full((n_frames, 2, n_individuals), np.nan)
+    expected_confidence = np.full((n_frames, n_individuals), np.nan)
+    for i in range(len(x)):
+        fi = np.searchsorted(unique_frames, frames[i])
+        ii = np.searchsorted(unique_ids, ids[i])
+        expected_position[fi, 0, ii] = x[i] + w[i] / 2
+        expected_position[fi, 1, ii] = y[i] + h[i] / 2
+        expected_shape[fi, 0, ii] = w[i]
+        expected_shape[fi, 1, ii] = h[i]
+        expected_confidence[fi, ii] = input_data["confidence"][i]
+
+    np.testing.assert_array_equal(
+        result["ID_array"], unique_ids.reshape(-1, 1)
+    )
+    np.testing.assert_array_equal(
+        result["frame_array"], unique_frames.reshape(-1, 1)
+    )
+    np.testing.assert_allclose(
+        result["position_array"], expected_position, equal_nan=True
+    )
+    np.testing.assert_allclose(
+        result["shape_array"], expected_shape, equal_nan=True
+    )
+    np.testing.assert_allclose(
+        result["confidence_array"], expected_confidence, equal_nan=True
+    )
 
 
 @pytest.mark.filterwarnings(
@@ -492,32 +489,32 @@ def test_position_array_from_valid_via_object(via_file_path):
         via_file_object
     )
 
-    # Read VIA tracks valid file object as a dataframe
-    df = load_bboxes._df_from_valid_via_object(via_file_object)
+    # Get pre-parsed arrays from validator
+    x = via_file_object.x
+    y = via_file_object.y
+    w = via_file_object.w
+    h = via_file_object.h
+    ids = via_file_object.ids
+    frames = via_file_object.frame_numbers
 
-    # Compute centroid positions from the dataframe
-    # (go through in the same order as ID array)
-    id_order = [identifier.item() for identifier in bboxes_arrays["ID_array"]]
-    df = df.assign(
-        x_centroid=df["x"] + df["w"] / 2,
-        y_centroid=df["y"] + df["h"] / 2,
-    )
-    derived_centroids = np.stack(
-        [
-            df.pivot(index="frame_number", columns="ID", values=col)[
-                id_order
-            ].to_numpy()
-            for col in ["x_centroid", "y_centroid"]
-        ],
-        # list of arrays of size (n_frames, n_individuals) -
-        # one per spatial coordinate
-        axis=1,
-    )
+    unique_ids = np.unique(ids)
+    unique_frames = np.unique(frames)
 
-    # Compare to extracted position array
+    # Build expected position array independently
+    expected_position = np.full(
+        (len(unique_frames), 2, len(unique_ids)), np.nan
+    )  # (frame, space, individual)
+    # loop through observations
+    for obs_i in range(len(x)):
+        fi = np.searchsorted(unique_frames, frames[obs_i])
+        ii = np.searchsorted(unique_ids, ids[obs_i])
+        expected_position[fi, 0, ii] = x[obs_i] + w[obs_i] / 2
+        expected_position[fi, 1, ii] = y[obs_i] + h[obs_i] / 2
+
     assert np.allclose(
-        bboxes_arrays["position_array"],  # frames, xy, individuals
-        derived_centroids,
+        bboxes_arrays["position_array"],
+        expected_position,
+        equal_nan=True,
     )
 
 
