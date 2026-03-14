@@ -540,12 +540,13 @@ def _extract_confidence_from_via_tracks_df(df: pd.DataFrame) -> np.ndarray:
     ]
 
     # Check if confidence is defined as a region attribute, else set to NaN
-    if all(["confidence" in d for d in region_attributes_dicts]):
-        bbox_confidence = _via_attribute_column_to_numpy(
-            df, "region_attributes", ["confidence"], float
-        )
-    else:
-        bbox_confidence = np.full((df.shape[0], 1), np.nan).squeeze()
+    confidence_values = []
+    for d in region_attributes_dicts:
+        if "confidence" in d:
+            confidence_values.append(float(d["confidence"]))
+        else:
+            confidence_values.append(np.nan)
+    bbox_confidence = np.array(confidence_values)
 
     return bbox_confidence
 
