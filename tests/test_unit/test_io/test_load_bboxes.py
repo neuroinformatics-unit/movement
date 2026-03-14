@@ -451,6 +451,38 @@ def test_extract_confidence_from_via_tracks_df(
     )
 
 
+def test_extract_confidence_from_via_tracks_df_partial(
+    create_df_input_via_tracks,
+):
+    """Ensure extraction preserves values when only some rows define them.
+
+    The previous implementation returned an array of all NaNs if **any** row
+    lacked a ``confidence`` key.  This test builds a small dataframe where
+    only the second row is missing the key and checks that the returned array
+    contains NaNs only for that entry.
+    """
+    # start from a small dataframe (3 rows)
+    via_file_path = pytest.DATA_PATHS.get(
+        "VIA_multiple-crabs_5-frames_labels.csv"
+    )
+    df = create_df_input_via_tracks(
+        via_file_path,
+        small=True,
+        attribute_column_additions={
+            # supply a list of dicts, one per row; the middle row has no
+            # confidence entry so it should map to NaN
+            "region_attributes": [
+                {"confidence": 0.5},
+                {},
+                {"confidence": 0.2},
+            ],
+        },
+    )
+    confidence_array = load_bboxes._extract_confidence_from_via_tracks_df(df)
+    expected = np.array([0.5, np.nan, 0.2])
+    assert np.array_equal(confidence_array, expected, equal_nan=True)
+
+
 @pytest.mark.parametrize(
     "via_file_path, expected_frame_array",
     [
