@@ -179,9 +179,23 @@ def compute_kinetic_energy(
         return ke_total
     else:
         # Compute translational KE based on centre of mass velocity
-        v_cm = (velocity * weights.expand_dims(space=["x", "y"])).sum(
-            dim="keypoints"
-        ) / weights.sum()
+        # Identify valid keypoints
+        valid = ~velocity.isnull().any(dim="space")
+        valid_weights = weights.where(valid)
+        expanded_weights = weights.expand_dims(space=["x", "y"])
+
+        numerator = (velocity * expanded_weights).sum(
+            dim="keypoints", skipna=True
+        )
+        denominator = valid_weights.sum(dim="keypoints")
+
+        # Check if the denominator is zero
+        if (denominator == 0).any():
+            raise ValueError(
+                "Cannot compute centre-of-mass velocity: all keypoints missing"
+            )
+
+        v_cm = numerator / denominator
         ke_trans = 0.5 * weights.sum() * compute_norm(v_cm) ** 2
 
         # Internal KE
