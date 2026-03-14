@@ -302,9 +302,7 @@ exclude_id_1_and_left = r"(?s)(?!.*id_1)(?!.*left)"
 include_threshold_100 = (
     r".*The result may be unreliable.*100\.0 %.*right.*id_0.*10/10.*"
 )
-include_threshold_20 = (
-    r".*The result may be unreliable.*20\.0 %.*centroid.*right.*id_0.*3/10.*10/10.*"
-)
+include_threshold_20 = r".*The result may be unreliable.*20\.0 %.*centroid.*right.*id_0.*3/10.*10/10.*"
 
 
 @pytest.mark.parametrize(
