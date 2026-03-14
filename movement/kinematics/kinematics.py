@@ -212,7 +212,7 @@ def compute_backward_displacement(data: xr.DataArray) -> xr.DataArray:
 
     """
     fwd_displacement = _compute_forward_displacement(data)
-    backward_displacement = -fwd_displacement.roll(time=1)
+    backward_displacement = -fwd_displacement.shift(time=1, fill_value=0)
     backward_displacement.name = "backward_displacement"
     return backward_displacement
 
