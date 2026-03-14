@@ -1,0 +1,190 @@
+nwb_file_expectations_ind:
+  default_kwargs-single_ind:
+    nwbfile_kwargs:
+      - session_description: "not set"
+        identifier: "id_0"
+    processing_module_kwargs:
+      - description: "processed behavioral data"
+    subject_kwargs:
+      - subject_id: "id_0"
+    pose_estimation_kwargs:
+      - name: "PoseEstimation"
+        source_software: "test"
+    skeleton_kwargs:
+      - name: "skeleton_id_0"
+        nodes:
+          - centroid
+          - left
+          - right
+
+  default_kwargs-multi_ind:
+    nwbfile_kwargs:
+      - session_description: "not set"
+        identifier: "id_0"
+      - session_description: "not set"
+        identifier: "id_1"
+    processing_module_kwargs:
+      - description: "processed behavioral data"
+      - description: "processed behavioral data"
+    subject_kwargs:
+      - subject_id: "id_0"
+      - subject_id: "id_1"
+    pose_estimation_kwargs:
+      - name: "PoseEstimation"
+        source_software: "test"
+      - name: "PoseEstimation"
+        source_software: "test"
+    skeleton_kwargs:
+      - name: "skeleton_id_0"
+        nodes:
+          - centroid
+          - left
+          - right
+      - name: "skeleton_id_1"
+        nodes:
+          - centroid
+          - left
+          - right
+
+  shared_kwargs-single_ind:
+    nwbfile_kwargs:
+      - session_description: "test session"
+        identifier: "subj0"
+    processing_module_kwargs:
+      - description: "processed behav for test session"
+    subject_kwargs:
+      - age: "P90D"
+        subject_id: "subj0"
+    pose_estimation_kwargs:
+      - name: "subj0"
+        source_software: "other"
+    skeleton_kwargs:
+      - name: "skeleton0"
+        nodes:
+          - anchor
+          - left_ear
+          - right_ear
+
+  shared_kwargs-multi_ind:
+    nwbfile_kwargs:
+      - session_description: "test session"
+        identifier: "id_0"
+      - session_description: "test session"
+        identifier: "id_1"
+    processing_module_kwargs:
+      - description: "processed behav for test session"
+      - description: "processed behav for test session"
+    subject_kwargs:
+      - age: "P90D"
+        subject_id: "id_0"
+      - age: "P90D"
+        subject_id: "id_1"
+    pose_estimation_kwargs:
+      - name: "id_0"
+        source_software: "other"
+      - name: "id_1"
+        source_software: "other"
+    skeleton_kwargs:
+      - name: "id_0"
+        nodes:
+          - anchor
+          - left_ear
+          - right_ear
+      - name: "id_1"
+        nodes:
+          - anchor
+          - left_ear
+          - right_ear
+
+  custom_kwargs-single_ind:
+    nwbfile_kwargs:
+      - session_description: "session subj0"
+        identifier: "subj0"
+    processing_module_kwargs:
+      - description: "processed behav for subj0"
+    subject_kwargs:
+      - age: "P90D"
+        subject_id: "subj0"
+    pose_estimation_kwargs:
+      - name: "subj0"
+        source_software: "other0"
+    skeleton_kwargs:
+      - name: "skeleton_id_0"
+        nodes:
+          - node1
+          - node2
+          - node3
+
+  custom_kwargs-multi_ind:
+    nwbfile_kwargs:
+      - session_description: "session subj0"
+        identifier: "subj0"
+      - session_description: "session subj1"
+        identifier: "subj1"
+    processing_module_kwargs:
+      - description: "processed behav for subj0"
+      - description: "processed behav for subj1"
+    subject_kwargs:
+      - age: "P90D"
+        subject_id: "subj0"
+      - age: "P91D"
+        subject_id: "subj1"
+    pose_estimation_kwargs:
+      - name: "subj0"
+        source_software: "other0"
+      - name: "subj1"
+        source_software: "other1"
+    skeleton_kwargs:
+      - name: "skeleton_id_0"
+        nodes:
+          - node1
+          - node2
+          - node3
+      - name: "skeleton_id_1"
+        nodes:
+          - node4
+          - node5
+          - node6
+
+nwb_file_expectations_keypoint:
+  default_kwargs-single_keypoint:
+    pose_estimation_series_kwargs:
+      - reference_frame: "(0,0,0) corresponds to ..."
+        unit: "pixels"
+        name: "centroid"
+
+  default_kwargs-multi_keypoint:
+    pose_estimation_series_kwargs:
+      - reference_frame: "(0,0,0) corresponds to ..."
+        unit: "pixels"
+        name: "centroid"
+      - reference_frame: "(0,0,0) corresponds to ..."
+        unit: "pixels"
+        name: "left"
+      - reference_frame: "(0,0,0) corresponds to ..."
+        unit: "pixels"
+        name: "right"
+
+  shared_kwargs-single_keypoint:
+    pose_estimation_series_kwargs:
+      - reference_frame: "(0,0) is ..."
+        name: "anchor"
+
+  shared_kwargs-multi_keypoint:
+    pose_estimation_series_kwargs:
+      - reference_frame: "(0,0) is ..."
+        name: "centroid"
+      - reference_frame: "(0,0) is ..."
+        name: "left"
+      - reference_frame: "(0,0) is ..."
+        name: "right"
+
+  custom_kwargs-single_keypoint:
+    pose_estimation_series_kwargs:
+      - name: "anchor"
+
+  custom_kwargs-multi_keypoint:
+    pose_estimation_series_kwargs:
+      - name: "anchor"
+      - name: "left_ear"
+      - name: "right"
