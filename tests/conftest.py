@@ -1,6 +1,6 @@
 """Fixtures and configurations shared by the entire test suite."""
 
-from glob import glob
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -9,16 +9,15 @@ from _pytest.logging import LogCaptureFixture
 from movement.sample_data import fetch_dataset_paths, list_datasets
 from movement.utils.logging import logger
 
-
-def _to_module_string(path: str) -> str:
-    """Convert a file path to a module string."""
-    return path.replace("/", ".").replace("\\", ".").replace(".py", "")
-
-
+# define fixtures module path
+# by searching relative to this file
+# (we assume the structure is always
+#  tests.fixtures.<module_name>)
+fixtures_dir = Path(__file__).parent / "fixtures"
 pytest_plugins = [
-    _to_module_string(fixture)
-    for fixture in glob("tests/fixtures/*.py")
-    if "__" not in fixture
+    f"tests.fixtures.{fixture.stem}"
+    for fixture in fixtures_dir.glob("*.py")
+    if "__" not in fixture.name
 ]
 
 

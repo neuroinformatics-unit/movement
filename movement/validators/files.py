@@ -1,6 +1,5 @@
 """``attrs`` classes for validating file paths."""
 
-import ast
 import json
 import os
 import re
@@ -10,6 +9,8 @@ from typing import Any, ClassVar, Literal, Protocol
 
 import h5py
 import jsonschema
+import numpy as np
+import orjson
 import pandas as pd
 from attrs import Attribute, define, field, validators
 from pynwb import NWBFile
@@ -558,6 +559,9 @@ class ValidVIATracksCSV:
     - contains tracked bounding boxes, and
     - defines bounding boxes whose IDs are unique per image file.
 
+    If the file is validated, the bounding boxes data is pre-parsed
+    from the input file and added as attributes.
+
     Attributes
     ----------
     file
@@ -567,6 +571,20 @@ class ValidVIATracksCSV:
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed
         by the file extension.
+    x
+        Array of x coordinates of the tracked bounding boxes.
+    y
+        Array of y coordinates of the tracked bounding boxes.
+    w
+        Array of width coordinates of the tracked bounding boxes.
+    h
+        Array of height coordinates of the tracked bounding boxes.
+    ids
+        Array of track IDs of the tracked bounding boxes.
+    frame_numbers
+        Array of frame numbers of the tracked bounding boxes.
+    confidence
+        Array of confidence values of the tracked bounding boxes.
 
     Raises
     ------
@@ -582,9 +600,79 @@ class ValidVIATracksCSV:
     )
     frame_regexp: str = field(default=DEFAULT_FRAME_REGEXP)
 
+    # Bboxes pre-parsed data
+    x: np.typing.NDArray[np.float32] = field(init=False)
+    y: np.typing.NDArray[np.float32] = field(init=False)
+    w: np.typing.NDArray[np.float32] = field(init=False)
+    h: np.typing.NDArray[np.float32] = field(init=False)
+    ids: np.typing.NDArray[np.int32] = field(init=False)
+    frame_numbers: np.typing.NDArray[np.int64] = field(init=False)
+    confidence: np.typing.NDArray[np.float32] = field(init=False)
+
     @file.validator
-    def _file_contains_valid_header(self, attribute, value):
+    def _validate_via_tracks_file(self, attribute, value):
+        """Run all VIA tracks validations and cache parsed attributes."""
+        # Validate frame_regexp first since file
+        # validation depends on it
+        self._frame_regexp_valid(self.frame_regexp)
+
+        # Read csv as a dataframe
+        df = pd.read_csv(value)
+
+        # Run all validation steps
+        self._file_contains_valid_header(df)
+        frame_numbers = self._file_contains_valid_frame_numbers(df)
+        x, y, w, h, ids, confidence_values = (
+            self._file_contains_tracked_bboxes(df)
+        )
+        self._file_contains_unique_track_ids_per_filename(df, ids)
+
+        # If all checks pass, add parsed attributes to the object
+        self.frame_numbers = frame_numbers
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.ids = ids
+        self.confidence = confidence_values
+
+    @frame_regexp.validator
+    def _validate_frame_regexp(self, attribute, value):
+        """Validate the frame_regexp attribute.
+
+        It also runs when the frame_regexp field is reassigned.
+        """
+        self._frame_regexp_valid(value)
+
+    def _frame_regexp_valid(self, value):
+        """Ensure the frame regexp pattern is valid.
+
+        Checks regexp pattern can be compiled and that it contains
+        exactly one capture group.
+        """
+        # Check if the regexp pattern can be compiled
+        try:
+            compiled_pattern = re.compile(value)
+        except re.error as e:
+            raise logger.error(
+                ValueError(
+                    "The provided regular expression for "
+                    "the frame numbers "
+                    f"({value}) could not be compiled. "
+                    "Please review its syntax."
+                )
+            ) from e
+
+        # Check it contains one capture group
+        if compiled_pattern.groups != 1:
+            raise ValueError(
+                "The regexp pattern must contain exactly one capture "
+                f"group for the frame number (got {value})."
+            )
+
+    def _file_contains_valid_header(self, df: pd.DataFrame):
         """Ensure the VIA tracks .csv file contains the expected header."""
+        # Read CSV once and store for later use
         expected_header = [
             "filename",
             "file_size",
@@ -595,20 +683,18 @@ class ValidVIATracksCSV:
             "region_attributes",
         ]
 
-        with open(value) as f:
-            header = f.readline().strip("\n").split(",")
-
-            if header != expected_header:
-                raise logger.error(
-                    ValueError(
-                        ".csv header row does not match the known format for "
-                        "VIA tracks .csv files. "
-                        f"Expected {expected_header} but got {header}."
-                    )
+        if list(df.columns) != expected_header:
+            raise logger.error(
+                ValueError(
+                    ".csv header row does not match the known format for "
+                    "VIA tracks .csv files. "
+                    f"Expected {expected_header} but got {list(df.columns)}."
                 )
+            )
 
-    @file.validator
-    def _file_contains_valid_frame_numbers(self, attribute, value):
+    def _file_contains_valid_frame_numbers(
+        self, df: pd.DataFrame
+    ) -> np.ndarray:
         """Ensure that the VIA tracks .csv file contains valid frame numbers.
 
         This involves:
@@ -626,27 +712,45 @@ class ValidVIATracksCSV:
         file extension.
 
         """
-        df = pd.read_csv(value, sep=",", header=0)
+        # Try extracting frame number from the file attributes
+        # (returns None if not defined)
+        frame_numbers = pd.Series(
+            [orjson.loads(row).get("frame") for row in df["file_attributes"]]
+        )
 
-        # Extract list of file attributes (dicts)
-        file_attributes_dicts = [
-            ast.literal_eval(d) for d in df.file_attributes
-        ]
-
-        # If 'frame' is a file_attribute for all files:
-        # extract frame number
-        if all(["frame" in d for d in file_attributes_dicts]):
-            list_frame_numbers = (
-                self._extract_frame_numbers_from_file_attributes(
-                    df, file_attributes_dicts
-                )
+        # If there is any None in the list, try extracting
+        # the frame number from the filename
+        if frame_numbers.isna().any():
+            # Extract frame number from filename
+            frame_numbers = df["filename"].str.extract(
+                self.frame_regexp,
+                expand=False,  # to return a series if one capture group
             )
-        # else: extract frame number from filename.
-        else:
-            list_frame_numbers = self._extract_frame_numbers_using_regexp(df)
+
+            # Check if there are no matches
+            if frame_numbers.isna().any():
+                raise logger.error(
+                    ValueError(
+                        "Could not extract frame numbers from the filenames "
+                        f"using the regular expression {self.frame_regexp}. "
+                        "Please ensure filenames match the expected pattern, "
+                        "or define the frame numbers in file_attributes."
+                    )
+                )
+
+        # Check all frame numbers are castable as integer
+        try:
+            frame_numbers = frame_numbers.astype(int)
+        except (ValueError, TypeError) as e:
+            raise logger.error(
+                ValueError(
+                    "Some frame numbers cannot be cast as integer. "
+                    "Please review the VIA-tracks .csv file."
+                )
+            ) from e
 
         # Check we have as many unique frame numbers as unique image files
-        if len(set(list_frame_numbers)) != len(df.filename.unique()):
+        if frame_numbers.nunique() != df["filename"].nunique():
             raise logger.error(
                 ValueError(
                     "The number of unique frame numbers does not match "
@@ -656,66 +760,12 @@ class ValidVIATracksCSV:
                 )
             )
 
-    def _extract_frame_numbers_from_file_attributes(
-        self, df, file_attributes_dicts
-    ):
-        """Get frame numbers from the 'frame' key under 'file_attributes'."""
-        list_frame_numbers = []
-        for k_i, k in enumerate(file_attributes_dicts):
-            try:
-                list_frame_numbers.append(int(k["frame"]))
-            except ValueError as e:
-                raise logger.error(
-                    ValueError(
-                        f"{df.filename.iloc[k_i]} (row {k_i}): "
-                        "'frame' file attribute cannot be cast as an integer. "
-                        f"Please review the file attributes: {k}."
-                    )
-                ) from e
-        return list_frame_numbers
+        # If all checks pass, return
+        return np.asarray(frame_numbers.values)  # already cast as integer
 
-    def _extract_frame_numbers_using_regexp(self, df):
-        """Get frame numbers from the file names using the provided regexp."""
-        list_frame_numbers = []
-        for f_i, f in enumerate(df["filename"]):
-            # try compiling the frame regexp
-            try:
-                regex_match = re.search(self.frame_regexp, f)
-            except re.error as e:
-                raise logger.error(
-                    re.error(
-                        "The provided regular expression for the frame "
-                        f"numbers ({self.frame_regexp}) could not be compiled."
-                        " Please review its syntax."
-                    )
-                ) from e
-            # try extracting the frame number from the filename using the
-            # compiled regexp
-            try:
-                list_frame_numbers.append(int(regex_match.group(1)))
-            except AttributeError as e:
-                raise logger.error(
-                    AttributeError(
-                        f"{f} (row {f_i}): The provided frame regexp "
-                        f"({self.frame_regexp}) did not "
-                        "return any matches and a frame number could not "
-                        "be extracted from the filename."
-                    )
-                ) from e
-            except ValueError as e:
-                raise logger.error(
-                    ValueError(
-                        f"{f} (row {f_i}): "
-                        "The frame number extracted from the filename using "
-                        f"the provided regexp ({self.frame_regexp}) could not "
-                        "be cast as an integer."
-                    )
-                ) from e
-
-        return list_frame_numbers
-
-    @file.validator
-    def _file_contains_tracked_bboxes(self, attribute, value):
+    def _file_contains_tracked_bboxes(
+        self, df: pd.DataFrame
+    ) -> tuple[np.ndarray, ...]:
         """Ensure that the VIA tracks .csv contains tracked bounding boxes.
 
         This involves:
@@ -726,93 +776,123 @@ class ValidVIATracksCSV:
         - Checking that the bounding boxes have a track ID defined.
         - Checking that the track ID can be cast as an integer.
         """
-        df = pd.read_csv(value, sep=",", header=0)
+        # Extract region shape data
+        n_rows = len(df)
+        x = np.empty(n_rows, dtype=np.float32)
+        y = np.empty(n_rows, dtype=np.float32)
+        w = np.empty(n_rows, dtype=np.float32)
+        h = np.empty(n_rows, dtype=np.float32)
+        ids = np.empty(n_rows, dtype=np.int32)
+        confidence_values = np.full(n_rows, np.nan, dtype=np.float32)
 
-        for row in df.itertuples():
-            row_region_shape_attrs = ast.literal_eval(
-                row.region_shape_attributes
+        for k, (shape_row, attr_row) in enumerate(
+            zip(
+                df["region_shape_attributes"],
+                df["region_attributes"],
+                strict=True,
             )
-            row_region_attrs = ast.literal_eval(row.region_attributes)
+        ):
+            # Parse dicts
+            shape_attrs = orjson.loads(shape_row)
+            region_attrs = orjson.loads(attr_row)
 
-            # check annotation is a rectangle
-            if row_region_shape_attrs["name"] != "rect":
+            # Get shape data
+            shape_name = shape_attrs.get("name")
+            sx, sy, sw, sh = (
+                shape_attrs.get("x"),
+                shape_attrs.get("y"),
+                shape_attrs.get("width"),
+                shape_attrs.get("height"),
+            )
+
+            # Get ID data
+            track_id = region_attrs.get("track")
+
+            # Get confidence data if present (otherwise nan)
+            confidence = region_attrs.get("confidence", np.nan)
+
+            # Throw error if invalid shape
+            if shape_name != "rect":
                 raise logger.error(
                     ValueError(
-                        f"{row.filename} (row {row.Index}): "
-                        "bounding box shape must be 'rect' (rectangular) "
-                        "but instead got "
-                        f"'{row_region_shape_attrs['name']}'."
+                        f"The bounding box shape in row {k + 1} is "
+                        "expected to be 'rect' (rectangular) but instead got "
+                        f"{shape_name}. Please review the VIA tracks "
+                        ".csv file."
                     )
                 )
 
-            # check all geometric parameters for the box are defined
-            if not all(
-                [
-                    key in row_region_shape_attrs
-                    for key in ["x", "y", "width", "height"]
-                ]
-            ):
+            # Throw error if missing geometry
+            if None in (sx, sy, sw, sh):
                 raise logger.error(
                     ValueError(
-                        f"{row.filename} (row {row.Index}): "
-                        "missing bounding box shape parameter(s). "
-                        "Expected 'x', 'y', 'width', 'height' to exist as "
-                        "'region_shape_attributes', but got "
-                        f"'{list(row_region_shape_attrs.keys())}'."
+                        f"The bounding box in row {k + 1} is "
+                        "missing a geometric "
+                        "parameter (x, y, width, height). Please review the "
+                        "VIA tracks .csv file."
                     )
                 )
 
-            # check track ID is defined
-            if "track" not in row_region_attrs:
+            # Throw error if ID is missing
+            if track_id is None:
                 raise logger.error(
                     ValueError(
-                        f"{row.filename} (row {row.Index}): "
-                        "bounding box does not have a 'track' attribute "
-                        "defined under 'region_attributes'. "
+                        f"The bounding box in row {k + 1} is "
+                        "missing a track ID. "
                         "Please review the VIA tracks .csv file."
                     )
                 )
 
-            # check track ID is castable as an integer
+            # Check if ID is castable as int
             try:
-                int(row_region_attrs["track"])
-            except Exception as e:
+                track_id = int(track_id)
+            except ValueError as e:
                 raise logger.error(
                     ValueError(
-                        f"{row.filename} (row {row.Index}): "
-                        "the track ID for the bounding box cannot be cast as "
-                        "an integer. Please review the VIA tracks .csv file."
+                        f"The track ID of the bounding box in row {k + 1} "
+                        "cannot be cast as an integer "
+                        f"(got track ID '{track_id}'). Please "
+                        "review the VIA tracks .csv file."
                     )
                 ) from e
 
-    @file.validator
-    def _file_contains_unique_track_ids_per_filename(self, attribute, value):
+            # Append values to list
+            x[k] = sx
+            y[k] = sy
+            w[k] = sw
+            h[k] = sh
+            ids[k] = track_id
+            confidence_values[k] = confidence
+
+        # If all checks pass, return lists
+        # ids is already cast as integer, confidence_values is nan
+        # if not defined
+        return x, y, w, h, ids, confidence_values
+
+    def _file_contains_unique_track_ids_per_filename(
+        self, df: pd.DataFrame, ids: np.ndarray
+    ):
         """Ensure the VIA tracks .csv contains unique track IDs per filename.
 
         It checks that bounding boxes IDs are defined once per image file.
         """
-        df = pd.read_csv(value, sep=",", header=0)
-
-        list_unique_filenames = list(set(df.filename))
-        for file in list_unique_filenames:
-            df_one_filename = df.loc[df["filename"] == file]
-
-            list_track_ids_one_filename = [
-                int(ast.literal_eval(row.region_attributes)["track"])
-                for row in df_one_filename.itertuples()
-            ]
-
-            if len(set(list_track_ids_one_filename)) != len(
-                list_track_ids_one_filename
-            ):
-                raise logger.error(
-                    ValueError(
-                        f"{file}: "
-                        "multiple bounding boxes in this file "
-                        "have the same track ID. "
-                        "Please review the VIA tracks .csv file."
-                    )
+        # Use a temporary series for the check by using `.assign`
+        # (so that we don't modify self.df)
+        has_duplicates = df.assign(ID=ids).duplicated(
+            subset=["filename", "ID"],
+            keep=False,
+        )
+        if has_duplicates.any():
+            problem_files = (
+                df.loc[has_duplicates, "filename"].unique().tolist()
+            )
+            raise logger.error(
+                ValueError(
+                    "Duplicate track IDs found in the following files: "
+                    f"{problem_files}. "
+                    "Please review the VIA tracks .csv file."
                 )
+            )
 
 
 @define
