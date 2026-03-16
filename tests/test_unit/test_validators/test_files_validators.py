@@ -247,14 +247,25 @@ def test_via_tracks_validator_parsed_values(
         "filename,file_size,file_attributes,region_count,"
         "region_id,region_shape_attributes,region_attributes\n"
     )
+    expected_id = 1
+    expected_frame_number = 42
+    expected_x = 10.0
+    expected_y = 20.0
+    expected_w = 30.0
+    expected_h = 40.0
+
     row = (
         "frame_001.png,"
         "12345,"
-        '"{""frame"":42}",'
-        "1,"
+        '"{'
+        f'""frame"":{expected_frame_number}'
+        '}",'
+        f"{expected_id},"
         "0,"
-        '"{""name"":""rect"",""x"":10,""y"":20,'
-        '""width"":30,""height"":40}",'
+        '"{""name"":""rect"",'
+        f'""x"":{expected_x},""y"":{expected_y},'
+        f'""width"":{expected_w},""height"":{expected_h}'
+        '}",'
         f"{region_attributes}"
     )
     file_path = tmp_path / "test_via.csv"
@@ -262,16 +273,29 @@ def test_via_tracks_validator_parsed_values(
 
     via = ValidVIATracksCSV(file_path)
 
-    assert via.ids == [1]
-    assert via.frame_numbers == [42]
-    assert via.x == pytest.approx([10.0])
-    assert via.y == pytest.approx([20.0])
-    assert via.w == pytest.approx([30.0])
-    assert via.h == pytest.approx([40.0])
-    if np.isnan(expected_confidence):
-        assert all(np.isnan(c) for c in via.confidence)
-    else:
-        assert via.confidence == pytest.approx([expected_confidence])
+    np.testing.assert_array_equal(
+        via.ids, np.array(expected_id, dtype=np.int32)
+    )
+    np.testing.assert_array_equal(
+        via.frame_numbers, np.array(expected_frame_number, dtype=np.int64)
+    )
+    np.testing.assert_array_equal(
+        via.x, np.array(expected_x, dtype=np.float32)
+    )
+    np.testing.assert_array_equal(
+        via.y, np.array(expected_y, dtype=np.float32)
+    )
+    np.testing.assert_array_equal(
+        via.w, np.array(expected_w, dtype=np.float32)
+    )
+    np.testing.assert_array_equal(
+        via.h, np.array(expected_h, dtype=np.float32)
+    )
+    np.testing.assert_allclose(
+        via.confidence,
+        np.array(expected_confidence, dtype=np.float32),
+        equal_nan=True,
+    )
 
 
 @pytest.mark.parametrize(
