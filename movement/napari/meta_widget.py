@@ -3,7 +3,7 @@
 from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 
-from movement.napari.loader_widgets import DataLoader
+from movement.napari.loader_widgets import DataLoader, PlaybackFPSWidget
 
 
 class MovementMetaWidget(CollapsibleWidgetContainer):
@@ -22,6 +22,13 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             DataLoader(napari_viewer, parent=self),
             collapsible=True,
             widget_title="Load tracked data",
+        )
+
+        # Add the playback fps widget
+        self.add_widget(
+            PlaybackFPSWidget(napari_viewer, parent=self),
+            collapsible=False,
+            widget_title="Playback FPS",
         )
 
         self.loader = self.collapsible_widgets[0]

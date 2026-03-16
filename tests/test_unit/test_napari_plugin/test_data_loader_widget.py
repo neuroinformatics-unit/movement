@@ -26,6 +26,7 @@ from pytest import DATA_PATHS
 from qtpy.QtWidgets import (
     QComboBox,
     QDoubleSpinBox,
+    QLabel,
     QLineEdit,
     QPushButton,
 )
@@ -33,6 +34,7 @@ from qtpy.QtWidgets import (
 from movement.napari.loader_widgets import (
     SUPPORTED_BBOXES_FILES,
     DataLoader,
+    PlaybackFPSWidget,
 )
 
 pytestmark = pytest.mark.filterwarnings(
@@ -916,3 +918,42 @@ def test_add_points_and_tracks_layer_style(
         np.testing.assert_allclose(
             bboxes_layer_colormap_sorted, text_colormap_sorted, atol=1e-7
         )
+
+
+# ------------------- tests for PlaybackFPSWidget ----------------------------#
+
+
+def test_playback_fps_widget_instantiation(make_napari_viewer_proxy):
+    """Test that the PlaybackFPSWidget is properly instantiated.
+
+    The label should display the current playback FPS from napari's
+    application settings (``get_settings().application.playback_fps``)
+    and the label widget should be findable by name.
+    """
+    viewer = make_napari_viewer_proxy()
+    widget = PlaybackFPSWidget(viewer)
+
+    label = widget.findChild(QLabel, "playback_fps_label")
+    assert label is not None, "playback_fps_label widget not found."
+    expected_fps = get_settings().application.playback_fps
+    assert label.text() == f"Playback FPS: {expected_fps}"
+
+
+def test_playback_fps_label_updates_on_fps_change(
+    make_napari_viewer_proxy, monkeypatch
+):
+    """Test that the label updates when the playback fps setting changes.
+
+    After the settings event fires, the label text should reflect the
+    new value.
+    """
+    viewer = make_napari_viewer_proxy()
+    widget = PlaybackFPSWidget(viewer)
+
+    new_fps = 42
+    # Use monkeypatch to ensure the global setting is restored after the test
+    monkeypatch.setattr(get_settings().application, "playback_fps", new_fps)
+
+    label = widget.findChild(QLabel, "playback_fps_label")
+    assert label is not None, "playback_fps_label widget not found."
+    assert label.text() == f"Playback FPS: {new_fps}"

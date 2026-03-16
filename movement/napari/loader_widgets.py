@@ -16,6 +16,7 @@ from qtpy.QtWidgets import (
     QFileDialog,
     QFormLayout,
     QHBoxLayout,
+    QLabel,
     QLineEdit,
     QPushButton,
     QWidget,
@@ -440,3 +441,34 @@ class DataLoader(QWidget):
         """
         settings = get_settings()
         settings.appearance.layer_tooltip_visibility = True
+
+
+class PlaybackFPSWidget(QWidget):
+    """Widget that displays the current napari playback FPS.
+
+    Shows a label that reads the playback FPS directly from napari's
+    application settings (``get_settings().application.playback_fps``) and
+    updates whenever the user changes the playback speed in napari.
+
+    This is intentionally read-only and does *not* measure FPS in real time
+    to avoid flickering or warnings related to private napari attributes.
+    """
+
+    def __init__(self, napari_viewer: Viewer, parent=None):
+        """Initialize the playback FPS widget."""
+        super().__init__(parent=parent)
+        self.viewer = napari_viewer
+        self.setLayout(QFormLayout())
+
+        playback_fps = get_settings().application.playback_fps
+        self.playback_fps_label = QLabel(f"Playback FPS: {playback_fps}")
+        self.playback_fps_label.setObjectName("playback_fps_label")
+        self.layout().addRow(self.playback_fps_label)
+
+        get_settings().application.events.playback_fps.connect(
+            self._on_fps_changed
+        )
+
+    def _on_fps_changed(self, event):
+        """Update the label when the playback fps changes."""
+        self.playback_fps_label.setText(f"Playback FPS: {event.value}")
