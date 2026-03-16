@@ -340,76 +340,140 @@ def test_from_numpy(
 
 
 @pytest.mark.parametrize(
-    "input_data",
+    "input_data, expected",
     [
         # Case 1: all IDs are defined for all frames
         # expected df is just sorted
-        {
-            "ids": np.array([1, 2, 1, 2]),
-            "frame_numbers": np.array([1, 1, 0, 0]),
-            "x": np.array([10.0, 20.0, 30.0, 40.0]),
-            "y": np.array([1.0, 2.0, 3.0, 4.0]),
-            "w": np.array([5.0, 5.0, 5.0, 5.0]),
-            "h": np.array([5.0, 5.0, 5.0, 5.0]),
-            "confidence": np.array([1.0, 1.0, 1.0, 1.0]),
-        },
+        (
+            {
+                "ids": np.array([1, 2, 1, 2]),
+                "frame_numbers": np.array([0, 0, 1, 1]),
+                "x": np.array([10.0, 20.0, 30.0, 40.0]),
+                "y": np.array([1.0, 2.0, 3.0, 4.0]),
+                "w": np.array([5.0, 5.0, 5.0, 5.0]),
+                "h": np.array([5.0, 5.0, 5.0, 5.0]),
+                "confidence": np.array([1.0, 1.0, 1.0, 1.0]),
+            },
+            {
+                "ID_array": np.array([[1], [2]]),
+                "frame_array": np.array([[0], [1]]),
+                # position = centroid: (x+w/2, y+h/2)
+                "position_array": np.array(
+                    [
+                        [
+                            [12.5, 22.5],  # x: id1, id2
+                            [3.5, 4.5],  # y: id1, id2
+                        ],  # frame 0
+                        [
+                            [32.5, 42.5],  # x: id1, id2
+                            [5.5, 6.5],  # y: id1, id2
+                        ],  # frame 1
+                    ]
+                ),
+                # shape (time, space, individuals)
+                "shape_array": np.array(
+                    [
+                        [
+                            [5.0, 5.0],  # w: id1, id2
+                            [5.0, 5.0],  # h: id1, id2
+                        ],  # frame 0
+                        [
+                            [5.0, 5.0],  # w: id1, id2
+                            [5.0, 5.0],  # h: id1, id2
+                        ],  # frame 1
+                    ]
+                ),
+                "confidence_array": np.array(
+                    [
+                        [1.0, 1.0],  # frame0: id1, id2
+                        [1.0, 1.0],  # frame1: id1, id2
+                    ]
+                ),
+            },
+        ),
         # Case 2: ID=2 is not defined for frame 1
         # (nan should be added)
-        {
-            "ids": np.array([1, 1, 2]),
-            "frame_numbers": np.array([0, 1, 0]),
-            "x": np.array([10.0, 20.0, 30.0]),
-            "y": np.array([1.0, 2.0, 3.0]),
-            "w": np.array([5.0, 5.0, 5.0]),
-            "h": np.array([5.0, 5.0, 5.0]),
-            "confidence": np.array([1.0, 1.0, 1.0]),
-        },
+        (
+            {
+                "ids": np.array([1, 2, 1]),
+                "frame_numbers": np.array([0, 0, 1]),
+                "x": np.array([10.0, 20.0, 30.0]),
+                "y": np.array([1.0, 2.0, 3.0]),
+                "w": np.array([5.0, 5.0, 5.0]),
+                "h": np.array([5.0, 5.0, 5.0]),
+                "confidence": np.array([1.0, 1.0, 1.0]),
+            },
+            {
+                "ID_array": np.array([[1], [2]]),
+                "frame_array": np.array([[0], [1]]),
+                # position = centroid: (x+w/2, y+h/2)
+                "position_array": np.array(
+                    [
+                        [
+                            [12.5, 22.5],  # x: id1, id2
+                            [3.5, 4.5],  # y: id1, id2
+                        ],  # frame 0
+                        [
+                            [32.5, np.nan],  # x: id1, id2
+                            [5.5, np.nan],  # y: id1, id2
+                        ],  # frame 1
+                    ]
+                ),
+                "shape_array": np.array(
+                    [
+                        [
+                            [5.0, 5.0],  # w: id1, id2
+                            [5.0, 5.0],  # h: id1, id2
+                        ],  # frame 0
+                        [
+                            [5.0, np.nan],  # w: id1, id2
+                            [5.0, np.nan],  # h: id1, id2
+                        ],  # frame 1
+                    ]
+                ),
+                "confidence_array": np.array(
+                    [
+                        [1.0, 1.0],  # frame0: id1, id2
+                        [1.0, np.nan],  # frame1: id1, id2
+                    ]
+                ),
+            },
+        ),
     ],
 )
-def test_numpy_arrays_from_valid_via_object(input_data):
+def test_numpy_arrays_from_valid_via_object(input_data, expected):
     """Test all arrays extracted from a valid VIA file object."""
+    # Define a mock valid VIA file object with the input data as attributes
     mock_via = Mock()
     for key, val in input_data.items():
         setattr(mock_via, key, val)
 
+    # Extract numpy arrays from the mock VIA object
     result = load_bboxes._numpy_arrays_from_valid_via_object(mock_via)
 
-    # Parse input data
-    x, y, w, h, ids, frames = (
-        input_data[k] for k in ["x", "y", "w", "h", "ids", "frame_numbers"]
-    )
-
-    # Compute expected arrays
-    unique_ids = np.unique(ids)
-    unique_frames = np.unique(frames)
-    n_individuals, n_frames = len(unique_ids), len(unique_frames)
-
-    expected_position = np.full((n_frames, 2, n_individuals), np.nan)
-    expected_shape = np.full((n_frames, 2, n_individuals), np.nan)
-    expected_confidence = np.full((n_frames, n_individuals), np.nan)
-    for i in range(len(x)):
-        fi = np.searchsorted(unique_frames, frames[i])
-        ii = np.searchsorted(unique_ids, ids[i])
-        expected_position[fi, 0, ii] = x[i] + w[i] / 2
-        expected_position[fi, 1, ii] = y[i] + h[i] / 2
-        expected_shape[fi, 0, ii] = w[i]
-        expected_shape[fi, 1, ii] = h[i]
-        expected_confidence[fi, ii] = input_data["confidence"][i]
-
+    # Compare
     np.testing.assert_array_equal(
-        result["ID_array"], unique_ids.reshape(-1, 1)
+        result["ID_array"],
+        expected["ID_array"],
     )
     np.testing.assert_array_equal(
-        result["frame_array"], unique_frames.reshape(-1, 1)
+        result["frame_array"],
+        expected["frame_array"],
     )
     np.testing.assert_allclose(
-        result["position_array"], expected_position, equal_nan=True
+        result["position_array"],
+        expected["position_array"],
+        equal_nan=True,
     )
     np.testing.assert_allclose(
-        result["shape_array"], expected_shape, equal_nan=True
+        result["shape_array"],
+        expected["shape_array"],
+        equal_nan=True,
     )
     np.testing.assert_allclose(
-        result["confidence_array"], expected_confidence, equal_nan=True
+        result["confidence_array"],
+        expected["confidence_array"],
+        equal_nan=True,
     )
 
 
