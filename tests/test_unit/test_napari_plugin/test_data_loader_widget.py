@@ -24,6 +24,7 @@ from napari.settings import get_settings
 from napari.utils.events import EmitterGroup
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import (
+    QCheckBox,
     QComboBox,
     QDoubleSpinBox,
     QLineEdit,
@@ -46,13 +47,21 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     # Instantiate the data loader widget
     data_loader_widget = DataLoader(make_napari_viewer_proxy())
 
-    # Check that the widget has the expected number of rows
-    assert data_loader_widget.layout().rowCount() == 4
+    # Check that the widget has the expected number of rows:
+    # source_software, fps, individual_name (Anipose), processing_module_key,
+    # pose_estimation_key, use_frame_numbers, frame_regexp (VIA-tracks),
+    # file_path, load_button → 9 rows total
+    assert data_loader_widget.layout().rowCount() == 9
 
     # Check that the expected widgets are present in the layout
     expected_widgets = [
         (QComboBox, "source_software_combo"),
         (QDoubleSpinBox, "fps_spinbox"),
+        (QLineEdit, "individual_name_edit"),
+        (QLineEdit, "processing_module_key_edit"),
+        (QLineEdit, "pose_estimation_key_edit"),
+        (QCheckBox, "use_frame_numbers_checkbox"),
+        (QLineEdit, "frame_regexp_edit"),
         (QLineEdit, "file_path_edit"),
         (QPushButton, "load_button"),
         (QPushButton, "browse_button"),
@@ -155,6 +164,7 @@ def test_on_layer_added_and_deleted(
     "choice, fps_enabled, tooltip_contains",
     [
         ("movement (netCDF)", False, "netCDF file attributes"),
+        ("NWB", False, "NWB file metadata"),
         ("SLEAP", True, "Set the frames per second"),
         ("DeepLabCut", True, "Set the frames per second"),
     ],
@@ -222,6 +232,8 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
         ("DeepLabCut", "*.h5 *.csv"),
         ("SLEAP", "*.h5 *.slp"),
         ("LightningPose", "*.csv"),
+        ("Anipose", "*.csv"),
+        ("NWB", "*.nwb"),
         ("VIA-tracks", "*.csv"),
         ("movement (netCDF)", "*.nc"),
     ],
