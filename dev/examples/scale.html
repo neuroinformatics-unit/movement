@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=d8df15e5"></script>
+    <script src="../_static/documentation_options.js?v=ef279f8f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev1</p>
+    <p class="title logo__title">movement v0.15.1.dev2</p>
   
 </a></div>
     
@@ -786,14 +786,14 @@ corresponds to the line length in pixels, and the area will always be 0.</p>
 <p>We can then retrieve the measured distance and line coordinates from the
 shapes layer.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">shapes_layer</span> <span class="o">=</span> <span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s2">&quot;Shapes&quot;</span><span class="p">]</span>
-<a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">measurements_px</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">shapes_layer</span><span class="o">.</span><span class="n">features</span></a>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">measurements_px</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">shapes_layer</span><span class="o">.</span><span class="n">features</span></a>
 <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">shape_coords</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">shapes_layer</span><span class="o">.</span><span class="n">data</span></a>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Measurements:</span><span class="se">\n</span><span class="si">{</span><a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">measurements_px</span></a><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Measurements:</span><span class="se">\n</span><span class="si">{</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">measurements_px</span></a><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Coordinates:</span><span class="se">\n</span><span class="si">{</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">shape_coords</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Extract the line length in pixels from the perimeter (P) column</span>
-<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">distance_px</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">measurements_px</span></a><span class="p">[</span><span class="s2">&quot;_perimeter&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">distance_px</span></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.DataFrame" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">measurements_px</span></a><span class="p">[</span><span class="s2">&quot;_perimeter&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Measurements:
@@ -908,21 +908,21 @@ Log:
 [
   {
     &quot;operation&quot;: &quot;filter_by_confidence&quot;,
-    &quot;datetime&quot;: &quot;2026-03-13 11:18:14.648863&quot;,
+    &quot;datetime&quot;: &quot;2026-03-16 16:33:57.887180&quot;,
     &quot;confidence&quot;: &quot;&lt;xarray.DataArray &#39;confidence&#39; (time: 418, keypoints: 43)&gt; Size: 144kB\n0.02365 0.01434 0.01821 0.02692 0.05129 ... 0.004628 0.007376 0.003921 0.005941\nCoordinates:\n  * time         (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688\n  * keypoints    (keypoints) &lt;U15 3kB &#39;Nose&#39; &#39;EarL&#39; ... &#39;HindpawKneeL&#39;\n    individuals  &lt;U12 48B &#39;individual_0&#39;&quot;,
     &quot;threshold&quot;: &quot;0.9&quot;,
     &quot;print_report&quot;: &quot;False&quot;
   },
   {
     &quot;operation&quot;: &quot;interpolate_over_time&quot;,
-    &quot;datetime&quot;: &quot;2026-03-13 11:18:14.662529&quot;,
+    &quot;datetime&quot;: &quot;2026-03-16 16:33:57.901144&quot;,
     &quot;method&quot;: &quot;&#39;linear&#39;&quot;,
     &quot;max_gap&quot;: &quot;40&quot;,
     &quot;print_report&quot;: &quot;False&quot;
   },
   {
     &quot;operation&quot;: &quot;rolling_filter&quot;,
-    &quot;datetime&quot;: &quot;2026-03-13 11:18:14.665715&quot;,
+    &quot;datetime&quot;: &quot;2026-03-16 16:33:57.904455&quot;,
     &quot;window&quot;: &quot;6&quot;,
     &quot;statistic&quot;: &quot;&#39;median&#39;&quot;,
     &quot;min_periods&quot;: &quot;2&quot;,
@@ -930,7 +930,7 @@ Log:
   },
   {
     &quot;operation&quot;: &quot;scale&quot;,
-    &quot;datetime&quot;: &quot;2026-03-13 11:18:14.944698&quot;,
+    &quot;datetime&quot;: &quot;2026-03-16 16:33:58.186295&quot;,
     &quot;factor&quot;: &quot;np.float64(0.03440766330229682)&quot;,
     &quot;space_unit&quot;: &quot;&#39;cm&#39;&quot;
   }
@@ -1125,7 +1125,7 @@ this difference grows more than tenfold, reflecting the gait adjustments
 the mouse makes to accommodate the speed differential between belts.</p>
 <p>Having the data in real-world units makes these quantitative comparisons
 possible.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.764 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.793 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-scale-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/scale.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
