@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=ef279f8f"></script>
+    <script src="../_static/documentation_options.js?v=4b5f1b96"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev2</p>
+    <p class="title logo__title">movement v0.15.1.dev3</p>
   
 </a></div>
     
@@ -641,6 +641,8 @@
 <li><p>contains tracked bounding boxes, and</p></li>
 <li><p>defines bounding boxes whose IDs are unique per image file.</p></li>
 </ul>
+<p>If the file is validated, the bounding boxes data is pre-parsed
+from the input file and added as attributes.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.file">
 <span class="sig-name descname"><span class="pre">file</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.file" title="Link to this definition">#</a></dt>
@@ -654,6 +656,48 @@
 filename. By default, the frame number is expected to be encoded in
 the filename as an integer number led by at least one zero, followed
 by the file extension.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.x">
+<span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.x" title="Link to this definition">#</a></dt>
+<dd><p>Array of x coordinates of the tracked bounding boxes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.y">
+<span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.y" title="Link to this definition">#</a></dt>
+<dd><p>Array of y coordinates of the tracked bounding boxes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.w">
+<span class="sig-name descname"><span class="pre">w</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.w" title="Link to this definition">#</a></dt>
+<dd><p>Array of width coordinates of the tracked bounding boxes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.h">
+<span class="sig-name descname"><span class="pre">h</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.h" title="Link to this definition">#</a></dt>
+<dd><p>Array of height coordinates of the tracked bounding boxes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.ids">
+<span class="sig-name descname"><span class="pre">ids</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.ids" title="Link to this definition">#</a></dt>
+<dd><p>Array of track IDs of the tracked bounding boxes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.frame_numbers">
+<span class="sig-name descname"><span class="pre">frame_numbers</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.frame_numbers" title="Link to this definition">#</a></dt>
+<dd><p>Array of frame numbers of the tracked bounding boxes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.confidence">
+<span class="sig-name descname"><span class="pre">confidence</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.confidence" title="Link to this definition">#</a></dt>
+<dd><p>Array of confidence values of the tracked bounding boxes.</p>
 </dd></dl>
 
 <dl class="field-list simple">
@@ -718,6 +762,13 @@ by the file extension.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.file"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.file</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.frame_regexp"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.frame_regexp</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.x"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.x</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.y"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.y</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.w"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.w</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.h"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.h</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.ids"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.ids</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.frame_numbers"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.frame_numbers</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.confidence"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.confidence</span></code></a></li>
 </ul>
 </li>
 </ul>

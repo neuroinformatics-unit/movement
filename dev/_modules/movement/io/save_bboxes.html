@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=ef279f8f"></script>
+    <script src="../../../_static/documentation_options.js?v=4b5f1b96"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev2</p>
+    <p class="title logo__title">movement v0.15.1.dev3</p>
   
 </a></div>
     
@@ -957,13 +957,16 @@
     <span class="n">file_attributes</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;shot&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
 
     <span class="c1"># Define region shape attributes</span>
+    <span class="c1"># Note: float() converts float32 to float64,</span>
+    <span class="c1"># which is json-serializable</span>
+    <span class="n">n_decimals</span> <span class="o">=</span> <span class="mi">6</span>
     <span class="n">region_shape_attributes</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
         <span class="p">{</span>
             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;rect&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x_top_left</span><span class="p">),</span>
-            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">y_top_left</span><span class="p">),</span>
-            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">width</span><span class="p">),</span>
-            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">height</span><span class="p">),</span>
+            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x_top_left</span><span class="p">),</span> <span class="n">n_decimals</span><span class="p">),</span>
+            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">y_top_left</span><span class="p">),</span> <span class="n">n_decimals</span><span class="p">),</span>
+            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">width</span><span class="p">),</span> <span class="n">n_decimals</span><span class="p">),</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">height</span><span class="p">),</span> <span class="n">n_decimals</span><span class="p">),</span>
         <span class="p">}</span>
     <span class="p">)</span>
 
@@ -971,7 +974,9 @@
     <span class="n">region_attributes_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;track&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">track_id</span><span class="p">)}</span>
     <span class="k">if</span> <span class="n">confidence</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># convert to float to ensure it is json-serializable</span>
-        <span class="n">region_attributes_dict</span><span class="p">[</span><span class="s2">&quot;confidence&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">confidence</span><span class="p">)</span>
+        <span class="n">region_attributes_dict</span><span class="p">[</span><span class="s2">&quot;confidence&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">confidence</span><span class="p">),</span> <span class="n">n_decimals</span>
+        <span class="p">)</span>
     <span class="n">region_attributes</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">region_attributes_dict</span><span class="p">)</span>
 
     <span class="c1"># Set image size</span>

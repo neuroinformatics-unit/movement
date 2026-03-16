@@ -113,16 +113,16 @@ The loaded dataset is made up of three data arrays:
 
  .. code-block:: none
 
-    <xarray.Dataset> Size: 2kB
+    <xarray.Dataset> Size: 1kB
     Dimensions:      (time: 35, space: 2, individuals: 1)
     Coordinates:
       * time         (time) int64 280B 0 5 10 15 20 25 ... 145 150 155 160 165 167
       * space        (space) <U1 8B 'x' 'y'
       * individuals  (individuals) <U4 16B 'id_1'
     Data variables:
-        position     (time, space, individuals) float64 560B 1.118e+03 ... 401.9
-        shape        (time, space, individuals) float64 560B 320.1 153.2 ... 120.1
-        confidence   (time, individuals) float64 280B nan nan nan ... nan nan nan
+        position     (time, space, individuals) float32 280B 1.118e+03 ... 401.9
+        shape        (time, space, individuals) float32 280B 320.1 153.2 ... 120.1
+        confidence   (time, individuals) float32 140B nan nan nan ... nan nan nan
     Attributes:
         source_software:  VIA-tracks
         ds_type:          bboxes
@@ -497,16 +497,16 @@ frames of the data.
  .. code-block:: none
 
     Position data array (first 10 frames):
-    [[1117.895   373.3035]
-     [      nan       nan]
-     [      nan       nan]
-     [      nan       nan]
-     [      nan       nan]
-     [1098.141   376.1255]
-     [      nan       nan]
-     [      nan       nan]
-     [      nan       nan]
-     [      nan       nan]]
+    [[1117.895    373.3035 ]
+     [       nan        nan]
+     [       nan        nan]
+     [       nan        nan]
+     [       nan        nan]
+     [1098.141    376.12552]
+     [       nan        nan]
+     [       nan        nan]
+     [       nan        nan]
+     [       nan        nan]]
     ----
     Shape data array (first 10 frames):
     [[320.09  153.191]
@@ -761,7 +761,7 @@ code.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.514 seconds)
+   **Total running time of the script:** (0 minutes 3.568 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_upsample_bboxes.py:

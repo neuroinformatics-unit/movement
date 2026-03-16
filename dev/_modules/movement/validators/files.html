@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=ef279f8f"></script>
+    <script src="../../../_static/documentation_options.js?v=4b5f1b96"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev2</p>
+    <p class="title logo__title">movement v0.15.1.dev3</p>
   
 </a></div>
     
@@ -461,7 +461,6 @@
                    <h1>Source code for movement.validators.files</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;``attrs`` classes for validating file paths.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
@@ -471,6 +470,8 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">jsonschema</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">orjson</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">define</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">validators</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pynwb</span><span class="w"> </span><span class="kn">import</span> <span class="n">NWBFile</span>
@@ -1042,6 +1043,9 @@
 <span class="sd">    - contains tracked bounding boxes, and</span>
 <span class="sd">    - defines bounding boxes whose IDs are unique per image file.</span>
 
+<span class="sd">    If the file is validated, the bounding boxes data is pre-parsed</span>
+<span class="sd">    from the input file and added as attributes.</span>
+
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    file</span>
@@ -1051,6 +1055,20 @@
 <span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
 <span class="sd">        the filename as an integer number led by at least one zero, followed</span>
 <span class="sd">        by the file extension.</span>
+<span class="sd">    x</span>
+<span class="sd">        Array of x coordinates of the tracked bounding boxes.</span>
+<span class="sd">    y</span>
+<span class="sd">        Array of y coordinates of the tracked bounding boxes.</span>
+<span class="sd">    w</span>
+<span class="sd">        Array of width coordinates of the tracked bounding boxes.</span>
+<span class="sd">    h</span>
+<span class="sd">        Array of height coordinates of the tracked bounding boxes.</span>
+<span class="sd">    ids</span>
+<span class="sd">        Array of track IDs of the tracked bounding boxes.</span>
+<span class="sd">    frame_numbers</span>
+<span class="sd">        Array of frame numbers of the tracked bounding boxes.</span>
+<span class="sd">    confidence</span>
+<span class="sd">        Array of confidence values of the tracked bounding boxes.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -1066,9 +1084,79 @@
     <span class="p">)</span>
     <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_FRAME_REGEXP</span><span class="p">)</span>
 
+    <span class="c1"># Bboxes pre-parsed data</span>
+    <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">w</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">h</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ids</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">frame_numbers</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">confidence</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
     <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_valid_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_via_tracks_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run all VIA tracks validations and cache parsed attributes.&quot;&quot;&quot;</span>
+        <span class="c1"># Validate frame_regexp first since file</span>
+        <span class="c1"># validation depends on it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frame_regexp_valid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_regexp</span><span class="p">)</span>
+
+        <span class="c1"># Read csv as a dataframe</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="c1"># Run all validation steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file_contains_valid_header</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="n">frame_numbers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file_contains_valid_frame_numbers</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">confidence_values</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_file_contains_tracked_bboxes</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file_contains_unique_track_ids_per_filename</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
+
+        <span class="c1"># If all checks pass, add parsed attributes to the object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_numbers</span> <span class="o">=</span> <span class="n">frame_numbers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">w</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">h</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ids</span> <span class="o">=</span> <span class="n">ids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">confidence</span> <span class="o">=</span> <span class="n">confidence_values</span>
+
+    <span class="nd">@frame_regexp</span><span class="o">.</span><span class="n">validator</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_frame_regexp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate the frame_regexp attribute.</span>
+
+<span class="sd">        It also runs when the frame_regexp field is reassigned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_frame_regexp_valid</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_frame_regexp_valid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure the frame regexp pattern is valid.</span>
+
+<span class="sd">        Checks regexp pattern can be compiled and that it contains</span>
+<span class="sd">        exactly one capture group.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check if the regexp pattern can be compiled</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">compiled_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">re</span><span class="o">.</span><span class="n">error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;The provided regular expression for &quot;</span>
+                    <span class="s2">&quot;the frame numbers &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">) could not be compiled. &quot;</span>
+                    <span class="s2">&quot;Please review its syntax.&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+        <span class="c1"># Check it contains one capture group</span>
+        <span class="k">if</span> <span class="n">compiled_pattern</span><span class="o">.</span><span class="n">groups</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The regexp pattern must contain exactly one capture &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;group for the frame number (got </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">).&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_valid_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure the VIA tracks .csv file contains the expected header.&quot;&quot;&quot;</span>
+        <span class="c1"># Read CSV once and store for later use</span>
         <span class="n">expected_header</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">&quot;filename&quot;</span><span class="p">,</span>
             <span class="s2">&quot;file_size&quot;</span><span class="p">,</span>
@@ -1079,20 +1167,18 @@
             <span class="s2">&quot;region_attributes&quot;</span><span class="p">,</span>
         <span class="p">]</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">header</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">header</span> <span class="o">!=</span> <span class="n">expected_header</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="s2">&quot;.csv header row does not match the known format for &quot;</span>
-                        <span class="s2">&quot;VIA tracks .csv files. &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="n">expected_header</span><span class="si">}</span><span class="s2"> but got </span><span class="si">{</span><span class="n">header</span><span class="si">}</span><span class="s2">.&quot;</span>
-                    <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">!=</span> <span class="n">expected_header</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;.csv header row does not match the known format for &quot;</span>
+                    <span class="s2">&quot;VIA tracks .csv files. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="n">expected_header</span><span class="si">}</span><span class="s2"> but got </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
                 <span class="p">)</span>
+            <span class="p">)</span>
 
-    <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_valid_frame_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_valid_frame_numbers</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the VIA tracks .csv file contains valid frame numbers.</span>
 
 <span class="sd">        This involves:</span>
@@ -1110,27 +1196,45 @@
 <span class="sd">        file extension.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Try extracting frame number from the file attributes</span>
+        <span class="c1"># (returns None if not defined)</span>
+        <span class="n">frame_numbers</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">orjson</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">row</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;frame&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;file_attributes&quot;</span><span class="p">]]</span>
+        <span class="p">)</span>
 
-        <span class="c1"># Extract list of file attributes (dicts)</span>
-        <span class="n">file_attributes_dicts</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">file_attributes</span>
-        <span class="p">]</span>
-
-        <span class="c1"># If &#39;frame&#39; is a file_attribute for all files:</span>
-        <span class="c1"># extract frame number</span>
-        <span class="k">if</span> <span class="nb">all</span><span class="p">([</span><span class="s2">&quot;frame&quot;</span> <span class="ow">in</span> <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">file_attributes_dicts</span><span class="p">]):</span>
-            <span class="n">list_frame_numbers</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_extract_frame_numbers_from_file_attributes</span><span class="p">(</span>
-                    <span class="n">df</span><span class="p">,</span> <span class="n">file_attributes_dicts</span>
-                <span class="p">)</span>
+        <span class="c1"># If there is any None in the list, try extracting</span>
+        <span class="c1"># the frame number from the filename</span>
+        <span class="k">if</span> <span class="n">frame_numbers</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="c1"># Extract frame number from filename</span>
+            <span class="n">frame_numbers</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">frame_regexp</span><span class="p">,</span>
+                <span class="n">expand</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># to return a series if one capture group</span>
             <span class="p">)</span>
-        <span class="c1"># else: extract frame number from filename.</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">list_frame_numbers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extract_frame_numbers_using_regexp</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+            <span class="c1"># Check if there are no matches</span>
+            <span class="k">if</span> <span class="n">frame_numbers</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Could not extract frame numbers from the filenames &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;using the regular expression </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_regexp</span><span class="si">}</span><span class="s2">. &quot;</span>
+                        <span class="s2">&quot;Please ensure filenames match the expected pattern, &quot;</span>
+                        <span class="s2">&quot;or define the frame numbers in file_attributes.&quot;</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Check all frame numbers are castable as integer</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">frame_numbers</span> <span class="o">=</span> <span class="n">frame_numbers</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Some frame numbers cannot be cast as integer. &quot;</span>
+                    <span class="s2">&quot;Please review the VIA-tracks .csv file.&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
         <span class="c1"># Check we have as many unique frame numbers as unique image files</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">list_frame_numbers</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">unique</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">frame_numbers</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span> <span class="o">!=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;The number of unique frame numbers does not match &quot;</span>
@@ -1140,66 +1244,12 @@
                 <span class="p">)</span>
             <span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_frame_numbers_from_file_attributes</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">file_attributes_dicts</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get frame numbers from the &#39;frame&#39; key under &#39;file_attributes&#39;.&quot;&quot;&quot;</span>
-        <span class="n">list_frame_numbers</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">k_i</span><span class="p">,</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">file_attributes_dicts</span><span class="p">):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">list_frame_numbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]))</span>
-            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">filename</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">k_i</span><span class="p">]</span><span class="si">}</span><span class="s2"> (row </span><span class="si">{</span><span class="n">k_i</span><span class="si">}</span><span class="s2">): &quot;</span>
-                        <span class="s2">&quot;&#39;frame&#39; file attribute cannot be cast as an integer. &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;Please review the file attributes: </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">.&quot;</span>
-                    <span class="p">)</span>
-                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-        <span class="k">return</span> <span class="n">list_frame_numbers</span>
+        <span class="c1"># If all checks pass, return</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">frame_numbers</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>  <span class="c1"># already cast as integer</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_frame_numbers_using_regexp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get frame numbers from the file names using the provided regexp.&quot;&quot;&quot;</span>
-        <span class="n">list_frame_numbers</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">f_i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]):</span>
-            <span class="c1"># try compiling the frame regexp</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">regex_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_regexp</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">re</span><span class="o">.</span><span class="n">error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="n">re</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="s2">&quot;The provided regular expression for the frame &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;numbers (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_regexp</span><span class="si">}</span><span class="s2">) could not be compiled.&quot;</span>
-                        <span class="s2">&quot; Please review its syntax.&quot;</span>
-                    <span class="p">)</span>
-                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-            <span class="c1"># try extracting the frame number from the filename using the</span>
-            <span class="c1"># compiled regexp</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">list_frame_numbers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">regex_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
-            <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="ne">AttributeError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2"> (row </span><span class="si">{</span><span class="n">f_i</span><span class="si">}</span><span class="s2">): The provided frame regexp &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_regexp</span><span class="si">}</span><span class="s2">) did not &quot;</span>
-                        <span class="s2">&quot;return any matches and a frame number could not &quot;</span>
-                        <span class="s2">&quot;be extracted from the filename.&quot;</span>
-                    <span class="p">)</span>
-                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2"> (row </span><span class="si">{</span><span class="n">f_i</span><span class="si">}</span><span class="s2">): &quot;</span>
-                        <span class="s2">&quot;The frame number extracted from the filename using &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;the provided regexp (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_regexp</span><span class="si">}</span><span class="s2">) could not &quot;</span>
-                        <span class="s2">&quot;be cast as an integer.&quot;</span>
-                    <span class="p">)</span>
-                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-
-        <span class="k">return</span> <span class="n">list_frame_numbers</span>
-
-    <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_tracked_bboxes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_tracked_bboxes</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure that the VIA tracks .csv contains tracked bounding boxes.</span>
 
 <span class="sd">        This involves:</span>
@@ -1210,93 +1260,123 @@
 <span class="sd">        - Checking that the bounding boxes have a track ID defined.</span>
 <span class="sd">        - Checking that the track ID can be cast as an integer.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Extract region shape data</span>
+        <span class="n">n_rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">confidence_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
-            <span class="n">row_region_shape_attrs</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span>
-                <span class="n">row</span><span class="o">.</span><span class="n">region_shape_attributes</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="p">(</span><span class="n">shape_row</span><span class="p">,</span> <span class="n">attr_row</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;region_shape_attributes&quot;</span><span class="p">],</span>
+                <span class="n">df</span><span class="p">[</span><span class="s2">&quot;region_attributes&quot;</span><span class="p">],</span>
+                <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">row_region_attrs</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">region_attributes</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="c1"># Parse dicts</span>
+            <span class="n">shape_attrs</span> <span class="o">=</span> <span class="n">orjson</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">shape_row</span><span class="p">)</span>
+            <span class="n">region_attrs</span> <span class="o">=</span> <span class="n">orjson</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">attr_row</span><span class="p">)</span>
 
-            <span class="c1"># check annotation is a rectangle</span>
-            <span class="k">if</span> <span class="n">row_region_shape_attrs</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;rect&quot;</span><span class="p">:</span>
+            <span class="c1"># Get shape data</span>
+            <span class="n">shape_name</span> <span class="o">=</span> <span class="n">shape_attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+            <span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">sw</span><span class="p">,</span> <span class="n">sh</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">shape_attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+                <span class="n">shape_attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
+                <span class="n">shape_attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;width&quot;</span><span class="p">),</span>
+                <span class="n">shape_attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;height&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Get ID data</span>
+            <span class="n">track_id</span> <span class="o">=</span> <span class="n">region_attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;track&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Get confidence data if present (otherwise nan)</span>
+            <span class="n">confidence</span> <span class="o">=</span> <span class="n">region_attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;confidence&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+            <span class="c1"># Throw error if invalid shape</span>
+            <span class="k">if</span> <span class="n">shape_name</span> <span class="o">!=</span> <span class="s2">&quot;rect&quot;</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                     <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> (row </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">Index</span><span class="si">}</span><span class="s2">): &quot;</span>
-                        <span class="s2">&quot;bounding box shape must be &#39;rect&#39; (rectangular) &quot;</span>
-                        <span class="s2">&quot;but instead got &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">row_region_shape_attrs</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;The bounding box shape in row </span><span class="si">{</span><span class="n">k</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> is &quot;</span>
+                        <span class="s2">&quot;expected to be &#39;rect&#39; (rectangular) but instead got &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">shape_name</span><span class="si">}</span><span class="s2">. Please review the VIA tracks &quot;</span>
+                        <span class="s2">&quot;.csv file.&quot;</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
 
-            <span class="c1"># check all geometric parameters for the box are defined</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">key</span> <span class="ow">in</span> <span class="n">row_region_shape_attrs</span>
-                    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;width&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">]</span>
-                <span class="p">]</span>
-            <span class="p">):</span>
+            <span class="c1"># Throw error if missing geometry</span>
+            <span class="k">if</span> <span class="kc">None</span> <span class="ow">in</span> <span class="p">(</span><span class="n">sx</span><span class="p">,</span> <span class="n">sy</span><span class="p">,</span> <span class="n">sw</span><span class="p">,</span> <span class="n">sh</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                     <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> (row </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">Index</span><span class="si">}</span><span class="s2">): &quot;</span>
-                        <span class="s2">&quot;missing bounding box shape parameter(s). &quot;</span>
-                        <span class="s2">&quot;Expected &#39;x&#39;, &#39;y&#39;, &#39;width&#39;, &#39;height&#39; to exist as &quot;</span>
-                        <span class="s2">&quot;&#39;region_shape_attributes&#39;, but got &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">row_region_shape_attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;The bounding box in row </span><span class="si">{</span><span class="n">k</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> is &quot;</span>
+                        <span class="s2">&quot;missing a geometric &quot;</span>
+                        <span class="s2">&quot;parameter (x, y, width, height). Please review the &quot;</span>
+                        <span class="s2">&quot;VIA tracks .csv file.&quot;</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
 
-            <span class="c1"># check track ID is defined</span>
-            <span class="k">if</span> <span class="s2">&quot;track&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">row_region_attrs</span><span class="p">:</span>
+            <span class="c1"># Throw error if ID is missing</span>
+            <span class="k">if</span> <span class="n">track_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                     <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> (row </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">Index</span><span class="si">}</span><span class="s2">): &quot;</span>
-                        <span class="s2">&quot;bounding box does not have a &#39;track&#39; attribute &quot;</span>
-                        <span class="s2">&quot;defined under &#39;region_attributes&#39;. &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;The bounding box in row </span><span class="si">{</span><span class="n">k</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> is &quot;</span>
+                        <span class="s2">&quot;missing a track ID. &quot;</span>
                         <span class="s2">&quot;Please review the VIA tracks .csv file.&quot;</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
 
-            <span class="c1"># check track ID is castable as an integer</span>
+            <span class="c1"># Check if ID is castable as int</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="nb">int</span><span class="p">(</span><span class="n">row_region_attrs</span><span class="p">[</span><span class="s2">&quot;track&quot;</span><span class="p">])</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">track_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">track_id</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                     <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2"> (row </span><span class="si">{</span><span class="n">row</span><span class="o">.</span><span class="n">Index</span><span class="si">}</span><span class="s2">): &quot;</span>
-                        <span class="s2">&quot;the track ID for the bounding box cannot be cast as &quot;</span>
-                        <span class="s2">&quot;an integer. Please review the VIA tracks .csv file.&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;The track ID of the bounding box in row </span><span class="si">{</span><span class="n">k</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> &quot;</span>
+                        <span class="s2">&quot;cannot be cast as an integer &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;(got track ID &#39;</span><span class="si">{</span><span class="n">track_id</span><span class="si">}</span><span class="s2">&#39;). Please &quot;</span>
+                        <span class="s2">&quot;review the VIA tracks .csv file.&quot;</span>
                     <span class="p">)</span>
                 <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
-    <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_unique_track_ids_per_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+            <span class="c1"># Append values to list</span>
+            <span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">sx</span>
+            <span class="n">y</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">sy</span>
+            <span class="n">w</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">sw</span>
+            <span class="n">h</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">sh</span>
+            <span class="n">ids</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">track_id</span>
+            <span class="n">confidence_values</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">confidence</span>
+
+        <span class="c1"># If all checks pass, return lists</span>
+        <span class="c1"># ids is already cast as integer, confidence_values is nan</span>
+        <span class="c1"># if not defined</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">ids</span><span class="p">,</span> <span class="n">confidence_values</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_unique_track_ids_per_filename</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ids</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure the VIA tracks .csv contains unique track IDs per filename.</span>
 
 <span class="sd">        It checks that bounding boxes IDs are defined once per image file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">list_unique_filenames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">filename</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">list_unique_filenames</span><span class="p">:</span>
-            <span class="n">df_one_filename</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">file</span><span class="p">]</span>
-
-            <span class="n">list_track_ids_one_filename</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="nb">int</span><span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">region_attributes</span><span class="p">)[</span><span class="s2">&quot;track&quot;</span><span class="p">])</span>
-                <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">df_one_filename</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
-            <span class="p">]</span>
-
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">list_track_ids_one_filename</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span>
-                <span class="n">list_track_ids_one_filename</span>
-            <span class="p">):</span>
-                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">: &quot;</span>
-                        <span class="s2">&quot;multiple bounding boxes in this file &quot;</span>
-                        <span class="s2">&quot;have the same track ID. &quot;</span>
-                        <span class="s2">&quot;Please review the VIA tracks .csv file.&quot;</span>
-                    <span class="p">)</span>
-                <span class="p">)</span></div>
+        <span class="c1"># Use a temporary series for the check by using `.assign`</span>
+        <span class="c1"># (so that we don&#39;t modify self.df)</span>
+        <span class="n">has_duplicates</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ID</span><span class="o">=</span><span class="n">ids</span><span class="p">)</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span>
+            <span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;filename&quot;</span><span class="p">,</span> <span class="s2">&quot;ID&quot;</span><span class="p">],</span>
+            <span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">has_duplicates</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">problem_files</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">has_duplicates</span><span class="p">,</span> <span class="s2">&quot;filename&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Duplicate track IDs found in the following files: &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">problem_files</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="s2">&quot;Please review the VIA tracks .csv file.&quot;</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
 
 
 
