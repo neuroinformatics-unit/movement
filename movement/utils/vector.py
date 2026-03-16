@@ -278,8 +278,7 @@ def compute_signed_angle_2d(
         )
     elif not isinstance(v, xr.DataArray):
         error = TypeError(
-            "v must be an xarray.DataArray or np.ndarray, "
-            f"but got {type(v)}."
+            f"v must be an xarray.DataArray or np.ndarray, but got {type(v)}."
         )
         logger.error(error)
         raise error
