@@ -409,7 +409,7 @@ def test_via_tracks_validator_invalid_frame_numbers(
     [
         (
             "via_region_shape_attribute_not_rect",
-            "The bounding box in row 1 shape was expected to be "
+            "The bounding box shape in row 1 is expected to be "
             "'rect' (rectangular) but instead got circle.",
         ),
         (
