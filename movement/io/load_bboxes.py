@@ -402,13 +402,13 @@ def _numpy_arrays_from_valid_via_object(
 
     """
     # Get 1D data from the validator
-    x = np.asarray(valid_via_file.x, dtype=np.float32)
-    y = np.asarray(valid_via_file.y, dtype=np.float32)
-    w = np.asarray(valid_via_file.w, dtype=np.float32)
-    h = np.asarray(valid_via_file.h, dtype=np.float32)
-    ids = np.asarray(valid_via_file.ids, dtype=np.int32)
-    frame_numbers = np.asarray(valid_via_file.frame_numbers, dtype=np.int64)
-    confidence = np.asarray(valid_via_file.confidence, dtype=np.float32)
+    x = valid_via_file.x
+    y = valid_via_file.y
+    w = valid_via_file.w
+    h = valid_via_file.h
+    ids = valid_via_file.ids
+    frame_numbers = valid_via_file.frame_numbers
+    confidence = valid_via_file.confidence
 
     # Compute **sorted** unique IDs and frames
     unique_ids = np.unique(ids)

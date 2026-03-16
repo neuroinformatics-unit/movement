@@ -601,13 +601,13 @@ class ValidVIATracksCSV:
     frame_regexp: str = field(default=DEFAULT_FRAME_REGEXP)
 
     # Bboxes pre-parsed data
-    x: np.ndarray = field(init=False, factory=lambda: np.array([]))
-    y: np.ndarray = field(init=False, factory=lambda: np.array([]))
-    w: np.ndarray = field(init=False, factory=lambda: np.array([]))
-    h: np.ndarray = field(init=False, factory=lambda: np.array([]))
-    ids: np.ndarray = field(init=False, factory=lambda: np.array([]))
-    frame_numbers: np.ndarray = field(init=False, factory=lambda: np.array([]))
-    confidence: np.ndarray = field(init=False, factory=lambda: np.array([]))
+    x: np.typing.NDArray[np.float32] = field(init=False)
+    y: np.typing.NDArray[np.float32] = field(init=False)
+    w: np.typing.NDArray[np.float32] = field(init=False)
+    h: np.typing.NDArray[np.float32] = field(init=False)
+    ids: np.typing.NDArray[np.int32] = field(init=False)
+    frame_numbers: np.typing.NDArray[np.int64] = field(init=False)
+    confidence: np.typing.NDArray[np.float32] = field(init=False)
 
     @file.validator
     def _validate_via_tracks_file(self, attribute, value):
@@ -815,7 +815,7 @@ class ValidVIATracksCSV:
             if shape_name != "rect":
                 raise logger.error(
                     ValueError(
-                        f"The bounding box in row {k + 1} shape was "
+                        f"The bounding box shape in row {k + 1} is "
                         "expected to be 'rect' (rectangular) but instead got "
                         f"{shape_name}. Please review the VIA tracks "
                         ".csv file."
@@ -823,7 +823,7 @@ class ValidVIATracksCSV:
                 )
 
             # Throw error if missing geometry
-            if sx is None or sy is None or sw is None or sh is None:
+            if None in (sx, sy, sw, sh):
                 raise logger.error(
                     ValueError(
                         f"The bounding box in row {k + 1} is "
