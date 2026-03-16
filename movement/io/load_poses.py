@@ -23,6 +23,7 @@ from movement.validators.files import (
     ValidNWBFile,
     ValidSleapAnalysis,
     ValidSleapLabels,
+    ValidMMPoseJSON,
 )
 
 
@@ -884,6 +885,72 @@ def from_nwb_file(
             processing_module_key,
             pose_estimation_key,
         )
+    return ds
+
+
+@register_loader("MMPose", file_validators=[ValidMMPoseJSON])
+def from_mmpose_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from an MMPose JSON file.
+
+    Parameters
+    ----------
+    file
+        Path to the JSON file containing MMPose predictions.
+    fps
+        The number of frames per second in the video.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks and metadata.
+
+    """
+    import json
+
+    valid_file = cast("ValidFile", file)
+    with open(valid_file.file) as f:
+        data = json.load(f)
+
+    if isinstance(data, dict):
+        data = [data]
+    data.sort(key=lambda x: x["frame_id"])
+
+    # Determine individual names
+    track_ids = {
+        inst.get("track_id") for frame in data for inst in frame["instances"]
+    }
+    if None in track_ids:
+        n_ind = max(len(frame["instances"]) for frame in data)
+        individual_names = [f"id_{i}" for i in range(n_ind)]
+    else:
+        individual_names = [f"track_{tid}" for tid in sorted(list(track_ids))]
+
+    # Determine keypoints and initialize arrays
+    n_kpts = (
+        len(data[0]["instances"][0]["keypoints"])
+        if data and data[0]["instances"]
+        else 0
+    )
+    n_frames, n_ind = len(data), len(individual_names)
+
+    pos = np.full((n_frames, 2, n_kpts, n_ind), np.nan, dtype="float32")
+    conf = np.full((n_frames, n_kpts, n_ind), np.nan, dtype="float32")
+
+    for i, frame in enumerate(data):
+        for j, inst in enumerate(frame["instances"]):
+            tid = inst.get("track_id")
+            idx = (
+                individual_names.index(f"track_{tid}")
+                if tid is not None
+                else j
+            )
+            if idx < n_ind:
+                pos[i, ..., idx] = np.array(inst["keypoints"]).T
+                conf[i, ..., idx] = inst["keypoint_scores"]
+
+    ds = from_numpy(pos, conf, individual_names, None, fps, "MMPose")
+    ds.attrs["source_file"] = valid_file.file.as_posix()
+    logger.info(f"Loaded {n_frames} frames from {valid_file.file}")
     return ds
 
 
