@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4b5f1b96"></script>
+    <script src="../_static/documentation_options.js?v=80d68b5b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev3</p>
+    <p class="title logo__title">movement v0.15.1.dev4</p>
   
 </a></div>
     
@@ -634,12 +634,11 @@
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">movement.io.load.</span></span><span class="sig-name descname"><span class="pre">LoaderProtocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/load.html#LoaderProtocol"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.load.LoaderProtocol" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Protocol" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></a></p>
 <p>Protocol for loader functions to be registered via <code class="docutils literal notranslate"><span class="pre">register_loader</span></code>.</p>
-<p>All loader functions registered via <a class="reference internal" href="movement.io.load.register_loader.html#movement.io.load.register_loader" title="movement.io.load.register_loader"><code class="xref py py-func docutils literal notranslate"><span class="pre">register_loader()</span></code></a>
-must conform to this protocol. Loaders must accept a file
-path (str or Path) or  <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> object)
-as their first argument and return an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>
-containing pose tracks or bounding box tracks. Additional
-positional and keyword arguments are allowed.</p>
+<p>All loader functions registered via <a class="reference internal" href="movement.io.load.register_loader.html#movement.io.load.register_loader" title="movement.io.load.register_loader"><code class="xref py py-func docutils literal notranslate"><span class="pre">register_loader()</span></code></a> must conform
+to this protocol. Loaders must accept a file path or a
+<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> object as their first argument and return an
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> containing pose tracks or bounding box tracks.
+Additional positional and keyword arguments are allowed.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
@@ -647,6 +646,27 @@ positional and keyword arguments are allowed.</p>
 </dd>
 </dl>
 </div>
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.io.load.LoaderProtocol.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/load.html#LoaderProtocol.__call__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.load.LoaderProtocol.__call__" title="Link to this definition">#</a></dt>
+<dd><p>Load data from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a></span>) – Path to the file or a <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> object.</p></li>
+<li><p><strong>*args</strong> – Additional positional arguments for the loader.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments for the loader.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The loaded dataset.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -701,7 +721,10 @@ positional and keyword arguments are allowed.</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.load.LoaderProtocol"><code class="docutils literal notranslate"><span class="pre">LoaderProtocol</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.load.LoaderProtocol"><code class="docutils literal notranslate"><span class="pre">LoaderProtocol</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.load.LoaderProtocol.__call__"><code class="docutils literal notranslate"><span class="pre">LoaderProtocol.__call__()</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

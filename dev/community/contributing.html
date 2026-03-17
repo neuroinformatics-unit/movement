@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4b5f1b96"></script>
+    <script src="../_static/documentation_options.js?v=80d68b5b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev3</p>
+    <p class="title logo__title">movement v0.15.1.dev4</p>
   
 </a></div>
     
@@ -648,9 +648,17 @@ output something like:</p>
 </div>
 <p>This pinpoints the problem to a single code line and a specific <a class="reference external" href="https://docs.astral.sh/ruff/rules/">ruff rule</a> violation.
 Sometimes you may have good reasons to ignore a particular rule for a specific line of code. You can do this by adding an inline comment, e.g. <code class="docutils literal notranslate"><span class="pre">#</span> <span class="pre">noqa:</span> <span class="pre">E501</span></code>. Replace <code class="docutils literal notranslate"><span class="pre">E501</span></code> with the code of the rule you want to ignore.</p>
-<p>For docstrings, we adhere to the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style.
-Make sure to provide docstrings for all public functions, classes, and methods.
-This is important as it allows for <a class="reference internal" href="#updating-the-api-reference"><span class="std std-ref">automatic generation of the API reference</span></a>.</p>
+</section>
+<section id="docstrings">
+<h3>Docstrings<a class="headerlink" href="#docstrings" title="Link to this heading">#</a></h3>
+<p>We adhere to the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style.
+All public functions, classes, and methods must include docstrings, as these enable <a class="reference internal" href="#updating-the-api-reference"><span class="std std-ref">automatic generation of the API reference</span></a>.</p>
+<p>To document module‑level variables or class attributes, place a string literal immediately after the definition—a convention recognised by <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#doc-comments-and-docstrings">sphinx-autodoc</a>; see also <a class="reference external" href="https://peps.python.org/pep-0257/#what-is-a-docstring">PEP 257</a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyClass</span><span class="p">:</span>
+    <span class="n">x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">42</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Description of x.&quot;&quot;&quot;</span>
+</pre></div>
+</div>
 </section>
 <section id="testing">
 <h3>Testing<a class="headerlink" href="#testing" title="Link to this heading">#</a></h3>
@@ -1035,8 +1043,7 @@ my_new_file
 The script inspects the source tree and generates the <code class="docutils literal notranslate"><span class="pre">docs/source/api_index.rst</span></code> file, which lists the modules to be included in the <a class="reference internal" href="../api_index.html#target-api"><span class="std std-ref">API reference</span></a>, skipping those listed in <code class="docutils literal notranslate"><span class="pre">EXCLUDE_MODULES</span></code>.</p>
 <p>For each <em>package module</em> listed in <code class="docutils literal notranslate"><span class="pre">PACKAGE_MODULES</span></code>—a module that re-exports selected classes and functions from its submodules via <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> (e.g. <a class="reference internal" href="../api/movement.kinematics.html#module-movement.kinematics" title="movement.kinematics"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.kinematics</span></code></a>)—the script also generates a <code class="docutils literal notranslate"><span class="pre">.rst</span></code> file in <code class="docutils literal notranslate"><span class="pre">docs/source/api/</span></code> with autosummary entries for the top-level objects exposed by the module.</p>
 <p>The Sphinx extensions then generate the API reference pages for each module listed in <code class="docutils literal notranslate"><span class="pre">api_index.rst</span></code>, based on their docstrings.
-So make sure that all your public functions/classes/methods have valid docstrings following the <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpydoc</a> style.
-Our <code class="docutils literal notranslate"><span class="pre">pre-commit</span></code> hooks include some checks (<code class="docutils literal notranslate"><span class="pre">ruff</span></code> rules) that ensure the docstrings are formatted consistently.</p>
+See <a class="reference internal" href="#docstrings"><span class="std std-ref">Docstrings</span></a> for the docstring formatting conventions.</p>
 <p>If your PR introduces new modules that should <em>not</em> be documented in the <a class="reference internal" href="../api_index.html#target-api"><span class="std std-ref">API reference</span></a>, or if there are changes to existing modules that necessitate their removal from the documentation, make sure to update <code class="docutils literal notranslate"><span class="pre">EXCLUDE_MODULES</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/make_api.py</span></code> accordingly.</p>
 <p>Likewise, if you want to document a module that exposes its public API via its <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>, rather than through its submodules individually, make sure to add it to <code class="docutils literal notranslate"><span class="pre">PACKAGE_MODULES</span></code> in <code class="docutils literal notranslate"><span class="pre">docs/make_api.py</span></code>.</p>
 </section>
@@ -1363,6 +1370,7 @@ verify that the video is correctly linked to the dataset:</p>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#development-guidelines">Development guidelines</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#formatting-and-pre-commit-hooks">Formatting and pre-commit hooks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docstrings">Docstrings</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#testing">Testing</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#running-benchmark-tests">Running benchmark tests</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#comparing-benchmark-runs-across-branches">Comparing benchmark runs across branches</a></li>

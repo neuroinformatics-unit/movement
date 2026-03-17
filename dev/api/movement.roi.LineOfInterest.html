@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4b5f1b96"></script>
+    <script src="../_static/documentation_options.js?v=80d68b5b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev3</p>
+    <p class="title logo__title">movement v0.15.1.dev4</p>
   
 </a></div>
     
@@ -698,7 +698,8 @@ the region is computed. Default <code class="docutils literal notranslate"><span
 returned in radians. Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>reference_vector</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – The reference vector to be used. Dimensions must be compatible with
 the argument of the same name that is passed to
-<code class="xref py py-func docutils literal notranslate"><span class="pre">compute_signed_angle_2d()</span></code>. Default <code class="docutils literal notranslate"><span class="pre">(1.,</span> <span class="pre">0.)</span></code>.</p></li>
+<a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d" title="movement.utils.vector.compute_signed_angle_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_signed_angle_2d()</span></code></a>.
+Default <code class="docutils literal notranslate"><span class="pre">(1.,</span> <span class="pre">0.)</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -908,37 +909,6 @@ False otherwise.</p>
 </dl>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="movement.roi.LineOfInterest.coords">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">coords</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">CoordinateSequence</span></span><a class="headerlink" href="#movement.roi.LineOfInterest.coords" title="Link to this definition">#</a></dt>
-<dd><p>Coordinates of the points that define the region.</p>
-<p>These are the points passed to the constructor argument <code class="docutils literal notranslate"><span class="pre">points</span></code>.</p>
-<p>Note that for Polygonal regions, these are the coordinates of the
-exterior boundary, interior boundaries must be accessed via
-<code class="docutils literal notranslate"><span class="pre">self.region.interior.coords</span></code>.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="movement.roi.LineOfInterest.dimensions">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">dimensions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#movement.roi.LineOfInterest.dimensions" title="Link to this definition">#</a></dt>
-<dd><p>Dimensionality of the region.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="movement.roi.LineOfInterest.is_closed">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_closed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#movement.roi.LineOfInterest.is_closed" title="Link to this definition">#</a></dt>
-<dd><p>Return True if the region is closed.</p>
-<p>A closed region is either:
-- A polygon (2D RoI).
-- A 1D LoI whose final point connects back to its first.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="movement.roi.LineOfInterest.name">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#movement.roi.LineOfInterest.name" title="Link to this definition">#</a></dt>
-<dd><p>Name of the instance.</p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="movement.roi.LineOfInterest.normal">
 <span class="sig-name descname"><span class="pre">normal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_same_side_as</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.0,</span> <span class="pre">0.0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/roi/line.html#LineOfInterest.normal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.roi.LineOfInterest.normal" title="Link to this definition">#</a></dt>
@@ -1000,6 +970,37 @@ the input will be directly modified and returned in this value.</p></li>
 </p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="movement.roi.LineOfInterest.coords">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">coords</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">CoordinateSequence</span></span><a class="headerlink" href="#movement.roi.LineOfInterest.coords" title="Link to this definition">#</a></dt>
+<dd><p>Coordinates of the points that define the region.</p>
+<p>These are the points passed to the constructor argument <code class="docutils literal notranslate"><span class="pre">points</span></code>.</p>
+<p>Note that for Polygonal regions, these are the coordinates of the
+exterior boundary, interior boundaries must be accessed via
+<code class="docutils literal notranslate"><span class="pre">self.region.interior.coords</span></code>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="movement.roi.LineOfInterest.dimensions">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">dimensions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><a class="headerlink" href="#movement.roi.LineOfInterest.dimensions" title="Link to this definition">#</a></dt>
+<dd><p>Dimensionality of the region.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="movement.roi.LineOfInterest.is_closed">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">is_closed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><span class="pre">bool</span></a></span><a class="headerlink" href="#movement.roi.LineOfInterest.is_closed" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the region is closed.</p>
+<p>A closed region is either:
+- A polygon (2D RoI).
+- A 1D LoI whose final point connects back to its first.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="movement.roi.LineOfInterest.name">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#movement.roi.LineOfInterest.name" title="Link to this definition">#</a></dt>
+<dd><p>Name of the instance.</p>
 </dd></dl>
 
 <dl class="py property">
@@ -1076,12 +1077,12 @@ the input will be directly modified and returned in this value.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.LineOfInterest.compute_egocentric_angle_to_nearest_point"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.compute_egocentric_angle_to_nearest_point()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.LineOfInterest.compute_nearest_point_to"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.compute_nearest_point_to()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.LineOfInterest.contains_point"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.contains_point()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.LineOfInterest.normal"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.normal()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.LineOfInterest.plot"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.plot()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.LineOfInterest.coords"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.coords</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.LineOfInterest.dimensions"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.dimensions</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.LineOfInterest.is_closed"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.is_closed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.LineOfInterest.name"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.name</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.LineOfInterest.normal"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.normal()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.LineOfInterest.plot"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.plot()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.LineOfInterest.region"><code class="docutils literal notranslate"><span class="pre">LineOfInterest.region</span></code></a></li>
 </ul>
 </li>

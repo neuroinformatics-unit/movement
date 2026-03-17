@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=4b5f1b96"></script>
+    <script src="../../../_static/documentation_options.js?v=80d68b5b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev3</p>
+    <p class="title logo__title">movement v0.15.1.dev4</p>
   
 </a></div>
     
@@ -498,12 +498,11 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">LoaderProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Protocol for loader functions to be registered via ``register_loader``.</span>
 
-<span class="sd">    All loader functions registered via :func:`register_loader`</span>
-<span class="sd">    must conform to this protocol. Loaders must accept a file</span>
-<span class="sd">    path (str or Path) or  :class:`pynwb.file.NWBFile` object)</span>
-<span class="sd">    as their first argument and return an :class:`xarray.Dataset`</span>
-<span class="sd">    containing pose tracks or bounding box tracks. Additional</span>
-<span class="sd">    positional and keyword arguments are allowed.</span>
+<span class="sd">    All loader functions registered via :func:`register_loader` must conform</span>
+<span class="sd">    to this protocol. Loaders must accept a file path or a</span>
+<span class="sd">    :class:`pynwb.file.NWBFile` object as their first argument and return an</span>
+<span class="sd">    :class:`xarray.Dataset` containing pose tracks or bounding box tracks.</span>
+<span class="sd">    Additional positional and keyword arguments are allowed.</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
@@ -511,6 +510,8 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="LoaderProtocol.__call__">
+<a class="viewcode-back" href="../../../api/movement.io.load.LoaderProtocol.html#movement.io.load.LoaderProtocol.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
@@ -532,6 +533,7 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="o">...</span></div>
+</div>
 
 
 
@@ -642,7 +644,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Callable</span>
+<span class="sd">    collections.abc.Callable</span>
 <span class="sd">        A decorator that registers the loader function.</span>
 
 <span class="sd">    Notes</span>

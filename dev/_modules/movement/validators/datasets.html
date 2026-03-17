@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=4b5f1b96"></script>
+    <script src="../../../_static/documentation_options.js?v=80d68b5b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev3</p>
+    <p class="title logo__title">movement v0.15.1.dev4</p>
   
 </a></div>
     
@@ -527,28 +527,53 @@
     <span class="n">position_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
     <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array containing the position data.&quot;&quot;&quot;</span>
+
     <span class="c1"># --- Optional fields ---</span>
     <span class="n">confidence_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)),</span>
     <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array containing point-wise confidence scores for the position data.</span>
+<span class="sd">    The shape of this array is the same as that of ``position_array``, but</span>
+<span class="sd">    without the ``space`` dimension. If None (default), the confidence scores</span>
+<span class="sd">    will be set to an array of NaNs.&quot;&quot;&quot;</span>
+
     <span class="n">individual_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">_convert_to_list_of_str</span><span class="p">),</span>
     <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;List of unique names for the individuals in the video. The length of</span>
+<span class="sd">    this list should match the size of the &#39;individuals&#39; dimension in the</span>
+<span class="sd">    ``position_array``. If None (default), the names will be in the format of</span>
+<span class="sd">    ``id_&lt;N&gt;``, where &lt;N&gt; is an integer from 0 to the size of the</span>
+<span class="sd">    &#39;individuals&#39; dimension minus 1.&quot;&quot;&quot;</span>
+
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">converters</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span>  <span class="c1"># type: ignore</span>
             <span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">_convert_fps_to_none_if_invalid</span>
         <span class="p">),</span>
     <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Frames per second of the video. If None (default), time coordinates will</span>
+<span class="sd">    be expressed in frames. If a non-positive value is provided, fps will be</span>
+<span class="sd">    set to None and a warning will be issued.&quot;&quot;&quot;</span>
+
     <span class="n">source_software</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="nb">str</span><span class="p">)),</span>
     <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Name of the software from which the data were loaded. This is stored as</span>
+<span class="sd">    a dataset attribute in the resulting xarray.Dataset. Defaults to None.&quot;&quot;&quot;</span>
+
     <span class="c1"># --- Required class variables (to be defined by subclasses) ---</span>
     <span class="n">DIM_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Required dimension names for the dataset. The order of dimension names</span>
+<span class="sd">    must match the order of dimensions in the ``position_array``.&quot;&quot;&quot;</span>
+
     <span class="n">VAR_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Required variable names for the dataset.&quot;&quot;&quot;</span>
+
     <span class="n">_ALLOWED_SPACE_DIM_SIZE</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
 
     <span class="c1"># --- Lifecycle hooks ---</span>
@@ -738,39 +763,21 @@
 <span class="sd">    The validator ensures that within the ``movement poses`` dataset:</span>
 
 <span class="sd">    - The required ``position_array`` is a numpy array</span>
+<span class="sd">      of shape (n_frames, n_space, n_keypoints, n_individuals)</span>
 <span class="sd">      with the ``space`` dimension containing 2 or 3 spatial coordinates.</span>
 <span class="sd">    - The optional ``confidence_array``, if provided, is a numpy array</span>
-<span class="sd">      with its shape matching that of the ``position_array``,</span>
-<span class="sd">      excluding the ``space`` dimension;</span>
+<span class="sd">      containing confidence scores for the pose data. It supports either</span>
+<span class="sd">      point-wise confidence with shape matching that of</span>
+<span class="sd">      ``position_array``, excluding the ``space`` dimension, or</span>
+<span class="sd">      individual-wise confidence with shape ``(n_frames, n_individuals)``;</span>
 <span class="sd">      otherwise, it defaults to an array of NaNs.</span>
 <span class="sd">    - The optional ``individual_names`` and ``keypoint_names``,</span>
-<span class="sd">      if provided, match the number of individuals and keypoints</span>
+<span class="sd">      if provided, is a list of unique names for the individuals and keypoints,</span>
+<span class="sd">      with lengths matching the number of individuals and keypoints</span>
 <span class="sd">      in the dataset, respectively; otherwise, default names are assigned.</span>
 <span class="sd">    - The optional ``fps`` is a positive float; otherwise, it defaults to None.</span>
 <span class="sd">    - The optional ``source_software`` is a string; otherwise,</span>
 <span class="sd">      it defaults to None.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    position_array : np.ndarray</span>
-<span class="sd">        Array of shape (n_frames, n_space, n_keypoints, n_individuals)</span>
-<span class="sd">        containing the poses.</span>
-<span class="sd">    confidence_array : np.ndarray, optional</span>
-<span class="sd">        Array of shape (n_frames, n_keypoints, n_individuals) containing</span>
-<span class="sd">        the point-wise confidence scores.</span>
-<span class="sd">        If None (default), the scores will be set to an array of NaNs.</span>
-<span class="sd">    individual_names : list of str, optional</span>
-<span class="sd">        List of unique names for the individuals in the video. If None</span>
-<span class="sd">        (default), the individuals will be named &quot;id_0&quot;, &quot;id_1&quot;, etc.</span>
-<span class="sd">    keypoint_names : list of str, optional</span>
-<span class="sd">        List of unique names for the keypoints in the skeleton. If None</span>
-<span class="sd">        (default), the keypoints will be named &quot;keypoint_0&quot;, &quot;keypoint_1&quot;,</span>
-<span class="sd">        etc.</span>
-<span class="sd">    fps : float, optional</span>
-<span class="sd">        Frames per second of the video. Defaults to None.</span>
-<span class="sd">    source_software : str, optional</span>
-<span class="sd">        Name of the software from which the poses were loaded.</span>
-<span class="sd">        Defaults to None.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -784,6 +791,9 @@
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">_convert_to_list_of_str</span><span class="p">),</span>
     <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;List of unique names for the keypoints in the skeleton. If None</span>
+<span class="sd">    (default), the keypoints will be named &quot;keypoint_0&quot;, &quot;keypoint_1&quot;,</span>
+<span class="sd">    etc.&quot;&quot;&quot;</span>
 
     <span class="n">DIM_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;time&quot;</span><span class="p">,</span>
@@ -877,13 +887,18 @@
 <span class="sd">    The validator considers 2D bounding boxes only. It ensures that</span>
 <span class="sd">    within the ``movement bboxes`` dataset:</span>
 
-<span class="sd">    - The required ``position_array`` and ``shape_array`` are numpy arrays,</span>
-<span class="sd">      with the ``space`` dimension containing 2 spatial coordinates.</span>
+<span class="sd">    - The required ``position_array`` and ``shape_array`` are numpy arrays</span>
+<span class="sd">      of shape (n_frames, n_space, n_individuals) with the ``space`` dimension</span>
+<span class="sd">      containing 2 spatial coordinates. The ``position_array`` contains the</span>
+<span class="sd">      tracks of the bounding box centroids, while the ``shape_array`` contains</span>
+<span class="sd">      the width and height of the bounding boxes.</span>
 <span class="sd">    - The optional ``confidence_array``, if provided, is a numpy array</span>
+<span class="sd">      containing confidence scores for the bounding boxes,</span>
 <span class="sd">      with its shape matching that of the ``position_array``,</span>
 <span class="sd">      excluding the ``space`` dimension;</span>
 <span class="sd">      otherwise, it defaults to an array of NaNs.</span>
-<span class="sd">    - The optional ``individual_names``, if provided, match the number of</span>
+<span class="sd">    - The optional ``individual_names``, if provided,  is a list of unique</span>
+<span class="sd">      names for the individuals, with length matching the number of</span>
 <span class="sd">      individuals in the dataset; otherwise, default names are assigned.</span>
 <span class="sd">    - The optional ``frame_array``, if provided, is a column vector</span>
 <span class="sd">      with the frame numbers; otherwise, it defaults to an array of</span>
@@ -891,37 +906,6 @@
 <span class="sd">    - The optional ``fps`` is a positive float; otherwise, it defaults to None.</span>
 <span class="sd">    - The optional ``source_software`` is a string; otherwise, it defaults to</span>
 <span class="sd">      None.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    position_array : np.ndarray</span>
-<span class="sd">        Array of shape (n_frames, n_space, n_individuals)</span>
-<span class="sd">        containing the tracks of the bounding box centroids.</span>
-<span class="sd">    shape_array : np.ndarray</span>
-<span class="sd">        Array of shape (n_frames, n_space, n_individuals)</span>
-<span class="sd">        containing the shape of the bounding boxes. The shape of a bounding</span>
-<span class="sd">        box is its width (extent along the x-axis of the image) and height</span>
-<span class="sd">        (extent along the y-axis of the image).</span>
-<span class="sd">    confidence_array : np.ndarray, optional</span>
-<span class="sd">        Array of shape (n_frames, n_individuals) containing</span>
-<span class="sd">        the confidence scores of the bounding boxes. If None (default), the</span>
-<span class="sd">        confidence scores are set to an array of NaNs.</span>
-<span class="sd">    individual_names : list of str, optional</span>
-<span class="sd">        List of individual names for the tracked bounding boxes in the video.</span>
-<span class="sd">        If None (default), bounding boxes are assigned names based on the size</span>
-<span class="sd">        of the ``position_array``. The names will be in the format of</span>
-<span class="sd">        ``id_&lt;N&gt;``, where &lt;N&gt;  is an integer from 0 to</span>
-<span class="sd">        ``position_array.shape[1]-1``.</span>
-<span class="sd">    frame_array : np.ndarray, optional</span>
-<span class="sd">        Array of shape (n_frames, 1) containing the frame numbers for which</span>
-<span class="sd">        bounding boxes are defined. If None (default), frame numbers will</span>
-<span class="sd">        be assigned based on the first dimension of the ``position_array``,</span>
-<span class="sd">        starting from 0.</span>
-<span class="sd">    fps : float, optional</span>
-<span class="sd">        Frames per second defining the sampling rate of the data.</span>
-<span class="sd">        Defaults to None.</span>
-<span class="sd">    source_software : str, optional</span>
-<span class="sd">        Name of the software that generated the data. Defaults to None.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -934,10 +918,20 @@
     <span class="n">shape_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
     <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array containing the shape of the bounding boxes. The shape of a</span>
+<span class="sd">    bounding box is its width (extent along the x-axis of the image) and height</span>
+<span class="sd">    (extent along the y-axis of the image). The shape_array must have the same</span>
+<span class="sd">    shape as the position_array.&quot;&quot;&quot;</span>
+
     <span class="n">frame_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)),</span>
     <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array containing the frame numbers for which bounding boxes are defined.</span>
+<span class="sd">    The frame_array should be a column vector of shape (n_frames, 1) and should</span>
+<span class="sd">    be monotonically increasing. If None (default), frame numbers will be</span>
+<span class="sd">    assigned based on the first dimension of the position_array, starting from</span>
+<span class="sd">    0.&quot;&quot;&quot;</span>
 
     <span class="n">DIM_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">)</span>
     <span class="n">VAR_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;position&quot;</span><span class="p">,</span> <span class="s2">&quot;shape&quot;</span><span class="p">,</span> <span class="s2">&quot;confidence&quot;</span><span class="p">)</span>

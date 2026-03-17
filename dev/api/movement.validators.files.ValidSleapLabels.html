@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4b5f1b96"></script>
+    <script src="../_static/documentation_options.js?v=80d68b5b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev3</p>
+    <p class="title logo__title">movement v0.15.1.dev4</p>
   
 </a></div>
     
@@ -634,6 +634,18 @@
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">movement.validators.files.</span></span><span class="sig-name descname"><span class="pre">ValidSleapLabels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/files.html#ValidSleapLabels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.files.ValidSleapLabels" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class for validating SLEAP labels (.slp) files.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidSleapLabels.file">
+<span class="sig-name descname"><span class="pre">file</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span><a class="headerlink" href="#movement.validators.files.ValidSleapLabels.file" title="Link to this definition">#</a></dt>
+<dd><p>Path to the SLEAP .slp file to validate.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidSleapLabels.suffixes">
+<span class="sig-name descname"><span class="pre">suffixes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ClassVar" title="(in Python v3.14)"><span class="pre">ClassVar</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'.slp'}</span></span><a class="headerlink" href="#movement.validators.files.ValidSleapLabels.suffixes" title="Link to this definition">#</a></dt>
+<dd><p>Expected suffix(es) for the file.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -688,7 +700,11 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidSleapLabels"><code class="docutils literal notranslate"><span class="pre">ValidSleapLabels</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidSleapLabels"><code class="docutils literal notranslate"><span class="pre">ValidSleapLabels</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidSleapLabels.file"><code class="docutils literal notranslate"><span class="pre">ValidSleapLabels.file</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidSleapLabels.suffixes"><code class="docutils literal notranslate"><span class="pre">ValidSleapLabels.suffixes</span></code></a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 

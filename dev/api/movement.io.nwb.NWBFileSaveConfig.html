@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4b5f1b96"></script>
+    <script src="../_static/documentation_options.js?v=80d68b5b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev3</p>
+    <p class="title logo__title">movement v0.15.1.dev4</p>
   
 </a></div>
     
@@ -637,9 +637,24 @@
 <p>This class is used with <a class="reference internal" href="movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file" title="movement.io.save_poses.to_nwb_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.save_poses.to_nwb_file()</span></code></a>
 to add custom metadata to the NWBFile(s) created from a given
 <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset.</p>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id1" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id2">1</a>,<a role="doc-backlink" href="#id3">2</a>)</span>
+<p><a class="github reference external" href="https://github.com/rly/ndx-pose">rly/ndx-pose</a></p>
+</aside>
+</aside>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file" title="movement.io.save_poses.to_nwb_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.save_poses.to_nwb_file</span></code></a></dt><dd><p>Example usage of this class to save a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to an NWB file.</p>
+</dd>
+</dl>
+</div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.io.nwb.NWBFileSaveConfig.nwbfile_kwargs">
-<span class="sig-name descname"><span class="pre">nwbfile_kwargs</span></span><a class="headerlink" href="#movement.io.nwb.NWBFileSaveConfig.nwbfile_kwargs" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">nwbfile_kwargs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.io.nwb.NWBFileSaveConfig.nwbfile_kwargs" title="Link to this definition">#</a></dt>
 <dd><p>Keyword arguments for <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a>.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">nwbfile_kwargs</span></code> is a single dictionary, the same keyword
 arguments will be applied to all NWBFile objects except for
@@ -650,8 +665,8 @@ and the inner dictionaries will be passed as keyword arguments to the
 <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> constructor.</p>
 <p>The following arguments cannot be overwritten:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">subject</span></code>: <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.Subject" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.Subject</span></code></a> created for the individual
-using <code class="docutils literal notranslate"><span class="pre">subject_kwargs</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subject</span></code>: <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.Subject" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.Subject</span></code></a>
+created for the individual using <code class="docutils literal notranslate"><span class="pre">subject_kwargs</span></code></p></li>
 </ul>
 <p>The following arguments will have default values if not set:</p>
 <ul class="simple">
@@ -664,63 +679,43 @@ using <code class="docutils literal notranslate"><span class="pre">subject_kwarg
 <li><p><code class="docutils literal notranslate"><span class="pre">nwbfile_kwargs[&quot;identifier&quot;]</span></code> (single-individual dataset only)</p></li>
 <li><p>individual name in the <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset</p></li>
 </ol>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any] or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]], optional</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.io.nwb.NWBFileSaveConfig.processing_module_kwargs">
-<span class="sig-name descname"><span class="pre">processing_module_kwargs</span></span><a class="headerlink" href="#movement.io.nwb.NWBFileSaveConfig.processing_module_kwargs" title="Link to this definition">#</a></dt>
-<dd><p>Keyword arguments for <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.base.html#pynwb.base.ProcessingModule" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.base.ProcessingModule</span></code></a>.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">processing_module_kwargs</span></code> is a single dictionary, the same
-keyword arguments will be applied to all ProcessingModules.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">processing_module_kwargs</span></code> is a dictionary of dictionaries,
+<dt class="sig sig-object py" id="movement.io.nwb.NWBFileSaveConfig.pose_estimation_kwargs">
+<span class="sig-name descname"><span class="pre">pose_estimation_kwargs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.io.nwb.NWBFileSaveConfig.pose_estimation_kwargs" title="Link to this definition">#</a></dt>
+<dd><p>Keyword arguments for <code class="docutils literal notranslate"><span class="pre">ndx_pose.PoseEstimation</span></code> <a class="footnote-reference brackets" href="#id1" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">pose_estimation_kwargs</span></code> is a single dictionary, the same
+keyword arguments will be applied to all PoseEstimation objects.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">pose_estimation_kwargs</span></code> is a dictionary of dictionaries,
 the outer keys should correspond to individual names in the
 <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset, and the inner dictionaries will be passed as
-keyword arguments to the <code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.ProcessingModule</span></code>
-constructor.</p>
+keyword arguments to the <code class="docutils literal notranslate"><span class="pre">ndx_pose.PoseEstimation</span></code> constructor.</p>
+<p>The following arguments cannot be overwritten:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pose_estimation_series</span></code>: list of PoseEstimationSeries objects</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">skeleton</span></code>: Skeleton object</p></li>
+</ul>
 <p>The following arguments will have default values if not set:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: “behavior”</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code>: “processed behavioral data”</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">source_software</span></code>: <code class="docutils literal notranslate"><span class="pre">source_software</span></code>
+attribute from the <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code>: “Estimated positions of &lt;keypoints&gt;
+for &lt;individual&gt; using &lt;source_software&gt;.”</p></li>
 </ul>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any] or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]], optional</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.io.nwb.NWBFileSaveConfig.subject_kwargs">
-<span class="sig-name descname"><span class="pre">subject_kwargs</span></span><a class="headerlink" href="#movement.io.nwb.NWBFileSaveConfig.subject_kwargs" title="Link to this definition">#</a></dt>
-<dd><p>Keyword arguments for <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.Subject" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.Subject</span></code></a>.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">subject_kwargs</span></code> is a single dictionary, the same keyword
-arguments will be applied to all Subjects except for <code class="docutils literal notranslate"><span class="pre">subject_id</span></code>.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">subject_kwargs</span></code> is a dictionary of dictionaries, the outer keys
-should correspond to individual names in the <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset,
-and the inner dictionaries will be passed as keyword arguments to the
-<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.Subject" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.Subject</span></code></a> constructor.</p>
-<p><code class="docutils literal notranslate"><span class="pre">subject_id</span></code> will be set in the following order of precedence:</p>
+<p>If specified, <code class="docutils literal notranslate"><span class="pre">name</span></code> will be set in the following
+order of precedence:</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">subject_id</span></code> in the inner dictionary</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">subject_kwargs[&quot;subject_id&quot;]</span></code> (single-individual dataset only)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> in the inner dictionary</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pose_estimation_kwargs[&quot;name&quot;]</span></code> (single-individual dataset only)</p></li>
 <li><p>individual name in the <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset</p></li>
 </ol>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any] or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]], optional</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.io.nwb.NWBFileSaveConfig.pose_estimation_series_kwargs">
-<span class="sig-name descname"><span class="pre">pose_estimation_series_kwargs</span></span><a class="headerlink" href="#movement.io.nwb.NWBFileSaveConfig.pose_estimation_series_kwargs" title="Link to this definition">#</a></dt>
-<dd><p>Keyword arguments for <code class="docutils literal notranslate"><span class="pre">ndx_pose.PoseEstimationSeries</span></code> <a class="footnote-reference brackets" href="#id4" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<span class="sig-name descname"><span class="pre">pose_estimation_series_kwargs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.io.nwb.NWBFileSaveConfig.pose_estimation_series_kwargs" title="Link to this definition">#</a></dt>
+<dd><p>Keyword arguments for <code class="docutils literal notranslate"><span class="pre">ndx_pose.PoseEstimationSeries</span></code></p>
 <p>If <code class="docutils literal notranslate"><span class="pre">pose_estimation_series_kwargs</span></code> is a single dictionary, the same
 keyword arguments will be applied to all PoseEstimationSeries objects.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">pose_estimation_series_kwargs</span></code> is a dictionary of dictionaries,
@@ -742,57 +737,33 @@ be overwritten:</p>
 <p><code class="docutils literal notranslate"><span class="pre">name</span></code> will be set in the following order of precedence:</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> in the inner dictionary</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pose_estimation_series_kwargs[&quot;name&quot;]</span></code> (single-keypoint
-dataset only)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pose_estimation_series_kwargs[&quot;name&quot;]</span></code> (single-keypoint dataset only)</p></li>
 <li><p>keypoint name in the <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset</p></li>
 </ol>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any] or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]], optional</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.io.nwb.NWBFileSaveConfig.pose_estimation_kwargs">
-<span class="sig-name descname"><span class="pre">pose_estimation_kwargs</span></span><a class="headerlink" href="#movement.io.nwb.NWBFileSaveConfig.pose_estimation_kwargs" title="Link to this definition">#</a></dt>
-<dd><p>Keyword arguments for <code class="docutils literal notranslate"><span class="pre">ndx_pose.PoseEstimation</span></code> <a class="footnote-reference brackets" href="#id4" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">pose_estimation_kwargs</span></code> is a single dictionary, the same
-keyword arguments will be applied to all PoseEstimation objects.</p>
-<p>If <code class="docutils literal notranslate"><span class="pre">pose_estimation_kwargs</span></code> is a dictionary of dictionaries,
+<dt class="sig sig-object py" id="movement.io.nwb.NWBFileSaveConfig.processing_module_kwargs">
+<span class="sig-name descname"><span class="pre">processing_module_kwargs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.io.nwb.NWBFileSaveConfig.processing_module_kwargs" title="Link to this definition">#</a></dt>
+<dd><p>Keyword arguments for <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.base.html#pynwb.base.ProcessingModule" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.base.ProcessingModule</span></code></a>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">processing_module_kwargs</span></code> is a single dictionary, the same
+keyword arguments will be applied to all ProcessingModules.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">processing_module_kwargs</span></code> is a dictionary of dictionaries,
 the outer keys should correspond to individual names in the
 <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset, and the inner dictionaries will be passed as
-keyword arguments to the <code class="docutils literal notranslate"><span class="pre">ndx_pose.PoseEstimation</span></code> constructor.</p>
-<p>The following arguments cannot be overwritten:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">pose_estimation_series</span></code>: list of PoseEstimationSeries objects</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">skeleton</span></code>: Skeleton object</p></li>
-</ul>
+keyword arguments to the <code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.ProcessingModule</span></code>
+constructor.</p>
 <p>The following arguments will have default values if not set:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">source_software</span></code>: <code class="docutils literal notranslate"><span class="pre">source_software</span></code> attribute from the
-<code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code>: “Estimated positions of &lt;keypoints&gt; for
-&lt;individual&gt; using &lt;source_software&gt;.”</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: “behavior”</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code>: “processed behavioral data”</p></li>
 </ul>
-<p>If specified, <code class="docutils literal notranslate"><span class="pre">name</span></code> will be set in the following
-order of precedence:</p>
-<ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> in the inner dictionary</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pose_estimation_kwargs[&quot;name&quot;]</span></code> (single-individual dataset only)</p></li>
-<li><p>individual name in the <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset</p></li>
-</ol>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any] or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]], optional</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.io.nwb.NWBFileSaveConfig.skeleton_kwargs">
-<span class="sig-name descname"><span class="pre">skeleton_kwargs</span></span><a class="headerlink" href="#movement.io.nwb.NWBFileSaveConfig.skeleton_kwargs" title="Link to this definition">#</a></dt>
-<dd><p>Keyword arguments for <code class="docutils literal notranslate"><span class="pre">ndx_pose.Skeleton</span></code> <a class="footnote-reference brackets" href="#id4" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
+<span class="sig-name descname"><span class="pre">skeleton_kwargs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.io.nwb.NWBFileSaveConfig.skeleton_kwargs" title="Link to this definition">#</a></dt>
+<dd><p>Keyword arguments for <code class="docutils literal notranslate"><span class="pre">ndx_pose.Skeleton</span></code> <a class="footnote-reference brackets" href="#id1" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">skeleton_kwargs</span></code> is a single dictionary, the same
 keyword arguments will be applied to all Skeleton objects.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">skeleton_kwargs</span></code> is a dictionary of dictionaries,
@@ -801,8 +772,8 @@ the outer keys should correspond to individual names in the
 keyword arguments to the <code class="docutils literal notranslate"><span class="pre">ndx_pose.Skeleton</span></code> constructor.</p>
 <p>The following arguments cannot be overwritten:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">subject</span></code>: <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.Subject" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.Subject</span></code></a> created for the individual
-using <code class="docutils literal notranslate"><span class="pre">subject_kwargs</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subject</span></code>: <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.Subject" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.Subject</span></code></a>
+created for the individual using <code class="docutils literal notranslate"><span class="pre">subject_kwargs</span></code></p></li>
 </ul>
 <p>The following arguments will have default values if not set:</p>
 <ul class="simple">
@@ -815,28 +786,26 @@ using <code class="docutils literal notranslate"><span class="pre">subject_kwarg
 <li><p><code class="docutils literal notranslate"><span class="pre">skeleton_kwargs[&quot;name&quot;]</span></code> (single-individual dataset only)</p></li>
 <li><p>individual name in the <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset</p></li>
 </ol>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any] or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, Any]], optional</p>
-</dd>
-</dl>
 </dd></dl>
 
-<p class="rubric">References</p>
-<aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id4" role="doc-footnote">
-<span class="label"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></span>
-<span class="backrefs">(<a role="doc-backlink" href="#id1">1</a>,<a role="doc-backlink" href="#id2">2</a>,<a role="doc-backlink" href="#id3">3</a>)</span>
-<p><a class="github reference external" href="https://github.com/rly/ndx-pose">rly/ndx-pose</a></p>
-</aside>
-</aside>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><a class="reference internal" href="movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file" title="movement.io.save_poses.to_nwb_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.save_poses.to_nwb_file</span></code></a></dt><dd><p>Example usage of this class to save a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to an NWB file.</p>
-</dd>
-</dl>
-</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.io.nwb.NWBFileSaveConfig.subject_kwargs">
+<span class="sig-name descname"><span class="pre">subject_kwargs</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.io.nwb.NWBFileSaveConfig.subject_kwargs" title="Link to this definition">#</a></dt>
+<dd><p>Keyword arguments for <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.Subject" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.Subject</span></code></a>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">subject_kwargs</span></code> is a single dictionary, the same keyword
+arguments will be applied to all Subjects except for <code class="docutils literal notranslate"><span class="pre">subject_id</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">subject_kwargs</span></code> is a dictionary of dictionaries, the outer keys
+should correspond to individual names in the <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset,
+and the inner dictionaries will be passed as keyword arguments to the
+<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.Subject" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.Subject</span></code></a> constructor.</p>
+<p><code class="docutils literal notranslate"><span class="pre">subject_id</span></code> will be set in the following order of precedence:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">subject_id</span></code> in the inner dictionary</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subject_kwargs[&quot;subject_id&quot;]</span></code> (single-individual dataset only)</p></li>
+<li><p>individual name in the <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset</p></li>
+</ol>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -893,11 +862,11 @@ using <code class="docutils literal notranslate"><span class="pre">subject_kwarg
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.nwb.NWBFileSaveConfig"><code class="docutils literal notranslate"><span class="pre">NWBFileSaveConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.nwb.NWBFileSaveConfig.nwbfile_kwargs"><code class="docutils literal notranslate"><span class="pre">NWBFileSaveConfig.nwbfile_kwargs</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.nwb.NWBFileSaveConfig.processing_module_kwargs"><code class="docutils literal notranslate"><span class="pre">NWBFileSaveConfig.processing_module_kwargs</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.nwb.NWBFileSaveConfig.subject_kwargs"><code class="docutils literal notranslate"><span class="pre">NWBFileSaveConfig.subject_kwargs</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.nwb.NWBFileSaveConfig.pose_estimation_series_kwargs"><code class="docutils literal notranslate"><span class="pre">NWBFileSaveConfig.pose_estimation_series_kwargs</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.nwb.NWBFileSaveConfig.pose_estimation_kwargs"><code class="docutils literal notranslate"><span class="pre">NWBFileSaveConfig.pose_estimation_kwargs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.nwb.NWBFileSaveConfig.pose_estimation_series_kwargs"><code class="docutils literal notranslate"><span class="pre">NWBFileSaveConfig.pose_estimation_series_kwargs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.nwb.NWBFileSaveConfig.processing_module_kwargs"><code class="docutils literal notranslate"><span class="pre">NWBFileSaveConfig.processing_module_kwargs</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.nwb.NWBFileSaveConfig.skeleton_kwargs"><code class="docutils literal notranslate"><span class="pre">NWBFileSaveConfig.skeleton_kwargs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.nwb.NWBFileSaveConfig.subject_kwargs"><code class="docutils literal notranslate"><span class="pre">NWBFileSaveConfig.subject_kwargs</span></code></a></li>
 </ul>
 </li>
 </ul>

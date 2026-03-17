@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=4b5f1b96"></script>
+    <script src="../../../_static/documentation_options.js?v=80d68b5b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev3</p>
+    <p class="title logo__title">movement v0.15.1.dev4</p>
   
 </a></div>
     
@@ -495,157 +495,6 @@
 <span class="sd">    to add custom metadata to the NWBFile(s) created from a given</span>
 <span class="sd">    ``movement`` dataset.</span>
 
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    nwbfile_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional</span>
-<span class="sd">        Keyword arguments for :class:`pynwb.file.NWBFile`.</span>
-
-<span class="sd">        If ``nwbfile_kwargs`` is a single dictionary, the same keyword</span>
-<span class="sd">        arguments will be applied to all NWBFile objects except for</span>
-<span class="sd">        ``identifier``.</span>
-
-<span class="sd">        If ``nwbfile_kwargs`` is a dictionary of dictionaries, the outer keys</span>
-<span class="sd">        should correspond to individual names in the ``movement`` dataset,</span>
-<span class="sd">        and the inner dictionaries will be passed as keyword arguments to the</span>
-<span class="sd">        :class:`pynwb.file.NWBFile` constructor.</span>
-
-<span class="sd">        The following arguments cannot be overwritten:</span>
-
-<span class="sd">        - ``subject``: :class:`pynwb.file.Subject` created for the individual</span>
-<span class="sd">          using ``subject_kwargs``</span>
-
-<span class="sd">        The following arguments will have default values if not set:</span>
-
-<span class="sd">        - ``session_description``: &quot;not set&quot;</span>
-<span class="sd">        - ``session_start_time``: current UTC time</span>
-
-<span class="sd">        ``identifier`` will be set in the following order of precedence:</span>
-
-<span class="sd">        1. ``identifier`` in the inner dictionary</span>
-<span class="sd">        2. ``nwbfile_kwargs[&quot;identifier&quot;]`` (single-individual dataset only)</span>
-<span class="sd">        3. individual name in the ``movement`` dataset</span>
-
-<span class="sd">    processing_module_kwargs: dict[str, Any] or dict[str, dict[str, Any]], optional</span>
-<span class="sd">        Keyword arguments for :class:`pynwb.base.ProcessingModule`.</span>
-
-<span class="sd">        If ``processing_module_kwargs`` is a single dictionary, the same</span>
-<span class="sd">        keyword arguments will be applied to all ProcessingModules.</span>
-
-<span class="sd">        If ``processing_module_kwargs`` is a dictionary of dictionaries,</span>
-<span class="sd">        the outer keys should correspond to individual names in the</span>
-<span class="sd">        ``movement`` dataset, and the inner dictionaries will be passed as</span>
-<span class="sd">        keyword arguments to the :class:`pynwb.file.ProcessingModule`</span>
-<span class="sd">        constructor.</span>
-
-<span class="sd">        The following arguments will have default values if not set:</span>
-
-<span class="sd">        - ``name``: &quot;behavior&quot;</span>
-<span class="sd">        - ``description``: &quot;processed behavioral data&quot;</span>
-
-<span class="sd">    subject_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional</span>
-<span class="sd">        Keyword arguments for :class:`pynwb.file.Subject`.</span>
-
-<span class="sd">        If ``subject_kwargs`` is a single dictionary, the same keyword</span>
-<span class="sd">        arguments will be applied to all Subjects except for ``subject_id``.</span>
-
-<span class="sd">        If ``subject_kwargs`` is a dictionary of dictionaries, the outer keys</span>
-<span class="sd">        should correspond to individual names in the ``movement`` dataset,</span>
-<span class="sd">        and the inner dictionaries will be passed as keyword arguments to the</span>
-<span class="sd">        :class:`pynwb.file.Subject` constructor.</span>
-
-<span class="sd">        ``subject_id`` will be set in the following order of precedence:</span>
-
-<span class="sd">        1. ``subject_id`` in the inner dictionary</span>
-<span class="sd">        2. ``subject_kwargs[&quot;subject_id&quot;]`` (single-individual dataset only)</span>
-<span class="sd">        3. individual name in the ``movement`` dataset</span>
-
-<span class="sd">    pose_estimation_series_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional</span>
-<span class="sd">        Keyword arguments for ``ndx_pose.PoseEstimationSeries`` [1]_.</span>
-
-<span class="sd">        If ``pose_estimation_series_kwargs`` is a single dictionary, the same</span>
-<span class="sd">        keyword arguments will be applied to all PoseEstimationSeries objects.</span>
-
-<span class="sd">        If ``pose_estimation_series_kwargs`` is a dictionary of dictionaries,</span>
-<span class="sd">        the outer keys should correspond to keypoint names in the</span>
-<span class="sd">        ``movement`` dataset, and the inner dictionaries will be passed as</span>
-<span class="sd">        keyword arguments to the ``ndx_pose.PoseEstimationSeries`` constructor.</span>
-
-<span class="sd">        The following arguments will be set based on the dataset and cannot</span>
-<span class="sd">        be overwritten:</span>
-
-<span class="sd">        - ``data``: position data for the keypoint</span>
-<span class="sd">        - ``confidence``: confidence data for the keypoint</span>
-<span class="sd">        - ``timestamps``: time data for the keypoint</span>
-
-<span class="sd">        The following arguments will have default values if not set:</span>
-
-<span class="sd">        - ``unit``: &quot;pixels&quot;</span>
-<span class="sd">        - ``reference_frame``: &quot;(0,0,0) corresponds to ...&quot;</span>
-
-<span class="sd">        ``name`` will be set in the following order of precedence:</span>
-
-<span class="sd">        1. ``name`` in the inner dictionary</span>
-<span class="sd">        2. ``pose_estimation_series_kwargs[&quot;name&quot;]`` (single-keypoint</span>
-<span class="sd">           dataset only)</span>
-<span class="sd">        3. keypoint name in the ``movement`` dataset</span>
-
-<span class="sd">    pose_estimation_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional</span>
-<span class="sd">        Keyword arguments for ``ndx_pose.PoseEstimation`` [1]_.</span>
-
-<span class="sd">        If ``pose_estimation_kwargs`` is a single dictionary, the same</span>
-<span class="sd">        keyword arguments will be applied to all PoseEstimation objects.</span>
-
-<span class="sd">        If ``pose_estimation_kwargs`` is a dictionary of dictionaries,</span>
-<span class="sd">        the outer keys should correspond to individual names in the</span>
-<span class="sd">        ``movement`` dataset, and the inner dictionaries will be passed as</span>
-<span class="sd">        keyword arguments to the ``ndx_pose.PoseEstimation`` constructor.</span>
-
-<span class="sd">        The following arguments cannot be overwritten:</span>
-
-<span class="sd">        - ``pose_estimation_series``: list of PoseEstimationSeries objects</span>
-<span class="sd">        - ``skeleton``: Skeleton object</span>
-
-<span class="sd">        The following arguments will have default values if not set:</span>
-
-<span class="sd">        - ``source_software``: ``source_software`` attribute from the</span>
-<span class="sd">          ``movement`` dataset</span>
-<span class="sd">        - ``description``: &quot;Estimated positions of &lt;keypoints&gt; for</span>
-<span class="sd">          &lt;individual&gt; using &lt;source_software&gt;.&quot;</span>
-
-<span class="sd">        If specified, ``name`` will be set in the following</span>
-<span class="sd">        order of precedence:</span>
-
-<span class="sd">        1. ``name`` in the inner dictionary</span>
-<span class="sd">        2. ``pose_estimation_kwargs[&quot;name&quot;]`` (single-individual dataset only)</span>
-<span class="sd">        3. individual name in the ``movement`` dataset</span>
-
-<span class="sd">    skeleton_kwargs : dict[str, Any] or dict[str, dict[str, Any]], optional</span>
-<span class="sd">        Keyword arguments for ``ndx_pose.Skeleton`` [1]_.</span>
-
-<span class="sd">        If ``skeleton_kwargs`` is a single dictionary, the same</span>
-<span class="sd">        keyword arguments will be applied to all Skeleton objects.</span>
-
-<span class="sd">        If ``skeleton_kwargs`` is a dictionary of dictionaries,</span>
-<span class="sd">        the outer keys should correspond to individual names in the</span>
-<span class="sd">        ``movement`` dataset, and the inner dictionaries will be passed as</span>
-<span class="sd">        keyword arguments to the ``ndx_pose.Skeleton`` constructor.</span>
-
-<span class="sd">        The following arguments cannot be overwritten:</span>
-
-<span class="sd">        - ``subject``: :class:`pynwb.file.Subject` created for the individual</span>
-<span class="sd">          using ``subject_kwargs``</span>
-
-<span class="sd">        The following arguments will have default values if not set:</span>
-
-<span class="sd">        - ``name``: &quot;&lt;individual&gt;_skeleton&quot;</span>
-<span class="sd">        - ``nodes``: list of keypoint names in the dataset</span>
-
-<span class="sd">        ``name`` will be set in the following order of precedence:</span>
-
-<span class="sd">        1. ``name`` in the inner dictionary</span>
-<span class="sd">        2. ``skeleton_kwargs[&quot;name&quot;]`` (single-individual dataset only)</span>
-<span class="sd">        3. individual name in the ``movement`` dataset</span>
-
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
 <span class="sd">    .. [1] https://github.com/rly/ndx-pose</span>
@@ -656,14 +505,162 @@
 <span class="sd">        Example usage of this class to save a ``movement`` dataset</span>
 <span class="sd">        to an NWB file.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># noqa: E501</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">nwbfile_kwargs</span><span class="p">:</span> <span class="n">ConfigKwargsType</span> <span class="o">=</span> <span class="n">_safe_dict_field</span><span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Keyword arguments for :class:`pynwb.file.NWBFile`.</span>
+
+<span class="sd">    If ``nwbfile_kwargs`` is a single dictionary, the same keyword</span>
+<span class="sd">    arguments will be applied to all NWBFile objects except for</span>
+<span class="sd">    ``identifier``.</span>
+
+<span class="sd">    If ``nwbfile_kwargs`` is a dictionary of dictionaries, the outer keys</span>
+<span class="sd">    should correspond to individual names in the ``movement`` dataset,</span>
+<span class="sd">    and the inner dictionaries will be passed as keyword arguments to the</span>
+<span class="sd">    :class:`pynwb.file.NWBFile` constructor.</span>
+
+<span class="sd">    The following arguments cannot be overwritten:</span>
+
+<span class="sd">    - ``subject``: :class:`pynwb.file.Subject`</span>
+<span class="sd">      created for the individual using ``subject_kwargs``</span>
+
+<span class="sd">    The following arguments will have default values if not set:</span>
+
+<span class="sd">    - ``session_description``: &quot;not set&quot;</span>
+<span class="sd">    - ``session_start_time``: current UTC time</span>
+
+<span class="sd">    ``identifier`` will be set in the following order of precedence:</span>
+
+<span class="sd">    1. ``identifier`` in the inner dictionary</span>
+<span class="sd">    2. ``nwbfile_kwargs[&quot;identifier&quot;]`` (single-individual dataset only)</span>
+<span class="sd">    3. individual name in the ``movement`` dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">processing_module_kwargs</span><span class="p">:</span> <span class="n">ConfigKwargsType</span> <span class="o">=</span> <span class="n">_safe_dict_field</span><span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Keyword arguments for :class:`pynwb.base.ProcessingModule`.</span>
+
+<span class="sd">    If ``processing_module_kwargs`` is a single dictionary, the same</span>
+<span class="sd">    keyword arguments will be applied to all ProcessingModules.</span>
+
+<span class="sd">    If ``processing_module_kwargs`` is a dictionary of dictionaries,</span>
+<span class="sd">    the outer keys should correspond to individual names in the</span>
+<span class="sd">    ``movement`` dataset, and the inner dictionaries will be passed as</span>
+<span class="sd">    keyword arguments to the :class:`pynwb.file.ProcessingModule`</span>
+<span class="sd">    constructor.</span>
+
+<span class="sd">    The following arguments will have default values if not set:</span>
+
+<span class="sd">    - ``name``: &quot;behavior&quot;</span>
+<span class="sd">    - ``description``: &quot;processed behavioral data&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">subject_kwargs</span><span class="p">:</span> <span class="n">ConfigKwargsType</span> <span class="o">=</span> <span class="n">_safe_dict_field</span><span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Keyword arguments for :class:`pynwb.file.Subject`.</span>
+
+<span class="sd">    If ``subject_kwargs`` is a single dictionary, the same keyword</span>
+<span class="sd">    arguments will be applied to all Subjects except for ``subject_id``.</span>
+
+<span class="sd">    If ``subject_kwargs`` is a dictionary of dictionaries, the outer keys</span>
+<span class="sd">    should correspond to individual names in the ``movement`` dataset,</span>
+<span class="sd">    and the inner dictionaries will be passed as keyword arguments to the</span>
+<span class="sd">    :class:`pynwb.file.Subject` constructor.</span>
+
+<span class="sd">    ``subject_id`` will be set in the following order of precedence:</span>
+
+<span class="sd">    1. ``subject_id`` in the inner dictionary</span>
+<span class="sd">    2. ``subject_kwargs[&quot;subject_id&quot;]`` (single-individual dataset only)</span>
+<span class="sd">    3. individual name in the ``movement`` dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">pose_estimation_series_kwargs</span><span class="p">:</span> <span class="n">ConfigKwargsType</span> <span class="o">=</span> <span class="n">_safe_dict_field</span><span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Keyword arguments for ``ndx_pose.PoseEstimationSeries``</span>
+
+<span class="sd">    If ``pose_estimation_series_kwargs`` is a single dictionary, the same</span>
+<span class="sd">    keyword arguments will be applied to all PoseEstimationSeries objects.</span>
+
+<span class="sd">    If ``pose_estimation_series_kwargs`` is a dictionary of dictionaries,</span>
+<span class="sd">    the outer keys should correspond to keypoint names in the</span>
+<span class="sd">    ``movement`` dataset, and the inner dictionaries will be passed as</span>
+<span class="sd">    keyword arguments to the ``ndx_pose.PoseEstimationSeries`` constructor.</span>
+
+<span class="sd">    The following arguments will be set based on the dataset and cannot</span>
+<span class="sd">    be overwritten:</span>
+
+<span class="sd">    - ``data``: position data for the keypoint</span>
+<span class="sd">    - ``confidence``: confidence data for the keypoint</span>
+<span class="sd">    - ``timestamps``: time data for the keypoint</span>
+
+<span class="sd">    The following arguments will have default values if not set:</span>
+
+<span class="sd">    - ``unit``: &quot;pixels&quot;</span>
+<span class="sd">    - ``reference_frame``: &quot;(0,0,0) corresponds to ...&quot;</span>
+
+<span class="sd">    ``name`` will be set in the following order of precedence:</span>
+
+<span class="sd">    1. ``name`` in the inner dictionary</span>
+<span class="sd">    2. ``pose_estimation_series_kwargs[&quot;name&quot;]`` (single-keypoint dataset only)</span>
+<span class="sd">    3. keypoint name in the ``movement`` dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">pose_estimation_kwargs</span><span class="p">:</span> <span class="n">ConfigKwargsType</span> <span class="o">=</span> <span class="n">_safe_dict_field</span><span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Keyword arguments for ``ndx_pose.PoseEstimation`` [1]_.</span>
+
+<span class="sd">    If ``pose_estimation_kwargs`` is a single dictionary, the same</span>
+<span class="sd">    keyword arguments will be applied to all PoseEstimation objects.</span>
+
+<span class="sd">    If ``pose_estimation_kwargs`` is a dictionary of dictionaries,</span>
+<span class="sd">    the outer keys should correspond to individual names in the</span>
+<span class="sd">    ``movement`` dataset, and the inner dictionaries will be passed as</span>
+<span class="sd">    keyword arguments to the ``ndx_pose.PoseEstimation`` constructor.</span>
+
+<span class="sd">    The following arguments cannot be overwritten:</span>
+
+<span class="sd">    - ``pose_estimation_series``: list of PoseEstimationSeries objects</span>
+<span class="sd">    - ``skeleton``: Skeleton object</span>
+
+<span class="sd">    The following arguments will have default values if not set:</span>
+
+<span class="sd">    - ``source_software``: ``source_software``</span>
+<span class="sd">      attribute from the ``movement`` dataset</span>
+<span class="sd">    - ``description``: &quot;Estimated positions of &lt;keypoints&gt;</span>
+<span class="sd">      for &lt;individual&gt; using &lt;source_software&gt;.&quot;</span>
+
+<span class="sd">    If specified, ``name`` will be set in the following</span>
+<span class="sd">    order of precedence:</span>
+
+<span class="sd">    1. ``name`` in the inner dictionary</span>
+<span class="sd">    2. ``pose_estimation_kwargs[&quot;name&quot;]`` (single-individual dataset only)</span>
+<span class="sd">    3. individual name in the ``movement`` dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">skeleton_kwargs</span><span class="p">:</span> <span class="n">ConfigKwargsType</span> <span class="o">=</span> <span class="n">_safe_dict_field</span><span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Keyword arguments for ``ndx_pose.Skeleton`` [1]_.</span>
+
+<span class="sd">    If ``skeleton_kwargs`` is a single dictionary, the same</span>
+<span class="sd">    keyword arguments will be applied to all Skeleton objects.</span>
+
+<span class="sd">    If ``skeleton_kwargs`` is a dictionary of dictionaries,</span>
+<span class="sd">    the outer keys should correspond to individual names in the</span>
+<span class="sd">    ``movement`` dataset, and the inner dictionaries will be passed as</span>
+<span class="sd">    keyword arguments to the ``ndx_pose.Skeleton`` constructor.</span>
+
+<span class="sd">    The following arguments cannot be overwritten:</span>
+
+<span class="sd">    - ``subject``: :class:`pynwb.file.Subject`</span>
+<span class="sd">      created for the individual using ``subject_kwargs``</span>
+
+<span class="sd">    The following arguments will have default values if not set:</span>
+
+<span class="sd">    - ``name``: &quot;&lt;individual&gt;_skeleton&quot;</span>
+<span class="sd">    - ``nodes``: list of keypoint names in the dataset</span>
+
+<span class="sd">    ``name`` will be set in the following order of precedence:</span>
+
+<span class="sd">    1. ``name`` in the inner dictionary</span>
+<span class="sd">    2. ``skeleton_kwargs[&quot;name&quot;]`` (single-individual dataset only)</span>
+<span class="sd">    3. individual name in the ``movement`` dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="n">DEFAULT_NWBFILE_KWARGS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">session_description</span><span class="o">=</span><span class="s2">&quot;not set&quot;</span><span class="p">)</span>
     <span class="n">DEFAULT_PROCESSING_MODULE_KWARGS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">&quot;behavior&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;processed behavioral data&quot;</span>

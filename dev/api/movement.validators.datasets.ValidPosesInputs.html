@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4b5f1b96"></script>
+    <script src="../_static/documentation_options.js?v=80d68b5b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev3</p>
+    <p class="title logo__title">movement v0.15.1.dev4</p>
   
 </a></div>
     
@@ -637,91 +637,22 @@
 <p>The validator ensures that within the <code class="docutils literal notranslate"><span class="pre">movement</span> <span class="pre">poses</span></code> dataset:</p>
 <ul class="simple">
 <li><p>The required <code class="docutils literal notranslate"><span class="pre">position_array</span></code> is a numpy array
+of shape (n_frames, n_space, n_keypoints, n_individuals)
 with the <code class="docutils literal notranslate"><span class="pre">space</span></code> dimension containing 2 or 3 spatial coordinates.</p></li>
 <li><p>The optional <code class="docutils literal notranslate"><span class="pre">confidence_array</span></code>, if provided, is a numpy array
-with its shape matching that of the <code class="docutils literal notranslate"><span class="pre">position_array</span></code>,
-excluding the <code class="docutils literal notranslate"><span class="pre">space</span></code> dimension;
+containing confidence scores for the pose data. It supports either
+point-wise confidence with shape matching that of
+<code class="docutils literal notranslate"><span class="pre">position_array</span></code>, excluding the <code class="docutils literal notranslate"><span class="pre">space</span></code> dimension, or
+individual-wise confidence with shape <code class="docutils literal notranslate"><span class="pre">(n_frames,</span> <span class="pre">n_individuals)</span></code>;
 otherwise, it defaults to an array of NaNs.</p></li>
 <li><p>The optional <code class="docutils literal notranslate"><span class="pre">individual_names</span></code> and <code class="docutils literal notranslate"><span class="pre">keypoint_names</span></code>,
-if provided, match the number of individuals and keypoints
+if provided, is a list of unique names for the individuals and keypoints,
+with lengths matching the number of individuals and keypoints
 in the dataset, respectively; otherwise, default names are assigned.</p></li>
 <li><p>The optional <code class="docutils literal notranslate"><span class="pre">fps</span></code> is a positive float; otherwise, it defaults to None.</p></li>
 <li><p>The optional <code class="docutils literal notranslate"><span class="pre">source_software</span></code> is a string; otherwise,
 it defaults to None.</p></li>
 </ul>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.position_array">
-<span class="sig-name descname"><span class="pre">position_array</span></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.position_array" title="Link to this definition">#</a></dt>
-<dd><p>Array of shape (n_frames, n_space, n_keypoints, n_individuals)
-containing the poses.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.confidence_array">
-<span class="sig-name descname"><span class="pre">confidence_array</span></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.confidence_array" title="Link to this definition">#</a></dt>
-<dd><p>Array of shape (n_frames, n_keypoints, n_individuals) containing
-the point-wise confidence scores.
-If None (default), the scores will be set to an array of NaNs.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>np.ndarray, optional</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.individual_names">
-<span class="sig-name descname"><span class="pre">individual_names</span></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.individual_names" title="Link to this definition">#</a></dt>
-<dd><p>List of unique names for the individuals in the video. If None
-(default), the individuals will be named “id_0”, “id_1”, etc.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, optional</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.keypoint_names">
-<span class="sig-name descname"><span class="pre">keypoint_names</span></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.keypoint_names" title="Link to this definition">#</a></dt>
-<dd><p>List of unique names for the keypoints in the skeleton. If None
-(default), the keypoints will be named “keypoint_0”, “keypoint_1”,
-etc.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, optional</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.fps">
-<span class="sig-name descname"><span class="pre">fps</span></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.fps" title="Link to this definition">#</a></dt>
-<dd><p>Frames per second of the video. Defaults to None.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)">float</a>, optional</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.source_software">
-<span class="sig-name descname"><span class="pre">source_software</span></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.source_software" title="Link to this definition">#</a></dt>
-<dd><p>Name of the software from which the poses were loaded.
-Defaults to None.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a>, optional</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the dataset does not meet the <code class="docutils literal notranslate"><span class="pre">movement</span> <span class="pre">poses</span></code>
@@ -741,21 +672,6 @@ Defaults to None.</p>
 </table>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.to_dataset">
-<span class="sig-name descname"><span class="pre">to_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/datasets.html#ValidPosesInputs.to_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.to_dataset" title="Link to this definition">#</a></dt>
-<dd><p>Convert validated poses inputs to a <code class="docutils literal notranslate"><span class="pre">movement</span> <span class="pre">poses</span></code> dataset.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset containing the pose tracks, confidence scores,
-and associated metadata.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.validate">
 <span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.validate" title="Link to this definition">#</a></dt>
 <dd><p>Validate that the dataset has the required variables and dimensions.</p>
@@ -774,6 +690,82 @@ and associated metadata.</p>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.to_dataset">
+<span class="sig-name descname"><span class="pre">to_dataset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/datasets.html#ValidPosesInputs.to_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.to_dataset" title="Link to this definition">#</a></dt>
+<dd><p>Convert validated poses inputs to a <code class="docutils literal notranslate"><span class="pre">movement</span> <span class="pre">poses</span></code> dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset containing the pose tracks, confidence scores,
+and associated metadata.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.DIM_NAMES">
+<span class="sig-name descname"><span class="pre">DIM_NAMES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ClassVar" title="(in Python v3.14)"><span class="pre">ClassVar</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('time',</span> <span class="pre">'space',</span> <span class="pre">'keypoints',</span> <span class="pre">'individuals')</span></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.DIM_NAMES" title="Link to this definition">#</a></dt>
+<dd><p>Required dimension names for the dataset. The order of dimension names
+must match the order of dimensions in the <code class="docutils literal notranslate"><span class="pre">position_array</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.VAR_NAMES">
+<span class="sig-name descname"><span class="pre">VAR_NAMES</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ClassVar" title="(in Python v3.14)"><span class="pre">ClassVar</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('position',</span> <span class="pre">'confidence')</span></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.VAR_NAMES" title="Link to this definition">#</a></dt>
+<dd><p>Required variable names for the dataset.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.confidence_array">
+<span class="sig-name descname"><span class="pre">confidence_array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.confidence_array" title="Link to this definition">#</a></dt>
+<dd><p>Array containing point-wise confidence scores for the position data.
+The shape of this array is the same as that of <code class="docutils literal notranslate"><span class="pre">position_array</span></code>, but
+without the <code class="docutils literal notranslate"><span class="pre">space</span></code> dimension. If None (default), the confidence scores
+will be set to an array of NaNs.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.fps">
+<span class="sig-name descname"><span class="pre">fps</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.fps" title="Link to this definition">#</a></dt>
+<dd><p>Frames per second of the video. If None (default), time coordinates will
+be expressed in frames. If a non-positive value is provided, fps will be
+set to None and a warning will be issued.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.individual_names">
+<span class="sig-name descname"><span class="pre">individual_names</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.individual_names" title="Link to this definition">#</a></dt>
+<dd><p>List of unique names for the individuals in the video. The length of
+this list should match the size of the ‘individuals’ dimension in the
+<code class="docutils literal notranslate"><span class="pre">position_array</span></code>. If None (default), the names will be in the format of
+<code class="docutils literal notranslate"><span class="pre">id_&lt;N&gt;</span></code>, where &lt;N&gt; is an integer from 0 to the size of the
+‘individuals’ dimension minus 1.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.keypoint_names">
+<span class="sig-name descname"><span class="pre">keypoint_names</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.keypoint_names" title="Link to this definition">#</a></dt>
+<dd><p>List of unique names for the keypoints in the skeleton. If None
+(default), the keypoints will be named “keypoint_0”, “keypoint_1”,
+etc.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.position_array">
+<span class="sig-name descname"><span class="pre">position_array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.position_array" title="Link to this definition">#</a></dt>
+<dd><p>Array containing the position data.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.datasets.ValidPosesInputs.source_software">
+<span class="sig-name descname"><span class="pre">source_software</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidPosesInputs.source_software" title="Link to this definition">#</a></dt>
+<dd><p>Name of the software from which the data were loaded. This is stored as
+a dataset attribute in the resulting xarray.Dataset. Defaults to None.</p>
 </dd></dl>
 
 </dd></dl>
@@ -831,14 +823,16 @@ and associated metadata.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.position_array"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.position_array</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.validate"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.validate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.to_dataset"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.to_dataset()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.DIM_NAMES"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.DIM_NAMES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.VAR_NAMES"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.VAR_NAMES</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.confidence_array"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.confidence_array</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.fps"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.fps</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.individual_names"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.individual_names</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.keypoint_names"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.keypoint_names</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.fps"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.fps</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.position_array"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.position_array</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.source_software"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.source_software</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.to_dataset"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.to_dataset()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.datasets.ValidPosesInputs.validate"><code class="docutils literal notranslate"><span class="pre">ValidPosesInputs.validate()</span></code></a></li>
 </ul>
 </li>
 </ul>

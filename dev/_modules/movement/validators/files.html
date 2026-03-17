@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=4b5f1b96"></script>
+    <script src="../../../_static/documentation_options.js?v=80d68b5b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev3</p>
+    <p class="title logo__title">movement v0.15.1.dev4</p>
   
 </a></div>
     
@@ -749,7 +749,7 @@
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Callable</span>
+<span class="sd">    collections.abc.Callable</span>
 <span class="sd">        A validator function that conditionally applies the given</span>
 <span class="sd">        validator.</span>
 
@@ -832,13 +832,16 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating SLEAP analysis (.h5) files.&quot;&quot;&quot;</span>
 
     <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.h5&quot;</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expected suffix(es) for the file.&quot;&quot;&quot;</span>
+
     <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
             <span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
             <span class="n">_hdf5_validator</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;tracks&quot;</span><span class="p">}),</span>
         <span class="p">),</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Path to the SLEAP .h5 file to validate.&quot;&quot;&quot;</span></div>
 
 
 
@@ -849,13 +852,16 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating SLEAP labels (.slp) files.&quot;&quot;&quot;</span>
 
     <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.slp&quot;</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expected suffix(es) for the file.&quot;&quot;&quot;</span>
+
     <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
             <span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
             <span class="n">_hdf5_validator</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;pred_points&quot;</span><span class="p">,</span> <span class="s2">&quot;metadata&quot;</span><span class="p">}),</span>
         <span class="p">),</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Path to the SLEAP .slp file to validate.&quot;&quot;&quot;</span></div>
 
 
 
@@ -866,13 +872,16 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating DeepLabCut-style .h5 files.&quot;&quot;&quot;</span>
 
     <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.h5&quot;</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expected suffix(es) for the file.&quot;&quot;&quot;</span>
+
     <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
             <span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
             <span class="n">_hdf5_validator</span><span class="p">(</span><span class="n">datasets</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;df_with_missing&quot;</span><span class="p">}),</span>
         <span class="p">),</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Path to the DeepLabCut .h5 file to validate.&quot;&quot;&quot;</span></div>
 
 
 
@@ -885,13 +894,6 @@
 <span class="sd">    The validator ensures that the file contains the</span>
 <span class="sd">    expected index column levels.</span>
 
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    file</span>
-<span class="sd">        Path to the .csv file.</span>
-<span class="sd">    level_names</span>
-<span class="sd">        Names of the index column levels found in the .csv file.</span>
-
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
@@ -901,11 +903,16 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.csv&quot;</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expected suffix(es) for the file.&quot;&quot;&quot;</span>
+
     <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
     <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Path to the DeepLabCut .csv file to validate.&quot;&quot;&quot;</span>
+
     <span class="n">level_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Names of the index column levels found in the .csv file.&quot;&quot;&quot;</span>
 
     <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_expected_levels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -941,11 +948,6 @@
 <span class="sd">    The validator ensures that the file contains the</span>
 <span class="sd">    expected column names in its header (first row).</span>
 
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    file</span>
-<span class="sd">        Path to the .csv file.</span>
-
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
@@ -954,10 +956,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.csv&quot;</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expected suffix(es) for the file.&quot;&quot;&quot;</span>
+
     <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
     <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Path to the Anipose .csv file to validate.&quot;&quot;&quot;</span>
 
     <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_expected_columns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -1046,30 +1051,6 @@
 <span class="sd">    If the file is validated, the bounding boxes data is pre-parsed</span>
 <span class="sd">    from the input file and added as attributes.</span>
 
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    file</span>
-<span class="sd">        Path to the VIA tracks .csv file.</span>
-<span class="sd">    frame_regexp</span>
-<span class="sd">        Regular expression pattern to extract the frame number from the</span>
-<span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
-<span class="sd">        the filename as an integer number led by at least one zero, followed</span>
-<span class="sd">        by the file extension.</span>
-<span class="sd">    x</span>
-<span class="sd">        Array of x coordinates of the tracked bounding boxes.</span>
-<span class="sd">    y</span>
-<span class="sd">        Array of y coordinates of the tracked bounding boxes.</span>
-<span class="sd">    w</span>
-<span class="sd">        Array of width coordinates of the tracked bounding boxes.</span>
-<span class="sd">    h</span>
-<span class="sd">        Array of height coordinates of the tracked bounding boxes.</span>
-<span class="sd">    ids</span>
-<span class="sd">        Array of track IDs of the tracked bounding boxes.</span>
-<span class="sd">    frame_numbers</span>
-<span class="sd">        Array of frame numbers of the tracked bounding boxes.</span>
-<span class="sd">    confidence</span>
-<span class="sd">        Array of confidence values of the tracked bounding boxes.</span>
-
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
@@ -1078,20 +1059,41 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.csv&quot;</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expected suffix(es) for the file.&quot;&quot;&quot;</span>
+
     <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
     <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Path to the VIA tracks .csv file to validate.&quot;&quot;&quot;</span>
+
     <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_FRAME_REGEXP</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Regular expression pattern to extract the frame number from the</span>
+<span class="sd">    filename. By default, the frame number is expected to be encoded in</span>
+<span class="sd">    the filename as an integer number led by at least one zero, followed</span>
+<span class="sd">    by the file extension.&quot;&quot;&quot;</span>
 
     <span class="c1"># Bboxes pre-parsed data</span>
     <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array of x coordinates of the tracked bounding boxes.&quot;&quot;&quot;</span>
+
     <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array of y coordinates of the tracked bounding boxes.&quot;&quot;&quot;</span>
+
     <span class="n">w</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array of width coordinates of the tracked bounding boxes.&quot;&quot;&quot;</span>
+
     <span class="n">h</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array of height coordinates of the tracked bounding boxes.&quot;&quot;&quot;</span>
+
     <span class="n">ids</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array of track IDs of the tracked bounding boxes.&quot;&quot;&quot;</span>
+
     <span class="n">frame_numbers</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array of frame numbers corresponding to the tracked bounding boxes.&quot;&quot;&quot;</span>
+
     <span class="n">confidence</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array of confidence values of the tracked bounding boxes.&quot;&quot;&quot;</span>
 
     <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_via_tracks_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -1390,16 +1392,11 @@
 
 <span class="sd">    - a valid NWB file (.nwb) path, or</span>
 <span class="sd">    - an :class:`NWBFile&lt;pynwb.file.NWBFile&gt;` object.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    file</span>
-<span class="sd">        Path to the NWB file on disk (ending in &quot;.nwb&quot;),</span>
-<span class="sd">        or an NWBFile object.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.nwb&quot;</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expected suffix(es) for the file.&quot;&quot;&quot;</span>
+
     <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">NWBFile</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">converter</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">:</span> <span class="n">Path</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="k">else</span> <span class="n">f</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
@@ -1409,7 +1406,8 @@
                 <span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
             <span class="p">),</span>
         <span class="p">),</span>
-    <span class="p">)</span></div>
+    <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Path to the NWB file on disk (ending in &quot;.nwb&quot;) or an NWBFile object.&quot;&quot;&quot;</span></div>
 
 
 
@@ -1457,13 +1455,6 @@
 <span class="sd">    each Feature&#39;s ``roi_type`` property is consistent with its geometry</span>
 <span class="sd">    type (e.g. &quot;PolygonOfInterest&quot; must have geometry type &quot;Polygon&quot;).</span>
 
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    file</span>
-<span class="sd">        Path to the GeoJSON file.</span>
-<span class="sd">    data</span>
-<span class="sd">        Parsed JSON data from the file.</span>
-
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
@@ -1479,7 +1470,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.geojson&quot;</span><span class="p">,</span> <span class="s2">&quot;.json&quot;</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expected suffix(es) for the file.&quot;&quot;&quot;</span>
+
     <span class="n">schema</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">ROI_COLLECTION_SCHEMA</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;JSON schema for validating the structure of the GeoJSON file.&quot;&quot;&quot;</span>
+
     <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
@@ -1491,7 +1486,10 @@
             <span class="p">),</span>
         <span class="p">),</span>
     <span class="p">)</span>
-    <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Path to the GeoJSON file to validate.&quot;&quot;&quot;</span>
+
+    <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parsed JSON data from the file, available after validation.&quot;&quot;&quot;</span></div>
 
 </pre></div>
 <div class="section ablog__blog_comments">

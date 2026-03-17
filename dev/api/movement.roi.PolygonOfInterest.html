@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4b5f1b96"></script>
+    <script src="../_static/documentation_options.js?v=80d68b5b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev3</p>
+    <p class="title logo__title">movement v0.15.1.dev4</p>
   
 </a></div>
     
@@ -699,7 +699,8 @@ the region is computed. Default <code class="docutils literal notranslate"><span
 returned in radians. Default <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>reference_vector</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – The reference vector to be used. Dimensions must be compatible with
 the argument of the same name that is passed to
-<code class="xref py py-func docutils literal notranslate"><span class="pre">compute_signed_angle_2d()</span></code>. Default <code class="docutils literal notranslate"><span class="pre">(1.,</span> <span class="pre">0.)</span></code>.</p></li>
+<a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d" title="movement.utils.vector.compute_signed_angle_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_signed_angle_2d()</span></code></a>.
+Default <code class="docutils literal notranslate"><span class="pre">(1.,</span> <span class="pre">0.)</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -875,6 +876,36 @@ False otherwise.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="movement.roi.PolygonOfInterest.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">matplotlib_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.roi.PolygonOfInterest.plot" title="Link to this definition">#</a></dt>
+<dd><p>Plot the region of interest on a new or existing axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Axes object on which to draw the region. If None, a new
+figure and axes are created.</p></li>
+<li><p><strong>matplotlib_kwargs</strong> – Keyword arguments passed to the <a class="reference external" href="https://matplotlib.org/stable/api/pyplot_summary.html#module-matplotlib.pyplot" title="(in Matplotlib v3.10.8)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib.pyplot</span></code></a> plotting
+function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a> | <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.SubFigure.html#matplotlib.figure.SubFigure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubFigure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure or matplotlib.figure.SubFigure</em>) – If <code class="docutils literal notranslate"><span class="pre">ax</span></code> is provided, this is <code class="docutils literal notranslate"><span class="pre">ax.figure</span></code>
+(<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> or
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.SubFigure.html#matplotlib.figure.SubFigure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.SubFigure</span></code></a>). Otherwise, a new
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> is created and returned.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – Axes on which the region was drawn. If <code class="docutils literal notranslate"><span class="pre">ax</span></code> is provided,
+the input will be directly modified and returned in this value.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="movement.roi.PolygonOfInterest.coords">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">coords</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">CoordinateSequence</span></span><a class="headerlink" href="#movement.roi.PolygonOfInterest.coords" title="Link to this definition">#</a></dt>
@@ -927,36 +958,6 @@ polygon.  A region with no holes returns the empty tuple.</p>
 <dt class="sig sig-object py" id="movement.roi.PolygonOfInterest.name">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#movement.roi.PolygonOfInterest.name" title="Link to this definition">#</a></dt>
 <dd><p>Name of the instance.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="movement.roi.PolygonOfInterest.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">matplotlib_kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#movement.roi.PolygonOfInterest.plot" title="Link to this definition">#</a></dt>
-<dd><p>Plot the region of interest on a new or existing axis.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ax</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Axes object on which to draw the region. If None, a new
-figure and axes are created.</p></li>
-<li><p><strong>matplotlib_kwargs</strong> – Keyword arguments passed to the <a class="reference external" href="https://matplotlib.org/stable/api/pyplot_summary.html#module-matplotlib.pyplot" title="(in Matplotlib v3.10.8)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib.pyplot</span></code></a> plotting
-function.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a> | <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.SubFigure.html#matplotlib.figure.SubFigure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubFigure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><ul class="simple">
-<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure or matplotlib.figure.SubFigure</em>) – If <code class="docutils literal notranslate"><span class="pre">ax</span></code> is provided, this is <code class="docutils literal notranslate"><span class="pre">ax.figure</span></code>
-(<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> or
-<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.SubFigure.html#matplotlib.figure.SubFigure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.SubFigure</span></code></a>). Otherwise, a new
-<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.10.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> is created and returned.</p></li>
-<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – Axes on which the region was drawn. If <code class="docutils literal notranslate"><span class="pre">ax</span></code> is provided,
-the input will be directly modified and returned in this value.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -1032,6 +1033,7 @@ the input will be directly modified and returned in this value.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.PolygonOfInterest.compute_egocentric_angle_to_nearest_point"><code class="docutils literal notranslate"><span class="pre">PolygonOfInterest.compute_egocentric_angle_to_nearest_point()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.PolygonOfInterest.compute_nearest_point_to"><code class="docutils literal notranslate"><span class="pre">PolygonOfInterest.compute_nearest_point_to()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.PolygonOfInterest.contains_point"><code class="docutils literal notranslate"><span class="pre">PolygonOfInterest.contains_point()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.PolygonOfInterest.plot"><code class="docutils literal notranslate"><span class="pre">PolygonOfInterest.plot()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.PolygonOfInterest.coords"><code class="docutils literal notranslate"><span class="pre">PolygonOfInterest.coords</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.PolygonOfInterest.dimensions"><code class="docutils literal notranslate"><span class="pre">PolygonOfInterest.dimensions</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.PolygonOfInterest.exterior_boundary"><code class="docutils literal notranslate"><span class="pre">PolygonOfInterest.exterior_boundary</span></code></a></li>
@@ -1039,7 +1041,6 @@ the input will be directly modified and returned in this value.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.PolygonOfInterest.interior_boundaries"><code class="docutils literal notranslate"><span class="pre">PolygonOfInterest.interior_boundaries</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.PolygonOfInterest.is_closed"><code class="docutils literal notranslate"><span class="pre">PolygonOfInterest.is_closed</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.PolygonOfInterest.name"><code class="docutils literal notranslate"><span class="pre">PolygonOfInterest.name</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.PolygonOfInterest.plot"><code class="docutils literal notranslate"><span class="pre">PolygonOfInterest.plot()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.roi.PolygonOfInterest.region"><code class="docutils literal notranslate"><span class="pre">PolygonOfInterest.region</span></code></a></li>
 </ul>
 </li>

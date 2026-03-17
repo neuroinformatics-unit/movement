@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4b5f1b96"></script>
+    <script src="../_static/documentation_options.js?v=80d68b5b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev3</p>
+    <p class="title logo__title">movement v0.15.1.dev4</p>
   
 </a></div>
     
@@ -643,15 +643,32 @@
 </ul>
 <p>If the file is validated, the bounding boxes data is pre-parsed
 from the input file and added as attributes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the file does not match the VIA tracks .csv file requirements.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.confidence">
+<span class="sig-name descname"><span class="pre">confidence</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.4)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.confidence" title="Link to this definition">#</a></dt>
+<dd><p>Array of confidence values of the tracked bounding boxes.</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.file">
-<span class="sig-name descname"><span class="pre">file</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.file" title="Link to this definition">#</a></dt>
-<dd><p>Path to the VIA tracks .csv file.</p>
+<span class="sig-name descname"><span class="pre">file</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.file" title="Link to this definition">#</a></dt>
+<dd><p>Path to the VIA tracks .csv file to validate.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.frame_numbers">
+<span class="sig-name descname"><span class="pre">frame_numbers</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.4)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">int64</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.frame_numbers" title="Link to this definition">#</a></dt>
+<dd><p>Array of frame numbers corresponding to the tracked bounding boxes.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.frame_regexp">
-<span class="sig-name descname"><span class="pre">frame_regexp</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.frame_regexp" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">frame_regexp</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.frame_regexp" title="Link to this definition">#</a></dt>
 <dd><p>Regular expression pattern to extract the frame number from the
 filename. By default, the frame number is expected to be encoded in
 the filename as an integer number led by at least one zero, followed
@@ -659,52 +676,41 @@ by the file extension.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.x">
-<span class="sig-name descname"><span class="pre">x</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.x" title="Link to this definition">#</a></dt>
-<dd><p>Array of x coordinates of the tracked bounding boxes.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.y">
-<span class="sig-name descname"><span class="pre">y</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.y" title="Link to this definition">#</a></dt>
-<dd><p>Array of y coordinates of the tracked bounding boxes.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.w">
-<span class="sig-name descname"><span class="pre">w</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.w" title="Link to this definition">#</a></dt>
-<dd><p>Array of width coordinates of the tracked bounding boxes.</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.h">
-<span class="sig-name descname"><span class="pre">h</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.h" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">h</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.4)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.h" title="Link to this definition">#</a></dt>
 <dd><p>Array of height coordinates of the tracked bounding boxes.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.ids">
-<span class="sig-name descname"><span class="pre">ids</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.ids" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">ids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.4)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">int32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.ids" title="Link to this definition">#</a></dt>
 <dd><p>Array of track IDs of the tracked bounding boxes.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.frame_numbers">
-<span class="sig-name descname"><span class="pre">frame_numbers</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.frame_numbers" title="Link to this definition">#</a></dt>
-<dd><p>Array of frame numbers of the tracked bounding boxes.</p>
+<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.suffixes">
+<span class="sig-name descname"><span class="pre">suffixes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ClassVar" title="(in Python v3.14)"><span class="pre">ClassVar</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'.csv'}</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.suffixes" title="Link to this definition">#</a></dt>
+<dd><p>Expected suffix(es) for the file.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.confidence">
-<span class="sig-name descname"><span class="pre">confidence</span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.confidence" title="Link to this definition">#</a></dt>
-<dd><p>Array of confidence values of the tracked bounding boxes.</p>
+<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.w">
+<span class="sig-name descname"><span class="pre">w</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.4)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.w" title="Link to this definition">#</a></dt>
+<dd><p>Array of width coordinates of the tracked bounding boxes.</p>
 </dd></dl>
 
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If the file does not match the VIA tracks .csv file requirements.</p>
-</dd>
-</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.x">
+<span class="sig-name descname"><span class="pre">x</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.4)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.x" title="Link to this definition">#</a></dt>
+<dd><p>Array of x coordinates of the tracked bounding boxes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidVIATracksCSV.y">
+<span class="sig-name descname"><span class="pre">y</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.dtype.html#numpy.dtype" title="(in NumPy v2.4)"><span class="pre">dtype</span></a><span class="p"><span class="pre">[</span></span><span class="pre">float32</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#movement.validators.files.ValidVIATracksCSV.y" title="Link to this definition">#</a></dt>
+<dd><p>Array of y coordinates of the tracked bounding boxes.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -760,15 +766,16 @@ by the file extension.</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.confidence"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.confidence</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.file"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.file</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.frame_numbers"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.frame_numbers</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.frame_regexp"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.frame_regexp</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.x"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.x</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.y"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.y</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.w"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.w</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.h"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.h</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.ids"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.ids</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.frame_numbers"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.frame_numbers</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.confidence"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.confidence</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.suffixes"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.suffixes</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.w"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.w</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.x"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.x</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidVIATracksCSV.y"><code class="docutils literal notranslate"><span class="pre">ValidVIATracksCSV.y</span></code></a></li>
 </ul>
 </li>
 </ul>

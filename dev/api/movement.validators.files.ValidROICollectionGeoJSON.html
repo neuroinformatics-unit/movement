@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4b5f1b96"></script>
+    <script src="../_static/documentation_options.js?v=80d68b5b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev3</p>
+    <p class="title logo__title">movement v0.15.1.dev4</p>
   
 </a></div>
     
@@ -645,18 +645,6 @@ the file contains a GeoJSON FeatureCollection containing
 <p>Additionally, it performs a custom validation step to ensure that
 each Feature’s <code class="docutils literal notranslate"><span class="pre">roi_type</span></code> property is consistent with its geometry
 type (e.g. “PolygonOfInterest” must have geometry type “Polygon”).</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.files.ValidROICollectionGeoJSON.file">
-<span class="sig-name descname"><span class="pre">file</span></span><a class="headerlink" href="#movement.validators.files.ValidROICollectionGeoJSON.file" title="Link to this definition">#</a></dt>
-<dd><p>Path to the GeoJSON file.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="movement.validators.files.ValidROICollectionGeoJSON.data">
-<span class="sig-name descname"><span class="pre">data</span></span><a class="headerlink" href="#movement.validators.files.ValidROICollectionGeoJSON.data" title="Link to this definition">#</a></dt>
-<dd><p>Parsed JSON data from the file.</p>
-</dd></dl>
-
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -674,6 +662,30 @@ type (e.g. “PolygonOfInterest” must have geometry type “Polygon”).</p>
 </dd>
 </dl>
 </div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidROICollectionGeoJSON.data">
+<span class="sig-name descname"><span class="pre">data</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a></span><a class="headerlink" href="#movement.validators.files.ValidROICollectionGeoJSON.data" title="Link to this definition">#</a></dt>
+<dd><p>Parsed JSON data from the file, available after validation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidROICollectionGeoJSON.file">
+<span class="sig-name descname"><span class="pre">file</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><span class="pre">Path</span></a></span><a class="headerlink" href="#movement.validators.files.ValidROICollectionGeoJSON.file" title="Link to this definition">#</a></dt>
+<dd><p>Path to the GeoJSON file to validate.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidROICollectionGeoJSON.schema">
+<span class="sig-name descname"><span class="pre">schema</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ClassVar" title="(in Python v3.14)"><span class="pre">ClassVar</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.14)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'$schema':</span> <span class="pre">'https://json-schema.org/draft/2020-12/schema',</span> <span class="pre">'description':</span> <span class="pre">'Schema</span> <span class="pre">for</span> <span class="pre">validating</span> <span class="pre">GeoJSON</span> <span class="pre">FeatureCollection</span> <span class="pre">files</span> <span class="pre">containing</span> <span class="pre">RoIs',</span> <span class="pre">'properties':</span> <span class="pre">{'features':</span> <span class="pre">{'items':</span> <span class="pre">{'properties':</span> <span class="pre">{'geometry':</span> <span class="pre">{'properties':</span> <span class="pre">{'coordinates':</span> <span class="pre">{'type':</span> <span class="pre">'array'},</span> <span class="pre">'type':</span> <span class="pre">{'enum':</span> <span class="pre">['Polygon',</span> <span class="pre">'LineString',</span> <span class="pre">'LinearRing']}},</span> <span class="pre">'required':</span> <span class="pre">['type',</span> <span class="pre">'coordinates'],</span> <span class="pre">'type':</span> <span class="pre">'object'},</span> <span class="pre">'properties':</span> <span class="pre">{'oneOf':</span> <span class="pre">[{'type':</span> <span class="pre">'null'},</span> <span class="pre">{'properties':</span> <span class="pre">{'name':</span> <span class="pre">{'type':</span> <span class="pre">'string'},</span> <span class="pre">'roi_type':</span> <span class="pre">{'enum':</span> <span class="pre">['PolygonOfInterest',</span> <span class="pre">'LineOfInterest']}},</span> <span class="pre">'type':</span> <span class="pre">'object'}]},</span> <span class="pre">'type':</span> <span class="pre">{'const':</span> <span class="pre">'Feature'}},</span> <span class="pre">'required':</span> <span class="pre">['type',</span> <span class="pre">'geometry'],</span> <span class="pre">'type':</span> <span class="pre">'object'},</span> <span class="pre">'type':</span> <span class="pre">'array'},</span> <span class="pre">'type':</span> <span class="pre">{'const':</span> <span class="pre">'FeatureCollection'}},</span> <span class="pre">'required':</span> <span class="pre">['type',</span> <span class="pre">'features'],</span> <span class="pre">'title':</span> <span class="pre">'RoI</span> <span class="pre">Collection</span> <span class="pre">GeoJSON',</span> <span class="pre">'type':</span> <span class="pre">'object'}</span></span><a class="headerlink" href="#movement.validators.files.ValidROICollectionGeoJSON.schema" title="Link to this definition">#</a></dt>
+<dd><p>JSON schema for validating the structure of the GeoJSON file.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="movement.validators.files.ValidROICollectionGeoJSON.suffixes">
+<span class="sig-name descname"><span class="pre">suffixes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.ClassVar" title="(in Python v3.14)"><span class="pre">ClassVar</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><span class="pre">set</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'.geojson',</span> <span class="pre">'.json'}</span></span><a class="headerlink" href="#movement.validators.files.ValidROICollectionGeoJSON.suffixes" title="Link to this definition">#</a></dt>
+<dd><p>Expected suffix(es) for the file.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -729,8 +741,10 @@ type (e.g. “PolygonOfInterest” must have geometry type “Polygon”).</p>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidROICollectionGeoJSON"><code class="docutils literal notranslate"><span class="pre">ValidROICollectionGeoJSON</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidROICollectionGeoJSON.file"><code class="docutils literal notranslate"><span class="pre">ValidROICollectionGeoJSON.file</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidROICollectionGeoJSON.data"><code class="docutils literal notranslate"><span class="pre">ValidROICollectionGeoJSON.data</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidROICollectionGeoJSON.file"><code class="docutils literal notranslate"><span class="pre">ValidROICollectionGeoJSON.file</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidROICollectionGeoJSON.schema"><code class="docutils literal notranslate"><span class="pre">ValidROICollectionGeoJSON.schema</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.validators.files.ValidROICollectionGeoJSON.suffixes"><code class="docutils literal notranslate"><span class="pre">ValidROICollectionGeoJSON.suffixes</span></code></a></li>
 </ul>
 </li>
 </ul>
