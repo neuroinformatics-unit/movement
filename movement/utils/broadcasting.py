@@ -179,7 +179,7 @@ def make_broadcastable(
 
     Returns
     -------
-    Callable
+    collections.abc.Callable
         Decorator function that can be applied with the
         ``@make_broadcastable(...)`` syntax. See Notes for a description of
         the action of the returned decorator.
@@ -297,7 +297,7 @@ def space_broadcastable(
 
     Returns
     -------
-    Callable
+    collections.abc.Callable
         Callable with signature
         ``(self,) data, *args, broadcast_dimension = str, **kwargs``,
         that applies ``f`` along the ``broadcast_dimension`` of ``data``.
@@ -331,7 +331,7 @@ def broadcastable_method(
 
     Returns
     -------
-    Callable
+    collections.abc.Callable
         Callable with signature
         ``(self,) data, *args, broadcast_dimension = str, **kwargs``,
         that applies ``f`` along the ``broadcast_dimension`` of ``data``.
