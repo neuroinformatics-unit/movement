@@ -29,6 +29,7 @@ from qtpy.QtWidgets import (
     QDoubleSpinBox,
     QLineEdit,
     QPushButton,
+    QWidget,
 )
 
 from movement.napari.loader_widgets import (
@@ -47,10 +48,6 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     # Instantiate the data loader widget
     data_loader_widget = DataLoader(make_napari_viewer_proxy())
 
-    # Check that the widget has the expected number of rows:
-    # source_software, fps, individual_name (Anipose), processing_module_key,
-    # pose_estimation_key, use_frame_numbers, frame_regexp (VIA-tracks),
-    # file_path, load_button → 9 rows total
     assert data_loader_widget.layout().rowCount() == 9
 
     # Check that the expected widgets are present in the layout
@@ -191,6 +188,65 @@ def test_on_source_software_changed_sets_fps_state(
     assert data_loader_widget.fps_spinbox.isEnabled() is fps_enabled
     # Assert tooltip content
     assert tooltip_contains in data_loader_widget.fps_spinbox.toolTip()
+
+
+@pytest.mark.parametrize(
+    "choice, visible_widgets, hidden_widgets",
+    [
+        (
+            "Anipose",
+            ["individual_name_edit"],
+            [
+                "processing_module_key_edit",
+                "pose_estimation_key_edit",
+                "use_frame_numbers_checkbox",
+                "frame_regexp_edit",
+            ],
+        ),
+        (
+            "NWB",
+            ["processing_module_key_edit", "pose_estimation_key_edit"],
+            [
+                "individual_name_edit",
+                "use_frame_numbers_checkbox",
+                "frame_regexp_edit",
+            ],
+        ),
+        (
+            "VIA-tracks",
+            ["use_frame_numbers_checkbox", "frame_regexp_edit"],
+            [
+                "individual_name_edit",
+                "processing_module_key_edit",
+                "pose_estimation_key_edit",
+            ],
+        ),
+        (
+            "DeepLabCut",
+            [],
+            [
+                "individual_name_edit",
+                "processing_module_key_edit",
+                "pose_estimation_key_edit",
+                "use_frame_numbers_checkbox",
+                "frame_regexp_edit",
+            ],
+        ),
+    ],
+)
+def test_on_source_software_changed_row_visibility(
+    make_napari_viewer_proxy, choice, visible_widgets, hidden_widgets
+):
+    """Selecting a source software shows only its relevant rows."""
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
+    data_loader_widget._on_source_software_changed(choice)
+    layout = data_loader_widget.layout()
+    for name in visible_widgets:
+        widget = data_loader_widget.findChild(QWidget, name)
+        assert layout.isRowVisible(widget), f"{name} should be visible"
+    for name in hidden_widgets:
+        widget = data_loader_widget.findChild(QWidget, name)
+        assert not layout.isRowVisible(widget), f"{name} should be hidden"
 
 
 @pytest.mark.parametrize(
