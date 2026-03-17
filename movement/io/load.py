@@ -1,5 +1,6 @@
 """Load data from various frameworks into ``movement``."""
 
+import warnings
 from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
@@ -331,6 +332,12 @@ def load_multiview_dataset(
     dataset specified in ``file_path_dict``. This is the default
     behaviour of :func:`xarray.concat` used under the hood.
 
+    This function assumes that all input views share identical frame
+    indices. If this is not the case,
+    :func:`xarray.concat` will follow its default alignment
+    behaviour, which may introduce missing values (NaNs). A warning is
+    raised when mismatched frame counts are detected.
+
     See Also
     --------
     movement.io.load_poses
@@ -343,4 +350,14 @@ def load_multiview_dataset(
         load_dataset(f, source_software=source_software, fps=fps, **kwargs)
         for f in file_dict.values()
     ]
+    frame_length = [ds.sizes.get("frame", None) for ds in dataset_list]
+    valid_lengths = [length for length in frame_length if length is not None]
+    if len(set(valid_lengths)) > 1:
+        warnings.warn(
+            "Mismatched frame counts detected across views. "
+            "The resulting dataset may contain NaN values due to "
+            "alignment issues.",
+            UserWarning,
+            stacklevel=2,
+        )
     return xr.concat(dataset_list, dim=new_coord_views)
