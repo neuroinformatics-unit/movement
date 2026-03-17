@@ -88,6 +88,11 @@ autodoc_default_flags = ["members", "inherited-members"]
 # Prefix section labels with the document name
 autosectionlabel_prefix_document = True
 
+# Suppress the sphinx-sitemap "No pages generated" warning
+# that occurs during non-HTML builds (e.g. linkcheck).
+# Without this, the -W flag in Makefile treats this warning as an error.
+suppress_warnings = ["sitemap"]
+
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
