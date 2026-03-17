@@ -82,7 +82,10 @@ def convert_to_unit(data: xr.DataArray) -> xr.DataArray:
     """
     if "space" in data.dims:
         validate_dims_coords(data, {"space": ["x", "y"]})
-        return data / compute_norm(data)
+        norm = compute_norm(data)
+        unit = data / norm
+        unit = xr.where(norm == 0, np.nan, unit)
+        return unit
     elif "space_pol" in data.dims:
         validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
         # Set both rho and phi values to NaN at null vectors (where rho = 0)
