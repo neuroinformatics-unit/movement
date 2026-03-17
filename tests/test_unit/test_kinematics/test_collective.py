@@ -244,7 +244,7 @@ def position_data_partial_alignment():
 @pytest.fixture
 def position_data_single_individual():
     """Return position data for a single individual.
-    
+
     In this synthetic dataset, polarization is 1.0 whenever a valid heading
     can be computed. First-frame behavior in velocity mode depends on boundary
     differencing.
@@ -661,7 +661,9 @@ class TestComputePolarization:
         # Compare frames 1: to avoid dependence on boundary differencing at t=0.
         assert np.allclose(polarization.values[1:], 0.0, atol=1e-10)
 
-    def test_polarization_partial_alignment(self, position_data_partial_alignment):
+    def test_polarization_partial_alignment(
+        self, position_data_partial_alignment
+    ):
         """Test intermediate polarization with partial alignment.
 
         Two individuals move +x, one moves +y.
@@ -678,7 +680,9 @@ class TestComputePolarization:
         # Compare frames 1: to avoid dependence on boundary differencing at t=0.
         assert np.allclose(polarization.values[1:], expected, atol=1e-10)
 
-    def test_polarization_diagonal_movement(self, position_data_diagonal_movement):
+    def test_polarization_diagonal_movement(
+        self, position_data_diagonal_movement
+    ):
         """Test polarization with diagonal movement remains 1.0."""
         polarization = kinematics.compute_polarization(
             position_data_diagonal_movement
@@ -690,7 +694,9 @@ class TestComputePolarization:
 
     # ==================== Edge Cases ====================
 
-    def test_polarization_single_individual(self, position_data_single_individual):
+    def test_polarization_single_individual(
+        self, position_data_single_individual
+    ):
         """Test polarization is 1.0 for a single individual."""
         polarization = kinematics.compute_polarization(
             position_data_single_individual
@@ -717,7 +723,9 @@ class TestComputePolarization:
 
     def test_polarization_stationary(self, position_data_stationary):
         """Test that stationary individuals (zero velocity) produce NaN."""
-        polarization = kinematics.compute_polarization(position_data_stationary)
+        polarization = kinematics.compute_polarization(
+            position_data_stationary
+        )
 
         # Zero velocity means zero-length vector -> unit vector is NaN
         # All frames after first should be NaN (zero displacement)
@@ -733,9 +741,13 @@ class TestComputePolarization:
 
     # ==================== Data Structure Variations ====================
 
-    def test_polarization_no_keypoints_dimension(self, position_data_no_keypoints):
+    def test_polarization_no_keypoints_dimension(
+        self, position_data_no_keypoints
+    ):
         """Test polarization works without keypoints dimension."""
-        polarization = kinematics.compute_polarization(position_data_no_keypoints)
+        polarization = kinematics.compute_polarization(
+            position_data_no_keypoints
+        )
 
         assert isinstance(polarization, xr.DataArray)
         assert polarization.name == "polarization"
@@ -781,7 +793,9 @@ class TestComputePolarization:
             position_data_aligned_individuals.time.values,
         )
 
-    def test_polarization_non_uniform_time(self, position_data_non_uniform_time):
+    def test_polarization_non_uniform_time(
+        self, position_data_non_uniform_time
+    ):
         """Test polarization with non-uniform time spacing."""
         polarization = kinematics.compute_polarization(
             position_data_non_uniform_time
@@ -795,16 +809,16 @@ class TestComputePolarization:
 
     # ==================== Output Properties ====================
 
-    def test_polarization_output_shape(self, position_data_aligned_individuals):
+    def test_polarization_output_shape(
+        self, position_data_aligned_individuals
+    ):
         """Test that output has correct shape (time only)."""
         polarization = kinematics.compute_polarization(
             position_data_aligned_individuals
         )
 
         assert polarization.dims == ("time",)
-        assert len(polarization) == len(
-            position_data_aligned_individuals.time
-        )
+        assert len(polarization) == len(position_data_aligned_individuals.time)
 
     def test_polarization_output_no_extra_dims(
         self, position_data_aligned_individuals
