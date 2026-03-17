@@ -193,8 +193,10 @@ class DataLoader(QWidget):
         # File path line edit and browse button
         self.file_path_edit = QLineEdit()
         self.file_path_edit.setObjectName("file_path_edit")
+        self.file_path_edit.setMinimumHeight(28)
         self.browse_button = QPushButton("Browse")
         self.browse_button.setObjectName("browse_button")
+        self.browse_button.setMinimumHeight(28)
         self.browse_button.clicked.connect(self._on_browse_clicked)
 
         # Layout for line edit and button
@@ -245,6 +247,7 @@ class DataLoader(QWidget):
         """Create a button to load the file and add layers to the viewer."""
         self.load_button = QPushButton("Load")
         self.load_button.setObjectName("load_button")
+        self.load_button.setMinimumHeight(30)
         self.load_button.clicked.connect(lambda: self._on_load_clicked())
         self.layout().addRow(self.load_button)
 
