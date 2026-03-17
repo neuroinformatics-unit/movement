@@ -163,7 +163,7 @@ def position_data_with_nan():
 
 @pytest.fixture
 def position_data_perpendicular():
-    """Return position data for 4 individuals moving in perpendicular directions.
+    """Return position data for 4 individuals in perpendicular dirs.
 
     Each individual moves in one of the 4 cardinal directions (+x, -x, +y, -y).
     The sum of unit vectors is zero, so polarization should be 0.0.
@@ -310,7 +310,7 @@ def position_data_all_nan_frame():
 
 @pytest.fixture
 def position_data_stationary():
-    """Return position data where individuals are stationary (zero velocity)."""
+    """Return position data where individuals are stationary."""
     time = [0, 1, 2, 3]
     individuals = ["id_0", "id_1"]
     keypoints = ["centroid"]
@@ -647,18 +647,18 @@ class TestComputePolarization:
                 heading_keypoints=("nose", "nose"),
             )
 
-    # ==================== Intermediate Polarization Values ====================
+    # ================= Intermediate Polarization Values =================
 
     def test_polarization_perpendicular_four_directions(
         self, position_data_perpendicular
     ):
-        """Test polarization is 0.0 when 4 individuals move in 4 cardinal dirs."""
+        """Test polarization is 0 when 4 individuals move in cardinal dirs."""
         polarization = kinematics.compute_polarization(
             position_data_perpendicular
         )
 
         # 4 perpendicular directions cancel out -> polarization = 0.0
-        # Compare frames 1: to avoid dependence on boundary differencing at t=0.
+        # Compare frames 1: avoid boundary differencing dependence at t=0.
         assert np.allclose(polarization.values[1:], 0.0, atol=1e-10)
 
     def test_polarization_partial_alignment(
@@ -677,7 +677,7 @@ class TestComputePolarization:
         )
 
         expected = np.sqrt(5) / 3  # ≈ 0.745
-        # Compare frames 1: to avoid dependence on boundary differencing at t=0.
+        # Compare frames 1: avoid boundary differencing dependence at t=0.
         assert np.allclose(polarization.values[1:], expected, atol=1e-10)
 
     def test_polarization_diagonal_movement(
@@ -689,7 +689,7 @@ class TestComputePolarization:
         )
 
         # Both moving in same diagonal direction -> polarization = 1.0
-        # Compare frames 1: to avoid dependence on boundary differencing at t=0.
+        # Compare frames 1: avoid boundary differencing dependence at t=0.
         assert np.allclose(polarization.values[1:], 1.0, atol=1e-10)
 
     # ==================== Edge Cases ====================
@@ -704,7 +704,7 @@ class TestComputePolarization:
 
         # Single individual always has polarization = 1.0
         # (the unit vector divided by 1)
-        # Compare frames 1: to avoid dependence on boundary differencing at t=0.
+        # Compare frames 1: avoid boundary differencing dependence at t=0.
         assert np.allclose(polarization.values[1:], 1.0, atol=1e-10)
 
     def test_polarization_all_nan_frame(self, position_data_all_nan_frame):
@@ -736,7 +736,7 @@ class TestComputePolarization:
         polarization = kinematics.compute_polarization(position_data_large_n)
 
         # All 50 individuals moving same direction -> polarization = 1.0
-        # Compare frames 1: to avoid dependence on boundary differencing at t=0.
+        # Compare frames 1: avoid boundary differencing dependence at t=0.
         assert np.allclose(polarization.values[1:], 1.0, atol=1e-10)
 
     # ==================== Data Structure Variations ====================
@@ -757,7 +757,7 @@ class TestComputePolarization:
     def test_polarization_velocity_mode_uses_first_keypoint(
         self, position_data_multiple_keypoints
     ):
-        """Test that velocity mode uses the first keypoint when multiple exist."""
+        """Test velocity mode uses first keypoint when multiple exist."""
         polarization = kinematics.compute_polarization(
             position_data_multiple_keypoints
         )
@@ -769,7 +769,7 @@ class TestComputePolarization:
     def test_polarization_keypoints_opposite_directions(
         self, position_data_keypoints_opposite
     ):
-        """Test keypoint-based polarization with opposite facing individuals."""
+        """Test keypoint polarization with opposite facing individuals."""
         polarization = kinematics.compute_polarization(
             position_data_keypoints_opposite,
             heading_keypoints=("tail", "nose"),
@@ -863,7 +863,7 @@ class TestComputePolarization:
     # ==================== Mathematical Properties ====================
 
     def test_polarization_symmetry(self):
-        """Test that polarization is symmetric (order of individuals irrelevant)."""
+        """Test polarization is symmetric (individual order irrelevant)."""
         time = [0, 1, 2]
         keypoints = ["centroid"]
         space = ["x", "y"]
