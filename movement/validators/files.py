@@ -363,7 +363,7 @@ class ValidSleapAnalysis:
     """Class for validating SLEAP analysis (.h5) files."""
 
     suffixes: ClassVar[set[str]] = {".h5"}
-    """Expected suffix(es) for the file. """
+    """Expected suffix(es) for the file."""
 
     file: Path = field(
         converter=Path,
@@ -380,7 +380,7 @@ class ValidSleapLabels:
     """Class for validating SLEAP labels (.slp) files."""
 
     suffixes: ClassVar[set[str]] = {".slp"}
-    """Expected suffix(es) for the file. """
+    """Expected suffix(es) for the file."""
 
     file: Path = field(
         converter=Path,
@@ -397,7 +397,7 @@ class ValidDeepLabCutH5:
     """Class for validating DeepLabCut-style .h5 files."""
 
     suffixes: ClassVar[set[str]] = {".h5"}
-    """Expected suffix(es) for the file. """
+    """Expected suffix(es) for the file."""
 
     file: Path = field(
         converter=Path,
@@ -908,7 +908,7 @@ class ValidNWBFile:
     """
 
     suffixes: ClassVar[set[str]] = {".nwb"}
-    """Expected suffix(es) for the file. """
+    """Expected suffix(es) for the file."""
 
     file: Path | NWBFile = field(
         converter=lambda f: Path(f) if isinstance(f, str | Path) else f,
@@ -980,10 +980,10 @@ class ValidROICollectionGeoJSON:
     """
 
     suffixes: ClassVar[set[str]] = {".geojson", ".json"}
-    """Expected suffix(es) for the file. """
+    """Expected suffix(es) for the file."""
 
     schema: ClassVar[Mapping[str, Any]] = ROI_COLLECTION_SCHEMA
-    """JSON schema for validating the structure of the GeoJSON file. """
+    """JSON schema for validating the structure of the GeoJSON file."""
 
     file: Path = field(
         converter=Path,
