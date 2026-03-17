@@ -109,19 +109,6 @@ class DataLoader(QWidget):
         )
         self.layout().addRow("fps:", self.fps_spinbox)
 
-    def _set_row_visible(self, widget, visible: bool):
-        """Hide/show a widget and its label in a QFormLayout.
-
-        PyQt5 compatible: ``QFormLayout.setRowVisible()`` was introduced in
-        Qt 6 and is not available here. This helper replicates the behaviour
-        via ``labelForField``.
-
-        """
-        widget.setVisible(visible)
-        label = self.layout().labelForField(widget)
-        if label:
-            label.setVisible(visible)
-
     def _create_anipose_widgets(self):
         """Create a line edit for the Anipose individual name.
 
@@ -135,7 +122,7 @@ class DataLoader(QWidget):
             "Defaults to 'id_0'."
         )
         self.layout().addRow("individual name:", self.individual_name_edit)
-        self._set_row_visible(self.individual_name_edit, False)
+        self.layout().setRowVisible(self.individual_name_edit, False)
 
     def _create_nwb_widgets(self):
         """Create line edits for NWB processing module and pose estimation key.
@@ -154,7 +141,7 @@ class DataLoader(QWidget):
         self.layout().addRow(
             "processing module:", self.processing_module_key_edit
         )
-        self._set_row_visible(self.processing_module_key_edit, False)
+        self.layout().setRowVisible(self.processing_module_key_edit, False)
 
         self.pose_estimation_key_edit = QLineEdit()
         self.pose_estimation_key_edit.setObjectName("pose_estimation_key_edit")
@@ -166,7 +153,7 @@ class DataLoader(QWidget):
         self.layout().addRow(
             "pose estimation key:", self.pose_estimation_key_edit
         )
-        self._set_row_visible(self.pose_estimation_key_edit, False)
+        self.layout().setRowVisible(self.pose_estimation_key_edit, False)
 
     def _create_via_tracks_widgets(self):
         """Create widgets for VIA-tracks-specific loading options.
@@ -185,7 +172,7 @@ class DataLoader(QWidget):
         self.layout().addRow(
             "use file frame numbers:", self.use_frame_numbers_checkbox
         )
-        self._set_row_visible(self.use_frame_numbers_checkbox, False)
+        self.layout().setRowVisible(self.use_frame_numbers_checkbox, False)
 
         self.frame_regexp_edit = QLineEdit()
         self.frame_regexp_edit.setObjectName("frame_regexp_edit")
@@ -195,7 +182,7 @@ class DataLoader(QWidget):
             "Only used when 'use file frame numbers' is checked."
         )
         self.layout().addRow("frame regexp:", self.frame_regexp_edit)
-        self._set_row_visible(self.frame_regexp_edit, False)
+        self.layout().setRowVisible(self.frame_regexp_edit, False)
 
     def _create_file_path_widget(self):
         """Create a line edit and browse button for selecting the file path.
@@ -242,15 +229,15 @@ class DataLoader(QWidget):
             self.fps_spinbox.setToolTip(self.fps_default_tooltip)
 
         # Toggle per-software rows
-        self._set_row_visible(
+        self.layout().setRowVisible(
             self.individual_name_edit, current_text == "Anipose"
         )
-        self._set_row_visible(self.processing_module_key_edit, is_nwb)
-        self._set_row_visible(self.pose_estimation_key_edit, is_nwb)
-        self._set_row_visible(
+        self.layout().setRowVisible(self.processing_module_key_edit, is_nwb)
+        self.layout().setRowVisible(self.pose_estimation_key_edit, is_nwb)
+        self.layout().setRowVisible(
             self.use_frame_numbers_checkbox, current_text == "VIA-tracks"
         )
-        self._set_row_visible(
+        self.layout().setRowVisible(
             self.frame_regexp_edit, current_text == "VIA-tracks"
         )
 
