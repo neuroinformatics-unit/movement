@@ -29,6 +29,7 @@ def _position_for_individuals(position: xr.DataArray) -> xr.DataArray:
     -------
     xarray.DataArray
         Position with dims ``(time, space, individuals)``.
+
     """
     if "keypoints" in position.dims:
         return position.mean(dim="keypoints", skipna=True)
@@ -55,6 +56,7 @@ def _compute_heading_vectors(
     -------
     xarray.DataArray
         Heading vectors with dims ``(time, space, individuals)``.
+
     """
     if heading_keypoints is not None:
         validate_dims_coords(
@@ -126,6 +128,7 @@ def compute_polarization(
     Velocity-based polarization:
 
     >>> pol = compute_polarization(ds.position)
+
     """
     validate_dims_coords(
         position, {"time": [], "space": [], "individuals": []}
@@ -195,6 +198,7 @@ def compute_milling(
     Examples
     --------
     >>> mill = compute_milling(ds.position, heading_keypoints=("tail", "nose"))
+
     """
     validate_dims_coords(
         position, {"time": [], "space": [], "individuals": []}
@@ -265,6 +269,7 @@ def compute_group_spread(
     Examples
     --------
     >>> spread = compute_group_spread(ds.position)
+
     """
     validate_dims_coords(
         position, {"time": [], "space": [], "individuals": []}
@@ -349,7 +354,8 @@ def compute_leadership(
     --------
     >>> lead = compute_leadership(ds.position, max_lag=10)
     >>> corr = lead.sel(metric="correlation")
-    >>> lag  = lead.sel(metric="lag")
+    >>> lag = lead.sel(metric="lag")
+
     """
     validate_dims_coords(
         position, {"time": [], "space": [], "individuals": []}
@@ -484,6 +490,7 @@ def compute_egocentric_angle(
     ...     ds.position, heading_keypoints=("tail", "nose")
     ... )
     >>> angles_deg = compute_egocentric_angle(ds.position, in_degrees=True)
+
     """
     validate_dims_coords(
         position, {"time": [], "space": [], "individuals": []}
@@ -495,7 +502,9 @@ def compute_egocentric_angle(
     # Vector from each focal individual i to each other individual j:
     # vec_to_other[..., i, j] = pos[j] - pos[i]
     pos_other = pos.rename({"individuals": "individuals_other"})
-    vec_to_other = pos_other - pos  # (time, space, individuals, individuals_other)
+    vec_to_other = (
+        pos_other - pos
+    )  # (time, space, individuals, individuals_other)
 
     # Unit heading (normalize per individual)
     h_norm = compute_norm(heading)  # (time, individuals)
@@ -583,6 +592,7 @@ def compute_approach_tangent_velocity(
     >>> atv = compute_approach_tangent_velocity(ds.position)
     >>> radial = atv.sel(component="radial")
     >>> tangential = atv.sel(component="tangential")
+
     """
     validate_dims_coords(
         position, {"time": [], "space": [], "individuals": []}
@@ -600,8 +610,12 @@ def compute_approach_tangent_velocity(
     rel_vel = vel_other - velocity  # same shape
 
     # Unit radial vector (from i to j)
-    rel_pos_norm = compute_norm(rel_pos)  # (time, individuals, individuals_other)
-    unit_radial = rel_pos / rel_pos_norm  # (time, space, individuals, individuals_other)
+    rel_pos_norm = compute_norm(
+        rel_pos
+    )  # (time, individuals, individuals_other)
+    unit_radial = (
+        rel_pos / rel_pos_norm
+    )  # (time, space, individuals, individuals_other)
 
     # Radial component: dot(rel_vel, unit_radial) summed over space
     # Use xr.where to propagate NaN when individuals are at the same position

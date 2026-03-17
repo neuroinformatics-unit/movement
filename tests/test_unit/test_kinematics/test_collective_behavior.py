@@ -1,7 +1,5 @@
 """Unit tests for collective behavior metrics."""
 
-from contextlib import nullcontext as does_not_raise
-
 import numpy as np
 import pytest
 import xarray as xr
@@ -15,7 +13,6 @@ from movement.kinematics.collective_behavior import (
     compute_polarization,
 )
 
-
 # ---------------------------------------------------------------------------
 # Shared fixtures
 # ---------------------------------------------------------------------------
@@ -28,6 +25,7 @@ def _make_position(pos_array, space=("x", "y"), individuals=None, time=None):
     ----------
     pos_array
         Shape ``(n_time, n_space, n_individuals)``.
+
     """
     n_time, n_space, n_ind = pos_array.shape
     if individuals is None:
@@ -187,7 +185,8 @@ class TestComputePolarization:
     def test_invalid_input_missing_dim(self):
         """Missing 'individuals' dimension raises ValueError."""
         da = xr.DataArray(
-            np.ones((5, 2)), dims=["time", "space"],
+            np.ones((5, 2)),
+            dims=["time", "space"],
             coords={"time": np.arange(5.0), "space": ["x", "y"]},
         )
         with pytest.raises(ValueError, match="individuals"):
@@ -392,7 +391,11 @@ class TestComputeLeadership:
         pos, _ = leader_follower_position
         result = compute_leadership(pos, max_lag=10)
         assert result.name == "leadership"
-        assert set(result.dims) == {"individuals", "individuals_other", "metric"}
+        assert set(result.dims) == {
+            "individuals",
+            "individuals_other",
+            "metric",
+        }
         assert list(result.coords["metric"].values) == ["correlation", "lag"]
         np.testing.assert_array_equal(
             result.coords["individuals"].values, ["A", "B"]
@@ -404,20 +407,25 @@ class TestComputeLeadership:
         result = compute_leadership(pos, max_lag=10)
         for ind in ["A", "B"]:
             assert np.isnan(
-                float(result.sel(individuals=ind, individuals_other=ind,
-                                 metric="correlation"))
+                float(
+                    result.sel(
+                        individuals=ind,
+                        individuals_other=ind,
+                        metric="correlation",
+                    )
+                )
             )
 
     def test_leader_has_positive_lag(self, leader_follower_position):
         """A leads B → lag[A,B] > 0; B follows A → lag[B,A] < 0."""
         pos, true_lag = leader_follower_position
         result = compute_leadership(pos, max_lag=true_lag + 3)
-        lag_ab = float(result.sel(
-            individuals="A", individuals_other="B", metric="lag"
-        ))
-        lag_ba = float(result.sel(
-            individuals="B", individuals_other="A", metric="lag"
-        ))
+        lag_ab = float(
+            result.sel(individuals="A", individuals_other="B", metric="lag")
+        )
+        lag_ba = float(
+            result.sel(individuals="B", individuals_other="A", metric="lag")
+        )
         assert lag_ab > 0, f"Expected positive lag for A→B, got {lag_ab}"
         assert lag_ba < 0, f"Expected negative lag for B→A, got {lag_ba}"
 
@@ -425,9 +433,9 @@ class TestComputeLeadership:
         """Detected lag should be within 1 frame of the true lag."""
         pos, true_lag = leader_follower_position
         result = compute_leadership(pos, max_lag=true_lag + 3)
-        lag_ab = float(result.sel(
-            individuals="A", individuals_other="B", metric="lag"
-        ))
+        lag_ab = float(
+            result.sel(individuals="A", individuals_other="B", metric="lag")
+        )
         assert abs(lag_ab - true_lag) <= 1, (
             f"Expected lag ≈ {true_lag}, got {lag_ab}"
         )
@@ -444,9 +452,11 @@ class TestComputeLeadership:
         """Correlation at optimal lag should be close to 1."""
         pos, true_lag = leader_follower_position
         result = compute_leadership(pos, max_lag=true_lag + 3)
-        corr_ab = float(result.sel(
-            individuals="A", individuals_other="B", metric="correlation"
-        ))
+        corr_ab = float(
+            result.sel(
+                individuals="A", individuals_other="B", metric="correlation"
+            )
+        )
         assert corr_ab > 0.95, f"Expected high correlation, got {corr_ab}"
 
     def test_with_keypoints(self):
@@ -483,9 +493,7 @@ class TestComputeEgocentricAngle:
         # vec_to_other = (100 - t, 0) which is always positive → angle = 0
         interior = angle.isel(time=slice(1, -1))
         ang_0_to_1 = interior.sel(individuals="ind0", individuals_other="ind1")
-        np.testing.assert_allclose(
-            ang_0_to_1.values, 0.0, atol=1e-5
-        )
+        np.testing.assert_allclose(ang_0_to_1.values, 0.0, atol=1e-5)
 
     def test_other_directly_behind_gives_pi(self):
         """Other individual directly behind focal → |angle| ≈ π."""
@@ -498,9 +506,7 @@ class TestComputeEgocentricAngle:
         angle = compute_egocentric_angle(da)
         interior = angle.isel(time=slice(1, -1))
         ang_0_to_1 = interior.sel(individuals="ind0", individuals_other="ind1")
-        np.testing.assert_allclose(
-            np.abs(ang_0_to_1.values), np.pi, atol=1e-5
-        )
+        np.testing.assert_allclose(np.abs(ang_0_to_1.values), np.pi, atol=1e-5)
 
     def test_other_to_the_left_gives_positive_angle(self):
         """Other individual to the left of heading → positive angle."""
@@ -620,8 +626,8 @@ class TestComputeApproachTangentVelocity:
         n_time = 10
         t = np.arange(n_time, dtype=float)
         pos = np.zeros((n_time, 2, 2))
-        pos[:, 0, 0] = t           # ind0 moves right (+x)
-        pos[:, 0, 1] = 20.0 - t   # ind1 moves left (-x)
+        pos[:, 0, 0] = t  # ind0 moves right (+x)
+        pos[:, 0, 1] = 20.0 - t  # ind1 moves left (-x)
         da = _make_position(pos)
         atv = compute_approach_tangent_velocity(da)
         radial = atv.sel(
@@ -644,13 +650,15 @@ class TestComputeApproachTangentVelocity:
         n_time = 10
         t = np.arange(n_time, dtype=float)
         pos = np.zeros((n_time, 2, 2))
-        pos[:, 0, 0] = t      # ind0 moves +x
-        pos[:, 0, 1] = t      # ind1 moves +x (parallel, same velocity)
-        pos[:, 1, 1] = 2.0    # ind1 offset in y
+        pos[:, 0, 0] = t  # ind0 moves +x
+        pos[:, 0, 1] = t  # ind1 moves +x (parallel, same velocity)
+        pos[:, 1, 1] = 2.0  # ind1 offset in y
         da = _make_position(pos)
         atv = compute_approach_tangent_velocity(da)
         tangential = atv.sel(
-            individuals="ind0", individuals_other="ind1", component="tangential"
+            individuals="ind0",
+            individuals_other="ind1",
+            component="tangential",
         )
         # relative velocity = (0, 0) → tangential = 0
         np.testing.assert_allclose(
@@ -670,7 +678,10 @@ class TestComputeApproachTangentVelocity:
         atv = compute_approach_tangent_velocity(da)
         assert atv.name == "approach_tangent_velocity"
         assert atv.dims == (
-            "time", "individuals", "individuals_other", "component"
+            "time",
+            "individuals",
+            "individuals_other",
+            "component",
         )
         assert list(atv.coords["component"].values) == ["radial", "tangential"]
 
@@ -713,7 +724,10 @@ class TestComputeApproachTangentVelocity:
         da = _make_position_with_keypoints(pos)
         atv = compute_approach_tangent_velocity(da)
         assert atv.dims == (
-            "time", "individuals", "individuals_other", "component"
+            "time",
+            "individuals",
+            "individuals_other",
+            "component",
         )
 
     def test_moving_apart_radial_positive(self):
@@ -721,7 +735,7 @@ class TestComputeApproachTangentVelocity:
         n_time = 10
         t = np.arange(n_time, dtype=float)
         pos = np.zeros((n_time, 2, 2))
-        pos[:, 0, 0] = -t      # ind0 moves -x
+        pos[:, 0, 0] = -t  # ind0 moves -x
         pos[:, 0, 1] = 5.0 + t  # ind1 moves +x, start further away
         da = _make_position(pos)
         atv = compute_approach_tangent_velocity(da)
