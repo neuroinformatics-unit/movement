@@ -285,7 +285,7 @@ def _if_instance_of(
 
     Returns
     -------
-    Callable
+    collections.abc.Callable
         A validator function that conditionally applies the given
         validator.
 
@@ -363,6 +363,8 @@ class ValidSleapAnalysis:
     """Class for validating SLEAP analysis (.h5) files."""
 
     suffixes: ClassVar[set[str]] = {".h5"}
+    """Expected suffix(es) for the file."""
+
     file: Path = field(
         converter=Path,
         validator=validators.and_(
@@ -370,6 +372,7 @@ class ValidSleapAnalysis:
             _hdf5_validator(datasets={"tracks"}),
         ),
     )
+    """Path to the SLEAP .h5 file to validate."""
 
 
 @define
@@ -377,6 +380,8 @@ class ValidSleapLabels:
     """Class for validating SLEAP labels (.slp) files."""
 
     suffixes: ClassVar[set[str]] = {".slp"}
+    """Expected suffix(es) for the file."""
+
     file: Path = field(
         converter=Path,
         validator=validators.and_(
@@ -384,6 +389,7 @@ class ValidSleapLabels:
             _hdf5_validator(datasets={"pred_points", "metadata"}),
         ),
     )
+    """Path to the SLEAP .slp file to validate."""
 
 
 @define
@@ -391,6 +397,8 @@ class ValidDeepLabCutH5:
     """Class for validating DeepLabCut-style .h5 files."""
 
     suffixes: ClassVar[set[str]] = {".h5"}
+    """Expected suffix(es) for the file."""
+
     file: Path = field(
         converter=Path,
         validator=validators.and_(
@@ -398,6 +406,7 @@ class ValidDeepLabCutH5:
             _hdf5_validator(datasets={"df_with_missing"}),
         ),
     )
+    """Path to the DeepLabCut .h5 file to validate."""
 
 
 @define
@@ -406,13 +415,6 @@ class ValidDeepLabCutCSV:
 
     The validator ensures that the file contains the
     expected index column levels.
-
-    Attributes
-    ----------
-    file
-        Path to the .csv file.
-    level_names
-        Names of the index column levels found in the .csv file.
 
     Raises
     ------
@@ -423,11 +425,16 @@ class ValidDeepLabCutCSV:
     """
 
     suffixes: ClassVar[set[str]] = {".csv"}
+    """Expected suffix(es) for the file."""
+
     file: Path = field(
         converter=Path,
         validator=_file_validator(permission="r", suffixes=suffixes),
     )
+    """Path to the DeepLabCut .csv file to validate."""
+
     level_names: list[str] = field(init=False, factory=list)
+    """Names of the index column levels found in the .csv file."""
 
     @file.validator
     def _file_contains_expected_levels(self, attribute, value):
@@ -460,11 +467,6 @@ class ValidAniposeCSV:
     The validator ensures that the file contains the
     expected column names in its header (first row).
 
-    Attributes
-    ----------
-    file
-        Path to the .csv file.
-
     Raises
     ------
     ValueError
@@ -473,10 +475,13 @@ class ValidAniposeCSV:
     """
 
     suffixes: ClassVar[set[str]] = {".csv"}
+    """Expected suffix(es) for the file."""
+
     file: Path = field(
         converter=Path,
         validator=_file_validator(permission="r", suffixes=suffixes),
     )
+    """Path to the Anipose .csv file to validate."""
 
     @file.validator
     def _file_contains_expected_columns(self, attribute, value):
@@ -562,30 +567,6 @@ class ValidVIATracksCSV:
     If the file is validated, the bounding boxes data is pre-parsed
     from the input file and added as attributes.
 
-    Attributes
-    ----------
-    file
-        Path to the VIA tracks .csv file.
-    frame_regexp
-        Regular expression pattern to extract the frame number from the
-        filename. By default, the frame number is expected to be encoded in
-        the filename as an integer number led by at least one zero, followed
-        by the file extension.
-    x
-        Array of x coordinates of the tracked bounding boxes.
-    y
-        Array of y coordinates of the tracked bounding boxes.
-    w
-        Array of width coordinates of the tracked bounding boxes.
-    h
-        Array of height coordinates of the tracked bounding boxes.
-    ids
-        Array of track IDs of the tracked bounding boxes.
-    frame_numbers
-        Array of frame numbers of the tracked bounding boxes.
-    confidence
-        Array of confidence values of the tracked bounding boxes.
-
     Raises
     ------
     ValueError
@@ -594,20 +575,41 @@ class ValidVIATracksCSV:
     """
 
     suffixes: ClassVar[set[str]] = {".csv"}
+    """Expected suffix(es) for the file."""
+
     file: Path = field(
         converter=Path,
         validator=_file_validator(permission="r", suffixes=suffixes),
     )
+    """Path to the VIA tracks .csv file to validate."""
+
     frame_regexp: str = field(default=DEFAULT_FRAME_REGEXP)
+    """Regular expression pattern to extract the frame number from the
+    filename. By default, the frame number is expected to be encoded in
+    the filename as an integer number led by at least one zero, followed
+    by the file extension."""
 
     # Bboxes pre-parsed data
     x: np.typing.NDArray[np.float32] = field(init=False)
+    """Array of x coordinates of the tracked bounding boxes."""
+
     y: np.typing.NDArray[np.float32] = field(init=False)
+    """Array of y coordinates of the tracked bounding boxes."""
+
     w: np.typing.NDArray[np.float32] = field(init=False)
+    """Array of width coordinates of the tracked bounding boxes."""
+
     h: np.typing.NDArray[np.float32] = field(init=False)
+    """Array of height coordinates of the tracked bounding boxes."""
+
     ids: np.typing.NDArray[np.int32] = field(init=False)
+    """Array of track IDs of the tracked bounding boxes."""
+
     frame_numbers: np.typing.NDArray[np.int64] = field(init=False)
+    """Array of frame numbers corresponding to the tracked bounding boxes."""
+
     confidence: np.typing.NDArray[np.float32] = field(init=False)
+    """Array of confidence values of the tracked bounding boxes."""
 
     @file.validator
     def _validate_via_tracks_file(self, attribute, value):
@@ -903,16 +905,11 @@ class ValidNWBFile:
 
     - a valid NWB file (.nwb) path, or
     - an :class:`NWBFile<pynwb.file.NWBFile>` object.
-
-    Attributes
-    ----------
-    file
-        Path to the NWB file on disk (ending in ".nwb"),
-        or an NWBFile object.
-
     """
 
     suffixes: ClassVar[set[str]] = {".nwb"}
+    """Expected suffix(es) for the file."""
+
     file: Path | NWBFile = field(
         converter=lambda f: Path(f) if isinstance(f, str | Path) else f,
         validator=validators.and_(
@@ -923,6 +920,7 @@ class ValidNWBFile:
             ),
         ),
     )
+    """Path to the NWB file on disk (ending in ".nwb") or an NWBFile object."""
 
 
 def _check_roi_type_matches_geometry(data: Mapping[str, Any]) -> None:
@@ -967,13 +965,6 @@ class ValidROICollectionGeoJSON:
     each Feature's ``roi_type`` property is consistent with its geometry
     type (e.g. "PolygonOfInterest" must have geometry type "Polygon").
 
-    Attributes
-    ----------
-    file
-        Path to the GeoJSON file.
-    data
-        Parsed JSON data from the file.
-
     Raises
     ------
     ValueError
@@ -989,7 +980,11 @@ class ValidROICollectionGeoJSON:
     """
 
     suffixes: ClassVar[set[str]] = {".geojson", ".json"}
+    """Expected suffix(es) for the file."""
+
     schema: ClassVar[Mapping[str, Any]] = ROI_COLLECTION_SCHEMA
+    """JSON schema for validating the structure of the GeoJSON file."""
+
     file: Path = field(
         converter=Path,
         validator=validators.and_(
@@ -1001,4 +996,7 @@ class ValidROICollectionGeoJSON:
             ),
         ),
     )
+    """Path to the GeoJSON file to validate."""
+
     data: dict = field(init=False, factory=dict)
+    """Parsed JSON data from the file, available after validation."""
