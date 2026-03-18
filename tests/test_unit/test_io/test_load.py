@@ -155,7 +155,7 @@ def test_multiview_warning_on_mismatched_frames(mocker):
 
     file_dict = {"view1": "file1", "view2": "file2"}
 
-    with pytest.warns(UserWarning, match="mismatched frame"):
+    with pytest.warns(UserWarning, match="Mismatched frame"):
         result = load.load_multiview_dataset(
             file_dict, source_software="DeepLabCut"
         )
