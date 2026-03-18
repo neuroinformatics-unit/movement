@@ -77,9 +77,8 @@ class RegionsWidget(QWidget):
         self.region_table_model: RegionsTableModel | None = None
         self.region_table_view = RegionsTableView(self)
 
-        # Guard flag to prevent circular updates between the two sync
-        # handlers: napari layer selection → dropdown → _on_layer_selected
-        # → viewer.layers.selection.add() → napari layer selection...
+        # Guard flag to prevent circular updates during layer selection syncing
+        # between napari's layer list the dropdown in this widget.
         self._syncing_layer_selection = False
 
         self._setup_regions_ui()
@@ -99,11 +98,6 @@ class RegionsWidget(QWidget):
 
         # Create layer controls group box
         layer_controls_group = QGroupBox("Layer to draw regions on")
-        layer_controls_group.setToolTip(
-            "Select an existing shapes layer to draw regions on, "
-            "or add a new one.\nOnly shapes layers that start with "
-            "'Region' are considered."
-        )
         layer_controls_group.setLayout(self._setup_region_layer_controls())
         main_layout.addWidget(layer_controls_group)
 
@@ -150,7 +144,7 @@ class RegionsWidget(QWidget):
         Handles layer insertion, removal, and selection changes.
         """
         self.viewer.layers.events.inserted.connect(self._update_layer_dropdown)
-        self.viewer.layers.events.removed.connect(self._on_layer_removed)
+        self.viewer.layers.events.removed.connect(self._update_layer_dropdown)
         self.viewer.layers.selection.events.changed.connect(
             self._on_napari_layer_selection_changed
         )
@@ -171,10 +165,6 @@ class RegionsWidget(QWidget):
             for layer in self.viewer.layers
             if self._is_region_layer(layer)
         }
-
-    def _on_layer_removed(self, event=None):
-        """Handle layer removal from viewer."""
-        self._update_layer_dropdown(event)
 
     def _update_layer_dropdown(self, _event=None):
         """Refresh the layer dropdown with current region layers.
@@ -232,7 +222,7 @@ class RegionsWidget(QWidget):
             return
 
         active = self.viewer.layers.selection.active
-        # Return early if no regions layer is active
+        # Return early if the active layer is not a region layer
         if not self._is_region_layer(active):
             return
 
@@ -240,6 +230,7 @@ class RegionsWidget(QWidget):
         if self.layer_dropdown.currentText() == active.name:
             return
 
+        # Sync the dropdown to match the active layer (in a guarded block)
         self._syncing_layer_selection = True
         self.layer_dropdown.setCurrentText(active.name)
         self._syncing_layer_selection = False
@@ -258,7 +249,7 @@ class RegionsWidget(QWidget):
         self.layer_dropdown.setCurrentText(new_layer.name)
 
     def _link_layer_to_model(self, region_layer: Shapes):
-        """Link a region layer to a new table model.
+        """Link a regions layer to a new table model.
 
         This is the core method that connects the Model-View components:
 
@@ -280,10 +271,8 @@ class RegionsWidget(QWidget):
         # own current_* automatically — no intervention needed.
         if REGIONS_COLOR_IDX_KEY not in region_layer.metadata:
             region_layer.metadata[REGIONS_COLOR_IDX_KEY] = self._next_color_idx
+            idx = self._next_color_idx % len(REGIONS_COLORS)
             self._next_color_idx += 1
-            idx = region_layer.metadata[REGIONS_COLOR_IDX_KEY] % len(
-                REGIONS_COLORS
-            )
             RegionsStyle(color=REGIONS_COLORS[idx]).set_color_all_shapes(
                 region_layer
             )
@@ -411,7 +400,9 @@ class RegionsWidget(QWidget):
         self.viewer.layers.events.inserted.disconnect(
             self._update_layer_dropdown
         )
-        self.viewer.layers.events.removed.disconnect(self._on_layer_removed)
+        self.viewer.layers.events.removed.disconnect(
+            self._update_layer_dropdown
+        )
         self.viewer.layers.selection.events.changed.disconnect(
             self._on_napari_layer_selection_changed
         )
@@ -459,10 +450,7 @@ class RegionsTableView(QTableView):
         Overrides QTableView.setModel to additionally connect the
         selection changed signal for syncing with napari layer selection.
         """
-        # Disconnect the highlight event from the previous layer.
-        # _disconnect_table_model_signals only handles model-managed events
-        # (data, set_data). The highlight connection is view-managed (made in
-        # setModel), so the view must clean it up here.
+        # Disconnect the (view-managed) highlight event from the previous layer
         prev_layer = getattr(self.current_model, "layer", None)
         if self.current_model is not None and prev_layer is not None:
             prev_layer.events.highlight.disconnect(
@@ -690,7 +678,7 @@ class RegionsTableModel(QAbstractTableModel):
         """
         current_names = list(self.layer.properties.get("name", []))
 
-        # Pad if list is too short
+        # Pad if list is too short (probably overly defensive)
         while len(current_names) < n_shapes:  # pragma: no cover
             current_names.append(DEFAULT_REGION_NAME)
 
