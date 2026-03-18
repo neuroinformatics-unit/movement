@@ -127,7 +127,7 @@ def perpendicular_positions() -> xr.DataArray:
 
 @pytest.fixture
 def keypoint_positions() -> xr.DataArray:
-    """Two individuals with tail/nose keypoints, both facing +x."""
+    """Two individuals with tail_base/neck keypoints, both facing +x."""
     data = np.array(
         [
             [
@@ -145,7 +145,7 @@ def keypoint_positions() -> xr.DataArray:
         ],
         dtype=float,
     )
-    return _make_position_dataarray(data, keypoints=["tail", "nose"])
+    return _make_position_dataarray(data, keypoints=["tail_base", "neck"])
 
 
 class TestComputePolarizationValidation:
@@ -203,61 +203,61 @@ class TestComputePolarizationValidation:
             kinematics.compute_polarization(data)
 
     @pytest.mark.parametrize(
-        "heading_keypoints",
+        "body_axis_keypoints",
         [
-            "nose",
-            ("tail",),
-            ("tail", "nose", "ear"),
+            "neck",
+            ("tail_base",),
+            ("tail_base", "neck", "ear"),
             123,
         ],
         ids=["string", "length_one", "length_three", "non_iterable"],
     )
-    def test_heading_keypoints_must_be_length_two_iterable(
+    def test_body_axis_keypoints_must_be_length_two_iterable(
         self,
-        heading_keypoints,
+        body_axis_keypoints,
         keypoint_positions,
     ):
-        """Raise TypeError if heading_keypoints is not length-two."""
+        """Raise TypeError if body_axis_keypoints is not length-two."""
         with pytest.raises(TypeError, match="exactly two keypoint names"):
             kinematics.compute_polarization(
                 keypoint_positions,
-                heading_keypoints=heading_keypoints,
+                body_axis_keypoints=body_axis_keypoints,
             )
 
-    def test_heading_keypoints_must_be_hashable(self, keypoint_positions):
-        """Raise TypeError if heading keypoints are not hashable."""
+    def test_body_axis_keypoints_must_be_hashable(self, keypoint_positions):
+        """Raise TypeError if body axis keypoints are not hashable."""
         with pytest.raises(TypeError, match="hashable"):
             kinematics.compute_polarization(
                 keypoint_positions,
-                heading_keypoints=(["tail"], "nose"),
+                body_axis_keypoints=(["tail_base"], "neck"),
             )
 
-    def test_heading_keypoints_require_keypoints_dimension(
+    def test_body_axis_keypoints_require_keypoints_dimension(
         self, aligned_positions
     ):
-        """Raise ValueError if heading_keypoints given but no keypoints dim."""
+        """Raise ValueError if body_axis_keypoints given but no keypoints dim."""
         with pytest.raises(
             ValueError, match="requires data to have a 'keypoints' dimension"
         ):
             kinematics.compute_polarization(
                 aligned_positions,
-                heading_keypoints=("tail", "nose"),
+                body_axis_keypoints=("tail_base", "neck"),
             )
 
-    def test_heading_keypoints_must_exist(self, keypoint_positions):
+    def test_body_axis_keypoints_must_exist(self, keypoint_positions):
         """Raise ValueError if specified keypoints do not exist in data."""
         with pytest.raises(ValueError, match="snout|keypoints"):
             kinematics.compute_polarization(
                 keypoint_positions,
-                heading_keypoints=("tail", "snout"),
+                body_axis_keypoints=("tail_base", "snout"),
             )
 
-    def test_heading_keypoints_must_be_distinct(self, keypoint_positions):
+    def test_body_axis_keypoints_must_be_distinct(self, keypoint_positions):
         """Raise ValueError if origin and target keypoints are identical."""
         with pytest.raises(ValueError, match="two distinct keypoint names"):
             kinematics.compute_polarization(
                 keypoint_positions,
-                heading_keypoints=("tail", "tail"),
+                body_axis_keypoints=("tail_base", "tail_base"),
             )
 
     @pytest.mark.parametrize(
@@ -290,7 +290,7 @@ class TestComputePolarizationValidation:
         """Invalid displacement_frames is ignored when keypoints are used."""
         polarization = kinematics.compute_polarization(
             keypoint_positions,
-            heading_keypoints=("tail", "nose"),
+            body_axis_keypoints=("tail_base", "neck"),
             displacement_frames=0,
         )
         assert np.allclose(polarization.values, 1.0, atol=1e-10)
@@ -414,7 +414,7 @@ class TestComputePolarizationBehavior:
         assert np.allclose(polarization.values[1:], 1.0, atol=1e-10)
         assert np.allclose(mean_angle.values[1:], 0.0, atol=1e-10)
 
-    def test_nan_in_keypoint_heading_excludes_that_individual(self):
+    def test_nan_in_body_axis_heading_excludes_that_individual(self):
         """NaN in keypoint position excludes that individual."""
         data = np.array(
             [
@@ -433,10 +433,10 @@ class TestComputePolarizationBehavior:
             ],
             dtype=float,
         )
-        da = _make_position_dataarray(data, keypoints=["tail", "nose"])
+        da = _make_position_dataarray(data, keypoints=["tail_base", "neck"])
         polarization = kinematics.compute_polarization(
             da,
-            heading_keypoints=("tail", "nose"),
+            body_axis_keypoints=("tail_base", "neck"),
         )
         assert np.allclose(polarization.values[[0, 2]], 1.0, atol=1e-10)
         assert np.allclose(polarization.values[1], 1.0, atol=1e-10)
@@ -508,13 +508,13 @@ class TestComputePolarizationBehavior:
 class TestHeadingSourceSelection:
     """Tests for heading computation mode selection."""
 
-    def test_keypoint_heading_is_valid_on_first_frame(
+    def test_body_axis_heading_is_valid_on_first_frame(
         self, keypoint_positions
     ):
-        """Keypoint-based heading produces valid values on first frame."""
+        """Body-axis heading produces valid values on first frame."""
         polarization, mean_angle = kinematics.compute_polarization(
             keypoint_positions,
-            heading_keypoints=("tail", "nose"),
+            body_axis_keypoints=("tail_base", "neck"),
             return_angle=True,
         )
         assert np.allclose(polarization.values, 1.0, atol=1e-10)
@@ -539,7 +539,7 @@ class TestHeadingSourceSelection:
             ],
             dtype=float,
         )
-        da = _make_position_dataarray(data, keypoints=["centroid", "nose"])
+        da = _make_position_dataarray(data, keypoints=["thorax", "head"])
         polarization = kinematics.compute_polarization(da)
         assert np.allclose(polarization.values[1:], 1.0, atol=1e-10)
 
@@ -583,8 +583,8 @@ class TestHeadingSourceSelection:
         pol_head = kinematics.compute_polarization(da.sel(keypoints="head"))
         assert np.allclose(pol_head.values[1], 0.0, atol=1e-10)
 
-    def test_keypoint_heading_overrides_displacement_behavior(self):
-        """Keypoint-based heading overrides displacement computation."""
+    def test_body_axis_heading_overrides_displacement_behavior(self):
+        """Body-axis heading overrides displacement computation."""
         data = np.array(
             [
                 [
@@ -598,10 +598,10 @@ class TestHeadingSourceSelection:
             ],
             dtype=float,
         )
-        da = _make_position_dataarray(data, keypoints=["tail", "nose"])
+        da = _make_position_dataarray(data, keypoints=["tail_base", "neck"])
         polarization = kinematics.compute_polarization(
             da,
-            heading_keypoints=("tail", "nose"),
+            body_axis_keypoints=("tail_base", "neck"),
             displacement_frames=1000,
         )
         assert np.allclose(polarization.values, 1.0, atol=1e-10)
@@ -817,11 +817,11 @@ class TestReturnAngle:
         assert np.all(np.isnan(angle_opposite.values[1:]))
         assert np.all(np.isnan(angle_perp.values[1:]))
 
-    def test_mean_angle_with_keypoint_heading(self, keypoint_positions):
-        """Mean angle works correctly with keypoint-based heading."""
+    def test_mean_angle_with_body_axis_heading(self, keypoint_positions):
+        """Mean angle works correctly with body-axis heading."""
         polarization, mean_angle = kinematics.compute_polarization(
             keypoint_positions,
-            heading_keypoints=("tail", "nose"),
+            body_axis_keypoints=("tail_base", "neck"),
             return_angle=True,
         )
         assert np.allclose(polarization.values, 1.0, atol=1e-10)

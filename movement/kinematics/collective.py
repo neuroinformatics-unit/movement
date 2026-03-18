@@ -16,7 +16,7 @@ _ANGLE_EPS = 1e-12
 
 def compute_polarization(
     data: xr.DataArray,
-    heading_keypoints: tuple[Hashable, Hashable] | None = None,
+    body_axis_keypoints: tuple[Hashable, Hashable] | None = None,
     displacement_frames: int = 1,
     return_angle: bool = False,
 ) -> xr.DataArray | tuple[xr.DataArray, xr.DataArray]:
@@ -39,7 +39,7 @@ def compute_polarization(
     ----------
     data : xarray.DataArray
         Position data. Must contain ``time``, ``space``, and ``individuals`` as
-        dimensions. If ``heading_keypoints`` is provided, the array must also
+        dimensions. If ``body_axis_keypoints`` is provided, the array must also
         contain a ``keypoints`` dimension. For displacement-based heading,
         pre-select a keypoint (e.g., ``data.sel(keypoints="thorax")``) or the
         first keypoint (index 0) will be used.
@@ -47,16 +47,18 @@ def compute_polarization(
         Spatial coordinates must include ``"x"`` and ``"y"``. If additional
         spatial coordinates are present (e.g., ``"z"``), they are ignored;
         polarization is computed in the x/y plane.
-    heading_keypoints : tuple[Hashable, Hashable], optional
+    body_axis_keypoints : tuple[Hashable, Hashable], optional
         Pair of keypoint names ``(origin, target)`` used to compute heading as
         the vector from origin to target. If omitted, heading is inferred from
         displacement over ``displacement_frames``.
     displacement_frames : int, default=1
         Number of frames used to compute displacement when
-        ``heading_keypoints`` is not provided. Must be a positive integer.
-        This parameter is ignored when ``heading_keypoints`` is provided.
+        ``body_axis_keypoints`` is not provided. Must be a positive integer.
+        This parameter is ignored when ``body_axis_keypoints`` is provided.
     return_angle : bool, default=False
-        If True, also return the mean heading angle in radians.
+        If True, also return the mean angle in radians. Returns the mean
+        body orientation angle when using ``body_axis_keypoints``, or the
+        mean heading angle when using displacement-based polarization.
 
     Returns
     -------
@@ -75,21 +77,23 @@ def compute_polarization(
     Zero-length headings are treated as invalid and excluded from the
     calculation.
 
-    The mean heading angle is defined from the summed unit-heading vector
-    projected onto the x/y plane. When no valid headings exist, or when the
-    summed heading vector has zero magnitude (for example exact cancellation),
-    the returned angle is NaN.
+    The mean angle is defined from the summed unit-heading vector projected
+    onto the x/y plane. When using ``body_axis_keypoints``, this represents
+    the mean body orientation; when using displacement, it represents the
+    mean movement direction. When no valid headings exist, or when the summed
+    heading vector has zero magnitude (for example exact cancellation), the
+    returned angle is NaN.
 
     Examples
     --------
-    Compute polarization from keypoint-defined heading:
+    Compute orientation polarization from body-axis keypoints:
 
     >>> polarization = compute_polarization(
     ...     ds.position,
-    ...     heading_keypoints=("tail", "nose"),
+    ...     body_axis_keypoints=("tail_base", "neck"),
     ... )
 
-    Compute polarization from displacement (select keypoint for tracking):
+    Compute heading polarization from displacement (select keypoint for tracking):
 
     >>> polarization = compute_polarization(
     ...     ds.position.sel(keypoints="thorax")
@@ -99,7 +103,22 @@ def compute_polarization(
 
     >>> polarization = compute_polarization(ds.position)
 
-    Return both polarization and mean angle:
+    Return orientation polarization with mean body angle:
+
+    >>> polarization, mean_angle = compute_polarization(
+    ...     ds.position,
+    ...     body_axis_keypoints=("tail_base", "neck"),
+    ...     return_angle=True,
+    ... )
+
+    Return heading polarization with mean movement angle:
+
+    >>> polarization, mean_angle = compute_polarization(
+    ...     ds.position.sel(keypoints="thorax"),
+    ...     return_angle=True,
+    ... )
+
+    If multiple keypoints exist, first is used; also return mean angle:
 
     >>> polarization, mean_angle = compute_polarization(
     ...     ds.position,
@@ -110,13 +129,13 @@ def compute_polarization(
     _validate_type_data_array(data)
     normalized_keypoints = _validate_position_data(
         data=data,
-        heading_keypoints=heading_keypoints,
+        body_axis_keypoints=body_axis_keypoints,
     )
 
     if normalized_keypoints is not None:
         heading_vectors = _compute_heading_from_keypoints(
             data=data,
-            heading_keypoints=normalized_keypoints,
+            body_axis_keypoints=normalized_keypoints,
         )
     else:
         heading_vectors = _compute_heading_from_velocity(
@@ -158,10 +177,10 @@ def compute_polarization(
 
 def _compute_heading_from_keypoints(
     data: xr.DataArray,
-    heading_keypoints: tuple[Hashable, Hashable],
+    body_axis_keypoints: tuple[Hashable, Hashable],
 ) -> xr.DataArray:
     """Compute heading vectors from two keypoints (origin to target)."""
-    origin, target = heading_keypoints
+    origin, target = body_axis_keypoints
     heading = data.sel(keypoints=target, drop=True) - data.sel(
         keypoints=origin,
         drop=True,
@@ -205,9 +224,9 @@ def _select_xy(data: xr.DataArray) -> xr.DataArray:
 
 def _validate_position_data(
     data: xr.DataArray,
-    heading_keypoints: tuple[Hashable, Hashable] | None,
+    body_axis_keypoints: tuple[Hashable, Hashable] | None,
 ) -> tuple[Hashable, Hashable] | None:
-    """Validate the input array and normalize ``heading_keypoints``."""
+    """Validate the input array and normalize ``body_axis_keypoints``."""
     validate_dims_coords(
         data,
         {
@@ -236,45 +255,45 @@ def _validate_position_data(
             "data.space must include coordinate labels 'x' and 'y'."
         )
 
-    if heading_keypoints is None:
+    if body_axis_keypoints is None:
         return None
 
-    origin, target = _normalize_heading_keypoints(heading_keypoints)
+    origin, target = _normalize_body_axis_keypoints(body_axis_keypoints)
 
     if "keypoints" not in data.dims:
         raise ValueError(
-            "heading_keypoints requires data to have a 'keypoints' dimension."
+            "body_axis_keypoints requires data to have a 'keypoints' dimension."
         )
 
     validate_dims_coords(data, {"keypoints": [origin, target]})
     return origin, target
 
 
-def _normalize_heading_keypoints(
-    heading_keypoints: tuple[Hashable, Hashable] | Any,
+def _normalize_body_axis_keypoints(
+    body_axis_keypoints: tuple[Hashable, Hashable] | Any,
 ) -> tuple[Hashable, Hashable]:
     """Validate and normalize the keypoint pair."""
-    if isinstance(heading_keypoints, (str, bytes)):
+    if isinstance(body_axis_keypoints, (str, bytes)):
         raise TypeError(
-            "heading_keypoints must be an iterable of exactly two "
+            "body_axis_keypoints must be an iterable of exactly two "
             "keypoint names."
         )
 
     try:
-        origin, target = heading_keypoints
+        origin, target = body_axis_keypoints
     except (TypeError, ValueError) as exc:
         raise TypeError(
-            "heading_keypoints must be an iterable of exactly two "
+            "body_axis_keypoints must be an iterable of exactly two "
             "keypoint names."
         ) from exc
 
     for keypoint in (origin, target):
         if not isinstance(keypoint, Hashable):
-            raise TypeError("Each heading keypoint must be hashable.")
+            raise TypeError("Each body axis keypoint must be hashable.")
 
     if origin == target:
         raise ValueError(
-            "heading_keypoints must contain two distinct keypoint names."
+            "body_axis_keypoints must contain two distinct keypoint names."
         )
 
     return origin, target
