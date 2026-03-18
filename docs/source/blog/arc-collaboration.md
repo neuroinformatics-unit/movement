@@ -54,15 +54,15 @@ The {mod}`movement.plots` submodule has been created, which provides some helpfu
 These plots can be added to existing figure axes you have created, and you can pass them the same formatting arguments as you would to the appropriate {mod}`matplotlib.pyplot`.
 Currently, the submodule has two wrappers to use:
 
-- {func}`plot_centroid_trajectory<movement.plots.plot_centroid_trajectory>`, which creates a plot of the trajectory of a given keypoint (or the centroid of a collection of keypoints) with a single line of code. Introduced in [#394](movement-github:pull/394).
-- {func}`plot_occupancy<movement.plots.plot_occupancy>`, which creates an occupancy plot of an individual, given its position data. Collections of individuals are aggregated over, and if multiple keypoints are provided, the occupancy of the centroid is calculated. Introduced in [#403](movement-github:pull/403).
+- {func}`plot_centroid_trajectory<movement.plots.plot_centroid_trajectory>`, which creates a plot of the trajectory of a given keypoint (or the centroid of a collection of keypoint) with a single line of code. Introduced in [#394](movement-github:pull/394).
+- {func}`plot_occupancy<movement.plots.plot_occupancy>`, which creates an occupancy plot of an individual, given its position data. Collections of individual are aggregated over, and if multiple keypoint are provided, the occupancy of the centroid is calculated. Introduced in [#403](movement-github:pull/403).
 
 Examples to showcase the use of these plotting functions are currently [being produced](movement-github:issues/415).
 [Our other examples](target-examples) have also been updated to use these functions where possible.
 
 ### Broadcasting Methods
 
-Most of the time during analysis of experimental data, we want to repeat the same action multiple times across different coordinates, or individuals, or time-points.
+Most of the time during analysis of experimental data, we want to repeat the same action multiple times across different coordinates, or individual, or time-points.
 The data-structures that `movement` relies on - and the analysis methods it provides - go a long way to making this kind of analysis easy, thanks to array broadcasting.
 However when it comes to writing your own, custom analysis functions, most of the time it is much easier to write a function that takes in a single input, rather than writing an appropriate function that acts on an entire `DataArray`.
 But this approach typically means that you're then stuck writing a `for` loop over the values in your `DataArray`, and on top of that having to copy across the dimension labels or coordinates into the new array you're making as the `for` loop runs.

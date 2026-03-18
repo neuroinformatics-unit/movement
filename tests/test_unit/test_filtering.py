@@ -60,8 +60,8 @@ class TestFilteringValidDataset:
         )
         # Compute n nans in position after filtering per individual
         n_nans_after_filtering_per_indiv = [
-            helpers.count_nans(position_filtered.isel(individuals=i))
-            for i in range(valid_input_dataset.sizes["individuals"])
+            helpers.count_nans(position_filtered.isel(individual=i))
+            for i in range(valid_input_dataset.sizes["individual"])
         ]
         # Check number of nans per indiv is as expected
         assert (
@@ -244,6 +244,14 @@ class TestFilteringValidDatasetWithNaNs:
         a ValueError should be raised.
         """
         dataset = request.getfixturevalue(valid_dataset_with_nan)
+        import scipy
+        from packaging.version import Version
+
+        if mode in [None, "interp"] and Version(scipy.__version__) >= Version(
+            "1.15.0"
+        ):
+            expected_exception = does_not_raise()
+
         with expected_exception:
             kwargs = {"window": 3, "polyorder": 2}
             if mode is not None:
@@ -272,9 +280,9 @@ def test_filter_by_confidence_on_position(
     # Count number of NaNs in the full array
     n_nans = helpers.count_nans(position_filtered)
     # expected number of nans for poses:
-    # 5 timepoints * 2 individuals * 2 keypoints
+    # 5 timepoints * 2 individual * 2 keypoint
     # Note: we count the number of nans in the array, so we multiply
-    # the number of low confidence keypoints by the number of
+    # the number of low confidence keypoint by the number of
     # space dimensions
     n_low_confidence_kpts = 5
     assert isinstance(position_filtered, xr.DataArray)

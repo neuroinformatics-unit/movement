@@ -27,11 +27,11 @@ def assert_components_in_report(components, report_str):
             {
                 "expected": [
                     "position",
-                    "keypoints",
+                    "keypoint",
                     "centroid",
                     "left",
                     "right",
-                    "individuals",
+                    "individual",
                     "id_0",
                     "3/10",
                     "1/10",
@@ -43,7 +43,7 @@ def assert_components_in_report(components, report_str):
         (
             "valid_bboxes_dataset_with_nan",
             {
-                "expected": ["position", "individuals", "id_0", "3/10"],
+                "expected": ["position", "individual", "id_0", "3/10"],
                 "not_expected": ["id_1"],
             },
         ),
@@ -52,7 +52,7 @@ def assert_components_in_report(components, report_str):
 def test_report_nan_values_full_dataset(data, expectations, request):
     """Test that the nan-value reporting function handles full and
     valid data with or without NaN values and that the report contains
-    the correct NaN counts, keypoints, and individuals.
+    the correct NaN counts, keypoint, and individual.
     """
     da = request.getfixturevalue(data).position
     report_str = report_nan_values(da)
@@ -64,7 +64,7 @@ def test_report_nan_values_full_dataset(data, expectations, request):
     [
         (
             "valid_poses_dataset_with_nan",
-            lambda ds: ds.isel(individuals=0),
+            lambda ds: ds.isel(individual=0),
             {
                 "expected": [
                     "centroid",
@@ -79,7 +79,7 @@ def test_report_nan_values_full_dataset(data, expectations, request):
         ),
         (
             "valid_bboxes_dataset_with_nan",
-            lambda ds: ds.isel(individuals=0),
+            lambda ds: ds.isel(individual=0),
             {
                 "expected": ["3/10"],
                 "not_expected": ["id_0"],
@@ -87,7 +87,7 @@ def test_report_nan_values_full_dataset(data, expectations, request):
         ),
         (
             "valid_poses_dataset_with_nan",
-            lambda ds: ds.isel(keypoints=0),
+            lambda ds: ds.isel(keypoint=0),
             {
                 "expected": ["id_0", "3/10"],
                 "not_expected": ["centroid"],
@@ -95,7 +95,7 @@ def test_report_nan_values_full_dataset(data, expectations, request):
         ),
         (
             "valid_poses_dataset_with_nan",
-            lambda ds: ds.isel(individuals=0, keypoints=0),
+            lambda ds: ds.isel(individual=0, keypoint=0),
             {
                 "expected": ["3/10"],
                 "not_expected": ["centroid", "id_0"],
@@ -103,9 +103,9 @@ def test_report_nan_values_full_dataset(data, expectations, request):
         ),
     ],
     ids=[
-        "ind_dim_with_ndim_0-poses",  # individuals dim is scalar
-        "ind_dim_with_ndim_0-bboxes",  # individuals dim is scalar
-        "kp_dim_with_ndim_0-poses",  # keypoints dim is scalar
+        "ind_dim_with_ndim_0-poses",  # individual dim is scalar
+        "ind_dim_with_ndim_0-bboxes",  # individual dim is scalar
+        "kp_dim_with_ndim_0-poses",  # keypoint dim is scalar
         "both_dims_with_ndim_0-poses",  # both dims are scalar
     ],
 )  # If ndim=0, the dim coords are not explicitly reported

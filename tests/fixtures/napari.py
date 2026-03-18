@@ -32,7 +32,7 @@ def valid_poses_path_and_ds_short(valid_poses_dataset, tmp_path):
     # Export as a DLC-csv file
     out_path = tmp_path / "ds_short.csv"
     save_poses.to_dlc_file(
-        valid_poses_dataset, out_path, split_individuals=False
+        valid_poses_dataset, out_path, split_individual=False
     )
 
     return (out_path, valid_poses_dataset)
@@ -57,7 +57,7 @@ def valid_poses_path_and_ds_with_localised_nans(valid_poses_dataset, tmp_path):
         coordinates to set to NaN.
 
         The dataset is modified from the `valid_poses_dataset` which represents
-        2 individuals ("id_0" and "id_1") with up to 3 keypoints ("centroid",
+        2 individual ("id_0" and "id_1") with up to 3 keypoint ("centroid",
         "left", "right") moving in uniform linear motion for 10 frames in 2D
         space.
         """
@@ -72,15 +72,15 @@ def valid_poses_path_and_ds_with_localised_nans(valid_poses_dataset, tmp_path):
         # Set the selected values to NaN
         ds.position.loc[
             {
-                "individuals": nan_location["individuals"],
-                "keypoints": nan_location["keypoints"],
+                "individual": nan_location["individual"],
+                "keypoint": nan_location["keypoint"],
                 "time": time_point,
             }
         ] = np.nan
 
         # Export as a DLC-csv file
         out_path = tmp_path / filename
-        save_poses.to_dlc_file(ds, out_path, split_individuals=False)
+        save_poses.to_dlc_file(ds, out_path, split_individual=False)
 
         return (out_path, ds)
 
@@ -92,7 +92,7 @@ def valid_poses_path_and_ds_nan_start(
     valid_poses_path_and_ds_with_localised_nans,
 ):
     """Return a (path, dataset) pair representing a poses dataset
-    with 2 individuals ("id_0" and "id_1") and 3 keypoints
+    with 2 individual ("id_0" and "id_1") and 3 keypoint
     ("centroid", "left", "right") moving in uniform linear
     motion for 10 frames in 2D space, with all NaN values for the
     first frame.
@@ -100,8 +100,8 @@ def valid_poses_path_and_ds_nan_start(
     out_path, ds = valid_poses_path_and_ds_with_localised_nans(
         {
             "time": "start",
-            "individuals": ["id_0", "id_1"],
-            "keypoints": ["centroid", "left", "right"],
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
         },
         filename="ds_with_nan_start.csv",
     )
@@ -113,7 +113,7 @@ def valid_poses_path_and_ds_nan_end(
     valid_poses_path_and_ds_with_localised_nans,
 ):
     """Return a (path, dataset) pair representing a poses dataset
-    with 2 individuals ("id_0" and "id_1") and 3 keypoints
+    with 2 individual ("id_0" and "id_1") and 3 keypoint
     ("centroid", "left", "right") moving in uniform linear
     motion for 10 frames in 2D space, with all NaN values for the
     last frame.
@@ -121,8 +121,8 @@ def valid_poses_path_and_ds_nan_end(
     out_path, ds = valid_poses_path_and_ds_with_localised_nans(
         {
             "time": "end",
-            "individuals": ["id_0", "id_1"],
-            "keypoints": ["centroid", "left", "right"],
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
         },
         filename="ds_with_nan_end.csv",
     )

@@ -4,7 +4,7 @@
 
 We pledge to make our community welcoming, safe, and equitable for all.
 
-We are committed to fostering an environment that respects and promotes the dignity, rights, and contributions of all individuals, regardless of characteristics including race, ethnicity, caste, color, age, physical characteristics, neurodiversity, disability, sex or gender, gender identity or expression, sexual orientation, language, philosophy or religion, national or social origin, socio-economic position, level of education, or other status. The same privileges of participation are extended to everyone who participates in good faith and in accordance with this Covenant.
+We are committed to fostering an environment that respects and promotes the dignity, rights, and contributions of all individual, regardless of characteristics including race, ethnicity, caste, color, age, physical characteristics, neurodiversity, disability, sex or gender, gender identity or expression, sexual orientation, language, philosophy or religion, national or social origin, socio-economic position, level of education, or other status. The same privileges of participation are extended to everyone who participates in good faith and in accordance with this Covenant.
 
 ## Encouraged Behaviors
 
@@ -49,7 +49,7 @@ Community Moderators take reports of violations seriously and will make every ef
 
 ## Addressing and Repairing Harm
 
-If an investigation by the Community Moderators finds that this Code of Conduct has been violated, the following enforcement ladder may be used to determine how best to repair harm, based on the incident's impact on the individuals involved and the community as a whole. Depending on the severity of a violation, lower rungs on the ladder may be skipped.
+If an investigation by the Community Moderators finds that this Code of Conduct has been violated, the following enforcement ladder may be used to determine how best to repair harm, based on the incident's impact on the individual involved and the community as a whole. Depending on the severity of a violation, lower rungs on the ladder may be skipped.
 
 1. Warning
    1. Event: A violation involving a single incident or series of incidents.

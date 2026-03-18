@@ -23,7 +23,7 @@ from movement.plots import plot_centroid_trajectory
 # recordings of the eyes of mice placed on a rotating platform with different
 # visual stimuli. The ``uniform`` condition features a uniformly lit surround
 # stimulus, whereas the ``black`` condition was acquired in the dark. These
-# datasets were tracked using DeepLabCut (DLC) and include four keypoints:
+# datasets were tracked using DeepLabCut (DLC) and include four keypoint:
 # two on either side of the pupil (``pupil-L`` and ``pupil-R``) and two on
 # either side of the eye (``eye-L`` and ``eye-R``).
 
@@ -54,15 +54,15 @@ for ds_name, ds in ds_dict.items():
     print(f"Frame size: {width}x{height}")
     print(f"Number of channels: {channels}\n")
 # %%
-# Plot first frame with keypoints
+# Plot first frame with keypoint
 # -------------------------------
 fig, ax = plt.subplots(1, 2, figsize=(7.5, 4))
 for i, (da_name, ds) in enumerate(ds_dict.items()):
     ax[i].imshow(ds.video[0], cmap="gray")  # plot first video frame
-    for keypoint in ds.keypoints.values:
-        x = ds.position.sel(time=0, space="x", keypoints=keypoint)
-        y = ds.position.sel(time=0, space="y", keypoints=keypoint)
-        ax[i].scatter(x, y, label=keypoint)  # plot keypoints
+    for keypoint in ds.keypoint.values:
+        x = ds.position.sel(time=0, space="x", keypoint=keypoint)
+        y = ds.position.sel(time=0, space="y", keypoint=keypoint)
+        ax[i].scatter(x, y, label=keypoint)  # plot keypoint
     ax[i].legend()
     ax[i].set_title(f"{da_name} (First Frame)")
     ax[i].invert_yaxis()  # because the dataset was collected flipped
@@ -77,7 +77,7 @@ plt.show()
 time_window = slice(1, 24)  # seconds
 position_black = ds_black.position.sel(time=time_window)  # data array to plot
 fig, ax = plot_centroid_trajectory(
-    position_black, keypoints=["pupil-L", "pupil-R"]
+    position_black, keypoint=["pupil-L", "pupil-R"]
 )
 fig.show()
 
@@ -91,7 +91,7 @@ for i, (ds_name, ds) in enumerate(ds_dict.items()):
     plot_centroid_trajectory(
         ds.position.sel(time=time_window),  # Select time window
         ax=ax[i],
-        keypoints=["pupil-L", "pupil-R"],
+        keypoint=["pupil-L", "pupil-R"],
         alpha=0.5,
         s=3,
     )
@@ -113,7 +113,7 @@ positions.coords["lighting"] = ["black", "uniform"]
 #  Define plotting parameters for reuse.
 plot_params = {
     "x": "time",
-    "hue": "keypoints",
+    "hue": "keypoint",
     "col": "space",
     "row": "lighting",
     "aspect": 1.5,
@@ -133,7 +133,7 @@ plt.show()
 # subtracting the position of the eye's midpoint, we effectively transform the
 # data into a moving coordinate system, with the eye's midpoint as the origin.
 # In the rest of the example, the normalised data will be used.
-eye_midpoint = positions.sel(keypoints=["eye-L", "eye-R"]).mean("keypoints")
+eye_midpoint = positions.sel(keypoint=["eye-L", "eye-R"]).mean("keypoint")
 positions_norm = positions - eye_midpoint
 # %%
 # We plot the x and y positions again, but now using the normalised data.
@@ -144,22 +144,22 @@ plt.show()
 # Pupil position over time
 # ------------------------
 # To look at pupil position—and later also velocity—over time, we use the
-# pupil centroid (in this case the midpoint between keypoints ``pupil-L`` and
+# pupil centroid (in this case the midpoint between keypoint ``pupil-L`` and
 # ``pupil-R``). The keypoint ``pupil-C`` is assigned using
 # :meth:`xarray.DataArray.assign_coords`.
 
 pupil_centroid = (
-    positions_norm.sel(keypoints=["pupil-L", "pupil-R"])
-    .mean("keypoints")
-    .assign_coords({"keypoints": "pupil-C"})
+    positions_norm.sel(keypoint=["pupil-L", "pupil-R"])
+    .mean("keypoint")
+    .assign_coords({"keypoint": "pupil-C"})
 )
 # %%
 # The pupil centroid keypoint ``pupil-C`` is be added to the ``positions_norm``
 # using :func:`xarray.concat`.
-positions_norm = xr.concat([positions_norm, pupil_centroid], dim="keypoints")
+positions_norm = xr.concat([positions_norm, pupil_centroid], dim="keypoint")
 # %%
 # Now the position of the pupil centroid ``pupil-C`` can be plotted.
-positions_norm.sel(keypoints="pupil-C", **sel).squeeze().plot.line(
+positions_norm.sel(keypoint="pupil-C", **sel).squeeze().plot.line(
     x="time", hue="space", row="lighting", aspect=3.5, size=1.5
 )
 plt.show()
@@ -179,7 +179,7 @@ plt.show()
 # centroid is plotted. To do this, we use
 # :func:`movement.kinematics.compute_velocity`
 # to calculate the velocity of the eye movements.
-pupil_velocity = kin.compute_velocity(positions_norm.sel(keypoints="pupil-C"))
+pupil_velocity = kin.compute_velocity(positions_norm.sel(keypoint="pupil-C"))
 pupil_velocity.name = "pupil velocity"
 pupil_velocity.sel(**sel).squeeze().plot.line(
     x="time", hue="space", row="lighting", aspect=3.5, size=1.5
@@ -193,10 +193,10 @@ plt.show()
 # Pupil diameter
 # --------------
 # Here we define the pupil diameter as the distance between the two pupil
-# keypoints. We use :func:`movement.kinematics.compute_pairwise_distances`
+# keypoint. We use :func:`movement.kinematics.compute_pairwise_distances`
 # to calculate the Euclidean distance between ``pupil-L`` and ``pupil-R``.
 pupil_diameter: xr.DataArray = kin.compute_pairwise_distances(
-    positions_norm, dim="keypoints", pairs={"pupil-L": "pupil-R"}
+    positions_norm, dim="keypoint", pairs={"pupil-L": "pupil-R"}
 )
 pupil_diameter.name = "pupil diameter"
 # %%
@@ -208,22 +208,22 @@ plt.show()
 # unlikely to represent real changes in the pupil size.
 # In fact, these steep peaks are probably caused by tracking errors
 # during blinking or squinting.
-# By looking at the distance between the two eye keypoints we can get an idea
+# By looking at the distance between the two eye keypoint we can get an idea
 # of whether (and when) the animal is blinking or squinting.
-distance_between_eye_keypoints: xr.DataArray = kin.compute_pairwise_distances(
-    positions_norm, dim="keypoints", pairs={"eye-L": "eye-R"}
+distance_between_eye_keypoint: xr.DataArray = kin.compute_pairwise_distances(
+    positions_norm, dim="keypoint", pairs={"eye-L": "eye-R"}
 )
-distance_between_eye_keypoints.name = "distance (eye-L - eye-R)"
+distance_between_eye_keypoint.name = "distance (eye-L - eye-R)"
 
 # Combine the datasets into one DataArray
 combined = xr.concat(
-    [distance_between_eye_keypoints, pupil_diameter], dim="variable"
+    [distance_between_eye_keypoint, pupil_diameter], dim="variable"
 )
 combined = combined.assign_coords(
     variable=["distance (eye-L - eye-R)", "pupil diameter"]
 )
 
-# Plot the distance between the eye keypoints alongside the pupil diameter
+# Plot the distance between the eye keypoint alongside the pupil diameter
 combined.plot.line(
     x="time", row="lighting", hue="variable", figsize=(8, 4), add_legend=False
 )
@@ -235,7 +235,7 @@ plt.show()
 
 # %%
 # We indeed see that the sharp peaks in pupil diameter correspond to abrupt
-# changes of distance between the two eye keypoints.
+# changes of distance between the two eye keypoint.
 # Compared to fast eye movements and blinking, changes in pupil size are slow.
 # Filters can be applied to reduce noise and make underlying trends
 # in pupil diameter clearer.

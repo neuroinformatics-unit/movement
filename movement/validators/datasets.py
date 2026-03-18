@@ -66,53 +66,28 @@ class _BaseDatasetInputs(ABC):
     position_array: np.ndarray = field(
         validator=validators.instance_of(np.ndarray)
     )
-    """Array containing the position data."""
-
     # --- Optional fields ---
     confidence_array: np.ndarray | None = field(
         default=None,
         validator=validators.optional(validators.instance_of(np.ndarray)),
     )
-    """Array containing point-wise confidence scores for the position data.
-    The shape of this array is the same as that of ``position_array``, but
-    without the ``space`` dimension. If None (default), the confidence scores
-    will be set to an array of NaNs."""
-
     individual_names: list[str] | None = field(
         default=None,
         converter=converters.optional(_convert_to_list_of_str),
     )
-    """List of unique names for the individuals in the video. The length of
-    this list should match the size of the 'individuals' dimension in the
-    ``position_array``. If None (default), the names will be in the format of
-    ``id_<N>``, where <N> is an integer from 0 to the size of the
-    'individuals' dimension minus 1."""
-
     fps: float | None = field(
         default=None,
         converter=converters.pipe(  # type: ignore
             converters.optional(float), _convert_fps_to_none_if_invalid
         ),
     )
-    """Frames per second of the video. If None (default), time coordinates will
-    be expressed in frames. If a non-positive value is provided, fps will be
-    set to None and a warning will be issued."""
-
     source_software: str | None = field(
         default=None,
         validator=validators.optional(validators.instance_of(str)),
     )
-    """Name of the software from which the data were loaded. This is stored as
-    a dataset attribute in the resulting xarray.Dataset. Defaults to None."""
-
     # --- Required class variables (to be defined by subclasses) ---
     DIM_NAMES: ClassVar[tuple[str, ...]]
-    """Required dimension names for the dataset. The order of dimension names
-    must match the order of dimensions in the ``position_array``."""
-
     VAR_NAMES: ClassVar[tuple[str, ...]]
-    """Required variable names for the dataset."""
-
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[int | Iterable[int]]
 
     # --- Lifecycle hooks ---
@@ -128,9 +103,9 @@ class _BaseDatasetInputs(ABC):
                 "Setting to an array of NaNs."
             )
         # individual_names default: id_0, id_1, ...
-        if self.individual_names is None and "individuals" in self.DIM_NAMES:
+        if self.individual_names is None and "individual" in self.DIM_NAMES:
             n_inds = self.position_array.shape[
-                self.DIM_NAMES.index("individuals")
+                self.DIM_NAMES.index("individual")
             ]
             self.individual_names = [f"id_{i}" for i in range(n_inds)]
             logger.info(
@@ -191,11 +166,11 @@ class _BaseDatasetInputs(ABC):
     def _validate_individual_names(self, attribute, value):
         """Validate individual_names length and uniqueness."""
         if value is not None:
-            individuals_dim_index = self.DIM_NAMES.index("individuals")
+            individual_dim_index = self.DIM_NAMES.index("individual")
             self._validate_list_length(
                 attribute,
                 value,
-                self.position_array.shape[individuals_dim_index],
+                self.position_array.shape[individual_dim_index],
             )
             self._validate_list_uniqueness(attribute, value)
 
@@ -258,7 +233,7 @@ class _BaseDatasetInputs(ABC):
 
         Parameters
         ----------
-        ds
+        ds : xarray.Dataset
             Dataset to validate.
 
         Raises
@@ -300,21 +275,39 @@ class ValidPosesInputs(_BaseDatasetInputs):
     The validator ensures that within the ``movement poses`` dataset:
 
     - The required ``position_array`` is a numpy array
-      of shape (n_frames, n_space, n_keypoints, n_individuals)
       with the ``space`` dimension containing 2 or 3 spatial coordinates.
     - The optional ``confidence_array``, if provided, is a numpy array
-      containing confidence scores for the pose data. It supports either
-      point-wise confidence with shape matching that of
-      ``position_array``, excluding the ``space`` dimension, or
-      individual-wise confidence with shape ``(n_frames, n_individuals)``;
+      with its shape matching that of the ``position_array``,
+      excluding the ``space`` dimension;
       otherwise, it defaults to an array of NaNs.
     - The optional ``individual_names`` and ``keypoint_names``,
-      if provided, is a list of unique names for the individuals and keypoints,
-      with lengths matching the number of individuals and keypoints
+      if provided, match the number of individual and keypoint
       in the dataset, respectively; otherwise, default names are assigned.
     - The optional ``fps`` is a positive float; otherwise, it defaults to None.
     - The optional ``source_software`` is a string; otherwise,
       it defaults to None.
+
+    Attributes
+    ----------
+    position_array : np.ndarray
+        Array of shape (n_frames, n_space, n_keypoint, n_individual)
+        containing the poses.
+    confidence_array : np.ndarray, optional
+        Array of shape (n_frames, n_keypoint, n_individual) containing
+        the point-wise confidence scores.
+        If None (default), the scores will be set to an array of NaNs.
+    individual_names : list of str, optional
+        List of unique names for the individual in the video. If None
+        (default), the individual will be named "id_0", "id_1", etc.
+    keypoint_names : list of str, optional
+        List of unique names for the keypoint in the skeleton. If None
+        (default), the keypoint will be named "keypoint_0", "keypoint_1",
+        etc.
+    fps : float, optional
+        Frames per second of the video. Defaults to None.
+    source_software : str, optional
+        Name of the software from which the poses were loaded.
+        Defaults to None.
 
     Raises
     ------
@@ -328,15 +321,12 @@ class ValidPosesInputs(_BaseDatasetInputs):
         default=None,
         converter=converters.optional(_convert_to_list_of_str),
     )
-    """List of unique names for the keypoints in the skeleton. If None
-    (default), the keypoints will be named "keypoint_0", "keypoint_1",
-    etc."""
 
     DIM_NAMES: ClassVar[tuple[str, ...]] = (
         "time",
         "space",
-        "keypoints",
-        "individuals",
+        "keypoint",
+        "individual",
     )
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "confidence")
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[Iterable[int]] = (2, 3)
@@ -344,9 +334,9 @@ class ValidPosesInputs(_BaseDatasetInputs):
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
         """Validate keypoint_names length and uniqueness."""
-        keypoints_dim_index = self.DIM_NAMES.index("keypoints")
+        keypoint_dim_index = self.DIM_NAMES.index("keypoint")
         self._validate_list_length(
-            attribute, value, self.position_array.shape[keypoints_dim_index]
+            attribute, value, self.position_array.shape[keypoint_dim_index]
         )
         self._validate_list_uniqueness(attribute, value)
 
@@ -354,11 +344,11 @@ class ValidPosesInputs(_BaseDatasetInputs):
         """Assign default values to optional attributes (if None)."""
         super().__attrs_post_init__()
         position_array_shape = self.position_array.shape
-        keypoints_dim_index = self.DIM_NAMES.index("keypoints")
+        keypoint_dim_index = self.DIM_NAMES.index("keypoint")
         if self.keypoint_names is None:
             self.keypoint_names = [
                 f"keypoint_{i}"
-                for i in range(position_array_shape[keypoints_dim_index])
+                for i in range(position_array_shape[keypoint_dim_index])
             ]
             logger.info(
                 "Keypoint names were not provided. "
@@ -418,25 +408,51 @@ class ValidBboxesInputs(_BaseDatasetInputs):
     The validator considers 2D bounding boxes only. It ensures that
     within the ``movement bboxes`` dataset:
 
-    - The required ``position_array`` and ``shape_array`` are numpy arrays
-      of shape (n_frames, n_space, n_individuals) with the ``space`` dimension
-      containing 2 spatial coordinates. The ``position_array`` contains the
-      tracks of the bounding box centroids, while the ``shape_array`` contains
-      the width and height of the bounding boxes.
+    - The required ``position_array`` and ``shape_array`` are numpy arrays,
+      with the ``space`` dimension containing 2 spatial coordinates.
     - The optional ``confidence_array``, if provided, is a numpy array
-      containing confidence scores for the bounding boxes,
       with its shape matching that of the ``position_array``,
       excluding the ``space`` dimension;
       otherwise, it defaults to an array of NaNs.
-    - The optional ``individual_names``, if provided,  is a list of unique
-      names for the individuals, with length matching the number of
-      individuals in the dataset; otherwise, default names are assigned.
+    - The optional ``individual_names``, if provided, match the number of
+      individual in the dataset; otherwise, default names are assigned.
     - The optional ``frame_array``, if provided, is a column vector
       with the frame numbers; otherwise, it defaults to an array of
       0-based integers.
     - The optional ``fps`` is a positive float; otherwise, it defaults to None.
     - The optional ``source_software`` is a string; otherwise, it defaults to
       None.
+
+    Attributes
+    ----------
+    position_array : np.ndarray
+        Array of shape (n_frames, n_space, n_individual)
+        containing the tracks of the bounding box centroids.
+    shape_array : np.ndarray
+        Array of shape (n_frames, n_space, n_individual)
+        containing the shape of the bounding boxes. The shape of a bounding
+        box is its width (extent along the x-axis of the image) and height
+        (extent along the y-axis of the image).
+    confidence_array : np.ndarray, optional
+        Array of shape (n_frames, n_individual) containing
+        the confidence scores of the bounding boxes. If None (default), the
+        confidence scores are set to an array of NaNs.
+    individual_names : list of str, optional
+        List of individual names for the tracked bounding boxes in the video.
+        If None (default), bounding boxes are assigned names based on the size
+        of the ``position_array``. The names will be in the format of
+        ``id_<N>``, where <N>  is an integer from 0 to
+        ``position_array.shape[1]-1``.
+    frame_array : np.ndarray, optional
+        Array of shape (n_frames, 1) containing the frame numbers for which
+        bounding boxes are defined. If None (default), frame numbers will
+        be assigned based on the first dimension of the ``position_array``,
+        starting from 0.
+    fps : float, optional
+        Frames per second defining the sampling rate of the data.
+        Defaults to None.
+    source_software : str, optional
+        Name of the software that generated the data. Defaults to None.
 
     Raises
     ------
@@ -449,22 +465,12 @@ class ValidBboxesInputs(_BaseDatasetInputs):
     shape_array: np.ndarray = field(
         validator=validators.instance_of(np.ndarray)
     )
-    """Array containing the shape of the bounding boxes. The shape of a
-    bounding box is its width (extent along the x-axis of the image) and height
-    (extent along the y-axis of the image). The shape_array must have the same
-    shape as the position_array."""
-
     frame_array: np.ndarray | None = field(
         default=None,
         validator=validators.optional(validators.instance_of(np.ndarray)),
     )
-    """Array containing the frame numbers for which bounding boxes are defined.
-    The frame_array should be a column vector of shape (n_frames, 1) and should
-    be monotonically increasing. If None (default), frame numbers will be
-    assigned based on the first dimension of the position_array, starting from
-    0."""
 
-    DIM_NAMES: ClassVar[tuple[str, ...]] = ("time", "space", "individuals")
+    DIM_NAMES: ClassVar[tuple[str, ...]] = ("time", "space", "individual")
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "shape", "confidence")
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[int] = 2
 
@@ -541,7 +547,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
             dataset_attrs["fps"] = self.fps
         dataset_attrs["time_unit"] = time_unit
         # Convert data to an xarray.Dataset
-        # with dimensions ('time', 'space', 'individuals')
+        # with dimensions ('time', 'space', 'individual')
         DIM_NAMES = self.DIM_NAMES
         n_space = self.position_array.shape[1]
         return xr.Dataset(

@@ -15,35 +15,35 @@ DEFAULT_PLOTTING_ARGS = {
 def plot_centroid_trajectory(
     da: xr.DataArray,
     individual: str | None = None,
-    keypoints: str | list[str] | None = None,
+    keypoint: str | list[str] | None = None,
     ax: Axes | None = None,
     **kwargs,
 ) -> tuple[Figure | SubFigure, Axes]:
     """Plot centroid trajectory.
 
     This function plots the trajectory of the centroid
-    of multiple keypoints for a given individual. By default, the trajectory
+    of multiple keypoint for a given individual. By default, the trajectory
     is colored by time (using the default colormap). Pass a different colormap
     through ``cmap`` if desired. If a single keypoint is passed, the trajectory
     will be the same as the trajectory of the keypoint.
 
     Parameters
     ----------
-    da
+    da : xr.DataArray
         A data array containing position information, with `time` and `space`
-        as required dimensions. Optionally, it may have `individuals` and/or
-        `keypoints` dimensions.
-    individual
+        as required dimensions. Optionally, it may have `individual` and/or
+        `keypoint` dimensions.
+    individual : str, optional
         The name of the individual to be plotted. By default, the first
         individual is plotted.
-    keypoints
+    keypoint : str, list[str], optional
         The name of the keypoint to be plotted, or a list of keypoint names
         (their centroid will be plotted). By default, the centroid of all
-        keypoints is plotted.
-    ax
+        keypoint is plotted.
+    ax : matplotlib.axes.Axes or None, optional
         Axes object on which to draw the trajectory. If None, a new
         figure and axes are created.
-    **kwargs
+    **kwargs : dict
         Additional keyword arguments passed to
         :meth:`matplotlib.axes.Axes.scatter`.
 
@@ -63,16 +63,16 @@ def plot_centroid_trajectory(
         raise ValueError("Only one individual can be selected.")
 
     selection = {}
-    if "individuals" in da.dims:
-        selection["individuals"] = individual or da.individuals.values[0]
-    if "keypoints" in da.dims:
-        selection["keypoints"] = keypoints or da.keypoints.values
+    if "individual" in da.dims:
+        selection["individual"] = individual or da.individual.values[0]
+    if "keypoint" in da.dims:
+        selection["keypoint"] = keypoint or da.keypoint.values
 
     plot_point = da.sel(selection)
-    # If there are multiple selected keypoints, calculate the centroid
+    # If there are multiple selected keypoint, calculate the centroid
     plot_point = (
-        plot_point.mean(dim="keypoints", skipna=True)
-        if "keypoints" in plot_point.dims and plot_point.sizes["keypoints"] > 1
+        plot_point.mean(dim="keypoint", skipna=True)
+        if "keypoint" in plot_point.dims and plot_point.sizes["keypoint"] > 1
         else plot_point
     )
     plot_point = plot_point.squeeze()  # Only space and time should remain

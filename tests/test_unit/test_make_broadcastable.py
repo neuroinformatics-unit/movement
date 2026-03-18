@@ -39,7 +39,7 @@ def mock_shape() -> tuple[int, ...]:
 def mock_data_array() -> xr.DataArray:
     return xr.DataArray(
         data=data_in_shape(mock_shape()),
-        dims=["time", "space", "keypoints", "individuals"],
+        dims=["time", "space", "keypoint", "individual"],
         coords={"space": ["x", "y"]},
     )
 

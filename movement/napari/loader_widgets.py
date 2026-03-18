@@ -245,6 +245,14 @@ class DataLoader(QWidget):
         """
         try:
             ds = xr.open_dataset(self.file_path)
+            # Backwards compatibility: rename plural dimensions to singular
+            rename_dict = {}
+            if "individuals" in ds.dims:
+                rename_dict["individuals"] = "individual"
+            if "keypoints" in ds.dims:
+                rename_dict["keypoints"] = "keypoint"
+            if rename_dict:
+                ds = ds.rename(rename_dict)
         except Exception as e:
             show_error(f"Error opening netCDF file: {e}")
             return None
@@ -285,8 +293,8 @@ class DataLoader(QWidget):
         is defined as a property, the color property is set to "keypoint".
         """
         color_property = "individual"
-        n_individuals = len(self.properties["individual"].unique())
-        if n_individuals == 1 and "keypoint" in self.properties:
+        n_individual = len(self.properties["individual"].unique())
+        if n_individual == 1 and "keypoint" in self.properties:
             color_property = "keypoint"
         self.color_property = color_property
 

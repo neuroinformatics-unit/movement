@@ -32,7 +32,7 @@ print(ds_wasp)
 # %%
 # We see that the dataset contains the 2D pose tracks and confidence scores
 # for a single wasp, generated with DeepLabCut. The wasp is tracked at two
-# keypoints: "head" and "stinger" in a video that was recorded at 40 fps and
+# keypoint: "head" and "stinger" in a video that was recorded at 40 fps and
 # lasts for approximately 27 seconds.
 
 # %%
@@ -56,15 +56,15 @@ def plot_raw_and_smooth_timeseries_and_psd(
 ):
     # If no individual is specified, use the first one
     if individual is None:
-        individual = ds_raw.individuals[0]
+        individual = ds_raw.individual[0]
     # If no time range is specified, plot the entire time series
     if time_range is None:
         time_range = slice(0, ds_raw.time[-1])
 
     selection = {
         "time": time_range,
-        "individuals": individual,
-        "keypoints": keypoint,
+        "individual": individual,
+        "keypoint": keypoint,
         "space": space,
     }
 
@@ -174,7 +174,7 @@ ds_mouse = sample_data.fetch_dataset("SLEAP_single-mouse_EPM.analysis.h5")
 print(ds_mouse)
 
 # %%
-# The dataset contains a single mouse with six keypoints tracked in
+# The dataset contains a single mouse with six keypoint tracked in
 # 2D space. The video was recorded at 30 fps and lasts for ~616 seconds. We can
 # see that there are some missing values, indicated as "nan" in the
 # printed dataset.
@@ -193,7 +193,7 @@ ds_mouse_smooth.update(
 
 # %%
 # The report informs us that the raw data contains NaN values, most of which
-# occur at the ``snout`` and ``tail_end`` keypoints. After filtering, the
+# occur at the ``snout`` and ``tail_end`` keypoint. After filtering, the
 # number of NaNs has increased. This is because the default behaviour of the
 # rolling filter is to propagate NaN values, i.e. if any value in the rolling
 # window is NaN, the output will also be NaN.
@@ -218,7 +218,7 @@ ds_mouse_smooth.update(
 
 # %%
 # We see that this time the number of NaN values has decreased
-# across all keypoints.
+# across all keypoint.
 # Let's visualise the effects of the rolling median filter in the time and
 # frequency domains. Here we focus on the first 80 seconds for the ``snout``
 # keypoint. You can adjust the ``keypoint`` and ``time_range`` arguments to
@@ -395,7 +395,7 @@ plot_raw_and_smooth_timeseries_and_psd(
 
 # %%
 # Feel free to play around with the parameters of the applied filters and to
-# also look at other keypoints and time ranges.
+# also look at other keypoint and time ranges.
 
 # %%
 # .. seealso::

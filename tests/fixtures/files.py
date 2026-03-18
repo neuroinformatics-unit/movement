@@ -97,7 +97,7 @@ def invalid_multi_individual_csv_file(tmp_path):
     file_path = tmp_path / "fake_multi_individual.csv"
     with open(file_path, "w") as f:
         f.write(
-            "scorer,columns\nindividuals,columns\nbodyparts,columns\nsome,columns\n"
+            "scorer,columns\nindividual,columns\nbodyparts,columns\nsome,columns\n"
         )
         f.write("1,2")
     return file_path

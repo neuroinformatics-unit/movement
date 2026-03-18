@@ -25,7 +25,7 @@ Several 2025 goals have been carried over, refined or expanded for 2026:
 
 - Support novel user workflows in our `napari` [GUI](target-gui), including:
   - drawing regions of interest and saving them to disk,
-  - filtering visualised data by individuals and keypoints,
+  - filtering visualised data by individual and keypoint,
   - manually correcting predictions and saving them to disk.
 - Support datetime coordinates in [movement datasets](target-poses-and-bboxes-dataset) (to unlock future work on events of interest and on alignment with neurophysiological data).
 

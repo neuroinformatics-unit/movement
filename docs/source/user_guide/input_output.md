@@ -19,7 +19,7 @@ You are also welcome to try `movement` by loading some [sample data](target-samp
 (target-supported-formats)=
 ## Supported third-party formats
 
-`movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding box centroids (_bounding box tracks_),
+`movement` supports the analysis of trajectories of keypoint (_pose tracks_) and of bounding box centroids (_bounding box tracks_),
 which are represented as [movement datasets](target-poses-and-bboxes-dataset)
 and can be loaded from and saved to various third-party formats.
 
@@ -36,7 +36,7 @@ and can be loaded from and saved to various third-party formats.
 \*Exporting any `movement` DataArray to a NumPy array is as simple as calling xarray's built-in {meth}`xarray.DataArray.to_numpy()` method, so no specialised "Export/Save As" function is needed, see [xarray's documentation](xarray:user-guide/duckarrays.html) for more details.
 
 :::{note}
-Currently, `movement` only works with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, across consecutive frames. For pose estimation, this means it only supports the predictions output by the supported software packages listed above. Loading manually labelled data—often defined over a non-continuous set of frames—is not currently supported.
+Currently, `movement` only works with tracked data: either keypoint or bounding boxes whose identities are known from one frame to the next, across consecutive frames. For pose estimation, this means it only supports the predictions output by the supported software packages listed above. Loading manually labelled data—often defined over a non-continuous set of frames—is not currently supported.
 :::
 
 Below, we explain how to load pose and bounding box tracks from these supported formats, as well as how to save pose tracks back to some of them.
@@ -122,7 +122,7 @@ ds = load_poses.from_dlc_style_df(df, fps=30)
 ```
 
 :::{note}
-In `movement`, pose data can only be loaded if all individuals have the same set of keypoints (i.e., the same labeled body parts). While DeepLabCut supports assigning keypoints that are not shared across individuals (see the [DeepLabCut documentation for multi-animal projects](https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#b-configure-the-project)), this feature is not currently supported in `movement`.
+In `movement`, pose data can only be loaded if all individual have the same set of keypoint (i.e., the same labeled body parts). While DeepLabCut supports assigning keypoint that are not shared across individual (see the [DeepLabCut documentation for multi-animal projects](https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#b-configure-the-project)), this feature is not currently supported in `movement`.
 :::
 ::::
 
@@ -189,7 +189,7 @@ with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
 ::::
 
 ::::{tab-item} From NumPy
-In the example below, we create random position data for two individuals, `Alice` and `Bob`, with three keypoints each: `snout`, `centre`, and `tail_base`. These keypoints are tracked in 2D space for 100 frames, at 30 fps. The confidence scores are set to 1 for all points.
+In the example below, we create random position data for two individual, `Alice` and `Bob`, with three keypoint each: `snout`, `centre`, and `tail_base`. These keypoint are tracked in 2D space for 100 frames, at 30 fps. The confidence scores are set to 1 for all points.
 ```python
 import numpy as np
 
@@ -275,7 +275,7 @@ save_poses.to_dlc_file(ds, "/path/to/file.h5")  # preferred format
 save_poses.to_dlc_file(ds, "/path/to/file.csv")
 ```
 The {func}`movement.io.save_poses.to_dlc_file` function also accepts
-a `split_individuals` boolean argument. If set to `True`, the function will
+a `split_individual` boolean argument. If set to `True`, the function will
 save the data as separate single-animal DeepLabCut-style files.
 ::::
 
@@ -303,7 +303,7 @@ save_poses.to_lp_file(ds, "/path/to/file.csv")
 Because LightningPose follows the single-animal
 DeepLabCut .csv format, the above command is equivalent to:
 ```python
-save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
+save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individual=True)
 ```
 ::::
 
@@ -350,7 +350,7 @@ Then you can save it as a VIA tracks .csv file:
 ```python
 save_bboxes.to_via_tracks_file(ds, "/path/to/output/file.csv")
 ```
-By default the {func}`movement.io.save_bboxes.to_via_tracks_file` function will try to derive the track IDs from the trailing numbers in the individuals' names, but you can also set `track_ids_from_trailing_numbers=False` to assign the track IDs sequentially (0, 1, 2, ...) based on the alphabetically sorted list of individuals.
+By default the {func}`movement.io.save_bboxes.to_via_tracks_file` function will try to derive the track IDs from the trailing numbers in the individual' names, but you can also set `track_ids_from_trailing_numbers=False` to assign the track IDs sequentially (0, 1, 2, ...) based on the alphabetically sorted list of individual.
 ::::
 
 ::::{tab-item} Custom .csv file
@@ -367,11 +367,11 @@ with open(filepath, mode="w", newline="") as file:
     writer.writerow(["frame_idx", "bbox_ID", "x", "y", "width", "height", "confidence"])
 
     # write the data
-    for individual in ds.individuals.data:
+    for individual in ds.individual.data:
         for frame in ds.time.data:
-            x, y = ds.position.sel(time=frame, individuals=individual).data
-            width, height = ds.shape.sel(time=frame, individuals=individual).data
-            confidence = ds.confidence.sel(time=frame, individuals=individual).data
+            x, y = ds.position.sel(time=frame, individual=individual).data
+            width, height = ds.shape.sel(time=frame, individual=individual).data
+            confidence = ds.confidence.sel(time=frame, individual=individual).data
             writer.writerow([frame, individual, x, y, width, height, confidence])
 
 ```

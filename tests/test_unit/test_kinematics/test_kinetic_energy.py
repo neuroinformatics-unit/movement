@@ -12,27 +12,27 @@ def test_basic_shape_and_values(decompose):
     """Basic sanity check with simple data."""
     data = np.array(
         [[[[1, 0], [0, 1], [1, 1]]], [[[2, 0], [0, 2], [2, 2]]]]
-    )  # shape: (time, individuals, keypoints, space)
+    )  # shape: (time, individual, keypoint, space)
     position = xr.DataArray(
         data,
-        dims=["time", "individuals", "keypoints", "space"],
+        dims=["time", "individual", "keypoint", "space"],
         coords={
             "time": [0, 1],
-            "individuals": [0],
-            "keypoints": [0, 1, 2],
+            "individual": [0],
+            "keypoint": [0, 1, 2],
             "space": ["x", "y"],
         },
     )
     result = compute_kinetic_energy(position, decompose=decompose)
     if decompose:
-        assert set(result.dims) == {"time", "individuals", "energy"}
+        assert set(result.dims) == {"time", "individual", "energy"}
         assert list(result.coords["energy"].values) == [
             "translational",
             "internal",
         ]
         assert result.shape == (2, 1, 2)
     else:
-        assert set(result.dims) == {"time", "individuals"}
+        assert set(result.dims) == {"time", "individual"}
         assert result.shape == (2, 1)
     assert (result >= 0).all()
 
@@ -53,25 +53,25 @@ def test_uniform_linear_motion(valid_poses_dataset):
 def spinning_dataset():
     """Create synthetic rotational-only dataset."""
     time = 10
-    keypoints = 4
+    keypoint = 4
     angles = np.linspace(0, 2 * np.pi, time)
     radius = 1.0
 
     positions = []
     for theta in angles:
         snapshot = []
-        for k in range(keypoints):
+        for k in range(keypoint):
             angle = theta + k * np.pi / 2
             snapshot.append([radius * np.cos(angle), radius * np.sin(angle)])
         positions.append([snapshot])  # 1 individual
 
     return xr.DataArray(
         np.array(positions),
-        dims=["time", "individuals", "keypoints", "space"],
+        dims=["time", "individual", "keypoint", "space"],
         coords={
             "time": np.arange(time),
-            "individuals": ["id0"],
-            "keypoints": [f"k{i}" for i in range(keypoints)],
+            "individual": ["id0"],
+            "keypoint": [f"k{i}" for i in range(keypoint)],
             "space": ["x", "y"],
         },
     )
@@ -101,41 +101,41 @@ def test_weighted_kinetic_energy(valid_poses_dataset, masses):
     position = ds["position"]
     unweighted = compute_kinetic_energy(position)
     weighted = compute_kinetic_energy(position, masses=masses)
-    factor = sum(masses.values()) / position.sizes["keypoints"]
+    factor = sum(masses.values()) / position.sizes["keypoint"]
     xr.testing.assert_allclose(weighted, unweighted * factor)
 
 
 @pytest.mark.parametrize(
-    "valid_poses_dataset, keypoints, expected_exception",
+    "valid_poses_dataset, keypoint, expected_exception",
     [
         pytest.param(
             "multi_individual_array",
             None,
             does_not_raise(),
-            id="3-keypoints (sufficient)",
+            id="3-keypoint (sufficient)",
         ),
         pytest.param(
             "multi_individual_array",
             ["centroid"],
-            pytest.raises(ValueError, match="At least 2 keypoints"),
-            id="3-keypoints 1-selected (insufficient)",
+            pytest.raises(ValueError, match="At least 2 keypoint"),
+            id="3-keypoint 1-selected (insufficient)",
         ),
         pytest.param(
             "single_keypoint_array",
             None,
-            pytest.raises(ValueError, match="At least 2 keypoints"),
+            pytest.raises(ValueError, match="At least 2 keypoint"),
             id="1-keypoint (insufficient)",
         ),
     ],
     indirect=["valid_poses_dataset"],
 )
-def test_insufficient_keypoints(
-    valid_poses_dataset, keypoints, expected_exception
+def test_insufficient_keypoint(
+    valid_poses_dataset, keypoint, expected_exception
 ):
-    """Function should raise error if fewer than 2 keypoints."""
+    """Function should raise error if fewer than 2 keypoint."""
     with expected_exception:
         compute_kinetic_energy(
             valid_poses_dataset["position"],
-            keypoints=keypoints,
+            keypoint=keypoint,
             decompose=True,
         )

@@ -43,7 +43,7 @@ Below, we'll explain how to do this.
 ## Load a background layer
 
 Though this is not strictly necessary, it is usually informative to
-view the keypoints overlaid on a background that provides
+view the keypoint overlaid on a background that provides
 some spatial context. You can either [load the video](target-load-video)
 corresponding to the dataset, or [load a single image](target-load-frame) (e.g., a still frame derived from that video).
 You can do this by dragging and dropping the corresponding video or image file onto the
@@ -212,7 +212,7 @@ Note the additional bounding boxes layer that is loaded for bounding boxes datas
 ### The points layer
 The points layer shows the data for the current frame.
 
-The keypoints are represented as points, colour-coded by
+The keypoint are represented as points, colour-coded by
 keypoint for single-individual datasets, or by individual for
 multi-individual datasets. In datasets with one keypoint per individual, or no keypoint dimension,
 the points are always colour-coded by individual.
@@ -268,11 +268,11 @@ the colour of the markers, and the length of the tracks can be adjusted in the
 [tracks layer](napari:howtos/layers/tracks.html) controls panel, with the `tail length` and `head length` sliders.
 
 When the `tail length` slider is at its maximum position, the tail track show the trajectory of the
-keypoints from the start of the video until the current frame. When the `head length` slider is at its maximum position,
-the head track shows the trajectory of the keypoints from the current frame until the end of the video.
+keypoint from the start of the video until the current frame. When the `head length` slider is at its maximum position,
+the head track shows the trajectory of the keypoint from the current frame until the end of the video.
 
 For example, in the screenshot below, we can see from the tracks layer control panel that the
-selected layer shows the trajectories of the keypoints from the current frame until the
+selected layer shows the trajectories of the keypoint from the current frame until the
 end of the video.
 
 

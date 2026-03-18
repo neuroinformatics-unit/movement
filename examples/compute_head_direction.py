@@ -26,20 +26,20 @@ from movement.utils.vector import cart2pol, pol2cart
 # Load sample dataset
 # -------------------
 # In this tutorial, we will use a sample dataset with a single individual
-# (a mouse) and six keypoints.
+# (a mouse) and six keypoint.
 
 ds = sample_data.fetch_dataset("DLC_single-mouse_EPM.predictions.h5")
 
 print(ds)
 print("-----------------------------")
-print(f"Individuals: {ds.individuals.values}")
-print(f"Keypoints: {ds.keypoints.values}")
+print(f"Individual: {ds.individual.values}")
+print(f"Keypoint: {ds.keypoint.values}")
 
 # %%
 # The loaded dataset ``ds`` contains two data arrays:``position`` and
 # ``confidence``. In this tutorial, we will only use the ``position`` data
 # array. We use :meth:`xarray.DataArray.squeeze` to remove
-# the redundant ``individuals`` dimension, as there is only one individual
+# the redundant ``individual`` dimension, as there is only one individual
 # in this dataset.
 
 position = ds.position.squeeze()
@@ -55,8 +55,8 @@ position = ds.position.squeeze()
 # The :func:`plot_centroid_trajectory()\
 # <movement.plots.plot_centroid_trajectory>`
 # function can help you visualise the trajectory of any keypoint in the data.
-# Passing a list of keypoints, in this case ``["left_ear", "right_ear"]``,
-# will plot the centroid (midpoint) of the selected keypoints.
+# Passing a list of keypoint, in this case ``["left_ear", "right_ear"]``,
+# will plot the centroid (midpoint) of the selected keypoint.
 # By default, the first individual in the dataset is shown.
 
 # Create figure and axis
@@ -69,7 +69,7 @@ ax.imshow(frame)
 # Plot the trajectory of the head centre
 plot_centroid_trajectory(
     ds.position,
-    keypoints=["left_ear", "right_ear"],
+    keypoint=["left_ear", "right_ear"],
     ax=ax,
     # arguments forwarded to plt.scatter
     s=10,
@@ -100,12 +100,12 @@ fig.show()
 # the ears to the snout.
 
 # Compute the head centre as the midpoint between the ears
-midpoint_ears = position.sel(keypoints=["left_ear", "right_ear"]).mean(
-    dim="keypoints"
+midpoint_ears = position.sel(keypoint=["left_ear", "right_ear"]).mean(
+    dim="keypoint"
 )
 # Snout position
-# (`drop=True` removes the keypoints dimension, which is now redundant)
-snout = position.sel(keypoints="snout", drop=True)
+# (`drop=True` removes the keypoint dimension, which is now redundant)
+snout = position.sel(keypoint="snout", drop=True)
 
 # Compute the head vector as the difference vector between the snout position
 # and the head-centre position.
@@ -234,8 +234,8 @@ print(head_to_snout_cart)
 # We can also estimate the head direction using the
 # :func:`compute_forward_vector()<movement.kinematics.compute_forward_vector>`
 # function, which takes a different approach to the one we used above:
-# it accepts a pair of bilaterally symmetric keypoints and
-# computes the vector that originates at the midpoint between the keypoints
+# it accepts a pair of bilaterally symmetric keypoint and
+# computes the vector that originates at the midpoint between the keypoint
 # and is perpendicular to the line connecting them.
 #
 # Here we will use the two ears to find the head direction vector.
@@ -257,7 +257,7 @@ print(forward_vector)
 #   You can think about it in this way: in order to uniquely determine which
 #   way is forward for an animal, we need to know the orientation of the other
 #   two body axes: left-right and up-down. The left-right axis is specified
-#   by the left and right keypoints passed to the function, while we use the
+#   by the left and right keypoint passed to the function, while we use the
 #   ``camera_view`` parameter to determine the upward direction (see image).
 #   The default view is ``"top_down"``, but it can also be ``"bottom_up"``.
 #   Other camera views are not supported at the moment.
@@ -271,9 +271,9 @@ print(forward_vector)
 # You can use
 # :func:`compute_forward_vector()<movement.kinematics.compute_forward_vector>`
 # to compute the perpendicular vector to any line connecting two bilaterally
-# symmetric keypoints.
+# symmetric keypoint.
 # For example, you could estimate the forward direction for the pelvis given
-# two keypoints at the hips.
+# two keypoint at the hips.
 #
 # Specifically for the head direction vector, you may also use the alias
 # :func:`compute_head_direction_vector()\

@@ -52,7 +52,7 @@ position = ds.position
 # For example, we can get a ``DataArray`` containing only data
 # for a single keypoint of the first individual:
 
-da = position.sel(individuals="AEON3B_NTP", keypoints="centroid")
+da = position.sel(individual="AEON3B_NTP", keypoint="centroid")
 print(da)
 
 # %%
@@ -62,10 +62,10 @@ da.plot.line(x="time", row="space", aspect=2, size=2.5)
 
 # %%
 # Similarly we could plot the same keypoint's x, y coordinates
-# for all individuals:
+# for all individual:
 
-da = position.sel(keypoints="centroid")
-da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
+da = position.sel(keypoint="centroid")
+da.plot.line(x="time", row="individual", aspect=2, size=2.5)
 
 # %%
 # Trajectory plots

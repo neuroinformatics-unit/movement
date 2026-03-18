@@ -27,18 +27,18 @@ def from_numpy(
     Parameters
     ----------
     position_array
-        Array of shape (n_frames, n_space, n_individuals)
+        Array of shape (n_frames, n_space, n_individual)
         containing the tracks of the bounding box centroids.
         It will be converted to a :class:`xarray.DataArray` object
         named "position".
     shape_array
-        Array of shape (n_frames, n_space, n_individuals)
+        Array of shape (n_frames, n_space, n_individual)
         containing the shape of the bounding boxes. The shape of a bounding
         box is its width (extent along the x-axis of the image) and height
         (extent along the y-axis of the image). It will be converted to a
         :class:`xarray.DataArray` object named "shape".
     confidence_array
-        Array of shape (n_frames, n_individuals) containing
+        Array of shape (n_frames, n_individual) containing
         the confidence scores of the bounding boxes. If None (default), the
         confidence scores are set to an array of NaNs. It will be converted
         to a :class:`xarray.DataArray` object named "confidence".
@@ -288,7 +288,7 @@ def from_via_tracks_file(
     centroid of each bounding box.
 
     Additionally, the bounding boxes IDs specified in the "track" field of
-    the VIA tracks .csv file are mapped to the ``individuals`` dimension in the
+    the VIA tracks .csv file are mapped to the ``individual`` dimension in the
     ``movement`` dataset. The individual names follow the format ``id_<N>``,
     with N being the bounding box ID.
 
@@ -378,14 +378,14 @@ def _numpy_arrays_from_valid_via_object(
     The extracted numpy arrays are returned in a dictionary with the following
     keys:
 
-    - position_array (n_frames, n_space, n_individuals):
+    - position_array (n_frames, n_space, n_individual):
         contains the trajectories of the bounding box centroids.
-    - shape_array (n_frames, n_space, n_individuals):
+    - shape_array (n_frames, n_space, n_individual):
         contains the shape of the bounding boxes (width and height).
-    - confidence_array (n_frames, n_individuals):
+    - confidence_array (n_frames, n_individual):
         contains the confidence score of each bounding box.
         If no confidence scores are provided, they are set to an array of NaNs.
-    - ID_array (n_individuals, 1):
+    - ID_array (n_individual, 1):
         contains the integer IDs of the tracked bounding boxes.
     - frame_array (n_frames, 1):
         contains the frame numbers.

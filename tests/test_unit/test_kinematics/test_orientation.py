@@ -10,12 +10,12 @@ from movement import kinematics
 
 @pytest.fixture
 def valid_data_array_for_forward_vector():
-    """Return a position data array for an individual with 3 keypoints
+    """Return a position data array for an individual with 3 keypoint
     (left ear, right ear and nose), tracked for 4 frames, in x-y space.
     """
     time = [0, 1, 2, 3]
-    individuals = ["id_0"]
-    keypoints = ["left_ear", "right_ear", "nose"]
+    individual = ["id_0"]
+    keypoint = ["left_ear", "right_ear", "nose"]
     space = ["x", "y"]
 
     ds = xr.DataArray(
@@ -25,11 +25,11 @@ def valid_data_array_for_forward_vector():
             [[[-1, 0], [1, 0], [0, 1]]],  # time 2
             [[[0, -1], [0, 1], [-1, 0]]],  # time 3
         ],
-        dims=["time", "individuals", "keypoints", "space"],
+        dims=["time", "individual", "keypoint", "space"],
         coords={
             "time": time,
-            "individuals": individuals,
-            "keypoints": keypoints,
+            "individual": individual,
+            "keypoint": keypoint,
             "space": space,
         },
     )
@@ -46,10 +46,10 @@ def invalid_input_type_for_forward_vector(valid_data_array_for_forward_vector):
 
 @pytest.fixture
 def invalid_dimensions_for_forward_vector(valid_data_array_for_forward_vector):
-    """Return a position DataArray in which the ``keypoints`` dimension has
+    """Return a position DataArray in which the ``keypoint`` dimension has
     been dropped.
     """
-    return valid_data_array_for_forward_vector.sel(keypoints="nose", drop=True)
+    return valid_data_array_for_forward_vector.sel(keypoint="nose", drop=True)
 
 
 @pytest.fixture
@@ -72,7 +72,7 @@ def valid_data_array_for_forward_vector_with_nan(
     """
     nan_dataarray = valid_data_array_for_forward_vector.where(
         (valid_data_array_for_forward_vector.time != 1)
-        | (valid_data_array_for_forward_vector.keypoints != "left_ear")
+        | (valid_data_array_for_forward_vector.keypoint != "left_ear")
     )
     return nan_dataarray
 
@@ -107,7 +107,7 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
 
     for output_array in [forward_vector, forward_vector_flipped, head_vector]:
         assert isinstance(output_array, xr.DataArray)
-        for preserved_coord in ["time", "space", "individuals"]:
+        for preserved_coord in ["time", "space", "individual"]:
             assert np.all(
                 output_array[preserved_coord]
                 == valid_data_array_for_forward_vector[preserved_coord]
@@ -119,7 +119,7 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
 
 
 @pytest.mark.parametrize(
-    "input_data, expected_error, expected_match_str, keypoints",
+    "input_data, expected_error, expected_match_str, keypoint",
     [
         (
             "invalid_input_type_for_forward_vector",
@@ -130,7 +130,7 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
         (
             "invalid_dimensions_for_forward_vector",
             ValueError,
-            "Input data must contain ['keypoints']",
+            "Input data must contain ['keypoint']",
             ["left_ear", "right_ear"],
         ),
         (
@@ -142,13 +142,13 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
         (
             "valid_data_array_for_forward_vector",
             ValueError,
-            "keypoints may not be identical",
+            "keypoint may not be identical",
             ["left_ear", "left_ear"],
         ),
     ],
 )
 def test_compute_forward_vector_with_invalid_input(
-    input_data, keypoints, expected_error, expected_match_str, request
+    input_data, keypoint, expected_error, expected_match_str, request
 ):
     """Test that ``compute_forward_vector`` catches errors
     correctly when passed invalid inputs.
@@ -158,9 +158,7 @@ def test_compute_forward_vector_with_invalid_input(
 
     # Catch error
     with pytest.raises(expected_error, match=re.escape(expected_match_str)):
-        kinematics.compute_forward_vector(
-            input_data, keypoints[0], keypoints[1]
-        )
+        kinematics.compute_forward_vector(input_data, keypoint[0], keypoint[1])
 
 
 def test_nan_behavior_forward_vector(
@@ -178,7 +176,7 @@ def test_nan_behavior_forward_vector(
     # trunk-ignore(bandit/B101)
     assert forward_vector.name == "forward_vector"
     # Check coord preservation
-    for preserved_coord in ["time", "space", "individuals"]:
+    for preserved_coord in ["time", "space", "individual"]:
         assert np.all(
             forward_vector[preserved_coord]
             == valid_data_array_for_forward_vector_with_nan[preserved_coord]
@@ -222,7 +220,7 @@ class TestForwardVectorAngle:
     def spinning_on_the_spot(self) -> xr.DataArray:
         """Simulate data for an individual's head spinning on the spot.
 
-        The left / right keypoints move in a circular motion counter-clockwise
+        The left / right keypoint move in a circular motion counter-clockwise
         around the unit circle centred on the origin, always opposite each
         other.
         The left keypoint starts on the negative x-axis, and the motion is
@@ -244,8 +242,8 @@ class TestForwardVectorAngle:
         data[:, :, 1] = -data[:, :, 0]
         return xr.DataArray(
             data=data,
-            dims=["time", "space", "keypoints"],
-            coords={"space": ["x", "y"], "keypoints": ["left", "right"]},
+            dims=["time", "space", "keypoint"],
+            coords={"space": ["x", "y"], "keypoint": ["left", "right"]},
         )
 
     @pytest.mark.parametrize(
@@ -266,7 +264,7 @@ class TestForwardVectorAngle:
     ) -> None:
         r"""Test antisymmetry arises where expected.
 
-        Reversing the right and left keypoints, or the camera position, has the
+        Reversing the right and left keypoint, or the camera position, has the
         effect of mapping angles to the "opposite side" of the unit circle.
         Explicitly;
         - :math:`\theta <= 0` is mapped to :math:`\theta + 180`,
@@ -360,9 +358,9 @@ class TestForwardVectorAngle:
         """Test that certain transforms of the data have no effect on
         the relative angle computed.
 
-        - Translations applied to both keypoints (even if the translation
+        - Translations applied to both keypoint (even if the translation
         changes with time) should not affect the result, so long as both
-        keypoints receive the same translation (at each timepoint).
+        keypoint receive the same translation (at each timepoint).
         - Scaling the right to left keypoint vector should not produce a
         different angle.
         """
@@ -375,7 +373,7 @@ class TestForwardVectorAngle:
 
         if transformation == "translation":
             # Effectively, the data is being translated (1,1)/time-point,
-            # but its keypoints are staying in the same relative positions.
+            # but its keypoint are staying in the same relative positions.
             translated_data += np.arange(n_time_pts).reshape(n_time_pts, 1, 1)
         elif transformation == "scale":
             # The left keypoint position is "stretched" further away from the

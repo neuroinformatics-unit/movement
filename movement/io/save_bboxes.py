@@ -30,25 +30,25 @@ def to_via_tracks_file(
 
     Parameters
     ----------
-    ds
+    ds : xarray.Dataset
         The ``movement`` bounding boxes dataset to export.
-    file_path
+    file_path : str or pathlib.Path
         Path where the VIA tracks .csv file [1]_ will be saved.
-    track_ids_from_trailing_numbers
+    track_ids_from_trailing_numbers : bool, optional
         If True, extract track IDs from the numbers at the end of the
-        individuals' names (e.g. `mouse_1` -> track ID 1). If False, the
+        individual' names (e.g. `mouse_1` -> track ID 1). If False, the
         track IDs will be assigned sequentially (0, 1, 2, ...) based on
-        the alphabetically sorted list of individuals' names. Default is True.
-    frame_n_digits
+        the alphabetically sorted list of individual' names. Default is True.
+    frame_n_digits : int, optional
         The number of digits to use to represent frame numbers in the image
         filenames (including leading zeros). If None, the number of digits is
         automatically determined from the largest frame number in the dataset,
         plus one (to have at least one leading zero). Default is None.
-    image_file_prefix
+    image_file_prefix : str, optional
         Prefix to apply to every image filename. It is prepended to the frame
         number which is padded with leading zeros. If None or an empty string,
         nothing will be prepended to the padded frame number. Default is None.
-    image_file_suffix
+    image_file_suffix : str, optional
         Suffix to add to every image filename holding the file extension.
         Strings with or without the dot are accepted. Default is '.png'.
 
@@ -71,7 +71,7 @@ def to_via_tracks_file(
     Examples
     --------
     Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
-    deriving the track IDs from the numbers at the end of the individuals'
+    deriving the track IDs from the numbers at the end of the individual'
     names and assuming the image files are PNG files. The frame numbers in the
     image filenames are padded with at least one leading zero by default:
 
@@ -80,7 +80,7 @@ def to_via_tracks_file(
 
     Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
     assigning the track IDs sequentially based on the alphabetically sorted
-    list of individuals' names, and assuming the image files are PNG files:
+    list of individual' names, and assuming the image files are PNG files:
 
     >>> from movement.io import save_bboxes
     >>> save_bboxes.to_via_tracks_file(
@@ -90,7 +90,7 @@ def to_via_tracks_file(
     ... )
 
     Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
-    deriving the track IDs from the numbers at the end of the individuals'
+    deriving the track IDs from the numbers at the end of the individual'
     names, and assuming the image files are JPG files:
 
     >>> from movement.io import save_bboxes
@@ -101,7 +101,7 @@ def to_via_tracks_file(
     ... )
 
     Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
-    deriving the track IDs from the numbers at the end of the individuals'
+    deriving the track IDs from the numbers at the end of the individual'
     names and with image filenames following the format
     ``frame-<frame_number>.jpg``:
 
@@ -114,7 +114,7 @@ def to_via_tracks_file(
     ... )
 
     Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,
-    deriving the track IDs from the numbers at the end of the individuals'
+    deriving the track IDs from the numbers at the end of the individual'
     names, and with frame numbers in the image filenames represented using 4
     digits (i.e., image filenames would be ``0000.png``, ``0001.png``, etc.):
 
@@ -141,9 +141,9 @@ def to_via_tracks_file(
         image_file_prefix=image_file_prefix,
         image_file_suffix=image_file_suffix,
     )
-    # Map individuals' names to track IDs
-    map_individual_to_track_id = _compute_individuals_to_track_ids_map(
-        ds.coords["individuals"].values,
+    # Map individual' names to track IDs
+    map_individual_to_track_id = _compute_individual_to_track_ids_map(
+        ds.coords["individual"].values,
         track_ids_from_trailing_numbers,
     )
     # Write file
@@ -170,13 +170,13 @@ def _get_image_filename_template(
 
     Parameters
     ----------
-    frame_n_digits
+    frame_n_digits : int
         Number of digits used to represent the frame number, including any
         leading zeros.
-    image_file_prefix
+    image_file_prefix : str | None
         Prefix for each image filename, prepended to the frame number. If
         None or an empty string, nothing will be prepended.
-    image_file_suffix
+    image_file_suffix : str
         Suffix to add to each image filename to represent the file extension.
 
     Returns
@@ -210,9 +210,9 @@ def _check_frame_required_digits(
 
     Parameters
     ----------
-    ds
+    ds : xarray.Dataset
         A movement dataset.
-    frame_n_digits
+    frame_n_digits : int | None
         The proposed number of digits to use to represent the frame numbers
         in the image filenames (including leading zeros). If None, the number
         of digits is inferred based on the largest frame number in the dataset.
@@ -253,87 +253,87 @@ def _check_frame_required_digits(
         return frame_n_digits
 
 
-def _compute_individuals_to_track_ids_map(
-    individuals: Iterable[str],
+def _compute_individual_to_track_ids_map(
+    individual: Iterable[str],
     track_ids_from_trailing_numbers: bool,
 ) -> dict[str, int]:
-    """Compute the map from individuals' names to track IDs.
+    """Compute the map from individual' names to track IDs.
 
     Parameters
     ----------
-    individuals
-        List of individuals' names.
-    track_ids_from_trailing_numbers
+    individual : Iterable[str]
+        List of individual' names.
+    track_ids_from_trailing_numbers : bool
         If True, extract track ID from the last consecutive digits in
-        the individuals' names. If False, the track IDs will be assigned
+        the individual' names. If False, the track IDs will be assigned
         sequentially (0, 1, 2, ...) based on the alphabetically
-        sorted list of individuals' names.
+        sorted list of individual' names.
 
     Returns
     -------
     dict[str, int]
-        A dictionary mapping individuals' names to track IDs.
+        A dictionary mapping individual' names to track IDs.
 
     """
     if track_ids_from_trailing_numbers:
-        # Extract track IDs from the trailing numbers in the individuals' names
-        map_individual_to_track_id = _extract_track_ids_from_individuals_names(
-            individuals
+        # Extract track IDs from the trailing numbers in the individual' names
+        map_individual_to_track_id = _extract_track_ids_from_individual_names(
+            individual
         )
     else:
         # Assign track IDs sequentially based on the alphabetically sorted
-        # list of individuals' names
+        # list of individual' names
         map_individual_to_track_id = {
-            individual: i for i, individual in enumerate(sorted(individuals))
+            individual: i for i, individual in enumerate(sorted(individual))
         }
 
     return map_individual_to_track_id
 
 
-def _extract_track_ids_from_individuals_names(
-    individuals: Iterable[str],
+def _extract_track_ids_from_individual_names(
+    individual: Iterable[str],
 ) -> dict[str, int]:
-    """Extract track IDs as the last digits in the individuals' names.
+    """Extract track IDs as the last digits in the individual' names.
 
     Parameters
     ----------
-    individuals
-        List of individuals' names.
+    individual : Iterable[str]
+        List of individual' names.
 
     Returns
     -------
     dict[str, int]
-        A dictionary mapping individuals' names to track IDs.
+        A dictionary mapping individual' names to track IDs.
 
     Raises
     ------
     ValueError
         If a track ID is not found by looking at the last consecutive digits
         in an individual's name, or if the extracted track IDs cannot be
-        uniquely mapped to the individuals' names.
+        uniquely mapped to the individual' names.
 
     """
     map_individual_to_track_id = {}
 
-    for individual in individuals:
+    for indiv in individual:
         # Match the last consecutive digits in the individual's name
         # even if they are not at the end of the string
         pattern = r"(\d+)(?=\D*$)"
-        match = re.search(pattern, individual)
+        match = re.search(pattern, indiv)
         if match:
             track_id = int(match.group(1))
-            map_individual_to_track_id[individual] = track_id
+            map_individual_to_track_id[indiv] = track_id
         else:
             raise logger.error(
-                ValueError(f"Could not extract track ID from {individual}.")
+                ValueError(f"Could not extract track ID from {indiv}.")
             )
 
-    # Check that all individuals have a unique track ID
-    if len(set(map_individual_to_track_id.values())) != len(set(individuals)):
+    # Check that all individual have a unique track ID
+    if len(set(map_individual_to_track_id.values())) != len(set(individual)):
         raise logger.error(
             ValueError(
-                "Could not extract a unique track ID for all individuals. "
-                f"Expected {len(set(individuals))} unique track IDs, "
+                "Could not extract a unique track ID for all individual. "
+                f"Expected {len(set(individual))} unique track IDs, "
                 f"but got {len(set(map_individual_to_track_id.values()))}."
             )
         )
@@ -351,13 +351,13 @@ def _write_via_tracks_csv(
 
     Parameters
     ----------
-    ds
+    ds : xarray.Dataset
         A movement bounding boxes dataset.
-    file_path
+    file_path : str or pathlib.Path
         Path where the VIA tracks .csv file will be saved.
-    map_individual_to_track_id
-        Dictionary mapping individuals' names to track IDs.
-    img_filename_template
+    map_individual_to_track_id : dict
+        Dictionary mapping individual' names to track IDs.
+    img_filename_template : str
         Format string for the images' filenames.
 
     """
@@ -381,7 +381,7 @@ def _write_via_tracks_csv(
     # Locate bboxes with null position or shape
     null_position_or_shape = np.any(ds.position.isnull(), axis=1) | np.any(
         ds.shape.isnull(), axis=1
-    )  # (time, individuals)
+    )  # (time, individual)
 
     with open(file_path, "w", newline="") as f:
         csv_writer = csv.writer(f)
@@ -397,11 +397,11 @@ def _write_via_tracks_csv(
             # Initialise region ID for current frame
             region_id = 0
 
-            # Loop through individuals
-            for indiv in ds.individuals.values:
+            # Loop through individual
+            for indiv in ds.individual.values:
                 # Get position and shape data
-                xy_data = ds.position.sel(time=time, individuals=indiv).values
-                wh_data = ds.shape.sel(time=time, individuals=indiv).values
+                xy_data = ds.position.sel(time=time, individual=indiv).values
+                wh_data = ds.shape.sel(time=time, individual=indiv).values
 
                 # If the position or shape data contain NaNs, do not write
                 # this bounding box to file
@@ -410,12 +410,12 @@ def _write_via_tracks_csv(
 
                 # Get confidence score
                 confidence = ds.confidence.sel(
-                    time=time, individuals=indiv
+                    time=time, individual=indiv
                 ).values
                 if np.isnan(confidence):
                     confidence = None  # pass as None if confidence is NaN
 
-                # Get track IDs from individuals' names
+                # Get track IDs from individual' names
                 track_id = map_individual_to_track_id[indiv]
 
                 # Write row
@@ -450,25 +450,25 @@ def _write_single_row(
 
     Parameters
     ----------
-    writer
+    writer : csv.writer
         CSV writer object.
-    xy_values
+    xy_values : np.ndarray
         Array with the x, y coordinates of the bounding box centroid.
-    wh_values
+    wh_values : np.ndarray
         Array with the width and height of the bounding box.
-    confidence
+    confidence : float | None
         Confidence score for the bounding box detection.
-    track_id
+    track_id : int
         Integer identifying a single track of bounding boxes across frames.
-    region_count
+    region_count : int
         Total number of bounding boxes in the current frame.
-    region_id
+    region_id : int
         Integer that identifies the bounding boxes in a frame starting from 0.
         Note that it is the result of an enumeration, and it does not
         necessarily match the track ID.
-    img_filename
+    img_filename : str
         Filename of the image file corresponding to the current frame.
-    image_size
+    image_size : int | None
         File size in bytes. If None, the file size is set to 0.
 
     Returns
@@ -493,16 +493,13 @@ def _write_single_row(
     file_attributes = json.dumps({"shot": 0})
 
     # Define region shape attributes
-    # Note: float() converts float32 to float64,
-    # which is json-serializable
-    n_decimals = 6
     region_shape_attributes = json.dumps(
         {
             "name": "rect",
-            "x": round(float(x_top_left), n_decimals),
-            "y": round(float(y_top_left), n_decimals),
-            "width": round(float(width), n_decimals),
-            "height": round(float(height), n_decimals),
+            "x": float(x_top_left),
+            "y": float(y_top_left),
+            "width": float(width),
+            "height": float(height),
         }
     )
 
@@ -510,9 +507,7 @@ def _write_single_row(
     region_attributes_dict: dict[str, float | int] = {"track": int(track_id)}
     if confidence is not None:
         # convert to float to ensure it is json-serializable
-        region_attributes_dict["confidence"] = round(
-            float(confidence), n_decimals
-        )
+        region_attributes_dict["confidence"] = float(confidence)
     region_attributes = json.dumps(region_attributes_dict)
 
     # Set image size

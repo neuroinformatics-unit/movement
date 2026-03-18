@@ -799,7 +799,7 @@ SLEAP_three-mice_Aeon_proofread.analysis.h5:
   type: poses
   fps: 50
   species: mouse
-  number_of_individuals: 3
+  number_of_individual: 3
   shared_by:
     name: Chang Huan Lo
     affiliation: Sainsbury Wellcome Centre, UCL

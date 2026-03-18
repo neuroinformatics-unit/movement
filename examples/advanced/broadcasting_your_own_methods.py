@@ -10,7 +10,7 @@ to efficiently apply functions across any data dimension.
 # -------
 # :func:`@make_broadcastable()<movement.utils.broadcasting.\
 # make_broadcastable>` is particularly useful when you need to
-# apply the same operation to multiple individuals or time points
+# apply the same operation to multiple individual or time points
 # while avoiding the need to write complex loops.
 #
 # The example walks through a practical case study of detecting when animals
@@ -50,9 +50,9 @@ from movement.utils.broadcasting import make_broadcastable
 ds = sample_data.fetch_dataset("SLEAP_three-mice_Aeon_proofread.analysis.h5")
 positions: xr.DataArray = ds.position
 # %%
-# The individuals in this dataset follow very similar, arc-like trajectories.
+# The individual in this dataset follow very similar, arc-like trajectories.
 # To help emphasise what we are doing in this example, we will offset the paths
-# of two of the individuals by a small amount so that the trajectories are more
+# of two of the individual by a small amount so that the trajectories are more
 # distinct.
 
 positions.loc[:, "y", :, "AEON3B_TP1"] -= 100.0
@@ -62,12 +62,12 @@ positions.loc[:, "y", :, "AEON3B_TP2"] += 100.0
 
 fig, ax = plt.subplots(1, 1)
 for mouse_name, col in zip(
-    positions.individuals.values, ["r", "g", "b"], strict=False
+    positions.individual.values, ["r", "g", "b"], strict=False
 ):
     plot_centroid_trajectory(
         positions,
         individual=mouse_name,
-        keypoints="centroid",
+        keypoint="centroid",
         ax=ax,
         linestyle="-",
         marker=".",
@@ -86,7 +86,7 @@ ax.legend()
 # Motivation
 # ----------
 # Suppose that, during our experiment, we have a region of the enclosure that
-# has a slightly wet floor, making it slippery. The individuals must cross this
+# has a slightly wet floor, making it slippery. The individual must cross this
 # region in order to reach some kind of reward on the other side of the
 # enclosure.
 # We know that the "slippery region" of our enclosure is approximately
@@ -126,8 +126,8 @@ data_shape = positions.shape
 in_slippery = np.zeros(
     shape=(
         len(positions["time"]),
-        len(positions["keypoints"]),
-        len(positions["individuals"]),
+        len(positions["keypoint"]),
+        len(positions["individual"]),
     ),
     dtype=bool,
 )  # We would save one result per time-point, per keypoint, per individual
@@ -137,15 +137,15 @@ in_slippery = np.zeros(
 # if you are running this code on your own machine.
 for time_index, time in enumerate(positions["time"].values):
     # print(f"At time {time}:")
-    for keypoint_index, keypoint in enumerate(positions["keypoints"].values):
+    for keypoint_index, keypoint in enumerate(positions["keypoint"].values):
         # print(f"\tAt keypoint {keypoint}")
         for individual_index, individual in enumerate(
-            positions["individuals"].values
+            positions["individual"].values
         ):
             xy_point = positions.sel(
                 time=time,
-                keypoints=keypoint,
-                individuals=individual,
+                keypoint=keypoint,
+                individual=individual,
             )
             was_in_slippery = in_slippery_region(xy_point)
             was_in_slippery_text = (
@@ -155,7 +155,7 @@ for time_index, time in enumerate(positions["time"].values):
             )
             # print(
             #      "\t\tIndividual "
-            #      f"{positions['individuals'].values[individual_index]} "
+            #      f"{positions['individual'].values[individual_index]} "
             #      f"{was_in_slippery_text}"
             # )
             # Save our result to our large array
@@ -168,11 +168,11 @@ for time_index, time in enumerate(positions["time"].values):
 # access the results in the same way that we did our original data.
 was_in_slippery_region = xr.DataArray(
     in_slippery,
-    dims=["time", "keypoints", "individuals"],
+    dims=["time", "keypoint", "individual"],
     coords={
         "time": positions["time"],
-        "keypoints": positions["keypoints"],
-        "individuals": positions["individuals"],
+        "keypoint": positions["keypoint"],
+        "individual": positions["individual"],
     },
 )
 
@@ -187,7 +187,7 @@ was_in_slippery_region
 # slippery region now, by examining this ``DataArray``.
 i_id = "AEON3B_NTP"
 individual_0_centroid = was_in_slippery_region.sel(
-    individuals=i_id, keypoints="centroid"
+    individual=i_id, keypoint="centroid"
 )
 first_entry = individual_0_centroid["time"][individual_0_centroid].values[0]
 last_exit = individual_0_centroid["time"][individual_0_centroid].values[-1]
@@ -277,9 +277,9 @@ xr.testing.assert_equal(
 # %%
 # But importantly, ``in_slippery_region_broadcastable`` also works on
 # ``DataArrays`` with different dimensions.
-# For example, we could have pre-selected one of our individuals beforehand.
+# For example, we could have pre-selected one of our individual beforehand.
 i_id = "AEON3B_NTP"
-individual_0 = positions.sel(individuals=i_id)
+individual_0 = positions.sel(individual=i_id)
 
 individual_0_in_slippery_region = in_slippery_region_broadcastable(
     individual_0,

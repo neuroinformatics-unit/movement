@@ -84,19 +84,19 @@ open build/html/index.html  # macOS
 The entire package is built around **xarray Datasets** as the central data structure. Understanding this is crucial for working with the codebase.
 
 **Poses Dataset:**
-- Dimensions: `(time, space, keypoints, individuals)`
+- Dimensions: `(time, space, keypoint, individual)`
 - Variables:
-  - `position`: shape `(n_frames, n_space, n_keypoints, n_individuals)`
-  - `confidence`: shape `(n_frames, n_keypoints, n_individuals)`
+  - `position`: shape `(n_frames, n_space, n_keypoint, n_individual)`
+  - `confidence`: shape `(n_frames, n_keypoint, n_individual)`
 - Coordinates:
   - `time`: seconds (if fps provided) or frame numbers
   - `space`: `["x", "y"]` or `["x", "y", "z"]`
-  - `keypoints`: list of keypoint names
-  - `individuals`: list of individual names
+  - `keypoint`: list of keypoint names
+  - `individual`: list of individual names
 - Attributes: `source_software`, `fps`, `time_unit`, `ds_type="poses"`, `log`
 
 **Bboxes Dataset:**
-- Dimensions: `(time, space, individuals)`
+- Dimensions: `(time, space, individual)`
 - Variables:
   - `position`: centroid positions
   - `shape`: bounding box dimensions
@@ -127,7 +127,7 @@ The entire package is built around **xarray Datasets** as the central data struc
 
 **`kinematics/`** - Motion analysis
 - `kinematics.py`: Core kinematics (velocity, acceleration, displacement)
-- `distances.py`: Pairwise distances between keypoints
+- `distances.py`: Pairwise distances between keypoint
 - `orientation.py`: Forward vectors, head direction
 - `kinetic_energy.py`: Energy computations
 

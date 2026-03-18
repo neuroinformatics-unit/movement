@@ -21,25 +21,25 @@ def compute_forward_vector(
     right_keypoint: Hashable,
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
 ) -> xr.DataArray:
-    """Compute a 2D forward vector given two left-right symmetric keypoints.
+    """Compute a 2D forward vector given two left-right symmetric keypoint.
 
     The forward vector is computed as a vector perpendicular to the
-    line connecting two symmetrical keypoints on either side of the body
+    line connecting two symmetrical keypoint on either side of the body
     (i.e., symmetrical relative to the mid-sagittal plane), and pointing
     forwards (in the rostral direction). A top-down or bottom-up view of the
     animal is assumed (see Notes).
 
     Parameters
     ----------
-    data
+    data : xarray.DataArray
         The input data representing position. This must contain
-        the two symmetrical keypoints located on the left and
+        the two symmetrical keypoint located on the left and
         right sides of the body, respectively.
-    left_keypoint
+    left_keypoint : Hashable
         Name of the left keypoint, e.g., "left_ear"
-    right_keypoint
+    right_keypoint : Hashable
         Name of the right keypoint, e.g., "right_ear"
-    camera_view
+    camera_view : Literal["top_down", "bottom_up"], optional
         The camera viewing angle, used to determine the upwards
         direction of the animal. Can be either ``"top_down"`` (where the
         upwards direction is [0, 0, -1]), or ``"bottom_up"`` (where the
@@ -51,14 +51,14 @@ def compute_forward_vector(
     xarray.DataArray
         An xarray DataArray representing the forward vector, with
         dimensions matching the input data array, but without the
-        ``keypoints`` dimension.
+        ``keypoint`` dimension.
 
     Notes
     -----
     To determine the forward direction of the animal, we need to specify
     (1) the right-to-left direction of the animal and (2) its upward direction.
     We determine the right-to-left direction via the input left and right
-    keypoints. The upwards direction, in turn, can be determined by passing the
+    keypoint. The upwards direction, in turn, can be determined by passing the
     ``camera_view`` argument with either ``"top_down"`` or ``"bottom_up"``. If
     the camera view is specified as being ``"top_down"``, or if no additional
     information is provided, we assume that the upwards direction matches that
@@ -80,7 +80,7 @@ def compute_forward_vector(
         data,
         {
             "time": [],
-            "keypoints": [left_keypoint, right_keypoint],
+            "keypoint": [left_keypoint, right_keypoint],
             "space": [],
         },
     )
@@ -91,15 +91,15 @@ def compute_forward_vector(
                 f"currently has {len(data.space)}."
             )
         )
-    # Validate input keypoints
+    # Validate input keypoint
     if left_keypoint == right_keypoint:
         raise logger.error(
-            ValueError("The left and right keypoints may not be identical.")
+            ValueError("The left and right keypoint may not be identical.")
         )
     # Define right-to-left vector
     right_to_left_vector = data.sel(
-        keypoints=left_keypoint, drop=True
-    ) - data.sel(keypoints=right_keypoint, drop=True)
+        keypoint=left_keypoint, drop=True
+    ) - data.sel(keypoint=right_keypoint, drop=True)
     # Define upward vector
     # default: negative z direction in the image coordinate system
     upward_vector_arr = (
@@ -133,8 +133,8 @@ def compute_head_direction_vector(
     left_keypoint: str,
     right_keypoint: str,
     camera_view: Literal["top_down", "bottom_up"] = "top_down",
-) -> xr.DataArray:
-    """Compute the 2D head direction vector given two keypoints on the head.
+):
+    """Compute the 2D head direction vector given two keypoint on the head.
 
     This function is an alias for :func:`compute_forward_vector()\
     <movement.kinematics.compute_forward_vector>`. For more
@@ -143,15 +143,15 @@ def compute_head_direction_vector(
 
     Parameters
     ----------
-    data
+    data : xarray.DataArray
         The input data representing position. This must contain
-        the two chosen keypoints corresponding to the left and
+        the two chosen keypoint corresponding to the left and
         right of the head.
-    left_keypoint
+    left_keypoint : str
         Name of the left keypoint, e.g., "left_ear"
-    right_keypoint
+    right_keypoint : str
         Name of the right keypoint, e.g., "right_ear"
-    camera_view
+    camera_view : Literal["top_down", "bottom_up"], optional
         The camera viewing angle, used to determine the upwards
         direction of the animal. Can be either ``"top_down"`` (where the
         upwards direction is [0, 0, -1]), or ``"bottom_up"`` (where the
@@ -163,7 +163,7 @@ def compute_head_direction_vector(
     xarray.DataArray
         An xarray DataArray representing the head direction vector, with
         dimensions matching the input data array, but without the
-        ``keypoints`` dimension.
+        ``keypoint`` dimension.
 
     """
     result = compute_forward_vector(
@@ -192,30 +192,30 @@ def compute_forward_vector_angle(
 
     Parameters
     ----------
-    data
+    data : xarray.DataArray
         The input data representing position. This must contain
-        the two symmetrical keypoints located on the left and
+        the two symmetrical keypoint located on the left and
         right sides of the body, respectively.
-    left_keypoint
+    left_keypoint : Hashable
         Name of the left keypoint, e.g., "left_ear", used to compute the
         forward vector.
-    right_keypoint
+    right_keypoint : Hashable
         Name of the right keypoint, e.g., "right_ear", used to compute the
         forward vector.
-    reference_vector
+    reference_vector : xr.DataArray | ArrayLike, optional
         The reference vector against which the ``forward_vector`` is
         compared to compute 2D heading. Must be a two-dimensional vector,
         in the form [x,y] - where ``reference_vector[0]`` corresponds to the
         x-coordinate and ``reference_vector[1]`` corresponds to the
         y-coordinate. If left unspecified, the vector [1, 0] is used by
         default.
-    camera_view
+    camera_view : Literal["top_down", "bottom_up"], optional
         The camera viewing angle, used to determine the upwards
         direction of the animal. Can be either ``"top_down"`` (where the
         upwards direction is [0, 0, -1]), or ``"bottom_up"`` (where the
         upwards direction is [0, 0, 1]). If left unspecified, the camera
         view is assumed to be ``"top_down"``.
-    in_degrees
+    in_degrees : bool
         If ``True``, the returned heading array is given in degrees.
         Otherwise, the array is given in radians. Default ``False``.
 
@@ -224,7 +224,7 @@ def compute_forward_vector_angle(
     xarray.DataArray
         An xarray DataArray containing the computed forward vector angles,
         with dimensions matching the input data array,
-        but without the ``keypoints`` and ``space`` dimensions.
+        but without the ``keypoint`` and ``space`` dimensions.
 
     See Also
     --------
@@ -263,7 +263,7 @@ def _validate_type_data_array(data: xr.DataArray) -> None:
 
     Parameters
     ----------
-    data
+    data : xarray.DataArray
         The input data to validate.
 
     Raises
