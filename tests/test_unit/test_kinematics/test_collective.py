@@ -543,6 +543,46 @@ class TestHeadingSourceSelection:
         polarization = kinematics.compute_polarization(da)
         assert np.allclose(polarization.values[1:], 1.0, atol=1e-10)
 
+    def test_explicit_keypoint_selection_with_sel(self):
+        """Pre-selecting keypoint with .sel() uses that keypoint.
+
+        Data shape: (time, space, keypoints, individuals).
+
+        X-coordinates across frames:
+
+            Keypoint | Individual | Frame 0 | Frame 1 | Displacement
+            ---------|------------|---------|---------|-------------
+            thorax   | ind0       | 0       | 1       | +1 (right)
+            thorax   | ind1       | 10      | 11      | +1 (right)
+            head     | ind0       | 0       | 1       | +1 (right)
+            head     | ind1       | 10      | 9       | -1 (left)
+
+        Thorax: both individuals move right -> polarization = 1.0
+        Head: ind0 moves right, ind1 moves left -> polarization = 0.0
+        """
+        data = np.array(
+            [
+                [
+                    [[0, 10], [0, 10]],
+                    [[0, 0], [0, 0]],
+                ],
+                [
+                    [[1, 11], [1, 9]],
+                    [[0, 0], [0, 0]],
+                ],
+            ],
+            dtype=float,
+        )
+        da = _make_position_dataarray(data, keypoints=["thorax", "head"])
+
+        # Without .sel(): uses thorax -> both move right -> polarization = 1.0
+        pol_default = kinematics.compute_polarization(da)
+        assert np.allclose(pol_default.values[1], 1.0, atol=1e-10)
+
+        # With .sel(): head selected -> ind0 right, ind1 left -> 0.0
+        pol_head = kinematics.compute_polarization(da.sel(keypoints="head"))
+        assert np.allclose(pol_head.values[1], 0.0, atol=1e-10)
+
     def test_keypoint_heading_overrides_displacement_behavior(self):
         """Keypoint-based heading overrides displacement computation."""
         data = np.array(

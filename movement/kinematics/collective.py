@@ -40,7 +40,9 @@ def compute_polarization(
     data : xarray.DataArray
         Position data. Must contain ``time``, ``space``, and ``individuals`` as
         dimensions. If ``heading_keypoints`` is provided, the array must also
-        contain a ``keypoints`` dimension.
+        contain a ``keypoints`` dimension. For displacement-based heading,
+        pre-select a keypoint (e.g., ``data.sel(keypoints="thorax")``) or the
+        first keypoint (index 0) will be used.
 
         Spatial coordinates must include ``"x"`` and ``"y"``. If additional
         spatial coordinates are present (e.g., ``"z"``), they are ignored;
@@ -80,16 +82,22 @@ def compute_polarization(
 
     Examples
     --------
-    Compute polarization from displacement:
-
-    >>> polarization = compute_polarization(ds.position)
-
     Compute polarization from keypoint-defined heading:
 
     >>> polarization = compute_polarization(
     ...     ds.position,
     ...     heading_keypoints=("tail", "nose"),
     ... )
+
+    Compute polarization from displacement (select keypoint for tracking):
+
+    >>> polarization = compute_polarization(
+    ...     ds.position.sel(keypoints="thorax")
+    ... )
+
+    If multiple keypoints exist and none is selected, the first is used:
+
+    >>> polarization = compute_polarization(ds.position)
 
     Return both polarization and mean angle:
 
