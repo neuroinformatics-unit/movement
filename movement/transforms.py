@@ -196,7 +196,7 @@ def poses_to_bboxes(
         )
     validate_dims_coords(
         position,
-        {"time": [], "space": ["x", "y"], "keypoints": [], "individuals": []},
+        {"time": [], "space": ["x", "y"], "keypoint": [], "individual": []},
         exact_coords=True,
     )
     if not isinstance(padding, int | float):
@@ -210,8 +210,8 @@ def poses_to_bboxes(
     valid_mask = ~position.isnull().any(dim="space")
     masked = position.where(valid_mask)
 
-    pos_min = masked.min(dim="keypoints", skipna=True)
-    pos_max = masked.max(dim="keypoints", skipna=True)
+    pos_min = masked.min(dim="keypoint", skipna=True)
+    pos_max = masked.max(dim="keypoint", skipna=True)
 
     centroid = (pos_min + pos_max) / 2
     shape = pos_max - pos_min + 2 * padding

@@ -360,15 +360,15 @@ def test_forward_displacement_with_multiindex_coords():
 
     df = pd.DataFrame(
         list(product(frames, space, keypoints, individuals)),
-        columns=["time", "space", "keypoints", "individuals"],
+        columns=["time", "space", "keypoint", "individual"],
     )
     df["position"] = np.random.rand(len(df))
 
     # Convert to xarray DataArray via pandas MultiIndex
     # This retains the _no_setting_name flag that caused the bug
     position = (
-        df.loc[:, ["time", "space", "keypoints", "individuals", "position"]]
-        .set_index(["time", "space", "keypoints", "individuals"])["position"]
+        df.loc[:, ["time", "space", "keypoint", "individual", "position"]]
+        .set_index(["time", "space", "keypoint", "individual"])["position"]
         .to_xarray()
     )
 

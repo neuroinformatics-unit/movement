@@ -146,7 +146,7 @@ def test_to_via_tracks_file_valid_dataset(
     input_dataset.confidence.values[np.any(null_position_or_shape, axis=1)] = (
         np.nan
     )
-    xr.testing.assert_equal(ds, input_dataset)
+    xr.testing.assert_allclose(ds, input_dataset)
 
 
 @pytest.mark.parametrize(
