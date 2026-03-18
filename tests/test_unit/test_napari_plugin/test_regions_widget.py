@@ -798,6 +798,15 @@ def test_table_model_flags_invalid_index(regions_widget_with_layer):
     assert flags == Qt.NoItemFlags
 
 
+def test_table_model_guards_invalid_index(regions_widget_with_layer):
+    """Test data() and setData() return sentinel values for invalid index."""
+    widget, _ = regions_widget_with_layer
+    model = widget.region_table_model
+    invalid = QModelIndex()
+    assert model.data(invalid) is None
+    assert model.setData(invalid, "x") is False
+
+
 @pytest.mark.parametrize(
     "call_handler",
     [
