@@ -197,14 +197,14 @@ class RegionsStyle(LayerStyle):
     """Style properties for a napari Shapes layer containing regions.
 
     The same ``color`` is applied to faces, edges, and text.
-    The face color opacity is hardcoded to 0.25, while edges and text
-    colors are opaque.
+    The face color alpha is hardcoded to 0.25, while edges and text are
+    fully opaque. Overall layer opacity is set to 1.0.
     """
 
     name: str = "Regions"
     color: str | tuple = "red"
     edge_width: float = 5.0
-    opacity: float = 1.0  # applies to the whole layer
+    opacity: float = 1.0
     text: dict = field(
         default_factory=lambda: {
             "visible": False,
@@ -243,7 +243,8 @@ class RegionsStyle(LayerStyle):
         layer.text = text_dict
         layer.text.color = self.edge_and_text_color
 
-        # Set face and edge colors for all shapes
+        # Set layer opacity and per-shape face/edge colors
+        layer.opacity = self.opacity
         n_shapes = len(layer.data)
         if n_shapes > 0:
             layer.face_color = [self.face_color] * n_shapes
