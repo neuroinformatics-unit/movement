@@ -553,8 +553,18 @@ def position_data_non_uniform_time():
 class TestComputePolarization:
     """Test suite for the compute_polarization function."""
 
-    def test_polarization_aligned(self, position_data_aligned_individuals):
-        """Test polarization is 1.0 when all move same direction."""
+    def test_polarization_aligned(
+        self,
+        position_data_aligned_individuals,
+        position_data_diagonal_movement,
+    ):
+        """Test polarization is 1.0 when all move same direction.
+
+        Tests both horizontal and diagonal movement to verify that
+        polarization is rotation-invariant (direction angle doesn't matter,
+        only alignment between individuals).
+        """
+        # Test horizontal alignment
         polarization = kinematics.compute_polarization(
             position_data_aligned_individuals
         )
@@ -568,6 +578,13 @@ class TestComputePolarization:
         # All moving in same direction -> polarization should be ~1.0
         # (Skip first time point since velocity is computed via diff)
         assert np.allclose(polarization.values[1:], 1.0, atol=1e-10)
+
+        # Test diagonal alignment (rotation invariance)
+        # Both individuals moving at 45 degrees should also yield pol=1.0
+        polarization_diag = kinematics.compute_polarization(
+            position_data_diagonal_movement
+        )
+        assert np.allclose(polarization_diag.values[1:], 1.0, atol=1e-10)
 
     def test_polarization_opposite(self, position_data_opposite_individuals):
         """Test polarization is 0.0 when individuals move opposite."""
@@ -603,17 +620,6 @@ class TestComputePolarization:
         # Should compute polarization even with missing data
         # The frame with NaN should exclude that individual from calculation
         assert not np.all(np.isnan(polarization.values))
-
-    def test_polarization_range(self, position_data_aligned_individuals):
-        """Test that polarization values are in [0, 1] range."""
-        polarization = kinematics.compute_polarization(
-            position_data_aligned_individuals
-        )
-
-        # Exclude NaN values from range check
-        valid_values = polarization.values[~np.isnan(polarization.values)]
-        assert np.all(valid_values >= 0.0)
-        assert np.all(valid_values <= 1.0)
 
     def test_invalid_input_type(self, position_data_aligned_individuals):
         """Test that non-DataArray input raises TypeError."""
@@ -679,18 +685,6 @@ class TestComputePolarization:
         expected = np.sqrt(5) / 3  # ≈ 0.745
         # Compare frames 1: avoid boundary differencing dependence at t=0.
         assert np.allclose(polarization.values[1:], expected, atol=1e-10)
-
-    def test_polarization_diagonal_movement(
-        self, position_data_diagonal_movement
-    ):
-        """Test polarization with diagonal movement remains 1.0."""
-        polarization = kinematics.compute_polarization(
-            position_data_diagonal_movement
-        )
-
-        # Both moving in same diagonal direction -> polarization = 1.0
-        # Compare frames 1: avoid boundary differencing dependence at t=0.
-        assert np.allclose(polarization.values[1:], 1.0, atol=1e-10)
 
     # ==================== Edge Cases ====================
 
@@ -809,25 +803,23 @@ class TestComputePolarization:
 
     # ==================== Output Properties ====================
 
-    def test_polarization_output_shape(
+    def test_polarization_output_structure(
         self, position_data_aligned_individuals
     ):
-        """Test that output has correct shape (time only)."""
+        """Test that output has correct structure (time dimension only).
+
+        Verifies both positive assertion (dims == time) and explicit
+        absence of input dimensions that should be reduced over.
+        """
         polarization = kinematics.compute_polarization(
             position_data_aligned_individuals
         )
 
+        # Positive assertion: output has exactly time dimension
         assert polarization.dims == ("time",)
         assert len(polarization) == len(position_data_aligned_individuals.time)
 
-    def test_polarization_output_no_extra_dims(
-        self, position_data_aligned_individuals
-    ):
-        """Test that output doesn't have keypoints or space dims."""
-        polarization = kinematics.compute_polarization(
-            position_data_aligned_individuals
-        )
-
+        # Explicit absence checks (documents which dims are reduced)
         assert "keypoints" not in polarization.dims
         assert "space" not in polarization.dims
         assert "individuals" not in polarization.dims
@@ -912,8 +904,24 @@ class TestComputePolarization:
 
         np.testing.assert_array_almost_equal(pol1.values, pol2.values)
 
-    def test_polarization_bounds_random_directions(self):
-        """Test polarization stays in [0, 1] with random-ish directions."""
+    def test_polarization_bounds(self, position_data_aligned_individuals):
+        """Test polarization values are always in [0, 1] range.
+
+        Verifies bounds with both:
+        1. Simple aligned data (deterministic, yields boundary value 1.0)
+        2. Random directions (stochastic, yields distribution across range)
+        """
+        # Test with simple aligned data (boundary case: all 1.0)
+        polarization_simple = kinematics.compute_polarization(
+            position_data_aligned_individuals
+        )
+        valid_simple = polarization_simple.values[
+            ~np.isnan(polarization_simple.values)
+        ]
+        assert np.all(valid_simple >= 0.0)
+        assert np.all(valid_simple <= 1.0)
+
+        # Test with random directions (interior values)
         time = [0, 1, 2, 3, 4]
         individuals = [f"id_{i}" for i in range(10)]
         keypoints = ["centroid"]
@@ -948,11 +956,13 @@ class TestComputePolarization:
             },
         )
 
-        polarization = kinematics.compute_polarization(da)
+        polarization_random = kinematics.compute_polarization(da)
 
-        valid_values = polarization.values[~np.isnan(polarization.values)]
-        assert np.all(valid_values >= 0.0)
-        assert np.all(valid_values <= 1.0)
+        valid_random = polarization_random.values[
+            ~np.isnan(polarization_random.values)
+        ]
+        assert np.all(valid_random >= 0.0)
+        assert np.all(valid_random <= 1.0)
 
     # ==================== NaN Handling Edge Cases ====================
 
