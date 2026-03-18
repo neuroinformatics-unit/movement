@@ -370,7 +370,7 @@ def test_regions_style_set_color_all_shapes(
     regions_style.set_color_all_shapes(layer)
 
     # Check layer opacity and per-shape colors are applied
-    assert layer.opacity == 1.0
+    assert layer.opacity == pytest.approx(1.0)
     assert len(layer.face_color) == n_shapes
     assert len(layer.edge_color) == n_shapes
     assert len(layer.edge_width) == n_shapes

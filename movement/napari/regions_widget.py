@@ -744,7 +744,7 @@ def _unique_name(base: str, existing_names: list) -> str:
 
     """
     # Strip existing " [N]" suffixes
-    root = re.sub(r"( \[\d+\])+$", "", base)
+    root = re.sub(r" \[\d+\]$", "", base)
     if root not in existing_names:
         return root
     i = 1
