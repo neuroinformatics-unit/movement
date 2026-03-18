@@ -1,13 +1,17 @@
+# collective.py
 """Compute collective behavior metrics for multi-individual tracking data."""
 
 from collections.abc import Hashable
+from typing import Any
 
 import numpy as np
 import xarray as xr
 
 from movement.utils.logging import logger
-from movement.utils.vector import compute_norm, convert_to_unit
+from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
+
+_ANGLE_EPS = 1e-12
 
 
 def compute_polarization(
@@ -16,85 +20,78 @@ def compute_polarization(
     displacement_frames: int = 1,
     return_angle: bool = False,
 ) -> xr.DataArray | tuple[xr.DataArray, xr.DataArray]:
-    r"""Compute the polarization (group alignment) of multiple individuals.
+    r"""Compute polarization (group alignment) of individuals.
 
     Polarization measures how aligned the heading directions of individuals
-    are. A value of 1 indicates all individuals are heading in the same
-    direction, while a value near 0 indicates random orientations.
+    are. A value of 1 indicates perfect alignment, while a value near 0
+    indicates weak or canceling alignment.
 
-    The polarization is computed as:
+    The polarization is computed as
 
-    .. math::  \Phi = \frac{1}{N} \left\| \sum_{i=1}^{N} \hat{v}_i \right\|
+    .. math::
+
+        \Phi = \frac{1}{N} \left\| \sum_{i=1}^{N} \hat{v}_i \right\|
 
     where :math:`\hat{v}_i` is the unit heading vector for individual
-    :math:`i`, and :math:`N` is the number of individuals.
+    :math:`i`, and :math:`N` is the number of valid individuals at that time.
 
     Parameters
     ----------
     data : xarray.DataArray
-        The input data representing position. Must contain ``time``,
-        ``space``, and ``individuals`` as dimensions. The ``keypoints``
-        dimension is required only if ``heading_keypoints`` is provided.
-    heading_keypoints : tuple of Hashable, optional
-        A tuple of two keypoint names ``(origin, target)`` used to
-        compute the heading direction as the vector from origin to
-        target (e.g., ``("neck", "nose")`` or ``("tail", "head")``).
-        If None, heading is inferred from the displacement of the first
-        available keypoint.
-    displacement_frames : int, optional
-        Number of frames over which to compute displacement when
-        ``heading_keypoints`` is None. Default is 1 (frame-to-frame
-        displacement). Use higher values for smoother heading estimates
-        (e.g., fps value for 1-second displacement). This parameter is
-        ignored when ``heading_keypoints`` is provided.
-    return_angle : bool, optional
-        If True, also return the mean heading angle (in radians) of the
-        group at each time point. Default is False.
+        Position data. Must contain ``time``, ``space``, and ``individuals`` as
+        dimensions. If ``heading_keypoints`` is provided, the array must also
+        contain a ``keypoints`` dimension.
+
+        Spatial coordinates must include ``"x"`` and ``"y"``. If additional
+        spatial coordinates are present (e.g., ``"z"``), they are ignored;
+        polarization is computed in the x/y plane.
+    heading_keypoints : tuple[Hashable, Hashable], optional
+        Pair of keypoint names ``(origin, target)`` used to compute heading as
+        the vector from origin to target. If omitted, heading is inferred from
+        displacement over ``displacement_frames``.
+    displacement_frames : int, default=1
+        Number of frames used to compute displacement when
+        ``heading_keypoints`` is not provided. Must be a positive integer.
+        This parameter is ignored when ``heading_keypoints`` is provided.
+    return_angle : bool, default=False
+        If True, also return the mean heading angle in radians.
 
     Returns
     -------
-    xarray.DataArray or tuple of xarray.DataArray
-        If ``return_angle`` is False (default), returns an xarray DataArray
-        containing the polarization value at each time point, with
-        dimensions ``(time,)``. Values range from 0 (random orientations)
-        to 1 (perfectly aligned).
+    xarray.DataArray or tuple[xarray.DataArray, xarray.DataArray]
+        If ``return_angle`` is False, returns a DataArray named
+        ``"polarization"`` with dimension ``("time",)``.
 
-        If ``return_angle`` is True, returns a tuple of two DataArrays:
-        ``(polarization, mean_angle)``, where ``mean_angle`` contains the
-        mean heading direction in radians at each time point.
+        If ``return_angle`` is True, returns
+        ``(polarization, mean_angle)`` where ``mean_angle`` is a DataArray
+        named ``"mean_angle"`` with dimension ``("time",)``.
 
     Notes
     -----
-    If ``heading_keypoints`` is provided, the heading for each individual
-    is computed as the unit vector from the origin to the target
-    keypoint. If not provided, heading is inferred from the displacement
-    direction over ``displacement_frames`` frames.
+    Missing data are excluded per individual, per frame.
 
-    Frames where an individual has missing data (NaN) are handled by
-    excluding that individual from the polarization calculation for that
-    frame.
+    Zero-length headings are treated as invalid and excluded from the
+    calculation.
+
+    The mean heading angle is defined from the summed unit-heading vector
+    projected onto the x/y plane. When no valid headings exist, or when the
+    summed heading vector has zero magnitude (for example exact cancellation),
+    the returned angle is NaN.
 
     Examples
     --------
-    Compute polarization using two keypoints to define heading:
-
-    >>> polarization = compute_polarization(
-    ...     ds.position,
-    ...     heading_keypoints=("neck", "nose"),
-    ... )
-
-    Compute polarization using displacement-inferred heading:
+    Compute polarization from displacement:
 
     >>> polarization = compute_polarization(ds.position)
 
-    Compute polarization with 1-second displacement (at 30 fps):
+    Compute polarization from keypoint-defined heading:
 
     >>> polarization = compute_polarization(
     ...     ds.position,
-    ...     displacement_frames=30,
+    ...     heading_keypoints=("tail", "nose"),
     ... )
 
-    Also return the mean heading angle:
+    Return both polarization and mean angle:
 
     >>> polarization, mean_angle = compute_polarization(
     ...     ds.position,
@@ -102,8 +99,107 @@ def compute_polarization(
     ... )
 
     """
-    # Validate input data
     _validate_type_data_array(data)
+    normalized_keypoints = _validate_position_data(
+        data=data,
+        heading_keypoints=heading_keypoints,
+    )
+
+    if normalized_keypoints is not None:
+        heading_vectors = _compute_heading_from_keypoints(
+            data=data,
+            heading_keypoints=normalized_keypoints,
+        )
+    else:
+        heading_vectors = _compute_heading_from_velocity(
+            data=data,
+            displacement_frames=displacement_frames,
+        )
+
+    heading_xy = _select_xy(heading_vectors)
+    norm = compute_norm(heading_xy)
+    valid_mask = (~heading_xy.isnull().any(dim="space")) & (norm > 0)
+
+    unit_headings = (heading_xy / norm).where(valid_mask)
+    vector_sum = unit_headings.sum(dim="individuals", skipna=True)
+    sum_magnitude = compute_norm(vector_sum)
+    n_valid = valid_mask.sum(dim="individuals")
+
+    polarization = xr.where(
+        n_valid > 0,
+        sum_magnitude / n_valid,
+        np.nan,
+    ).clip(min=0.0, max=1.0)
+    polarization = polarization.rename("polarization")
+
+    if not return_angle:
+        return polarization
+
+    angle_defined = (n_valid > 0) & (sum_magnitude > _ANGLE_EPS)
+    mean_angle = xr.where(
+        angle_defined,
+        np.arctan2(
+            vector_sum.sel(space="y"),
+            vector_sum.sel(space="x"),
+        ),
+        np.nan,
+    ).rename("mean_angle")
+
+    return polarization, mean_angle
+
+
+def _compute_heading_from_keypoints(
+    data: xr.DataArray,
+    heading_keypoints: tuple[Hashable, Hashable],
+) -> xr.DataArray:
+    """Compute heading vectors from two keypoints (origin to target)."""
+    origin, target = heading_keypoints
+    heading = data.sel(keypoints=target, drop=True) - data.sel(
+        keypoints=origin,
+        drop=True,
+    )
+    return heading
+
+
+def _compute_heading_from_velocity(
+    data: xr.DataArray,
+    displacement_frames: int = 1,
+) -> xr.DataArray:
+    """Compute heading vectors from displacement direction."""
+    _validate_displacement_frames(displacement_frames)
+
+    position = data
+    if "keypoints" in data.dims:
+        if data.sizes["keypoints"] < 1:
+            raise ValueError(
+                "data.keypoints must contain at least one keypoint."
+            )
+        position = data.isel(keypoints=0, drop=True)
+
+        if "keypoints" in data.coords and data.coords["keypoints"].size > 0:
+            logger.info(
+                "Using keypoint '%s' for displacement-based heading.",
+                data.coords["keypoints"].values[0],
+            )
+        else:
+            logger.info(
+                "Using keypoint index 0 for displacement-based heading."
+            )
+
+    displacement = position - position.shift(time=displacement_frames)
+    return displacement
+
+
+def _select_xy(data: xr.DataArray) -> xr.DataArray:
+    """Select the planar x/y components and return standard dim order."""
+    return data.sel(space=["x", "y"]).transpose("time", "space", "individuals")
+
+
+def _validate_position_data(
+    data: xr.DataArray,
+    heading_keypoints: tuple[Hashable, Hashable] | None,
+) -> tuple[Hashable, Hashable] | None:
+    """Validate the input array and normalize ``heading_keypoints``."""
     validate_dims_coords(
         data,
         {
@@ -113,151 +209,84 @@ def compute_polarization(
         },
     )
 
-    # Compute heading vectors for all individuals
-    if heading_keypoints is not None:
-        heading_vectors = _compute_heading_from_keypoints(
-            data, heading_keypoints
-        )
-    else:
-        heading_vectors = _compute_heading_from_velocity(
-            data, displacement_frames=displacement_frames
+    allowed_dims = {"time", "space", "individuals", "keypoints"}
+    unexpected_dims = set(data.dims) - allowed_dims
+    if unexpected_dims:
+        raise ValueError(
+            f"data contains unsupported dimension(s): "
+            f"{sorted(str(d) for d in unexpected_dims)}"
         )
 
-    # Convert to unit vectors
-    unit_headings = convert_to_unit(heading_vectors)
-
-    # Sum unit vectors across individuals
-    # Use nansum to handle missing data
-    vector_sum = unit_headings.sum(dim="individuals", skipna=True)
-
-    # Count valid (non-NaN) individuals per time point
-    # A heading is valid if both x and y are not NaN
-    valid_mask = ~unit_headings.isnull().any(dim="space")
-    n_valid = valid_mask.sum(dim="individuals")
-
-    # Compute magnitude of the sum
-    sum_magnitude = compute_norm(vector_sum)
-
-    # Normalize by number of valid individuals
-    # Avoid division by zero
-    polarization = xr.where(n_valid > 0, sum_magnitude / n_valid, np.nan)
-
-    polarization.name = "polarization"
-
-    if return_angle:
-        # Compute mean heading angle from the vector sum
-        # arctan2(y, x) gives angle in radians
-        mean_angle = np.arctan2(
-            vector_sum.sel(space="y"),
-            vector_sum.sel(space="x"),
+    if "space" not in data.coords:
+        raise ValueError(
+            "data must have coordinate labels for the 'space' dimension."
         )
-        mean_angle = xr.where(n_valid > 0, mean_angle, np.nan)
-        mean_angle.name = "mean_angle"
-        return polarization, mean_angle
 
-    return polarization
+    space_labels = set(data.coords["space"].values.tolist())
+    if not {"x", "y"}.issubset(space_labels):
+        raise ValueError(
+            "data.space must include coordinate labels 'x' and 'y'."
+        )
+
+    if heading_keypoints is None:
+        return None
+
+    origin, target = _normalize_heading_keypoints(heading_keypoints)
+
+    if "keypoints" not in data.dims:
+        raise ValueError(
+            "heading_keypoints requires data to have a 'keypoints' dimension."
+        )
+
+    validate_dims_coords(data, {"keypoints": [origin, target]})
+    return origin, target
 
 
-def _compute_heading_from_keypoints(
-    data: xr.DataArray,
-    heading_keypoints: tuple[Hashable, Hashable],
-) -> xr.DataArray:
-    """Compute heading vectors from two keypoints (origin to target).
+def _normalize_heading_keypoints(
+    heading_keypoints: tuple[Hashable, Hashable] | Any,
+) -> tuple[Hashable, Hashable]:
+    """Validate and normalize the keypoint pair."""
+    if isinstance(heading_keypoints, (str, bytes)):
+        raise TypeError(
+            "heading_keypoints must be an iterable of exactly two "
+            "keypoint names."
+        )
 
-    Parameters
-    ----------
-    data : xarray.DataArray
-        Position data with ``keypoints`` dimension.
-    heading_keypoints : tuple of Hashable
-        A tuple of ``(origin, target)`` keypoint names. The heading
-        vector points from origin toward target.
+    try:
+        origin, target = heading_keypoints
+    except (TypeError, ValueError) as exc:
+        raise TypeError(
+            "heading_keypoints must be an iterable of exactly two "
+            "keypoint names."
+        ) from exc
 
-    Returns
-    -------
-    xarray.DataArray
-        Heading vectors with dimensions ``(time, space, individuals)``.
+    for keypoint in (origin, target):
+        if not isinstance(keypoint, Hashable):
+            raise TypeError("Each heading keypoint must be hashable.")
 
-    """
-    origin, target = heading_keypoints
-
-    # Validate keypoints are different
     if origin == target:
-        raise logger.error(
-            ValueError("The origin and target keypoints may not be identical.")
+        raise ValueError(
+            "heading_keypoints must contain two distinct keypoint names."
         )
 
-    # Validate keypoints exist
-    validate_dims_coords(
-        data,
-        {"keypoints": [origin, target]},
-    )
-
-    # Compute heading as vector from origin to target
-    heading = data.sel(keypoints=target, drop=True) - data.sel(
-        keypoints=origin, drop=True
-    )
-
-    return heading
+    return origin, target
 
 
-def _compute_heading_from_velocity(
-    data: xr.DataArray,
-    displacement_frames: int = 1,
-) -> xr.DataArray:
-    """Compute heading vectors from displacement direction.
+def _validate_displacement_frames(displacement_frames: int) -> None:
+    """Validate the displacement window."""
+    if isinstance(displacement_frames, (bool, np.bool_)) or not isinstance(
+        displacement_frames,
+        (int, np.integer),
+    ):
+        raise TypeError("displacement_frames must be a positive integer.")
 
-    Uses the first available keypoint if multiple are present.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        Position data with ``time`` dimension.
-    displacement_frames : int, optional
-        Number of frames over which to compute displacement. Default is 1
-        (frame-to-frame displacement). Use higher values for smoother
-        heading estimates (e.g., fps for 1-second displacement).
-
-    Returns
-    -------
-    xarray.DataArray
-        Heading vectors based on displacement direction.
-
-    """
-    # If keypoints dimension exists, use first keypoint
-    if "keypoints" in data.dims:
-        first_keypoint = data.keypoints.values[0]
-        position = data.sel(keypoints=first_keypoint, drop=True)
-        logger.info(
-            f"Using keypoint '{first_keypoint}' for displacement-based heading."
-        )
-    else:
-        position = data
-
-    # Compute displacement over N frames
-    # displacement[t] = position[t] - position[t - displacement_frames]
-    displacement = position - position.shift(time=displacement_frames)
-
-    return displacement
+    if displacement_frames < 1:
+        raise ValueError("displacement_frames must be >= 1.")
 
 
 def _validate_type_data_array(data: xr.DataArray) -> None:
-    """Validate the input data is an xarray DataArray.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data to validate.
-
-    Raises
-    ------
-    TypeError
-        If the input data is not an xarray DataArray.
-
-    """
+    """Validate that the input is an xarray.DataArray."""
     if not isinstance(data, xr.DataArray):
-        raise logger.error(
-            TypeError(
-                "Input data must be an xarray.DataArray, "
-                f"but got {type(data)}."
-            )
+        raise TypeError(
+            f"Input data must be an xarray.DataArray, but got {type(data)}."
         )
