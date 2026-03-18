@@ -145,7 +145,6 @@ def test_load_multiview_dataset(dataset_name, source_software):
 
 
 def test_multiview_warning_on_mismatched_frames(mocker):
-    """Test that a warning is raised when frame counts differ across views."""
     ds1 = xr.Dataset({"x": ("frame", [1, 2, 3])})
     ds2 = xr.Dataset({"x": ("frame", [1, 2])})
 
@@ -156,8 +155,12 @@ def test_multiview_warning_on_mismatched_frames(mocker):
 
     file_dict = {"view1": "file1", "view2": "file2"}
 
-    with pytest.warns(UserWarning, match="Mismatched frame counts"):
-        load.load_multiview_dataset(file_dict, source_software="DeepLabCut")
+    with pytest.warns(UserWarning, match="mismatched frame"):
+        result = load.load_multiview_dataset(
+            file_dict, source_software="DeepLabCut"
+        )
+
+    assert isinstance(result, xr.Dataset)
 
 
 def test_get_validator_kwargs():
