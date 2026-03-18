@@ -144,6 +144,22 @@ def test_load_multiview_dataset(dataset_name, source_software):
     assert multi_view_ds.view.values.tolist() == view_names
 
 
+def test_multiview_warning_on_mismatched_frames(mocker):
+    """Test that a warning is raised when frame counts differ across views."""
+    ds1 = xr.Dataset({"x": ("frame", [1, 2, 3])})
+    ds2 = xr.Dataset({"x": ("frame", [1, 2])})
+
+    mocker.patch(
+        "movement.io.load.load_dataset",
+        side_effect=[ds1, ds2],
+    )
+
+    file_dict = {"view1": "file1", "view2": "file2"}
+
+    with pytest.warns(UserWarning, match="Mismatched frame counts"):
+        load.load_multiview_dataset(file_dict, source_software="DeepLabCut")
+
+
 def test_get_validator_kwargs():
     """Test _get_validator_kwargs correctly extracts kwargs
     for file validators.
