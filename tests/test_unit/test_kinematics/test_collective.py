@@ -824,21 +824,25 @@ class TestComputePolarization:
         assert "space" not in polarization.dims
         assert "individuals" not in polarization.dims
 
-    def test_polarization_first_frame_velocity_mode(
+    def test_polarization_first_frame_displacement_mode(
         self, position_data_aligned_individuals
     ):
-        """Test first frame behavior when using velocity-based heading.
+        """Test first frame behavior when using displacement-based heading.
 
-        The compute_velocity function uses xarray's differentiate which
-        uses edge_order=1 by default, providing valid values at boundaries.
+        Displacement-based heading requires position at frame t and t-N
+        (where N=displacement_frames). Frame 0 has no prior reference,
+        so it is NaN. This is consistent and predictable behavior.
         """
         polarization = kinematics.compute_polarization(
             position_data_aligned_individuals
         )
 
-        # First frame should have a valid value due to forward differencing
         assert isinstance(polarization, xr.DataArray)
         assert len(polarization) == len(position_data_aligned_individuals.time)
+        # First frame is NaN (no t-1 reference for displacement)
+        assert np.isnan(polarization.values[0])
+        # Subsequent frames are valid
+        assert not np.any(np.isnan(polarization.values[1:]))
 
     def test_polarization_first_frame_valid_keypoint_mode(
         self, position_data_with_keypoints
@@ -1060,18 +1064,20 @@ class TestComputePolarization:
             kinematics.compute_polarization(data)
 
     def test_empty_dataarray(self):
-        """Test handling of empty DataArray raises an error.
+        """Test handling of empty DataArray returns empty result.
 
-        Empty arrays cause issues in numpy's gradient computation
-        used by compute_velocity.
+        Empty arrays are handled gracefully by the displacement-based
+        implementation, returning an empty polarization array.
         """
         data = xr.DataArray(
             np.array([]).reshape(0, 2, 0),
             dims=["time", "space", "individuals"],
             coords={"time": [], "space": ["x", "y"], "individuals": []},
         )
-        with pytest.raises((IndexError, ValueError)):
-            kinematics.compute_polarization(data)
+        polarization = kinematics.compute_polarization(data)
+
+        assert isinstance(polarization, xr.DataArray)
+        assert len(polarization) == 0
 
     def test_polarization_mixed_stationary_moving(self):
         """Test polarization with some stationary and some moving individuals.
@@ -1115,7 +1121,11 @@ class TestComputePolarization:
         assert np.allclose(polarization.values[1:], 1.0, atol=1e-10)
 
     def test_polarization_two_time_points_minimum(self):
-        """Test polarization with minimum time points (2)."""
+        """Test polarization with minimum time points (2).
+
+        With displacement-based heading, frame 0 is NaN (no prior reference).
+        Frame 1 has valid displacement from frame 0 to frame 1.
+        """
         time = [0, 1]
         individuals = ["id_0", "id_1"]
         keypoints = ["centroid"]
@@ -1145,8 +1155,10 @@ class TestComputePolarization:
 
         assert isinstance(polarization, xr.DataArray)
         assert len(polarization) == 2
-        # Both moving same direction
-        assert np.allclose(polarization.values, 1.0, atol=1e-10)
+        # Frame 0 is NaN (no prior reference for displacement)
+        assert np.isnan(polarization.values[0])
+        # Frame 1 is valid: both moving same direction -> polarization = 1.0
+        assert np.allclose(polarization.values[1], 1.0, atol=1e-10)
 
     # ==================== 3D Data (Limitation) ====================
 
@@ -1193,3 +1205,530 @@ class TestComputePolarization:
         assert isinstance(polarization, xr.DataArray)
         # Both moving in same x direction -> polarization = 1.0 (ignoring z)
         assert np.allclose(polarization.values[1:], 1.0, atol=1e-10)
+
+    # ==================== displacement_frames Parameter ====================
+
+    def test_displacement_frames_default(
+        self, position_data_aligned_individuals
+    ):
+        """Test displacement_frames=1 (default) matches original behavior."""
+        # Explicit default should match implicit default
+        pol_implicit = kinematics.compute_polarization(
+            position_data_aligned_individuals
+        )
+        pol_explicit = kinematics.compute_polarization(
+            position_data_aligned_individuals,
+            displacement_frames=1,
+        )
+
+        np.testing.assert_array_equal(pol_implicit.values, pol_explicit.values)
+
+    def test_displacement_frames_multi_frame(self):
+        """Test multi-frame displacement computes heading over N frames.
+
+        With displacement_frames=2, heading is computed from position[t-2]
+        to position[t], giving smoother estimates over longer intervals.
+        """
+        time = [0, 1, 2, 3, 4, 5]
+        individuals = ["id_0", "id_1"]
+        keypoints = ["centroid"]
+        space = ["x", "y"]
+
+        # Both move in +x direction consistently
+        data = np.array(
+            [
+                [[[0, 10]], [[0, 0]]],
+                [[[1, 11]], [[0, 0]]],
+                [[[2, 12]], [[0, 0]]],
+                [[[3, 13]], [[0, 0]]],
+                [[[4, 14]], [[0, 0]]],
+                [[[5, 15]], [[0, 0]]],
+            ],
+            dtype=float,
+        )
+
+        da = xr.DataArray(
+            data,
+            dims=["time", "space", "keypoints", "individuals"],
+            coords={
+                "time": time,
+                "space": space,
+                "keypoints": keypoints,
+                "individuals": individuals,
+            },
+        )
+
+        polarization = kinematics.compute_polarization(
+            da, displacement_frames=2
+        )
+
+        # First 2 frames are NaN (no t-2 reference)
+        assert np.isnan(polarization.values[0])
+        assert np.isnan(polarization.values[1])
+        # Frames 2+ should have valid polarization = 1.0
+        assert np.allclose(polarization.values[2:], 1.0, atol=1e-10)
+
+    def test_displacement_frames_larger_than_timeseries(self):
+        """Test displacement_frames larger than available frames yields NaN."""
+        time = [0, 1, 2]
+        individuals = ["id_0", "id_1"]
+        keypoints = ["centroid"]
+        space = ["x", "y"]
+
+        data = np.array(
+            [
+                [[[0, 5]], [[0, 0]]],
+                [[[1, 6]], [[0, 0]]],
+                [[[2, 7]], [[0, 0]]],
+            ],
+            dtype=float,
+        )
+
+        da = xr.DataArray(
+            data,
+            dims=["time", "space", "keypoints", "individuals"],
+            coords={
+                "time": time,
+                "space": space,
+                "keypoints": keypoints,
+                "individuals": individuals,
+            },
+        )
+
+        # displacement_frames=10 but only 3 time points
+        polarization = kinematics.compute_polarization(
+            da, displacement_frames=10
+        )
+
+        # All frames should be NaN (no valid t-10 reference)
+        assert np.all(np.isnan(polarization.values))
+
+    def test_displacement_frames_ignored_with_keypoints(
+        self, position_data_with_keypoints
+    ):
+        """Test displacement_frames is ignored when heading_keypoints given."""
+        pol_default = kinematics.compute_polarization(
+            position_data_with_keypoints,
+            heading_keypoints=("tail", "nose"),
+            displacement_frames=1,
+        )
+        pol_large = kinematics.compute_polarization(
+            position_data_with_keypoints,
+            heading_keypoints=("tail", "nose"),
+            displacement_frames=100,  # Should be ignored
+        )
+
+        # Both should be identical since keypoints override displacement
+        np.testing.assert_array_equal(pol_default.values, pol_large.values)
+        # All frames valid (keypoint heading doesn't need displacement)
+        assert np.allclose(pol_default.values, 1.0, atol=1e-10)
+
+    def test_displacement_frames_with_nan_at_reference(self):
+        """Test NaN at reference frame (t - displacement_frames) propagates."""
+        time = [0, 1, 2, 3, 4]
+        individuals = ["id_0", "id_1"]
+        keypoints = ["centroid"]
+        space = ["x", "y"]
+
+        # NaN at frame 1
+        data = np.array(
+            [
+                [[[0, 5]], [[0, 0]]],
+                [[[np.nan, np.nan]], [[np.nan, np.nan]]],  # NaN frame
+                [[[2, 7]], [[0, 0]]],
+                [[[3, 8]], [[0, 0]]],
+                [[[4, 9]], [[0, 0]]],
+            ],
+            dtype=float,
+        )
+
+        da = xr.DataArray(
+            data,
+            dims=["time", "space", "keypoints", "individuals"],
+            coords={
+                "time": time,
+                "space": space,
+                "keypoints": keypoints,
+                "individuals": individuals,
+            },
+        )
+
+        polarization = kinematics.compute_polarization(
+            da, displacement_frames=2
+        )
+
+        # Frame 3 references frame 1 (NaN) -> should be NaN
+        assert np.isnan(polarization.values[3])
+        # Frame 4 references frame 2 (valid) -> should be valid
+        assert not np.isnan(polarization.values[4])
+
+    def test_displacement_frames_smooths_noisy_trajectory(self):
+        """Test larger displacement_frames smooths jittery movement."""
+        time = list(range(10))
+        individuals = ["id_0", "id_1"]
+        keypoints = ["centroid"]
+        space = ["x", "y"]
+
+        # Noisy +x movement with small y jitter
+        np.random.seed(42)
+        jitter = np.random.randn(10, 2) * 0.1
+
+        data = np.zeros((10, 2, 1, 2))
+        for t in range(10):
+            # Both individuals move +x with small y noise
+            data[t, 0, 0, :] = [t + jitter[t, 0], t + jitter[t, 1]]
+            data[t, 1, 0, :] = [jitter[t, 0], jitter[t, 1]]
+
+        da = xr.DataArray(
+            data,
+            dims=["time", "space", "keypoints", "individuals"],
+            coords={
+                "time": time,
+                "space": space,
+                "keypoints": keypoints,
+                "individuals": individuals,
+            },
+        )
+
+        pol_1frame = kinematics.compute_polarization(da, displacement_frames=1)
+        pol_5frame = kinematics.compute_polarization(da, displacement_frames=5)
+
+        # 5-frame displacement should yield higher polarization (less noise)
+        valid_1 = pol_1frame.values[~np.isnan(pol_1frame.values)]
+        valid_5 = pol_5frame.values[~np.isnan(pol_5frame.values)]
+
+        # Mean polarization should be higher with smoothing
+        assert np.mean(valid_5) >= np.mean(valid_1) - 0.1  # Allow small margin
+
+    # ==================== return_angle Parameter ====================
+
+    def test_return_angle_false_returns_dataarray(
+        self, position_data_aligned_individuals
+    ):
+        """Test return_angle=False returns single DataArray (default)."""
+        result = kinematics.compute_polarization(
+            position_data_aligned_individuals,
+            return_angle=False,
+        )
+
+        assert isinstance(result, xr.DataArray)
+        assert result.name == "polarization"
+
+    def test_return_angle_true_returns_tuple(
+        self, position_data_aligned_individuals
+    ):
+        """Test return_angle=True returns tuple of (polarization, angle)."""
+        result = kinematics.compute_polarization(
+            position_data_aligned_individuals,
+            return_angle=True,
+        )
+
+        assert isinstance(result, tuple)
+        assert len(result) == 2
+
+        polarization, mean_angle = result
+        assert isinstance(polarization, xr.DataArray)
+        assert isinstance(mean_angle, xr.DataArray)
+        assert polarization.name == "polarization"
+        assert mean_angle.name == "mean_angle"
+
+    def test_return_angle_positive_x_direction(self):
+        """Test mean_angle is 0 radians for +x movement."""
+        time = [0, 1, 2, 3]
+        individuals = ["id_0", "id_1"]
+        keypoints = ["centroid"]
+        space = ["x", "y"]
+
+        # Both move in +x direction
+        data = np.array(
+            [
+                [[[0, 5]], [[0, 0]]],
+                [[[1, 6]], [[0, 0]]],
+                [[[2, 7]], [[0, 0]]],
+                [[[3, 8]], [[0, 0]]],
+            ],
+            dtype=float,
+        )
+
+        da = xr.DataArray(
+            data,
+            dims=["time", "space", "keypoints", "individuals"],
+            coords={
+                "time": time,
+                "space": space,
+                "keypoints": keypoints,
+                "individuals": individuals,
+            },
+        )
+
+        _, mean_angle = kinematics.compute_polarization(da, return_angle=True)
+
+        # +x direction = 0 radians
+        assert np.allclose(mean_angle.values[1:], 0.0, atol=1e-10)
+
+    def test_return_angle_positive_y_direction(self):
+        """Test mean_angle is π/2 radians for +y movement."""
+        time = [0, 1, 2, 3]
+        individuals = ["id_0", "id_1"]
+        keypoints = ["centroid"]
+        space = ["x", "y"]
+
+        # Both move in +y direction
+        data = np.array(
+            [
+                [[[0, 0]], [[0, 5]]],
+                [[[0, 0]], [[1, 6]]],
+                [[[0, 0]], [[2, 7]]],
+                [[[0, 0]], [[3, 8]]],
+            ],
+            dtype=float,
+        )
+
+        da = xr.DataArray(
+            data,
+            dims=["time", "space", "keypoints", "individuals"],
+            coords={
+                "time": time,
+                "space": space,
+                "keypoints": keypoints,
+                "individuals": individuals,
+            },
+        )
+
+        _, mean_angle = kinematics.compute_polarization(da, return_angle=True)
+
+        # +y direction = π/2 radians
+        assert np.allclose(mean_angle.values[1:], np.pi / 2, atol=1e-10)
+
+    def test_return_angle_negative_x_direction(self):
+        """Test mean_angle is ±π radians for -x movement."""
+        time = [0, 1, 2, 3]
+        individuals = ["id_0", "id_1"]
+        keypoints = ["centroid"]
+        space = ["x", "y"]
+
+        # Both move in -x direction
+        data = np.array(
+            [
+                [[[10, 15]], [[0, 0]]],
+                [[[9, 14]], [[0, 0]]],
+                [[[8, 13]], [[0, 0]]],
+                [[[7, 12]], [[0, 0]]],
+            ],
+            dtype=float,
+        )
+
+        da = xr.DataArray(
+            data,
+            dims=["time", "space", "keypoints", "individuals"],
+            coords={
+                "time": time,
+                "space": space,
+                "keypoints": keypoints,
+                "individuals": individuals,
+            },
+        )
+
+        _, mean_angle = kinematics.compute_polarization(da, return_angle=True)
+
+        # -x direction = ±π radians (arctan2 returns π or -π)
+        assert np.allclose(np.abs(mean_angle.values[1:]), np.pi, atol=1e-10)
+
+    def test_return_angle_diagonal_45_degrees(self):
+        """Test mean_angle is π/4 radians for diagonal (+x, +y) movement."""
+        time = [0, 1, 2, 3]
+        individuals = ["id_0", "id_1"]
+        keypoints = ["centroid"]
+        space = ["x", "y"]
+
+        # Both move diagonally (+x, +y) at 45 degrees
+        data = np.array(
+            [
+                [[[0, 5]], [[0, 5]]],
+                [[[1, 6]], [[1, 6]]],
+                [[[2, 7]], [[2, 7]]],
+                [[[3, 8]], [[3, 8]]],
+            ],
+            dtype=float,
+        )
+
+        da = xr.DataArray(
+            data,
+            dims=["time", "space", "keypoints", "individuals"],
+            coords={
+                "time": time,
+                "space": space,
+                "keypoints": keypoints,
+                "individuals": individuals,
+            },
+        )
+
+        _, mean_angle = kinematics.compute_polarization(da, return_angle=True)
+
+        # 45 degrees = π/4 radians
+        assert np.allclose(mean_angle.values[1:], np.pi / 4, atol=1e-10)
+
+    def test_return_angle_nan_when_no_valid_individuals(
+        self, position_data_all_nan_frame
+    ):
+        """Test mean_angle is NaN when no valid individuals."""
+        _, mean_angle = kinematics.compute_polarization(
+            position_data_all_nan_frame,
+            return_angle=True,
+        )
+
+        # Frame 2 has all NaN -> angle should be NaN for affected frames
+        assert isinstance(mean_angle, xr.DataArray)
+        # At least some frames should be NaN due to the all-NaN frame
+        assert np.any(np.isnan(mean_angle.values))
+
+    def test_return_angle_with_keypoint_heading(
+        self, position_data_with_keypoints
+    ):
+        """Test return_angle works with keypoint-based heading."""
+        pol, angle = kinematics.compute_polarization(
+            position_data_with_keypoints,
+            heading_keypoints=("tail", "nose"),
+            return_angle=True,
+        )
+
+        # Both face +x direction (nose ahead of tail in x)
+        assert np.allclose(pol.values, 1.0, atol=1e-10)
+        assert np.allclose(angle.values, 0.0, atol=1e-10)
+
+    def test_return_angle_partial_alignment_mean_direction(self):
+        """Test mean_angle reflects weighted mean of individual headings.
+
+        Two individuals move +x (angle=0), one moves +y (angle=π/2).
+        Mean unit vector: [2, 1] / 3, but angle is arctan2(1, 2) ≈ 0.464 rad.
+        """
+        time = [0, 1, 2, 3]
+        individuals = ["id_0", "id_1", "id_2"]
+        keypoints = ["centroid"]
+        space = ["x", "y"]
+
+        # id_0 and id_1 move +x, id_2 moves +y
+        data = np.array(
+            [
+                [[[0, 5, 0]], [[0, 0, 0]]],
+                [[[1, 6, 0]], [[0, 0, 1]]],
+                [[[2, 7, 0]], [[0, 0, 2]]],
+                [[[3, 8, 0]], [[0, 0, 3]]],
+            ],
+            dtype=float,
+        )
+
+        da = xr.DataArray(
+            data,
+            dims=["time", "space", "keypoints", "individuals"],
+            coords={
+                "time": time,
+                "space": space,
+                "keypoints": keypoints,
+                "individuals": individuals,
+            },
+        )
+
+        pol, angle = kinematics.compute_polarization(da, return_angle=True)
+
+        # Sum of unit vectors: [1,0] + [1,0] + [0,1] = [2, 1]
+        # Mean angle: arctan2(1, 2) ≈ 0.4636 rad ≈ 26.57 degrees
+        expected_angle = np.arctan2(1, 2)
+        assert np.allclose(angle.values[1:], expected_angle, atol=1e-10)
+
+    def test_return_angle_opposite_directions_undefined(self):
+        """Test mean_angle when individuals move in opposite directions.
+
+        When vectors cancel out (polarization ≈ 0), angle is still computed
+        from the sum vector but may be arbitrary for perfectly opposed motion.
+        """
+        time = [0, 1, 2, 3]
+        individuals = ["id_0", "id_1"]
+        keypoints = ["centroid"]
+        space = ["x", "y"]
+
+        # id_0 moves +x, id_1 moves -x (exactly opposite)
+        data = np.array(
+            [
+                [[[0, 10]], [[0, 0]]],
+                [[[1, 9]], [[0, 0]]],
+                [[[2, 8]], [[0, 0]]],
+                [[[3, 7]], [[0, 0]]],
+            ],
+            dtype=float,
+        )
+
+        da = xr.DataArray(
+            data,
+            dims=["time", "space", "keypoints", "individuals"],
+            coords={
+                "time": time,
+                "space": space,
+                "keypoints": keypoints,
+                "individuals": individuals,
+            },
+        )
+
+        pol, angle = kinematics.compute_polarization(da, return_angle=True)
+
+        # Polarization should be 0 (opposite directions cancel)
+        assert np.allclose(pol.values[1:], 0.0, atol=1e-10)
+        # Angle is computed from [0, 0] sum vector
+        # arctan2(0, 0) = 0 in numpy
+        assert np.allclose(angle.values[1:], 0.0, atol=1e-10)
+
+    def test_return_angle_with_displacement_frames(self):
+        """Test return_angle works correctly with multi-frame displacement."""
+        time = [0, 1, 2, 3, 4, 5]
+        individuals = ["id_0", "id_1"]
+        keypoints = ["centroid"]
+        space = ["x", "y"]
+
+        # Both move in +y direction
+        data = np.array(
+            [
+                [[[0, 0]], [[0, 5]]],
+                [[[0, 0]], [[1, 6]]],
+                [[[0, 0]], [[2, 7]]],
+                [[[0, 0]], [[3, 8]]],
+                [[[0, 0]], [[4, 9]]],
+                [[[0, 0]], [[5, 10]]],
+            ],
+            dtype=float,
+        )
+
+        da = xr.DataArray(
+            data,
+            dims=["time", "space", "keypoints", "individuals"],
+            coords={
+                "time": time,
+                "space": space,
+                "keypoints": keypoints,
+                "individuals": individuals,
+            },
+        )
+
+        pol, angle = kinematics.compute_polarization(
+            da,
+            displacement_frames=2,
+            return_angle=True,
+        )
+
+        # First 2 frames are NaN
+        assert np.isnan(angle.values[0])
+        assert np.isnan(angle.values[1])
+        # Frames 2+ should be +y direction = π/2
+        assert np.allclose(angle.values[2:], np.pi / 2, atol=1e-10)
+
+    def test_return_angle_dimensions_match_polarization(
+        self, position_data_aligned_individuals
+    ):
+        """Test mean_angle has same dimensions and coords as polarization."""
+        pol, angle = kinematics.compute_polarization(
+            position_data_aligned_individuals,
+            return_angle=True,
+        )
+
+        assert pol.dims == angle.dims
+        assert len(pol) == len(angle)
+        np.testing.assert_array_equal(pol.time.values, angle.time.values)

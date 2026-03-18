@@ -5,7 +5,6 @@ from collections.abc import Hashable
 import numpy as np
 import xarray as xr
 
-from movement.kinematics.kinematics import compute_velocity
 from movement.utils.logging import logger
 from movement.utils.vector import compute_norm, convert_to_unit
 from movement.validators.arrays import validate_dims_coords
@@ -14,7 +13,9 @@ from movement.validators.arrays import validate_dims_coords
 def compute_polarization(
     data: xr.DataArray,
     heading_keypoints: tuple[Hashable, Hashable] | None = None,
-) -> xr.DataArray:
+    displacement_frames: int = 1,
+    return_angle: bool = False,
+) -> xr.DataArray | tuple[xr.DataArray, xr.DataArray]:
     r"""Compute the polarization (group alignment) of multiple individuals.
 
     Polarization measures how aligned the heading directions of individuals
@@ -38,22 +39,36 @@ def compute_polarization(
         A tuple of two keypoint names ``(origin, target)`` used to
         compute the heading direction as the vector from origin to
         target (e.g., ``("neck", "nose")`` or ``("tail", "head")``).
-        If None, heading is inferred from the velocity of the first
+        If None, heading is inferred from the displacement of the first
         available keypoint.
+    displacement_frames : int, optional
+        Number of frames over which to compute displacement when
+        ``heading_keypoints`` is None. Default is 1 (frame-to-frame
+        displacement). Use higher values for smoother heading estimates
+        (e.g., fps value for 1-second displacement). This parameter is
+        ignored when ``heading_keypoints`` is provided.
+    return_angle : bool, optional
+        If True, also return the mean heading angle (in radians) of the
+        group at each time point. Default is False.
 
     Returns
     -------
-    xarray.DataArray
-        An xarray DataArray containing the polarization value at each
-        time point, with dimensions ``(time,)``. Values range from 0
-        (random orientations) to 1 (perfectly aligned).
+    xarray.DataArray or tuple of xarray.DataArray
+        If ``return_angle`` is False (default), returns an xarray DataArray
+        containing the polarization value at each time point, with
+        dimensions ``(time,)``. Values range from 0 (random orientations)
+        to 1 (perfectly aligned).
+
+        If ``return_angle`` is True, returns a tuple of two DataArrays:
+        ``(polarization, mean_angle)``, where ``mean_angle`` contains the
+        mean heading direction in radians at each time point.
 
     Notes
     -----
     If ``heading_keypoints`` is provided, the heading for each individual
     is computed as the unit vector from the origin to the target
-    keypoint. If not provided, heading is inferred from the instantaneous
-    velocity direction.
+    keypoint. If not provided, heading is inferred from the displacement
+    direction over ``displacement_frames`` frames.
 
     Frames where an individual has missing data (NaN) are handled by
     excluding that individual from the polarization calculation for that
@@ -68,13 +83,23 @@ def compute_polarization(
     ...     heading_keypoints=("neck", "nose"),
     ... )
 
-    Compute polarization using velocity-inferred heading:
+    Compute polarization using displacement-inferred heading:
 
     >>> polarization = compute_polarization(ds.position)
 
-    See Also
-    --------
-    movement.kinematics.compute_velocity : Compute velocity from position.
+    Compute polarization with 1-second displacement (at 30 fps):
+
+    >>> polarization = compute_polarization(
+    ...     ds.position,
+    ...     displacement_frames=30,
+    ... )
+
+    Also return the mean heading angle:
+
+    >>> polarization, mean_angle = compute_polarization(
+    ...     ds.position,
+    ...     return_angle=True,
+    ... )
 
     """
     # Validate input data
@@ -94,7 +119,9 @@ def compute_polarization(
             data, heading_keypoints
         )
     else:
-        heading_vectors = _compute_heading_from_velocity(data)
+        heading_vectors = _compute_heading_from_velocity(
+            data, displacement_frames=displacement_frames
+        )
 
     # Convert to unit vectors
     unit_headings = convert_to_unit(heading_vectors)
@@ -116,6 +143,18 @@ def compute_polarization(
     polarization = xr.where(n_valid > 0, sum_magnitude / n_valid, np.nan)
 
     polarization.name = "polarization"
+
+    if return_angle:
+        # Compute mean heading angle from the vector sum
+        # arctan2(y, x) gives angle in radians
+        mean_angle = np.arctan2(
+            vector_sum.sel(space="y"),
+            vector_sum.sel(space="x"),
+        )
+        mean_angle = xr.where(n_valid > 0, mean_angle, np.nan)
+        mean_angle.name = "mean_angle"
+        return polarization, mean_angle
+
     return polarization
 
 
@@ -161,8 +200,11 @@ def _compute_heading_from_keypoints(
     return heading
 
 
-def _compute_heading_from_velocity(data: xr.DataArray) -> xr.DataArray:
-    """Compute heading vectors from velocity (displacement direction).
+def _compute_heading_from_velocity(
+    data: xr.DataArray,
+    displacement_frames: int = 1,
+) -> xr.DataArray:
+    """Compute heading vectors from displacement direction.
 
     Uses the first available keypoint if multiple are present.
 
@@ -170,11 +212,15 @@ def _compute_heading_from_velocity(data: xr.DataArray) -> xr.DataArray:
     ----------
     data : xarray.DataArray
         Position data with ``time`` dimension.
+    displacement_frames : int, optional
+        Number of frames over which to compute displacement. Default is 1
+        (frame-to-frame displacement). Use higher values for smoother
+        heading estimates (e.g., fps for 1-second displacement).
 
     Returns
     -------
     xarray.DataArray
-        Heading vectors based on velocity direction.
+        Heading vectors based on displacement direction.
 
     """
     # If keypoints dimension exists, use first keypoint
@@ -182,15 +228,16 @@ def _compute_heading_from_velocity(data: xr.DataArray) -> xr.DataArray:
         first_keypoint = data.keypoints.values[0]
         position = data.sel(keypoints=first_keypoint, drop=True)
         logger.info(
-            f"Using keypoint '{first_keypoint}' for velocity-based heading."
+            f"Using keypoint '{first_keypoint}' for displacement-based heading."
         )
     else:
         position = data
 
-    # Compute velocity as heading direction
-    velocity = compute_velocity(position)
+    # Compute displacement over N frames
+    # displacement[t] = position[t] - position[t - displacement_frames]
+    displacement = position - position.shift(time=displacement_frames)
 
-    return velocity
+    return displacement
 
 
 def _validate_type_data_array(data: xr.DataArray) -> None:
