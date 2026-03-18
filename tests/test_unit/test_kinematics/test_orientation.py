@@ -431,3 +431,81 @@ class TestForwardVectorAngle:
 
         xr.testing.assert_allclose(pass_numpy, pass_tuple)
         xr.testing.assert_allclose(pass_numpy, pass_list)
+
+
+def make_pos(positions, times=None, individuals=None):
+    times = np.arange(len(positions)) if times is None else np.array(times)
+    if individuals is None:
+        individuals = ["ind1"]
+    positions = np.asarray(positions)
+    data = positions.reshape(len(times), 2, 1)
+    data = np.tile(data, (1, 1, len(individuals)))
+    return xr.DataArray(
+        data,
+        dims=("time", "space", "individuals"),
+        coords={
+            "time": times,
+            "space": ["x", "y"],
+            "individuals": individuals,
+        },
+    )
+
+
+def test_straight_line_zero_dc():
+    pos = [[0, 0], [1, 0], [2, 0], [3, 0]]
+    da = make_pos(pos)
+    dc = kinematics.compute_directional_change(da)
+    assert np.allclose(dc.sel(time=1).values, 0.0, equal_nan=True)
+    assert np.allclose(dc.sel(time=2).values, 0.0, equal_nan=True)
+    assert np.isnan(dc.sel(time=0).values).all()
+    assert np.isnan(dc.sel(time=3).values).all()
+
+
+def test_ninety_degree_turn():
+    pos = [[0, 0], [1, 0], [1, 1]]
+    times = [0.0, 1.0, 2.0]
+    da = make_pos(pos, times=times)
+    dc = kinematics.compute_directional_change(da)
+    expected = (np.pi / 2) / (times[2] - times[0])
+    assert np.allclose(dc.sel(time=1.0).values, expected)
+    assert np.isnan(dc.sel(time=0.0).values).all()
+    assert np.isnan(dc.sel(time=2.0).values).all()
+
+
+def test_irregular_time_intervals():
+    pos = [[0, 0], [1, 0], [1, 1]]
+    times = [0.0, 0.5, 1.5]
+    da = make_pos(pos, times=times)
+    dc = kinematics.compute_directional_change(da)
+    expected = (np.pi / 2) / (times[2] - times[0])
+    assert np.allclose(dc.sel(time=0.5).values, expected)
+
+
+def test_nan_and_zero_length_vectors():
+    pos = [[0, 0], [np.nan, np.nan], [1, 1]]
+    times = [0.0, 1.0, 2.0]
+    da = make_pos(pos, times=times)
+    dc = kinematics.compute_directional_change(da)
+    assert np.isnan(dc.sel(time=1.0).values).all()
+
+    pos2 = [[0, 0], [0, 0], [1, 0]]
+    da2 = make_pos(pos2, times=[0.0, 1.0, 2.0])
+    dc2 = kinematics.compute_directional_change(da2)
+    assert np.isnan(dc2.sel(time=1.0).values).all()
+
+
+def test_multi_individual():
+    times = [0.0, 1.0, 2.0]
+    pos = np.array([[0, 0], [1, 0], [1, 1]])
+    inds = ["a", "b"]
+    data = pos.reshape(3, 2, 1)
+    data = np.tile(data, (1, 1, 2))
+    da = xr.DataArray(
+        data,
+        dims=("time", "space", "individuals"),
+        coords={"time": times, "space": ["x", "y"], "individuals": inds},
+    )
+    dc = kinematics.compute_directional_change(da)
+    assert np.allclose(
+        dc.sel(time=1.0, individuals="a"), dc.sel(time=1.0, individuals="b")
+    )

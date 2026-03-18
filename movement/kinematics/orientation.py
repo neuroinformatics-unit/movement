@@ -9,6 +9,7 @@ from numpy.typing import ArrayLike
 
 from movement.utils.logging import logger
 from movement.utils.vector import (
+    compute_norm,
     compute_signed_angle_2d,
     convert_to_unit,
 )
@@ -279,3 +280,73 @@ def _validate_type_data_array(data: xr.DataArray) -> None:
                 f"but got {type(data)}."
             )
         )
+
+
+def compute_directional_change(data: xr.DataArray) -> xr.DataArray:
+    """Compute per-time-step directional change (angular change per unit time).
+
+    Directional change at time i is defined as the absolute turning angle
+    between consecutive displacement vectors divided by the time interval
+    between the neighbouring samples::
+
+        DC_i = |theta_i| / (time[i+1] - time[i-1])
+
+    Parameters
+    ----------
+    data
+        Position data with dims ``(time, space, individuals)`` or
+        ``(time, space, keypoints, individuals)``. The ``space`` dimension
+        must contain the coordinates ``"x"`` and ``"y"``. The coordinate
+        ``time`` must be numeric.
+
+    Returns
+    -------
+    xarray.DataArray
+        Directional change with dims ``(time, individuals)`` or
+        ``(time, keypoints, individuals)``. The ``space`` dimension is
+        removed. Name is set to ``"directional_change"``.
+
+    Notes
+    -----
+    - First and last timepoints are set to NaN because turning angle is
+      undefined there.
+    - Zero-length displacement vectors produce NaN in the output.
+
+    """
+    _validate_type_data_array(data)
+    validate_dims_coords(data, {"time": [], "space": ["x", "y"]})
+
+    if data.sizes["space"] != 2:
+        raise ValueError("Input data must have exactly 2 spatial dimensions.")
+
+    # Displacement vectors:
+    # v_i = p_{i+1} - p_i
+    v = data.shift(time=-1) - data
+
+    # v_{i-1} = p_i - p_{i-1}
+    v_prev = data - data.shift(time=1)
+
+    # Mask zero-length displacement vectors so their angles become NaN
+    v = v.where(compute_norm(v) != 0)
+    v_prev = v_prev.where(compute_norm(v_prev) != 0)
+
+    # Signed turning angle between consecutive displacement vectors
+    theta: xr.DataArray = compute_signed_angle_2d(v_prev, v)
+
+    # Absolute turning angle
+    abs_theta: xr.DataArray = xr.apply_ufunc(np.abs, theta)
+
+    # Time interval: dt[i] = time[i+1] - time[i-1]
+    time_coord = data.coords["time"]
+    dt: xr.DataArray = (
+        time_coord.shift(time=-1) - time_coord.shift(time=1)
+    ).astype("float64")
+
+    # Compute directional change; dt broadcasts over non-time dims
+    result: xr.DataArray = abs_theta / dt
+
+    # Avoid inf if dt contains zeros
+    result = result.where(dt != 0)
+
+    result.name = "directional_change"
+    return result
