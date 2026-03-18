@@ -1,5 +1,6 @@
 """Compute variables derived from ``position`` data."""
 
+from movement.kinematics.collective import compute_group_spread
 from movement.kinematics.distances import compute_pairwise_distances
 from movement.kinematics.kinematics import (
     compute_acceleration,
@@ -19,6 +20,7 @@ from movement.kinematics.orientation import (
 from movement.kinematics.kinetic_energy import compute_kinetic_energy
 
 __all__ = [
+    "compute_group_spread",
     "compute_displacement",
     "compute_forward_displacement",
     "compute_backward_displacement",
