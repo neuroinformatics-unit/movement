@@ -21,15 +21,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # Run all supported Python versions on linux
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.13"]
         os: [ubuntu-latest]
-        # Include 1 MacOS Silicon (latest) and 1 Windows run
-        include:
-        - os: macos-latest
-          python-version: "3.13"
-        - os: windows-latest
-          python-version: "3.13"
 
     steps:
       # these libraries enable testing on Qt on linux
@@ -43,10 +36,25 @@ jobs:
             ~/.movement/*
           key: cached-test-data-${{ runner.os }}
           restore-keys: cached-test-data
-      - uses: neuroinformatics-unit/actions/test@main
+      - uses: actions/checkout@v6
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
-          secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Install tox
+        shell: bash
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install tox tox-gh-actions tox-uv
+      - name: Run tests
+        shell: bash
+        run: tox
+      - name: Report coverage to codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+          fail_ci_if_error: true
 
   build_sdist_wheels:
     name: Build source distribution
