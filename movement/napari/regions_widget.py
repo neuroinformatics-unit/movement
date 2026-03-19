@@ -1,21 +1,8 @@
 """Widget for defining regions of interest.
 
-This module uses Qt's Model/View architecture to separate data from display:
-
-- ``RegionsTableModel`` (Model): Wraps a napari Shapes layer and exposes
-  region data (names, shape types) to the Qt framework. Listens to layer
-  events and emits signals when data changes.
-- ``RegionsTableView`` (View): Displays the model's data as a table. Handles
-  user interactions like row selection and name editing.
-- ``RegionsWidget``: Coordinates the model and view. Manages
-  layer selection, creates/links models to views, and handles layer
-  lifecycle events.
-
-Data flow:
-    napari Shapes layer <-> RegionsTableModel <-> RegionsTableView <-> User
-
-See the `Qt Model/View framework
-<https://doc.qt.io/qt-6/model-view-programming.html>`_
+This module uses Qt's Model/View architecture to separate data from display.
+See our `napari plugin development guide
+<https://movement.neuroinformatics.dev/dev/community/contributing.html#developing-the-napari-plugin>`_
 for more background.
 """
 
