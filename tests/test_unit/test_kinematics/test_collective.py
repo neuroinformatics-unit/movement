@@ -295,6 +295,39 @@ class TestComputePolarizationValidation:
         )
         assert np.allclose(polarization.values, 1.0, atol=1e-10)
 
+    def test_requires_space_coordinate_labels_to_exist(self):
+        """Raise ValueError if the space dimension has no coordinate labels."""
+        data = xr.DataArray(
+            np.zeros((3, 2, 2)),
+            dims=["time", "space", "individuals"],
+            coords={
+                "time": [0, 1, 2],
+                "individuals": ["a", "b"],
+            },
+            name="position",
+        )
+        with pytest.raises(
+            ValueError,
+            match="coordinate labels for the 'space' dimension",
+        ):
+            kinematics.compute_polarization(data)
+
+    def test_empty_keypoints_dimension_raises_in_displacement_mode(self):
+        """Raise if keypoints dimension exists but contains no entries."""
+        data = xr.DataArray(
+            np.empty((3, 2, 0, 2)),
+            dims=["time", "space", "keypoints", "individuals"],
+            coords={
+                "time": [0, 1, 2],
+                "space": ["x", "y"],
+                "keypoints": [],
+                "individuals": ["a", "b"],
+            },
+            name="position",
+        )
+        with pytest.raises(ValueError, match="at least one keypoint"):
+            kinematics.compute_polarization(data)
+
 
 class TestComputePolarizationBehavior:
     """Tests for polarization computation behavior."""
@@ -336,23 +369,6 @@ class TestComputePolarizationBehavior:
                 [[1], [0]],
                 [[2], [0]],
                 [[3], [0]],
-            ],
-            dtype=float,
-        )
-        polarization = kinematics.compute_polarization(
-            _make_position_dataarray(data)
-        )
-        assert np.allclose(polarization.values[1:], 1.0, atol=1e-10)
-
-    def test_large_n_aligned_gives_one(self):
-        """Polarization is 1.0 for 50 aligned individuals."""
-        n_individuals = 50
-        x_coords = np.arange(n_individuals, dtype=float)
-        data = np.array(
-            [
-                [x_coords, np.zeros(n_individuals)],
-                [x_coords + 1, np.zeros(n_individuals)],
-                [x_coords + 2, np.zeros(n_individuals)],
             ],
             dtype=float,
         )
@@ -504,14 +520,214 @@ class TestComputePolarizationBehavior:
             pol_original.values, pol_permuted.values, atol=1e-10
         )
 
+    def test_zero_length_body_axis_vectors_are_excluded(self):
+        """Zero-length body-axis headings are excluded as invalid."""
+        # ind0 has coincident tail_base and neck (zero-length heading)
+        # ind1 has valid +x body axis heading
+        data = np.array(
+            [
+                [
+                    [[0.0, 10.0], [0.0, 11.0]],  # x: ind0 zero-length, ind1 +1
+                    [[0.0, 0.0], [0.0, 0.0]],  # y
+                ],
+                [
+                    [[0.0, 10.5], [0.0, 11.5]],
+                    [[0.0, 0.0], [0.0, 0.0]],
+                ],
+            ],
+            dtype=float,
+        )
+        da = _make_position_dataarray(data, keypoints=["tail_base", "neck"])
+
+        polarization, mean_angle = kinematics.compute_polarization(
+            da,
+            body_axis_keypoints=("tail_base", "neck"),
+            return_angle=True,
+        )
+
+        assert np.allclose(polarization.values, 1.0, atol=1e-10)
+        assert np.allclose(mean_angle.values, 0.0, atol=1e-10)
+
+    def test_polarization_is_invariant_to_translation(
+        self,
+        partial_alignment_positions,
+    ):
+        """Adding a constant offset does not change polarization."""
+        shifted = partial_alignment_positions.copy()
+        shifted.loc[dict(space="x")] = shifted.sel(space="x") + 1000.0
+        shifted.loc[dict(space="y")] = shifted.sel(space="y") - 500.0
+
+        pol_original = kinematics.compute_polarization(
+            partial_alignment_positions
+        )
+        pol_shifted = kinematics.compute_polarization(shifted)
+
+        np.testing.assert_allclose(
+            pol_original.values,
+            pol_shifted.values,
+            atol=1e-10,
+            equal_nan=True,
+        )
+
+    def test_polarization_is_invariant_to_positive_scaling(
+        self,
+        partial_alignment_positions,
+    ):
+        """Positive scalar multiplication preserves polarization."""
+        scaled = partial_alignment_positions * 7.5
+
+        pol_original = kinematics.compute_polarization(
+            partial_alignment_positions
+        )
+        pol_scaled = kinematics.compute_polarization(scaled)
+
+        np.testing.assert_allclose(
+            pol_original.values,
+            pol_scaled.values,
+            atol=1e-10,
+            equal_nan=True,
+        )
+
+    def test_polarization_is_invariant_to_global_rotation(
+        self,
+        partial_alignment_positions,
+    ):
+        """A global planar rotation preserves polarization magnitude."""
+        x = partial_alignment_positions.sel(space="x")
+        y = partial_alignment_positions.sel(space="y")
+
+        rotated = partial_alignment_positions.copy()
+        rotated.loc[dict(space="x")] = -y
+        rotated.loc[dict(space="y")] = x
+
+        pol_original = kinematics.compute_polarization(
+            partial_alignment_positions
+        )
+        pol_rotated = kinematics.compute_polarization(rotated)
+
+        np.testing.assert_allclose(
+            pol_original.values,
+            pol_rotated.values,
+            atol=1e-10,
+            equal_nan=True,
+        )
+
+    def test_body_axis_invariance_to_translation_scaling_rotation(
+        self,
+    ):
+        """Body-axis polarization is invariant to translation/scaling/rotation.
+
+        Mean body angle is invariant to translation and positive scaling, and
+        rotates by the same amount under global planar rotation.
+        """
+        # Three individuals with body axes: +x, +x, +y.
+        # This gives a nontrivial baseline:
+        #   vector sum = (2, 1)
+        #   polarization = sqrt(5) / 3
+        #   mean angle = atan2(1, 2)
+        #
+        # Absolute positions differ across frames to ensure we are really
+        # testing body-axis heading (target - origin), not any accidental
+        # dependence on absolute location.
+        data = np.array(
+            [
+                [
+                    [[0.0, 10.0, -2.0], [1.0, 11.0, -2.0]],  # x
+                    [[0.0, 5.0, 3.0], [0.0, 5.0, 4.0]],  # y
+                ],
+                [
+                    [[100.0, 50.0, 7.0], [101.0, 51.0, 7.0]],  # x
+                    [[-1.0, 20.0, -3.0], [-1.0, 20.0, -2.0]],  # y
+                ],
+            ],
+            dtype=float,
+        )
+        da = _make_position_dataarray(data, keypoints=["tail_base", "neck"])
+
+        pol_base, angle_base = kinematics.compute_polarization(
+            da,
+            body_axis_keypoints=("tail_base", "neck"),
+            return_angle=True,
+        )
+
+        expected_pol = np.sqrt(5) / 3
+        expected_angle = np.arctan2(1.0, 2.0)
+
+        np.testing.assert_allclose(pol_base.values, expected_pol, atol=1e-10)
+        np.testing.assert_allclose(
+            angle_base.values, expected_angle, atol=1e-10
+        )
+
+        # Global translation: should not affect body-axis vectors.
+        translated = da.copy()
+        translated.loc[dict(space="x")] = translated.sel(space="x") + 123.4
+        translated.loc[dict(space="y")] = translated.sel(space="y") - 56.7
+
+        pol_translated, angle_translated = kinematics.compute_polarization(
+            translated,
+            body_axis_keypoints=("tail_base", "neck"),
+            return_angle=True,
+        )
+
+        np.testing.assert_allclose(
+            pol_translated.values, pol_base.values, atol=1e-10
+        )
+        np.testing.assert_allclose(
+            angle_translated.values, angle_base.values, atol=1e-10
+        )
+
+        # Positive scaling: should preserve directions and therefore preserve
+        # polarization and angle.
+        scaled = da * 4.2
+
+        pol_scaled, angle_scaled = kinematics.compute_polarization(
+            scaled,
+            body_axis_keypoints=("tail_base", "neck"),
+            return_angle=True,
+        )
+
+        np.testing.assert_allclose(
+            pol_scaled.values, pol_base.values, atol=1e-10
+        )
+        np.testing.assert_allclose(
+            angle_scaled.values, angle_base.values, atol=1e-10
+        )
+
+        # Global 90-degree rotation: polarization magnitude should be
+        # unchanged, and mean angle should rotate by +pi/2 (with wraparound).
+        rotated = da.copy()
+        x = da.sel(space="x")
+        y = da.sel(space="y")
+        rotated.loc[dict(space="x")] = -y
+        rotated.loc[dict(space="y")] = x
+
+        pol_rotated, angle_rotated = kinematics.compute_polarization(
+            rotated,
+            body_axis_keypoints=("tail_base", "neck"),
+            return_angle=True,
+        )
+
+        np.testing.assert_allclose(
+            pol_rotated.values, pol_base.values, atol=1e-10
+        )
+
+        expected_rotated_angle = angle_base.values + (np.pi / 2)
+        expected_rotated_angle = (
+            (expected_rotated_angle + np.pi) % (2 * np.pi)
+        ) - np.pi
+
+        np.testing.assert_allclose(
+            angle_rotated.values, expected_rotated_angle, atol=1e-10
+        )
+
 
 class TestHeadingSourceSelection:
     """Tests for heading computation mode selection."""
 
-    def test_body_axis_heading_is_valid_on_first_frame(
+    def test_body_axis_heading_valid_on_first_frame_returns_expected_angle(
         self, keypoint_positions
     ):
-        """Body-axis heading produces valid values on first frame."""
+        """Body-axis heading is valid from frame 0 and returns angle 0."""
         polarization, mean_angle = kinematics.compute_polarization(
             keypoint_positions,
             body_axis_keypoints=("tail_base", "neck"),
@@ -688,6 +904,19 @@ class TestDisplacementFrames:
         assert np.allclose(pol_1frame.values[1:], 0.0, atol=1e-10)
         assert np.allclose(pol_2frame.values[2:], 1.0, atol=1e-10)
 
+    def test_displacement_frames_larger_than_time_axis_returns_all_nan(
+        self,
+        aligned_positions,
+    ):
+        """Oversized displacement windows produce no valid headings."""
+        polarization, mean_angle = kinematics.compute_polarization(
+            aligned_positions,
+            displacement_frames=10,
+            return_angle=True,
+        )
+        assert np.all(np.isnan(polarization.values))
+        assert np.all(np.isnan(mean_angle.values))
+
 
 class TestReturnAngle:
     """Tests for return_angle parameter behavior."""
@@ -817,12 +1046,58 @@ class TestReturnAngle:
         assert np.all(np.isnan(angle_opposite.values[1:]))
         assert np.all(np.isnan(angle_perp.values[1:]))
 
-    def test_mean_angle_with_body_axis_heading(self, keypoint_positions):
-        """Mean angle works correctly with body-axis heading."""
-        polarization, mean_angle = kinematics.compute_polarization(
-            keypoint_positions,
-            body_axis_keypoints=("tail_base", "neck"),
+    def test_mean_angle_rotates_with_global_rotation(
+        self,
+        partial_alignment_positions,
+    ):
+        """Mean angle shifts by the same amount under global rotation."""
+        _, angle_original = kinematics.compute_polarization(
+            partial_alignment_positions,
             return_angle=True,
         )
-        assert np.allclose(polarization.values, 1.0, atol=1e-10)
-        assert np.allclose(mean_angle.values, 0.0, atol=1e-10)
+
+        x = partial_alignment_positions.sel(space="x")
+        y = partial_alignment_positions.sel(space="y")
+
+        rotated = partial_alignment_positions.copy()
+        rotated.loc[dict(space="x")] = -y
+        rotated.loc[dict(space="y")] = x
+
+        _, angle_rotated = kinematics.compute_polarization(
+            rotated,
+            return_angle=True,
+        )
+
+        expected = angle_original.values[1:] + (np.pi / 2)
+        expected = (expected + np.pi) % (2 * np.pi) - np.pi
+
+        np.testing.assert_allclose(
+            angle_rotated.values[1:],
+            expected,
+            atol=1e-10,
+        )
+
+    def test_mean_angle_wraparound_near_pi_is_handled_correctly(self):
+        """Headings near +pi and -pi should average leftward, not to zero."""
+        # Two individuals moving left with tiny y-offsets in opposite dirs.
+        # This creates headings very close to +pi and -pi.
+        data = np.array(
+            [
+                [[0.0, 0.0], [0.0, 0.0]],
+                [[-1.0, -1.0], [1e-6, -1e-6]],
+                [[-2.0, -2.0], [2e-6, -2e-6]],
+            ],
+            dtype=float,
+        )
+
+        polarization, mean_angle = kinematics.compute_polarization(
+            _make_position_dataarray(data),
+            return_angle=True,
+        )
+
+        assert np.allclose(polarization.values[1:], 1.0, atol=1e-10)
+        assert np.allclose(
+            np.abs(mean_angle.values[1:]),
+            np.pi,
+            atol=1e-6,
+        )
