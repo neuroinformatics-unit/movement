@@ -1101,3 +1101,28 @@ class TestReturnAngle:
             np.pi,
             atol=1e-6,
         )
+
+    def test_in_degrees_true_returns_degrees(self):
+        """in_degrees=True returns angle in degrees."""
+        # Two individuals moving in +y direction
+        data = np.array(
+            [
+                [[0, 0], [0, 0]],
+                [[0, 0], [1, 1]],
+                [[0, 0], [2, 2]],
+            ],
+            dtype=float,
+        )
+        _, mean_angle_rad = kinematics.compute_polarization(
+            _make_position_dataarray(data),
+            return_angle=True,
+            in_degrees=False,
+        )
+        _, mean_angle_deg = kinematics.compute_polarization(
+            _make_position_dataarray(data),
+            return_angle=True,
+            in_degrees=True,
+        )
+        # +y direction = 90 degrees = pi/2 radians
+        assert np.allclose(mean_angle_rad.values[1:], np.pi / 2, atol=1e-10)
+        assert np.allclose(mean_angle_deg.values[1:], 90.0, atol=1e-10)

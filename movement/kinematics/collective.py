@@ -19,12 +19,15 @@ def compute_polarization(
     body_axis_keypoints: tuple[Hashable, Hashable] | None = None,
     displacement_frames: int = 1,
     return_angle: bool = False,
+    in_degrees: bool = False,
 ) -> xr.DataArray | tuple[xr.DataArray, xr.DataArray]:
     r"""Compute polarization (group alignment) of individuals.
 
-    Polarization measures how aligned the heading directions of individuals
-    are. A value of 1 indicates perfect alignment, while a value near 0
-    indicates weak or canceling alignment.
+    Polarization measures how aligned individuals' direction vectors are,
+    supporting two modes: **orientation polarization** (body-axis mode) for
+    body orientation alignment, and **heading polarization** (displacement
+    mode) for movement direction alignment. A value of 1 indicates perfect
+    alignment, while a value near 0 indicates weak or canceling alignment.
 
     The polarization is computed as
 
@@ -56,9 +59,13 @@ def compute_polarization(
         ``body_axis_keypoints`` is not provided. Must be a positive integer.
         This parameter is ignored when ``body_axis_keypoints`` is provided.
     return_angle : bool, default=False
-        If True, also return the mean angle in radians. Returns the mean
-        body orientation angle when using ``body_axis_keypoints``, or the
-        mean heading angle when using displacement-based polarization.
+        If True, also return the mean angle. Returns the mean body
+        orientation angle when using ``body_axis_keypoints``, or the mean
+        movement direction angle when using displacement-based polarization.
+    in_degrees : bool, default=False
+        If True, the mean angle is returned in degrees. Otherwise, the
+        angle is returned in radians. Only relevant when
+        ``return_angle=True``.
 
     Returns
     -------
@@ -103,7 +110,7 @@ def compute_polarization(
 
     >>> polarization = compute_polarization(ds.position)
 
-    Return orientation polarization with mean body angle:
+    Return orientation polarization with mean body orientation angle:
 
     >>> polarization, mean_angle = compute_polarization(
     ...     ds.position,
@@ -111,11 +118,19 @@ def compute_polarization(
     ...     return_angle=True,
     ... )
 
-    Return heading polarization with mean movement angle:
+    Return heading polarization with mean movement direction angle (radians):
 
     >>> polarization, mean_angle = compute_polarization(
     ...     ds.position.sel(keypoints="thorax"),
     ...     return_angle=True,
+    ... )
+
+    Return heading polarization with mean movement direction angle (degrees):
+
+    >>> polarization, mean_angle = compute_polarization(
+    ...     ds.position.sel(keypoints="thorax"),
+    ...     return_angle=True,
+    ...     in_degrees=True,
     ... )
 
     If multiple keypoints exist, first is used; also return mean angle:
@@ -170,7 +185,10 @@ def compute_polarization(
             vector_sum.sel(space="x"),
         ),
         np.nan,
-    ).rename("mean_angle")
+    )
+    if in_degrees:
+        mean_angle = np.rad2deg(mean_angle)
+    mean_angle = mean_angle.rename("mean_angle")
 
     return polarization, mean_angle
 
