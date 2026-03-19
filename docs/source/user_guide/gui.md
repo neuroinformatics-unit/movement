@@ -5,7 +5,8 @@ The `movement` graphical user interface (GUI), powered by our custom plugin for
 [napari](napari:), makes it easy to view and explore `movement`
 motion tracks. Currently, you can use it to
 visualise 2D [movement datasets](target-poses-and-bboxes-dataset)
-as points, tracks, and rectangular bounding boxes (if defined) overlaid on video frames.
+as points, tracks, and rectangular bounding boxes (if defined) overlaid on
+video frames, as well as to define regions of interest (RoIs).
 
 :::{warning}
 The GUI is still in early stages of development but we are working on ironing
@@ -324,3 +325,125 @@ You can find all the [keyboard shortcuts](napari:guides/preferences.html#shortcu
 `napari` window, under `Preferences > Shortcuts`.
 
 :::
+
+## Define regions of interest
+
+The `Define regions of interest` widget allows you to draw shapes on the
+viewer and use them as regions of interest (RoIs) for analysis.
+
+Each shape you draw represents a static region
+that remains fixed across all frames.
+
+Regions can be organised into multiple **region layers**—specialised
+`napari` [shapes layers](napari:howtos/layers/shapes.html)
+that are managed by the widget.
+
+:::{admonition} Terminology
+:class: note
+
+**Shape**
+: Any geometric object you draw on the `napari` canvas
+  (e.g. a polygon or a line).
+
+**Region**
+: A shape that is managed via this widget and can be used as a
+  `movement` region of interest (RoI) for analysis.
+
+All regions are shapes, but not all shapes are regions.
+Similarly, a `movement` region layer is a `napari` shapes layer,
+but not all shapes layers are region layers.
+:::
+
+
+### Create a region layer
+
+Start by creating a region layer, which will serve as a container for the
+regions you draw. To do this:
+
+1. Ensure a [background layer](target-load-video) is loaded so that you
+   can see where you are drawing.
+2. Expand the `Define regions of interest` menu on the right-hand side
+   of the `napari` window.
+3. Click the `Add new layer` button.
+
+This will create a new [shapes layer](napari:howtos/layers/shapes.html)
+in the layer list and select it. The layer is
+automatically assigned a colour from a fixed palette, and it appears
+in the layer dropdown within the widget.
+The layer's default name is `regions`, but you can change it
+by double-clicking on it in the layer list (as for any `napari` layer).
+
+![regions widget with new layer](../_static/placeholder_regions_new_layer.png)
+
+### Draw and edit regions
+
+With the region layer selected, you can use the native `napari` shape tools
+in the layer controls panel to draw shapes on the canvas.
+Convenient keyboard shortcuts are available to select the shape drawing tools,
+for example:
+
+- `R`: rectangle tool
+- `E`: ellipse tool
+- `P`: polygon tool
+- `L`: line tool
+
+Tools are also provided for selecting, moving, transforming,
+and deleting shapes, as well as for editing their vertices.
+You can also copy-paste shapes within a layer.
+See the [napari shapes layer guide](napari:howtos/layers/shapes.html) for
+details on the drawing tools and how to use them.
+
+Each shape you draw is automatically added to the widget's regions table
+and auto-assigned a unique name (e.g. `region`, `region [1]`, etc.).
+Each table row displayes the region's name and shape type.
+
+![regions table](../_static/placeholder_regions_table.png)
+
+You can interact with the table in the following ways:
+
+- **Select**: clicking a row in the table selects the corresponding shape
+  on the canvas, and vice versa. This makes it easy to identify which
+  shape corresponds to which table entry.
+- **Rename**: double-click the name cell of a region to edit its name.
+  Press `Enter` to confirm the change or `Escape` to cancel.
+- **Delete**: select a shape on the canvas and press `Delete` (or
+  `Backspace`) to remove it. The corresponding row will be removed from
+  the table.
+
+:::{admonition} Changing shape appearance
+:class: tip
+
+You can change the edge colour, face colour, edge width, and opacity of
+shapes by selecting a shape (or multiple shapes) 
+and using the `napari` layer controls panel.
+Once a shape's appearance has been adjusted, all subsequent shapes drawn in
+the same layer will inherit those properties by default.
+
+To display region names on the canvas, tick the `display text` checkbox
+in the layer controls panel. The text colour follows the shape's edge
+colour.
+:::
+
+### Save and load regions
+
+Save and load functionality for region layers is coming soon.
+You will be able to save a region layer to a GeoJSON file,
+and load it back later or share it with others.
+
+This will also enable you to import regions you have drawn in the GUI
+into Python using the {func}`~movement.roi.load_rois` function.
+
+**Stay tuned!**
+
+### Working with multiple region layers
+
+You can create multiple region layers to group related regions together.
+For example, you might use one layer for "nesting zones" and another for
+"foraging zones".
+
+To add another region layer, click the `Add new layer`
+button again. You can switch between region layers using the dropdown
+to the left of the `Add new layer` button, or by selecting the layer
+directly in the `napari` layer list—both are kept in sync.
+The regions table updates to show only the shapes belonging
+to the selected layer.
