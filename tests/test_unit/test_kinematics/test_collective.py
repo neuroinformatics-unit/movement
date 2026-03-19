@@ -235,9 +235,9 @@ class TestComputePolarizationValidation:
     def test_body_axis_keypoints_require_keypoints_dimension(
         self, aligned_positions
     ):
-        """Raise ValueError if body_axis_keypoints given but no keypoints dim."""
+        """Raise ValueError if body_axis_keypoints given without keypoints."""
         with pytest.raises(
-            ValueError, match="requires data to have a 'keypoints' dimension"
+            ValueError, match="requires a 'keypoints' dimension"
         ):
             kinematics.compute_polarization(
                 aligned_positions,

@@ -93,7 +93,7 @@ def compute_polarization(
     ...     body_axis_keypoints=("tail_base", "neck"),
     ... )
 
-    Compute heading polarization from displacement (select keypoint for tracking):
+    Compute heading polarization from displacement (pre-select keypoint):
 
     >>> polarization = compute_polarization(
     ...     ds.position.sel(keypoints="thorax")
@@ -262,7 +262,7 @@ def _validate_position_data(
 
     if "keypoints" not in data.dims:
         raise ValueError(
-            "body_axis_keypoints requires data to have a 'keypoints' dimension."
+            "body_axis_keypoints requires a 'keypoints' dimension in data."
         )
 
     validate_dims_coords(data, {"keypoints": [origin, target]})
