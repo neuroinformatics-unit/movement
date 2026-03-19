@@ -27,7 +27,7 @@ pytestmark = pytest.mark.filterwarnings(
 
 
 # ------------------- Helpers ------------------------------------------------#
-def add_regions_layer(viewer, data=None, name="Regions", **kwargs):
+def add_regions_layer(viewer, data=None, name="regions", **kwargs):
     """Add a shapes layer marked as a movement region layer to a viewer."""
     return viewer.add_shapes(
         data,
@@ -121,7 +121,7 @@ def test_dropdown_populated_with_existing_region_layer(
     add_regions_layer(viewer)
     widget = RegionsWidget(viewer)
     assert widget.layer_dropdown.count() == 1
-    assert widget.layer_dropdown.currentText() == "Regions"
+    assert widget.layer_dropdown.currentText() == "regions"
 
 
 def test_auto_assign_names_pads_missing_name_property(
@@ -130,7 +130,7 @@ def test_auto_assign_names_pads_missing_name_property(
     """Test that missing region name property gets created and filled."""
     viewer = make_napari_viewer_proxy()
     # Create layer with shapes but no "name" assigned to each shape
-    # (Note that "Regions" is the name of the layer)
+    # (Note that "regions" is the name of the layer)
     layer = add_regions_layer(viewer, two_polygons)
     # Creating widget triggers _auto_assign_region_names which pads
     # the list of region names to match the number of shapes in the layer
@@ -188,7 +188,7 @@ def test_layer_added_triggers_dropdown_update(
     RegionsWidget(viewer)
 
     mock_method.reset_mock()
-    viewer.add_shapes(name="Regions")
+    viewer.add_shapes(name="regions")
     mock_method.assert_called_once()
 
 
@@ -200,7 +200,7 @@ def test_layer_removed_triggers_dropdown_update(
         "movement.napari.regions_widget.RegionsWidget._update_layer_dropdown"
     )
     viewer = make_napari_viewer_proxy()
-    layer = viewer.add_shapes(name="Regions")
+    layer = viewer.add_shapes(name="regions")
 
     # _ to avoid it being gc (must stay alive to receive signal)
     _ = RegionsWidget(viewer)
@@ -244,7 +244,7 @@ def test_add_new_layer(regions_widget):
     assert len(regions_widget.viewer.layers) == 1
     layer = regions_widget.viewer.layers[0]
     assert isinstance(layer, Shapes)
-    assert layer.name.startswith("Regions")
+    assert layer.name.startswith("regions")
     assert layer.metadata.get(REGIONS_LAYER_KEY) is True
     assert regions_widget.layer_dropdown.currentText() == layer.name
 
@@ -261,7 +261,7 @@ def test_update_layer_dropdown_on_layer_added(regions_widget):
     """Test dropdown is updated when a new region layer is added."""
     add_regions_layer(regions_widget.viewer)
     assert regions_widget.layer_dropdown.count() == 1
-    assert regions_widget.layer_dropdown.currentText() == "Regions"
+    assert regions_widget.layer_dropdown.currentText() == "regions"
 
 
 def test_update_layer_dropdown_on_layer_removed(regions_widget_with_layer):
@@ -306,11 +306,11 @@ def test_dropdown_follows_napari_when_new_region_layer_added(
     viewer = make_napari_viewer_proxy()
     add_regions_layer(viewer)
     widget = RegionsWidget(viewer)
-    widget.layer_dropdown.setCurrentText("Regions")
+    widget.layer_dropdown.setCurrentText("regions")
 
-    add_regions_layer(viewer, name="Regions [1]")
+    add_regions_layer(viewer, name="regions [1]")
     # napari makes the newly added layer active, so the dropdown follows
-    assert widget.layer_dropdown.currentText() == "Regions [1]"
+    assert widget.layer_dropdown.currentText() == "regions [1]"
 
 
 def test_layer_selection_links_to_model(regions_widget_with_layer):
@@ -340,24 +340,24 @@ def test_close_cleans_up(regions_widget_with_layer):
 @pytest.mark.parametrize(
     "base, existing, expected",
     [
-        pytest.param("Region", [], "Region", id="no_conflict"),
-        pytest.param("Region", ["Region"], "Region [1]", id="one_conflict"),
+        pytest.param("region", [], "region", id="no_conflict"),
+        pytest.param("region", ["region"], "region [1]", id="one_conflict"),
         pytest.param(
-            "Region",
-            ["Region", "Region [1]"],
-            "Region [2]",
+            "region",
+            ["region", "region [1]"],
+            "region [2]",
             id="two_conflicts",
         ),
         pytest.param(
-            "Region [1]",
-            ["Region", "Region [1]"],
-            "Region [2]",
+            "region [1]",
+            ["region", "region [1]"],
+            "region [2]",
             id="suffix_stripped_before_search",
         ),
         pytest.param(
-            "Region [1]",
-            ["Region", "Region [1]", "Region [2]"],
-            "Region [3]",
+            "region [1]",
+            ["region", "region [1]", "region [2]"],
+            "region [3]",
             id="suffix_stripped_counts_up",
         ),
     ],
@@ -708,13 +708,13 @@ def test_table_allows_name_editing(regions_widget_with_layer):
     [
         pytest.param(None, "No region layers", id="no_layers"),
         pytest.param(
-            {"name": "Regions"},
+            {"name": "regions"},
             "No regions in this layer",
             id="empty_layer",
         ),
         pytest.param(
             {
-                "name": "Regions",
+                "name": "regions",
                 "data": [[[0, 0], [0, 10], [10, 10], [10, 0]]],
             },
             "Click a row",

@@ -23,7 +23,7 @@ from qtpy.QtWidgets import (
 
 from movement.napari.layer_styles import RegionsStyle, _sample_colormap
 
-DEFAULT_REGION_NAME = "Region"
+DEFAULT_REGION_NAME = "region"
 DROPDOWN_PLACEHOLDER = "No region layers"
 
 # Metadata keys stored on napari Shapes layers managed by this widget.
@@ -230,7 +230,7 @@ class RegionsWidget(QWidget):
     def _add_new_layer(self):
         """Create a new Regions layer and select it."""
         new_layer = self.viewer.add_shapes(
-            name="Regions",
+            name="regions",
             metadata={REGIONS_LAYER_KEY: True},
         )
         self.layer_dropdown.setCurrentText(new_layer.name)
