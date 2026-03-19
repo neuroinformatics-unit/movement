@@ -268,6 +268,21 @@ def savgol_filter(
             ValueError("The 'axis' argument may not be overridden.")
         )
     time_axis = data.get_axis_num("time")
+    if kwargs.get("mode", "interp") == "interp":
+        # Check for NaNs in the first and last edge windows
+        # (first and last 'window' points) as SciPy's interp mode
+        # does not support them.
+        first_window = data.isel(time=slice(0, window))
+        last_window = data.isel(time=slice(-window, None))
+        if first_window.isnull().any() or last_window.isnull().any():
+            raise logger.error(
+                ValueError(
+                    "mode='interp' does not support NaNs in edge windows; "
+                    "use mode='nearest'/'mirror' or fill edge NaNs "
+                    "before filtering."
+                )
+            )
+
     data_smoothed = data.copy()
     try:
         data_smoothed.values = signal.savgol_filter(
@@ -278,15 +293,16 @@ def savgol_filter(
             **kwargs,
         )
     except ValueError as e:
+        # Some SciPy versions might still raise this internally
         if "array must not contain infs or NaNs" in str(e):
             raise logger.error(
                 ValueError(
-                    "mode='interp' does not support NaNs in edge windows "
-                    "with SciPy >= 1.17; use mode='nearest'/'mirror' or "
-                    "fill edge NaNs before filtering."
+                    "mode='interp' does not support NaNs in edge windows; "
+                    "use mode='nearest'/'mirror' or fill edge NaNs "
+                    "before filtering."
                 )
             ) from e
-        raise  # Re-raise any other ValueError unchanged
+        raise
     if print_report:
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_smoothed, "output"))

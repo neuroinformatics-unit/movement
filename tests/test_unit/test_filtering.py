@@ -76,7 +76,7 @@ class TestFilteringValidDataset:
             ({"axis": 1}, pytest.raises(ValueError)),
             ({"mode": "nearest", "axis": 1}, pytest.raises(ValueError)),
             (  # polyorder >= window: re-raised unchanged by savgol_filter
-                {"polyorder": 5},
+                {"polyorder": 5, "mode": "nearest"},
                 pytest.raises(ValueError, match="polyorder"),
             ),
         ],
@@ -244,13 +244,8 @@ class TestFilteringValidDatasetWithNaNs:
         a ValueError should be raised.
         """
         dataset = request.getfixturevalue(valid_dataset_with_nan)
-        import scipy
-        from packaging.version import Version
-
-        if mode in [None, "interp"] and Version(scipy.__version__) >= Version(
-            "1.15.0"
-        ):
-            expected_exception = does_not_raise()
+        # movement explicitly checks for NaNs in edge windows
+        # and raises ValueError for mode='interp'
 
         with expected_exception:
             kwargs = {"window": 3, "polyorder": 2}
