@@ -30,9 +30,9 @@ def compute_polarization(
 
     .. math::
 
-        \Phi = \frac{1}{N} \left\| \sum_{i=1}^{N} \hat{v}_i \right\|
+        \Phi = \frac{1}{N} \left\| \sum_{i=1}^{N} \hat{u}_i \right\|
 
-    where :math:`\hat{v}_i` is the unit heading vector for individual
+    where :math:`\hat{u}_i` is the unit direction vector for individual
     :math:`i`, and :math:`N` is the number of valid individuals at that time.
 
     Parameters
