@@ -441,7 +441,9 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         reference_vector
             The reference vector to be used. Dimensions must be compatible with
             the argument of the same name that is passed to
-            :func:`compute_signed_angle_2d`. Default ``(1., 0.)``.
+            :func:`compute_signed_angle_2d()\
+            <movement.utils.vector.compute_signed_angle_2d>`.
+            Default ``(1., 0.)``.
 
         Returns
         -------
