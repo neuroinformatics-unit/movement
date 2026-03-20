@@ -369,7 +369,7 @@ The layer also appears in the dropdown next to the `Add new layer` button.
 The layer's default name is `regions`, but you can change it by double-clicking
 on it in the layer list (this is the case for any `napari` layer).
 
-![napari new region layer](../_static/napari_new_regions_layer.png)
+![napari new region layer](../_static/napari_new_region_layer.png)
 
 ### Draw and edit regions
 
