@@ -366,10 +366,9 @@ regions you draw. To do this:
    of the `napari` window.
 3. Click the `Add new layer` button.
 
-This will create a new [shapes layer](napari:howtos/layers/shapes.html)
-in the layer list and select it. The layer is
-automatically assigned a colour from a fixed palette, and it appears
-in the layer dropdown within the widget.
+This will create a new regions layer
+in the layer list and select it. The layer also appears
+in the dropdown next to the `Add new layer` button.
 The layer's default name is `regions`, but you can change it
 by double-clicking on it in the layer list (as for any `napari` layer).
 
@@ -395,7 +394,6 @@ details on the drawing tools and how to use them.
 
 Each shape you draw is automatically added to the widget's table of regions,
 and auto-assigned a unique name (e.g. `region`, `region [1]`, etc.).
-Each table row displays the region's name and shape type.
 
 ![napari drawing regions](../_static/napari_drawing_regions.png)
 
@@ -437,7 +435,7 @@ into Python using the {func}`~movement.roi.load_rois` function.
 
 ### Working with multiple regions layers
 
-You can create multiple regions layers to group related regions together.
+You can use regions layers to group related regions together.
 For example, you might use one layer for "nesting zones" and another for
 "foraging zones".
 
