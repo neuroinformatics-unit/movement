@@ -343,9 +343,7 @@ def test_close_cleans_up(regions_widget_with_layer):
     "base, existing, expected",
     [
         pytest.param("region", [], "region", id="no_conflict"),
-        pytest.param(
-            "region", ["region"], "region_1", id="one_existing"
-        ),
+        pytest.param("region", ["region"], "region_1", id="one_existing"),
         pytest.param(
             "region",
             ["region", "region_1"],
@@ -392,9 +390,7 @@ def test_preserves_user_names(make_napari_viewer_proxy, two_polygons):
     layer.properties = {"name": ["Arena", ""]}
 
     RegionsWidget(viewer)
-    assert all(
-        layer.properties["name"] == ["Arena", DEFAULT_REGION_NAME]
-    )
+    assert all(layer.properties["name"] == ["Arena", DEFAULT_REGION_NAME])
 
 
 def test_new_drawn_shape_gets_default_name(
