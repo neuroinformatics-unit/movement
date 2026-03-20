@@ -478,7 +478,8 @@ The `movement` plugin for `napari` is built following the
 All widgets subclass `qtpy.QtWidgets.QWidget` (see the
 [napari guide on widgets](napari:plugins/building_a_plugin/guides.html)).
 
-The plugin lives in `movement.napari` and is structured as follows:
+The plugin lives in [`movement.napari`](movement-github:movement/napari) and
+is structured as follows:
 
 - `movement.napari.meta_widget`: the top-level
   container widget registered as the `napari` plugin entry point,
@@ -498,23 +499,27 @@ The plugin lives in `movement.napari` and is structured as follows:
 #### Qt Model/View architecture
 
 `movement.napari.regions_widget` follows
-[Qt's Model/View pattern](https://doc.qt.io/qt-6/model-view-programming.html)
+[Qt's Model/View pattern](qt6:model-view-programming.html)
 to separate the data (what is stored) from the display (how it is shown).
 Understanding this pattern is helpful before making changes to this module,
 and for creating new widgets that follow the same design principles.
 
 The three components are:
 
-- `RegionsTableModel` (subclasses `QAbstractTableModel`): wraps a `napari`
-  [shapes layer](napari:howtos/layers/shapes.html) and exposes its data to Qt
-  (i.e., region names from `layer.properties["name"]` and shape types). It
-  listens to `napari` layer [events](napari:guides/events_reference.html)
-  and emits Qt signals when the data changes.
-- `RegionsTableView` (subclasses `QTableView`): renders the model's data as a
-  table and handles user interactions (e.g. row selection, inline name
-  editing). Keeps table row selection in sync with `napari`'s current shape selection.
-- `RegionsWidget`: connects the table model and view. It manages layer selection,
-  creates and links models to views, and handles layer lifecycle events.
+- `RegionsTableModel` (subclasses 
+  [`QAbstractTableModel`](qt6:qabstracttablemodel.html)):
+  wraps a `napari` [shapes layer](napari:howtos/layers/shapes.html) and
+  exposes its data to Qt (i.e., region names from `layer.properties["name"]`
+  and shape types). It listens to `napari` layer
+  [events](napari:guides/events_reference.html) and emits Qt signals
+  when the data changes.
+- `RegionsTableView` (subclasses [`QTableView`](qt6:qtableview.html)):
+  renders the model's data as a table and handles user interactions
+  (e.g. row selection, inline name editing). Keeps table row selection
+  in sync with `napari`'s current shape selection.
+- `RegionsWidget`: connects the table model and table view. It manages
+  layer selection, creates and links models to views, and handles layer
+  lifecycle events.
 
 Data flows in both directions:
 
