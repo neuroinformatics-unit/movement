@@ -506,7 +506,7 @@ and for creating new widgets that follow the same design principles.
 
 The three components are:
 
-- `RegionsTableModel` (subclasses 
+- `RegionsTableModel` (subclasses
   [`QAbstractTableModel`](qt6:qabstracttablemodel.html)):
   wraps a `napari` [shapes layer](napari:howtos/layers/shapes.html) and
   exposes its data to Qt (i.e., region names from `layer.properties["name"]`
