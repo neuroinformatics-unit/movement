@@ -629,9 +629,7 @@ class RegionsTableModel(QAbstractTableModel):
             self._adding_shape = True
         elif event.action == "added":
             self._adding_shape = False
-            self._sync_names_on_shape_change(
-                n_shapes, use_default_name=True
-            )
+            self._sync_names_on_shape_change(n_shapes, use_default_name=True)
         elif event.action == "removed":
             self._sync_names_on_shape_change(n_shapes)
 
