@@ -516,6 +516,9 @@ class RegionsTableModel(QAbstractTableModel):
         self.layer = shapes_layer
         # Track shape count to detect new shapes
         self._last_shape_count = len(shapes_layer.data)
+        # Guard flag: True between "adding" and "added" data events.
+        # Prevents the interleaved set_data event from processing drawn shapes
+        self._adding_shape = False
         # Listen to layer data changes (drawing, editing, deleting shapes)
         self.layer.events.data.connect(self._on_layer_data_changed)
         # Listen to set_data events (copy-paste emits this, not data)
@@ -610,18 +613,24 @@ class RegionsTableModel(QAbstractTableModel):
     def _on_layer_data_changed(self, event=None):
         """Handle data events from drawing, editing, or deleting shapes.
 
-        For "added" events (drawing new shapes): assigns default name.
-        For "removed" events: syncs model with remaining shapes.
-        Moves/resizes do not affect names and are ignored.
+        - For "added" events (drawing new shapes): assigns default name.
+        - For "removed" events: syncs model with remaining shapes.
+        - The "adding" event sets a guard flag so that the interleaved
+          set_data event (fired between "adding" and "added") defers
+          naming to this handler.
+        - Moves/resizes do not affect names and are ignored.
         """
         if self.layer is None:
             return
 
         n_shapes = len(self.layer.data)
 
-        if event.action == "added":
+        if event.action == "adding":
+            self._adding_shape = True
+        elif event.action == "added":
+            self._adding_shape = False
             self._sync_names_on_shape_change(
-                n_shapes, assign_default_to_new=True
+                n_shapes, use_default_name=True
             )
         elif event.action == "removed":
             self._sync_names_on_shape_change(n_shapes)
@@ -636,9 +645,15 @@ class RegionsTableModel(QAbstractTableModel):
 
         Copy-paste in napari emits set_data (not data) events. Newly pasted
         shapes get unique names derived from the copied name (e.g. pasting
-        "Region" when "Region" already exists yields "Region [1]").
+        "burrow" when "burrow" already exists yields "burrow [1]").
+
+        When drawing, napari also fires set_data between the "adding" and
+        "added" data events. In that case we skip here and let
+        _on_layer_data_changed handle naming with the correct default.
         """
         if self.layer is None:
+            return
+        if self._adding_shape:
             return
 
         n_shapes = len(self.layer.data)
@@ -648,7 +663,7 @@ class RegionsTableModel(QAbstractTableModel):
     def _sync_names_on_shape_change(
         self,
         n_shapes: int,
-        assign_default_to_new: bool = False,
+        use_default_name: bool = False,
     ):
         """Sync names list with current shape count and update model.
 
@@ -656,11 +671,12 @@ class RegionsTableModel(QAbstractTableModel):
         ----------
         n_shapes
             Current number of shapes in the layer.
-        assign_default_to_new
-            If True, newly added shapes get a unique default name (e.g.
-            "Region", "Region [1]"). Use for drawn shapes. If False,
-            the existing name (e.g. from a copy-paste) is kept as the base
-            and made unique if needed. Default is False.
+        use_default_name
+            If True, newly added shapes get a unique default name
+            (e.g. "region", "region [1]"). Use for drawn shapes.
+            If False, the existing name (e.g. from a copy-paste) is
+            kept as the base and made unique if needed.
+            Default is False.
 
         """
         current_names = list(self.layer.properties.get("name", []))
@@ -672,11 +688,15 @@ class RegionsTableModel(QAbstractTableModel):
         # Truncate if list is too long (shapes were removed)
         current_names = current_names[:n_shapes]
 
-        # Assign unique names to newly added shapes
+        # Assign unique names to newly added shapes.
+        # For drawn shapes (use_default_name=True), we override
+        # whatever napari propagated from the selected shape.
+        # For pasted shapes (use_default_name=False), we keep the
+        # copied name as the base and just make it unique.
         if n_shapes > self._last_shape_count:
             for i in range(self._last_shape_count, n_shapes):
                 base = current_names[i]
-                if assign_default_to_new or not isinstance(base, str):
+                if use_default_name or not isinstance(base, str):
                     base = DEFAULT_REGION_NAME
                 current_names[i] = _unique_name(base, current_names[:i])
 

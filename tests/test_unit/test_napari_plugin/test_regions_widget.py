@@ -405,6 +405,49 @@ def test_new_drawn_shape_gets_default_name(
     assert names[-1] not in names[:-1]  # new name is unique among prior names
 
 
+def test_new_drawn_shape_uses_default_name_after_rename(
+    regions_widget_with_layer, two_polygons, mocker
+):
+    """Test that drawing after renaming still uses DEFAULT_REGION_NAME.
+
+    Renaming an existing region (e.g. "region" → "burrow") should not
+    influence the name assigned to subsequently drawn shapes. New shapes
+    should always derive their name from DEFAULT_REGION_NAME.
+
+    When drawing interactively, napari fires events in this order:
+    data("adding") → set_data → data("added"). The set_data handler
+    must defer to the data("added") handler, which applies the default
+    name. We simulate this sequence by disconnecting events, manually
+    adding the shape, and then replaying the three events in order.
+    """
+    widget, layer = regions_widget_with_layer
+    model = widget.region_table_model
+
+    # Rename the first region from "region" to "burrow"
+    index = model.index(0, 0)
+    model.setData(index, "burrow", Qt.EditRole)
+    assert layer.properties["name"][0] == "burrow"
+
+    # Disconnect events so layer.add() doesn't trigger handlers
+    layer.events.data.disconnect(model._on_layer_data_changed)
+    layer.events.set_data.disconnect(model._on_layer_set_data)
+    layer.add(two_polygons[:1])
+
+    # Replay the napari event sequence: adding → set_data → added
+    model._on_layer_data_changed(mocker.Mock(action="adding"))
+    model._on_layer_set_data()
+    model._on_layer_data_changed(mocker.Mock(action="added"))
+
+    # Reconnect events for cleanup
+    layer.events.data.connect(model._on_layer_data_changed)
+    layer.events.set_data.connect(model._on_layer_set_data)
+
+    names = list(layer.properties["name"])
+    assert len(names) == 3
+    # The new shape must use DEFAULT_REGION_NAME, not "burrow"
+    assert names[2].startswith(DEFAULT_REGION_NAME)
+
+
 # ------------------- Tests for RegionsTableModel ----------------------------#
 def test_table_model_row_and_column_count(regions_widget_with_layer):
     """Test that table model dimensions match the data."""
@@ -549,8 +592,8 @@ def test_sync_names_assigns_default_to_new_shapes(
     layer.add(two_polygons[:1])
     # Reset _last_shape_count to simulate state before shape was added
     model._last_shape_count = 2
-    # Call sync with assign_default_to_new=True
-    model._sync_names_on_shape_change(n_shapes=3, assign_default_to_new=True)
+    # Call sync with use_default_name=True (as the data handler does)
+    model._sync_names_on_shape_change(n_shapes=3, use_default_name=True)
     # New shape gets a unique name derived from DEFAULT_REGION_NAME
     names = layer.properties["name"]
     assert names[2].startswith(DEFAULT_REGION_NAME)
