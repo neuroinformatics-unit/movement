@@ -554,8 +554,8 @@ class TestComputePolarizationBehavior:
     ):
         """Adding a constant offset does not change polarization."""
         shifted = partial_alignment_positions.copy()
-        shifted.loc[dict(space="x")] = shifted.sel(space="x") + 1000.0
-        shifted.loc[dict(space="y")] = shifted.sel(space="y") - 500.0
+        shifted.loc[{"space": "x"}] = shifted.sel(space="x") + 1000.0
+        shifted.loc[{"space": "y"}] = shifted.sel(space="y") - 500.0
 
         pol_original = kinematics.compute_polarization(
             partial_alignment_positions
@@ -597,8 +597,8 @@ class TestComputePolarizationBehavior:
         y = partial_alignment_positions.sel(space="y")
 
         rotated = partial_alignment_positions.copy()
-        rotated.loc[dict(space="x")] = -y
-        rotated.loc[dict(space="y")] = x
+        rotated.loc[{"space": "x"}] = -y
+        rotated.loc[{"space": "y"}] = x
 
         pol_original = kinematics.compute_polarization(
             partial_alignment_positions
@@ -660,8 +660,8 @@ class TestComputePolarizationBehavior:
 
         # Global translation: should not affect body-axis vectors.
         translated = da.copy()
-        translated.loc[dict(space="x")] = translated.sel(space="x") + 123.4
-        translated.loc[dict(space="y")] = translated.sel(space="y") - 56.7
+        translated.loc[{"space": "x"}] = translated.sel(space="x") + 123.4
+        translated.loc[{"space": "y"}] = translated.sel(space="y") - 56.7
 
         pol_translated, angle_translated = kinematics.compute_polarization(
             translated,
@@ -698,8 +698,8 @@ class TestComputePolarizationBehavior:
         rotated = da.copy()
         x = da.sel(space="x")
         y = da.sel(space="y")
-        rotated.loc[dict(space="x")] = -y
-        rotated.loc[dict(space="y")] = x
+        rotated.loc[{"space": "x"}] = -y
+        rotated.loc[{"space": "y"}] = x
 
         pol_rotated, angle_rotated = kinematics.compute_polarization(
             rotated,
@@ -1060,8 +1060,8 @@ class TestReturnAngle:
         y = partial_alignment_positions.sel(space="y")
 
         rotated = partial_alignment_positions.copy()
-        rotated.loc[dict(space="x")] = -y
-        rotated.loc[dict(space="y")] = x
+        rotated.loc[{"space": "x"}] = -y
+        rotated.loc[{"space": "y"}] = x
 
         _, angle_rotated = kinematics.compute_polarization(
             rotated,
