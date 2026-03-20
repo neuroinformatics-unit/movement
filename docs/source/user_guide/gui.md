@@ -328,37 +328,35 @@ You can find all the [keyboard shortcuts](napari:guides/preferences.html#shortcu
 
 ## Define regions of interest
 
-The `Define regions of interest` widget allows you to draw shapes on the
+The `Define regions of interest` menu allows you to draw shapes on the
 viewer and use them as regions of interest (RoIs) for analysis.
 
 Each shape you draw represents a static region
 that remains fixed across all frames.
-
-Regions can be organised into multiple **regions layers**—specialised
-`napari` [shapes layers](napari:howtos/layers/shapes.html)
-that are managed by the widget.
 
 :::{admonition} Terminology
 :class: note
 
 **Shape**
 : Any geometric object you draw on the `napari` canvas
-  (e.g. a polygon or a line).
+  (e.g. a polygon or a line). Shapes are grouped together in
+  `napari` [shapes layers](napari:howtos/layers/shapes.html).
 
 **Region**
-: A shape that is managed via this widget and can be used as a
-  `movement` region of interest (RoI) for analysis.
+: A named `napari` shape that `movement` recognises as a
+  region of interest (RoI) for analysis.
 
-All regions are shapes, but not all shapes are regions.
-Similarly, a `movement` regions layer is a `napari` shapes layer,
-but not all shapes layers are regions layers.
+**Region layer**
+: A `napari` [shapes layers](napari:howtos/layers/shapes.html) managed
+  by `movement`, whose shapes are treated as **regions**.
+
 :::
 
 
-### Create a regions layer
+### Create a region layer
 
-Start by creating a regions layer, which will serve as a container for the
-regions you draw. To do this:
+To define a region for your data, start by creating a region layer,
+which will serve as a container. To do this:
 
 1. Ensure a [background layer](target-load-video) is loaded so that you
    can see where you are drawing.
@@ -366,17 +364,16 @@ regions you draw. To do this:
    of the `napari` window.
 3. Click the `Add new layer` button.
 
-This will create a new regions layer
-in the layer list and select it. The layer also appears
-in the dropdown next to the `Add new layer` button.
-The layer's default name is `regions`, but you can change it
-by double-clicking on it in the layer list (as for any `napari` layer).
+This will create a new region layer in the layer list and select it.
+The layer also appears in the dropdown next to the `Add new layer` button.
+The layer's default name is `regions`, but you can change it by double-clicking
+on it in the layer list (this is the case for any `napari` layer).
 
-![napari new regions layer](../_static/napari_new_regions_layer.png)
+![napari new region layer](../_static/napari_new_regions_layer.png)
 
 ### Draw and edit regions
 
-With the regions layer selected, you can use the native `napari` shape tools
+With the region layer selected, you can use the native `napari` shape tools
 in the layer controls panel to draw shapes on the canvas.
 Convenient keyboard shortcuts are available to select the shape drawing tools,
 for example:
@@ -392,8 +389,9 @@ You can also copy-paste shapes within a layer.
 See the [napari shapes layer guide](napari:howtos/layers/shapes.html) for
 details on the drawing tools and how to use them.
 
-Each shape you draw is automatically added to the widget's table of regions,
-and auto-assigned a unique name (e.g. `region`, `region [1]`, etc.).
+Each shape you draw is automatically added to the widget's table of regions
+on the right-hand side and auto-assigned a unique name
+(e.g. `region`, `region [1]`, etc.).
 
 ![napari drawing regions](../_static/napari_drawing_regions.png)
 
@@ -424,24 +422,22 @@ colour.
 
 ### Save and load regions
 
-Save and load functionality for regions layers is coming soon.
-You will be able to save a regions layer to a GeoJSON file,
-and load it back later or share it with others.
-
-This will also enable you to import regions you have drawn in the GUI
-into Python using the {func}`~movement.roi.load_rois` function.
+Save and load functionality for region layers is coming soon.
+You will be able to save a region layer to a GeoJSON file,
+and load it back later or share it with others. This will also allow you
+to import drawn regions into your Python code using the
+{func}`~movement.roi.load_rois` function.
 
 **Stay tuned!**
 
-### Working with multiple regions layers
+### Working with multiple region layers
 
-You can use regions layers to group related regions together.
+You can use region layers to group related regions together.
 For example, you might use one layer for "nesting zones" and another for
 "foraging zones".
 
-To add another regions layer, click the `Add new layer`
-button again. You can switch between regions layers using the dropdown
-to the left of the `Add new layer` button, or by selecting the layer
-directly in the `napari` layer list—both are kept in sync.
-The regions table updates to show only the shapes belonging
-to the selected layer.
+To add another region layer, click the `Add new layer` button again.
+You can switch between region layers using the layers dropdown, or by
+selecting the layer directly in the `napari` layer list—both are kept in sync.
+The regions table updates to show only the shapes
+belonging to the selected layer.
