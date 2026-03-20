@@ -405,3 +405,60 @@ def compute_turning_angle(
         turning.attrs["units"] = "degrees"
 
     return turning
+
+
+def compute_directional_change(
+    data: xr.DataArray,
+    min_step_length: float = 0.0,
+    in_degrees: bool = False,
+) -> xr.DataArray:
+    """Compute the directional change of a continuous trajectory.
+
+    Directional change is a measure of how rapidly an animal changes
+    its heading
+    per unit time. Unlike purely geometric metrics, it incorporates temporal
+    information. The directional change at step ``i`` is defined as the
+    absolute turning angle divided by the time interval over which the
+    change occurs.
+
+    Parameters
+    ----------
+    data : xr.DataArray
+        The input data representing position.
+    min_step_length : float, optional
+        The minimum step length to consider. Steps smaller than this
+        are treated
+        as stationary, and their turning angles (and consequently directional
+        changes) will be ``NaN``. Default is ``0.0``.
+    in_degrees : bool, optional
+        If ``True``, return directional change in degrees/second instead of
+        radians/second. Default is ``False``.
+
+    Returns
+    -------
+    xr.DataArray
+        An xarray DataArray with the same dimensions as the input, except the
+        ``space`` dimension is removed. It contains one directional
+        change value per time step, per individual and keypoint.
+
+    Notes
+    -----
+    The formulation follows Kitamura & Imafuku (2015).
+
+    """
+    theta = compute_turning_angle(
+        data, min_step_length=min_step_length, in_degrees=in_degrees
+    )
+    time = data.coords["time"]
+
+    # dt_turning[t] = time[t+1] - time[t-1]
+    # For turning angle at t, it spans step t-1 to t and step t to t+1.
+    # Therefore, time span is time[t+1] - time[t-1].
+    dt_turning = time.shift(time=-1) - time.shift(time=1)
+
+    dc = abs(theta) / dt_turning
+
+    dc.name = "directional_change"
+    dc.attrs["units"] = "degrees/second" if in_degrees else "radians/second"
+
+    return dc

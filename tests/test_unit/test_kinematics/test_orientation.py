@@ -620,3 +620,89 @@ class TestTurningAngle:
         # Stationary keypoint (kp_1): should be all NaN
         angles_kp1 = angles.isel(keypoints=1)
         assert np.all(np.isnan(angles_kp1.values))
+
+
+class TestDirectionalChange:
+    """Test the compute_directional_change function."""
+
+    @pytest.fixture
+    def sample_data(self):
+        """Return a simple position data array for testing."""
+        time = [-1.0, 0.0, 1.0, 3.0, 6.0]
+        pos = np.array(
+            [
+                [-1, 0],
+                [0, 0],
+                [1, 0],
+                [1, 2],
+                [-2, 2],
+            ]
+        ).reshape(5, 1, 1, 2)
+
+        return xr.DataArray(
+            pos,
+            dims=["time", "individuals", "keypoints", "space"],
+            coords={
+                "time": time,
+                "individuals": ["id1"],
+                "keypoints": ["kp1"],
+                "space": ["x", "y"],
+            },
+        )
+
+    def test_directional_change_computation(self, sample_data):
+        """Test standard computation."""
+        from movement.kinematics import compute_directional_change
+
+        dc = compute_directional_change(sample_data)
+
+        assert dc.name == "directional_change"
+        assert dc.attrs["units"] == "radians/second"
+
+        dc_vals = dc.squeeze().values
+
+        # t=0, t=1: invalid turning angle (not enough prior steps)
+        assert np.isnan(dc_vals[0])
+        assert np.isnan(dc_vals[1])
+
+        # t=2: disp[1] is [1,0], disp[2] is [1,0], turning angle is 0.
+        # dt = time[3] - time[1] = 3.0 - 0.0 = 3.0. dc = 0 / 3.0 = 0.
+        np.testing.assert_allclose(dc_vals[2], 0.0)
+
+        # t=3: disp[2] is [1,0], disp[3] is [0,2], turning angle is pi/2.
+        # dt = time[4] - time[2] = 6.0 - 1.0 = 5.0. dc = (pi/2) / 5.0 = pi/10.
+        np.testing.assert_allclose(dc_vals[3], np.pi / 10)
+
+        # t=4: dt is NaN (no time[5]), so dc is NaN
+        assert np.isnan(dc_vals[4])
+
+    def test_in_degrees(self, sample_data):
+        """Test returning degrees."""
+        from movement.kinematics import compute_directional_change
+
+        dc = compute_directional_change(sample_data, in_degrees=True)
+        assert dc.attrs["units"] == "degrees/second"
+        dc_vals = dc.squeeze().values
+
+        np.testing.assert_allclose(dc_vals[2], 0.0)
+        np.testing.assert_allclose(dc_vals[3], 90.0 / 5.0)
+
+    def test_min_step_length(self, sample_data):
+        """Test minimum step length."""
+        from movement.kinematics import compute_directional_change
+
+        dc = compute_directional_change(sample_data, min_step_length=1.5)
+        dc_vals = dc.squeeze().values
+
+        # t=2 step from t=1 to t=2 has length 1. So turn at t=2 is masked.
+        assert np.isnan(dc_vals[2])
+        # t=3 step from t=2 to t=3 is 2. Step from t=1 to t=2 is 1 (too short).
+        # Since disp.shift(1) for t=3 is disp[2], which has length 1.0 < 1.5,
+        # it is ALSO masked.
+        assert np.isnan(dc_vals[3])
+
+        # if min_step_length=0.5, both 1.0 and 2.0 and 3.0 are valid
+        dc2 = compute_directional_change(sample_data, min_step_length=0.5)
+        dc2_vals = dc2.squeeze().values
+        np.testing.assert_allclose(dc2_vals[2], 0.0)
+        np.testing.assert_allclose(dc2_vals[3], np.pi / 10)
