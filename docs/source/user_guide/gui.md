@@ -62,7 +62,7 @@ plugin—and click `OK`. You can optionally select to remember this reader
 for all files with the same extension.
 
 
-![napari widget video reader](../_static/napari_plugin_video_reader.png)
+![napari video reader](../_static/napari_video_reader.png)
 
 
 `napari-video` will load the video as an image stack with a slider
@@ -71,7 +71,7 @@ You may also use the left and right arrow keys to navigate
 frame-by-frame.
 
 
-![napari widget video slider](../_static/napari_plugin_video_slider.png)
+![napari video slider](../_static/napari_video_slider.png)
 
 Clicking on the play button will start the video playback at a default
 rate of 10 frames per second. You can adjust the playback speed by right-clicking on the
@@ -200,11 +200,11 @@ For a poses dataset, you will see a view similar to this:
 
 (target-widget-screenshot)=
 
-![napari widget with poses dataset loaded](../_static/napari_plugin_data_tracks.png)
+![napari with poses dataset loaded](../_static/napari_poses_layers.png)
 
 And for a bounding boxes dataset, you will see a view more like the one below:
 
-![napari widget with shapes loaded](../_static/napari_bboxes_layer.png)
+![napari with bboxes dataset loaded](../_static/napari_bboxes_layers.png)
 
 
 Note the additional bounding boxes layer that is loaded for bounding boxes datasets. For both poses and bounding boxes datasets, you can toggle the visibility of any of these layers by clicking on the eye icon.
@@ -231,7 +231,7 @@ and the time in seconds (calculated based on the frame number and
 the `fps` value).
 
 
-![napari points layer tooltip](../_static/napari_points_layer_tooltip.png)
+![napari points tooltip](../_static/napari_points_tooltip.png)
 
 
 
@@ -277,7 +277,7 @@ selected layer shows the trajectories of the keypoints from the current frame un
 end of the video.
 
 
-![napari tracks layer head length](../_static/napari_tracks_layer_head_length.png)
+![napari tracks sliders](../_static/napari_tracks_sliders.png)
 
 
 You can also use the [tracks layer](napari:howtos/layers/tracks.html) controls panel to
@@ -373,7 +373,7 @@ in the layer dropdown within the widget.
 The layer's default name is `regions`, but you can change it
 by double-clicking on it in the layer list (as for any `napari` layer).
 
-![regions widget with new layer](../_static/placeholder_regions_new_layer.png)
+![napari new region layer](../_static/napari_new_region_layer.png)
 
 ### Draw and edit regions
 
@@ -393,11 +393,11 @@ You can also copy-paste shapes within a layer.
 See the [napari shapes layer guide](napari:howtos/layers/shapes.html) for
 details on the drawing tools and how to use them.
 
-Each shape you draw is automatically added to the widget's regions table
+Each shape you draw is automatically added to the widget's table of regions,
 and auto-assigned a unique name (e.g. `region`, `region [1]`, etc.).
-Each table row displayes the region's name and shape type.
+Each table row displays the region's name and shape type.
 
-![regions table](../_static/placeholder_regions_table.png)
+![napari drawing regions](../_static/napari_drawing_regions.png)
 
 You can interact with the table in the following ways:
 
@@ -414,7 +414,7 @@ You can interact with the table in the following ways:
 :class: tip
 
 You can change the edge colour, face colour, edge width, and opacity of
-shapes by selecting a shape (or multiple shapes) 
+shapes by selecting a shape (or multiple shapes)
 and using the `napari` layer controls panel.
 Once a shape's appearance has been adjusted, all subsequent shapes drawn in
 the same layer will inherit those properties by default.
