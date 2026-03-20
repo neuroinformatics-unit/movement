@@ -643,7 +643,7 @@ class RegionsTableModel(QAbstractTableModel):
 
         Copy-paste in napari emits set_data (not data) events. Newly pasted
         shapes get unique names derived from the copied name (e.g. pasting
-        "burrow" when "burrow" already exists yields "burrow [1]").
+        "burrow" when "burrow" already exists yields "burrow_1").
 
         When drawing, napari also fires set_data between the "adding" and
         "added" data events. In that case we skip here and let
@@ -671,7 +671,7 @@ class RegionsTableModel(QAbstractTableModel):
             Current number of shapes in the layer.
         use_default_name
             If True, newly added shapes get a unique default name
-            (e.g. "region", "region [1]"). Use for drawn shapes.
+            (e.g. "region", "region_1"). Use for drawn shapes.
             If False, the existing name (e.g. from a copy-paste) is
             kept as the base and made unique if needed.
             Default is False.
@@ -733,7 +733,12 @@ class RegionsTableModel(QAbstractTableModel):
 
 
 def _unique_name(base: str, existing_names: list) -> str:
-    """Return base if not already taken, else base [1], base [2], etc.
+    """Return a unique name that is not in existing_names.
+
+    The root is obtained by stripping any trailing ``_N`` suffix from
+    ``base``. If the root itself is available, it is returned as-is.
+    Otherwise, ``root_1``, ``root_2``, etc. are tried until a free
+    name is found.
 
     Parameters
     ----------
@@ -748,14 +753,14 @@ def _unique_name(base: str, existing_names: list) -> str:
         A name that does not appear in existing_names.
 
     """
-    # Strip existing " [N]" suffixes
-    root = re.sub(r" \[\d+\]$", "", base)
+    # Strip existing "_N" suffix to get the root
+    root = re.sub(r"_\d+$", "", base)
     if root not in existing_names:
         return root
     i = 1
-    while f"{root} [{i}]" in existing_names:
+    while f"{root}_{i}" in existing_names:
         i += 1
-    return f"{root} [{i}]"
+    return f"{root}_{i}"
 
 
 def _fill_empty_region_names(existing_names: list) -> list:

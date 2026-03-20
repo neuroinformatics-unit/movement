@@ -59,7 +59,9 @@ def regions_widget_with_layer(regions_widget, two_polygons):
     """Return a RegionsWidget and a shapes layer with 2 regions."""
     viewer = regions_widget.viewer
     layer = add_regions_layer(viewer, two_polygons, shape_type="polygon")
-    layer.properties = {"name": [DEFAULT_REGION_NAME, DEFAULT_REGION_NAME]}
+    layer.properties = {
+        "name": [DEFAULT_REGION_NAME, f"{DEFAULT_REGION_NAME}_1"]
+    }
     return regions_widget, layer
 
 
@@ -341,23 +343,25 @@ def test_close_cleans_up(regions_widget_with_layer):
     "base, existing, expected",
     [
         pytest.param("region", [], "region", id="no_conflict"),
-        pytest.param("region", ["region"], "region [1]", id="one_conflict"),
         pytest.param(
-            "region",
-            ["region", "region [1]"],
-            "region [2]",
-            id="two_conflicts",
+            "region", ["region"], "region_1", id="one_existing"
         ),
         pytest.param(
-            "region [1]",
-            ["region", "region [1]"],
-            "region [2]",
+            "region",
+            ["region", "region_1"],
+            "region_2",
+            id="two_existing",
+        ),
+        pytest.param(
+            "region_1",
+            ["region", "region_1"],
+            "region_2",
             id="suffix_stripped_before_search",
         ),
         pytest.param(
-            "region [1]",
-            ["region", "region [1]", "region [2]"],
-            "region [3]",
+            "region_1",
+            ["region", "region_1", "region_2"],
+            "region_3",
             id="suffix_stripped_counts_up",
         ),
     ],
@@ -388,7 +392,9 @@ def test_preserves_user_names(make_napari_viewer_proxy, two_polygons):
     layer.properties = {"name": ["Arena", ""]}
 
     RegionsWidget(viewer)
-    assert all(layer.properties["name"] == ["Arena", DEFAULT_REGION_NAME])
+    assert all(
+        layer.properties["name"] == ["Arena", DEFAULT_REGION_NAME]
+    )
 
 
 def test_new_drawn_shape_gets_default_name(
@@ -634,7 +640,7 @@ def test_table_model_set_data_handler_uniquifies_pasted_names(
     # Verify model updated and duplicate name was made unique
     assert model.rowCount() == 3
     assert model._last_shape_count == 3
-    expected_names = ["Region-A", "Region-B", "Region-A [1]"]
+    expected_names = ["Region-A", "Region-B", "Region-A_1"]
     assert list(layer.properties["name"]) == expected_names
 
 

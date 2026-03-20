@@ -391,7 +391,7 @@ details on the drawing tools and how to use them.
 
 Each shape you draw is automatically added to the widget's table of regions
 on the right-hand side and auto-assigned a unique name
-(e.g. `region`, `region [1]`, etc.).
+(e.g. `region`, `region_1`, `region_2`, etc.).
 
 ![napari drawing regions](../_static/napari_drawing_regions.png)
 
