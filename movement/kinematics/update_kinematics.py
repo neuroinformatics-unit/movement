@@ -1,15 +1,21 @@
 import warnings
 from typing import Literal
+
 import xarray as xr
+
 from movement.utils.logging import logger
 from movement.utils.reports import report_nan_values
 from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
+
+
 def _smooth_data(data: xr.DataArray, window: int) -> xr.DataArray:
     """Apply simple moving average smoothing along time dimension."""
     if window <= 1:
         return data
     return data.rolling(time=window, center=True, min_periods=1).mean()
+
+
 def compute_time_derivative(
     data: xr.DataArray,
     order: int,
@@ -18,6 +24,7 @@ def compute_time_derivative(
 ) -> xr.DataArray:
     """Compute the time-derivative of an array using numerical differentiation.
     Optionally applies smoothing before differentiation to reduce noise.
+
     Parameters
     ----------
     data
@@ -28,9 +35,11 @@ def compute_time_derivative(
         Whether to apply smoothing before differentiation.
     window
         Rolling window size for smoothing.
+
     Returns
     -------
     xarray.DataArray
+
     """
     if not isinstance(order, int):
         raise logger.error(
@@ -45,6 +54,8 @@ def compute_time_derivative(
     for _ in range(order):
         result = result.differentiate("time")
     return result
+
+
 def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     warnings.warn(
         "compute_displacement is deprecated. Use forward/backward displacement.",
@@ -56,20 +67,28 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     result = result.reindex_like(data, fill_value=0)
     result.name = "displacement"
     return result
+
+
 def _compute_forward_displacement(data: xr.DataArray) -> xr.DataArray:
     validate_dims_coords(data, {"time": [], "space": []})
     result = data.diff(dim="time", label="lower")
     result = result.reindex_like(data, fill_value=0)
     return result
+
+
 def compute_forward_displacement(data: xr.DataArray) -> xr.DataArray:
     result = _compute_forward_displacement(data)
     result.name = "forward_displacement"
     return result
+
+
 def compute_backward_displacement(data: xr.DataArray) -> xr.DataArray:
     fwd = _compute_forward_displacement(data)
     result = -fwd.roll(time=1)
     result.name = "backward_displacement"
     return result
+
+
 def compute_velocity(
     data: xr.DataArray,
     smooth: bool = False,
@@ -81,6 +100,8 @@ def compute_velocity(
     )
     result.name = "velocity"
     return result
+
+
 def compute_acceleration(
     data: xr.DataArray,
     smooth: bool = False,
@@ -92,10 +113,14 @@ def compute_acceleration(
     )
     result.name = "acceleration"
     return result
+
+
 def compute_speed(data: xr.DataArray) -> xr.DataArray:
     result = compute_norm(compute_velocity(data))
     result.name = "speed"
     return result
+
+
 def compute_path_length(
     data: xr.DataArray,
     start: float | None = None,
@@ -120,6 +145,8 @@ def compute_path_length(
         raise logger.error(ValueError("Invalid nan_policy."))
     result.name = "path_length"
     return result
+
+
 def _warn_about_nan_proportion(
     data: xr.DataArray, nan_warn_threshold: float
 ) -> None:
@@ -134,6 +161,8 @@ def _warn_about_nan_proportion(
             f"High NaN proportion detected:\n{report_nan_values(warn_data)}",
             UserWarning,
         )
+
+
 def _compute_scaled_path_length(data: xr.DataArray) -> xr.DataArray:
     disp = compute_backward_displacement(data).isel(time=slice(1, None))
     valid = (~disp.isnull()).all(dim="space").sum(dim="time")
