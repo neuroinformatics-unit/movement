@@ -31,6 +31,18 @@ SourceSoftware: TypeAlias = Literal[
     "VIA-tracks",
 ]
 
+AutoSourceSoftware: TypeAlias = Literal["auto"]
+SourceSoftwareOrAuto: TypeAlias = SourceSoftware | AutoSourceSoftware
+
+SUPPORTED_SOURCE_SOFTWARES: set[SourceSoftware] = {
+    "DeepLabCut",
+    "SLEAP",
+    "LightningPose",
+    "Anipose",
+    "NWB",
+    "VIA-tracks",
+}
+
 
 class LoaderProtocol(Protocol):
     """Protocol for loader functions to be registered via ``register_loader``.
@@ -71,6 +83,128 @@ class LoaderProtocol(Protocol):
 
 
 _LOADER_REGISTRY: dict[str, LoaderProtocol] = {}
+_LOADER_VALIDATORS_REGISTRY: dict[str, list[type[ValidFile]]] = {}
+
+
+def _dlc_vs_lp(file_path: Path) -> SourceSoftware:
+    """Disambiguate between DeepLabCut and LightningPose CSV files.
+
+    Parameters
+    ----------
+    file_path
+        Path to the CSV file.
+
+    Returns
+    -------
+    SourceSoftware
+        Either "DeepLabCut" or "LightningPose".
+
+    """
+    scorer = ""
+    try:
+        with file_path.open(encoding="utf-8", errors="replace") as f:
+            header = f.readline().strip().split(",")
+    except OSError:
+        header = []
+
+    if len(header) > 1:
+        scorer = header[1].strip().lower()
+
+    filename = file_path.name.lower()
+    if (
+        "lightning" in scorer
+        or "lightning" in filename
+        or filename.startswith("lp_")
+    ):
+        return "LightningPose"
+    if scorer.startswith("dlc_") or filename.startswith("dlc_"):
+        return "DeepLabCut"
+    raise logger.error(
+        ValueError(
+            "Could not uniquely infer source_software from "
+            f"'{file_path}'. Candidates: DeepLabCut, LightningPose. "
+            "Please specify `source_software` explicitly."
+        )
+    )
+
+
+def infer_source_software(
+    file: Path | str | pynwb.file.NWBFile,
+    **loader_kwargs,
+) -> SourceSoftware:
+    """Infer the ``source_software`` from a given input file.
+
+    This helper tries the file validators registered for each built-in loader.
+    If multiple software candidates match, the function raises an error (or
+    breaks ties where possible, e.g. DeepLabCut vs LightningPose CSV files).
+
+    Parameters
+    ----------
+    file
+        Input file path or an :class:`pynwb.file.NWBFile` object.
+    **loader_kwargs
+        Optional keyword arguments forwarded to file validators (when they
+        accept additional parameters, e.g. VIA-tracks `frame_regexp`).
+
+    Returns
+    -------
+    SourceSoftware
+        The inferred source software name.
+
+    Raises
+    ------
+    ValueError
+        If the source software cannot be inferred or is ambiguous.
+
+    """
+    if isinstance(file, pynwb.file.NWBFile):
+        return "NWB"
+
+    file_path = Path(file)
+    candidates: list[SourceSoftware] = []
+
+    for source_sw in SUPPORTED_SOURCE_SOFTWARES:
+        validators_list = _LOADER_VALIDATORS_REGISTRY.get(source_sw, [])
+        # Some loaders might be registered without validators; skip them.
+        if not validators_list:
+            continue
+        suffix_map = _build_suffix_map(validators_list)
+        try:
+            _validate_file(
+                file_path,
+                suffix_map,
+                source_sw,
+                loader_kwargs=loader_kwargs,
+            )
+        except (OSError, TypeError, ValueError):
+            continue
+        candidates.append(source_sw)
+
+    if not candidates:
+        suffix = file_path.suffix or "<no suffix>"
+        supported = ", ".join(sorted(SUPPORTED_SOURCE_SOFTWARES))
+        raise logger.error(
+            ValueError(
+                f"Could not infer source_software from file '{file_path}'. "
+                f"File suffix is '{suffix}'. Supported sources: {supported}."
+            )
+        )
+
+    if len(candidates) == 1:
+        return candidates[0]
+
+    # DeepLabCut and LightningPose share the same DLC-style CSV validator.
+    if set(candidates) == {"DeepLabCut", "LightningPose"}:
+        return _dlc_vs_lp(file_path)
+
+    candidates_str = ", ".join(sorted(candidates))
+    raise logger.error(
+        ValueError(
+            "Could not uniquely infer source_software from "
+            f"'{file_path}'. Candidates: {candidates_str}. "
+            "Please specify `source_software` explicitly."
+        )
+    )
 
 
 def _get_validator_kwargs(
@@ -206,6 +340,7 @@ def register_loader(
         and not isinstance(file_validators, list)
         else file_validators or []
     )
+    _LOADER_VALIDATORS_REGISTRY[source_software] = validators_list
     # Map suffixes to validator classes
     suffix_map = _build_suffix_map(validators_list)
 
@@ -231,7 +366,7 @@ def register_loader(
 
 def load_dataset(
     file: Path | str | pynwb.file.NWBFile,
-    source_software: SourceSoftware,
+    source_software: SourceSoftwareOrAuto = "auto",
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
@@ -250,6 +385,7 @@ def load_dataset(
         will be called.
     source_software
         The source software of the file.
+        If set to ``"auto"`` (default), it is inferred from the file format.
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
@@ -280,6 +416,9 @@ def load_dataset(
     ... )
 
     """
+    if source_software == "auto":
+        source_software = infer_source_software(file, **kwargs)
+
     if source_software not in _LOADER_REGISTRY:
         raise logger.error(
             ValueError(f"Unsupported source software: {source_software}")
@@ -297,7 +436,7 @@ def load_dataset(
 
 def load_multiview_dataset(
     file_dict: dict[str, Path | str],
-    source_software: SourceSoftware,
+    source_software: SourceSoftwareOrAuto = "auto",
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
@@ -308,7 +447,8 @@ def load_multiview_dataset(
     file_dict
         A dict whose keys are the view names and values are the paths to load.
     source_software
-        The source software of the file.
+        The source software of the files.
+        If set to ``"auto"`` (default), it is inferred for each file.
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.

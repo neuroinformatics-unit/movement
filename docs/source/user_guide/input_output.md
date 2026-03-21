@@ -52,14 +52,18 @@ To import {func}`load_dataset()<movement.io.load.load_dataset>`:
 from movement.io import load_dataset
 ```
 
-To load data from any supported format, specify the `file` path, the `source_software` that produced the file, and optionally the `fps` of the video from which the data were obtained.
+To load data from any supported format, specify the `file` path.
+You can either set `source_software` explicitly, or let `movement` infer it by leaving `source_software` unset or setting `source_software="auto"`.
+If a DLC-style `.csv` file could plausibly come from either DeepLabCut or LightningPose, set `source_software` explicitly.
+If you want to inspect what `movement` would infer, use `movement.io.infer_source_software(file)`.
+Optionally, also provide `fps` to put the time coordinates into seconds (when supported).
 
 For example, to load pose tracks from a DeepLabCut .h5 file:
 ```python
 ds = load_dataset(
     "/path/to/file.h5",
-    source_software="DeepLabCut",
-    fps=30, # Optional; time coords will be in seconds if provided, otherwise in frames
+    source_software="auto",
+    fps=30,
 )
 ```
 

@@ -9,6 +9,17 @@ from requests_cache import Path
 
 from movement.io import load
 
+AUTO_SOURCE_SOFTWARE_CASES = [
+    ("dlc_csv_file", "DeepLabCut"),
+    ("lp_csv_file", "LightningPose"),
+    ("dlc_h5_file", "DeepLabCut"),
+    ("sleap_slp_file", "SLEAP"),
+    ("sleap_analysis_file", "SLEAP"),
+    ("anipose_csv_file", "Anipose"),
+    ("via_tracks_csv", "VIA-tracks"),
+    ("nwbfile_object", "NWB"),
+]
+
 
 @define
 class StubValidFile:
@@ -161,3 +172,47 @@ def test_build_suffix_map():
     """
     suffix_map = load._build_suffix_map([StubValidFile])
     assert suffix_map == {".stub": StubValidFile}
+
+
+@pytest.mark.parametrize(
+    "file_fixture, expected_source_software", AUTO_SOURCE_SOFTWARE_CASES
+)
+def test_infer_source_software(
+    file_fixture, expected_source_software, request
+):
+    """Test auto-detection of source_software."""
+    file_path = request.getfixturevalue(file_fixture)
+    if file_fixture.startswith("nwb"):
+        file_path = file_path()  # NWB fixture is a callable
+    inferred = load.infer_source_software(file_path)
+    assert inferred == expected_source_software
+
+
+@pytest.mark.parametrize(
+    "file_fixture, expected_source_software", AUTO_SOURCE_SOFTWARE_CASES
+)
+def test_load_dataset_auto_detects(
+    file_fixture, expected_source_software, request
+):
+    """Test that load_dataset works with source_software='auto'."""
+    file_path = request.getfixturevalue(file_fixture)
+    if file_fixture.startswith("nwb"):
+        file_path = file_path()  # NWB fixture is a callable
+
+    auto_ds = load.load_dataset(file_path, source_software="auto")
+    explicit_ds = load.load_dataset(
+        file_path, source_software=expected_source_software
+    )
+
+    xr.testing.assert_identical(auto_ds, explicit_ds)
+
+
+def test_infer_source_software_raises_for_ambiguous_dlc_style_csv(
+    lp_csv_file, tmp_path
+):
+    """Test that ambiguous DLC-style CSV files require an explicit source."""
+    ambiguous_file = tmp_path / "mouse-face.predictions.csv"
+    ambiguous_file.write_bytes(lp_csv_file.read_bytes())
+
+    with pytest.raises(ValueError, match="Could not uniquely infer"):
+        load.infer_source_software(ambiguous_file)

@@ -211,6 +211,12 @@ def dlc_csv_file():
     return pytest.DATA_PATHS.get("DLC_single-wasp.predictions.csv")
 
 
+@pytest.fixture
+def lp_csv_file():
+    """Return the path to a LightningPose .csv file."""
+    return pytest.DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
+
+
 # ---------------- SLEAP file fixtures ----------------------------
 @pytest.fixture(
     params=[
