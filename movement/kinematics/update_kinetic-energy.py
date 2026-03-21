@@ -1,9 +1,12 @@
 import numpy as np
 import xarray as xr
+
 from movement.kinematics.kinematics import compute_velocity
 from movement.utils.logging import logger
 from movement.utils.vector import compute_norm
 from movement.validators.arrays import validate_dims_coords
+
+
 def compute_kinetic_energy(
     position: xr.DataArray,
     keypoints: list | None = None,
@@ -17,6 +20,7 @@ def compute_kinetic_energy(
     - normalization option
     - per-keypoint energy output
     - safer mass handling
+
     Parameters
     ----------
     position
@@ -31,9 +35,11 @@ def compute_kinetic_energy(
         If True, divide KE by total mass (mass-invariant energy).
     return_per_keypoint
         If True, return KE per keypoint instead of summed.
+
     Returns
     -------
     xarray.DataArray
+
     """
     validate_dims_coords(
         position, {"time": [], "space": ["x", "y"], "keypoints": []}
@@ -44,9 +50,7 @@ def compute_kinetic_energy(
         raise logger.error(ValueError("No keypoints available."))
     if decompose and position.sizes["keypoints"] < 2:
         raise logger.error(
-            ValueError(
-                "At least 2 keypoints required for decomposition."
-            )
+            ValueError("At least 2 keypoints required for decomposition.")
         )
     velocity = compute_velocity(position)
     weights = xr.DataArray(
@@ -58,7 +62,9 @@ def compute_kinetic_energy(
         for keypoint, mass in masses.items():
             if keypoint not in weights.coords["keypoints"]:
                 raise logger.error(
-                    ValueError(f"Mass provided for unknown keypoint: {keypoint}")
+                    ValueError(
+                        f"Mass provided for unknown keypoint: {keypoint}"
+                    )
                 )
             if mass < 0:
                 raise logger.error(
