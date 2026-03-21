@@ -5,9 +5,9 @@ def convert_gfm_admonitions_to_myst_md(
     input_path: Path,
     output_path: Path,
     exclude: set[str] | None = None,
-    extra_types: set[str] | None = None,  
-    append: bool = False,                  
-    verbose: bool = False                  
+    extra_types: set[str] | None = None,
+    append: bool = False,
+    verbose: bool = False
     """Convert GFM admonitions to MyST Markdown, with optional enhancements."""
     valid_types = VALID_TYPES.union({t.lower() for t in (extra_types or set())})
     excluded_types = {s.lower() for s in (exclude or set())}
@@ -53,7 +53,7 @@ if __name__ == "__main__":
         readme_path,
         target_path,
         exclude={"note"},
-        extra_types={"hint"},  
-        append=False,          
-        verbose=True           
+        extra_types={"hint"},
+        append=False,
+        verbose=True
     )
