@@ -1,31 +1,41 @@
 """Wrappers for plotting occupancy data of select individuals, with enhanced options."""
+
 from collections.abc import Hashable, Sequence
-from typing import Any, Literal, TypeAlias, Union
+from typing import Any, Literal, TypeAlias
+
 import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure, SubFigure
+
 HistInfoKeys: TypeAlias = Literal["h", "xedges", "yedges"]
 DEFAULT_HIST_ARGS = {"alpha": 1.0, "bins": 30, "cmap": "viridis"}
+
+
 def plot_occupancy(
     da: xr.DataArray,
-    individuals: Union[Hashable, Sequence[Hashable]] | None = None,
-    keypoints: Union[Hashable, Sequence[Hashable]] | None = None,
+    individuals: Hashable | Sequence[Hashable] | None = None,
+    keypoints: Hashable | Sequence[Hashable] | None = None,
     ax: Axes | None = None,
     normalize: bool = False,
     return_centroid: bool = False,
     auto_range: bool = True,
     **kwargs: Any,
-) -> tuple[Figure | SubFigure, Axes, dict[HistInfoKeys, np.ndarray], xr.DataArray | None]:
-    """
-    Create a 2D occupancy histogram of positions with flexible plotting options.
+) -> tuple[
+    Figure | SubFigure,
+    Axes,
+    dict[HistInfoKeys, np.ndarray],
+    xr.DataArray | None,
+]:
+    """Create a 2D occupancy histogram of positions with flexible plotting options.
     Features:
     - Handles multiple keypoints (plots centroid).
     - Aggregates over multiple individuals.
     - Can normalize counts.
     - Can return centroid data for further analysis.
     - Flexible binning and range handling.
+
     Parameters
     ----------
     da
@@ -44,6 +54,7 @@ def plot_occupancy(
         If True, automatically compute bin edges based on min/max of data.
     kwargs
         Passed to matplotlib's hist2d function.
+
     Returns
     -------
     fig : Figure | SubFigure
@@ -54,6 +65,7 @@ def plot_occupancy(
         Histogram counts and bin edges.
     centroid_data : xr.DataArray | None
         The computed centroid data if return_centroid=True, else None.
+
     """
     data = da.copy(deep=True)
     if "keypoints" in data.dims and keypoints is not None:
@@ -63,15 +75,23 @@ def plot_occupancy(
     if "individuals" in data.dims and individuals is not None:
         data = data.sel(individuals=individuals)
     if "individuals" in data.dims:
-        data = data.stack(temp=("time", "individuals")).swap_dims({"temp": "time"})
+        data = data.stack(temp=("time", "individuals")).swap_dims(
+            {"temp": "time"}
+        )
     data = data.dropna(dim="time", how="any")
     centroid_data = data if return_centroid else None
     x_coord, y_coord = data["space"].values[:2]
     for key, value in DEFAULT_HIST_ARGS.items():
         kwargs.setdefault(key, value)
     if auto_range and "range" not in kwargs:
-        x_min, x_max = data.sel(space=x_coord).min().item(), data.sel(space=x_coord).max().item()
-        y_min, y_max = data.sel(space=y_coord).min().item(), data.sel(space=y_coord).max().item()
+        x_min, x_max = (
+            data.sel(space=x_coord).min().item(),
+            data.sel(space=x_coord).max().item(),
+        )
+        y_min, y_max = (
+            data.sel(space=y_coord).min().item(),
+            data.sel(space=y_coord).max().item(),
+        )
         kwargs["range"] = [[x_min, x_max], [y_min, y_max]]
     fig = ax.get_figure() if ax is not None else None
     if fig is None:
