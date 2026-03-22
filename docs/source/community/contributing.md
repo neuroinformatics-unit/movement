@@ -478,8 +478,8 @@ The `movement` plugin for `napari` is built following the
 All widgets subclass `qtpy.QtWidgets.QWidget` (see the
 [napari guide on widgets](napari:plugins/building_a_plugin/guides.html)).
 
-The plugin lives in [`movement.napari`](movement-github:movement/napari) and
-is structured as follows:
+The plugin lives in [`movement.napari`](movement-github:tree/main/movement/napari)
+and is structured as follows:
 
 - `movement.napari.meta_widget`: the top-level
   container widget registered as the `napari` plugin entry point,
