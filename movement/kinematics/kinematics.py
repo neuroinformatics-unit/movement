@@ -54,6 +54,13 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
     if order <= 0:
         raise logger.error(ValueError("Order must be a positive integer."))
     validate_dims_coords(data, {"time": []})
+    if data.sizes.get("time", 0) < 2:
+        raise logger.error(
+            ValueError(
+                "Cannot compute the time derivative of data with fewer than 2 "
+                "time frames."
+            )
+        )
     result = data
     for _ in range(order):
         result = result.differentiate("time")
