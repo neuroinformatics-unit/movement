@@ -30,6 +30,71 @@ NAPARI_SHAPE_TO_ROI_CLASS: dict[
 }
 
 
+def roi_to_napari_shape(
+    roi: BaseRegionOfInterest,
+) -> tuple[np.ndarray, NapariShapeType]:
+    """Convert a ``movement`` RegionOfInterest (RoI) to a ``napari`` shape.
+
+    Parameters
+    ----------
+    roi
+        A :class:`~movement.roi.LineOfInterest` or
+        :class:`~movement.roi.PolygonOfInterest` to convert.
+
+    Returns
+    -------
+    data : numpy.ndarray
+        Shape coordinates as an (N, 2) array in ``(y, x)`` order
+        (``napari`` convention), with no repeated closing vertex.
+    shape_type : NapariShapeType
+        The napari shape type string: ``"path"`` for
+        :class:`~movement.roi.LineOfInterest` and ``"polygon"`` for
+        :class:`~movement.roi.PolygonOfInterest`.
+
+    Notes
+    -----
+    The mapping from ``movement`` RoI classes to ``napari`` shape types is:
+
+    .. list-table::
+       :header-rows: 1
+
+       * - movement RoI class
+         - napari shape type
+       * - :class:`~movement.roi.LineOfInterest`
+         - ``"path"``
+       * - :class:`~movement.roi.PolygonOfInterest`
+         - ``"polygon"``
+
+    This function is the inverse of :func:`napari_shape_to_roi`, but some
+    shape information is not preserved when converting back. Specifically,
+    ``"line"``, ``"rectangle"``, and ``"ellipse"`` shapes drawn in ``napari``
+    are all returned as ``"path"`` or ``"polygon"``.
+
+    A closed :class:`~movement.roi.LineOfInterest` (created with
+    ``loop=True``) is also affected: ``napari`` has no closed-path shape type,
+    so the segment connecting the last point back to the first is dropped
+    and a warning is emitted.
+
+    """
+    xy = np.array(roi.coords)
+
+    if isinstance(roi, PolygonOfInterest):
+        shape_type: NapariShapeType = "polygon"
+        xy = xy[:-1]  # shapely Polygon exterior repeats the first vertex
+    else:
+        shape_type = "path"
+        if roi.is_closed:
+            xy = xy[:-1]  # shapely LinearRing repeats the first vertex
+            logger.warning(
+                f"LineOfInterest '{roi.name}' is a closed loop, but napari "
+                f"has no closed-path shape type. Converting to 'path'; the "
+                f"closing segment will not be shown in napari."
+            )
+
+    # Swap (x, y) → (y, x) to match napari's coordinate convention
+    return xy[:, ::-1], shape_type
+
+
 def napari_shape_to_roi(
     data: np.ndarray,
     shape_type: NapariShapeType,
