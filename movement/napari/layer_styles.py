@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 
 import numpy as np
 import pandas as pd
+from napari.layers import Shapes
+from napari.utils.color import ColorValue
 from napari.utils.colormaps import ensure_colormap
 
 DEFAULT_COLORMAP = "turbo"
@@ -123,7 +125,7 @@ class TracksStyle(LayerStyle):
 
 @dataclass
 class BoxesStyle(LayerStyle):
-    """Style properties for a napari Shapes layer."""
+    """Style properties for a napari Shapes layer containing bounding boxes."""
 
     edge_width: int = 3
     opacity: float = 1.0
@@ -188,6 +190,70 @@ class BoxesStyle(LayerStyle):
 
         """
         self.text["string"] = property
+
+
+@dataclass
+class RegionsStyle(LayerStyle):
+    """Style properties for a napari Shapes layer containing regions.
+
+    The same ``color`` is applied to faces, edges, and text.
+    The face color alpha is hardcoded to 0.25, while edges and text are
+    fully opaque. Overall layer opacity is set to 1.0.
+    """
+
+    name: str = "Regions"
+    color: str | tuple = "red"
+    edge_width: float = 5.0
+    opacity: float = 1.0
+    text: dict = field(
+        default_factory=lambda: {
+            "visible": False,
+            "anchor": "center",
+        }
+    )
+
+    @property
+    def face_color(self) -> ColorValue:
+        """Return the face color with transparency applied."""
+        color = ColorValue(self.color)
+        color[-1] = 0.25  # this is hardcoded for now
+        return color
+
+    @property
+    def edge_and_text_color(self) -> ColorValue:
+        """Return the opaque color for edges and text."""
+        color = ColorValue(self.color)
+        color[-1] = 1.0
+        return color
+
+    def set_style_for_new_shapes(self, layer: Shapes) -> None:
+        """Set the style that napari will apply to newly drawn shapes.
+
+        napari uses current_* properties to style shapes as they are drawn.
+        """
+        layer.current_face_color = self.face_color
+        layer.current_edge_color = self.edge_and_text_color
+        layer.current_edge_width = self.edge_width
+
+    def set_color_all_shapes(self, layer: Shapes) -> None:
+        """Set colors on all existing shapes in a napari Shapes layer."""
+        # Configure text appearance
+        text_dict = layer.text.dict()
+        text_dict.update(self.text)
+        layer.text = text_dict
+        layer.text.color = self.edge_and_text_color
+
+        # Set layer opacity and per-shape face/edge colors
+        layer.opacity = self.opacity
+        n_shapes = len(layer.data)
+        if n_shapes > 0:
+            layer.face_color = [self.face_color] * n_shapes
+            layer.edge_color = [self.edge_and_text_color] * n_shapes
+            layer.edge_width = [self.edge_width] * n_shapes
+            layer.text.string = "{name}"
+            layer.text.refresh(layer.features)
+
+        self.set_style_for_new_shapes(layer)
 
 
 def _sample_colormap(n: int, cmap_name: str) -> list[tuple]:
