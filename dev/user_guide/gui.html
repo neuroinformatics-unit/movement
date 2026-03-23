@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=80d68b5b"></script>
+    <script src="../_static/documentation_options.js?v=24ae0f42"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev4</p>
+    <p class="title logo__title">movement v0.15.1.dev5</p>
   
 </a></div>
     
@@ -484,7 +484,8 @@
 <a class="reference external" href="https://napari.org/stable/">napari</a>, makes it easy to view and explore <code class="docutils literal notranslate"><span class="pre">movement</span></code>
 motion tracks. Currently, you can use it to
 visualise 2D <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a>
-as points, tracks, and rectangular bounding boxes (if defined) overlaid on video frames.</p>
+as points, tracks, and rectangular bounding boxes (if defined) overlaid on
+video frames, as well as to define regions of interest (RoIs).</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The GUI is still in early stages of development but we are working on ironing
@@ -529,12 +530,12 @@ Choose the <code class="docutils literal notranslate"><span class="pre">video</s
 <a class="reference external" href="https://github.com/janclemenslab/napari-video"><code class="docutils literal notranslate"><span class="pre">napari-video</span></code></a>
 plugin—and click <code class="docutils literal notranslate"><span class="pre">OK</span></code>. You can optionally select to remember this reader
 for all files with the same extension.</p>
-<p><img alt="napari widget video reader" src="../_images/napari_plugin_video_reader.png" /></p>
+<p><img alt="napari video reader" src="../_images/napari_video_reader.png" /></p>
 <p><code class="docutils literal notranslate"><span class="pre">napari-video</span></code> will load the video as an image stack with a slider
 at the bottom that you can use to navigate through frames.
 You may also use the left and right arrow keys to navigate
 frame-by-frame.</p>
-<p><img alt="napari widget video slider" src="../_images/napari_plugin_video_slider.png" /></p>
+<p><img alt="napari video slider" src="../_images/napari_video_slider.png" /></p>
 <p>Clicking on the play button will start the video playback at a default
 rate of 10 frames per second. You can adjust the playback speed by right-clicking on the
 play button, or by opening the <code class="docutils literal notranslate"><span class="pre">napari</span> <span class="pre">&gt;</span> <span class="pre">Preferences</span></code> menu
@@ -638,9 +639,9 @@ The <code class="docutils literal notranslate"><span class="pre">fps</span></cod
 If the input file is a bounding boxes dataset, an additional napari <a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">shapes layer</a> is loaded.
 By default, the data is added at the top of the layer list and the points layer is selected.</p>
 <p>For a poses dataset, you will see a view similar to this:</p>
-<p id="target-widget-screenshot"><img alt="napari widget with poses dataset loaded" src="../_images/napari_plugin_data_tracks.png" /></p>
+<p id="target-widget-screenshot"><img alt="napari with poses dataset loaded" src="../_images/napari_poses_layers.png" /></p>
 <p>And for a bounding boxes dataset, you will see a view more like the one below:</p>
-<p><img alt="napari widget with shapes loaded" src="../_images/napari_bboxes_layer.png" /></p>
+<p><img alt="napari with bboxes dataset loaded" src="../_images/napari_bboxes_layers.png" /></p>
 <p>Note the additional bounding boxes layer that is loaded for bounding boxes datasets. For both poses and bounding boxes datasets, you can toggle the visibility of any of these layers by clicking on the eye icon.</p>
 <section id="the-points-layer">
 <h3>The points layer<a class="headerlink" href="#the-points-layer" title="Link to this heading">#</a></h3>
@@ -659,7 +660,7 @@ bring up a tooltip containing the properties of that point: the individual and k
 the point-wise confidence score (provided by the source software),
 and the time in seconds (calculated based on the frame number and
 the <code class="docutils literal notranslate"><span class="pre">fps</span></code> value).</p>
-<p><img alt="napari points layer tooltip" src="../_images/napari_points_layer_tooltip.png" /></p>
+<p><img alt="napari points tooltip" src="../_images/napari_points_tooltip.png" /></p>
 <p>Using the frame slider at the bottom of the window, you can move through
 the frames of the dataset, and the points and video (if loaded) will update
 in sync.</p>
@@ -692,7 +693,7 @@ the head track shows the trajectory of the keypoints from the current frame unti
 <p>For example, in the screenshot below, we can see from the tracks layer control panel that the
 selected layer shows the trajectories of the keypoints from the current frame until the
 end of the video.</p>
-<p><img alt="napari tracks layer head length" src="../_images/napari_tracks_layer_head_length.png" /></p>
+<p><img alt="napari tracks sliders" src="../_images/napari_tracks_sliders.png" /></p>
 <p>You can also use the <a class="reference external" href="https://napari.org/stable/howtos/layers/tracks.html">tracks layer</a> controls panel to
 change the colormap of a selected tracks layer.</p>
 <div class="warning admonition">
@@ -731,6 +732,109 @@ an internal napari track ID, rather than the individual or the keypoint ID. This
 <p>You can find all the <a class="reference external" href="https://napari.org/stable/guides/preferences.html">keyboard shortcuts</a> in the top menu of the
 <code class="docutils literal notranslate"><span class="pre">napari</span></code> window, under <code class="docutils literal notranslate"><span class="pre">Preferences</span> <span class="pre">&gt;</span> <span class="pre">Shortcuts</span></code>.</p>
 </div>
+</section>
+</section>
+<section id="define-regions-of-interest">
+<h2>Define regions of interest<a class="headerlink" href="#define-regions-of-interest" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">Define</span> <span class="pre">regions</span> <span class="pre">of</span> <span class="pre">interest</span></code> menu allows you to draw shapes on the
+viewer and use them as regions of interest (RoIs) for analysis.</p>
+<p>Each shape you draw represents a static region
+that remains fixed across all frames.</p>
+<div class="note admonition">
+<p class="admonition-title">Terminology</p>
+<dl class="simple myst">
+<dt><strong>Shape</strong></dt><dd><p>Any geometric object you draw on the <code class="docutils literal notranslate"><span class="pre">napari</span></code> canvas
+(e.g. a polygon or a line). Shapes are grouped together in
+<code class="docutils literal notranslate"><span class="pre">napari</span></code> <a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">shapes layers</a>.</p>
+</dd>
+<dt><strong>Region</strong></dt><dd><p>A named <code class="docutils literal notranslate"><span class="pre">napari</span></code> shape that <code class="docutils literal notranslate"><span class="pre">movement</span></code> recognises as a
+region of interest (RoI) for analysis.</p>
+</dd>
+<dt><strong>Region layer</strong></dt><dd><p>A <code class="docutils literal notranslate"><span class="pre">napari</span></code> <a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">shapes layers</a> managed
+by <code class="docutils literal notranslate"><span class="pre">movement</span></code>, whose shapes are treated as <strong>regions</strong>.</p>
+</dd>
+</dl>
+</div>
+<section id="create-a-region-layer">
+<h3>Create a region layer<a class="headerlink" href="#create-a-region-layer" title="Link to this heading">#</a></h3>
+<p>To define a region for your data, start by creating a region layer,
+which will serve as a container. To do this:</p>
+<ol class="arabic simple">
+<li><p>Ensure a <a class="reference internal" href="#target-load-video"><span class="std std-ref">background layer</span></a> is loaded so that you
+can see where you are drawing.</p></li>
+<li><p>Expand the <code class="docutils literal notranslate"><span class="pre">Define</span> <span class="pre">regions</span> <span class="pre">of</span> <span class="pre">interest</span></code> menu on the right-hand side
+of the <code class="docutils literal notranslate"><span class="pre">napari</span></code> window.</p></li>
+<li><p>Click the <code class="docutils literal notranslate"><span class="pre">Add</span> <span class="pre">new</span> <span class="pre">layer</span></code> button.</p></li>
+</ol>
+<p>This will create a new region layer in the layer list and select it.
+The layer also appears in the dropdown next to the <code class="docutils literal notranslate"><span class="pre">Add</span> <span class="pre">new</span> <span class="pre">layer</span></code> button.
+The layer’s default name is <code class="docutils literal notranslate"><span class="pre">regions</span></code>, but you can change it by double-clicking
+on it in the layer list (this is the case for any <code class="docutils literal notranslate"><span class="pre">napari</span></code> layer).</p>
+<p><img alt="napari new region layer" src="../_images/napari_new_region_layer.png" /></p>
+</section>
+<section id="draw-and-edit-regions">
+<h3>Draw and edit regions<a class="headerlink" href="#draw-and-edit-regions" title="Link to this heading">#</a></h3>
+<p>With the region layer selected, you can use the native <code class="docutils literal notranslate"><span class="pre">napari</span></code> shape tools
+in the layer controls panel to draw shapes on the canvas.
+Convenient keyboard shortcuts are available to select the shape drawing tools,
+for example:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">R</span></code>: rectangle tool</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">E</span></code>: ellipse tool</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">P</span></code>: polygon tool</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">L</span></code>: line tool</p></li>
+</ul>
+<p>Tools are also provided for selecting, moving, transforming,
+and deleting shapes, as well as for editing their vertices.
+You can also copy-paste shapes within a layer.
+See the <a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">napari shapes layer guide</a> for
+details on the drawing tools and how to use them.</p>
+<p>Each shape you draw is automatically added to the widget’s table of regions
+on the right-hand side and auto-assigned a unique name
+(e.g. <code class="docutils literal notranslate"><span class="pre">region</span></code>, <code class="docutils literal notranslate"><span class="pre">region_1</span></code>, <code class="docutils literal notranslate"><span class="pre">region_2</span></code>, etc.).</p>
+<p><img alt="napari drawing regions" src="../_images/napari_drawing_regions.png" /></p>
+<p>You can interact with the table in the following ways:</p>
+<ul class="simple">
+<li><p><strong>Select</strong>: clicking a row in the table selects the corresponding shape
+on the canvas, and vice versa. This makes it easy to identify which
+shape corresponds to which table entry.</p></li>
+<li><p><strong>Rename</strong>: double-click the name cell of a region to edit its name.
+Press <code class="docutils literal notranslate"><span class="pre">Enter</span></code> to confirm the change or <code class="docutils literal notranslate"><span class="pre">Escape</span></code> to cancel.</p></li>
+<li><p><strong>Delete</strong>: select a shape on the canvas and press <code class="docutils literal notranslate"><span class="pre">Delete</span></code> (or
+<code class="docutils literal notranslate"><span class="pre">Backspace</span></code>) to remove it. The corresponding row will be removed from
+the table.</p></li>
+</ul>
+<div class="tip admonition">
+<p class="admonition-title">Changing shape appearance</p>
+<p>You can change the edge colour, face colour, edge width, and opacity of
+shapes by selecting a shape (or multiple shapes)
+and using the <code class="docutils literal notranslate"><span class="pre">napari</span></code> layer controls panel.
+Once a shape’s appearance has been adjusted, all subsequent shapes drawn in
+the same layer will inherit those properties by default.</p>
+<p>To display region names on the canvas, tick the <code class="docutils literal notranslate"><span class="pre">display</span> <span class="pre">text</span></code> checkbox
+in the layer controls panel. The text colour follows the shape’s edge
+colour.</p>
+</div>
+</section>
+<section id="save-and-load-regions">
+<h3>Save and load regions<a class="headerlink" href="#save-and-load-regions" title="Link to this heading">#</a></h3>
+<p>Save and load functionality for region layers is coming soon.
+You will be able to save a region layer to a GeoJSON file,
+and load it back later or share it with others. This will also allow you
+to import drawn regions into your Python code using the
+<a class="reference internal" href="../api/movement.roi.load_rois.html#movement.roi.load_rois" title="movement.roi.load_rois"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_rois()</span></code></a> function.</p>
+<p><strong>Stay tuned!</strong></p>
+</section>
+<section id="working-with-multiple-region-layers">
+<h3>Working with multiple region layers<a class="headerlink" href="#working-with-multiple-region-layers" title="Link to this heading">#</a></h3>
+<p>You can use region layers to group related regions together.
+For example, you might use one layer for “nesting zones” and another for
+“foraging zones”.</p>
+<p>To add another region layer, click the <code class="docutils literal notranslate"><span class="pre">Add</span> <span class="pre">new</span> <span class="pre">layer</span></code> button again.
+You can switch between region layers using the layers dropdown, or by
+selecting the layer directly in the <code class="docutils literal notranslate"><span class="pre">napari</span></code> layer list—both are kept in sync.
+The regions table updates to show only the shapes
+belonging to the selected layer.</p>
 </section>
 </section>
 </section>
@@ -795,6 +899,13 @@ an internal napari track ID, rather than the individual or the keypoint ID. This
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-points-layer">The points layer</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-tracks-layer">The tracks layer</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-boxes-layer">The boxes layer</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#define-regions-of-interest">Define regions of interest</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-region-layer">Create a region layer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#draw-and-edit-regions">Draw and edit regions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#save-and-load-regions">Save and load regions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-multiple-region-layers">Working with multiple region layers</a></li>
 </ul>
 </li>
 </ul>

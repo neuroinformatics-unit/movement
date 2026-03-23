@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=80d68b5b"></script>
+    <script src="../_static/documentation_options.js?v=24ae0f42"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -136,7 +136,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev4</p>
+    <p class="title logo__title">movement v0.15.1.dev5</p>
   
 </a></div>
     
@@ -813,8 +813,8 @@ In the <code class="docutils literal notranslate"><span class="pre">ValidMySoftw
 </section>
 <section id="normalise-input-file-and-apply-reusable-validators">
 <h5>Normalise input file and apply reusable validators<a class="headerlink" href="#normalise-input-file-and-apply-reusable-validators" title="Link to this heading">#</a></h5>
-<p>An <code class="docutils literal notranslate"><span class="pre">attrs</span></code> <a class="reference external" href="https://www.attrs.org/en/stable/init.html#converters" title="(in attrs v25.4)"><span class="xref std std-ref">converter</span></a> is typically used to normalise input files into <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> objects, along with one or more validators to ensure the file meets the expected criteria.</p>
-<p>In addition to the built-in <code class="docutils literal notranslate"><span class="pre">attrs</span></code> <a class="reference external" href="https://www.attrs.org/en/stable/api.html#module-attrs.validators" title="(in attrs v25.4)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">validators</span></code></a>, <code class="docutils literal notranslate"><span class="pre">movement</span></code> provides several reusable file-specific validators (as callables) in <a class="reference internal" href="../api/movement.validators.files.html#module-movement.validators.files" title="movement.validators.files"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.validators.files</span></code></a>:</p>
+<p>An <code class="docutils literal notranslate"><span class="pre">attrs</span></code> <a class="reference external" href="https://www.attrs.org/en/stable/init.html#converters" title="(in attrs v26.1)"><span class="xref std std-ref">converter</span></a> is typically used to normalise input files into <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> objects, along with one or more validators to ensure the file meets the expected criteria.</p>
+<p>In addition to the built-in <code class="docutils literal notranslate"><span class="pre">attrs</span></code> <a class="reference external" href="https://www.attrs.org/en/stable/api.html#module-attrs.validators" title="(in attrs v26.1)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">validators</span></code></a>, <code class="docutils literal notranslate"><span class="pre">movement</span></code> provides several reusable file-specific validators (as callables) in <a class="reference internal" href="../api/movement.validators.files.html#module-movement.validators.files" title="movement.validators.files"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.validators.files</span></code></a>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">_file_validator</span></code>: A composite validator that ensures <code class="docutils literal notranslate"><span class="pre">file</span></code> is a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>, is not a directory, is accessible with the required permission, and has one of the expected <code class="docutils literal notranslate"><span class="pre">suffixes</span></code> (if any).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">_hdf5_validator</span></code>: Checks that an HDF5 <code class="docutils literal notranslate"><span class="pre">file</span></code> contains the expected dataset(s).</p></li>
@@ -825,7 +825,7 @@ In the <code class="docutils literal notranslate"><span class="pre">ValidMySoftw
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header sd-bg-success sd-bg-text-success">
 <span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-light-bulb" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg></span><span class="sd-summary-text">Combining reusable validators</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<p class="sd-card-text">Reusable validators can be combined using either <a class="reference external" href="https://www.attrs.org/en/stable/api.html#attrs.validators.and_" title="(in attrs v25.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">attrs.validators.and_()</span></code></a> or by passing a list of validators to the <code class="docutils literal notranslate"><span class="pre">validator</span></code> parameter of <a class="reference external" href="https://www.attrs.org/en/stable/api.html#attrs.field" title="(in attrs v25.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">field()</span></code></a>.
+<p class="sd-card-text">Reusable validators can be combined using either <a class="reference external" href="https://www.attrs.org/en/stable/api.html#attrs.validators.and_" title="(in attrs v26.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">attrs.validators.and_()</span></code></a> or by passing a list of validators to the <code class="docutils literal notranslate"><span class="pre">validator</span></code> parameter of <a class="reference external" href="https://www.attrs.org/en/stable/api.html#attrs.field" title="(in attrs v26.1)"><code class="xref py py-func docutils literal notranslate"><span class="pre">field()</span></code></a>.
 The <code class="docutils literal notranslate"><span class="pre">file</span></code> attribute in <a class="reference internal" href="../api/movement.validators.files.ValidDeepLabCutH5.html#movement.validators.files.ValidDeepLabCutH5" title="movement.validators.files.ValidDeepLabCutH5"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidDeepLabCutH5</span></code></a> combines both <code class="docutils literal notranslate"><span class="pre">_file_validator</span></code> and <code class="docutils literal notranslate"><span class="pre">_hdf5_validator</span></code> to ensure the input file is a readable HDF5 file containing the expected dataset <code class="docutils literal notranslate"><span class="pre">df_with_missing</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@define</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ValidDeepLabCutH5</span><span class="p">:</span>
@@ -850,8 +850,8 @@ In the current example, the <code class="docutils literal notranslate"><span cla
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <ul class="simple">
-<li><p><a class="reference external" href="https://www.attrs.org/en/stable/examples.html" title="(in attrs v25.4)"><span>attrs by Example</span></a>: Overview of writing <code class="docutils literal notranslate"><span class="pre">attrs</span></code> classes.</p></li>
-<li><p><a class="reference external" href="https://www.attrs.org/en/stable/init.html#validators" title="(in attrs v25.4)"><span class="xref std std-ref">attrs Validators</span></a>: Details on writing custom validators for attributes.</p></li>
+<li><p><a class="reference external" href="https://www.attrs.org/en/stable/examples.html" title="(in attrs v26.1)"><span>attrs by Example</span></a>: Overview of writing <code class="docutils literal notranslate"><span class="pre">attrs</span></code> classes.</p></li>
+<li><p><a class="reference external" href="https://www.attrs.org/en/stable/init.html#validators" title="(in attrs v26.1)"><span class="xref std std-ref">attrs Validators</span></a>: Details on writing custom validators for attributes.</p></li>
 </ul>
 </div>
 </section>
@@ -951,6 +951,74 @@ When adding a new loader, update this type alias to include the new software nam
 </pre></div>
 </div>
 </section>
+</section>
+<section id="developing-the-napari-plugin">
+<h3>Developing the napari plugin<a class="headerlink" href="#developing-the-napari-plugin" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">movement</span></code> plugin for <code class="docutils literal notranslate"><span class="pre">napari</span></code> is built following the
+<a class="reference external" href="https://napari.org/stable/plugins/building_a_plugin/index.html">napari plugin guide</a>.
+All widgets subclass <code class="docutils literal notranslate"><span class="pre">qtpy.QtWidgets.QWidget</span></code> (see the
+<a class="reference external" href="https://napari.org/stable/plugins/building_a_plugin/guides.html">napari guide on widgets</a>).</p>
+<p>The plugin lives in <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/tree/main/movement/napari"><code class="docutils literal notranslate"><span class="pre">movement.napari</span></code></a>
+and is structured as follows:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">movement.napari.meta_widget</span></code>: the top-level
+container widget registered as the <code class="docutils literal notranslate"><span class="pre">napari</span></code> plugin entry point,
+which brings together all other subwidgets:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">movement.napari.loader_widgets</span></code>: a Qt form widget for
+loading tracked datasets from supported file formats as
+points, tracks and boxes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">movement.napari.regions_widget</span></code>: a Qt table widget for managing named
+regions of interest drawn as <code class="docutils literal notranslate"><span class="pre">napari</span></code> shapes layers.
+See the next section for more details on this widget’s architecture.</p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="../api/movement.napari.layer_styles.html#module-movement.napari.layer_styles" title="movement.napari.layer_styles"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.napari.layer_styles</span></code></a>: dataclasses that encapsulate visual
+properties for each layer type.</p></li>
+<li><p><a class="reference internal" href="../api/movement.napari.convert.html#module-movement.napari.convert" title="movement.napari.convert"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.napari.convert</span></code></a>: functions for converting <code class="docutils literal notranslate"><span class="pre">movement</span></code>
+datasets into the NumPy arrays and properties DataFrames
+that <code class="docutils literal notranslate"><span class="pre">napari</span></code> layer constructors expect.</p></li>
+</ul>
+<section id="qt-model-view-architecture">
+<h4>Qt Model/View architecture<a class="headerlink" href="#qt-model-view-architecture" title="Link to this heading">#</a></h4>
+<p><code class="docutils literal notranslate"><span class="pre">movement.napari.regions_widget</span></code> follows
+<a class="reference external" href="https://doc.qt.io/qt-6/model-view-programming.html#">Qt’s Model/View pattern</a>
+to separate the data (what is stored) from the display (how it is shown).
+Understanding this pattern is helpful before making changes to this module,
+and for creating new widgets that follow the same design principles.</p>
+<p>The three components are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RegionsTableModel</span></code> (subclasses
+<a class="reference external" href="https://doc.qt.io/qt-6/qabstracttablemodel.html#"><code class="docutils literal notranslate"><span class="pre">QAbstractTableModel</span></code></a>):
+wraps a <code class="docutils literal notranslate"><span class="pre">napari</span></code> <a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">shapes layer</a> and
+exposes its data to Qt (i.e., region names from <code class="docutils literal notranslate"><span class="pre">layer.properties[&quot;name&quot;]</span></code>
+and shape types). It listens to <code class="docutils literal notranslate"><span class="pre">napari</span></code> layer
+<a class="reference external" href="https://napari.org/stable/guides/events_reference.html">events</a> and emits Qt signals
+when the data changes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RegionsTableView</span></code> (subclasses <a class="reference external" href="https://doc.qt.io/qt-6/qtableview.html#"><code class="docutils literal notranslate"><span class="pre">QTableView</span></code></a>):
+renders the model’s data as a table and handles user interactions
+(e.g. row selection, inline name editing). Keeps table row selection
+in sync with <code class="docutils literal notranslate"><span class="pre">napari</span></code>’s current shape selection.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RegionsWidget</span></code>: connects the table model and table view. It manages
+layer selection, creates and links models to views, and handles layer
+lifecycle events.</p></li>
+</ul>
+<p>Data flows in both directions:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">napari</span> <span class="n">shapes</span> <span class="n">layer</span> <span class="o">&lt;-&gt;</span> <span class="n">RegionsTableModel</span> <span class="o">&lt;-&gt;</span> <span class="n">RegionsTableView</span> <span class="o">&lt;-&gt;</span> <span class="n">User</span>
+</pre></div>
+</div>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header sd-bg-success sd-bg-text-success">
+<span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-light-bulb" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg></span><span class="sd-summary-text">Preventing circular updates in bidirectional syncs</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Bidirectional syncing between <code class="docutils literal notranslate"><span class="pre">napari</span></code> and the Qt table can cause circular
+updates. For example, selecting a <code class="docutils literal notranslate"><span class="pre">napari</span></code> shape selects the corresponding
+table row, which would then re-trigger shape selection.</p>
+<p class="sd-card-text">Guard flags such as <code class="docutils literal notranslate"><span class="pre">_syncing_row_selection</span></code> and <code class="docutils literal notranslate"><span class="pre">_syncing_layer_selection</span></code>
+break this cycle: while a sync is in progress, the corresponding flag is set
+to <code class="docutils literal notranslate"><span class="pre">True</span></code> and any events that would re-trigger it are ignored. Preserve this
+pattern when adding new two-way sync logic.</p>
+</div>
+</details></section>
 </section>
 <section id="continuous-integration">
 <h3>Continuous integration<a class="headerlink" href="#continuous-integration" title="Link to this heading">#</a></h3>
@@ -1394,6 +1462,10 @@ verify that the video is correctly linked to the dataset:</p>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-sourcesoftware-type-alias">Update SourceSoftware type alias</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#developing-the-napari-plugin">Developing the napari plugin</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#qt-model-view-architecture">Qt Model/View architecture</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-integration">Continuous integration</a></li>

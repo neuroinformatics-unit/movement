@@ -479,6 +479,76 @@ SourceSoftware: TypeAlias = Literal[
 ]
 ```
 
+### Developing the napari plugin
+
+The `movement` plugin for `napari` is built following the
+[napari plugin guide](napari:plugins/building_a_plugin/index.html).
+All widgets subclass `qtpy.QtWidgets.QWidget` (see the
+[napari guide on widgets](napari:plugins/building_a_plugin/guides.html)).
+
+The plugin lives in [`movement.napari`](movement-github:tree/main/movement/napari)
+and is structured as follows:
+
+- `movement.napari.meta_widget`: the top-level
+  container widget registered as the `napari` plugin entry point,
+  which brings together all other subwidgets:
+  - `movement.napari.loader_widgets`: a Qt form widget for
+    loading tracked datasets from supported file formats as
+    points, tracks and boxes.
+  - `movement.napari.regions_widget`: a Qt table widget for managing named
+    regions of interest drawn as `napari` shapes layers.
+    See the next section for more details on this widget's architecture.
+- {mod}`movement.napari.layer_styles`: dataclasses that encapsulate visual
+  properties for each layer type.
+- {mod}`movement.napari.convert`: functions for converting `movement`
+  datasets into the NumPy arrays and properties DataFrames
+  that `napari` layer constructors expect.
+
+#### Qt Model/View architecture
+
+`movement.napari.regions_widget` follows
+[Qt's Model/View pattern](qt6:model-view-programming.html)
+to separate the data (what is stored) from the display (how it is shown).
+Understanding this pattern is helpful before making changes to this module,
+and for creating new widgets that follow the same design principles.
+
+The three components are:
+
+- `RegionsTableModel` (subclasses
+  [`QAbstractTableModel`](qt6:qabstracttablemodel.html)):
+  wraps a `napari` [shapes layer](napari:howtos/layers/shapes.html) and
+  exposes its data to Qt (i.e., region names from `layer.properties["name"]`
+  and shape types). It listens to `napari` layer
+  [events](napari:guides/events_reference.html) and emits Qt signals
+  when the data changes.
+- `RegionsTableView` (subclasses [`QTableView`](qt6:qtableview.html)):
+  renders the model's data as a table and handles user interactions
+  (e.g. row selection, inline name editing). Keeps table row selection
+  in sync with `napari`'s current shape selection.
+- `RegionsWidget`: connects the table model and table view. It manages
+  layer selection, creates and links models to views, and handles layer
+  lifecycle events.
+
+Data flows in both directions:
+
+```
+napari shapes layer <-> RegionsTableModel <-> RegionsTableView <-> User
+```
+
+:::{dropdown} Preventing circular updates in bidirectional syncs
+:color: success
+:icon: light-bulb
+
+Bidirectional syncing between `napari` and the Qt table can cause circular
+updates. For example, selecting a `napari` shape selects the corresponding
+table row, which would then re-trigger shape selection.
+
+Guard flags such as `_syncing_row_selection` and `_syncing_layer_selection`
+break this cycle: while a sync is in progress, the corresponding flag is set
+to `True` and any events that would re-trigger it are ignored. Preserve this
+pattern when adding new two-way sync logic.
+:::
+
 ### Continuous integration
 All pushes and pull requests will be built by [GitHub actions](github-docs:actions).
 This will usually include linting, testing and deployment.

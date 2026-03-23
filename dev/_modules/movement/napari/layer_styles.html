@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=80d68b5b"></script>
+    <script src="../../../_static/documentation_options.js?v=24ae0f42"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -133,7 +133,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev4</p>
+    <p class="title logo__title">movement v0.15.1.dev5</p>
   
 </a></div>
     
@@ -465,6 +465,8 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">napari.layers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Shapes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">napari.utils.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColorValue</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">napari.utils.colormaps</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_colormap</span>
 
 <span class="n">DEFAULT_COLORMAP</span> <span class="o">=</span> <span class="s2">&quot;turbo&quot;</span>
@@ -607,7 +609,7 @@
 <a class="viewcode-back" href="../../../api/movement.napari.layer_styles.BoxesStyle.html#movement.napari.layer_styles.BoxesStyle">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">BoxesStyle</span><span class="p">(</span><span class="n">LayerStyle</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Style properties for a napari Shapes layer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Style properties for a napari Shapes layer containing bounding boxes.&quot;&quot;&quot;</span>
 
     <span class="n">edge_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
     <span class="n">opacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
@@ -677,6 +679,79 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">&quot;string&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">property</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RegionsStyle">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_styles.RegionsStyle.html#movement.napari.layer_styles.RegionsStyle">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RegionsStyle</span><span class="p">(</span><span class="n">LayerStyle</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Style properties for a napari Shapes layer containing regions.</span>
+
+<span class="sd">    The same ``color`` is applied to faces, edges, and text.</span>
+<span class="sd">    The face color alpha is hardcoded to 0.25, while edges and text are</span>
+<span class="sd">    fully opaque. Overall layer opacity is set to 1.0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Regions&quot;</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+    <span class="n">edge_width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span>
+    <span class="n">opacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">face_color</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ColorValue</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the face color with transparency applied.&quot;&quot;&quot;</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">ColorValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">color</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.25</span>  <span class="c1"># this is hardcoded for now</span>
+        <span class="k">return</span> <span class="n">color</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">edge_and_text_color</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ColorValue</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the opaque color for edges and text.&quot;&quot;&quot;</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">ColorValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">color</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="k">return</span> <span class="n">color</span>
+
+<div class="viewcode-block" id="RegionsStyle.set_style_for_new_shapes">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_styles.RegionsStyle.html#movement.napari.layer_styles.RegionsStyle.set_style_for_new_shapes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_style_for_new_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">Shapes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the style that napari will apply to newly drawn shapes.</span>
+
+<span class="sd">        napari uses current_* properties to style shapes as they are drawn.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">current_face_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">face_color</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">current_edge_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_and_text_color</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">current_edge_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_width</span></div>
+
+
+<div class="viewcode-block" id="RegionsStyle.set_color_all_shapes">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_styles.RegionsStyle.html#movement.napari.layer_styles.RegionsStyle.set_color_all_shapes">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_color_all_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">Shapes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set colors on all existing shapes in a napari Shapes layer.&quot;&quot;&quot;</span>
+        <span class="c1"># Configure text appearance</span>
+        <span class="n">text_dict</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+        <span class="n">text_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text_dict</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_and_text_color</span>
+
+        <span class="c1"># Set layer opacity and per-shape face/edge colors</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">opacity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">opacity</span>
+        <span class="n">n_shapes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n_shapes</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">face_color</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">face_color</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_shapes</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">edge_color</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_and_text_color</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_shapes</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">edge_width</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_width</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_shapes</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{name}</span><span class="s2">&quot;</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_style_for_new_shapes</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span></div>
 </div>
 
 
