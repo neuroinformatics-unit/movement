@@ -81,7 +81,32 @@ def test_widget_has_expected_ui_elements(regions_widget):
     assert len(group_boxes) == 2
     assert regions_widget.findChild(QComboBox) is not None
     assert regions_widget.add_layer_button is not None
+    assert regions_widget.save_layer_button is not None
+    assert regions_widget.load_layer_button is not None
     assert regions_widget.findChild(QTableView) is not None
+
+
+@pytest.mark.parametrize(
+    "button_attr, expected_tooltip",
+    [
+        pytest.param(
+            "save_layer_button",
+            "Save all regions in this layer to a GeoJSON file.",
+            id="save_button",
+        ),
+        pytest.param(
+            "load_layer_button",
+            "Load regions from a GeoJSON file into a new region layer.",
+            id="load_button",
+        ),
+    ],
+)
+def test_save_load_button_tooltips(
+    regions_widget, button_attr, expected_tooltip
+):
+    """Test that Save and Load buttons have informative tooltips."""
+    button = getattr(regions_widget, button_attr)
+    assert button.toolTip() == expected_tooltip
 
 
 def test_color_assignment_is_sequential_and_stable(make_napari_viewer_proxy):
@@ -749,12 +774,13 @@ def test_table_allows_name_editing(regions_widget_with_layer):
 
 # ------------------- Tests for tooltips -------------------------------------#
 @pytest.mark.parametrize(
-    "add_shapes_kwargs, expected_text",
+    "add_shapes_kwargs, expected_tooltip_text, expected_save_enabled",
     [
-        pytest.param(None, "No region layers", id="no_layers"),
+        pytest.param(None, "No region layers", False, id="no_layers"),
         pytest.param(
             {"name": "regions"},
             "No regions in this layer",
+            False,
             id="empty_layer",
         ),
         pytest.param(
@@ -763,19 +789,35 @@ def test_table_allows_name_editing(regions_widget_with_layer):
                 "data": [[[0, 0], [0, 10], [10, 10], [10, 0]]],
             },
             "Click a row",
+            True,
             id="with_shapes",
         ),
     ],
 )
-def test_table_tooltip_reflects_state(
-    make_napari_viewer_proxy, add_shapes_kwargs, expected_text
+def test_table_tooltip_and_save_button_reflect_state(
+    make_napari_viewer_proxy,
+    add_shapes_kwargs,
+    expected_tooltip_text,
+    expected_save_enabled,
 ):
-    """Test table tooltip text reflects current widget state."""
+    """Test table tooltip text and Save button enabled state.
+
+    The table tooltip and the save button should update based on the presence
+    and content of region layers:
+
+    - When no region layers exist, tooltip should indicate this and
+      Save should be disabled.
+    - When a region layer exists but is empty, tooltip should indicate
+      this and Save should be disabled.
+    - When a region layer with shapes exists, tooltip should prompt user with
+      possible table interactions, and Save should be enabled.
+    """
     viewer = make_napari_viewer_proxy()
     if add_shapes_kwargs is not None:
         add_regions_layer(viewer, **add_shapes_kwargs)
     widget = RegionsWidget(viewer)
-    assert expected_text in widget.region_table_view.toolTip()
+    assert expected_tooltip_text in widget.region_table_view.toolTip()
+    assert widget.save_layer_button.isEnabled() == expected_save_enabled
 
 
 # ------------------- Tests for edge cases -----------------------------------#

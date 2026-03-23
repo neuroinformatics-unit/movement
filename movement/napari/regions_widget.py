@@ -13,8 +13,8 @@ from napari.viewer import Viewer
 from qtpy.QtCore import QAbstractTableModel, QModelIndex, Qt
 from qtpy.QtWidgets import (
     QComboBox,
+    QGridLayout,
     QGroupBox,
-    QHBoxLayout,
     QPushButton,
     QTableView,
     QVBoxLayout,
@@ -96,25 +96,38 @@ class RegionsWidget(QWidget):
     def _setup_region_layer_controls(self):
         """Create the region layer controls layout.
 
-        Returns a QHBoxLayout containing:
+        Returns a QGridLayout with two rows sharing the same column widths:
 
-        - Dropdown (QComboBox) for selecting region layers
-        - "Add new layer" button (QPushButton)
+        - Row 0: Dropdown (QComboBox) for selecting region layers and
+          an ``"Add new layer"`` button (QPushButton)
+        - Row 1: ``"Save layer"`` and ``"Load layer"`` buttons (QPushButton)
         """
-        layer_controls_layout = QHBoxLayout()
+        grid = QGridLayout()
 
         self.layer_dropdown = QComboBox()
         self.layer_dropdown.setMinimumWidth(150)
         self.layer_dropdown.currentTextChanged.connect(self._on_layer_selected)
 
         self.add_layer_button = QPushButton("Add new layer")
-        self.add_layer_button.setEnabled(True)
         self.add_layer_button.clicked.connect(self._add_new_layer)
 
-        layer_controls_layout.addWidget(self.layer_dropdown)
-        layer_controls_layout.addWidget(self.add_layer_button)
+        self.save_layer_button = QPushButton("Save layer")
+        self.save_layer_button.setEnabled(False)
+        self.save_layer_button.setToolTip(
+            "Save all regions in this layer to a GeoJSON file."
+        )
 
-        return layer_controls_layout
+        self.load_layer_button = QPushButton("Load layer")
+        self.load_layer_button.setToolTip(
+            "Load regions from a GeoJSON file into a new region layer."
+        )
+
+        grid.addWidget(self.layer_dropdown, 0, 0)
+        grid.addWidget(self.add_layer_button, 0, 1)
+        grid.addWidget(self.save_layer_button, 1, 0)
+        grid.addWidget(self.load_layer_button, 1, 1)
+
+        return grid
 
     def _setup_regions_table(self):
         """Create the table view layout.
@@ -343,6 +356,14 @@ class RegionsWidget(QWidget):
         self.region_table_model = None
         self.region_table_view.setModel(None)
 
+    def _update_save_button_state(self):
+        """Enable the Save button only when the current layer has shapes."""
+        has_shapes = (
+            self.region_table_model is not None
+            and self.region_table_model.rowCount() > 0
+        )
+        self.save_layer_button.setEnabled(has_shapes)
+
     def _update_table_tooltip(self):
         """Update the table tooltip based on current state.
 
@@ -352,6 +373,8 @@ class RegionsWidget(QWidget):
         - How to draw shapes when layer is empty
         - Usage tips when layer has shapes
         """
+        self._update_save_button_state()
+
         layer_name = self.layer_dropdown.currentText()
 
         if not layer_name or layer_name == DROPDOWN_PLACEHOLDER:
