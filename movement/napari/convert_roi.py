@@ -1,4 +1,9 @@
-"""Conversion functions between ``napari`` shapes and ``movement`` RoIs."""
+"""Conversion functions between ``napari`` shapes and ``movement`` RoIs.
+
+- For information on ``napari`` shapes,
+  see https://napari.org/stable/howtos/layers/shapes.html
+- RoI: Region of Interest, as defined in :mod:`movement.roi`.
+"""
 
 from __future__ import annotations
 
@@ -51,7 +56,7 @@ def roi_to_napari_shape(
         Shape coordinates as an (N, 2) array in ``(y, x)`` order
         (``napari`` convention), with no repeated closing vertex.
     shape_type : NapariShapeType
-        The napari shape type string: ``"path"`` for
+        The ``napari`` shape type string: ``"path"`` for
         :class:`~movement.roi.LineOfInterest` and ``"polygon"`` for
         :class:`~movement.roi.PolygonOfInterest`.
 
@@ -79,6 +84,11 @@ def roi_to_napari_shape(
     so the segment connecting the last point back to the first is dropped
     and a warning is emitted.
 
+    See Also
+    --------
+    napari_shape_to_roi : The inverse of this function.
+    rois_to_napari_shapes : Batch conversion of multiple RoIs.
+
     """
     xy = np.array(roi.coords)
 
@@ -104,9 +114,8 @@ def rois_to_napari_shapes(
 ) -> dict[str, Any]:
     """Convert a sequence of ``movement`` RoIs to ``napari`` shapes.
 
-    The returned dictionary can be passed directly to
-    :meth:`napari.Viewer.add_shapes` or :meth:`napari.layers.Shapes.add`
-    to add all RoIs to a napari Shapes layer in one call.
+    The returned dictionary can be passed directly to ``napari``'s Shapes layer
+    constructor to add all regions of interest (RoIs) in a single call.
 
     Parameters
     ----------
@@ -120,13 +129,14 @@ def rois_to_napari_shapes(
         A dictionary with the following keys:
 
         - ``"data"``: list of (N, 2) arrays in ``(y, x)`` order.
-        - ``"shape_type"``: list of napari shape type strings.
+        - ``"shape_type"``: list of ``napari`` shape type strings.
         - ``"properties"``: dict with a ``"name"`` key containing the
           RoI names.
 
     See Also
     --------
     roi_to_napari_shape : The underlying per-shape conversion function.
+    napari_shapes_to_rois : The inverse of this function.
 
     """
     data, shape_types, names = [], [], []
@@ -147,7 +157,7 @@ def napari_shape_to_roi(
     shape_type: NapariShapeType,
     name: str | None = None,
 ) -> BaseRegionOfInterest:
-    """Convert a 2D ``napari`` shape to a ``movement`` RegionOfInterest (RoI).
+    """Convert a ``napari`` shape to a ``movement`` RegionOfInterest (RoI).
 
     This function only handles static 2D shapes with coordinates (y, x).
     Shapes with additional dimensions will be rejected with an error.
@@ -155,12 +165,11 @@ def napari_shape_to_roi(
     Parameters
     ----------
     data
-        Shape coordinates as stored in ``layer.data[i]``.
-        Rows are points; columns are ``(y, x)`` (napari convention).
-        A leading frame-index column — i.e. ``(frame, y, x)`` — is stripped
-        if present.
+        Shape coordinates as stored in ``layer.data[i]``, where ``i`` is the
+        index of the shape to convert. This should be an (N, 2) array where
+        rows are vertices and columns are (y, x) coordinates.
     shape_type
-        One of the napari shape types, e.g. ``"line"``, ``"polygon"``, etc.
+        One of the ``napari`` shape types.
     name
         Name to assign to the resulting RoI. If ``None``, the RoI
         receives the default name defined by
@@ -175,11 +184,13 @@ def napari_shape_to_roi(
     Raises
     ------
     ValueError
-        If ``data`` has more than 2 columns (dimensions other than y and x).
+        If ``data`` has more than 2 columns (dimensions other than y and x),
+        or if ``shape_type`` is not one of the recognised ``napari`` shape
+        types.
 
     Notes
     -----
-    The mapping from napari shape types to movement RoI classes is:
+    The mapping from ``napari`` shape types to ``movement`` RoI classes is:
 
     .. list-table::
        :header-rows: 1
@@ -195,9 +206,14 @@ def napari_shape_to_roi(
 
     Ellipses are approximated as polygons because neither ``movement`` nor
     its underlying geometry library (``shapely``) has a native ellipse type.
-    The approximation uses :func:`shapely.Point.buffer` scaled and rotated
+    The approximation uses :meth:`shapely.Point.buffer` scaled and rotated
     to match the ellipse geometry. This approach was inspired by
     https://gis.stackexchange.com/questions/243459/drawing-ellipse-with-shapely
+
+    See Also
+    --------
+    roi_to_napari_shape : The inverse of this function.
+    napari_shapes_to_rois : Batch conversion of an entire ``napari`` layer.
 
     """
     data = np.asarray(data, dtype=float)
@@ -244,10 +260,10 @@ def napari_shapes_to_rois(
     Parameters
     ----------
     layer
-        A ``napari`` :class:`~napari.layers.Shapes` layer whose shapes will be
-        converted. Names are read from ``layer.properties["name"]`` when
-        available. Missing or blank names receive the default name defined
-        by :class:`~movement.roi.BaseRegionOfInterest`.
+        The ``napari`` Shapes layer to be converted. Names are read from
+        ``layer.properties["name"]`` when available. Missing or blank names
+        receive the default name defined by
+        :class:`~movement.roi.BaseRegionOfInterest`.
 
     Returns
     -------
@@ -263,6 +279,7 @@ def napari_shapes_to_rois(
     See Also
     --------
     napari_shape_to_roi : The underlying per-shape conversion function.
+    rois_to_napari_shapes : The inverse of this function.
 
     """
     names = list(layer.properties.get("name", []))
@@ -279,10 +296,10 @@ def napari_shapes_to_rois(
 
 
 def _ellipse_to_polygon(xy: np.ndarray) -> np.ndarray:
-    """Approximate a napari ellipse as a polygon, returning the vertices.
+    """Approximate a ``napari`` ellipse as a polygon, returning the vertices.
 
-    napari stores an ellipse as 4 cardinal points. After the (y, x) → (x, y)
-    swap has already been applied, these are:
+    ``napari`` stores an ellipse as 4 cardinal points. After the
+    (y, x) → (x, y) swap has already been applied, these are:
 
     - ``xy[0]``: one end of the first semi-axis
     - ``xy[1]``: one end of the second semi-axis
