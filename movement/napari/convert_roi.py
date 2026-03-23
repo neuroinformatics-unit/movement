@@ -156,7 +156,7 @@ def napari_shape_to_roi(
     data: np.ndarray,
     shape_type: NapariShapeType,
     name: str | None = None,
-) -> BaseRegionOfInterest:
+) -> LineOfInterest | PolygonOfInterest:
     """Convert a ``napari`` shape to a ``movement`` RegionOfInterest (RoI).
 
     This function only handles static 2D shapes with coordinates (y, x).
@@ -177,7 +177,7 @@ def napari_shape_to_roi(
 
     Returns
     -------
-    BaseRegionOfInterest
+    LineOfInterest or PolygonOfInterest
         A :class:`~movement.roi.LineOfInterest` or
         :class:`~movement.roi.PolygonOfInterest`.
 
