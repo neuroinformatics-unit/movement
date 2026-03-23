@@ -182,6 +182,18 @@ def test_add_layer_button_connected_to_handler(
     mock_method.assert_called_once()
 
 
+def test_load_layer_button_connected_to_handler(
+    make_napari_viewer_proxy, mocker
+):
+    """Test that clicking Load layer button calls the handler."""
+    mock_method = mocker.patch(
+        "movement.napari.regions_widget.RegionsWidget._load_region_layer"
+    )
+    widget = RegionsWidget(make_napari_viewer_proxy())
+    widget.load_layer_button.click()
+    mock_method.assert_called_once()
+
+
 def test_dropdown_connected_to_layer_selection_handler(
     make_napari_viewer_proxy, mocker
 ):
@@ -274,6 +286,73 @@ def test_add_new_layer(regions_widget):
     assert layer.name.startswith("regions")
     assert layer.metadata.get(REGIONS_LAYER_KEY) is True
     assert regions_widget.layer_dropdown.currentText() == layer.name
+
+
+def test_load_region_layer_cancel(regions_widget, mocker):
+    """Test that cancelling the file dialog skips loading."""
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getOpenFileName",
+        return_value=("", None),
+    )
+    mock_load = mocker.patch("movement.napari.regions_widget.load_rois")
+    regions_widget._load_region_layer()
+    mock_load.assert_not_called()
+    assert len(regions_widget.viewer.layers) == 0
+
+
+@pytest.mark.parametrize(
+    "rois_or_error, expected_n_layers, expected_layer_name",
+    [
+        pytest.param(
+            [],
+            1,
+            "my_regions",
+            id="valid_file_creates_layer",
+        ),
+        pytest.param(
+            ValueError("invalid GeoJSON"),
+            0,
+            None,
+            id="invalid_file_logs_error",
+        ),
+    ],
+)
+def test_load_region_layer(
+    regions_widget,
+    mocker,
+    caplog,
+    rois_or_error,
+    expected_n_layers,
+    expected_layer_name,
+):
+    """Test _load_region_layer with a valid file and with an invalid file."""
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getOpenFileName",
+        return_value=("/fake/my_regions.geojson", None),
+    )
+    if isinstance(rois_or_error, Exception):
+        mocker.patch(
+            "movement.napari.regions_widget.load_rois",
+            side_effect=rois_or_error,
+        )
+    else:
+        mocker.patch(
+            "movement.napari.regions_widget.load_rois",
+            return_value=rois_or_error,
+        )
+
+    regions_widget._load_region_layer()
+
+    assert len(regions_widget.viewer.layers) == expected_n_layers
+    if expected_layer_name is not None:
+        layer = regions_widget.viewer.layers[0]
+        assert layer.name == expected_layer_name
+        assert layer.metadata.get(REGIONS_LAYER_KEY) is True
+        assert (
+            regions_widget.layer_dropdown.currentText() == expected_layer_name
+        )
+    else:
+        assert any("Failed to load" in msg for msg in caplog.messages)
 
 
 def test_add_multiple_layers_increments_name(regions_widget):

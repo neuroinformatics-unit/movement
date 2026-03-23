@@ -7,12 +7,14 @@ for more background.
 """
 
 import re
+from pathlib import Path
 
 from napari.layers import Shapes
 from napari.viewer import Viewer
 from qtpy.QtCore import QAbstractTableModel, QModelIndex, Qt
 from qtpy.QtWidgets import (
     QComboBox,
+    QFileDialog,
     QGridLayout,
     QGroupBox,
     QPushButton,
@@ -21,7 +23,10 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
+from movement.napari.convert_roi import rois_to_napari_shapes
 from movement.napari.layer_styles import RegionsStyle, _sample_colormap
+from movement.roi.io import load_rois
+from movement.utils.logging import logger
 
 DEFAULT_REGION_NAME = "region"
 DROPDOWN_PLACEHOLDER = "No region layers"
@@ -121,6 +126,7 @@ class RegionsWidget(QWidget):
         self.load_layer_button.setToolTip(
             "Load regions from a GeoJSON file into a new region layer."
         )
+        self.load_layer_button.clicked.connect(self._load_region_layer)
 
         grid.addWidget(self.layer_dropdown, 0, 0)
         grid.addWidget(self.add_layer_button, 0, 1)
@@ -246,6 +252,32 @@ class RegionsWidget(QWidget):
             name="regions",
             metadata={REGIONS_LAYER_KEY: True},
         )
+        self.layer_dropdown.setCurrentText(new_layer.name)
+
+    def _load_region_layer(self):
+        """Open a GeoJSON file and load its regions into a new region layer."""
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Load region layer",
+            "",
+            "GeoJSON files (*.geojson *.json)",
+        )
+        if not file_path:
+            return
+
+        try:
+            rois = load_rois(file_path)
+        except Exception as e:
+            logger.error(f"Failed to load regions from '{file_path}': {e}")
+            return
+
+        shapes_kwargs = rois_to_napari_shapes(rois)
+        new_layer = self.viewer.add_shapes(
+            **shapes_kwargs,
+            name=Path(file_path).stem,
+            metadata={REGIONS_LAYER_KEY: True},
+        )
+        # Select the new layer (which also triggers linking to the table model)
         self.layer_dropdown.setCurrentText(new_layer.name)
 
     def _link_layer_to_model(self, region_layer: Shapes):
