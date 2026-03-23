@@ -15,6 +15,8 @@ from movement.utils.logging import logger
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from napari.layers import Shapes
+
     from movement.roi.base import BaseRegionOfInterest
 
 NapariShapeType: TypeAlias = Literal[
@@ -231,7 +233,49 @@ def napari_shape_to_roi(
             f"PolygonOfInterest with {xy.shape[0]} vertices."
         )
 
-    return roi_class(xy, name=name)
+    return roi_class(xy, name=name or None)
+
+
+def napari_shapes_to_rois(
+    layer: Shapes,
+) -> list[LineOfInterest | PolygonOfInterest]:
+    """Convert all shapes in a ``napari`` Shapes layer to ``movement`` RoIs.
+
+    Parameters
+    ----------
+    layer
+        A ``napari`` :class:`~napari.layers.Shapes` layer whose shapes will be
+        converted. Names are read from ``layer.properties["name"]`` when
+        available. Missing or blank names receive the default name defined
+        by :class:`~movement.roi.BaseRegionOfInterest`.
+
+    Returns
+    -------
+    list[LineOfInterest | PolygonOfInterest]
+        One region of interest (RoI) per shape in the layer, in the same order.
+
+    Raises
+    ------
+    ValueError
+        If any shape has more than 2 coordinate columns, or has an
+        unrecognised shape type. See :func:`napari_shape_to_roi`.
+
+    See Also
+    --------
+    napari_shape_to_roi : The underlying per-shape conversion function.
+
+    """
+    names = list(layer.properties.get("name", []))
+    return [
+        napari_shape_to_roi(
+            data,
+            shape_type,
+            name=names[i] if i < len(names) else None,
+        )
+        for i, (data, shape_type) in enumerate(
+            zip(layer.data, layer.shape_type, strict=True)
+        )
+    ]
 
 
 def _ellipse_to_polygon(xy: np.ndarray) -> np.ndarray:

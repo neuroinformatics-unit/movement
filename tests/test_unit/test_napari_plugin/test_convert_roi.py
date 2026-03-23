@@ -3,9 +3,11 @@
 import numpy as np
 import pytest
 import shapely
+from napari.layers import Shapes
 
 from movement.napari.convert_roi import (
     napari_shape_to_roi,
+    napari_shapes_to_rois,
     roi_to_napari_shape,
     rois_to_napari_shapes,
 )
@@ -213,6 +215,7 @@ def test_napari_shape_to_roi_type(
     [
         pytest.param("my boundary", "my boundary", id="explicit name"),
         pytest.param(None, "Un-named region", id="None uses default name"),
+        pytest.param("", "Un-named region", id="empty str uses default name"),
     ],
 )
 def test_napari_shape_to_roi_name(line_yx, name, expected_name):
@@ -288,6 +291,70 @@ def test_napari_shape_to_roi_invalid_input(data, shape_type, match):
 
 
 # ===========================================================================
+# napari_shapes_to_rois
+# ===========================================================================
+
+
+@pytest.mark.parametrize(
+    ["data_fixtures", "shape_types", "expected_roi_types"],
+    [
+        pytest.param([], [], [], id="empty layer"),
+        pytest.param(
+            ["square_yx", "path_yx"],
+            ["polygon", "path"],
+            [PolygonOfInterest, LineOfInterest],
+            id="polygon and path",
+        ),
+    ],
+)
+def test_napari_shapes_to_rois_output(
+    data_fixtures, shape_types, expected_roi_types, request
+):
+    """Returns one RoI per shape with the correct type, in order."""
+    data = [request.getfixturevalue(f) for f in data_fixtures]
+    layer = Shapes(data, shape_type=shape_types)
+    rois = napari_shapes_to_rois(layer)
+    assert len(rois) == len(expected_roi_types)
+    for roi, expected_type in zip(rois, expected_roi_types, strict=True):
+        assert isinstance(roi, expected_type)
+
+
+@pytest.mark.parametrize(
+    ["properties", "expected_names"],
+    [
+        pytest.param(
+            {"name": ["sq", "pth"]},
+            ["sq", "pth"],
+            id="explicit names are preserved",
+        ),
+        pytest.param(
+            {"name": ["sq", ""]},
+            ["sq", "Un-named region"],
+            id="blank name uses default",
+        ),
+        pytest.param(
+            {},
+            ["Un-named region", "Un-named region"],
+            id="absent name property uses default",
+        ),
+    ],
+)
+def test_napari_shapes_to_rois_names(
+    square_yx, path_yx, properties, expected_names
+):
+    """Names are read from layer properties.
+    Missing or blank use the default.
+    """
+    layer = Shapes(
+        [square_yx, path_yx],
+        shape_type=["polygon", "path"],
+        properties=properties,
+    )
+    rois = napari_shapes_to_rois(layer)
+    assert [roi.name for roi in rois] == expected_names
+
+
+# ===========================================================================
 # Roundtrips
 # ===========================================================================
 
@@ -336,3 +403,16 @@ def test_roundtrip_napari_to_roi_to_napari(
     roi = napari_shape_to_roi(data, shape_type)
     _, shape_type_back = roi_to_napari_shape(roi)
     assert shape_type_back == expected_shape_type_back
+
+
+def test_roundtrip_rois_to_shapes_layer_to_rois(
+    segment_of_y_equals_x, unit_square, triangle
+):
+    """Converting RoIs to a layer and back preserves geometry and names."""
+    rois = [segment_of_y_equals_x, unit_square, triangle]
+    layer = Shapes(**rois_to_napari_shapes(rois))
+    rois2 = napari_shapes_to_rois(layer)
+    assert len(rois2) == len(rois)
+    for roi, roi2 in zip(rois, rois2, strict=True):
+        assert shapely.normalize(roi.region) == shapely.normalize(roi2.region)
+        assert roi.name == roi2.name
