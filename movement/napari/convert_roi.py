@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal, TypeAlias
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias
 
 import numpy as np
 import shapely
@@ -13,6 +13,8 @@ from movement.roi.polygon import PolygonOfInterest
 from movement.utils.logging import logger
 
 if TYPE_CHECKING:
+    from collections.abc import Sequence
+
     from movement.roi.base import BaseRegionOfInterest
 
 NapariShapeType: TypeAlias = Literal[
@@ -93,6 +95,49 @@ def roi_to_napari_shape(
 
     # Swap (x, y) → (y, x) to match napari's coordinate convention
     return xy[:, ::-1], shape_type
+
+
+def rois_to_napari_shapes(
+    rois: Sequence[BaseRegionOfInterest],
+) -> dict[str, Any]:
+    """Convert a sequence of ``movement`` RoIs to ``napari`` shapes.
+
+    The returned dictionary can be passed directly to
+    :meth:`napari.Viewer.add_shapes` or :meth:`napari.layers.Shapes.add`
+    to add all RoIs to a napari Shapes layer in one call.
+
+    Parameters
+    ----------
+    rois
+        Sequence of :class:`~movement.roi.LineOfInterest` or
+        :class:`~movement.roi.PolygonOfInterest` objects to convert.
+
+    Returns
+    -------
+    dict
+        A dictionary with the following keys:
+
+        - ``"data"``: list of (N, 2) arrays in ``(y, x)`` order.
+        - ``"shape_type"``: list of napari shape type strings.
+        - ``"properties"``: dict with a ``"name"`` key containing the
+          RoI names.
+
+    See Also
+    --------
+    roi_to_napari_shape : The underlying per-shape conversion function.
+
+    """
+    data, shape_types, names = [], [], []
+    for roi in rois:
+        coords, shape_type = roi_to_napari_shape(roi)
+        data.append(coords)
+        shape_types.append(shape_type)
+        names.append(roi.name)
+    return {
+        "data": data,
+        "shape_type": shape_types,
+        "properties": {"name": names},
+    }
 
 
 def napari_shape_to_roi(

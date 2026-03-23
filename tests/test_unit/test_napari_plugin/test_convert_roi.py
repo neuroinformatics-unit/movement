@@ -7,6 +7,7 @@ import shapely
 from movement.napari.convert_roi import (
     napari_shape_to_roi,
     roi_to_napari_shape,
+    rois_to_napari_shapes,
 )
 from movement.roi import LineOfInterest, PolygonOfInterest
 
@@ -114,6 +115,55 @@ def test_roi_to_napari_shape_closed_line_warning(caplog):
     assert shape_type == "path"
     assert len(data) == 3  # closing vertex stripped, 3 unique points remain
     assert any("closing segment" in msg for msg in caplog.messages)
+
+
+# ===========================================================================
+# rois_to_napari_shapes
+# ===========================================================================
+
+
+@pytest.mark.parametrize(
+    ["roi_fixtures", "expected_shape_types"],
+    [
+        pytest.param([], [], id="empty sequence"),
+        pytest.param(
+            ["segment_of_y_equals_x"],
+            ["path"],
+            id="single LineOfInterest",
+        ),
+        pytest.param(
+            ["unit_square"],
+            ["polygon"],
+            id="single PolygonOfInterest",
+        ),
+        pytest.param(
+            ["segment_of_y_equals_x", "unit_square", "triangle"],
+            ["path", "polygon", "polygon"],
+            id="mixed sequence",
+        ),
+    ],
+)
+def test_rois_to_napari_shapes_output(
+    roi_fixtures, expected_shape_types, request
+):
+    """Output dict has the correct keys, shape types, and list lengths."""
+    rois = [request.getfixturevalue(f) for f in roi_fixtures]
+    result = rois_to_napari_shapes(rois)
+
+    assert set(result.keys()) == {"data", "shape_type", "properties"}
+    assert result["shape_type"] == expected_shape_types
+    assert len(result["data"]) == len(rois)
+    assert all(arr.shape[1] == 2 for arr in result["data"])
+    assert len(result["properties"]["name"]) == len(rois)
+
+
+def test_rois_to_napari_shapes_names(segment_of_y_equals_x, unit_square):
+    """RoI names, including the default, are preserved in the output."""
+    result = rois_to_napari_shapes([segment_of_y_equals_x, unit_square])
+    assert result["properties"]["name"] == [
+        segment_of_y_equals_x.name,  # "Un-named region" (no name assigned)
+        unit_square.name,  # "Unit square"
+    ]
 
 
 # ===========================================================================
