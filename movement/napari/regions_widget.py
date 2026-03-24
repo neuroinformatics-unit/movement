@@ -10,6 +10,7 @@ import re
 from pathlib import Path
 
 from napari.layers import Shapes
+from napari.utils.notifications import show_error
 from napari.viewer import Viewer
 from qtpy.QtCore import QAbstractTableModel, QModelIndex, Qt
 from qtpy.QtWidgets import (
@@ -274,7 +275,7 @@ class RegionsWidget(QWidget):
             save_rois(rois, file_path)
             logger.info(f"Saved {len(rois)} regions to '{file_path}'.")
         except Exception as e:
-            logger.error(f"Failed to save regions to '{file_path}': {e}")
+            show_error(f"Failed to save regions to '{file_path}': {e}")
 
     def _load_region_layer(self):
         """Open a GeoJSON file and load its regions into a new region layer."""
@@ -290,7 +291,7 @@ class RegionsWidget(QWidget):
         try:
             rois = load_rois(file_path)
         except Exception as e:
-            logger.error(f"Failed to load regions from '{file_path}': {e}")
+            show_error(f"Failed to load regions from '{file_path}': {e}")
             return
 
         shapes_kwargs = rois_to_napari_shapes(rois)

@@ -326,9 +326,7 @@ def test_load_save_region_layer_cancel(
         f"movement.napari.regions_widget.{dialog_method}",
         return_value=("", None),
     )
-    mock_fn = mocker.patch(
-        f"movement.napari.regions_widget.{mocked_fn}"
-    )
+    mock_fn = mocker.patch(f"movement.napari.regions_widget.{mocked_fn}")
     widget, _ = regions_widget_with_layer
     getattr(widget, widget_method)()
     mock_fn.assert_not_called()
@@ -375,6 +373,7 @@ def test_load_region_layer(
             return_value=rois_or_error,
         )
 
+    mock_show_error = mocker.patch("movement.napari.regions_widget.show_error")
     regions_widget._load_region_layer()
 
     assert len(regions_widget.viewer.layers) == expected_n_layers
@@ -386,15 +385,16 @@ def test_load_region_layer(
             regions_widget.layer_dropdown.currentText() == expected_layer_name
         )
         assert any("Loaded" in msg for msg in caplog.messages)
+        mock_show_error.assert_not_called()
     else:
-        assert any("Failed to load" in msg for msg in caplog.messages)
+        mock_show_error.assert_called_once()
 
 
 @pytest.mark.parametrize(
-    "save_side_effect, expect_error_logged",
+    "save_side_effect, expect_error",
     [
         pytest.param(None, False, id="valid_save"),
-        pytest.param(OSError("permission denied"), True, id="save_error_logs"),
+        pytest.param(OSError("permission denied"), True, id="save_error"),
     ],
 )
 def test_save_region_layer(
@@ -402,9 +402,9 @@ def test_save_region_layer(
     mocker,
     caplog,
     save_side_effect,
-    expect_error_logged,
+    expect_error,
 ):
-    """Test _save_region_layer: logs success info or error on failure."""
+    """Test _save_region_layer: logs success info or shows error on failure."""
     widget, _ = regions_widget_with_layer
     mocker.patch(
         "movement.napari.regions_widget.QFileDialog.getSaveFileName",
@@ -414,15 +414,17 @@ def test_save_region_layer(
         "movement.napari.regions_widget.save_rois",
         side_effect=save_side_effect,
     )
+    mock_show_error = mocker.patch("movement.napari.regions_widget.show_error")
 
     widget._save_region_layer()
 
-    if expect_error_logged:
-        assert any("Failed to save" in msg for msg in caplog.messages)
+    if expect_error:
         mock_save.assert_called_once()
+        mock_show_error.assert_called_once()
     else:
         assert any("Saved" in msg for msg in caplog.messages)
         mock_save.assert_called_once()
+        mock_show_error.assert_not_called()
         rois_arg, path_arg = mock_save.call_args.args
         assert len(rois_arg) == 2  # regions_widget_with_layer has 2 shapes
         assert path_arg == "/fake/my_regions.geojson"
