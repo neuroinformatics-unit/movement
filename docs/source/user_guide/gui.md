@@ -326,6 +326,7 @@ You can find all the [keyboard shortcuts](napari:guides/preferences.html#shortcu
 
 :::
 
+(target-define-rois)=
 ## Define regions of interest
 
 The `Define regions of interest` menu allows you to draw shapes on the
@@ -446,34 +447,11 @@ When regions are saved and reloaded, the underlying geometry is preserved
 but the exact `napari` shape type may change (e.g. a `rectangle` reloads
 as a `polygon`). Expand the dropdown below for details.
 
-::: {dropdown} How napari shapes map to movement RoIs
-:color: info
-:icon: info
-
-When a region layer is saved, each `napari` shape is converted to a
-{mod}`movement.roi` RoI object. Because the RoI classes are more general
-than the specific `napari` drawing tools, the exact shape type may change
-when the file is reloaded into `napari`.
-
-| drawn napari shape | saved movement RoI | reloaded napari shape |
-|---|---|---|
-| `line` | {class}`~movement.roi.LineOfInterest` | `path` |
-| `path` | {class}`~movement.roi.LineOfInterest` | `path` |
-| `polygon` | {class}`~movement.roi.PolygonOfInterest` | `polygon` |
-| `rectangle` | {class}`~movement.roi.PolygonOfInterest` | `polygon` |
-| `ellipse` | {class}`~movement.roi.PolygonOfInterest`\* | `polygon` |
-
-\*Note that ellipses have no native GeoJSON representation and are
-approximated as polygons. The approximation is accurate enough for
-most practical purposes, but we encourage you to inspect
-the reloaded shape to ensure it meets your needs.
-:::
-
 ::: {dropdown} Using saved regions in Python
 :color: info
 :icon: info
 
-Once you have saved a region layer to a GeoJSON file, you can import it
+Once you have saved a region layer to a GeoJSON file, you can load it
 in Python with {func}`~movement.roi.load_rois`:
 
 ```python
@@ -484,8 +462,23 @@ rois = load_rois("path/to/regions.geojson")
 
 This returns a list of {class}`~movement.roi.LineOfInterest` and/or
 {class}`~movement.roi.PolygonOfInterest` objects, depending on the
-shapes that were saved. You can then use these objects for analysis,
-for example:
+shapes that were saved. The mapping between `napari` shape types and
+`movement` RoI classes is as follows:
+
+| drawn napari shape | movement RoI | reloaded napari shape |
+|---|---|---|
+| `line` | {class}`~movement.roi.LineOfInterest` | `path` |
+| `path` | {class}`~movement.roi.LineOfInterest` | `path` |
+| `polygon` | {class}`~movement.roi.PolygonOfInterest` | `polygon` |
+| `rectangle` | {class}`~movement.roi.PolygonOfInterest` | `polygon` |
+| `ellipse` | {class}`~movement.roi.PolygonOfInterest`\* | `polygon` |
+
+\*Ellipses have no native GeoJSON representation and are approximated
+as polygons. The approximation is accurate enough for most practical
+purposes, but we encourage you to inspect the reloaded shape to ensure
+it meets your needs.
+
+You can use the loaded RoI objects for analysis, for example:
 
 - Pass a list of polygon regions to
   {func}`~movement.roi.compute_region_occupancy`.
@@ -495,7 +488,10 @@ for example:
   on individual RoIs.
 
 See the {mod}`movement.roi` API reference for the full list of
-available methods.
+available methods, and
+{ref}`this example in our gallery <sphx_glr_examples_boundary_angles.py>`
+for a complete walkthrough that loads GUI-drawn regions and uses them
+for analysis.
 :::
 
 ### Working with multiple region layers

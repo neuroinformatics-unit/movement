@@ -30,7 +30,7 @@ import xarray as xr
 from movement import sample_data
 from movement.kinematics import compute_velocity
 from movement.plots import plot_centroid_trajectory
-from movement.roi import PolygonOfInterest
+from movement.roi import PolygonOfInterest, load_rois
 
 # %%
 # Load sample dataset
@@ -71,28 +71,66 @@ habitat_fig.show()
 # %%
 # Define regions of interest
 # --------------------------
-# In order to ask questions about the behaviour of our individuals with respect
-# to the habitat, we first need to define the RoIs to represent the separate
-# pieces of the habitat programmatically. Since each part of the habitat is
-# two-dimensional, we will use :class:`movement.roi.PolygonOfInterest`
-# to describe each of them.
+# In order to ask questions about the behaviour of our individuals with
+# respect to the habitat, we first need to define the RoIs to represent
+# the separate pieces of the habitat. We can do this interactively by
+# drawing regions in the :ref:`movement GUI<target-gui>`
+# and saving them to a GeoJSON file.
 #
-# In the future, the
-# `movement plugin for napari <../user_guide/gui.md>`_
-# will support creating regions of interest by clicking points and drawing
-# shapes in the napari GUI. For the time being, we can still define our RoIs
-# by specifying the points that make up the interior and exterior boundaries.
-# So first, let's define the boundary vertices of our various regions.
+# .. attention::
+#    The following steps require ``napari`` to be installed. If you
+#    haven't already, install ``movement`` with the optional GUI
+#    dependencies by following the
+#    :ref:`installation instructions<target-installation>`.
+#
+# First, open the habitat frame in napari:
+#
+# .. code-block:: python
+#
+#    import napari
+#    viewer = napari.Viewer()
+#    viewer.open(ds.frame_path)
+#
+# Then use the :ref:`Define regions of interest <target-define-rois>`
+# widget to create a region layer and draw **three polygons** representing
+# the key sub-regions of the habitat:
+#
+# 1. The **Ring outer boundary**: trace the outer octadecagonal
+#    (18-sided) edge of the ring that surrounds the central area.
+# 2. The **Central region**: trace the inner octadecagonal boundary
+#    enclosing the bright open area.
+# 3. The **Nest region**: draw a rectangle around the cuboidal structure on
+#    the right-hand side.
+#
+# .. figure:: /_static/napari_aeon_regions.png
+#    :width: 800
+#
+#    Three polygons drawn over the Aeon habitat. Note that we've assigned
+#    custom colours to each polygon to make them easier to distinguish,
+#    but this is not necessary.
+#
+# Name each polygon as shown above, then click ``Save layer``
+# to export them to a GeoJSON file
+# (e.g. ``habitat_regions.geojson``).
+#
+# .. note::
+#    The ring is really a polygon with a hole (the central region).
+#    Since ``napari`` does not support drawing polygons with holes, we
+#    draw the outer and inner boundaries as separate polygons and
+#    combine them in code below.
+#
+# Once saved, load the regions in Python:
 
-# The centre of the habitat is located roughly here
+# sphinx_gallery_start_ignore
+import os  # noqa: E402
+import tempfile  # noqa: E402
+
+from movement.roi import save_rois  # noqa: E402
+
 centre = np.array([712.5, 541])
-# The "width" (distance between the inner and outer octadecagonal rings) is 40
-# pixels wide
 ring_width = 40.0
-# The distance between opposite vertices of the outer ring is 1090 pixels
 ring_extent = 1090.0
 
-# Create the vertices of a "unit" octadecagon, centred on (0,0)
 n_pts = 18
 unit_shape = np.array(
     [
@@ -101,42 +139,55 @@ unit_shape = np.array(
     ],
     dtype=complex,
 )
-# Then stretch and translate the reference to match the habitat
-ring_outer_boundary = ring_extent / 2.0 * unit_shape.copy()
-ring_outer_boundary = (
-    np.array([ring_outer_boundary.real, ring_outer_boundary.imag]).transpose()
-    + centre
-)
-core_boundary = (ring_extent - ring_width) / 2.0 * unit_shape.copy()
-core_boundary = (
-    np.array([core_boundary.real, core_boundary.imag]).transpose() + centre
-)
 
+ring_outer_coords = ring_extent / 2.0 * unit_shape
+ring_outer_coords = (
+    np.array([ring_outer_coords.real, ring_outer_coords.imag]).T + centre
+)
+core_coords = (ring_extent - ring_width) / 2.0 * unit_shape
+core_coords = np.array([core_coords.real, core_coords.imag]).T + centre
 nest_corners = ((1245, 585), (1245, 475), (1330, 480), (1330, 580))
 
-# %%
-# Our central region is a solid shape without any interior holes.
-# To create the appropriate RoI, we just pass the coordinates in either
-# clockwise or counter-clockwise order.
+regions_file = os.path.join(tempfile.mkdtemp(), "habitat_regions.geojson")
+save_rois(
+    [
+        PolygonOfInterest(ring_outer_coords, name="Ring outer boundary"),
+        PolygonOfInterest(core_coords, name="Central region"),
+        PolygonOfInterest(nest_corners, name="Nest region"),
+    ],
+    regions_file,
+)
+# sphinx_gallery_end_ignore
 
-central_region = PolygonOfInterest(core_boundary, name="Central region")
+rois = load_rois(regions_file)
+print(f"Loaded {len(rois)} regions: {[r.name for r in rois]}")
 
 # %%
-# Likewise, the nest is also just a solid shape without any holes.
-# Note that we are only registering the "floor" of the nest here.
-nest_region = PolygonOfInterest(nest_corners, name="Nest region")
+# We now have three
+# :class:`~movement.roi.PolygonOfInterest` objects. Let's assign them
+# to named variables for clarity.
+
+ring_outer = rois[0]
+central_region = rois[1]
+nest_region = rois[2]
+
 # %%
-# To create an RoI representing the ring region, we need to provide an interior
-# boundary so that ``movement`` knows our ring region has a "hole".
-# :class:`PolygonOfInterest<movement.roi.PolygonOfInterest>`
-# can actually support multiple (non-overlapping) holes, which is why the
-# ``holes`` argument takes a ``list``.
+# To represent the ring (with the central region as a hole), we
+# create a new :class:`~movement.roi.PolygonOfInterest` using the
+# outer boundary's coordinates and the central region as an interior
+# boundary. The ``holes`` argument accepts a ``list`` because a polygon
+# can have multiple non-overlapping holes.
+
 ring_region = PolygonOfInterest(
-    ring_outer_boundary, holes=[core_boundary], name="Ring region"
+    ring_outer.coords,
+    holes=[central_region.coords],
+    name="Ring region",
 )
 
+# %%
+# Let's visualise our three analysis regions overlaid on the habitat.
+
 habitat_fig, habitat_ax = plt.subplots(1, 1)
-# Overlay an image of the habitat
 habitat_ax.imshow(plt.imread(habitat_image))
 
 central_region.plot(habitat_ax, facecolor="lightblue", alpha=0.25)
@@ -145,22 +196,6 @@ ring_region.plot(habitat_ax, facecolor="blue", alpha=0.25)
 habitat_ax.legend()
 # sphinx_gallery_thumbnail_number = 2
 habitat_fig.show()
-
-# %%
-# .. note::
-#
-#    Once you have defined your RoIs, you can save them to a GeoJSON file
-#    using :func:`save_rois()<movement.roi.save_rois>` and load them back
-#    later with :func:`load_rois()<movement.roi.load_rois>`. This is useful
-#    for sharing RoI definitions with collaborators or reusing them across
-#    multiple analysis scripts.
-#
-#    .. code-block:: python
-#
-#       from movement.roi import save_rois, load_rois
-#
-#       save_rois([central_region, nest_region, ring_region], "rois.geojson")
-#       loaded_rois = load_rois("rois.geojson")
 
 # %%
 # View individual paths inside the habitat
