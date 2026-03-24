@@ -298,25 +298,23 @@ def napari_shapes_to_rois(
 def _ellipse_to_polygon(xy: np.ndarray) -> np.ndarray:
     """Approximate a ``napari`` ellipse as a polygon, returning the vertices.
 
-    ``napari`` stores an ellipse as 4 cardinal points. After the
-    (y, x) → (x, y) swap has already been applied, these are:
+    ``napari`` stores an ellipse as the 4 corners of its bounding rectangle.
+    After the (y, x) → (x, y) swap has already been applied, these are
+    four corners such that ``xy[0]`` and ``xy[2]`` are diagonally opposite.
 
-    - ``xy[0]``: one end of the first semi-axis
-    - ``xy[1]``: one end of the second semi-axis
-    - ``xy[2]``: opposite end of the first semi-axis
-    - ``xy[3]``: opposite end of the second semi-axis
-
-    A unit circle is created at the ellipse centre, scaled to the semi-axis
-    lengths, and rotated to match the ellipse orientation. The resulting
-    polygon's vertices are returned as an (N, 2) array of (x, y),
-    without repeating the first vertex at the end.
+    The semi-axis lengths are derived from the side lengths of the bounding
+    rectangle (the ellipse is inscribed in it). A unit circle is created at
+    the centre, scaled to the semi-axis lengths, and rotated to match the
+    rectangle orientation. The resulting polygon's vertices are returned as
+    an (N, 2) array of (x, y), without repeating the first vertex at the
+    end.
     """
     centre = (xy[0] + xy[2]) / 2
-    axis1 = xy[0] - centre
-    axis2 = xy[1] - centre
-    semi_a = float(np.linalg.norm(axis1))
-    semi_b = float(np.linalg.norm(axis2))
-    angle = float(np.degrees(np.arctan2(axis1[1], axis1[0])))
+    side_a = xy[1] - xy[0]  # one edge of the bounding rectangle
+    side_b = xy[3] - xy[0]  # adjacent edge
+    semi_a = float(np.linalg.norm(side_a)) / 2
+    semi_b = float(np.linalg.norm(side_b)) / 2
+    angle = float(np.degrees(np.arctan2(side_a[1], side_a[0])))
 
     ellipse_polygon = shapely.affinity.rotate(
         shapely.affinity.scale(

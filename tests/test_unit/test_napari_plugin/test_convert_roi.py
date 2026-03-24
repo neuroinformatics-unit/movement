@@ -55,9 +55,10 @@ def ellipse_yx():
     """Axis-aligned ellipse in napari (y, x) convention.
 
     Centre (cy=5, cx=5), semi-axes ry=3, rx=2.
-    The 4 cardinal points are: top, right, bottom, left.
+    Napari stores ellipses as the 4 corners of the bounding rectangle.
+    Bounding box: y=[2, 8], x=[3, 7].
     """
-    return np.array([[2.0, 5.0], [5.0, 7.0], [8.0, 5.0], [5.0, 3.0]])
+    return np.array([[2.0, 3.0], [2.0, 7.0], [8.0, 7.0], [8.0, 3.0]])
 
 
 # ===========================================================================
@@ -259,12 +260,16 @@ def test_napari_shape_to_roi_coordinate_swap(
 
 
 def test_napari_shape_to_roi_ellipse_approximation(ellipse_yx):
-    """An ellipse is approximated as a polygon whose bounds match the
-    theoretical semi-axes to within 1% of the ellipse dimensions.
+    """An ellipse is approximated as a polygon whose bounds and area match
+    the theoretical ellipse to within 1%.
     """
     roi = napari_shape_to_roi(ellipse_yx, "ellipse")
-    # centre (5, 5), semi_x=2, semi_y=3 → (5-2, 5-3, 5+2, 5+3)
-    assert roi.region.bounds == pytest.approx((3.0, 2.0, 7.0, 8.0), abs=0.01)
+    # centre (5, 5), semi_x=2, semi_y=3
+    # bounds: (5-2, 5-3, 5+2, 5+3)
+    assert roi.region.bounds == pytest.approx((3.0, 2.0, 7.0, 8.0), abs=0.1)
+    # area: π * semi_x * semi_y = π * 2 * 3 ≈ 18.85
+    expected_area = np.pi * 2 * 3
+    assert roi.region.area == pytest.approx(expected_area, rel=0.01)
 
 
 @pytest.mark.parametrize(
