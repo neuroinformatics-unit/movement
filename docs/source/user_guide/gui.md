@@ -422,13 +422,81 @@ colour.
 
 ### Save and load regions
 
-Save and load functionality for region layers is coming soon.
-You will be able to save a region layer to a GeoJSON file,
-and load it back later or share it with others. This will also allow you
-to import drawn regions into your Python code using the
+You can save a region layer to a [GeoJSON](https://geojson.org/) file
+and load it back later—or share it with collaborators. This also lets you
+import drawn regions into your Python code using the
 {func}`~movement.roi.load_rois` function.
 
-**Stay tuned!**
+To save a region layer:
+
+1. Select a non-empty region layer you want to save,
+   via the dropdown or the layer list.
+2. Click `Save layer` and choose a destination file ending in a
+   `.geojson` (or just `.json`) extension.
+   All regions in the layer are written to the chosen file.
+
+To load a region layer:
+
+1. Click `Load layer` and select a GeoJSON file previously saved with
+   `movement` (or any file produced by {func}`~movement.roi.save_rois`).
+2. A new region layer is created and automatically selected in the dropdown,
+   with its regions shown in the table.
+
+When regions are saved and reloaded, the underlying geometry is preserved
+but the exact `napari` shape type may change (e.g. a `rectangle` reloads
+as a `polygon`). Expand the dropdown below for details.
+
+::: {dropdown} How napari shapes map to movement RoIs
+:color: info
+:icon: info
+
+When a region layer is saved, each `napari` shape is converted to a
+{mod}`movement.roi` RoI object. Because the RoI classes are more general
+than the specific `napari` drawing tools, the exact shape type may change
+when the file is reloaded into `napari`.
+
+| drawn napari shape | saved movement RoI | reloaded napari shape |
+|---|---|---|
+| `line` | {class}`~movement.roi.LineOfInterest` | `path` |
+| `path` | {class}`~movement.roi.LineOfInterest` | `path` |
+| `polygon` | {class}`~movement.roi.PolygonOfInterest` | `polygon` |
+| `rectangle` | {class}`~movement.roi.PolygonOfInterest` | `polygon` |
+| `ellipse` | {class}`~movement.roi.PolygonOfInterest`\* | `polygon` |
+
+\*Note that ellipses have no native GeoJSON representation and are
+approximated as polygons. The approximation is accurate enough for
+most practical purposes, but we encourage you to inspect
+the reloaded shape to ensure it meets your needs.
+:::
+
+::: {dropdown} Using saved regions in Python
+:color: info
+:icon: info
+
+Once you have saved a region layer to a GeoJSON file, you can import it
+in Python with {func}`~movement.roi.load_rois`:
+
+```python
+from movement.roi import load_rois
+
+rois = load_rois("path/to/regions.geojson")
+```
+
+This returns a list of {class}`~movement.roi.LineOfInterest` and/or
+{class}`~movement.roi.PolygonOfInterest` objects, depending on the
+shapes that were saved. You can then use these objects for analysis,
+for example:
+
+- Pass a list of polygon regions to
+  {func}`~movement.roi.compute_region_occupancy`.
+- Call methods such as
+  {meth}`~movement.roi.BaseRegionOfInterest.contains_point` or
+  {meth}`~movement.roi.BaseRegionOfInterest.compute_distance_to`
+  on individual RoIs.
+
+See the {mod}`movement.roi` API reference for the full list of
+available methods.
+:::
 
 ### Working with multiple region layers
 
