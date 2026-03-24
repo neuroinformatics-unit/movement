@@ -182,6 +182,19 @@ def test_add_layer_button_connected_to_handler(
     mock_method.assert_called_once()
 
 
+def test_save_layer_button_connected_to_handler(
+    make_napari_viewer_proxy, mocker
+):
+    """Test that clicking Save layer button calls the handler."""
+    mock_method = mocker.patch(
+        "movement.napari.regions_widget.RegionsWidget._save_region_layer"
+    )
+    widget = RegionsWidget(make_napari_viewer_proxy())
+    widget.save_layer_button.setEnabled(True)
+    widget.save_layer_button.click()
+    mock_method.assert_called_once()
+
+
 def test_load_layer_button_connected_to_handler(
     make_napari_viewer_proxy, mocker
 ):
@@ -288,16 +301,37 @@ def test_add_new_layer(regions_widget):
     assert regions_widget.layer_dropdown.currentText() == layer.name
 
 
-def test_load_region_layer_cancel(regions_widget, mocker):
-    """Test that cancelling the file dialog skips loading."""
+@pytest.mark.parametrize(
+    "dialog_method, mocked_fn, widget_method",
+    [
+        pytest.param(
+            "QFileDialog.getOpenFileName",
+            "load_rois",
+            "_load_region_layer",
+            id="load_cancel",
+        ),
+        pytest.param(
+            "QFileDialog.getSaveFileName",
+            "save_rois",
+            "_save_region_layer",
+            id="save_cancel",
+        ),
+    ],
+)
+def test_load_save_region_layer_cancel(
+    regions_widget_with_layer, mocker, dialog_method, mocked_fn, widget_method
+):
+    """Test that cancelling the file dialog skips the operation."""
     mocker.patch(
-        "movement.napari.regions_widget.QFileDialog.getOpenFileName",
+        f"movement.napari.regions_widget.{dialog_method}",
         return_value=("", None),
     )
-    mock_load = mocker.patch("movement.napari.regions_widget.load_rois")
-    regions_widget._load_region_layer()
-    mock_load.assert_not_called()
-    assert len(regions_widget.viewer.layers) == 0
+    mock_fn = mocker.patch(
+        f"movement.napari.regions_widget.{mocked_fn}"
+    )
+    widget, _ = regions_widget_with_layer
+    getattr(widget, widget_method)()
+    mock_fn.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -351,8 +385,47 @@ def test_load_region_layer(
         assert (
             regions_widget.layer_dropdown.currentText() == expected_layer_name
         )
+        assert any("Loaded" in msg for msg in caplog.messages)
     else:
         assert any("Failed to load" in msg for msg in caplog.messages)
+
+
+@pytest.mark.parametrize(
+    "save_side_effect, expect_error_logged",
+    [
+        pytest.param(None, False, id="valid_save"),
+        pytest.param(OSError("permission denied"), True, id="save_error_logs"),
+    ],
+)
+def test_save_region_layer(
+    regions_widget_with_layer,
+    mocker,
+    caplog,
+    save_side_effect,
+    expect_error_logged,
+):
+    """Test _save_region_layer: logs success info or error on failure."""
+    widget, _ = regions_widget_with_layer
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getSaveFileName",
+        return_value=("/fake/my_regions.geojson", None),
+    )
+    mock_save = mocker.patch(
+        "movement.napari.regions_widget.save_rois",
+        side_effect=save_side_effect,
+    )
+
+    widget._save_region_layer()
+
+    if expect_error_logged:
+        assert any("Failed to save" in msg for msg in caplog.messages)
+        mock_save.assert_called_once()
+    else:
+        assert any("Saved" in msg for msg in caplog.messages)
+        mock_save.assert_called_once()
+        rois_arg, path_arg = mock_save.call_args.args
+        assert len(rois_arg) == 2  # regions_widget_with_layer has 2 shapes
+        assert path_arg == "/fake/my_regions.geojson"
 
 
 def test_add_multiple_layers_increments_name(regions_widget):

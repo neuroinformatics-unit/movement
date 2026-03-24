@@ -23,9 +23,12 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from movement.napari.convert_roi import rois_to_napari_shapes
+from movement.napari.convert_roi import (
+    napari_shapes_to_rois,
+    rois_to_napari_shapes,
+)
 from movement.napari.layer_styles import RegionsStyle, _sample_colormap
-from movement.roi.io import load_rois
+from movement.roi.io import load_rois, save_rois
 from movement.utils.logging import logger
 
 DEFAULT_REGION_NAME = "region"
@@ -121,6 +124,7 @@ class RegionsWidget(QWidget):
         self.save_layer_button.setToolTip(
             "Save all regions in this layer to a GeoJSON file."
         )
+        self.save_layer_button.clicked.connect(self._save_region_layer)
 
         self.load_layer_button = QPushButton("Load layer")
         self.load_layer_button.setToolTip(
@@ -254,6 +258,24 @@ class RegionsWidget(QWidget):
         )
         self.layer_dropdown.setCurrentText(new_layer.name)
 
+    def _save_region_layer(self):
+        """Save all regions in the current layer to a GeoJSON file."""
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save region layer",
+            "",
+            "GeoJSON files (*.geojson *.json)",
+        )
+        if not file_path:
+            return
+
+        try:
+            rois = napari_shapes_to_rois(self.region_table_model.layer)
+            save_rois(rois, file_path)
+            logger.info(f"Saved {len(rois)} regions to '{file_path}'.")
+        except Exception as e:
+            logger.error(f"Failed to save regions to '{file_path}': {e}")
+
     def _load_region_layer(self):
         """Open a GeoJSON file and load its regions into a new region layer."""
         file_path, _ = QFileDialog.getOpenFileName(
@@ -279,6 +301,7 @@ class RegionsWidget(QWidget):
         )
         # Select the new layer (which also triggers linking to the table model)
         self.layer_dropdown.setCurrentText(new_layer.name)
+        logger.info(f"Loaded {len(rois)} regions from '{file_path}'.")
 
     def _link_layer_to_model(self, region_layer: Shapes):
         """Link a regions layer to a new table model.
