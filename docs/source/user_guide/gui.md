@@ -476,7 +476,8 @@ shapes that were saved. The mapping between `napari` shape types and
 \*Ellipses have no native GeoJSON representation and are approximated
 as polygons. The approximation is accurate enough for most practical
 purposes, but we encourage you to inspect the reloaded shape to ensure
-it meets your needs.
+it meets your needs. For more details on the shape-RoI conversion process,
+refer to the {mod}`movement.napari.convert_roi` module documentation.
 
 You can use the loaded RoI objects for analysis, for example:
 
