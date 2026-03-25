@@ -140,7 +140,10 @@ def compute_polarization(
     valid = (~heading.isnull().any(dim="space")) & (heading_norm > 0)
     n_valid = valid.sum(dim="individuals").astype(float)
 
-    unit_heading = (heading / heading_norm).where(valid)
+    # Mask headings and norms before division to avoid divide-by-zero warnings.
+    safe_heading = heading.where(valid)
+    safe_heading_norm = heading_norm.where(valid)
+    unit_heading = safe_heading / safe_heading_norm
     sum_heading = unit_heading.sum(dim="individuals", skipna=True)
     norm_sum = compute_norm(sum_heading)
 
