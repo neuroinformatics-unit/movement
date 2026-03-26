@@ -107,6 +107,7 @@ def from_file(
         "LightningPose",
         "Anipose",
         "NWB",
+        "BVH",
     ],
     fps: float | None = None,
     **kwargs,
@@ -176,6 +177,8 @@ def from_file(
         return from_lp_file(file, fps)
     elif source_software == "Anipose":
         return from_anipose_file(file, fps, **kwargs)
+    elif source_software == "BVH":
+        return from_bvh_file(file, fps)
     elif source_software == "NWB":
         if fps is not None:
             logger.warning(
