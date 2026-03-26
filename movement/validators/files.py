@@ -17,6 +17,7 @@ from pynwb import NWBFile
 
 from movement.utils.logging import logger
 from movement.validators._json_schemas import (
+    COCO_KEYPOINTS_SCHEMA,
     ROI_COLLECTION_SCHEMA,
     ROI_TYPE_TO_GEOMETRY,
 )
@@ -921,6 +922,121 @@ class ValidNWBFile:
         ),
     )
     """Path to the NWB file on disk (ending in ".nwb") or an NWBFile object."""
+
+
+@define
+class ValidCOCOJSON:
+    """Class for validating COCO keypoint annotation JSON files.
+
+    The validator ensures that the file:
+
+    - is in valid JSON format,
+    - conforms to the COCO keypoint annotation schema (contains
+      ``images``, ``annotations``, and ``categories`` keys),
+    - has at least one category with a ``keypoints`` list, and
+    - each annotation contains a ``keypoints`` array whose length
+      is a multiple of 3 (x, y, visibility per keypoint).
+
+    Raises
+    ------
+    ValueError
+        If the file is not valid JSON, does not match the expected
+        schema, or has keypoints arrays of unexpected length.
+
+    """
+
+    suffixes: ClassVar[set[str]] = {".json"}
+    """Expected suffix(es) for the file."""
+
+    schema: ClassVar[Mapping[str, Any]] = COCO_KEYPOINTS_SCHEMA
+    """JSON schema for validating the file structure."""
+
+    file: Path = field(
+        converter=Path,
+        validator=validators.and_(
+            _file_validator(permission="r", suffixes=suffixes),
+            _json_validator(
+                schema=COCO_KEYPOINTS_SCHEMA,
+                custom_checks=(),
+                data_attr="data",
+            ),
+        ),
+    )
+    """Path to the COCO keypoint JSON file to validate."""
+
+    data: dict = field(init=False, factory=dict)
+    """Parsed JSON data from the file."""
+
+    def __attrs_post_init__(self) -> None:
+        """Validate keypoints array lengths after loading."""
+        categories = {
+            c["id"]: c for c in self.data.get("categories", [])
+        }
+        for ann in self.data.get("annotations", []):
+            kps = ann.get("keypoints", [])
+            cat_id = ann.get("category_id")
+            cat = categories.get(cat_id)
+            if cat is None:
+                continue
+            n_kp = len(cat.get("keypoints", []))
+            expected_len = n_kp * 3
+            if len(kps) != expected_len:
+                raise logger.error(
+                    ValueError(
+                        f"Annotation {ann['id']} has "
+                        f"{len(kps)} keypoint values, "
+                        f"expected {expected_len} "
+                        f"(3 × {n_kp} keypoints)."
+                    )
+                )
+
+
+@define
+class ValidBVHFile:
+    """Class for validating BVH (Biovision Hierarchy) files.
+
+    The validator ensures that the file:
+
+    - has a ``.bvh`` suffix,
+    - starts with a ``HIERARCHY`` section, and
+    - contains a ``MOTION`` section with frame data.
+
+    Raises
+    ------
+    ValueError
+        If the file does not have BVH structure.
+
+    """
+
+    suffixes: ClassVar[set[str]] = {".bvh"}
+    """Expected suffix(es) for the file."""
+
+    file: Path = field(
+        converter=Path,
+        validator=_file_validator(
+            permission="r", suffixes=suffixes
+        ),
+    )
+    """Path to the BVH file to validate."""
+
+    def __attrs_post_init__(self) -> None:
+        """Validate BVH file structure."""
+        with open(self.file) as f:
+            content = f.read()
+        if not content.strip().startswith("HIERARCHY"):
+            raise logger.error(
+                ValueError(
+                    f"File {self.file} does not start with "
+                    "'HIERARCHY'. Not a valid BVH file."
+                )
+            )
+        if "MOTION" not in content:
+            raise logger.error(
+                ValueError(
+                    f"File {self.file} does not contain "
+                    "a 'MOTION' section."
+                )
+            )
 
 
 def _check_roi_type_matches_geometry(data: Mapping[str, Any]) -> None:
