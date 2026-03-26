@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import pynwb
 import xarray as xr
+import bvhio
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
@@ -23,6 +24,7 @@ from movement.validators.files import (
     ValidNWBFile,
     ValidSleapAnalysis,
     ValidSleapLabels,
+    ValidBVH,
 )
 
 
@@ -943,3 +945,68 @@ def _ds_from_nwb_object(
     return xr.merge(
         single_keypoint_datasets, join="outer", compat="no_conflicts"
     )
+
+@register_loader("BVH", file_validators=[ValidBVH])
+def from_bvh_file(
+    file: str | Path, fps: float | None = None
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from a BVH file.
+
+    Parameters
+    ----------
+    file
+        Path to the file containing the poses in .bvh format.
+    fps
+        The number of frames per second in the video. If None (default),
+        the fps value will be computed using the BVH file frame time.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks,
+        and associated metadata.
+
+    Examples
+    --------
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_bvh_file("path/to/file.bvh")
+    """
+
+    valid_file = cast(ValidFile, file)
+    file_path = valid_file.file
+
+    # Read the BVH hierarchy from the file
+    root = bvhio.readAsHierarchy(file_path)
+
+    # Collect joint names
+    joint_names = [joint.Name for joint, _, _ in root.layout()]
+    n_keypoints = len(joint_names)
+
+    # Frame range and fps
+    first, last = root.getKeyframeRange()
+    n_frames = last - first + 1
+    fps = fps or (1 / root.FrameTime)
+
+    position_array = np.zeros(
+        (n_frames, 3, n_keypoints, 1), dtype=np.float32
+    )  # 1 for single individual
+
+    for f in range(n_frames):
+        root.loadPose(f)
+        for j_idx, (joint, _, _) in enumerate(root.layout()):
+            pos = joint.PositionWorld
+            position_array[f, :, j_idx, 0] = [pos.x, pos.y, pos.z]
+
+
+    ds = from_numpy(
+        position_array=position_array,
+        confidence_array=None, # BVH files do not contain confidence scores, they're marker based, so maybe actaully we could set confidence to 1 for all keypoints?
+        individual_names=["individual_0"],
+        keypoint_names=joint_names,
+        fps=fps,
+        source_software="BVH",
+    )
+
+    ds.attrs["source_file"] = str(file_path)
+    ds.attrs["source_software"] = "BVH"
+    return ds

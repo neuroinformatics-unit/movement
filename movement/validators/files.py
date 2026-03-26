@@ -1000,3 +1000,43 @@ class ValidROICollectionGeoJSON:
 
     data: dict = field(init=False, factory=dict)
     """Parsed JSON data from the file, available after validation."""
+
+
+@define
+class ValidBVH:
+    """Class for validating BVH (Biovision Hierarchy) files."""
+
+    suffixes: ClassVar[set[str]] = {".bvh"}
+    """Expected suffix(es) for the file."""
+
+    file: Path = field(
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
+    )
+    """Path to the BVH file to validate."""
+
+    @file.validator
+    def _file_contains_valid_bvh_structure(self, attribute, value):
+        """Ensure the BVH file has valid structure."""
+        try:
+            with open(value) as f:
+                content = f.read()
+        except Exception as e:
+            raise logger.error(
+                ValueError(f"Could not read BVH file {value}: {e}")
+            ) from e
+        
+        if not content.strip().startswith("HIERARCHY"):
+            raise logger.error(
+                ValueError(
+                    "BVH file must start with HIERARCHY keyword. "
+                    f"Got: {content.split()[0] if content.split() else 'empty file'}"
+                )
+            )
+        
+        if "MOTION" not in content:
+            raise logger.error(
+                ValueError(
+                    "BVH file must contain MOTION section"
+                )
+            )
