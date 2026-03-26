@@ -62,7 +62,13 @@ rng = np.random.default_rng(42)
 
 coco_data = {
     "images": [
-        {"id": i, "file_name": f"frame_{i:04d}.jpg"} for i in range(n_frames)
+        {
+            "id": i,
+            "file_name": f"frame_{i:04d}.jpg",
+            "width": 640,
+            "height": 480,
+        }
+        for i in range(n_frames)
     ],
     "annotations": [],
     "categories": [
@@ -70,6 +76,12 @@ coco_data = {
             "id": 1,
             "name": "person",
             "keypoints": keypoint_names,
+            "skeleton": [
+                [0, 1],
+                [0, 2],
+                [1, 3],
+                [2, 4],
+            ],
         }
     ],
 }
@@ -86,22 +98,31 @@ for frame_idx in range(n_frames):
             y = base_y + k * 30 + rng.normal(0, 3)
             v = 2  # visible
             kps.extend([x, y, v])
+        # Bounding box: [x, y, width, height]
+        bbox = [base_x - 20, base_y - 20, 150, 200]
+        area = bbox[2] * bbox[3]
         coco_data["annotations"].append(
             {
                 "id": ann_id,
                 "image_id": frame_idx,
                 "category_id": 1,
                 "keypoints": kps,
+                "num_keypoints": n_keypoints,
+                "bbox": bbox,
+                "area": float(area),
+                "iscrowd": 0,
                 "score": 0.85 + rng.uniform(0, 0.15),
                 "track_id": ind,
             }
         )
         ann_id += 1
 
-# Save to a temporary file
-coco_path = Path(tempfile.mktemp(suffix=".json"))
-with open(coco_path, "w") as f:
+# Save to a temporary file (using NamedTemporaryFile for security)
+with tempfile.NamedTemporaryFile(
+    mode="w", suffix=".json", delete=False
+) as f:
     json.dump(coco_data, f)
+    coco_path = Path(f.name)
 print(f"Created sample COCO file: {coco_path}")
 
 # %%
