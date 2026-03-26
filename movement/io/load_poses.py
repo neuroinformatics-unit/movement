@@ -1033,9 +1033,7 @@ def _coco_individual_mapping(
         track_id_to_idx is None if track_id is not present.
 
     """
-    has_track_id = any(
-        "track_id" in ann for ann in annotations
-    )
+    has_track_id = any("track_id" in ann for ann in annotations)
     if has_track_id:
         track_ids = sorted(
             {
@@ -1087,12 +1085,8 @@ def _coco_fill_arrays(
         A tuple of (position_array, confidence_array).
 
     """
-    position = np.full(
-        (n_frames, 2, n_keypoints, n_individuals), np.nan
-    )
-    confidence = np.full(
-        (n_frames, n_keypoints, n_individuals), np.nan
-    )
+    position = np.full((n_frames, 2, n_keypoints, n_individuals), np.nan)
+    confidence = np.full((n_frames, n_keypoints, n_individuals), np.nan)
 
     for img_id, anns in anns_by_image.items():
         frame_idx = image_id_to_frame.get(img_id)
@@ -1105,8 +1099,12 @@ def _coco_fill_arrays(
                 else j
             )
             _coco_fill_keypoints(
-                ann, ind_idx, frame_idx, n_keypoints,
-                position, confidence,
+                ann,
+                ind_idx,
+                frame_idx,
+                n_keypoints,
+                position,
+                confidence,
             )
     return position, confidence
 
@@ -1150,9 +1148,7 @@ def _coco_fill_keypoints(
             position[frame_idx, 0, k, ind_idx] = x
             position[frame_idx, 1, k, ind_idx] = y
             vis_conf = v / 2.0
-            confidence[frame_idx, k, ind_idx] = (
-                vis_conf * score
-            )
+            confidence[frame_idx, k, ind_idx] = vis_conf * score
 
 
 def _ds_from_coco_data(
@@ -1181,9 +1177,7 @@ def _ds_from_coco_data(
     n_keypoints = len(keypoint_names)
 
     images = sorted(data["images"], key=lambda x: x["id"])
-    image_id_to_frame = {
-        img["id"]: i for i, img in enumerate(images)
-    }
+    image_id_to_frame = {img["id"]: i for i, img in enumerate(images)}
     n_frames = len(images)
 
     anns_by_image: dict[int, list[dict]] = {}
@@ -1193,10 +1187,8 @@ def _ds_from_coco_data(
         img_id = ann["image_id"]
         anns_by_image.setdefault(img_id, []).append(ann)
 
-    individual_names, track_id_to_idx = (
-        _coco_individual_mapping(
-            data["annotations"], cat_id, anns_by_image
-        )
+    individual_names, track_id_to_idx = _coco_individual_mapping(
+        data["annotations"], cat_id, anns_by_image
     )
 
     position_array, confidence_array = _coco_fill_arrays(
