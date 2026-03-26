@@ -118,9 +118,7 @@ for frame_idx in range(n_frames):
         ann_id += 1
 
 # Save to a temporary file (using NamedTemporaryFile for security)
-with tempfile.NamedTemporaryFile(
-    mode="w", suffix=".json", delete=False
-) as f:
+with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
     json.dump(coco_data, f)
     coco_path = Path(f.name)
 print(f"Created sample COCO file: {coco_path}")

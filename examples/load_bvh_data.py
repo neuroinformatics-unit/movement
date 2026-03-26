@@ -141,9 +141,7 @@ motion_section = (
 bvh_content = hierarchy + motion_section
 
 # Save to temp file (using NamedTemporaryFile for security)
-with tempfile.NamedTemporaryFile(
-    mode="w", suffix=".bvh", delete=False
-) as f:
+with tempfile.NamedTemporaryFile(mode="w", suffix=".bvh", delete=False) as f:
     f.write(bvh_content)
     bvh_path = Path(f.name)
 print(f"Created sample BVH file: {bvh_path}")
