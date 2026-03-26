@@ -305,7 +305,7 @@ class TestCOCOLoader:
             keypoints="nose",
             individuals="id_0",
         )
-        assert conf.values == 0.0
+        assert conf.values == pytest.approx(0.0)
 
     def test_coco_single_individual(self, coco_json_file_single_individual):
         """Test loading COCO file with one individual."""

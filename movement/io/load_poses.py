@@ -1010,6 +1010,151 @@ def from_coco_file(
     return ds
 
 
+def _coco_individual_mapping(
+    annotations: list[dict],
+    cat_id: int,
+    anns_by_image: dict[int, list[dict]],
+) -> tuple[list[str], dict[int, int] | None]:
+    """Determine individual names and track_id mapping.
+
+    Parameters
+    ----------
+    annotations
+        List of COCO annotation dicts.
+    cat_id
+        Category ID to filter annotations.
+    anns_by_image
+        Annotations grouped by image_id.
+
+    Returns
+    -------
+    tuple
+        A tuple of (individual_names, track_id_to_idx).
+        track_id_to_idx is None if track_id is not present.
+
+    """
+    has_track_id = any(
+        "track_id" in ann for ann in annotations
+    )
+    if has_track_id:
+        track_ids = sorted(
+            {
+                ann["track_id"]
+                for ann in annotations
+                if ann.get("category_id") == cat_id
+            }
+        )
+        names = [f"id_{tid}" for tid in track_ids]
+        mapping = {tid: i for i, tid in enumerate(track_ids)}
+        return names, mapping
+
+    max_individuals = max(
+        (len(v) for v in anns_by_image.values()),
+        default=1,
+    )
+    return [f"id_{i}" for i in range(max_individuals)], None
+
+
+def _coco_fill_arrays(
+    anns_by_image: dict[int, list[dict]],
+    image_id_to_frame: dict[int, int],
+    track_id_to_idx: dict[int, int] | None,
+    n_frames: int,
+    n_keypoints: int,
+    n_individuals: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Populate position and confidence arrays from COCO annotations.
+
+    Parameters
+    ----------
+    anns_by_image
+        Annotations grouped by image_id.
+    image_id_to_frame
+        Mapping from image_id to frame index.
+    track_id_to_idx
+        Mapping from track_id to individual index.
+        None if track_id is not used.
+    n_frames
+        Number of frames.
+    n_keypoints
+        Number of keypoints per individual.
+    n_individuals
+        Number of individuals.
+
+    Returns
+    -------
+    tuple
+        A tuple of (position_array, confidence_array).
+
+    """
+    position = np.full(
+        (n_frames, 2, n_keypoints, n_individuals), np.nan
+    )
+    confidence = np.full(
+        (n_frames, n_keypoints, n_individuals), np.nan
+    )
+
+    for img_id, anns in anns_by_image.items():
+        frame_idx = image_id_to_frame.get(img_id)
+        if frame_idx is None:
+            continue
+        for j, ann in enumerate(anns):
+            ind_idx = (
+                track_id_to_idx[ann["track_id"]]
+                if track_id_to_idx is not None
+                else j
+            )
+            _coco_fill_keypoints(
+                ann, ind_idx, frame_idx, n_keypoints,
+                position, confidence,
+            )
+    return position, confidence
+
+
+def _coco_fill_keypoints(
+    ann: dict,
+    ind_idx: int,
+    frame_idx: int,
+    n_keypoints: int,
+    position: np.ndarray,
+    confidence: np.ndarray,
+) -> None:
+    """Fill position/confidence for a single annotation.
+
+    Parameters
+    ----------
+    ann
+        A single COCO annotation dict.
+    ind_idx
+        Individual index.
+    frame_idx
+        Frame index.
+    n_keypoints
+        Number of keypoints.
+    position
+        Position array to fill in-place.
+    confidence
+        Confidence array to fill in-place.
+
+    """
+    kps = ann["keypoints"]
+    score = ann.get("score", 1.0)
+    for k in range(n_keypoints):
+        x = kps[k * 3]
+        y = kps[k * 3 + 1]
+        v = kps[k * 3 + 2]
+        if v == 0:
+            position[frame_idx, :, k, ind_idx] = np.nan
+            confidence[frame_idx, k, ind_idx] = 0.0
+        else:
+            position[frame_idx, 0, k, ind_idx] = x
+            position[frame_idx, 1, k, ind_idx] = y
+            vis_conf = v / 2.0
+            confidence[frame_idx, k, ind_idx] = (
+                vis_conf * score
+            )
+
+
 def _ds_from_coco_data(
     data: dict,
     fps: float | None = None,
@@ -1030,18 +1175,17 @@ def _ds_from_coco_data(
         A ``movement`` poses dataset.
 
     """
-    # Use the first category's keypoints
     first_cat = data["categories"][0]
     cat_id = first_cat["id"]
     keypoint_names = first_cat["keypoints"]
     n_keypoints = len(keypoint_names)
 
-    # Sort images by id to establish temporal order
     images = sorted(data["images"], key=lambda x: x["id"])
-    image_id_to_frame = {img["id"]: i for i, img in enumerate(images)}
+    image_id_to_frame = {
+        img["id"]: i for i, img in enumerate(images)
+    }
     n_frames = len(images)
 
-    # Group annotations by image_id
     anns_by_image: dict[int, list[dict]] = {}
     for ann in data["annotations"]:
         if ann.get("category_id") != cat_id:
@@ -1049,59 +1193,20 @@ def _ds_from_coco_data(
         img_id = ann["image_id"]
         anns_by_image.setdefault(img_id, []).append(ann)
 
-    # Determine individual names from track_id or count
-    has_track_id = any("track_id" in ann for ann in data["annotations"])
-    if has_track_id:
-        track_ids = sorted(
-            {
-                ann["track_id"]
-                for ann in data["annotations"]
-                if ann.get("category_id") == cat_id
-            }
+    individual_names, track_id_to_idx = (
+        _coco_individual_mapping(
+            data["annotations"], cat_id, anns_by_image
         )
-        individual_names = [f"id_{tid}" for tid in track_ids]
-        track_id_to_idx = {tid: i for i, tid in enumerate(track_ids)}
-    else:
-        # Max number of individuals in any single frame
-        max_individuals = max(
-            (len(v) for v in anns_by_image.values()),
-            default=1,
-        )
-        individual_names = [f"id_{i}" for i in range(max_individuals)]
-        track_id_to_idx = None
+    )
 
-    n_individuals = len(individual_names)
-
-    # Build arrays: position (time, space, keypoints, individuals)
-    # and confidence (time, keypoints, individuals)
-    position_array = np.full((n_frames, 2, n_keypoints, n_individuals), np.nan)
-    confidence_array = np.full((n_frames, n_keypoints, n_individuals), np.nan)
-
-    for img_id, anns in anns_by_image.items():
-        frame_idx = image_id_to_frame.get(img_id)
-        if frame_idx is None:
-            continue
-        for j, ann in enumerate(anns):
-            if track_id_to_idx is not None:
-                ind_idx = track_id_to_idx[ann["track_id"]]
-            else:
-                ind_idx = j
-            kps = ann["keypoints"]
-            score = ann.get("score", 1.0)
-            for k in range(n_keypoints):
-                x = kps[k * 3]
-                y = kps[k * 3 + 1]
-                v = kps[k * 3 + 2]
-                if v == 0:
-                    # Not labelled
-                    position_array[frame_idx, :, k, ind_idx] = np.nan
-                    confidence_array[frame_idx, k, ind_idx] = 0.0
-                else:
-                    position_array[frame_idx, 0, k, ind_idx] = x
-                    position_array[frame_idx, 1, k, ind_idx] = y
-                    # v=1 → 0.5, v=2 → 1.0
-                    vis_conf = v / 2.0
-                    confidence_array[frame_idx, k, ind_idx] = vis_conf * score
+    position_array, confidence_array = _coco_fill_arrays(
+        anns_by_image,
+        image_id_to_frame,
+        track_id_to_idx,
+        n_frames,
+        n_keypoints,
+        len(individual_names),
+    )
 
     return from_numpy(
         position_array=position_array,
