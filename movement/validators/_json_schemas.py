@@ -14,8 +14,7 @@ COCO_KEYPOINTS_SCHEMA: Mapping[str, Any] = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "title": "COCO Keypoints",
     "description": (
-        "Schema for validating COCO keypoint annotation "
-        "JSON files."
+        "Schema for validating COCO keypoint annotation JSON files."
     ),
     "type": "object",
     "required": ["images", "annotations", "categories"],

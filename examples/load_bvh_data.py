@@ -112,22 +112,31 @@ for frame in range(n_frames):
     rh_x, rh_y = 0.0, 0.0
 
     vals = [
-        xpos, ypos, zpos, zrot, xrot, yrot,
-        spine_z, spine_x, spine_y,
-        head_z, head_x, head_y,
-        lh_z, lh_x, lh_y,
-        rh_z, rh_x, rh_y,
+        xpos,
+        ypos,
+        zpos,
+        zrot,
+        xrot,
+        yrot,
+        spine_z,
+        spine_x,
+        spine_y,
+        head_z,
+        head_x,
+        head_y,
+        lh_z,
+        lh_x,
+        lh_y,
+        rh_z,
+        rh_x,
+        rh_y,
     ]
-    motion_lines.append(
-        " ".join(f"{v:.4f}" for v in vals)
-    )
+    motion_lines.append(" ".join(f"{v:.4f}" for v in vals))
 
 motion_section = (
     "MOTION\n"
     f"Frames: {n_frames}\n"
-    f"Frame Time: {frame_time}\n"
-    + "\n".join(motion_lines)
-    + "\n"
+    f"Frame Time: {frame_time}\n" + "\n".join(motion_lines) + "\n"
 )
 bvh_content = hierarchy + motion_section
 
@@ -211,9 +220,7 @@ fig, axes = plt.subplots(1, 3, figsize=(14, 4))
 for i, coord in enumerate(["x", "y", "z"]):
     ax = axes[i]
     for kp in ds.coords["keypoints"].values:
-        vals = ds.position.sel(
-            keypoints=kp, individuals="id_0", space=coord
-        )
+        vals = ds.position.sel(keypoints=kp, individuals="id_0", space=coord)
         ax.plot(ds.coords["time"], vals, label=kp)
     ax.set_xlabel("Time (s)")
     ax.set_ylabel(f"{coord} position")

@@ -62,8 +62,7 @@ rng = np.random.default_rng(42)
 
 coco_data = {
     "images": [
-        {"id": i, "file_name": f"frame_{i:04d}.jpg"}
-        for i in range(n_frames)
+        {"id": i, "file_name": f"frame_{i:04d}.jpg"} for i in range(n_frames)
     ],
     "annotations": [],
     "categories": [
@@ -133,12 +132,8 @@ print("Individuals:", ds.coords["individuals"].values)
 
 fig, ax = plt.subplots(figsize=(8, 5))
 for ind in ds.coords["individuals"].values:
-    x = ds.position.sel(
-        keypoints="nose", individuals=ind, space="x"
-    )
-    y = ds.position.sel(
-        keypoints="nose", individuals=ind, space="y"
-    )
+    x = ds.position.sel(keypoints="nose", individuals=ind, space="x")
+    y = ds.position.sel(keypoints="nose", individuals=ind, space="y")
     ax.plot(x, y, "o-", label=ind, markersize=4)
 ax.set_xlabel("x (pixels)")
 ax.set_ylabel("y (pixels)")

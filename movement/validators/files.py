@@ -969,9 +969,7 @@ class ValidCOCOJSON:
 
     def __attrs_post_init__(self) -> None:
         """Validate keypoints array lengths after loading."""
-        categories = {
-            c["id"]: c for c in self.data.get("categories", [])
-        }
+        categories = {c["id"]: c for c in self.data.get("categories", [])}
         for ann in self.data.get("annotations", []):
             kps = ann.get("keypoints", [])
             cat_id = ann.get("category_id")
@@ -1013,9 +1011,7 @@ class ValidBVHFile:
 
     file: Path = field(
         converter=Path,
-        validator=_file_validator(
-            permission="r", suffixes=suffixes
-        ),
+        validator=_file_validator(permission="r", suffixes=suffixes),
     )
     """Path to the BVH file to validate."""
 
@@ -1033,8 +1029,7 @@ class ValidBVHFile:
         if "MOTION" not in content:
             raise logger.error(
                 ValueError(
-                    f"File {self.file} does not contain "
-                    "a 'MOTION' section."
+                    f"File {self.file} does not contain a 'MOTION' section."
                 )
             )
 

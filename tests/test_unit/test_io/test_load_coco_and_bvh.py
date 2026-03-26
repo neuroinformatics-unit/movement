@@ -33,8 +33,7 @@ def _make_coco_data(
         "right_eye",
     ][:n_keypoints]
     images = [
-        {"id": i, "file_name": f"frame_{i:04d}.jpg"}
-        for i in range(n_images)
+        {"id": i, "file_name": f"frame_{i:04d}.jpg"} for i in range(n_images)
     ]
     annotations = []
     ann_id = 0
@@ -251,13 +250,9 @@ def bvh_file_no_motion(tmp_path):
 class TestCOCOLoader:
     """Tests for the COCO keypoint loader."""
 
-    def test_load_from_coco_file(
-        self, coco_json_file, helpers
-    ):
+    def test_load_from_coco_file(self, coco_json_file, helpers):
         """Test loading COCO keypoints returns valid Dataset."""
-        ds = load_poses.from_coco_file(
-            coco_json_file, fps=30
-        )
+        ds = load_poses.from_coco_file(coco_json_file, fps=30)
         expected_values = {
             **expected_values_poses,
             "source_software": "COCO",
@@ -282,13 +277,9 @@ class TestCOCOLoader:
             "right_eye",
         ]
 
-    def test_coco_with_track_id(
-        self, coco_json_file_with_track_id
-    ):
+    def test_coco_with_track_id(self, coco_json_file_with_track_id):
         """Test COCO loading with track_id for individuals."""
-        ds = load_poses.from_coco_file(
-            coco_json_file_with_track_id
-        )
+        ds = load_poses.from_coco_file(coco_json_file_with_track_id)
         assert ds.coords["individuals"].values.tolist() == [
             "id_0",
             "id_1",
@@ -300,9 +291,7 @@ class TestCOCOLoader:
         self, coco_json_file_invisible_keypoints
     ):
         """Test that invisible keypoints get NaN position."""
-        ds = load_poses.from_coco_file(
-            coco_json_file_invisible_keypoints
-        )
+        ds = load_poses.from_coco_file(coco_json_file_invisible_keypoints)
         # First keypoint of first frame/individual is invisible
         pos = ds.position.sel(
             time=0,
@@ -318,22 +307,14 @@ class TestCOCOLoader:
         )
         assert conf.values == 0.0
 
-    def test_coco_single_individual(
-        self, coco_json_file_single_individual
-    ):
+    def test_coco_single_individual(self, coco_json_file_single_individual):
         """Test loading COCO file with one individual."""
-        ds = load_poses.from_coco_file(
-            coco_json_file_single_individual
-        )
+        ds = load_poses.from_coco_file(coco_json_file_single_individual)
         assert ds.sizes["individuals"] == 1
 
-    def test_coco_no_score_field(
-        self, coco_json_file_no_score
-    ):
+    def test_coco_no_score_field(self, coco_json_file_no_score):
         """Test loading COCO without score field."""
-        ds = load_poses.from_coco_file(
-            coco_json_file_no_score
-        )
+        ds = load_poses.from_coco_file(coco_json_file_no_score)
         # With v=2 and no score, confidence = 2/2 * 1.0 = 1.0
         conf = ds.confidence.values
         visible_mask = ~np.isnan(conf)
@@ -341,29 +322,21 @@ class TestCOCOLoader:
 
     def test_coco_fps_none(self, coco_json_file):
         """Test that fps=None gives frame-number time coords."""
-        ds = load_poses.from_coco_file(
-            coco_json_file, fps=None
-        )
+        ds = load_poses.from_coco_file(coco_json_file, fps=None)
         assert ds.time_unit == "frames"
 
     def test_coco_fps_set(self, coco_json_file):
         """Test that providing fps gives second-based coords."""
-        ds = load_poses.from_coco_file(
-            coco_json_file, fps=30
-        )
+        ds = load_poses.from_coco_file(coco_json_file, fps=30)
         assert ds.time_unit == "seconds"
         assert ds.fps == 30
 
-    def test_coco_source_software_attr(
-        self, coco_json_file
-    ):
+    def test_coco_source_software_attr(self, coco_json_file):
         """Test source_software attribute is set correctly."""
         ds = load_poses.from_coco_file(coco_json_file)
         assert ds.source_software == "COCO"
 
-    def test_coco_source_file_attr(
-        self, coco_json_file
-    ):
+    def test_coco_source_file_attr(self, coco_json_file):
         """Test source_file attribute is set correctly."""
         ds = load_poses.from_coco_file(coco_json_file)
         assert ds.source_file == coco_json_file.as_posix()
@@ -377,9 +350,7 @@ class TestCOCOValidation:
         valid = ValidCOCOJSON(file=coco_json_file)
         assert valid.file == coco_json_file
 
-    def test_invalid_coco_missing_keys(
-        self, coco_json_file_missing_keys
-    ):
+    def test_invalid_coco_missing_keys(self, coco_json_file_missing_keys):
         """Test that JSON missing COCO keys fails."""
         with pytest.raises(ValueError, match="schema"):
             ValidCOCOJSON(file=coco_json_file_missing_keys)
@@ -393,9 +364,7 @@ class TestCOCOValidation:
                 file=coco_json_file_invalid_keypoints_length,
             )
 
-    def test_invalid_coco_wrong_extension(
-        self, wrong_extension_file
-    ):
+    def test_invalid_coco_wrong_extension(self, wrong_extension_file):
         """Test that wrong file extension fails."""
         with pytest.raises(ValueError, match="suffix"):
             ValidCOCOJSON(file=wrong_extension_file)
@@ -407,9 +376,7 @@ class TestCOCOValidation:
 class TestBVHLoader:
     """Tests for the BVH file loader."""
 
-    def test_load_from_bvh_file(
-        self, bvh_file, helpers
-    ):
+    def test_load_from_bvh_file(self, bvh_file, helpers):
         """Test loading BVH file returns valid Dataset."""
         ds = load_poses.from_bvh_file(bvh_file)
         expected_values = {
@@ -467,9 +434,7 @@ class TestBVHLoader:
             individuals="id_0",
         )
         # Frame 0: all zeros in channels, offset 0,0,0
-        np.testing.assert_allclose(
-            root_pos.values, [0.0, 0.0, 0.0], atol=1e-6
-        )
+        np.testing.assert_allclose(root_pos.values, [0.0, 0.0, 0.0], atol=1e-6)
 
     def test_bvh_root_position_frame_1(self, bvh_file):
         """Test root position in frame 1 (translation)."""
@@ -480,9 +445,7 @@ class TestBVHLoader:
             individuals="id_0",
         )
         # Frame 1: Xposition=1, Yposition=2, Zposition=0.5
-        np.testing.assert_allclose(
-            root_pos.values, [1.0, 2.0, 0.5], atol=1e-6
-        )
+        np.testing.assert_allclose(root_pos.values, [1.0, 2.0, 0.5], atol=1e-6)
 
     def test_bvh_source_software_attr(self, bvh_file):
         """Test source_software attribute is set correctly."""
@@ -513,23 +476,17 @@ class TestBVHValidation:
         valid = ValidBVHFile(file=bvh_file)
         assert valid.file == bvh_file
 
-    def test_invalid_bvh_no_hierarchy(
-        self, bvh_file_no_hierarchy
-    ):
+    def test_invalid_bvh_no_hierarchy(self, bvh_file_no_hierarchy):
         """Test BVH without HIERARCHY fails validation."""
         with pytest.raises(ValueError, match="HIERARCHY"):
             ValidBVHFile(file=bvh_file_no_hierarchy)
 
-    def test_invalid_bvh_no_motion(
-        self, bvh_file_no_motion
-    ):
+    def test_invalid_bvh_no_motion(self, bvh_file_no_motion):
         """Test BVH without MOTION fails validation."""
         with pytest.raises(ValueError, match="MOTION"):
             ValidBVHFile(file=bvh_file_no_motion)
 
-    def test_invalid_bvh_wrong_extension(
-        self, wrong_extension_file
-    ):
+    def test_invalid_bvh_wrong_extension(self, wrong_extension_file):
         """Test that wrong file extension fails."""
         with pytest.raises(ValueError, match="suffix"):
             ValidBVHFile(file=wrong_extension_file)
@@ -557,8 +514,6 @@ class TestLoadDatasetIntegration:
         """Test load_dataset with source_software='BVH'."""
         from movement.io import load_dataset
 
-        ds = load_dataset(
-            bvh_file, source_software="BVH"
-        )
+        ds = load_dataset(bvh_file, source_software="BVH")
         assert isinstance(ds, xr.Dataset)
         assert ds.source_software == "BVH"

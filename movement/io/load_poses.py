@@ -998,9 +998,7 @@ def from_coco_file(
     Examples
     --------
     >>> from movement.io import load_poses
-    >>> ds = load_poses.from_coco_file(
-    ...     "path/to/coco_keypoints.json", fps=30
-    ... )
+    >>> ds = load_poses.from_coco_file("path/to/coco_keypoints.json", fps=30)
 
     """
     valid_file = cast("ValidCOCOJSON", file)
@@ -1008,9 +1006,7 @@ def from_coco_file(
     data = valid_file.data
     ds = _ds_from_coco_data(data, fps=fps)
     ds.attrs["source_file"] = file_path.as_posix()
-    logger.info(
-        f"Loaded pose tracks from {file_path}:\n{ds}"
-    )
+    logger.info(f"Loaded pose tracks from {file_path}:\n{ds}")
     return ds
 
 
@@ -1042,9 +1038,7 @@ def _ds_from_coco_data(
 
     # Sort images by id to establish temporal order
     images = sorted(data["images"], key=lambda x: x["id"])
-    image_id_to_frame = {
-        img["id"]: i for i, img in enumerate(images)
-    }
+    image_id_to_frame = {img["id"]: i for i, img in enumerate(images)}
     n_frames = len(images)
 
     # Group annotations by image_id
@@ -1056,10 +1050,7 @@ def _ds_from_coco_data(
         anns_by_image.setdefault(img_id, []).append(ann)
 
     # Determine individual names from track_id or count
-    has_track_id = any(
-        "track_id" in ann
-        for ann in data["annotations"]
-    )
+    has_track_id = any("track_id" in ann for ann in data["annotations"])
     if has_track_id:
         track_ids = sorted(
             {
@@ -1068,33 +1059,23 @@ def _ds_from_coco_data(
                 if ann.get("category_id") == cat_id
             }
         )
-        individual_names = [
-            f"id_{tid}" for tid in track_ids
-        ]
-        track_id_to_idx = {
-            tid: i for i, tid in enumerate(track_ids)
-        }
+        individual_names = [f"id_{tid}" for tid in track_ids]
+        track_id_to_idx = {tid: i for i, tid in enumerate(track_ids)}
     else:
         # Max number of individuals in any single frame
         max_individuals = max(
             (len(v) for v in anns_by_image.values()),
             default=1,
         )
-        individual_names = [
-            f"id_{i}" for i in range(max_individuals)
-        ]
+        individual_names = [f"id_{i}" for i in range(max_individuals)]
         track_id_to_idx = None
 
     n_individuals = len(individual_names)
 
     # Build arrays: position (time, space, keypoints, individuals)
     # and confidence (time, keypoints, individuals)
-    position_array = np.full(
-        (n_frames, 2, n_keypoints, n_individuals), np.nan
-    )
-    confidence_array = np.full(
-        (n_frames, n_keypoints, n_individuals), np.nan
-    )
+    position_array = np.full((n_frames, 2, n_keypoints, n_individuals), np.nan)
+    confidence_array = np.full((n_frames, n_keypoints, n_individuals), np.nan)
 
     for img_id, anns in anns_by_image.items():
         frame_idx = image_id_to_frame.get(img_id)
@@ -1113,24 +1094,14 @@ def _ds_from_coco_data(
                 v = kps[k * 3 + 2]
                 if v == 0:
                     # Not labelled
-                    position_array[
-                        frame_idx, :, k, ind_idx
-                    ] = np.nan
-                    confidence_array[
-                        frame_idx, k, ind_idx
-                    ] = 0.0
+                    position_array[frame_idx, :, k, ind_idx] = np.nan
+                    confidence_array[frame_idx, k, ind_idx] = 0.0
                 else:
-                    position_array[
-                        frame_idx, 0, k, ind_idx
-                    ] = x
-                    position_array[
-                        frame_idx, 1, k, ind_idx
-                    ] = y
+                    position_array[frame_idx, 0, k, ind_idx] = x
+                    position_array[frame_idx, 1, k, ind_idx] = y
                     # v=1 → 0.5, v=2 → 1.0
                     vis_conf = v / 2.0
-                    confidence_array[
-                        frame_idx, k, ind_idx
-                    ] = (vis_conf * score)
+                    confidence_array[frame_idx, k, ind_idx] = vis_conf * score
 
     return from_numpy(
         position_array=position_array,
@@ -1193,17 +1164,13 @@ def from_bvh_file(
     Examples
     --------
     >>> from movement.io import load_poses
-    >>> ds = load_poses.from_bvh_file(
-    ...     "path/to/motion.bvh"
-    ... )
+    >>> ds = load_poses.from_bvh_file("path/to/motion.bvh")
 
     """
     valid_file = cast("ValidBVHFile", file)
     file_path = valid_file.file
 
-    hierarchy, motion_data, frame_time = _parse_bvh(
-        file_path
-    )
+    hierarchy, motion_data, frame_time = _parse_bvh(file_path)
     # Compute fps from frame_time if not provided
     if fps is None and frame_time is not None and frame_time > 0:
         fps = round(1.0 / frame_time, 6)
@@ -1216,9 +1183,7 @@ def from_bvh_file(
     n_frames = position_array.shape[0]
     n_keypoints = len(joint_names)
     # BVH has no confidence info; set to NaN
-    confidence_array = np.full(
-        (n_frames, n_keypoints, 1), np.nan
-    )
+    confidence_array = np.full((n_frames, n_keypoints, 1), np.nan)
     # Add individuals dimension (single individual)
     position_array = position_array[..., np.newaxis]
 
@@ -1231,9 +1196,7 @@ def from_bvh_file(
         source_software="BVH",
     )
     ds.attrs["source_file"] = file_path.as_posix()
-    logger.info(
-        f"Loaded pose tracks from {file_path}:\n{ds}"
-    )
+    logger.info(f"Loaded pose tracks from {file_path}:\n{ds}")
     return ds
 
 
@@ -1264,9 +1227,7 @@ def _parse_bvh(
         lines = f.readlines()
 
     joints, motion_start = _parse_bvh_hierarchy(lines)
-    motion_data, frame_time = _parse_bvh_motion(
-        lines, motion_start
-    )
+    motion_data, frame_time = _parse_bvh_motion(lines, motion_start)
     return joints, motion_data, frame_time
 
 
@@ -1307,12 +1268,8 @@ def _parse_bvh_hierarchy(
         elif line.startswith("CHANNELS") and stack:
             parts = line.split()
             n_ch = int(parts[1])
-            joints[stack[-1]][
-                "channels"
-            ] = parts[2: 2 + n_ch]
-            joints[stack[-1]][
-                "channel_offset"
-            ] = channel_offset
+            joints[stack[-1]]["channels"] = parts[2 : 2 + n_ch]
+            joints[stack[-1]]["channel_offset"] = channel_offset
             channel_offset += n_ch
         elif line == "}":
             if stack:
@@ -1337,22 +1294,16 @@ def _add_bvh_joint(
         "offset": np.zeros(3),
         "channels": [],
         "children": [],
-        "parent_index": (
-            stack[-1] if stack else -1
-        ),
+        "parent_index": (stack[-1] if stack else -1),
         "channel_offset": 0,
     }
     if stack:
-        joints[stack[-1]]["children"].append(
-            len(joints)
-        )
+        joints[stack[-1]]["children"].append(len(joints))
     joints.append(joint)
     stack.append(len(joints) - 1)
 
 
-def _skip_end_site(
-    lines: list[str], i: int
-) -> int:
+def _skip_end_site(lines: list[str], i: int) -> int:
     """Skip past an End Site block in BVH.
 
     Returns the line index of the closing brace.
@@ -1399,13 +1350,9 @@ def _parse_bvh_motion(
     while i < len(lines):
         line = lines[i].strip()
         if line.startswith("Frames:"):
-            n_frames = int(
-                line.split(":")[1].strip()
-            )
+            n_frames = int(line.split(":")[1].strip())
         elif line.startswith("Frame Time:"):
-            frame_time = float(
-                line.split(":")[1].strip()
-            )
+            frame_time = float(line.split(":")[1].strip())
             i += 1
             break
         i += 1
@@ -1414,16 +1361,12 @@ def _parse_bvh_motion(
     for j in range(n_frames):
         if i + j < len(lines):
             row = lines[i + j].strip().split()
-            motion_rows.append(
-                [float(v) for v in row]
-            )
+            motion_rows.append([float(v) for v in row])
     motion_data = np.array(motion_rows)
     return motion_data, frame_time
 
 
-def _axis_rotation_matrix(
-    axis: str, angle_rad: float
-) -> np.ndarray:
+def _axis_rotation_matrix(axis: str, angle_rad: float) -> np.ndarray:
     """Return a 3×3 rotation matrix for a single axis.
 
     Parameters
@@ -1441,17 +1384,11 @@ def _axis_rotation_matrix(
     """
     c, s = np.cos(angle_rad), np.sin(angle_rad)
     if axis == "X":
-        return np.array(
-            [[1, 0, 0], [0, c, -s], [0, s, c]]
-        )
+        return np.array([[1, 0, 0], [0, c, -s], [0, s, c]])
     if axis == "Y":
-        return np.array(
-            [[c, 0, s], [0, 1, 0], [-s, 0, c]]
-        )
+        return np.array([[c, 0, s], [0, 1, 0], [-s, 0, c]])
     # Z
-    return np.array(
-        [[c, -s, 0], [s, c, 0], [0, 0, 1]]
-    )
+    return np.array([[c, -s, 0], [s, c, 0], [0, 0, 1]])
 
 
 def _euler_to_rotation_matrix(
@@ -1478,9 +1415,7 @@ def _euler_to_rotation_matrix(
     rot = np.eye(3)
     for axis_char in order:
         idx = axis_to_idx[axis_char]
-        rot = rot @ _axis_rotation_matrix(
-            axis_char, rad[idx]
-        )
+        rot = rot @ _axis_rotation_matrix(axis_char, rad[idx])
     return rot
 
 
@@ -1560,21 +1495,17 @@ def _bvh_forward_kinematics(
     positions = np.zeros((n_frames, 3, n_joints))
 
     for frame in range(n_frames):
-        transforms: list[
-            tuple[np.ndarray, np.ndarray] | None
-        ] = [None] * n_joints
+        transforms: list[tuple[np.ndarray, np.ndarray] | None] = [
+            None
+        ] * n_joints
         for j_idx, joint in enumerate(joints):
-            trans, rot_ang, rot_ord = (
-                _extract_bvh_channels(
-                    joint["channels"],
-                    motion_data[frame],
-                    joint["channel_offset"],
-                )
+            trans, rot_ang, rot_ord = _extract_bvh_channels(
+                joint["channels"],
+                motion_data[frame],
+                joint["channel_offset"],
             )
             local_rot = (
-                _euler_to_rotation_matrix(
-                    rot_ang, rot_ord
-                )
+                _euler_to_rotation_matrix(rot_ang, rot_ord)
                 if rot_ord
                 else np.eye(3)
             )
@@ -1584,9 +1515,7 @@ def _bvh_forward_kinematics(
                 g_rot = local_rot
             else:
                 p_rot, p_pos = transforms[parent]
-                g_pos = (
-                    p_pos + p_rot @ joint["offset"]
-                )
+                g_pos = p_pos + p_rot @ joint["offset"]
                 g_rot = p_rot @ local_rot
             transforms[j_idx] = (g_rot, g_pos)
             positions[frame, :, j_idx] = g_pos
