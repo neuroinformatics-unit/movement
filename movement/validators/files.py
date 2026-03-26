@@ -122,6 +122,7 @@ def _file_is_writable(value: Path) -> None:
             )
         )
 
+
 def _file_is_accessible(
     expected_permission: Literal["r", "w", "rw"],
 ) -> Callable[[Any, Any, Path], None]:
@@ -997,4 +998,3 @@ class ValidROICollectionGeoJSON:
 
     data: dict = field(init=False, factory=dict)
     """Parsed JSON data from the file, available after validation."""
-
