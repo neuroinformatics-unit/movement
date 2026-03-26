@@ -944,9 +944,7 @@ def _check_coco_keypoint_lengths(
         If any annotation's keypoints array has an unexpected length.
 
     """
-    categories = {
-        c["id"]: c for c in data.get("categories", [])
-    }
+    categories = {c["id"]: c for c in data.get("categories", [])}
     for ann in data.get("annotations", []):
         kps = ann.get("keypoints", [])
         cat_id = ann.get("category_id")
@@ -1067,8 +1065,7 @@ class ValidBVHFile:
         if "MOTION" not in content:
             raise logger.error(
                 ValueError(
-                    f"File {value} does not contain "
-                    "a 'MOTION' section."
+                    f"File {value} does not contain a 'MOTION' section."
                 )
             )
 
