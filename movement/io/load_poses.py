@@ -4,12 +4,12 @@ import warnings
 from pathlib import Path
 from typing import Literal, cast
 
+import bvhio
 import h5py
 import numpy as np
 import pandas as pd
 import pynwb
 import xarray as xr
-import bvhio
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
@@ -18,13 +18,13 @@ from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import (
     ValidAniposeCSV,
+    ValidBVH,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
     ValidFile,
     ValidNWBFile,
     ValidSleapAnalysis,
     ValidSleapLabels,
-    ValidBVH,
 )
 
 
@@ -949,10 +949,9 @@ def _ds_from_nwb_object(
         single_keypoint_datasets, join="outer", compat="no_conflicts"
     )
 
+
 @register_loader("BVH", file_validators=[ValidBVH])
-def from_bvh_file(
-    file: str | Path, fps: float | None = None
-) -> xr.Dataset:
+def from_bvh_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a BVH file.
 
     Parameters
@@ -973,9 +972,9 @@ def from_bvh_file(
     --------
     >>> from movement.io import load_poses
     >>> ds = load_poses.from_bvh_file("path/to/file.bvh")
-    """
 
-    valid_file = cast(ValidFile, file)
+    """
+    valid_file = cast("ValidFile", file)
     file_path = valid_file.file
 
     # Read the BVH hierarchy from the file
@@ -1000,10 +999,9 @@ def from_bvh_file(
             pos = joint.PositionWorld
             position_array[f, :, j_idx, 0] = [pos.x, pos.y, pos.z]
 
-
     ds = from_numpy(
         position_array=position_array,
-        confidence_array=None, # BVH files do not contain confidence scores, they're marker based, so maybe actaully we could set confidence to 1 for all keypoints?
+        confidence_array=None,  # BVH files do not contain confidence scores, they're marker based, so maybe actaully we could set confidence to 1 for all keypoints?
         individual_names=["individual_0"],
         keypoint_names=joint_names,
         fps=fps,

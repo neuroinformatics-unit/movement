@@ -1025,7 +1025,7 @@ class ValidBVH:
             raise logger.error(
                 ValueError(f"Could not read BVH file {value}: {e}")
             ) from e
-        
+
         if not content.strip().startswith("HIERARCHY"):
             raise logger.error(
                 ValueError(
@@ -1033,10 +1033,8 @@ class ValidBVH:
                     f"Got: {content.split()[0] if content.split() else 'empty file'}"
                 )
             )
-        
+
         if "MOTION" not in content:
             raise logger.error(
-                ValueError(
-                    "BVH file must contain MOTION section"
-                )
+                ValueError("BVH file must contain MOTION section")
             )
