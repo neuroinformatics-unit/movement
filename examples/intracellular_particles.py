@@ -1,16 +1,15 @@
-"""
-Demonstrate trajectory analysis for intracellular particle tracking.
+"""Demonstrate trajectory analysis for intracellular particle tracking.
 
 This example simulates noisy and irregularly sampled intracellular particle
 trajectories, analyses them with movement.kinematics, and computes
 trajectory-level summary metrics such as straightness index and tortuosity.
 """
 
+import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
-import matplotlib.pyplot as plt
-import movement.kinematics as mk
 
+import movement.kinematics as mk
 
 """  Synthetic intracellular trajectory generation
 
@@ -45,20 +44,17 @@ time = np.cumsum(dt)
 time = time - time[0]
 
 
-
 # Motion models
 
+
 def directed_motion(n, drift=(1.0, 0.3), noise=0.20):
-
     """Simulate directed transport along microtubules."""
-
     steps = rng.normal(scale=noise, size=(n, 2)) + np.array(drift)
     return np.cumsum(steps, axis=0)
 
 
 def diffusive_motion(n, noise=0.80):
     """Simulate diffusive random-walk motion."""
-
     steps = rng.normal(scale=noise, size=(n, 2))
     return np.cumsum(steps, axis=0)
 
@@ -86,7 +82,6 @@ def mixed_motion(n):
         pos.append(current.copy())
 
     return np.array(pos)
-
 
 
 # Generate trajectories
@@ -141,7 +136,7 @@ ds = xr.Dataset(
     },
 )
 
-#print(ds)
+# print(ds)
 
 
 # Core kinematics using movement
@@ -163,14 +158,12 @@ print("\nPath length:")
 print(path_length)
 
 
-
 # Higher-level trajectory metrics
 # They summarise GLOBAL trajectory structure.
 
 
 def net_displacement_da(position: xr.DataArray) -> xr.DataArray:
-    """
-    Compute straight-line displacement from first to last valid point.
+    """Compute straight-line displacement from first to last valid point.
 
     This represents the "as-the-crow-flies" distance.
     """
@@ -197,9 +190,10 @@ def net_displacement_da(position: xr.DataArray) -> xr.DataArray:
     )
 
 
-def straightness_index(position: xr.DataArray, nan_policy: str = "ffill") -> xr.DataArray:
-    """
-    Straightness index:
+def straightness_index(
+    position: xr.DataArray, nan_policy: str = "ffill"
+) -> xr.DataArray:
+    """Straightness index:
 
         SI = net displacement / path length
 
@@ -215,9 +209,10 @@ def straightness_index(position: xr.DataArray, nan_policy: str = "ffill") -> xr.
     return out
 
 
-def tortuosity(position: xr.DataArray, nan_policy: str = "ffill") -> xr.DataArray:
-    """
-    Tortuosity:
+def tortuosity(
+    position: xr.DataArray, nan_policy: str = "ffill"
+) -> xr.DataArray:
+    """Tortuosity:
 
         t = path length / net displacement
 
