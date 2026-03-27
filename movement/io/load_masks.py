@@ -1,7 +1,6 @@
 """Load segmentation masks and associated tracking data into ``movement``."""
 
 from pathlib import Path
-from typing import Optional
 
 import dask.array as da
 import pandas as pd
@@ -13,7 +12,7 @@ from movement.utils.logging import logger
 def load_octron_bboxes(
     file_path: Path | str,
     extra_data_vars: bool = False,
-    fps: Optional[float] = None,
+    fps: float | None = None,
 ) -> xr.Dataset:
     """Load bounding box data from an OCTRON CSV file.
 
@@ -33,6 +32,7 @@ def load_octron_bboxes(
     -------
     xarray.Dataset
         An xarray Dataset containing the tracking data.
+
     """
     file_path = Path(file_path)
     if not file_path.exists():
@@ -97,6 +97,7 @@ def load_masks_from_zarr(
     xarray.DataArray
         A lazily evaluated DataArray with dimensions
         (time, individuals, x, y).
+
     """
     dask_arrays = []
     individuals = list(zarr_paths.keys())
