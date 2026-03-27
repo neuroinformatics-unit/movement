@@ -1,64 +1,53 @@
-"""
-Demonstrate trajectory analysis for intracellular particle tracking.
+"""Demonstrate trajectory analysis for intracellular particle tracking.
 
 This example simulates noisy and irregularly sampled intracellular particle
-trajectories, analyses them with movement.kinematics, and computes
+trajectories, analyses them with ``movement.kinematics``, and computes
 trajectory-level summary metrics such as straightness index and tortuosity.
 """
 
-import numpy as np
-import xarray as xr
 import matplotlib.pyplot as plt
 import movement.kinematics as mk
+import numpy as np
+import xarray as xr
 
 
-"""  Synthetic intracellular trajectory generation
-
-# We simulate particle motion similar to intracellular transport
-# observed in microscopy
+# Synthetic intracellular trajectory generation
+#
+# We simulate particle motion similar to intracellular transport observed in
+# microscopy.
 #
 # Key properties we model:
-#  Directed motion (active transport)
-#  Diffusive motion (Brownian-like)
-#  Mixed motion (biologically realistic)
-#  Noise (localisation error)
-#  Missing observations (tracking failures)
-
-"""
+# - directed motion (active transport)
+# - diffusive motion (Brownian-like)
+# - mixed motion (biologically realistic)
+# - localisation noise
+# - missing observations
 
 rng = np.random.default_rng(42)
 
-n_time = 300  # number of time steps
-n_particles = 3  # number of tracked particles
+n_time = 300  # Number of time steps.
+n_particles = 3  # Number of tracked particles.
 
 
-"""Model irregular sampling.
-
-In microscopy, frames are not always evenly spaced due to dropped
-frames or hardware constraints.
-
-Simulate this by sampling variable time intervals.
-"""
-
+# Model irregular sampling.
+#
+# In microscopy, frames are not always evenly spaced due to dropped frames or
+# hardware constraints.
+#
+# Simulate this by sampling variable time intervals.
 dt = np.clip(rng.normal(loc=0.2, scale=0.03, size=n_time), 0.05, None)
 time = np.cumsum(dt)
 time = time - time[0]
 
 
-
-# Motion models
-
 def directed_motion(n, drift=(1.0, 0.3), noise=0.20):
-
     """Simulate directed transport along microtubules."""
-
     steps = rng.normal(scale=noise, size=(n, 2)) + np.array(drift)
     return np.cumsum(steps, axis=0)
 
 
 def diffusive_motion(n, noise=0.80):
     """Simulate diffusive random-walk motion."""
-
     steps = rng.normal(scale=noise, size=(n, 2))
     return np.cumsum(steps, axis=0)
 
@@ -88,44 +77,41 @@ def mixed_motion(n):
     return np.array(pos)
 
 
-
-# Generate trajectories
+# Generate trajectories.
 tracks_clean = np.stack(
     [
         directed_motion(n_time),
         diffusive_motion(n_time),
         mixed_motion(n_time),
     ],
-    axis=-1,  # shape: (time, space, individuals)
+    axis=-1,  # Shape: (time, space, individuals)
 )
 
 
-# Add localisation noise
-# Represents measurement error in microscopy
+# Add localisation noise.
+#
+# This represents measurement error in microscopy.
 tracks_noisy = tracks_clean + rng.normal(scale=0.5, size=tracks_clean.shape)
 
 
-# Introduce missing observations
-""" Simulates:
-- occlusion
-- tracking failure
-- segmentation errors
-"""
+# Introduce missing observations.
+#
+# This simulates:
+# - occlusion
+# - tracking failure
+# - segmentation errors
 mask = rng.random((n_time, n_particles)) < 0.10
 
 for i in range(n_particles):
     tracks_noisy[mask[:, i], :, i] = np.nan
 
 
-""" Convert to movement-compatible dataset
-# movement expects data in xarray format with labelled dimensions.
+# Convert to a movement-compatible dataset.
 #
-Dimensions:
-   time
-   space (x, y)
-   individuals (tracked particles)
-"""
-
+# movement expects data in xarray format with labelled dimensions:
+# - time
+# - space (x, y)
+# - individuals (tracked particles)
 ds = xr.Dataset(
     data_vars={
         "position": (("time", "space", "individuals"), tracks_noisy),
@@ -141,16 +127,13 @@ ds = xr.Dataset(
     },
 )
 
-#print(ds)
 
-
-# Core kinematics using movement
-# These are LOW-LEVEL quantities already provided by movement.
+# Compute core kinematics using movement.
 #
-# They describe motion locally (step-by-step)
-
-velocity = mk.compute_velocity(ds.position)  # derivative of position
-speed = mk.compute_speed(ds.position)  # magnitude of velocity
+# These are low-level quantities already provided by movement. They describe
+# motion locally, step by step.
+velocity = mk.compute_velocity(ds.position)
+speed = mk.compute_speed(ds.position)
 path_length = mk.compute_path_length(ds.position, nan_policy="ffill")
 
 print("\nVelocity:")
@@ -163,14 +146,13 @@ print("\nPath length:")
 print(path_length)
 
 
-
-# Higher-level trajectory metrics
-# They summarise GLOBAL trajectory structure.
+# Compute higher-level trajectory metrics.
+#
+# These summarise global trajectory structure.
 
 
 def net_displacement_da(position: xr.DataArray) -> xr.DataArray:
-    """
-    Compute straight-line displacement from first to last valid point.
+    """Compute straight-line displacement from first to last valid point.
 
     This represents the "as-the-crow-flies" distance.
     """
@@ -186,7 +168,6 @@ def net_displacement_da(position: xr.DataArray) -> xr.DataArray:
 
         first = xy[np.argmax(valid)]
         last = xy[len(valid) - 1 - np.argmax(valid[::-1])]
-
         results.append(np.linalg.norm(last - first))
 
     return xr.DataArray(
@@ -197,15 +178,19 @@ def net_displacement_da(position: xr.DataArray) -> xr.DataArray:
     )
 
 
-def straightness_index(position: xr.DataArray, nan_policy: str = "ffill") -> xr.DataArray:
-    """
-    Straightness index:
+def straightness_index(
+    position: xr.DataArray,
+    nan_policy: str = "ffill",
+) -> xr.DataArray:
+    """Compute the straightness index.
+
+    The straightness index is defined as:
 
         SI = net displacement / path length
 
     Interpretation:
-    - SI -> 1 means straight trajectory (directed motion)
-    - SI -> 0 means highly convoluted trajectory
+    - SI close to 1 indicates a straight trajectory
+    - SI close to 0 indicates a highly convoluted trajectory
     """
     path = mk.compute_path_length(position, nan_policy=nan_policy)
     net = net_displacement_da(position)
@@ -215,15 +200,19 @@ def straightness_index(position: xr.DataArray, nan_policy: str = "ffill") -> xr.
     return out
 
 
-def tortuosity(position: xr.DataArray, nan_policy: str = "ffill") -> xr.DataArray:
-    """
-    Tortuosity:
+def tortuosity(
+    position: xr.DataArray,
+    nan_policy: str = "ffill",
+) -> xr.DataArray:
+    """Compute tortuosity.
 
-        t = path length / net displacement
+    Tortuosity is defined as:
+
+        tau = path length / net displacement
 
     Interpretation:
-    - high means very winding trajectory
-    - low means straight trajectory
+    - high values indicate a winding trajectory
+    - low values indicate a straighter trajectory
     """
     path = mk.compute_path_length(position, nan_policy=nan_policy)
     net = net_displacement_da(position)
@@ -233,7 +222,7 @@ def tortuosity(position: xr.DataArray, nan_policy: str = "ffill") -> xr.DataArra
     return out
 
 
-# Compute metrics
+# Compute summary metrics.
 straightness = straightness_index(ds.position, nan_policy="ffill")
 tort = tortuosity(ds.position, nan_policy="ffill")
 
@@ -244,9 +233,7 @@ print("\nTortuosity:")
 print(tort)
 
 
-# Summary statistics
-# Combine local (speed) and global (trajectory) metrics
-
+# Build summary statistics by combining local and global motion descriptors.
 mean_speed = speed.mean(dim="time", skipna=True)
 max_speed = speed.max(dim="time", skipna=True)
 
@@ -265,9 +252,7 @@ print("\nSummary:")
 print(summary)
 
 
-# Visualisation: trajectories
-# Shows spatial structure of motion
-
+# Visualise trajectories to show spatial structure of motion.
 fig, ax = plt.subplots(figsize=(7, 7))
 
 for particle in ds.individuals.values:
@@ -281,9 +266,8 @@ ax.legend()
 ax.axis("equal")
 plt.show()
 
-# Visualisation: speed over time
-# Shows temporal dynamics
 
+# Visualise speed over time to show temporal dynamics.
 fig, ax = plt.subplots(figsize=(10, 5))
 
 for particle in ds.individuals.values:
