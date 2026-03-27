@@ -108,7 +108,8 @@ def load_masks_from_zarr(
             raise logger.error(FileNotFoundError(f"Zarr not found: {path}"))
 
         # Lazily reference the Zarr array, cast to bool to minimize memory
-        # Assuming the mask is stored under the default root or a specific array
+        # Assuming the mask is stored under the default root
+        # or a specific array
         arr = da.from_zarr(str(path)).astype(bool)
         arr = arr.rechunk(chunk_size)
         dask_arrays.append(arr)
