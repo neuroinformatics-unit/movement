@@ -6,10 +6,10 @@ trajectory-level summary metrics such as straightness index and tortuosity.
 """
 
 import matplotlib.pyplot as plt
-import movement.kinematics as mk
 import numpy as np
 import xarray as xr
 
+import movement.kinematics as mk
 
 # Synthetic intracellular trajectory generation
 #
