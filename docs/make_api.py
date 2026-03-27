@@ -25,6 +25,7 @@ from sphinx.util import rst
 EXCLUDE_MODULES = {
     "movement.cli_entrypoint",
     "movement.napari.loader_widgets",
+    "movement.napari.regions_widget",
     "movement.napari.meta_widget",
 }
 

@@ -83,8 +83,10 @@ templates_path = ["_templates"]
 # Automatically generate stub pages for API
 autosummary_generate = True
 autosummary_generate_overwrite = False
-autodoc_default_flags = ["members", "inherited-members"]
-
+autodoc_default_options = {
+    "special-members": "__call__",
+    "member-order": "groupwise",
+}
 # Prefix section labels with the document name
 autosectionlabel_prefix_document = True
 
@@ -214,7 +216,7 @@ linkcheck_ignore = [
     "https://zenodo.org/doi/*",
     "https://zenodo.org/records/*",
     "https://doi.org/10.5281/zenodo.*",
-    "https://abide.ics.ulisboa.pt/*"  # flaky
+    "https://abide.ics.ulisboa.pt/*",  # flaky
 ]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {
@@ -251,12 +253,13 @@ myst_url_schemes = {
     "uv": "https://docs.astral.sh/uv/{{path}}#{{fragment}}",
     "attrs": "https://www.attrs.org/en/stable/{{path}}#{{fragment}}",
     "pytest-benchmark": "https://pytest-benchmark.readthedocs.io/en/latest/{{path}}#{{fragment}}",
+    "qt6": "https://doc.qt.io/qt-6/{{path}}#{{fragment}}",
 }
 
 intersphinx_mapping = {
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
-    "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
     "python": ("https://docs.python.org/3", None),
     "loguru": ("https://loguru.readthedocs.io/en/stable/", None),
     "pynwb": ("https://pynwb.readthedocs.io/en/stable/", None),
