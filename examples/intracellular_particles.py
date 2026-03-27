@@ -1,3 +1,11 @@
+"""
+Demonstrate trajectory analysis for intracellular particle tracking.
+
+This example simulates noisy and irregularly sampled intracellular particle
+trajectories, analyses them with movement.kinematics, and computes
+trajectory-level summary metrics such as straightness index and tortuosity.
+"""
+
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -24,11 +32,12 @@ n_time = 300  # number of time steps
 n_particles = 3  # number of tracked particles
 
 
-""" Irregular sampling 
+"""Model irregular sampling.
 
-In microscopy, frames are not always evenly spaced due to dropped frames or hardware constraints
+In microscopy, frames are not always evenly spaced due to dropped
+frames or hardware constraints.
 
-We simulate this by sampling variable time intervals.
+Simulate this by sampling variable time intervals.
 """
 
 dt = np.clip(rng.normal(loc=0.2, scale=0.03, size=n_time), 0.05, None)
@@ -40,29 +49,27 @@ time = time - time[0]
 # Motion models
 
 def directed_motion(n, drift=(1.0, 0.3), noise=0.20):
-    """
-    Simulates directed transport (motor proteins along microtubules).
 
+    """Simulate directed transport along microtubules."""
 
-    """
     steps = rng.normal(scale=noise, size=(n, 2)) + np.array(drift)
     return np.cumsum(steps, axis=0)
 
 
 def diffusive_motion(n, noise=0.80):
-    """
-    Simulates diffusive (random walk) motion.
-    """
+    """Simulate diffusive random-walk motion."""
+
     steps = rng.normal(scale=noise, size=(n, 2))
     return np.cumsum(steps, axis=0)
 
 
 def mixed_motion(n):
-    """
-    Simulates realistic biological motion:
-    - directed phase
-    - random exploration
-    - direction change
+    """Simulate mixed biological motion.
+
+    The trajectory contains:
+    - a directed phase
+    - a random exploration phase
+    - a final change in direction
     """
     pos = []
     current = np.zeros(2)
