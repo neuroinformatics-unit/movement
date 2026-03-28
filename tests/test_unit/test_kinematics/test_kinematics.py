@@ -353,6 +353,95 @@ def test_path_length_nan_warn_threshold(
         assert result.name == "path_length"
 
 
+def test_sinuosity_straight_line():
+    """Test sinuosity equals 1 for a straight trajectory."""
+    data = xr.DataArray(
+        np.array(
+            [
+                [[0.0], [0.0]],
+                [[1.0], [1.0]],
+                [[2.0], [2.0]],
+                [[3.0], [3.0]],
+            ]
+        ),
+        dims=["time", "space", "individuals"],
+        coords={
+            "time": [0.0, 1.0, 2.0, 3.0],
+            "space": ["x", "y"],
+            "individuals": ["id_0"],
+        },
+    )
+    result = kinematics.compute_sinuosity(data)
+    assert result.name == "sinuosity"
+    np.testing.assert_allclose(result.values, np.ones_like(result.values))
+
+
+def test_sinuosity_curved_trajectory():
+    """Test sinuosity is greater than 1 for a curved trajectory."""
+    data = xr.DataArray(
+        np.array(
+            [
+                [[0.0], [0.0]],
+                [[1.0], [0.0]],
+                [[1.0], [1.0]],
+            ]
+        ),
+        dims=["time", "space", "individuals"],
+        coords={
+            "time": [0.0, 1.0, 2.0],
+            "space": ["x", "y"],
+            "individuals": ["id_0"],
+        },
+    )
+    result = kinematics.compute_sinuosity(data)
+    np.testing.assert_allclose(result.values, [np.sqrt(2)])
+
+
+def test_sinuosity_stationary_trajectory_returns_nan():
+    """Test sinuosity is NaN when start and end positions are identical."""
+    data = xr.DataArray(
+        np.array(
+            [
+                [[0.0], [0.0]],
+                [[0.0], [0.0]],
+                [[0.0], [0.0]],
+            ]
+        ),
+        dims=["time", "space", "individuals"],
+        coords={
+            "time": [0.0, 1.0, 2.0],
+            "space": ["x", "y"],
+            "individuals": ["id_0"],
+        },
+    )
+    result = kinematics.compute_sinuosity(data)
+    assert np.isnan(result.values)
+
+
+def test_sinuosity_with_too_short_time_range_raises():
+    """Test error is raised when selected time range has fewer than 2 frames."""
+    data = xr.DataArray(
+        np.array(
+            [
+                [[0.0], [0.0]],
+                [[1.0], [1.0]],
+                [[2.0], [2.0]],
+            ]
+        ),
+        dims=["time", "space", "individuals"],
+        coords={
+            "time": [0.0, 1.0, 2.0],
+            "space": ["x", "y"],
+            "individuals": ["id_0"],
+        },
+    )
+    with pytest.raises(
+        ValueError,
+        match="At least 2 time points are required to compute sinuosity",
+    ):
+        kinematics.compute_sinuosity(data, start=0.0, stop=0.5)
+
+
 def test_forward_displacement_with_multiindex_coords():
     """Test compute_forward_displacement with DataArray from pandas MultiIndex.
 

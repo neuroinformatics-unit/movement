@@ -13,6 +13,7 @@ public API may be revised to reflect this distinction more explicitly.
 import warnings
 from typing import Literal
 
+import numpy as np
 import xarray as xr
 
 from movement.utils.logging import logger
@@ -425,6 +426,95 @@ def compute_path_length(
         )
 
     result.name = "path_length"
+    return result
+
+
+def compute_sinuosity(
+    data: xr.DataArray,
+    start: float | None = None,
+    stop: float | None = None,
+    nan_policy: Literal["ffill", "scale"] = "ffill",
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    r"""Compute trajectory sinuosity between two time points.
+
+    Sinuosity is defined as the ratio between the total path length and the
+    straight-line distance between the start and end positions.
+
+    Parameters
+    ----------
+    data
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+    start
+        The start time of the trajectory segment. If None (default),
+        the minimum time coordinate in the data is used.
+    stop
+        The end time of the trajectory segment. If None (default),
+        the maximum time coordinate in the data is used.
+    nan_policy
+        Policy to handle NaN (missing) values. Can be one of the ``"ffill"``
+        or ``"scale"``. Defaults to ``"ffill"``.
+        See :func:`compute_path_length` for details.
+    nan_warn_threshold
+        If any point track in the data has at least (:math:`\ge`)
+        this proportion of values missing, a warning will be emitted.
+        Defaults to 0.2 (20%).
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing sinuosity values,
+        with dimensions matching those of the input data,
+        except ``time`` and ``space`` are removed.
+
+    Notes
+    -----
+    If the straight-line distance is zero, sinuosity is undefined and NaN is
+    returned for that track.
+
+    """
+    validate_dims_coords(data, {"time": [], "space": []})
+    data = data.sel(time=slice(start, stop))
+    n_time = data.sizes["time"]
+    if n_time < 2:
+        raise logger.error(
+            ValueError(
+                "At least 2 time points are required to compute sinuosity, "
+                f"but {n_time} were found. "
+                "Double-check the start and stop times."
+            )
+        )
+
+    path_length = compute_path_length(
+        data,
+        nan_policy=nan_policy,
+        nan_warn_threshold=nan_warn_threshold,
+    )
+
+    if nan_policy == "ffill":
+        data_for_straight_line = data.ffill(dim="time")
+    elif nan_policy == "scale":
+        data_for_straight_line = data
+    else:
+        raise logger.error(
+            ValueError(
+                f"Invalid value for nan_policy: {nan_policy}. "
+                "Must be one of 'ffill' or 'scale'."
+            )
+        )
+
+    straight_line_distance = compute_norm(
+        data_for_straight_line.isel(time=-1)
+        - data_for_straight_line.isel(time=0)
+    )
+
+    result = xr.where(
+        straight_line_distance > 0,
+        path_length / straight_line_distance,
+        np.nan,
+    )
+    result.name = "sinuosity"
     return result
 
 
