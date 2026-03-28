@@ -419,7 +419,7 @@ def test_sinuosity_stationary_trajectory_returns_nan():
 
 
 def test_sinuosity_with_too_short_time_range_raises():
-    """Test error is raised when selected time range has fewer than 2 frames."""
+    """Test that too-short selected time range raises ValueError."""
     data = xr.DataArray(
         np.array(
             [
