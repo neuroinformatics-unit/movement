@@ -8,6 +8,7 @@ from pathlib import Path
 from unittest.mock import mock_open, patch
 
 import h5py
+import numpy as np
 import pytest
 import xarray as xr
 from sleap_io.io.slp import read_labels, write_labels
@@ -513,6 +514,57 @@ def anipose_csv_file():
     return pytest.DATA_PATHS.get(
         "anipose_mouse-paw_anipose-paper.triangulation.csv"
     )
+
+
+# ---------------- idtracker.ai file fixtures ----------------------------
+@pytest.fixture
+def idtracker_valid_h5_file(tmp_path):
+    """Return the path to a valid idtracker.ai .h5 file."""
+    file_path = tmp_path / "valid_idtracker.h5"
+
+    with h5py.File(file_path, "w") as f:
+        # 10 frames, 3 individuals, 2 spatial dimensions (x, y)
+        f.create_dataset("trajectories", data=np.ones((10, 3, 2)))
+        f.create_dataset("id_probabilities", data=np.ones((10, 3)))
+        f.attrs["frames_per_second"] = np.array([30.0])
+    return file_path
+
+
+@pytest.fixture
+def idtracker_buggy_shape_h5_file(tmp_path):
+    """Return the path to an idtracker.ai .h5
+    file with trailing singleton dimension.
+    """
+    file_path = tmp_path / "buggy_idtracker.h5"
+    with h5py.File(file_path, "w") as f:
+        f.create_dataset("trajectories", data=np.ones((10, 3, 2)))
+        # Buggy shape: (10, 3, 1) instead of (10, 3)
+        f.create_dataset("id_probabilities", data=np.ones((10, 3, 1)))
+        f.attrs["frames_per_second"] = np.array([30.0])
+    return file_path
+
+
+@pytest.fixture
+def idtracker_trackless_h5_file(tmp_path):
+    """Return the path to an idtracker.ai .h5 file missing id_probabilities."""
+    file_path = tmp_path / "trackless_idtracker.h5"
+    with h5py.File(file_path, "w") as f:
+        f.create_dataset("trajectories", data=np.ones((10, 3, 2)))
+        # Intentionally omitting the id_probabilities dataset
+        f.attrs["frames_per_second"] = np.array([30.0])
+    return file_path
+
+
+@pytest.fixture(
+    params=[
+        "idtracker_valid_h5_file",
+        "idtracker_buggy_shape_h5_file",
+        "idtracker_trackless_h5_file",
+    ]
+)
+def idtracker_h5_file(request):
+    """Fixture to parametrize various idtracker.ai files."""
+    return request.getfixturevalue(request.param)
 
 
 # ---------------- netCDF file fixtures ----------------------------

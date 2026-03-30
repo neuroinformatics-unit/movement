@@ -2,7 +2,7 @@
 
 import warnings
 from pathlib import Path
-from typing import Literal, cast
+from typing import Any, Literal, cast
 
 import h5py
 import numpy as np
@@ -20,6 +20,7 @@ from movement.validators.files import (
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
     ValidFile,
+    ValidIdtrackerH5,
     ValidNWBFile,
     ValidSleapAnalysis,
     ValidSleapLabels,
@@ -105,6 +106,7 @@ def from_file(
         "LightningPose",
         "Anipose",
         "NWB",
+        "idtracker.ai",
     ],
     fps: float | None = None,
     **kwargs,
@@ -174,6 +176,8 @@ def from_file(
         return from_lp_file(file, fps)
     elif source_software == "Anipose":
         return from_anipose_file(file, fps, **kwargs)
+    elif source_software == "idtracker.ai":
+        return from_idtracker_file(file, fps)
     elif source_software == "NWB":
         if fps is not None:
             logger.warning(
@@ -267,6 +271,89 @@ def from_dlc_style_df(
         individual_names=individual_names,
         keypoint_names=keypoint_names,
         fps=fps,
+        source_software=source_software,
+    )
+
+
+def from_idtracker_style_dict(
+    idtracker_data: dict[str, Any],
+    fps: float | None = None,
+    source_software: str = "idtracker.ai",
+) -> xr.Dataset:
+    """Create a movement poses dataset from an idtracker.ai style dictionary.
+
+    Parameters
+    ----------
+    idtracker_data
+        Dictionary containing the pose tracks ("trajectories") and optional
+        confidence scores ("id_probabilities") extracted from an idtracker.ai
+        file.
+    fps
+        The number of frames per second in the video. If None (default), it
+        attempts to read from the dictionary's "frames_per_second" key.
+        If still None, the ``time`` coordinates will be in frame numbers.
+    source_software
+        Name of the pose estimation software from which the data originate.
+        Defaults to "idtracker.ai".
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
+
+    Raises
+    ------
+    ValueError
+        If the dictionary is missing the "trajectories" key, or
+        if the extracted arrays have unexpected dimensions.
+
+    See Also
+    --------
+    movement.io.load_poses.from_idtracker_file
+
+    """
+    trajectories = np.asarray(idtracker_data["trajectories"])
+    n_frames, n_individuals, _ = trajectories.shape
+
+    # Reshape from idtracker (frames, individuals, space)
+    # to movement (frames, space, keypoints, individuals)
+    # Note: idtracker does not track multiple keypoints, so keypoints=1
+    pos_reshaped = np.moveaxis(trajectories, source=-1, destination=1)
+    position_array = np.expand_dims(pos_reshaped, axis=2)
+
+    probs = idtracker_data.get("id_probabilities")
+
+    if probs is None:
+        logger.info(
+            "No identity probabilities found in the idtracker.ai data. "
+            "Confidence scores will be set to NaN."
+        )
+        confidence_array = np.full((n_frames, 1, n_individuals), np.nan)
+    else:
+        probs = np.asarray(probs)
+
+        # Handle idtracker.ai edge case: some versions output probabilities
+        # with an undocumented trailing singleton dimension (e.g., (N, M, 1))
+        if probs.ndim == 3 and probs.shape[2] == 1:
+            probs = probs[:, :, 0]
+        elif probs.ndim != 2:
+            raise logger.error(
+                ValueError(
+                    f"Expected 2D probabilities array, got {probs.shape}."
+                )
+            )
+
+        confidence_array = np.expand_dims(probs, axis=1)
+
+    final_fps = (
+        fps if fps is not None else idtracker_data.get("frames_per_second")
+    )
+
+    return from_numpy(
+        position_array=position_array,
+        confidence_array=confidence_array,
+        fps=final_fps,
         source_software=source_software,
     )
 
@@ -427,6 +514,44 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     )
 
 
+@register_loader(
+    source_software="idtracker.ai",
+    file_validators=[ValidIdtrackerH5],
+)
+def from_idtracker_file(
+    file: str | Path,
+    fps: float | None = None,
+) -> xr.Dataset:
+    """Load pose data from an idtracker.ai file.
+
+    Parameters
+    ----------
+    file
+        Path to the idtracker.ai file (e.g., a trajectories.h5 file)
+        containing the pose tracks.
+    fps
+        The number of frames per second in the video. If None (default), it
+        attempts to read from the file's metadata. If still None, the ``time``
+        coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
+
+    See Also
+    --------
+    movement.io.load_poses.from_idtracker_style_dict
+
+    """
+    return _ds_from_idtracker_file(
+        valid_file=cast("ValidFile", file),
+        source_software="idtracker.ai",
+        fps=fps,
+    )
+
+
 def from_multiview_files(
     file_dict: dict[str, Path | str],
     source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
@@ -511,6 +636,53 @@ def _ds_from_lp_or_dlc_file(
     # Add metadata as attrs
     ds.attrs["source_file"] = file_path.as_posix()
     logger.info(f"Loaded pose tracks from {file_path}:\n{ds}")
+    return ds
+
+
+def _ds_from_idtracker_file(
+    valid_file: ValidFile,
+    source_software: str = "idtracker.ai",
+    fps: float | None = None,
+) -> xr.Dataset:
+    """Create a movement poses dataset from a validated idtracker.ai file.
+
+    Parameters
+    ----------
+    valid_file
+        The validated idtracker.ai file object.
+    source_software
+        The source software of the file.
+    fps
+        The number of frames per second in the video. If None (default),
+        the ``time`` coordinates will be in frame numbers.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
+
+    """
+    file_path = valid_file.file
+
+    if isinstance(valid_file, ValidIdtrackerH5):
+        idtracker_data = _dict_from_idtracker_h5(file_path)
+    else:
+        raise logger.error(
+            TypeError(f"Unsupported idtracker file type: {type(valid_file)}")
+        )
+
+    final_fps = (
+        fps if fps is not None else idtracker_data.get("frames_per_second")
+    )
+
+    ds = from_idtracker_style_dict(
+        idtracker_data=idtracker_data,
+        source_software=source_software,
+        fps=final_fps,
+    )
+
+    ds.attrs["source_file"] = file_path.as_posix()
     return ds
 
 
@@ -696,6 +868,23 @@ def _df_from_dlc_csv(valid_file: ValidDeepLabCutCSV) -> pd.DataFrame:
     df.index.name = None
     df.columns = pd.MultiIndex.from_tuples(df.columns, names=level_names)  # type: ignore[arg-type]
     return df
+
+
+def _dict_from_idtracker_h5(path: Path) -> dict[str, Any]:
+    """Create a dictionary of idtracker.ai pose data from an .h5 file."""
+    with h5py.File(path, "r") as f:
+        trajectories = f["trajectories"][:]
+        probs = f["id_probabilities"][:] if "id_probabilities" in f else None
+
+        fps = f.attrs.get("frames_per_second")
+        if isinstance(fps, (list, tuple, np.ndarray)):
+            fps = float(fps[0])
+
+    return {
+        "trajectories": trajectories,
+        "id_probabilities": probs,
+        "frames_per_second": fps,
+    }
 
 
 def from_anipose_style_df(
