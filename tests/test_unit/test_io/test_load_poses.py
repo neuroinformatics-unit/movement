@@ -377,12 +377,12 @@ def test_bvh_joint_names(request, fixture_name, expected_joints):
 def test_bvh_fps_from_frame_time(simple_bvh_file):
     """Test fps is computed from BVH Frame Time."""
     ds = load_poses.from_bvh_file(simple_bvh_file)
-    assert ds.fps == 20.0
+    assert ds.fps == 20
     assert ds.time_unit == "seconds"
 
 
 def test_bvh_fps_none(simple_bvh_file):
     """Test that fps=None computes fps from BVH Frame Time."""
     ds = load_poses.from_bvh_file(simple_bvh_file, fps=None)
-    assert ds.fps == 20.0
+    assert ds.fps == 20
     assert ds.time_unit == "seconds"
