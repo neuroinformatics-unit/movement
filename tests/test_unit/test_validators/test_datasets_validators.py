@@ -475,3 +475,27 @@ class TestValidBboxesInputs:
             )
             expected_ds.time.attrs["units"] = "seconds"
             xr.testing.assert_equal(ds, expected_ds)
+
+def test_from_numpy_with_custom_timestamps():
+    """Custom timestamps override fps-derived time coordinates."""
+    import numpy as np
+    from movement.io import load_poses
+
+    timestamps = np.array([0.0, 0.1, 0.3, 0.6, 1.0])  # irregular spacing
+    ds = load_poses.from_numpy(
+        position_array=np.zeros((5, 2, 1, 1)),
+        timestamps=timestamps,
+    )
+    np.testing.assert_array_equal(ds.coords["time"].values, timestamps)
+
+
+def test_from_numpy_timestamps_wrong_length_raises():
+    """Timestamps with wrong length raises ValueError."""
+    import numpy as np
+    from movement.io import load_poses
+
+    with pytest.raises(ValueError, match="timestamps"):
+        load_poses.from_numpy(
+            position_array=np.zeros((5, 2, 1, 1)),
+            timestamps=np.array([0.0, 1.0]),  # length 2, not 5
+        )

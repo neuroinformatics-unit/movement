@@ -32,6 +32,7 @@ def from_numpy(
     individual_names: list[str] | None = None,
     keypoint_names: list[str] | None = None,
     fps: float | None = None,
+    timestamps: np.ndarray | None = None,
     source_software: str | None = None,
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from NumPy arrays.
@@ -92,6 +93,7 @@ def from_numpy(
         individual_names=individual_names,
         keypoint_names=keypoint_names,
         fps=fps,
+        timestamps = timestamps,
         source_software=source_software,
     )
     return valid_poses_inputs.to_dataset()
@@ -128,7 +130,7 @@ def from_file(
         The source software of the file.
     fps
         The number of frames per second in the video. If None (default),
-        the ``time`` coordinates will be in frame numbers.
+        the ``time`` will be in frame numbers.
         This argument is ignored when ``source_software`` is "NWB", as the
         frame rate will be directly read or estimated from metadata in
         the NWB file.

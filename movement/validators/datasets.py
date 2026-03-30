@@ -97,7 +97,14 @@ class _BaseDatasetInputs(ABC):
     """Frames per second of the video. If None (default), time coordinates will
     be expressed in frames. If a non-positive value is provided, fps will be
     set to None and a warning will be issued."""
-
+    
+    timestamps: np.ndarray | None = field(
+    default=None,
+    validator=validators.optional(validators.instance_of(np.ndarray)),
+)
+    """Array of time stamps for each frame. If provided, overrides fps-derived
+    time coordinates. Length must match the number of frames."""
+    
     source_software: str | None = field(
         default=None,
         validator=validators.optional(validators.instance_of(str)),
@@ -384,7 +391,15 @@ class ValidPosesInputs(_BaseDatasetInputs):
         # Create the time coordinate, depending on the value of fps
         time_coords: NDArray[np.floating] | NDArray[np.integer]
         time_unit: Literal["seconds", "frames"]
-        if self.fps is not None:
+        if self.timestamps is not None:
+            if len(self.timestamps) != n_frames:
+                raise ValueError(
+                    f"Length of timestamps ({len(self.timestamps)}) must "
+                    f"match number of frames ({n_frames})."
+                )
+            time_coords = np.asarray(self.timestamps, dtype=np.float64)
+            time_unit = "seconds"
+        elif self.fps is not None:
             time_coords = np.arange(n_frames, dtype=np.float64) / self.fps
             time_unit = "seconds"
             dataset_attrs["fps"] = self.fps
