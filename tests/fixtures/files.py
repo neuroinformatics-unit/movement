@@ -556,3 +556,125 @@ def invalid_dstype_netcdf_file(tmp_path_factory):
     ds.to_netcdf(invalid_path)
 
     yield str(invalid_path)
+
+
+# ---------------- BVH file fixtures ----------------------------
+SIMPLE_BVH = (
+    "HIERARCHY\n"
+    "ROOT Armature\n"
+    "{\n"
+    "  OFFSET 0.00 0.00 0.00\n"
+    "  CHANNELS 6 Xposition Yposition Zposition"
+    " Xrotation Yrotation Zrotation\n"
+    "  JOINT Bone1\n"
+    "  {\n"
+    "    OFFSET 1.00 2.00 0.00\n"
+    "    CHANNELS 3 Xrotation Yrotation Zrotation\n"
+    "    End Site\n"
+    "    {\n"
+    "      OFFSET 1.00 0.00 0.00\n"
+    "    }\n"
+    "  }\n"
+    "}\n"
+    "MOTION\n"
+    "Frames: 2\n"
+    "Frame Time: 0.05\n"
+    "0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00\n"
+    "0.50 1.00 0.25 5.00 2.50 0.00 2.50 1.00 0.00\n"
+)
+
+COMPLEX_BVH = (
+    "HIERARCHY\n"
+    "ROOT Root\n"
+    "{\n"
+    "  OFFSET 0.00 0.00 0.00\n"
+    "  CHANNELS 6 Xposition Yposition Zposition"
+    " Xrotation Yrotation Zrotation\n"
+    "  JOINT Torso\n"
+    "  {\n"
+    "    OFFSET 0.00 5.00 0.00\n"
+    "    CHANNELS 3 Xrotation Yrotation Zrotation\n"
+    "    JOINT Neck\n"
+    "    {\n"
+    "      OFFSET 0.00 3.00 0.00\n"
+    "      CHANNELS 3 Xrotation Yrotation Zrotation\n"
+    "      End Site\n"
+    "      {\n"
+    "        OFFSET 0.00 2.00 0.00\n"
+    "      }\n"
+    "    }\n"
+    "  }\n"
+    "  JOINT LeftArm\n"
+    "  {\n"
+    "    OFFSET 2.00 4.00 0.00\n"
+    "    CHANNELS 3 Xrotation Yrotation Zrotation\n"
+    "    End Site\n"
+    "    {\n"
+    "      OFFSET 3.00 0.00 0.00\n"
+    "    }\n"
+    "  }\n"
+    "  JOINT RightArm\n"
+    "  {\n"
+    "    OFFSET -2.00 4.00 0.00\n"
+    "    CHANNELS 3 Xrotation Yrotation Zrotation\n"
+    "    End Site\n"
+    "    {\n"
+    "      OFFSET -3.00 0.00 0.00\n"
+    "    }\n"
+    "  }\n"
+    "}\n"
+    "MOTION\n"
+    "Frames: 3\n"
+    "Frame Time: 0.05\n"
+    "0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00"
+    " 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00 0.00\n"
+    "0.50 1.00 0.25 5.00 2.50 0.00 2.50 1.00 0.00"
+    " 3.00 1.50 0.00 -3.00 1.50 0.00 0.00 0.00 0.00\n"
+    "1.00 2.00 0.50 10.00 5.00 0.00 5.00 2.00 0.00"
+    " 6.00 3.00 0.00 -6.00 3.00 0.00 0.00 0.00 0.00\n"
+)
+
+
+@pytest.fixture
+def readable_bvh_file(tmp_path):
+    """Return the path to a readable valid BVH file."""
+    file_path = tmp_path / "readable.bvh"
+    with open(file_path, "w") as f:
+        f.write(SIMPLE_BVH)  # We can use same content as simple_bvh_file
+    return file_path
+
+
+@pytest.fixture
+def simple_bvh_file(tmp_path):
+    """Return the path to a simple valid BVH file."""
+    file_path = tmp_path / "simple.bvh"
+    with open(file_path, "w") as f:
+        f.write(SIMPLE_BVH)
+    return file_path
+
+
+@pytest.fixture
+def complex_bvh_file(tmp_path):
+    """Return the path to a complex valid BVH file."""
+    file_path = tmp_path / "complex.bvh"
+    with open(file_path, "w") as f:
+        f.write(COMPLEX_BVH)
+    return file_path
+
+
+@pytest.fixture
+def bvh_file_no_hierarchy(tmp_path):
+    """Return path to a BVH file missing HIERARCHY."""
+    file_path = tmp_path / "no_hierarchy.bvh"
+    with open(file_path, "w") as f:
+        f.write("MOTION\nFrames: 1\nFrame Time: 0.03\n0 0 0\n")
+    return file_path
+
+
+@pytest.fixture
+def bvh_file_no_motion(tmp_path):
+    """Return path to a BVH file missing MOTION section."""
+    file_path = tmp_path / "no_motion.bvh"
+    with open(file_path, "w") as f:
+        f.write("HIERARCHY\nROOT Root\n{\nOFFSET 0 0 0\n}\n")
+    return file_path

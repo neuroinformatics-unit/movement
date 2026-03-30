@@ -1003,7 +1003,7 @@ class ValidROICollectionGeoJSON:
 
 
 @define
-class ValidBVH:
+class ValidBVHFile:
     """Class for validating BVH (Biovision Hierarchy) files."""
 
     suffixes: ClassVar[set[str]] = {".bvh"}
@@ -1025,18 +1025,13 @@ class ValidBVH:
             raise logger.error(
                 ValueError(f"Could not read BVH file {value}: {e}")
             ) from e
-        
+
         if not content.strip().startswith("HIERARCHY"):
             raise logger.error(
-                ValueError(
-                    "BVH file must start with HIERARCHY keyword. "
-                    f"Got: {content.split()[0] if content.split() else 'empty file'}"
-                )
+                ValueError("BVH file must start with HIERARCHY keyword. ")
             )
-        
+
         if "MOTION" not in content:
             raise logger.error(
-                ValueError(
-                    "BVH file must contain MOTION section"
-                )
+                ValueError("BVH file must contain MOTION section")
             )

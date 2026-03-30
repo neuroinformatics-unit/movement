@@ -4,12 +4,12 @@ import warnings
 from pathlib import Path
 from typing import Literal, cast
 
+import bvhio
 import h5py
 import numpy as np
 import pandas as pd
 import pynwb
 import xarray as xr
-import bvhio
 from sleap_io.io.slp import read_labels
 from sleap_io.model.labels import Labels
 
@@ -18,13 +18,13 @@ from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import (
     ValidAniposeCSV,
+    ValidBVHFile,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
     ValidFile,
     ValidNWBFile,
     ValidSleapAnalysis,
     ValidSleapLabels,
-    ValidBVH,
 )
 
 
@@ -949,10 +949,9 @@ def _ds_from_nwb_object(
         single_keypoint_datasets, join="outer", compat="no_conflicts"
     )
 
-@register_loader("BVH", file_validators=[ValidBVH])
-def from_bvh_file(
-    file: str | Path, fps: float | None = None
-) -> xr.Dataset:
+
+@register_loader("BVH", file_validators=[ValidBVHFile])
+def from_bvh_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a BVH file.
 
     Parameters
@@ -973,12 +972,14 @@ def from_bvh_file(
     --------
     >>> from movement.io import load_poses
     >>> ds = load_poses.from_bvh_file("path/to/file.bvh")
-    """
 
-    valid_file = cast(ValidFile, file)
+    """
+    valid_file = cast("ValidFile", file)
     file_path = valid_file.file
 
     # Read the BVH hierarchy from the file
+    bvh = bvhio.readAsBvh(file_path)
+    frame_time = bvh.FrameTime
     root = bvhio.readAsHierarchy(file_path)
 
     # Collect joint names
@@ -988,7 +989,7 @@ def from_bvh_file(
     # Frame range and fps
     first, last = root.getKeyframeRange()
     n_frames = last - first + 1
-    fps = fps or (1 / root.FrameTime)
+    fps = fps or (1 / frame_time)
 
     position_array = np.zeros(
         (n_frames, 3, n_keypoints, 1), dtype=np.float32
@@ -1000,16 +1001,16 @@ def from_bvh_file(
             pos = joint.PositionWorld
             position_array[f, :, j_idx, 0] = [pos.x, pos.y, pos.z]
 
-
     ds = from_numpy(
         position_array=position_array,
-        confidence_array=None, # BVH files do not contain confidence scores, they're marker based, so maybe actaully we could set confidence to 1 for all keypoints?
+        confidence_array=None,  # BVH is marker based, so maybe confidence= 1?
         individual_names=["individual_0"],
         keypoint_names=joint_names,
         fps=fps,
         source_software="BVH",
     )
 
-    ds.attrs["source_file"] = str(file_path)
+    ds.attrs["source_file"] = file_path.as_posix()
     ds.attrs["source_software"] = "BVH"
+    logger.info(f"Loaded poses from {file_path.name}")
     return ds
