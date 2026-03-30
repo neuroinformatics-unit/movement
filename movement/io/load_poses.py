@@ -93,7 +93,7 @@ def from_numpy(
         individual_names=individual_names,
         keypoint_names=keypoint_names,
         fps=fps,
-        timestamps = timestamps,
+        timestamps=timestamps,
         source_software=source_software,
     )
     return valid_poses_inputs.to_dataset()
