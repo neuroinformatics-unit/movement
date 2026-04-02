@@ -288,10 +288,10 @@ def process_single_validation(args):  # noqa: C901
                         # from the same individual)
                         "n_valid_nodes": int(
                             np.sum(~np.isnan(pr.lateral_offsets_norm))
-                        ) if len(pr.lateral_offsets_norm) > 0 else 0,
-                        "n_step1_candidates": len(
-                            pr.sorted_candidate_nodes
-                        ),
+                        )
+                        if len(pr.lateral_offsets_norm) > 0
+                        else 0,
+                        "n_step1_candidates": len(pr.sorted_candidate_nodes),
                         "n_step2_pairs": len(pr.valid_pairs),
                         "n_step3_distal": len(pr.distal_pairs),
                         "n_step3_proximal": len(pr.proximal_pairs),
@@ -336,6 +336,7 @@ def process_single_validation(args):  # noqa: C901
 
         except Exception as e:
             import traceback
+
             print(
                 f"WARNING: _validate_ap failed for "
                 f"{file_stem} / {individual} "
@@ -465,7 +466,9 @@ def find_best_individuals(rxm_results):
     return best_individuals, all_rxm, dict(file_individual_data)
 
 
-def compute_pc1_orderings(file_individual_data, file_metadata, best_individuals):
+def compute_pc1_orderings(
+    file_individual_data, file_metadata, best_individuals
+):
     """Project GT nodes onto each individual's PC1 and rank by projection.
 
     For each individual, GT nodes are projected onto that individual's
@@ -919,8 +922,11 @@ def load_h5_data(h5_path):  # noqa: C901
 
         # Cascade counts (backward-compatible)
         for cascade_field in [
-            "n_valid_nodes", "n_step1_candidates",
-            "n_step2_pairs", "n_step3_distal", "n_step3_proximal",
+            "n_valid_nodes",
+            "n_step1_candidates",
+            "n_step2_pairs",
+            "n_step3_distal",
+            "n_step3_proximal",
         ]:
             if cascade_field in f:
                 data[cascade_field] = np.array(f[cascade_field])
@@ -1285,9 +1291,7 @@ def analyze_results(h5_path):  # noqa: C901
     suggested_analysis = analyze_suggested_pairs(data, best_individual)
 
     print("\n" + "─" * 70)
-    print(
-        "SUGGESTED AP PAIR: Auto-Selected Node Pair (3-Step Filter Cascade)"
-    )
+    print("SUGGESTED AP PAIR: Auto-Selected Node Pair (3-Step Filter Cascade)")
     print("─" * 70)
     for file_stem in sorted(suggested_analysis.keys()):
         r = suggested_analysis[file_stem]
@@ -2331,6 +2335,7 @@ def plot_validation_results(analysis_data, output_path):  # noqa: C901
     ax4 = fig.add_subplot(gs[1, 1], facecolor=bg_color)
 
     import matplotlib as mpl
+
     mpl.rcParams["hatch.linewidth"] = 1.5
 
     # Compute cascade data per file as raw pair counts.
@@ -2380,9 +2385,13 @@ def plot_validation_results(analysis_data, output_path):  # noqa: C901
             bx = x_pos[i] + offset
             by = count + 0.5
             ax4.text(
-                bx, by, str(count),
-                ha="center", va="bottom",
-                fontsize=8, fontweight="bold",
+                bx,
+                by,
+                str(count),
+                ha="center",
+                va="bottom",
+                fontsize=8,
+                fontweight="bold",
                 color=text_color,
             )
 
@@ -2411,7 +2420,9 @@ def plot_validation_results(analysis_data, output_path):  # noqa: C901
 
     ax4.set_ylabel(
         "Candidate Pairs",
-        fontsize=14, fontweight="bold", color=text_color,
+        fontsize=14,
+        fontweight="bold",
+        color=text_color,
     )
     # Auto-scale y-axis with padding
     max_count = max(max(c) for c in all_counts) if any(all_counts[0]) else 1
@@ -2421,7 +2432,9 @@ def plot_validation_results(analysis_data, output_path):  # noqa: C901
         labels, rotation=30, ha="right", fontsize=14, fontweight="bold"
     )
     for tick_label, color in zip(
-        ax4.get_xticklabels(), colors, strict=True,
+        ax4.get_xticklabels(),
+        colors,
+        strict=True,
     ):
         tick_label.set_color(color)
 
@@ -2431,7 +2444,9 @@ def plot_validation_results(analysis_data, output_path):  # noqa: C901
 
     ax4.set_title(
         "3-Step Filter Cascade Progression",
-        fontsize=14, fontweight="bold", color=text_color,
+        fontsize=14,
+        fontweight="bold",
+        color=text_color,
     )
     plt.subplots_adjust(left=0.08, right=0.95, top=0.92, bottom=0.08)
 
@@ -3804,10 +3819,8 @@ def main():  # noqa: C901
 
             # Compute PC1-based orderings for all individuals
             # (prerequisite for Pass 2: cross-individual consistency)
-            best_pc1_orderings, all_pc1_orderings = (
-                compute_pc1_orderings(
-                    file_individual_data, file_metadata, best_individuals
-                )
+            best_pc1_orderings, all_pc1_orderings = compute_pc1_orderings(
+                file_individual_data, file_metadata, best_individuals
             )
 
             # PASS 2: Cross-Individual Ordering Consistency
