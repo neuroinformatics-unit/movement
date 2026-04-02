@@ -121,11 +121,13 @@ class TeeOutput:
     """Context manager that duplicates stdout to both console and a file."""
 
     def __init__(self, filepath):
+        """Initialize with the target file path."""
         self.filepath = Path(filepath)
         self.file = None
         self.original_stdout = None
 
     def __enter__(self):
+        """Open the file and redirect stdout."""
         self.filepath.parent.mkdir(parents=True, exist_ok=True)
         self.file = open(self.filepath, "w")
         self.original_stdout = sys.stdout
@@ -133,17 +135,20 @@ class TeeOutput:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Restore stdout and close the file."""
         sys.stdout = self.original_stdout
         if self.file:
             self.file.close()
         return False
 
     def write(self, text):
+        """Write text to both stdout and file."""
         self.original_stdout.write(text)
         self.file.write(text)
         self.file.flush()
 
     def flush(self):
+        """Flush both stdout and file."""
         self.original_stdout.flush()
         self.file.flush()
 
@@ -638,9 +643,9 @@ def compare_orderings_to_pseudo_gt(all_pc1_orderings, pseudo_gt_orderings):
 
 
 def generate_gt_validation_tasks(file_metadata, best_individuals):
-    """Generate H5 tasks: test all permutations of GT node pairs on ALL individuals.
+    """Generate H5 tasks for all GT node pair permutations.
 
-    For each file, tests all permutations of GT node pairs on every individual.
+    Tests all permutations of GT node pairs on ALL individuals.
     Results compared against hand-curated GROUND_TRUTH (higher rank = more
     anterior).
 
@@ -849,7 +854,7 @@ def save_to_h5(  # noqa: C901
                 arr = np.array(data["vel_projs"], dtype=np.float64)
                 velprojs_grp[file_stem].create_dataset(individual, data=arr)
 
-        # Save individual accuracy data (raw PC1 direction diagnostic for Figure 1)
+        # Save individual accuracy (raw PC1 direction diag for Fig 1)
         if individual_accuracy:
             acc_grp = f.create_group("individual_accuracy")
             for file_stem, accuracies in individual_accuracy.items():
@@ -1213,12 +1218,12 @@ def get_ground_truth_order(file_stem, from_idx, to_idx):
 
 
 def analyze_results(h5_path):  # noqa: C901
-    """Reporting: filter cascade, suggested pairs, and Figure 2 data.
+    """Report filter cascade, suggested pairs, and Figure 2 data.
 
-    Reads the H5 file produced by the parallel _validate_ap runs. For each
-    file's best individual (highest mean R×M), logs the 3-step filter
+    Read the H5 file produced by the parallel _validate_ap runs. For each
+    file's best individual (highest mean R×M), log the 3-step filter
     cascade progression (with GT coverage folded into Step 1) and the
-    suggested pair analysis. Returns cascade stats, GT coverage, and
+    suggested pair analysis. Return cascade stats, GT coverage, and
     suggested pair data for Figure 2 rendering.
     """
     print("\n" + "─" * 70)
@@ -1369,7 +1374,7 @@ def plot_validation_results(analysis_data, output_path):  # noqa: C901
         Output path for saving figure
 
     """
-    gt_coverage = analysis_data["gt_coverage"]
+    _gt_coverage = analysis_data["gt_coverage"]  # noqa: F841
     suggested_analysis = analysis_data["suggested_analysis"]
     cascade_stats = analysis_data["cascade_stats"]
 
@@ -2361,7 +2366,7 @@ def plot_validation_results(analysis_data, output_path):  # noqa: C901
     step_hatches = ["--", "||", "+++"]
     step_names = ["Step 1: Lateral", "Step 2: Opposite", "Step 3: Distal"]
 
-    for j, (counts, hatch, sn) in enumerate(
+    for j, (counts, hatch, _sn) in enumerate(
         zip(
             all_counts,
             step_hatches,
@@ -3940,7 +3945,7 @@ def main():  # noqa: C901
         analysis_data = analyze_results(output_path)
         plot_validation_results(analysis_data, output_path)
 
-        # Generate per-file detail plots (2×2 tile) for each file's best individual
+        # Generate per-file 2×2 tile detail plots for each best individual
         # Extract timestamp from H5 filename (ap_validation_YYYYMMDD_HHMMSS.h5)
         h5_stem = output_path.stem
         fig_timestamp = "_".join(h5_stem.split("_")[-2:])
