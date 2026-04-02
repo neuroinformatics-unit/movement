@@ -1,6 +1,8 @@
 # test_collective.py
 """Tests for the collective behavior metrics module."""
 
+from typing import Any
+
 import numpy as np
 import pytest
 import xarray as xr
@@ -17,6 +19,33 @@ def _get_space_labels(n_space: int, space: list[str] | None) -> list[str]:
     raise ValueError("Provide explicit `space` labels for non-2D data.")
 
 
+def _build_coords(
+    data: np.ndarray,
+    time: list | None,
+    space: list[str] | None,
+    individuals: list | None,
+    keypoints: list[str] | None = None,
+) -> dict:
+    """Build coordinate dict for a position DataArray."""
+    n_time, n_space = data.shape[0], data.shape[1]
+    coords: dict = {
+        "time": time if time is not None else list(range(n_time)),
+        "space": _get_space_labels(n_space, space),
+    }
+    if data.ndim == 4:
+        n_keypoints = data.shape[2]
+        coords["keypoints"] = keypoints or [
+            f"kp_{i}" for i in range(n_keypoints)
+        ]
+        n_individuals = data.shape[3]
+    else:
+        n_individuals = data.shape[2]
+    coords["individuals"] = individuals or [
+        f"id_{i}" for i in range(n_individuals)
+    ]
+    return coords
+
+
 def _make_position_dataarray(
     data: np.ndarray,
     *,
@@ -27,41 +56,22 @@ def _make_position_dataarray(
 ) -> xr.DataArray:
     """Create a position DataArray for tests."""
     data = np.asarray(data, dtype=float)
-    n_time, n_space = data.shape[0], data.shape[1]
 
-    if data.ndim == 3:
-        n_individuals = data.shape[2]
-        ind = individuals or [f"id_{i}" for i in range(n_individuals)]
-        return xr.DataArray(
-            data,
-            dims=["time", "space", "individuals"],
-            coords={
-                "time": time if time else list(range(n_time)),
-                "space": _get_space_labels(n_space, space),
-                "individuals": ind,
-            },
-            name="position",
+    dims_map = {
+        3: ["time", "space", "individuals"],
+        4: ["time", "space", "keypoints", "individuals"],
+    }
+    if data.ndim not in dims_map:
+        raise ValueError(
+            "Expected data with shape (time, space, individuals) or "
+            "(time, space, keypoints, individuals)."
         )
 
-    if data.ndim == 4:
-        n_keypoints, n_individuals = data.shape[2], data.shape[3]
-        kp = keypoints or [f"kp_{i}" for i in range(n_keypoints)]
-        ind = individuals or [f"id_{i}" for i in range(n_individuals)]
-        return xr.DataArray(
-            data,
-            dims=["time", "space", "keypoints", "individuals"],
-            coords={
-                "time": time if time else list(range(n_time)),
-                "space": _get_space_labels(n_space, space),
-                "keypoints": kp,
-                "individuals": ind,
-            },
-            name="position",
-        )
-
-    raise ValueError(
-        "Expected data with shape (time, space, individuals) or "
-        "(time, space, keypoints, individuals)."
+    return xr.DataArray(
+        data,
+        dims=dims_map[data.ndim],
+        coords=_build_coords(data, time, space, individuals, keypoints),
+        name="position",
     )
 
 
@@ -261,7 +271,7 @@ class TestComputePolarizationValidation:
             )
 
     @pytest.mark.parametrize(
-        "displacement_frames,expected_exception",
+        ("displacement_frames", "expected_exception"),
         [
             (0, ValueError),
             (-1, ValueError),
@@ -327,6 +337,64 @@ class TestComputePolarizationValidation:
         )
         with pytest.raises(ValueError, match="at least one keypoint"):
             kinematics.compute_polarization(data)
+
+
+class TestValidateAPConfig:
+    """Tests for the _ValidateAPConfig dataclass parameter validation."""
+
+    @pytest.mark.parametrize(
+        ("field", "value"),
+        [
+            ("min_valid_frac", -0.1),
+            ("min_valid_frac", 1.1),
+            ("window_len", 0),
+            ("window_len", -5),
+            ("window_len", 2.5),
+            ("stride", 0),
+            ("stride", -1),
+            ("stride", 1.5),
+            ("pct_thresh", -1),
+            ("pct_thresh", 101),
+            ("min_run_len", 0),
+            ("min_run_len", -1),
+            ("min_run_len", 1.5),
+            ("postural_var_ratio_thresh", 0),
+            ("postural_var_ratio_thresh", -1),
+            ("max_clusters", 0),
+            ("max_clusters", 2.5),
+            ("confidence_floor", -0.1),
+            ("confidence_floor", 1.1),
+            ("lateral_thresh", -0.1),
+            ("lateral_thresh", 1.1),
+            ("edge_thresh", -0.1),
+            ("edge_thresh", 1.1),
+        ],
+    )
+    def test_invalid_config_values_raise(self, field: str, value: Any) -> None:
+        """Invalid config values should raise ValueError."""
+        from movement.kinematics.collective import _ValidateAPConfig
+
+        kwargs = {field: value}
+        with pytest.raises(ValueError, match="must be"):
+            _ValidateAPConfig(**kwargs)
+
+    def test_valid_config_does_not_raise(self) -> None:
+        """Valid config values should not raise any error."""
+        from movement.kinematics.collective import _ValidateAPConfig
+
+        # Should not raise
+        _ValidateAPConfig(
+            min_valid_frac=0.5,
+            window_len=10,
+            stride=2,
+            pct_thresh=50.0,
+            min_run_len=2,
+            postural_var_ratio_thresh=1.5,
+            max_clusters=3,
+            confidence_floor=0.2,
+            lateral_thresh=0.3,
+            edge_thresh=0.2,
+        )
 
 
 class TestComputePolarizationBehavior:
@@ -612,113 +680,92 @@ class TestComputePolarizationBehavior:
             equal_nan=True,
         )
 
-    def test_body_axis_invariance_to_translation_scaling_rotation(
-        self,
-    ):
-        """Body-axis polarization is invariant to translation/scaling/rotation.
+    def _body_axis_baseline(self):
+        """Build body-axis test data and return (da, pol, angle).
 
-        Mean body angle is invariant to translation and positive scaling, and
-        rotates by the same amount under global planar rotation.
+        Three individuals with body axes: +x, +x, +y.
+        Vector sum = (2, 1), polarization = sqrt(5)/3, angle = atan2(1,2).
+        Absolute positions differ across frames to test body-axis
+        independence from location.
         """
-        # Three individuals with body axes: +x, +x, +y.
-        # This gives a nontrivial baseline:
-        #   vector sum = (2, 1)
-        #   polarization = sqrt(5) / 3
-        #   mean angle = atan2(1, 2)
-        #
-        # Absolute positions differ across frames to ensure we are really
-        # testing body-axis heading (target - origin), not any accidental
-        # dependence on absolute location.
         data = np.array(
             [
                 [
-                    [[0.0, 10.0, -2.0], [1.0, 11.0, -2.0]],  # x
-                    [[0.0, 5.0, 3.0], [0.0, 5.0, 4.0]],  # y
+                    [[0.0, 10.0, -2.0], [1.0, 11.0, -2.0]],
+                    [[0.0, 5.0, 3.0], [0.0, 5.0, 4.0]],
                 ],
                 [
-                    [[100.0, 50.0, 7.0], [101.0, 51.0, 7.0]],  # x
-                    [[-1.0, 20.0, -3.0], [-1.0, 20.0, -2.0]],  # y
+                    [[100.0, 50.0, 7.0], [101.0, 51.0, 7.0]],
+                    [[-1.0, 20.0, -3.0], [-1.0, 20.0, -2.0]],
                 ],
             ],
             dtype=float,
         )
         da = _make_position_dataarray(data, keypoints=["tail_base", "neck"])
-
-        pol_base, angle_base = kinematics.compute_polarization(
+        pol, angle = kinematics.compute_polarization(
             da,
             body_axis_keypoints=("tail_base", "neck"),
             return_angle=True,
         )
+        return da, pol, angle
 
-        expected_pol = np.sqrt(5) / 3
-        expected_angle = np.arctan2(1.0, 2.0)
-
-        np.testing.assert_allclose(pol_base.values, expected_pol, atol=1e-10)
+    def test_body_axis_baseline_matches_expected_values(self):
+        """Body-axis polarization and angle match hand-computed values."""
+        _da, pol, angle = self._body_axis_baseline()
+        np.testing.assert_allclose(pol.values, np.sqrt(5) / 3, atol=1e-10)
         np.testing.assert_allclose(
-            angle_base.values, expected_angle, atol=1e-10
+            angle.values, np.arctan2(1.0, 2.0), atol=1e-10
         )
 
-        # Global translation: should not affect body-axis vectors.
+    def test_body_axis_invariance_to_translation(self):
+        """Global translation does not change body-axis polarization."""
+        da, pol_base, angle_base = self._body_axis_baseline()
         translated = da.copy()
         translated.loc[{"space": "x"}] = translated.sel(space="x") + 123.4
         translated.loc[{"space": "y"}] = translated.sel(space="y") - 56.7
 
-        pol_translated, angle_translated = kinematics.compute_polarization(
+        pol, angle = kinematics.compute_polarization(
             translated,
             body_axis_keypoints=("tail_base", "neck"),
             return_angle=True,
         )
+        np.testing.assert_allclose(pol.values, pol_base.values, atol=1e-10)
+        np.testing.assert_allclose(angle.values, angle_base.values, atol=1e-10)
 
-        np.testing.assert_allclose(
-            pol_translated.values, pol_base.values, atol=1e-10
-        )
-        np.testing.assert_allclose(
-            angle_translated.values, angle_base.values, atol=1e-10
-        )
+    def test_body_axis_invariance_to_positive_scaling(self):
+        """Positive scaling preserves body-axis polarization and angle."""
+        da, pol_base, angle_base = self._body_axis_baseline()
 
-        # Positive scaling: should preserve directions and therefore preserve
-        # polarization and angle.
-        scaled = da * 4.2
-
-        pol_scaled, angle_scaled = kinematics.compute_polarization(
-            scaled,
+        pol, angle = kinematics.compute_polarization(
+            da * 4.2,
             body_axis_keypoints=("tail_base", "neck"),
             return_angle=True,
         )
+        np.testing.assert_allclose(pol.values, pol_base.values, atol=1e-10)
+        np.testing.assert_allclose(angle.values, angle_base.values, atol=1e-10)
 
-        np.testing.assert_allclose(
-            pol_scaled.values, pol_base.values, atol=1e-10
-        )
-        np.testing.assert_allclose(
-            angle_scaled.values, angle_base.values, atol=1e-10
-        )
+    def test_body_axis_angle_rotates_under_global_rotation(self):
+        """Polarization preserved, angle shifts by pi/2.
 
-        # Global 90-degree rotation: polarization magnitude should be
-        # unchanged, and mean angle should rotate by +pi/2 (with wraparound).
+        Tests behavior under 90-degree rotation.
+        """
+        da, pol_base, angle_base = self._body_axis_baseline()
         rotated = da.copy()
         x = da.sel(space="x")
         y = da.sel(space="y")
         rotated.loc[{"space": "x"}] = -y
         rotated.loc[{"space": "y"}] = x
 
-        pol_rotated, angle_rotated = kinematics.compute_polarization(
+        pol, angle = kinematics.compute_polarization(
             rotated,
             body_axis_keypoints=("tail_base", "neck"),
             return_angle=True,
         )
+        np.testing.assert_allclose(pol.values, pol_base.values, atol=1e-10)
 
-        np.testing.assert_allclose(
-            pol_rotated.values, pol_base.values, atol=1e-10
-        )
-
-        expected_rotated_angle = angle_base.values + (np.pi / 2)
-        expected_rotated_angle = (
-            (expected_rotated_angle + np.pi) % (2 * np.pi)
-        ) - np.pi
-
-        np.testing.assert_allclose(
-            angle_rotated.values, expected_rotated_angle, atol=1e-10
-        )
+        expected = angle_base.values + (np.pi / 2)
+        expected = (expected + np.pi) % (2 * np.pi) - np.pi
+        np.testing.assert_allclose(angle.values, expected, atol=1e-10)
 
 
 class TestHeadingSourceSelection:
@@ -852,10 +899,8 @@ class TestDisplacementFrames:
             displacement_frames=2,
             return_angle=True,
         )
-        assert np.isnan(polarization.values[0])
-        assert np.isnan(polarization.values[1])
-        assert np.isnan(mean_angle.values[0])
-        assert np.isnan(mean_angle.values[1])
+        assert np.all(np.isnan(polarization.values[:2]))
+        assert np.all(np.isnan(mean_angle.values[:2]))
         assert np.allclose(polarization.values[2:], 1.0, atol=1e-10)
         assert np.allclose(mean_angle.values[2:], 0.0, atol=1e-10)
 
@@ -936,13 +981,15 @@ class TestReturnAngle:
         )
         assert isinstance(polarization, xr.DataArray)
         assert isinstance(mean_angle, xr.DataArray)
-        assert polarization.name == "polarization"
-        assert mean_angle.name == "mean_angle"
+        assert (polarization.name, mean_angle.name) == (
+            "polarization",
+            "mean_angle",
+        )
         assert polarization.dims == ("time",)
         assert mean_angle.dims == ("time",)
 
     @pytest.mark.parametrize(
-        "data,expected_angle,use_abs",
+        ("data", "expected_angle", "use_abs"),
         [
             (
                 np.array(
