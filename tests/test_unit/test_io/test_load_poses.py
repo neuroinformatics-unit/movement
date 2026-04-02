@@ -3,6 +3,7 @@
 from unittest.mock import patch
 
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 from pytest import DATA_PATHS
@@ -116,6 +117,30 @@ def test_load_from_dlc_style_df(
     expected_values = {
         **expected_values_poses,
         "source_software": source_software,
+    }
+    helpers.assert_valid_dataset(ds, expected_values)
+
+
+def test_load_from_dlc_style_df_legacy_individuals(
+    valid_dlc_poses_df, helpers
+):
+    """Test loading pose tracks from DLC DataFrames with
+    legacy 'individuals' level.
+    """
+    df = valid_dlc_poses_df.copy()
+    # Modify the df to have a multi-animal format with 'individuals'
+    cols = [
+        (scorer, "id_0", bodypart, coord)
+        for scorer, bodypart, coord in df.columns.to_list()
+    ]
+    df.columns = pd.MultiIndex.from_tuples(
+        cols, names=["scorer", "individuals", "bodyparts", "coords"]
+    )
+
+    ds = load_poses.from_dlc_style_df(df, source_software="DeepLabCut")
+    expected_values = {
+        **expected_values_poses,
+        "source_software": "DeepLabCut",
     }
     helpers.assert_valid_dataset(ds, expected_values)
 
@@ -321,3 +346,30 @@ def test_from_multiview_files():
     assert isinstance(multi_view_ds, xr.Dataset)
     assert "view" in multi_view_ds.dims
     assert multi_view_ds.view.values.tolist() == view_names
+
+
+def test_ds_from_nwb_object_no_confidence():
+    """Test loading poses from an NWBFile object that lacks confidence data."""
+    from unittest.mock import MagicMock
+
+    import numpy as np
+
+    from movement.io.load_poses import _ds_from_nwb_object
+
+    mock_nwb = MagicMock()
+    mock_nwb.identifier = "subj1"
+
+    mock_pes = MagicMock()
+    mock_pes.data = np.zeros((10, 2))
+    mock_pes.timestamps = np.arange(10) / 30.0
+    del mock_pes.confidence
+    mock_pes.rate = None
+
+    mock_pe = MagicMock()
+    mock_pe.source_software = "mock_software"
+    mock_pe.pose_estimation_series = {"mock_kp": mock_pes}
+
+    mock_nwb.processing = {"behavior": {"PoseEstimation": mock_pe}}
+
+    ds = _ds_from_nwb_object(mock_nwb)
+    assert np.isnan(ds.confidence.values).all()

@@ -1,7 +1,9 @@
 from contextlib import nullcontext as does_not_raise
+from unittest.mock import patch
 
 import pytest
 import xarray as xr
+from scipy import signal
 
 from movement.filtering import (
     filter_by_confidence,
@@ -94,6 +96,30 @@ class TestFilteringValidDataset:
                 window=3,
                 **override_kwargs,
             )
+
+    def test_savgol_filter_raises_interp_nan_error_mock(
+        self, valid_dataset, request
+    ):
+        """Test that savgol_filter translates the exact SciPy ValueError
+        when using mode='interp' into the movement specific ValueError.
+        """
+        dataset = request.getfixturevalue(valid_dataset)
+        # We must use mode='nearest' to bypass the initial explicit
+        # edge-NaN check in movement
+        # to ensure the ValueError from SciPy itself is correctly caught.
+        with (
+            patch.object(
+                signal,
+                "savgol_filter",
+                side_effect=ValueError(
+                    "array must not contain infs or NaNs in something"
+                ),
+            ),
+            pytest.raises(
+                ValueError, match="mode='interp' does not support NaNs"
+            ),
+        ):
+            savgol_filter(dataset.position, window=3, mode="nearest")
 
     @pytest.mark.parametrize(
         "statistic, expected_exception",
