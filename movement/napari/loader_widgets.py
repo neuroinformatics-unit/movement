@@ -404,12 +404,19 @@ class DataLoader(QWidget):
         with all NaN values, the frame slider range will not reflect
         the full range of frames.
         """
+
+        def _layer_has_data(layer):
+            if isinstance(layer, Shapes):
+                return len(layer.data) > 0
+            return layer.data.shape[0] > 0
+
         # Only update the frame slider range if there are layers
-        # that are Points, Tracks, Image or Shapes
+        # that are Points, Tracks, Image or Shapes with data
         list_layers = [
             ly
             for ly in self.viewer.layers
             if isinstance(ly, Points | Tracks | Image | Shapes)
+            and _layer_has_data(ly)
         ]
         if len(list_layers) > 0:
             # Get the maximum frame index from all candidate layers
