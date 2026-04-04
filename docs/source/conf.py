@@ -83,8 +83,10 @@ templates_path = ["_templates"]
 # Automatically generate stub pages for API
 autosummary_generate = True
 autosummary_generate_overwrite = False
-autodoc_default_flags = ["members", "inherited-members"]
-
+autodoc_default_options = {
+    "special-members": "__call__",
+    "member-order": "groupwise",
+}
 # Prefix section labels with the document name
 autosectionlabel_prefix_document = True
 
@@ -251,6 +253,7 @@ myst_url_schemes = {
     "uv": "https://docs.astral.sh/uv/{{path}}#{{fragment}}",
     "attrs": "https://www.attrs.org/en/stable/{{path}}#{{fragment}}",
     "pytest-benchmark": "https://pytest-benchmark.readthedocs.io/en/latest/{{path}}#{{fragment}}",
+    "qt6": "https://doc.qt.io/qt-6/{{path}}#{{fragment}}",
 }
 
 intersphinx_mapping = {

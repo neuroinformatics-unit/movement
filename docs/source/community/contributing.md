@@ -174,9 +174,17 @@ movement/io/load_poses.py:551:80: E501 Line too long (90 > 79)
 This pinpoints the problem to a single code line and a specific [ruff rule](https://docs.astral.sh/ruff/rules/) violation.
 Sometimes you may have good reasons to ignore a particular rule for a specific line of code. You can do this by adding an inline comment, e.g. `# noqa: E501`. Replace `E501` with the code of the rule you want to ignore.
 
-For docstrings, we adhere to the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style.
-Make sure to provide docstrings for all public functions, classes, and methods.
-This is important as it allows for [automatic generation of the API reference](#updating-the-api-reference).
+### Docstrings
+We adhere to the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style.
+All public functions, classes, and methods must include docstrings, as these enable [automatic generation of the API reference](#updating-the-api-reference).
+
+To document module‑level variables or class attributes, place a string literal immediately after the definition—a convention recognised by [sphinx-autodoc](sphinx-doc:extensions/autodoc.html#doc-comments-and-docstrings); see also [PEP 257](https://peps.python.org/pep-0257/#what-is-a-docstring):
+
+```python
+class MyClass:
+    x: int = 42
+    """Description of x."""
+```
 
 ### Testing
 We use [pytest](https://docs.pytest.org/en/latest/) for testing, aiming for ~100% test coverage where feasible. All new features should be accompanied by tests.
@@ -425,7 +433,7 @@ from movement.io.load_poses import from_mysoftware_file
 ds = from_mysoftware_file("path/to/mysoftware_output.csv")
 ```
 
-If a `file_validators` argument is supplied to the {func}`@register_loader()<movement.io.load.register_loader>` decorator, the decorator selects the appropriate validator&mdash;based on its declared `suffixes`&mdash;and uses it to normalise and validate the input `file` before invoking the loader.
+If a `file_validators` argument is supplied to the {func}`@register_loader()<movement.io.load.register_loader>` decorator, the decorator selects the appropriate validator—based on its declared `suffixes`—and uses it to normalise and validate the input `file` before invoking the loader.
 As a result, the loader receives the validated file object instead of the raw path or handle.
 
 If no validator is provided, the loader is passed the raw `file` argument as-is.
@@ -470,6 +478,76 @@ SourceSoftware: TypeAlias = Literal[
     "MySoftware",  # Newly added software
 ]
 ```
+
+### Developing the napari plugin
+
+The `movement` plugin for `napari` is built following the
+[napari plugin guide](napari:plugins/building_a_plugin/index.html).
+All widgets subclass `qtpy.QtWidgets.QWidget` (see the
+[napari guide on widgets](napari:plugins/building_a_plugin/guides.html)).
+
+The plugin lives in [`movement.napari`](movement-github:tree/main/movement/napari)
+and is structured as follows:
+
+- `movement.napari.meta_widget`: the top-level
+  container widget registered as the `napari` plugin entry point,
+  which brings together all other subwidgets:
+  - `movement.napari.loader_widgets`: a Qt form widget for
+    loading tracked datasets from supported file formats as
+    points, tracks and boxes.
+  - `movement.napari.regions_widget`: a Qt table widget for managing named
+    regions of interest drawn as `napari` shapes layers.
+    See the next section for more details on this widget's architecture.
+- {mod}`movement.napari.layer_styles`: dataclasses that encapsulate visual
+  properties for each layer type.
+- {mod}`movement.napari.convert`: functions for converting `movement`
+  datasets into the NumPy arrays and properties DataFrames
+  that `napari` layer constructors expect.
+
+#### Qt Model/View architecture
+
+`movement.napari.regions_widget` follows
+[Qt's Model/View pattern](qt6:model-view-programming.html)
+to separate the data (what is stored) from the display (how it is shown).
+Understanding this pattern is helpful before making changes to this module,
+and for creating new widgets that follow the same design principles.
+
+The three components are:
+
+- `RegionsTableModel` (subclasses
+  [`QAbstractTableModel`](qt6:qabstracttablemodel.html)):
+  wraps a `napari` [shapes layer](napari:howtos/layers/shapes.html) and
+  exposes its data to Qt (i.e., region names from `layer.properties["name"]`
+  and shape types). It listens to `napari` layer
+  [events](napari:guides/events_reference.html) and emits Qt signals
+  when the data changes.
+- `RegionsTableView` (subclasses [`QTableView`](qt6:qtableview.html)):
+  renders the model's data as a table and handles user interactions
+  (e.g. row selection, inline name editing). Keeps table row selection
+  in sync with `napari`'s current shape selection.
+- `RegionsWidget`: connects the table model and table view. It manages
+  layer selection, creates and links models to views, and handles layer
+  lifecycle events.
+
+Data flows in both directions:
+
+```
+napari shapes layer <-> RegionsTableModel <-> RegionsTableView <-> User
+```
+
+:::{dropdown} Preventing circular updates in bidirectional syncs
+:color: success
+:icon: light-bulb
+
+Bidirectional syncing between `napari` and the Qt table can cause circular
+updates. For example, selecting a `napari` shape selects the corresponding
+table row, which would then re-trigger shape selection.
+
+Guard flags such as `_syncing_row_selection` and `_syncing_layer_selection`
+break this cycle: while a sync is in progress, the corresponding flag is set
+to `True` and any events that would re-trigger it are ignored. Preserve this
+pattern when adding new two-way sync logic.
+:::
 
 ### Continuous integration
 All pushes and pull requests will be built by [GitHub actions](github-docs:actions).
@@ -561,11 +639,10 @@ If it is not yet defined and you have multiple external URLs pointing to the sam
 The [API reference](target-api) is auto-generated by the `docs/make_api.py` script, and the [sphinx-autodoc](sphinx-doc:extensions/autodoc.html) and [sphinx-autosummary](sphinx-doc:extensions/autosummary.html) extensions.
 The script inspects the source tree and generates the `docs/source/api_index.rst` file, which lists the modules to be included in the [API reference](target-api), skipping those listed in `EXCLUDE_MODULES`.
 
-For each _package module_ listed in `PACKAGE_MODULES`&mdash;a module that re-exports selected classes and functions from its submodules via `__init__.py` (e.g. {mod}`movement.kinematics`)&mdash;the script also generates a `.rst` file in `docs/source/api/` with autosummary entries for the top-level objects exposed by the module.
+For each _package module_ listed in `PACKAGE_MODULES`—a module that re-exports selected classes and functions from its submodules via `__init__.py` (e.g. {mod}`movement.kinematics`)—the script also generates a `.rst` file in `docs/source/api/` with autosummary entries for the top-level objects exposed by the module.
 
 The Sphinx extensions then generate the API reference pages for each module listed in `api_index.rst`, based on their docstrings.
-So make sure that all your public functions/classes/methods have valid docstrings following the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style.
-Our `pre-commit` hooks include some checks (`ruff` rules) that ensure the docstrings are formatted consistently.
+See [Docstrings](#docstrings) for the docstring formatting conventions.
 
 If your PR introduces new modules that should *not* be documented in the [API reference](target-api), or if there are changes to existing modules that necessitate their removal from the documentation, make sure to update `EXCLUDE_MODULES` in `docs/make_api.py` accordingly.
 
