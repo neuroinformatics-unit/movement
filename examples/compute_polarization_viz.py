@@ -44,7 +44,7 @@ import xarray as xr
 
 from movement.io import load_poses
 from movement.kinematics import compute_polarization
-from movement.kinematics.collective import _validate_ap, _ValidateAPConfig
+from movement.kinematics.body_axis import validate_ap, ValidateAPConfig
 
 # ── Duplicated-literal constants ─────────────────────────────────────────────
 SLP_GLOB = "*.slp"
@@ -578,17 +578,17 @@ def _run_ap_inference(
     Returns
     -------
     tuple of (result_dict, pair_report, best_rxm) or None
-        The best individual's result dict, its ``_APNodePairReport``,
+        The best individual's result dict, its ``APNodePairReport``,
         and the R×M score.  Returns ``None`` if all individuals failed.
 
     """
-    config = _ValidateAPConfig()
+    config = ValidateAPConfig()
     individuals = list(ds.coords["individuals"].values)
 
     all_results: list[dict] = []
     for individual in individuals:
         pos_data = ds.position.sel(individuals=individual)
-        result = _validate_ap(
+        result = validate_ap(
             pos_data,
             from_node=from_keypoint,
             to_node=to_keypoint,
@@ -736,7 +736,7 @@ def check_ap_ordering(
 ) -> bool:
     """Run AP inference and warn if ordering is reversed.
 
-    Uses ``_validate_ap`` on each individual (or reuses pre-computed
+    Uses ``validate_ap`` on each individual (or reuses pre-computed
     results), selects the best individual (highest R×M score), and
     checks whether the user's from_node is actually posterior to their
     to_node according to the inferred AP axis.  If reversed,
