@@ -243,8 +243,9 @@ def _compute_heading_from_velocity(
 
 
 def _select_space(data: xr.DataArray) -> xr.DataArray:
-    """Return data with standard dim order, preserving all spatial coords."""
-    return data.transpose("time", "space", "individuals")
+    """Return data with standard dim order, selecting only x and y coords."""
+    result = data.sel(space=["x", "y"])
+    return result.transpose("time", "space", "individuals")
 
 
 def _validate_position_data(
