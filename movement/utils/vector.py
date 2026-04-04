@@ -42,7 +42,7 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
 
     """
     if "space" in data.dims:
-        # Allow both 2D and 3D 
+        # Allow both 2D and 3D
         if len(data.coords["space"]) == 2:
             validate_dims_coords(data, {"space": ["x", "y"]})
         elif len(data.coords["space"]) == 3:
@@ -162,6 +162,12 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     :obj:`numpy.arctan2`
 
     """
+    # Validate space dimension exists
+    if "space" not in data.dims:
+        raise logger.error(
+            ValueError("Input data must contain 'space' as a dimension.")
+        )
+
     # Validate 2D or 3D input
     is_3d = len(data.coords["space"]) == 3
     if is_3d:
@@ -169,9 +175,9 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     else:
         validate_dims_coords(data, {"space": ["x", "y"]})
 
-    x = data.sel(space="x")
-    y = data.sel(space="y")
-    rho = np.sqrt(x**2 + y**2)
+    x = data.sel(space="x", drop=True)
+    y = data.sel(space="y", drop=True)
+    rho = (x**2 + y**2) ** 0.5
     phi = xr.apply_ufunc(np.arctan2, y, x)
 
     # Make all zeros in phi positive zeros
@@ -187,7 +193,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
 
     # For 3D, pass z through unchanged
     if is_3d:
-        z = data.sel(space="z")
+        z = data.sel(space="z", drop=True)
         components.append(z.assign_coords({"space_pol": "z"}))
 
     # Replace space dim with space_pol
@@ -216,6 +222,12 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
         - 3D: ``x``, ``y``, and ``z``
 
     """
+    # Validate space_pol dimension exists
+    if "space_pol" not in data.dims:
+        raise logger.error(
+            ValueError("Input data must contain 'space_pol' as a dimension.")
+        )
+
     # Validate 2D or 3D input
     is_3d = len(data.coords["space_pol"]) == 3
     if is_3d:
@@ -223,8 +235,8 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
     else:
         validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
 
-    rho = data.sel(space_pol="rho")
-    phi = data.sel(space_pol="phi")
+    rho = data.sel(space_pol="rho", drop=True)
+    phi = data.sel(space_pol="phi", drop=True)
     x = rho * np.cos(phi)
     y = rho * np.sin(phi)
 
@@ -236,7 +248,7 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
 
     # For 3D, pass z through unchanged
     if is_3d:
-        z = data.sel(space_pol="z")
+        z = data.sel(space_pol="z", drop=True)
         components.append(z.assign_coords({"space": "z"}))
 
     # Replace space_pol dim with space
@@ -274,11 +286,11 @@ def cart2sph(data: xr.DataArray) -> xr.DataArray:
     """
     validate_dims_coords(data, {"space": ["x", "y", "z"]})
 
-    x = data.sel(space="x")
-    y = data.sel(space="y")
-    z = data.sel(space="z")
+    x = data.sel(space="x", drop=True)
+    y = data.sel(space="y", drop=True)
+    z = data.sel(space="z", drop=True)
 
-    rho = np.sqrt(x**2 + y**2 + z**2)
+    rho = (x**2 + y**2 + z**2) ** 0.5
     azimuth = xr.apply_ufunc(np.arctan2, y, x)
     # Compute elevation, handling zero-magnitude vectors
     elevation = xr.where(
@@ -297,6 +309,7 @@ def cart2sph(data: xr.DataArray) -> xr.DataArray:
             elevation.assign_coords({"space_sph": "elevation"}),
         ],
         dim="space_sph",
+        coords="minimal",
     ).transpose(*dims)
 
 
@@ -324,9 +337,9 @@ def sph2cart(data: xr.DataArray) -> xr.DataArray:
     """
     validate_dims_coords(data, {"space_sph": ["rho", "azimuth", "elevation"]})
 
-    rho = data.sel(space_sph="rho")
-    azimuth = data.sel(space_sph="azimuth")
-    elevation = data.sel(space_sph="elevation")
+    rho = data.sel(space_sph="rho", drop=True)
+    azimuth = data.sel(space_sph="azimuth", drop=True)
+    elevation = data.sel(space_sph="elevation", drop=True)
 
     x = rho * np.cos(elevation) * np.cos(azimuth)
     y = rho * np.cos(elevation) * np.sin(azimuth)
@@ -342,6 +355,7 @@ def sph2cart(data: xr.DataArray) -> xr.DataArray:
             z.assign_coords({"space": "z"}),
         ],
         dim="space",
+        coords="minimal",
     ).transpose(*dims)
 
 

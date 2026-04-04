@@ -91,7 +91,7 @@ class TestVector:
 
     @pytest.fixture
     def cart_pol_dataset_3d(self):
-        """Return an xarray.Dataset with 3D Cartesian and cylindrical coords."""
+        """Return xarray.Dataset with 3D Cartesian and cylindrical coords."""
         # 3D Cartesian coordinates
         x_vals = np.array([1.0, 0.0, -1.0, 1.0, 0.0])
         y_vals = np.array([0.0, 1.0, 0.0, 1.0, 0.0])
@@ -120,13 +120,15 @@ class TestVector:
     def cart_sph_dataset(self):
         """Return an xarray.Dataset with 3D Cartesian and spherical coords."""
         # 3D Cartesian coordinates (points on/around unit sphere)
-        cart_data = np.array([
-            [1.0, 0.0, 0.0],   # +x axis
-            [0.0, 1.0, 0.0],   # +y axis
-            [0.0, 0.0, 1.0],   # +z axis (north pole)
-            [0.0, 0.0, -1.0],  # -z axis (south pole)
-            [1.0, 1.0, 0.0],   # x-y plane, 45 deg
-        ])
+        cart_data = np.array(
+            [
+                [1.0, 0.0, 0.0],  # +x axis
+                [0.0, 1.0, 0.0],  # +y axis
+                [0.0, 0.0, 1.0],  # +z axis (north pole)
+                [0.0, 0.0, -1.0],  # -z axis (south pole)
+                [1.0, 1.0, 0.0],  # x-y plane, 45 deg
+            ]
+        )
         time_coords = np.arange(len(cart_data))
 
         # Expected spherical coordinates
@@ -264,8 +266,8 @@ class TestVector:
         xr.testing.assert_allclose(result, cart_pol_dataset_3d.pol)
         # Verify z passes through unchanged
         xr.testing.assert_equal(
-            result.sel(space_pol="z"),
-            cart_pol_dataset_3d.cart.sel(space="z"),
+            result.sel(space_pol="z", drop=True),
+            cart_pol_dataset_3d.cart.sel(space="z", drop=True),
         )
 
     def test_pol2cart_3d(self, cart_pol_dataset_3d):
@@ -281,15 +283,16 @@ class TestVector:
         # 3D Cartesian norm: sqrt(x^2 + y^2 + z^2)
         result_cart = vector.compute_norm(cart)
         expected = np.sqrt(
-            cart.sel(space="x") ** 2
-            + cart.sel(space="y") ** 2
-            + cart.sel(space="z") ** 2
+            cart.sel(space="x", drop=True) ** 2
+            + cart.sel(space="y", drop=True) ** 2
+            + cart.sel(space="z", drop=True) ** 2
         )
         xr.testing.assert_allclose(result_cart, expected)
 
         # Cylindrical norm should return rho (x-y plane magnitude)
         result_pol = vector.compute_norm(pol)
-        xr.testing.assert_allclose(result_pol, pol.sel(space_pol="rho"))
+        expected_pol = pol.sel(space_pol="rho", drop=True)
+        xr.testing.assert_allclose(result_pol, expected_pol)
 
     def test_convert_to_unit_3d(self, cart_pol_dataset_3d):
         """Test unit vector conversion on 3D Cartesian data."""
