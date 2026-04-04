@@ -44,7 +44,7 @@ import xarray as xr
 
 from movement.io import load_poses
 from movement.kinematics import compute_polarization
-from movement.kinematics.body_axis import validate_ap, ValidateAPConfig
+from movement.kinematics.body_axis import ValidateAPConfig, validate_ap
 
 # ── Duplicated-literal constants ─────────────────────────────────────────────
 SLP_GLOB = "*.slp"

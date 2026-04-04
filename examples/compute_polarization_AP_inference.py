@@ -194,7 +194,7 @@ def process_single_validation(args):  # noqa: C901
     """Process a single (file, individual, from_kp, to_kp) validation."""
     # Import inside worker to avoid pickling issues
     from movement.io import load_poses
-    from movement.kinematics.body_axis import validate_ap, ValidateAPConfig
+    from movement.kinematics.body_axis import ValidateAPConfig, validate_ap
 
     (
         slp_path,
