@@ -12,7 +12,7 @@ passes:
            (anterior_sign × PC1) of GT nodes against hand-curated GT
 
 After the passes, all GT pair permutations × all individuals are run
-through _validate_ap and stored in HDF5. analyze_results then reads back
+through validate_ap and stored in HDF5. analyze_results then reads back
 the H5 to produce GT coverage analysis, suggested pair analysis, and
 the data for Figure 2.
 
@@ -194,7 +194,7 @@ def process_single_validation(args):  # noqa: C901
     """Process a single (file, individual, from_kp, to_kp) validation."""
     # Import inside worker to avoid pickling issues
     from movement.io import load_poses
-    from movement.kinematics.collective import _validate_ap, _ValidateAPConfig
+    from movement.kinematics.body_axis import validate_ap, ValidateAPConfig
 
     (
         slp_path,
@@ -222,8 +222,8 @@ def process_single_validation(args):  # noqa: C901
             else:
                 pos_data = ds.position
 
-            config = _ValidateAPConfig()
-            val = _validate_ap(
+            config = ValidateAPConfig()
+            val = validate_ap(
                 pos_data,
                 from_node=from_kp,
                 to_node=to_kp,
@@ -343,7 +343,7 @@ def process_single_validation(args):  # noqa: C901
             import traceback
 
             print(
-                f"WARNING: _validate_ap failed for "
+                f"WARNING: validate_ap failed for "
                 f"{file_stem} / {individual} "
                 f"({from_kp} → {to_kp}): "
                 f"{type(e).__name__}: {e}",
@@ -1220,7 +1220,7 @@ def get_ground_truth_order(file_stem, from_idx, to_idx):
 def analyze_results(h5_path):  # noqa: C901
     """Report filter cascade, suggested pairs, and Figure 2 data.
 
-    Read the H5 file produced by the parallel _validate_ap runs. For each
+    Read the H5 file produced by the parallel validate_ap runs. For each
     file's best individual (highest mean R×M), log the 3-step filter
     cascade progression (with GT coverage folded into Step 1) and the
     suggested pair analysis. Return cascade stats, GT coverage, and
