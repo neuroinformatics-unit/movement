@@ -8,7 +8,11 @@ import numpy as np
 import xarray as xr
 
 from movement.utils.logging import logger
-from movement.utils.vector import compute_norm
+from movement.utils.vector import (
+    compute_norm,
+    compute_signed_angle_2d,
+    convert_to_unit,
+)
 from movement.validators.arrays import validate_dims_coords
 
 _ANGLE_EPS = 1e-12
@@ -158,11 +162,10 @@ def compute_polarization(
             displacement_frames=displacement_frames,
         )
 
-    heading_xy = _select_xy(heading_vectors)
-    norm = compute_norm(heading_xy)
-    valid_mask = (~heading_xy.isnull().any(dim="space")) & (norm > 0)
+    heading = _select_space(heading_vectors)
 
-    unit_headings = (heading_xy / norm).where(valid_mask)
+    unit_headings = convert_to_unit(heading)
+    valid_mask = ~unit_headings.isnull().any(dim="space")
     vector_sum = unit_headings.sum(dim="individuals", skipna=True)
     sum_magnitude = compute_norm(vector_sum)
     n_valid = valid_mask.sum(dim="individuals")
@@ -177,12 +180,16 @@ def compute_polarization(
     if not return_angle:
         return polarization
 
+    # Normalize vector_sum to unit vector for angle computation
+    mean_unit_vector = vector_sum / sum_magnitude
+
+    # Compute angle from positive x-axis to mean unit vector
+    reference = np.array([1, 0])
     angle_defined = (n_valid > 0) & (sum_magnitude > _ANGLE_EPS)
     mean_angle = xr.where(
         angle_defined,
-        np.arctan2(
-            vector_sum.sel(space="y"),
-            vector_sum.sel(space="x"),
+        compute_signed_angle_2d(
+            mean_unit_vector, reference, v_as_left_operand=True
         ),
         np.nan,
     )
@@ -235,9 +242,9 @@ def _compute_heading_from_velocity(
     return displacement
 
 
-def _select_xy(data: xr.DataArray) -> xr.DataArray:
-    """Select the planar x/y components and return standard dim order."""
-    return data.sel(space=["x", "y"]).transpose("time", "space", "individuals")
+def _select_space(data: xr.DataArray) -> xr.DataArray:
+    """Return data with standard dim order, preserving all spatial coords."""
+    return data.transpose("time", "space", "individuals")
 
 
 def _validate_position_data(
