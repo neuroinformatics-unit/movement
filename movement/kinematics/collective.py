@@ -500,6 +500,7 @@ def _compute_mean_angle(
         mean_angle = np.rad2deg(mean_angle)
     return mean_angle.rename("mean_angle")
 
+
 def _run_ap_validation(
     data: xr.DataArray,
     normalized_keypoints: tuple[Hashable, Hashable],
