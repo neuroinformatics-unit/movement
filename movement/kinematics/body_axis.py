@@ -1377,7 +1377,7 @@ def apply_lateral_filter(
     report.longitudinal_std_norm[valid_idx] = long_std_norm
 
     # Combined effective lateral score:
-    # mean_offset + lateral_var_weight * lateral_std 
+    # mean_offset + lateral_var_weight * lateral_std
     # + long_var_weight * long_std
     effective_lateral = (
         d_norm
