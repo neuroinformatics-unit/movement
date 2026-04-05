@@ -33,10 +33,12 @@ class TestValidateAPConfig:
             ("max_clusters", 2.5),
             ("confidence_floor", -0.1),
             ("confidence_floor", 1.1),
-            ("lateral_thresh", -0.1),
-            ("lateral_thresh", 1.1),
-            ("edge_thresh", -0.1),
-            ("edge_thresh", 1.1),
+            ("lateral_thresh_pct", -1),
+            ("lateral_thresh_pct", 101),
+            ("edge_thresh_pct", -1),
+            ("edge_thresh_pct", 101),
+            ("lateral_var_weight", -0.1),
+            ("longitudinal_var_weight", -0.1),
         ],
     )
     def test_invalid_config_values_raise(self, field: str, value: Any) -> None:
@@ -57,6 +59,8 @@ class TestValidateAPConfig:
             postural_var_ratio_thresh=1.5,
             max_clusters=3,
             confidence_floor=0.2,
-            lateral_thresh=0.3,
-            edge_thresh=0.2,
+            lateral_thresh_pct=50.0,
+            edge_thresh_pct=70.0,
+            lateral_var_weight=1.0,
+            longitudinal_var_weight=0.0,
         )

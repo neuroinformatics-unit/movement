@@ -56,12 +56,19 @@ class ValidateAPConfig:
     confidence_floor : float, default=0.1
         Vote margin below which the anterior inference is flagged as
         unreliable.
-    lateral_thresh : float, default=0.4
-        Normalized lateral offset ceiling for the Step 1 lateral alignment
-        filter.
-    edge_thresh : float, default=0.3
-        Normalized midpoint distance floor for the Step 3 distal/proximal
-        classification.
+    lateral_thresh_pct : float, default=50.0
+        Percentile threshold for Step 1 lateral alignment filter. Keypoints
+        with effective lateral score above this percentile are eliminated.
+    edge_thresh_pct : float, default=70.0
+        Percentile threshold for Step 3 distal/proximal classification.
+        Pairs where both nodes have normalized midpoint distance above this
+        percentile are classified as "distal".
+    lateral_var_weight : float, default=1.0
+        Weight for lateral (PC2) position variance penalty in Step 1 filter.
+        Higher values penalize keypoints that swing side-to-side.
+    longitudinal_var_weight : float, default=0.5
+        Weight for longitudinal (PC1) position variance penalty in Step 1
+        filter. Higher values penalize keypoints that move along the AP axis.
 
     """
 
@@ -73,16 +80,16 @@ class ValidateAPConfig:
     postural_var_ratio_thresh: float = 2.0
     max_clusters: int = 4
     confidence_floor: float = 0.1
-    lateral_thresh: float = 0.4
-    edge_thresh: float = 0.3
+    lateral_thresh_pct: float = 50.0
+    edge_thresh_pct: float = 70.0
+    lateral_var_weight: float = 1.0
+    longitudinal_var_weight: float = 0.5
 
     def __post_init__(self) -> None:
         """Validate configuration parameters."""
         for name in (
             "min_valid_frac",
             "confidence_floor",
-            "lateral_thresh",
-            "edge_thresh",
         ):
             value = getattr(self, name)
             if not (0 <= value <= 1):
@@ -97,16 +104,23 @@ class ValidateAPConfig:
                     f"{name} must be a positive integer, got {value}"
                 )
 
-        if not (0 <= self.pct_thresh <= 100):
-            raise ValueError(
-                f"pct_thresh must be between 0 and 100, got {self.pct_thresh}"
-            )
+        for name in ("pct_thresh", "lateral_thresh_pct", "edge_thresh_pct"):
+            value = getattr(self, name)
+            if not (0 <= value <= 100):
+                raise ValueError(
+                    f"{name} must be between 0 and 100, got {value}"
+                )
 
         if self.postural_var_ratio_thresh <= 0:
             raise ValueError(
                 f"postural_var_ratio_thresh must be positive, "
                 f"got {self.postural_var_ratio_thresh}"
             )
+
+        for name in ("lateral_var_weight", "longitudinal_var_weight"):
+            value = getattr(self, name)
+            if value < 0:
+                raise ValueError(f"{name} must be non-negative, got {value}")
 
 
 @dataclass
@@ -194,6 +208,16 @@ class APNodePairReport:
         Minimum lateral offset among valid keypoints.
     lateral_offset_max : float
         Maximum lateral offset among valid keypoints.
+    lateral_std : np.ndarray
+        Per-keypoint standard deviation of lateral (PC2) position across
+        selected frames. Higher values indicate more swing/instability.
+    lateral_std_norm : np.ndarray
+        Normalized lateral std (0 = most stable, 1 = most variable).
+    longitudinal_std : np.ndarray
+        Per-keypoint standard deviation of longitudinal (PC1) position
+        across selected frames. Higher values indicate more AP movement.
+    longitudinal_std_norm : np.ndarray
+        Normalized longitudinal std (0 = most stable, 1 = most variable).
     midpoint_pc1 : float
         AP reference midpoint (average of min and max PC1 projections).
     pc1_min : float
@@ -205,9 +229,11 @@ class APNodePairReport:
     midline_dist_max : float
         Maximum absolute distance from midpoint.
     distal_pairs : np.ndarray
-        Array of distal pairs (both nodes at or above edge_thresh).
+        Array of distal pairs (both nodes at or above
+        edge_thresh_pct percentile).
     proximal_pairs : np.ndarray
-        Array of proximal pairs (at least one node below edge_thresh).
+        Array of proximal pairs (at least one node below
+        edge_thresh_pct percentile).
     max_separation_distal_nodes : np.ndarray
         Node indices of the maximum-separation distal pair, ordered
         so that element 0 is posterior (lower AP coord) and element 1
@@ -255,6 +281,12 @@ class APNodePairReport:
     )
     lateral_offset_min: float = np.nan
     lateral_offset_max: float = np.nan
+    lateral_std: np.ndarray = field(default_factory=lambda: np.array([]))
+    lateral_std_norm: np.ndarray = field(default_factory=lambda: np.array([]))
+    longitudinal_std: np.ndarray = field(default_factory=lambda: np.array([]))
+    longitudinal_std_norm: np.ndarray = field(
+        default_factory=lambda: np.array([])
+    )
     midpoint_pc1: float = np.nan
     pc1_min: float = np.nan
     pc1_max: float = np.nan
@@ -801,10 +833,6 @@ def compute_postural_variance_ratio(
     return var_ratio, within_rmsds, between_rmsds, var_ratio_override
 
 
-# Clustering (k-medoids)
-# ───────────────────────
-
-
 def _update_medoid_for_cluster(
     cluster: int,
     labels: np.ndarray,
@@ -821,6 +849,10 @@ def _update_medoid_for_cluster(
     total_dists = np.sum(cluster_dists, axis=1)
     best_idx = np.argmin(total_dists)
     return cluster_indices[best_idx]
+
+
+# K-Medoids Clustering
+# ─────────────────────
 
 
 def kmedoids(
@@ -1218,6 +1250,21 @@ def compute_cluster_pca_and_anterior(
     result["proj_pc1"] = proj_pc1
     result["proj_pc2"] = proj_pc2
 
+    # Compute per-keypoint position std across frames (for variance penalty)
+    lateral_per_frame = skels_c @ PC2  # (n_frames, n_keypoints)
+    longitudinal_per_frame = skels_c @ PC1  # (n_frames, n_keypoints)
+
+    lateral_std = np.full(n_keypoints, np.nan)
+    longitudinal_std = np.full(n_keypoints, np.nan)
+    lateral_std[valid_shape_rows] = np.nanstd(
+        lateral_per_frame[:, valid_shape_rows], axis=0
+    )
+    longitudinal_std[valid_shape_rows] = np.nanstd(
+        longitudinal_per_frame[:, valid_shape_rows], axis=0
+    )
+    result["lateral_std"] = lateral_std
+    result["longitudinal_std"] = longitudinal_std
+
     velocities = compute_cluster_velocities(
         selected_frames,
         selected_seg_id,
@@ -1275,15 +1322,22 @@ def compute_node_projections(
     proj_pc1_valid = report.pc1_coords[valid_shape_rows]
     report.pc1_min = float(np.min(proj_pc1_valid))
     report.pc1_max = float(np.max(proj_pc1_valid))
-    report.midpoint_pc1 = (report.pc1_min + report.pc1_max) / 2
+    # Use centroid (mean) instead of geometric center for better robustness
+    report.midpoint_pc1 = float(np.mean(proj_pc1_valid))
 
 
 def apply_lateral_filter(
     report: APNodePairReport,
     valid_idx: np.ndarray,
-    lateral_thresh: float,
+    lateral_std: np.ndarray,
+    longitudinal_std: np.ndarray,
+    config: ValidateAPConfig,
 ) -> np.ndarray | None:
-    """Step 1: Filter keypoints by normalized lateral offset.
+    """Step 1: Filter keypoints by normalized lateral offset + variance.
+
+    Filters keypoints based on their mean lateral offset from the body axis,
+    optionally penalized by lateral and longitudinal position variance.
+    Higher variance indicates less stable keypoints (e.g., swinging tail tip).
 
     Returns sorted candidate node indices, or None on failure.
 
@@ -1294,17 +1348,54 @@ def apply_lateral_filter(
     report.lateral_offset_min = d_min
     report.lateral_offset_max = d_max
 
+    # Normalize using min-max scaling for better discrimination
+    # d_norm=0 means minimum lateral offset, d_norm=1 means maximum
     if d_max > d_min:
         d_norm = (d_valid - d_min) / (d_max - d_min)
-        report.lateral_offsets_norm[valid_idx] = d_norm
-        keep_mask = d_norm <= lateral_thresh
     else:
-        report.lateral_offsets_norm[valid_idx] = np.zeros(len(d_valid))
-        keep_mask = np.ones(len(d_valid), dtype=bool)
+        d_norm = np.zeros(len(d_valid))
+    report.lateral_offsets_norm[valid_idx] = d_norm
+
+    # Normalize lateral std to [0, 1]
+    lat_std_valid = lateral_std[valid_idx]
+    lat_std_max = float(np.nanmax(lat_std_valid))
+    if lat_std_max > 0:
+        lat_std_norm = lat_std_valid / lat_std_max
+    else:
+        lat_std_norm = np.zeros(len(lat_std_valid))
+    report.lateral_std[valid_idx] = lat_std_valid
+    report.lateral_std_norm[valid_idx] = lat_std_norm
+
+    # Normalize longitudinal std to [0, 1]
+    long_std_valid = longitudinal_std[valid_idx]
+    long_std_max = float(np.nanmax(long_std_valid))
+    if long_std_max > 0:
+        long_std_norm = long_std_valid / long_std_max
+    else:
+        long_std_norm = np.zeros(len(long_std_valid))
+    report.longitudinal_std[valid_idx] = long_std_valid
+    report.longitudinal_std_norm[valid_idx] = long_std_norm
+
+    # Combined effective lateral score:
+    # mean_offset + lateral_var_weight * lateral_std 
+    # + long_var_weight * long_std
+    effective_lateral = (
+        d_norm
+        + config.lateral_var_weight * lat_std_norm
+        + config.longitudinal_var_weight * long_std_norm
+    )
+
+    # Use percentile threshold for robust filtering
+    # This adapts to the distribution of scores in each dataset
+    percentile_thresh = float(
+        np.percentile(effective_lateral, config.lateral_thresh_pct)
+    )
+    keep_mask = effective_lateral <= percentile_thresh
 
     candidate_idx = np.nonzero(keep_mask)[0]
     candidates = valid_idx[candidate_idx]
-    sorted_order = np.argsort(d_valid[candidate_idx])
+    # Sort by effective lateral score (lowest = closest to axis + most stable)
+    sorted_order = np.argsort(effective_lateral[candidate_idx])
     candidates = candidates[sorted_order]
     report.sorted_candidate_nodes = candidates.copy()
 
@@ -1395,7 +1486,7 @@ def classify_distal_proximal(
     pairs: np.ndarray,
     seps: np.ndarray,
     valid_shape_rows: np.ndarray,
-    edge_thresh: float,
+    edge_thresh_pct: float,
 ) -> np.ndarray:
     """Step 3: Classify pairs as distal or proximal. Returns pair_is_distal."""
     m = report.midpoint_pc1
@@ -1408,32 +1499,58 @@ def classify_distal_proximal(
     else:
         report.midline_dist_norm = np.zeros(len(report.pc1_coords))
 
+    # Collect midline distances for candidate nodes in pairs
+    candidate_nodes = np.unique(pairs.flatten())
+    candidate_dists = report.midline_dist_norm[candidate_nodes]
+    candidate_dists = candidate_dists[~np.isnan(candidate_dists)]
+
+    # Use percentile threshold for robust distal/proximal classification
+    if len(candidate_dists) > 0:
+        percentile_thresh = float(
+            np.percentile(candidate_dists, edge_thresh_pct)
+        )
+    else:
+        percentile_thresh = 0.5  # Fallback when no candidates
+
     pair_is_distal = np.zeros(len(pairs), dtype=bool)
     for k in range(len(pairs)):
         i, j = pairs[k]
         pair_is_distal[k] = (
             min(report.midline_dist_norm[i], report.midline_dist_norm[j])
-            >= edge_thresh
+            >= percentile_thresh
         )
 
     report.distal_pairs = pairs[pair_is_distal]
     report.proximal_pairs = pairs[~pair_is_distal]
 
+    # Compute weighted separations that penalize
+    # high-variance (unstable) nodes.
+    # This favors stable body-core keypoints over swinging extremities.
+    # weighted_sep = sep * (1 - avg_variance_of_pair)
+    lateral_std_norm = report.lateral_std_norm
+    weighted_seps = np.zeros(len(seps))
+    for k in range(len(pairs)):
+        i, j = pairs[k]
+        std_i = lateral_std_norm[i] if not np.isnan(lateral_std_norm[i]) else 0
+        std_j = lateral_std_norm[j] if not np.isnan(lateral_std_norm[j]) else 0
+        avg_std = (std_i + std_j) / 2
+        weighted_seps[k] = seps[k] * (1 - avg_std)
+
     if len(seps) > 0:
-        idx_max = int(np.argmax(seps))
+        idx_max = int(np.argmax(weighted_seps))
         report.max_separation_nodes = order_pair_by_ap(
             pairs[idx_max], report.ap_coords
         )
         report.max_separation = seps[idx_max]
 
     if np.any(pair_is_distal):
-        distal_seps = seps[pair_is_distal]
+        distal_weighted_seps = weighted_seps[pair_is_distal]
         distal_pairs_only = pairs[pair_is_distal]
-        idx_max_distal = int(np.argmax(distal_seps))
+        idx_max_distal = int(np.argmax(distal_weighted_seps))
         report.max_separation_distal_nodes = order_pair_by_ap(
             distal_pairs_only[idx_max_distal], report.ap_coords
         )
-        report.max_separation_distal = distal_seps[idx_max_distal]
+        report.max_separation_distal = seps[pair_is_distal][idx_max_distal]
 
     return pair_is_distal
 
@@ -1651,6 +1768,8 @@ def evaluate_ap_node_pair(
     pc1_vec: np.ndarray,
     anterior_sign: int,
     valid_shape_rows: np.ndarray,
+    lateral_std: np.ndarray,
+    longitudinal_std: np.ndarray,
     from_node: int,
     to_node: int,
     config: ValidateAPConfig,
@@ -1667,6 +1786,13 @@ def evaluate_ap_node_pair(
         Inferred anterior direction (+1 or -1 relative to PC1).
     valid_shape_rows : np.ndarray
         Boolean array indicating valid (non-NaN) keypoints.
+    lateral_std : np.ndarray
+        Per-keypoint standard deviation of lateral (PC2) position across
+        selected frames. Used to penalize high-swing keypoints.
+    longitudinal_std : np.ndarray
+        Per-keypoint standard deviation of longitudinal (PC1) position
+        across selected frames. Used to penalize keypoints with high
+        AP movement variance.
     from_node : int
         Index of the input from_node (body_axis_keypoints origin,
         claimed posterior). 0-indexed.
@@ -1674,7 +1800,8 @@ def evaluate_ap_node_pair(
         Index of the input to_node (body_axis_keypoints target,
         claimed anterior). 0-indexed.
     config : ValidateAPConfig
-        Configuration with ``lateral_thresh`` and ``edge_thresh``.
+        Configuration with ``lateral_thresh_pct``, ``edge_thresh_pct``, and
+        variance weight parameters.
 
     Returns
     -------
@@ -1688,6 +1815,10 @@ def evaluate_ap_node_pair(
     report.ap_coords = np.full(n_keypoints, np.nan)
     report.lateral_offsets = np.full(n_keypoints, np.nan)
     report.lateral_offsets_norm = np.full(n_keypoints, np.nan)
+    report.lateral_std = np.full(n_keypoints, np.nan)
+    report.lateral_std_norm = np.full(n_keypoints, np.nan)
+    report.longitudinal_std = np.full(n_keypoints, np.nan)
+    report.longitudinal_std_norm = np.full(n_keypoints, np.nan)
     report.midline_dist_norm = np.full(n_keypoints, np.nan)
 
     for node, label in [(from_node, "from_node"), (to_node, "to_node")]:
@@ -1714,7 +1845,9 @@ def evaluate_ap_node_pair(
         to_node,
     )
 
-    candidates = apply_lateral_filter(report, valid_idx, config.lateral_thresh)
+    candidates = apply_lateral_filter(
+        report, valid_idx, lateral_std, longitudinal_std, config
+    )
     if candidates is None:
         return report
 
@@ -1734,7 +1867,7 @@ def evaluate_ap_node_pair(
         pairs,
         seps,
         valid_shape_rows,
-        config.edge_thresh,
+        config.edge_thresh_pct,
     )
 
     input_in_valid, input_idx = check_input_pair_in_valid(
@@ -2058,7 +2191,6 @@ def run_clustering_and_pca(
     frame_sel: FrameSelection,
     config: ValidateAPConfig,
     log_info,
-    log_warning,
 ) -> dict | None:
     """Run postural analysis, clustering, and per-cluster PCA.
 
@@ -2380,31 +2512,80 @@ def log_step1_report(pair_report, config, valid_nodes, log_info):
     num_candidates = len(pair_report.sorted_candidate_nodes)
     step1_loss = 1 - num_candidates / max(num_valid, 1)
 
+    # Compute effective lateral score for each node
+    effective_scores = []
+    node_details = []
+    for node_i in valid_nodes:
+        d_norm = pair_report.lateral_offsets_norm[node_i]
+        lat_std_norm = pair_report.lateral_std_norm[node_i]
+        long_std_norm = pair_report.longitudinal_std_norm[node_i]
+
+        # Handle NaN values
+        lat_std_norm = 0.0 if np.isnan(lat_std_norm) else lat_std_norm
+        long_std_norm = 0.0 if np.isnan(long_std_norm) else long_std_norm
+
+        effective = (
+            d_norm
+            + config.lateral_var_weight * lat_std_norm
+            + config.longitudinal_var_weight * long_std_norm
+        )
+        effective_scores.append(effective)
+        node_details.append((node_i, effective))
+
+    # Compute percentile threshold from distribution
+    if len(effective_scores) > 0:
+        percentile_thresh = float(
+            np.percentile(effective_scores, config.lateral_thresh_pct)
+        )
+    else:
+        percentile_thresh = 0.0
+
     pass_strs = []
     fail_strs = []
-    for node_i in valid_nodes:
-        lat_norm = pair_report.lateral_offsets_norm[node_i]
-        if lat_norm <= config.lateral_thresh:
-            pass_strs.append(f"{node_i}({lat_norm:.2f})")
+    for node_i, effective in node_details:
+        detail = f"{node_i}(eff={effective:.2f})"
+        if effective <= percentile_thresh:
+            pass_strs.append(detail)
         else:
-            fail_strs.append(f"{node_i}({lat_norm:.2f})")
+            fail_strs.append(detail)
 
     log_info("")
     log_info(
-        "Step 1 - Lateral Alignment Filter (lateral_thresh=%.2f): "
-        "%d of %d valid nodes pass [loss=%.0f%%]",
-        config.lateral_thresh,
+        "Step 1 - Lateral Alignment Filter: %d of %d valid nodes pass "
+        "[loss=%.0f%%]",
         num_candidates,
         num_valid,
         100 * step1_loss,
     )
     log_info(
-        "  Scale: 0.00 = nearest to body axis, 1.00 = farthest from body axis"
+        "  Config: lateral_thresh_pct=%.0f, lateral_var_weight=%.2f, "
+        "longitudinal_var_weight=%.2f",
+        config.lateral_thresh_pct,
+        config.lateral_var_weight,
+        config.longitudinal_var_weight,
+    )
+    log_info(
+        "  Percentile threshold: %.0fth pct = %.2f",
+        config.lateral_thresh_pct,
+        percentile_thresh,
+    )
+    log_info(
+        "  Score = d_norm + %.2f×lat_std_norm + %.2f×long_std_norm",
+        config.lateral_var_weight,
+        config.longitudinal_var_weight,
     )
     if pass_strs:
-        log_info("  PASS: %s", ", ".join(pass_strs))
+        log_info(
+            "  PASS (score <= %.2f): %s",
+            percentile_thresh,
+            ", ".join(pass_strs),
+        )
     if fail_strs:
-        log_info("  FAIL: %s", ", ".join(fail_strs))
+        log_info(
+            "  FAIL (score > %.2f): %s",
+            percentile_thresh,
+            ", ".join(fail_strs),
+        )
 
 
 def log_step2_report(pair_report, _config, log_info):
@@ -2446,14 +2627,30 @@ def log_step3_report(pair_report, config, log_info):
     num_valid_pairs = len(pair_report.valid_pairs)
     step3_distal_frac = num_distal / max(num_valid_pairs, 1)
 
+    # Compute percentile threshold from candidate distances
+    candidate_nodes = np.unique(pair_report.valid_pairs.flatten())
+    candidate_dists = pair_report.midline_dist_norm[candidate_nodes]
+    candidate_dists = candidate_dists[~np.isnan(candidate_dists)]
+    if len(candidate_dists) > 0:
+        percentile_thresh = float(
+            np.percentile(candidate_dists, config.edge_thresh_pct)
+        )
+    else:
+        percentile_thresh = 0.5
+
     log_info("")
     log_info(
-        "Step 3 - Distal/Proximal Classification (edge_thresh=%.2f): "
+        "Step 3 - Distal/Proximal Classification (edge_thresh_pct=%.0f): "
         "%d distal, %d proximal [distal fraction=%.0f%%]",
-        config.edge_thresh,
+        config.edge_thresh_pct,
         num_distal,
         num_proximal,
         100 * step3_distal_frac,
+    )
+    log_info(
+        "  Percentile threshold: %.0fth pct = %.2f",
+        config.edge_thresh_pct,
+        percentile_thresh,
     )
 
     for idx in range(num_valid_pairs):
@@ -2462,7 +2659,7 @@ def log_step3_report(pair_report, config, log_info):
         d_j = pair_report.midline_dist_norm[node_j]
         min_d = min(d_i, d_j)
         sep = pair_report.valid_pairs_internode_dist[idx]
-        status = "DISTAL" if min_d >= config.edge_thresh else "PROXIMAL"
+        status = "DISTAL" if min_d >= percentile_thresh else "PROXIMAL"
         log_info(
             "  [%d,%d]: min_d=%.2f, sep=%.2f [%s]",
             node_i,
@@ -2551,19 +2748,21 @@ def log_input_node_status(
     log_info,
 ):
     """Log whether each input node passed the lateral filter."""
-    lat_from = pair_report.lateral_offsets_norm[from_idx]
-    lat_to = pair_report.lateral_offsets_norm[to_idx]
-    from_pass = not np.isnan(lat_from) and lat_from <= config.lateral_thresh
-    to_pass = not np.isnan(lat_to) and lat_to <= config.lateral_thresh
+    # Check if input nodes are in the candidates that passed Step 1
+    candidates = pair_report.sorted_candidate_nodes
+    from_pass = from_idx in candidates
+    to_pass = to_idx in candidates
 
     if from_pass and to_pass:
         return
 
     fail_nodes = []
     if not from_pass:
-        fail_nodes.append(f"{from_idx}({lat_from:.2f})")
+        lat_from = pair_report.lateral_offsets_norm[from_idx]
+        fail_nodes.append(f"{from_idx}(lat={lat_from:.2f})")
     if not to_pass:
-        fail_nodes.append(f"{to_idx}({lat_to:.2f})")
+        lat_to = pair_report.lateral_offsets_norm[to_idx]
+        fail_nodes.append(f"{to_idx}(lat={lat_to:.2f})")
     log_info(
         "  -> Input node(s) FAILED lateral filter: %s",
         ", ".join(fail_nodes),
@@ -2633,10 +2832,20 @@ def log_step3_with_proximal_check(
     if is_candidate and is_opposite and is_proximal:
         d_from = pair_report.midline_dist_norm[from_idx]
         d_to = pair_report.midline_dist_norm[to_idx]
+        # Compute percentile threshold for context
+        candidate_nodes = np.unique(pair_report.valid_pairs.flatten())
+        candidate_dists = pair_report.midline_dist_norm[candidate_nodes]
+        candidate_dists = candidate_dists[~np.isnan(candidate_dists)]
+        if len(candidate_dists) > 0:
+            pct_thresh = float(
+                np.percentile(candidate_dists, config.edge_thresh_pct)
+            )
+        else:
+            pct_thresh = 0.5
         log_info(
             "  -> Input pair is PROXIMAL (min_d=%.2f < %.2f)",
             min(d_from, d_to),
-            config.edge_thresh,
+            pct_thresh,
         )
 
     return step3_frac
@@ -2776,7 +2985,6 @@ def validate_ap(
         frame_sel,
         config,
         _log_info,
-        _log_warning,
     )
     if pca is None:
         result["error_msg"] = "Primary cluster PCA failed."
@@ -2791,6 +2999,8 @@ def validate_ap(
     result["PC1"] = pr["PC1"]
     result["PC2"] = pr["PC2"]
     result["avg_skeleton"] = pr["avg_skeleton"]
+    result["lateral_std"] = pr["lateral_std"]
+    result["longitudinal_std"] = pr["longitudinal_std"]
     result["num_clusters"] = pca["num_clusters"]
     result["primary_cluster"] = pca["primary_cluster"]
 
@@ -2811,6 +3021,8 @@ def validate_ap(
         pr["PC1"],
         pr["anterior_sign"],
         pr["valid_shape_rows"],
+        pr["lateral_std"],
+        pr["longitudinal_std"],
         from_idx,
         to_idx,
         config,
