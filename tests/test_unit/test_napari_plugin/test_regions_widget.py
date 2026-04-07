@@ -8,6 +8,7 @@ from qtpy.QtCore import QItemSelection, QModelIndex, Qt
 from qtpy.QtWidgets import (
     QComboBox,
     QGroupBox,
+    QMessageBox,
     QTableView,
 )
 
@@ -62,6 +63,15 @@ def regions_widget_with_layer(regions_widget, two_polygons):
     layer.properties = {
         "name": [DEFAULT_REGION_NAME, f"{DEFAULT_REGION_NAME}_1"]
     }
+    return regions_widget, layer
+
+
+@pytest.fixture
+def regions_widget_with_duplicate_names(regions_widget, two_polygons):
+    """Return a RegionsWidget and a shapes layer with duplicate names."""
+    viewer = regions_widget.viewer
+    layer = add_regions_layer(viewer, two_polygons, shape_type="polygon")
+    layer.properties = {"name": ["arena", "arena"]}
     return regions_widget, layer
 
 
@@ -428,6 +438,67 @@ def test_save_region_layer(
         rois_arg, path_arg = mock_save.call_args.args
         assert len(rois_arg) == 2  # regions_widget_with_layer has 2 shapes
         assert path_arg == "/fake/my_regions.geojson"
+
+
+@pytest.mark.parametrize(
+    "fixture_name, user_response, expect_warning, expect_save",
+    [
+        pytest.param(
+            "regions_widget_with_duplicate_names",
+            QMessageBox.Save,
+            True,
+            True,
+            id="duplicates_user_confirms",
+        ),
+        pytest.param(
+            "regions_widget_with_duplicate_names",
+            QMessageBox.Cancel,
+            True,
+            False,
+            id="duplicates_user_cancels",
+        ),
+        pytest.param(
+            "regions_widget_with_layer",
+            None,
+            False,
+            True,
+            id="unique_names_no_warning",
+        ),
+    ],
+)
+def test_save_region_layer_duplicate_name_warning(
+    fixture_name,
+    user_response,
+    expect_warning,
+    expect_save,
+    request,
+    mocker,
+):
+    """Test the duplicate-name warning when saving a region layer."""
+    widget, _ = request.getfixturevalue(fixture_name)
+    mock_warning = mocker.patch(
+        "movement.napari.regions_widget.QMessageBox.warning",
+        return_value=user_response,
+    )
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getSaveFileName",
+        return_value=("/fake/my_regions.geojson", None),
+    )
+    mock_save = mocker.patch(
+        "movement.napari.regions_widget.save_rois",
+    )
+
+    widget._save_region_layer()
+
+    if expect_warning:
+        mock_warning.assert_called_once()
+    else:
+        mock_warning.assert_not_called()
+
+    if expect_save:
+        mock_save.assert_called_once()
+    else:
+        mock_save.assert_not_called()
 
 
 def test_add_multiple_layers_increments_name(regions_widget):

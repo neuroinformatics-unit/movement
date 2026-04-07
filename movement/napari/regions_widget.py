@@ -18,6 +18,7 @@ from qtpy.QtWidgets import (
     QFileDialog,
     QGridLayout,
     QGroupBox,
+    QMessageBox,
     QPushButton,
     QTableView,
     QVBoxLayout,
@@ -260,7 +261,27 @@ class RegionsWidget(QWidget):
         self.layer_dropdown.setCurrentText(new_layer.name)
 
     def _save_region_layer(self):
-        """Save all regions in the current layer to a GeoJSON file."""
+        """Save all regions in the current layer to a GeoJSON file.
+
+        If duplicate region names are detected, a warning dialog is
+        shown, giving the user the option to cancel and rename first.
+        """
+        layer = self.region_table_model.layer
+        names = list(self.region_table_model.layer.properties.get("name", []))
+        duplicates = {n for n in names if names.count(n) > 1}
+        if duplicates:
+            answer = QMessageBox.warning(
+                self,
+                "",
+                "Some regions share the same name: "
+                f"{', '.join(sorted(duplicates))}.\n\n"
+                "Save anyway?",
+                QMessageBox.Save | QMessageBox.Cancel,
+                QMessageBox.Cancel,
+            )
+            if answer != QMessageBox.Save:
+                return
+
         file_path, _ = QFileDialog.getSaveFileName(
             self,
             "Save region layer",
@@ -271,7 +292,7 @@ class RegionsWidget(QWidget):
             return
 
         try:
-            rois = napari_shapes_to_rois(self.region_table_model.layer)
+            rois = napari_shapes_to_rois(layer)
             save_rois(rois, file_path)
             logger.info(f"Saved {len(rois)} regions to '{file_path}'.")
         except Exception as e:
