@@ -6,6 +6,7 @@ import pytest
 import xarray as xr
 
 from movement import kinematics
+from movement.kinematics import compute_turning_angle
 
 
 @pytest.fixture
@@ -431,3 +432,277 @@ class TestForwardVectorAngle:
 
         xr.testing.assert_allclose(pass_numpy, pass_tuple)
         xr.testing.assert_allclose(pass_numpy, pass_list)
+
+
+class TestTurningAngle:
+    """Test the compute_turning_angle function."""
+
+    def test_output_shape_and_attributes(
+        self, valid_data_array_for_forward_vector
+    ):
+        """Test that the function returns the correct shape,
+        dimensions, and attributes.
+        """
+        angles = compute_turning_angle(valid_data_array_for_forward_vector)
+
+        # Space dimension must be dropped, others preserved
+        assert (
+            angles.sizes["time"]
+            == valid_data_array_for_forward_vector.sizes["time"]
+        )
+        assert "space" not in angles.dims
+        assert "individuals" in angles.dims
+
+        # Attributes
+        assert angles.name == "turning_angle"
+        assert angles.attrs.get("units") == "radians"
+
+    @pytest.mark.parametrize(
+        "positions, expected_angle_deg",
+        [
+            ([[0, 0], [1, 0], [2, 0]], 0.0),
+            ([[0, 0], [1, 0], [1, 1]], 90.0),
+            ([[0, 0], [1, 0], [1, -1]], -90.0),
+            (
+                [
+                    [0.0, 0.0],
+                    [np.cos(np.deg2rad(170)), np.sin(np.deg2rad(170))],
+                    [
+                        np.cos(np.deg2rad(170)) + np.cos(np.deg2rad(-170)),
+                        np.sin(np.deg2rad(170)) + np.sin(np.deg2rad(-170)),
+                    ],
+                ],
+                20.0,
+            ),
+        ],
+    )
+    def test_known_turning_angles(self, positions, expected_angle_deg):
+        """Test mathematical correctness of
+        turning angles for specific trajectories.
+        """
+        pos_array = np.array(positions)
+        data = xr.DataArray(
+            pos_array,
+            dims=["time", "space"],
+            coords={"time": np.arange(len(pos_array)), "space": ["x", "y"]},
+        )
+
+        angles = compute_turning_angle(data, in_degrees=True)
+        assert angles.attrs.get("units") == "degrees"
+        assert np.isclose(
+            angles.isel(time=2).item(), expected_angle_deg, atol=1e-6
+        )
+
+    def test_min_step_length_masking(self):
+        """Test that steps smaller than min_step_length
+        result in NaN turning angles.
+        """
+        # Trajectory with a tiny "jitter" step in the middle
+        # t0 -> t1: length 1.0 (valid)
+        # t1 -> t2: length ~1.4e-5 (invalid jitter)
+        # t2 -> t3: length ~1.0 (valid)
+        positions = np.array(
+            [[0.0, 0.0], [1.0, 0.0], [1.0 + 1e-5, 1e-5], [2.0, 1e-5]]
+        )
+        data = xr.DataArray(
+            positions,
+            dims=["time", "space"],
+            coords={"time": np.arange(len(positions)), "space": ["x", "y"]},
+        )
+
+        angles_default = compute_turning_angle(data, min_step_length=0.0)
+        assert not np.isnan(angles_default.isel(time=2).item())
+
+        # With min_step_length=1e-4, the tiny step is masked.
+        angles_masked = compute_turning_angle(data, min_step_length=1e-4)
+        assert np.isnan(angles_masked.isel(time=2).item())
+        assert np.isnan(angles_masked.isel(time=3).item())
+
+    def test_stationary_animal_all_nan(self):
+        """Test that an animal that never moves returns all NaNs."""
+        positions = np.array([[5.0, 5.0], [5.0, 5.0], [5.0, 5.0], [5.0, 5.0]])
+        data = xr.DataArray(
+            positions,
+            dims=["time", "space"],
+            coords={"time": np.arange(len(positions)), "space": ["x", "y"]},
+        )
+        angles = compute_turning_angle(data)
+        assert np.all(np.isnan(angles.values))
+
+    def test_nan_propagation(self, valid_data_array_for_forward_vector):
+        """Test that a NaN position correctly
+        invalidates adjacent turning angles.
+        """
+        # Convert to float so we can safely insert np.nan
+        data = valid_data_array_for_forward_vector.copy().astype(float)
+
+        # Explicit, guaranteed assignment using .loc
+        data.loc[
+            {"time": 2, "individuals": "id_0", "keypoints": "left_ear"}
+        ] = np.nan  # type: ignore[index]
+
+        angles = compute_turning_angle(data)
+
+        # A NaN at t=2 must break the steps at t=2 and t=3
+        assert np.isnan(
+            angles.sel(time=2, individuals="id_0", keypoints="left_ear").item()
+        )
+        assert np.isnan(
+            angles.sel(time=3, individuals="id_0", keypoints="left_ear").item()
+        )
+
+    def test_u_turn_180_degrees(self):
+        """Test that a perfect 180-degree U-turn
+        returns exactly 180.0 degrees.
+        """
+        # Moves right to (1,0), then immediately back left to (0,0)
+        positions = np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 0.0]])
+        data = xr.DataArray(
+            positions,
+            dims=["time", "space"],
+            coords={"time": np.arange(len(positions)), "space": ["x", "y"]},
+        )
+
+        angles = compute_turning_angle(data, in_degrees=True)
+
+        # The turn happens at time step 2
+        assert np.isclose(angles.isel(time=2).item(), 180.0, atol=1e-6)
+
+    def test_two_time_points_returns_all_nan(self):
+        """With only 2 time steps, all turning angles
+        must be NaN (need ≥3 positions).
+        """
+        positions = np.array([[0.0, 0.0], [1.0, 0.0]])
+        data = xr.DataArray(
+            positions,
+            dims=["time", "space"],
+            coords={"time": np.arange(len(positions)), "space": ["x", "y"]},
+        )
+
+        angles = compute_turning_angle(data)
+
+        # Array length is 2, so everything should be NaN
+        assert np.all(np.isnan(angles.values))
+
+    def test_stationary_keypoint_independent_masking(self):
+        """Zero-step masking is per-keypoint:
+        moving kp has valid angles; stationary kp all NaN.
+        """
+        # Create a 4-timestep array with 2 keypoints
+        # Shape: (time, keypoints, space)
+        data = np.zeros((4, 2, 2))
+
+        # kp_0: moves along x-axis (0, 1, 2, 3)
+        data[:, 0, 0] = [0, 1, 2, 3]
+        # kp_1: stays completely stationary at (5.0, 5.0)
+        data[:, 1, :] = 5.0
+
+        ds = xr.DataArray(
+            data,
+            dims=["time", "keypoints", "space"],
+            coords={
+                "time": np.arange(4),
+                "keypoints": ["kp_0", "kp_1"],
+                "space": ["x", "y"],
+            },
+        )
+
+        angles = compute_turning_angle(ds)
+
+        # Moving keypoint (kp_0): NaN at t=0, t=1; valid (0.0) at t=2, t=3
+        angles_kp0 = angles.isel(keypoints=0)
+        assert np.isnan(angles_kp0.isel(time=0).item())
+        assert np.isnan(angles_kp0.isel(time=1).item())
+        assert np.allclose(
+            angles_kp0.isel(time=slice(2, None)).values, 0.0, atol=1e-10
+        )
+
+        # Stationary keypoint (kp_1): should be all NaN
+        angles_kp1 = angles.isel(keypoints=1)
+        assert np.all(np.isnan(angles_kp1.values))
+
+
+class TestDirectionalChange:
+    """Test the compute_directional_change function."""
+
+    @pytest.fixture
+    def sample_data(self):
+        """Return a simple position data array for testing."""
+        time = [-1.0, 0.0, 1.0, 3.0, 6.0]
+        pos = np.array(
+            [
+                [-1, 0],
+                [0, 0],
+                [1, 0],
+                [1, 2],
+                [-2, 2],
+            ]
+        ).reshape(5, 1, 1, 2)
+
+        return xr.DataArray(
+            pos,
+            dims=["time", "individuals", "keypoints", "space"],
+            coords={
+                "time": time,
+                "individuals": ["id1"],
+                "keypoints": ["kp1"],
+                "space": ["x", "y"],
+            },
+        )
+
+    def test_directional_change_computation(self, sample_data):
+        """Test standard computation."""
+        from movement.kinematics import compute_directional_change
+
+        dc = compute_directional_change(sample_data)
+
+        assert dc.name == "directional_change"
+        assert dc.attrs["units"] == "radians/second"
+
+        dc_vals = dc.squeeze().values
+
+        # t=0, t=1: invalid turning angle (not enough prior steps)
+        assert np.isnan(dc_vals[0])
+        assert np.isnan(dc_vals[1])
+
+        # t=2: disp[1] is [1,0], disp[2] is [1,0], turning angle is 0.
+        # dt = time[3] - time[1] = 3.0 - 0.0 = 3.0. dc = 0 / 3.0 = 0.
+        np.testing.assert_allclose(dc_vals[2], 0.0)
+
+        # t=3: disp[2] is [1,0], disp[3] is [0,2], turning angle is pi/2.
+        # dt = time[4] - time[2] = 6.0 - 1.0 = 5.0. dc = (pi/2) / 5.0 = pi/10.
+        np.testing.assert_allclose(dc_vals[3], np.pi / 10)
+
+        # t=4: dt is NaN (no time[5]), so dc is NaN
+        assert np.isnan(dc_vals[4])
+
+    def test_in_degrees(self, sample_data):
+        """Test returning degrees."""
+        from movement.kinematics import compute_directional_change
+
+        dc = compute_directional_change(sample_data, in_degrees=True)
+        assert dc.attrs["units"] == "degrees/second"
+        dc_vals = dc.squeeze().values
+
+        np.testing.assert_allclose(dc_vals[2], 0.0)
+        np.testing.assert_allclose(dc_vals[3], 90.0 / 5.0)
+
+    def test_min_step_length(self, sample_data):
+        """Test minimum step length."""
+        from movement.kinematics import compute_directional_change
+
+        dc = compute_directional_change(sample_data, min_step_length=1.5)
+        dc_vals = dc.squeeze().values
+
+        # t=2 step from t=1 to t=2 has length 1. So turn at t=2 is masked.
+        assert np.isnan(dc_vals[2])
+        # t=3 step from t=2 to t=3 is 2. Step from t=1 to t=2 is 1 (too short).
+        # Since disp.shift(1) for t=3 is disp[2], which has length 1.0 < 1.5,
+        # it is ALSO masked.
+        assert np.isnan(dc_vals[3])
+
+        # if min_step_length=0.5, both 1.0 and 2.0 and 3.0 are valid
+        dc2 = compute_directional_change(sample_data, min_step_length=0.5)
+        dc2_vals = dc2.squeeze().values
+        np.testing.assert_allclose(dc2_vals[2], 0.0)
+        np.testing.assert_allclose(dc2_vals[3], np.pi / 10)
