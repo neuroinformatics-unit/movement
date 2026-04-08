@@ -347,7 +347,9 @@ class TestComputePolarizationBehavior:
         self, cardinal_directions_positions
     ):
         """Polarization is 0.0 when four individuals move in cardinal dirs."""
-        polarization = kinematics.compute_polarization(cardinal_directions_positions)
+        polarization = kinematics.compute_polarization(
+            cardinal_directions_positions
+        )
         assert np.allclose(polarization.values[1:], 0.0, atol=1e-10)
 
     def test_partial_alignment_matches_expected_magnitude(
