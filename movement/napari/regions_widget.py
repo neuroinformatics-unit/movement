@@ -272,7 +272,7 @@ class RegionsWidget(QWidget):
         if duplicates:
             answer = QMessageBox.warning(
                 self,
-                "",
+                "Duplicate region names detected",
                 "Some regions share the same name: "
                 f"{', '.join(sorted(duplicates))}.\n\n"
                 "Save anyway?",
