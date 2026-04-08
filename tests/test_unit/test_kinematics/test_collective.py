@@ -119,7 +119,7 @@ def partial_alignment_positions() -> xr.DataArray:
 
 
 @pytest.fixture
-def perpendicular_positions() -> xr.DataArray:
+def cardinal_directions_positions() -> xr.DataArray:
     """Four individuals moving in cardinal directions (+x, -x, +y, -y)."""
     data = np.array(
         [
@@ -351,11 +351,13 @@ class TestComputePolarizationBehavior:
         polarization = kinematics.compute_polarization(opposite_positions)
         assert np.allclose(polarization.values[1:], 0.0, atol=1e-10)
 
-    def test_perpendicular_cardinal_directions_give_zero(
-        self, perpendicular_positions
+    def test_four_cardinal_directions_cancel_to_zero(
+        self, cardinal_directions_positions
     ):
         """Polarization is 0.0 when four individuals move in cardinal dirs."""
-        polarization = kinematics.compute_polarization(perpendicular_positions)
+        polarization = kinematics.compute_polarization(
+            cardinal_directions_positions
+        )
         assert np.allclose(polarization.values[1:], 0.0, atol=1e-10)
 
     def test_partial_alignment_matches_expected_magnitude(
@@ -1017,21 +1019,21 @@ class TestReturnAngle:
     def test_mean_angle_is_nan_when_net_vector_cancels(
         self,
         opposite_positions,
-        perpendicular_positions,
+        cardinal_directions_positions,
     ):
         """Mean angle is NaN when heading vectors cancel out."""
         pol_opposite, angle_opposite = kinematics.compute_polarization(
             opposite_positions,
             return_angle=True,
         )
-        pol_perp, angle_perp = kinematics.compute_polarization(
-            perpendicular_positions,
+        pol_cardinal, angle_cardinal = kinematics.compute_polarization(
+            cardinal_directions_positions,
             return_angle=True,
         )
         assert np.allclose(pol_opposite.values[1:], 0.0, atol=1e-10)
-        assert np.allclose(pol_perp.values[1:], 0.0, atol=1e-10)
+        assert np.allclose(pol_cardinal.values[1:], 0.0, atol=1e-10)
         assert np.all(np.isnan(angle_opposite.values[1:]))
-        assert np.all(np.isnan(angle_perp.values[1:]))
+        assert np.all(np.isnan(angle_cardinal.values[1:]))
 
     def test_mean_angle_rotates_with_global_rotation(
         self,
