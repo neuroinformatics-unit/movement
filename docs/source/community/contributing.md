@@ -664,7 +664,7 @@ you will need to add them to the `.binder/requirements.txt` file.
 
 For examples contributed by people outside the core development team, we add
 acknowledgements as an admonition near the top of the example file,
-following the pattern below.
+roughly following the pattern below.
 
 ```python
 """Title
