@@ -6,6 +6,15 @@ boundary angles relative to regions of interest (RoIs).
 """
 
 # %%
+# .. admonition:: Acknowledgements
+#   :class: note
+#
+#   The original version of this example was contributed by
+#   **Will Graham** (*TODO: affiliation / research group at the time*).
+#   *TODO: 1-2 sentences about the research application that inspired
+#   this example.*
+
+# %%
 # Imports
 # -------
 

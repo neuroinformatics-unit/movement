@@ -6,6 +6,15 @@ and save them to another file format.
 """
 
 # %%
+# .. admonition:: Acknowledgements
+#   :class: note
+#
+#   This example was contributed by **Laura Schwarz**
+#   (*TODO: affiliation / research group at the time*).
+#   *TODO: 1-2 sentences about the research application that inspired
+#   this example.*
+
+# %%
 # Motivation
 # ----------
 # When working with pose estimation data, it's often useful to convert

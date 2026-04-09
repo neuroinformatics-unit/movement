@@ -6,6 +6,15 @@ missing values.
 """
 
 # %%
+# .. admonition:: Acknowledgements
+#   :class: note
+#
+#   The original version of this example was contributed by
+#   **Brandon Peri** (*TODO: affiliation / research group at the time*).
+#   *TODO: 1-2 sentences about the research application that inspired
+#   this example.*
+
+# %%
 # Imports
 # -------
 import json

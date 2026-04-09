@@ -5,6 +5,15 @@ Look at eye movements and pupil diameter.
 """
 
 # %%
+# .. admonition:: Acknowledgements
+#   :class: note
+#
+#   This example was contributed by **Stella Prins**
+#   (*TODO: affiliation / research group at the time*).
+#   *TODO: 1-2 sentences about the research application that inspired
+#   this example.*
+
+# %%
 # Imports
 # -------
 import sleap_io as sio
