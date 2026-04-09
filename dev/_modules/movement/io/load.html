@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../_static/documentation_options.js?v=b72e0131"></script>
+    <script src="../../../_static/documentation_options.js?v=5f34a2f3"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -138,7 +138,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev7</p>
+    <p class="title logo__title">movement v0.15.1.dev8</p>
   
 </a></div>
     
@@ -474,7 +474,6 @@
     <span class="n">Literal</span><span class="p">,</span>
     <span class="n">ParamSpec</span><span class="p">,</span>
     <span class="n">Protocol</span><span class="p">,</span>
-    <span class="n">TypeAlias</span><span class="p">,</span>
     <span class="n">TypeVar</span><span class="p">,</span>
     <span class="n">cast</span><span class="p">,</span>
 <span class="p">)</span>
@@ -488,7 +487,7 @@
 
 <span class="n">TInputFile</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;TInputFile&quot;</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">)</span>
 <span class="n">P</span> <span class="o">=</span> <span class="n">ParamSpec</span><span class="p">(</span><span class="s2">&quot;P&quot;</span><span class="p">)</span>
-<span class="n">SourceSoftware</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
+<span class="nb">type</span> <span class="n">SourceSoftware</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
     <span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span>
     <span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span>
     <span class="s2">&quot;LightningPose&quot;</span><span class="p">,</span>
@@ -573,8 +572,8 @@
     <span class="k">return</span> <span class="n">suffix_map</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_validate_file</span><span class="p">(</span>
-    <span class="n">file</span><span class="p">:</span> <span class="n">TInputFile</span><span class="p">,</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_file</span><span class="p">[</span><span class="n">T</span><span class="p">:</span> <span class="p">(</span><span class="n">Path</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">)](</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
     <span class="n">suffix_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">type</span><span class="p">[</span><span class="n">ValidFile</span><span class="p">]],</span>
     <span class="n">source_software</span><span class="p">:</span> <span class="n">SourceSoftware</span><span class="p">,</span>
     <span class="n">loader_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

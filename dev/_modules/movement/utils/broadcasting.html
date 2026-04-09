@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../_static/documentation_options.js?v=b72e0131"></script>
+    <script src="../../../_static/documentation_options.js?v=5f34a2f3"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -138,7 +138,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev7</p>
+    <p class="title logo__title">movement v0.15.1.dev8</p>
   
 </a></div>
     
@@ -513,7 +513,6 @@
     <span class="n">Concatenate</span><span class="p">,</span>
     <span class="n">Literal</span><span class="p">,</span>
     <span class="n">ParamSpec</span><span class="p">,</span>
-    <span class="n">TypeAlias</span><span class="p">,</span>
     <span class="n">TypeVar</span><span class="p">,</span>
     <span class="n">overload</span><span class="p">,</span>
 <span class="p">)</span>
@@ -525,22 +524,24 @@
 <span class="n">ScalarOr1D</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ScalarOr1D&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">)</span>
 <span class="n">Self</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Self&quot;</span><span class="p">)</span>
 <span class="n">P</span> <span class="o">=</span> <span class="n">ParamSpec</span><span class="p">(</span><span class="s2">&quot;P&quot;</span><span class="p">)</span>
-<span class="n">ClsMethod1DTo1D</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
-    <span class="n">Concatenate</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">P</span><span class="p">],</span> <span class="n">ScalarOr1D</span>
+<span class="nb">type</span> <span class="n">ClsMethod1DTo1D</span><span class="p">[</span><span class="n">_Self</span><span class="p">,</span> <span class="o">**</span><span class="n">_P</span><span class="p">,</span> <span class="n">_S</span><span class="p">:</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">Callable</span><span class="p">[</span><span class="n">Concatenate</span><span class="p">[</span><span class="n">_Self</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">_P</span><span class="p">],</span> <span class="n">_S</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="nb">type</span> <span class="n">ClsMethodDaToDa</span><span class="p">[</span><span class="n">_Self</span><span class="p">,</span> <span class="o">**</span><span class="n">_P</span><span class="p">]</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="n">Concatenate</span><span class="p">[</span><span class="n">_Self</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">_P</span><span class="p">],</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
 <span class="p">]</span>
-<span class="n">ClsMethodDaToDa</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
-    <span class="n">Concatenate</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">P</span><span class="p">],</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
+<span class="nb">type</span> <span class="n">Function1DTo1D</span><span class="p">[</span><span class="o">**</span><span class="n">_P</span><span class="p">,</span> <span class="n">_S</span><span class="p">:</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">)]</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="n">Concatenate</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">,</span> <span class="n">_P</span><span class="p">],</span> <span class="n">_S</span>
 <span class="p">]</span>
-<span class="n">Function1DTo1D</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span><span class="n">Concatenate</span><span class="p">[</span><span class="n">ArrayLike</span><span class="p">,</span> <span class="n">P</span><span class="p">],</span> <span class="n">ScalarOr1D</span><span class="p">]</span>
-<span class="n">FunctionDaToDa</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
-    <span class="n">Concatenate</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">P</span><span class="p">],</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
+<span class="nb">type</span> <span class="n">FunctionDaToDa</span><span class="p">[</span><span class="o">**</span><span class="n">_P</span><span class="p">]</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span>
+    <span class="n">Concatenate</span><span class="p">[</span><span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">_P</span><span class="p">],</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span>
 <span class="p">]</span>
 
 
 <div class="viewcode-block" id="apply_along_da_axis">
 <a class="viewcode-back" href="../../../api/movement.utils.broadcasting.apply_along_da_axis.html#movement.utils.broadcasting.apply_along_da_axis">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">apply_along_da_axis</span><span class="p">(</span>
-    <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ArrayLike</span><span class="p">],</span> <span class="n">ScalarOr1D</span><span class="p">],</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_along_da_axis</span><span class="p">[</span><span class="n">S</span><span class="p">:</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">)](</span>
+    <span class="n">f</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ArrayLike</span><span class="p">],</span> <span class="n">S</span><span class="p">],</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">dimension</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

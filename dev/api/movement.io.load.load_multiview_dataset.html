@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../_static/documentation_options.js?v=b72e0131"></script>
+    <script src="../_static/documentation_options.js?v=5f34a2f3"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,7 +141,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev7</p>
+    <p class="title logo__title">movement v0.15.1.dev8</p>
   
 </a></div>
     
@@ -650,7 +650,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file_dict</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>) – A dict whose keys are the view names and values are the paths to load.</p></li>
-<li><p><strong>source_software</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'DeepLabCut'</span></code>, <code class="docutils literal notranslate"><span class="pre">'SLEAP'</span></code>, <code class="docutils literal notranslate"><span class="pre">'LightningPose'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Anipose'</span></code>, <code class="docutils literal notranslate"><span class="pre">'NWB'</span></code>, <code class="docutils literal notranslate"><span class="pre">'VIA-tracks'</span></code>]</span>) – The source software of the file.</p></li>
+<li><p><strong>source_software</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code></span>) – The source software of the file.</p></li>
 <li><p><strong>fps</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – The number of frames per second in the video. If None (default),
 the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates will be in frame numbers.
 This argument is ignored when <code class="docutils literal notranslate"><span class="pre">source_software</span></code> is “NWB”, as the

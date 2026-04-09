@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../_static/documentation_options.js?v=b72e0131"></script>
+    <script src="../_static/documentation_options.js?v=5f34a2f3"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,7 +141,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev7</p>
+    <p class="title logo__title">movement v0.15.1.dev8</p>
   
 </a></div>
     
@@ -645,7 +645,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.roi.BaseRegionOfInterest">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">movement.roi.</span></span><span class="sig-name descname"><span class="pre">BaseRegionOfInterest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/roi/base.html#BaseRegionOfInterest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.roi.BaseRegionOfInterest" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">TGeometry_co</span></code>]</p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Generic" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code></a></p>
 <p>Abstract base class for regions of interest (RoIs).</p>
 <p>This class cannot be instantiated directly. Instead, use one of its
 subclasses, such as <a class="reference internal" href="movement.roi.LineOfInterest.html#movement.roi.LineOfInterest" title="movement.roi.LineOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">LineOfInterest</span></code></a> or
@@ -959,7 +959,7 @@ exterior boundary, interior boundaries must be accessed via
 
 <dl class="py property">
 <dt class="sig sig-object py" id="movement.roi.BaseRegionOfInterest.region">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">region</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">TGeometry_co</span></span><a class="headerlink" href="#movement.roi.BaseRegionOfInterest.region" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">region</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">T</span></span><a class="headerlink" href="#movement.roi.BaseRegionOfInterest.region" title="Link to this definition">#</a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">shapely.Geometry</span></code> representation of the region.</p>
 </dd></dl>
 
