@@ -212,6 +212,7 @@ linkcheck_ignore = [
     "https://www.contributor-covenant.org/*",  # frequent timeouts
     "https://docutils.sourceforge.io/*",  # 403 error
     "https://www.iso.org/",  # 403 error
+    "https://www.ffmpeg.org/",  # 403 error
     # Checking zenodo redirects (from concept doi to record) takes a long time
     "https://zenodo.org/doi/*",
     "https://zenodo.org/records/*",
@@ -253,6 +254,7 @@ myst_url_schemes = {
     "uv": "https://docs.astral.sh/uv/{{path}}#{{fragment}}",
     "attrs": "https://www.attrs.org/en/stable/{{path}}#{{fragment}}",
     "pytest-benchmark": "https://pytest-benchmark.readthedocs.io/en/latest/{{path}}#{{fragment}}",
+    "qt6": "https://doc.qt.io/qt-6/{{path}}#{{fragment}}",
 }
 
 intersphinx_mapping = {
