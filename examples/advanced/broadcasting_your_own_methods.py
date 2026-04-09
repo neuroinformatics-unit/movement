@@ -7,12 +7,14 @@ to efficiently apply functions across any data dimension.
 
 # %%
 # .. admonition:: Acknowledgements
-#   :class: note
+#   :class: acknowledgements
 #
-#   The original version of this example was contributed by
-#   **Will Graham** (*TODO: affiliation / research group at the time*).
-#   *TODO: 1-2 sentences about the research application that inspired
-#   this example.*
+#   This example was originally contributed by `Will Graham
+#   <https://github.com/willGraham01>`_, as part of a collaboration between the
+#   `UCL Advanced Research Computing Centre
+#   <https://www.ucl.ac.uk/advanced-research-computing>`_
+#   and the `Keshavarzi Laboratory <https://www.keshavarzilab.com/>`_ at the
+#   University of Cambridge.
 
 # %%
 # Summary

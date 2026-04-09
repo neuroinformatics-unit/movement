@@ -7,12 +7,12 @@ Load the ``.csv`` files from `FreeMoCap <https://freemocap.org>`_ into
 
 # %%
 # .. admonition:: Acknowledgements
-#   :class: note
+#   :class: acknowledgements
 #
-#   This example was contributed by **Maxim Staras**
-#   (*TODO: affiliation / research group at the time*).
-#   *TODO: 1-2 sentences about the research application that inspired
-#   this example.*
+#   This example was originally contributed by `Max Staras
+#   <https://github.com/maxstaras>`_—a high school student completing
+#   a work experience placement at the `Neuroinformatics Unit
+#   <https://neuroinformatics.dev/>`_—and uses data he collected.
 
 # %%
 # Imports

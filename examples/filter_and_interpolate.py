@@ -7,12 +7,13 @@ missing values.
 
 # %%
 # .. admonition:: Acknowledgements
-#   :class: note
+#   :class: acknowledgements
 #
-#   The original version of this example was contributed by
-#   **Brandon Peri** (*TODO: affiliation / research group at the time*).
-#   *TODO: 1-2 sentences about the research application that inspired
-#   this example.*
+#   This example was originally contributed by `Brandon Peri
+#   <https://github.com/b-peri>`_ of the
+#   `Keshavarzi Laboratory <https://www.keshavarzilab.com/>`_ at the
+#   University of Cambridge, as part of his work on the first
+#   functions in the :mod:`movement.filtering` module.
 
 # %%
 # Imports

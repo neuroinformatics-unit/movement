@@ -6,12 +6,14 @@ Look at eye movements and pupil diameter.
 
 # %%
 # .. admonition:: Acknowledgements
-#   :class: note
+#   :class: acknowledgements
 #
-#   This example was contributed by **Stella Prins**
-#   (*TODO: affiliation / research group at the time*).
-#   *TODO: 1-2 sentences about the research application that inspired
-#   this example.*
+#   This example was originally contributed by `Stella Prins
+#   <https://github.com/stellaprins>`_, as part of a collaboration between the
+#   `UCL Advanced Research Computing Centre
+#   <https://www.ucl.ac.uk/advanced-research-computing>`_
+#   and the `Keshavarzi Laboratory <https://www.keshavarzilab.com/>`_ at the
+#   University of Cambridge.
 
 # %%
 # Imports

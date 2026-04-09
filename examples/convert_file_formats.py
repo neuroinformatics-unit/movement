@@ -7,12 +7,13 @@ and save them to another file format.
 
 # %%
 # .. admonition:: Acknowledgements
-#   :class: note
+#   :class: acknowledgements
 #
-#   This example was contributed by **Laura Schwarz**
-#   (*TODO: affiliation / research group at the time*).
-#   *TODO: 1-2 sentences about the research application that inspired
-#   this example.*
+#   This example was originally contributed by `Laura Schwarz
+#   <https://github.com/LauraSchwarz>`_—a PhD student at the
+#   `Sainsbury Wellcome Centre <https://www.sainsburywellcome.org/>`_
+#   studying social interactions in mice—and uses workflows she
+#   developed for her own data.
 
 # %%
 # Motivation
