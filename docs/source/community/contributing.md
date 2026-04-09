@@ -662,6 +662,26 @@ and further customised for our repository by the `.binder/postBuild` script.
 If your examples rely on packages that are not among `movement`'s dependencies,
 you will need to add them to the `.binder/requirements.txt` file.
 
+For examples contributed by people outside the core development team, we add
+acknowledgements as an admonition near the top of the example file,
+following the pattern below.
+
+```python
+"""Title
+========
+Subtitle (one-line summary).
+"""
+
+# %%
+# .. admonition:: Acknowledgements
+#   :class: acknowledgements
+#
+#   This example was originally contributed by
+#   `{NAME} {SURNAME} <https://github.com/{USERNAME}>`_,
+#   a {ROLE} at the `{AFFILIATION} <{AFFILIATION_URL}>`_
+#   studying {SUBJECT}.
+```
+
 ### Cross-referencing Python objects
 :::{note}
 Docstrings in the `.py` files for the [API reference](target-api) and the [examples](target-examples) are converted into `.rst` files, so these should use reStructuredText syntax.
