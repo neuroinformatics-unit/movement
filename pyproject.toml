@@ -7,7 +7,7 @@ authors = [
 ]
 description = "A Python toolbox for analysing animal body movements across space and time"
 readme = "README.md"
-requires-python = ">=3.11.0"
+requires-python = ">=3.12.0"
 dynamic = ["version"]
 
 license = "BSD-3-Clause"
