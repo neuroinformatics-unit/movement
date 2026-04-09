@@ -277,7 +277,7 @@ xr.testing.assert_equal(
 # %%
 # But importantly, ``in_slippery_region_broadcastable`` also works on
 # ``DataArrays`` with different dimensions.
-# For example, we could have pre-selected one of our individuals beforehand.
+# For example, we could have preselected one of our individuals beforehand.
 i_id = "AEON3B_NTP"
 individual_0 = positions.sel(individuals=i_id)
 
