@@ -237,3 +237,71 @@ def test_load_dataset_accepts_inferred_ambiguous_source(lp_csv_file, tmp_path):
     inferred = load.infer_source_software(ambiguous_file)
     ds = load.load_dataset(ambiguous_file, source_software=inferred)
     assert ds.attrs["source_software"] == "DeepLabCut/LightningPose"
+
+
+def test_dlc_vs_lp_returns_ambiguous_when_header_cannot_be_read(
+    monkeypatch, tmp_path
+):
+    """Test DLC/LP disambiguation falls back to the ambiguous value."""
+
+    def raise_oserror(self, *args, **kwargs):
+        raise OSError("cannot read file")
+
+    monkeypatch.setattr(load.Path, "open", raise_oserror)
+
+    inferred = load._dlc_vs_lp(tmp_path / "mouse-face.predictions.csv")
+    assert inferred == "DeepLabCut/LightningPose"
+
+
+def test_infer_source_software_skips_sources_without_validators(
+    monkeypatch, tmp_path
+):
+    """Test sources without validators are ignored during inference."""
+    monkeypatch.setattr(
+        load, "SUPPORTED_SOURCE_SOFTWARES", {"DeepLabCut", "SLEAP"}
+    )
+    monkeypatch.setattr(
+        load,
+        "_LOADER_VALIDATORS_REGISTRY",
+        {"DeepLabCut": [], "SLEAP": [StubValidFile]},
+    )
+
+    inferred = load.infer_source_software(tmp_path / "file.stub")
+    assert inferred == "SLEAP"
+
+
+def test_infer_source_software_raises_when_no_candidates_match(
+    monkeypatch, tmp_path
+):
+    """Test inference fails when no registered validator matches the file."""
+    monkeypatch.setattr(load, "SUPPORTED_SOURCE_SOFTWARES", {"DeepLabCut"})
+    monkeypatch.setattr(
+        load,
+        "_LOADER_VALIDATORS_REGISTRY",
+        {"DeepLabCut": [StubValidFile]},
+    )
+
+    with pytest.raises(ValueError, match="Could not infer source_software"):
+        load.infer_source_software(tmp_path / "file.unknown")
+
+
+def test_infer_source_software_raises_for_non_dlc_lp_ambiguity(
+    monkeypatch, tmp_path
+):
+    """Test inference raises for ambiguous matches outside DLC/LP CSVs."""
+    monkeypatch.setattr(
+        load, "SUPPORTED_SOURCE_SOFTWARES", {"DeepLabCut", "SLEAP"}
+    )
+    monkeypatch.setattr(
+        load,
+        "_LOADER_VALIDATORS_REGISTRY",
+        {
+            "DeepLabCut": [StubValidFile],
+            "SLEAP": [StubValidFile],
+        },
+    )
+
+    with pytest.raises(
+        ValueError, match="Could not uniquely infer source_software"
+    ):
+        load.infer_source_software(tmp_path / "file.stub")
