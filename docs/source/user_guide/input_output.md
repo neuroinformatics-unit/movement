@@ -63,7 +63,7 @@ For example, to load pose tracks from a DeepLabCut .h5 file:
 ds = load_dataset(
     "/path/to/file.h5",
     source_software="auto",
-        fps=30, # Optional; time coords will be in seconds if provided, otherwise in frames
+    fps=30, # Optional; time coords will be in seconds if provided, otherwise in frames
 )
 ```
 
