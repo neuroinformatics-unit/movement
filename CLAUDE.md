@@ -16,7 +16,7 @@ source .venv/bin/activate  # On macOS and Linux
 .venv\Scripts\activate     # On Windows PowerShell
 
 # Install in editable mode with dev dependencies
-uv pip install -e ".[dev]"
+uv pip install -e . --group dev
 
 # Install pre-commit hooks
 pre-commit install
@@ -61,7 +61,7 @@ mypy movement
 ### Documentation
 ```bash
 # Install documentation dependencies
-pip install -e ".[docs]"
+uv pip install -e . --group docs
 
 # Build documentation (from docs/ directory)
 cd docs
