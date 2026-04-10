@@ -6,6 +6,15 @@ Load the ``.csv`` files from `FreeMoCap <https://freemocap.org>`_ into
 """
 
 # %%
+# .. admonition:: Acknowledgements
+#   :class: acknowledgements
+#
+#   This example was originally contributed by `Max Staras
+#   <https://github.com/maxstaras>`_—a high school student completing
+#   a work experience placement at the `Neuroinformatics Unit
+#   <https://neuroinformatics.dev/>`_—and uses data he collected.
+
+# %%
 # Imports
 # -------
 # To run this example, you will need to install the ``networkx`` package.

@@ -6,6 +6,16 @@ missing values.
 """
 
 # %%
+# .. admonition:: Acknowledgements
+#   :class: acknowledgements
+#
+#   This example was originally contributed by `Brandon Peri
+#   <https://github.com/b-peri>`_ of the
+#   `Keshavarzi Laboratory <https://www.keshavarzilab.com/>`_ at the
+#   University of Cambridge, as part of his work on the first
+#   functions in the :mod:`movement.filtering` module.
+
+# %%
 # Imports
 # -------
 import json

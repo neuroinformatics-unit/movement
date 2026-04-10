@@ -4,6 +4,16 @@ Convert pixel coordinates to physical units using a known reference distance.
 """
 
 # %%
+# .. admonition:: Acknowledgements
+#   :class: acknowledgements
+#
+#   This example was originally contributed by `Holly Morley
+#   <https://github.com/HollyMorley>`_—a PhD student at the
+#   `Sainsbury Wellcome Centre <https://www.sainsburywellcome.org/>`_
+#   studying sensory-guided predictive movements in mice—and uses
+#   data she collected for her PhD project.
+
+# %%
 # Imports
 # -------
 

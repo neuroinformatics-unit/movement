@@ -75,3 +75,17 @@ a[class^="sphx-glr-backref-module-movement"] {
     display: block;
     margin: 0 auto 0.5rem;
 }
+
+/* Custom "acknowledgements" admonition: success colour + heart icon */
+.admonition.acknowledgements {
+  border-color: var(--pst-color-success);
+}
+
+.admonition.acknowledgements > .admonition-title {
+  background-color: var(--pst-color-success-bg);
+}
+
+.admonition.acknowledgements > .admonition-title::after {
+  color: var(--pst-color-success);
+  content: "\f004";  /* fa-heart (Font Awesome 6 Free Solid) */
+}
