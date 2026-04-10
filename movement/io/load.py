@@ -29,9 +29,11 @@ type SourceSoftware = Literal[
     "NWB",
     "VIA-tracks",
 ]
+type AmbiguousDLCCSVSourceSoftware = Literal["DeepLabCut/LightningPose"]
+type InferredSourceSoftware = SourceSoftware | AmbiguousDLCCSVSourceSoftware
 
-AutoSourceSoftware: TypeAlias = Literal["auto"]
-SourceSoftwareOrAuto: TypeAlias = SourceSoftware | AutoSourceSoftware
+type AutoSourceSoftware = Literal["auto"]
+type SourceSoftwareOrAuto = SourceSoftware | AutoSourceSoftware
 
 SUPPORTED_SOURCE_SOFTWARES: set[SourceSoftware] = {
     "DeepLabCut",
@@ -85,7 +87,7 @@ _LOADER_REGISTRY: dict[str, LoaderProtocol] = {}
 _LOADER_VALIDATORS_REGISTRY: dict[str, list[type[ValidFile]]] = {}
 
 
-def _dlc_vs_lp(file_path: Path) -> SourceSoftware:
+def _dlc_vs_lp(file_path: Path) -> InferredSourceSoftware:
     """Disambiguate between DeepLabCut and LightningPose CSV files.
 
     Parameters
@@ -95,8 +97,10 @@ def _dlc_vs_lp(file_path: Path) -> SourceSoftware:
 
     Returns
     -------
-    SourceSoftware
-        Either "DeepLabCut" or "LightningPose".
+    InferredSourceSoftware
+        "DeepLabCut", "LightningPose", or "DeepLabCut/LightningPose" when
+        the CSV is structurally compatible with both and cannot be
+        disambiguated from lightweight hints.
 
     """
     scorer = ""
@@ -118,24 +122,20 @@ def _dlc_vs_lp(file_path: Path) -> SourceSoftware:
         return "LightningPose"
     if scorer.startswith("dlc_") or filename.startswith("dlc_"):
         return "DeepLabCut"
-    raise logger.error(
-        ValueError(
-            "Could not uniquely infer source_software from "
-            f"'{file_path}'. Candidates: DeepLabCut, LightningPose. "
-            "Please specify `source_software` explicitly."
-        )
-    )
+    return "DeepLabCut/LightningPose"
 
 
 def infer_source_software(
     file: Path | str | pynwb.file.NWBFile,
     **loader_kwargs,
-) -> SourceSoftware:
+) -> InferredSourceSoftware:
     """Infer the ``source_software`` from a given input file.
 
     This helper tries the file validators registered for each built-in loader.
-    If multiple software candidates match, the function raises an error (or
-    breaks ties where possible, e.g. DeepLabCut vs LightningPose CSV files).
+    If multiple software candidates match, the function raises an error
+    except for ambiguous DLC-style CSV files that are compatible with both
+    DeepLabCut and LightningPose. In that case, it returns
+    ``"DeepLabCut/LightningPose"``.
 
     Parameters
     ----------
@@ -147,13 +147,14 @@ def infer_source_software(
 
     Returns
     -------
-    SourceSoftware
+    InferredSourceSoftware
         The inferred source software name.
 
     Raises
     ------
     ValueError
-        If the source software cannot be inferred or is ambiguous.
+        If the source software cannot be inferred or is ambiguous in ways
+        other than DeepLabCut vs LightningPose CSV compatibility.
 
     """
     if isinstance(file, pynwb.file.NWBFile):
@@ -385,6 +386,10 @@ def load_dataset(
     source_software
         The source software of the file.
         If set to ``"auto"`` (default), it is inferred from the file format.
+        For ambiguous DeepLabCut-style CSV files that also match
+        LightningPose, the shared DeepLabCut loader is used and
+        ``source_software`` metadata is set to
+        ``"DeepLabCut/LightningPose"``.
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
@@ -416,7 +421,12 @@ def load_dataset(
 
     """
     if source_software == "auto":
-        source_software = infer_source_software(file, **kwargs)
+        inferred_source_software = infer_source_software(file, **kwargs)
+        if inferred_source_software == "DeepLabCut/LightningPose":
+            ds = _LOADER_REGISTRY["DeepLabCut"](file, fps, **kwargs)
+            ds.attrs["source_software"] = "DeepLabCut/LightningPose"
+            return ds
+        source_software = inferred_source_software
 
     if source_software not in _LOADER_REGISTRY:
         raise logger.error(
@@ -430,6 +440,7 @@ def load_dataset(
                 "metadata in the file."
             )
         return _LOADER_REGISTRY[source_software](file, **kwargs)
+
     return _LOADER_REGISTRY[source_software](file, fps, **kwargs)
 
 

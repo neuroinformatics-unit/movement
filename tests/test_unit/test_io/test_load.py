@@ -207,12 +207,23 @@ def test_load_dataset_auto_detects(
     xr.testing.assert_identical(auto_ds, explicit_ds)
 
 
-def test_infer_source_software_raises_for_ambiguous_dlc_style_csv(
+def test_infer_source_software_for_ambiguous_dlc_style_csv(
     lp_csv_file, tmp_path
 ):
-    """Test that ambiguous DLC-style CSV files require an explicit source."""
+    """Test that ambiguous DLC-style CSV files return a combined source."""
     ambiguous_file = tmp_path / "mouse-face.predictions.csv"
     ambiguous_file.write_bytes(lp_csv_file.read_bytes())
 
-    with pytest.raises(ValueError, match="Could not uniquely infer"):
-        load.infer_source_software(ambiguous_file)
+    inferred = load.infer_source_software(ambiguous_file)
+    assert inferred == "DeepLabCut/LightningPose"
+
+
+def test_load_dataset_auto_handles_ambiguous_dlc_style_csv(
+    lp_csv_file, tmp_path
+):
+    """Test auto-loading ambiguous DLC-style CSV uses shared loader."""
+    ambiguous_file = tmp_path / "mouse-face.predictions.csv"
+    ambiguous_file.write_bytes(lp_csv_file.read_bytes())
+
+    ds = load.load_dataset(ambiguous_file, source_software="auto")
+    assert ds.attrs["source_software"] == "DeepLabCut/LightningPose"
