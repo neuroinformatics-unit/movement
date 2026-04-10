@@ -44,7 +44,7 @@ jobs:
           python-version: 3.13
           use-make: true
           fetch-tags: true
-          use-artifactci: lazy
+          use-artifactci: ${{ github.repository == 'neuroinformatics-unit/movement' && 'lazy' || 'false' }}
           use-requirements-txt: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -54,9 +54,12 @@ jobs:
     permissions:
       contents: write
     if: |
-      (github.event_name == 'push' && github.ref_type == 'tag') ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+      github.repository == 'neuroinformatics-unit/movement' &&
+      (
+        (github.event_name == 'push' && github.ref_type == 'tag') ||
+        (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+        (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: neuroinformatics-unit/actions/deploy_sphinx_docs_multiversion@main
