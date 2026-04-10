@@ -8,7 +8,6 @@ from typing import (
     Literal,
     ParamSpec,
     Protocol,
-    TypeAlias,
     TypeVar,
     cast,
 )
@@ -22,7 +21,7 @@ from movement.validators.files import ValidFile
 
 TInputFile = TypeVar("TInputFile", Path, str, pynwb.file.NWBFile)
 P = ParamSpec("P")
-SourceSoftware: TypeAlias = Literal[
+type SourceSoftware = Literal[
     "DeepLabCut",
     "SLEAP",
     "LightningPose",
@@ -102,8 +101,8 @@ def _build_suffix_map(
     return suffix_map
 
 
-def _validate_file(
-    file: TInputFile,
+def _validate_file[T: (Path, str, pynwb.file.NWBFile)](
+    file: T,
     suffix_map: dict[str, type[ValidFile]],
     source_software: SourceSoftware,
     loader_kwargs: dict | None = None,
