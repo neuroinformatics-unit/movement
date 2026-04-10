@@ -77,18 +77,15 @@ a[class^="sphx-glr-backref-module-movement"] {
 }
 
 /* Custom "acknowledgements" admonition: success colour + heart icon */
-.admonition.acknowledgements,
-div.admonition.acknowledgements {
+.admonition.acknowledgements {
   border-color: var(--pst-color-success);
 }
 
-.admonition.acknowledgements > .admonition-title,
-div.admonition.acknowledgements > .admonition-title {
+.admonition.acknowledgements > .admonition-title {
   background-color: var(--pst-color-success-bg);
 }
 
-.admonition.acknowledgements > .admonition-title::after,
-div.admonition.acknowledgements > .admonition-title::after {
+.admonition.acknowledgements > .admonition-title::after {
   color: var(--pst-color-success);
   content: "\f004";  /* fa-heart (Font Awesome 6 Free Solid) */
 }
