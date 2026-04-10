@@ -60,6 +60,8 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 
 [project.optional-dependencies]
 napari = ["napari[all]>=0.6.0"]
+
+[dependency-groups]
 dev = [
   "pytest",
   "pytest-cov",
