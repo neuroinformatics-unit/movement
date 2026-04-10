@@ -218,7 +218,7 @@ passenv =
     XAUTHORITY
     NUMPY_EXPERIMENTAL_ARRAY_FUNCTION
     PYVISTA_OFF_SCREEN
-extras =
+dependency_groups =
     dev
 commands =
     pytest -v --color=yes --cov=movement --cov-report=xml
