@@ -56,7 +56,7 @@ To load data from any supported format, specify the `file` path.
 You can either set `source_software` explicitly, or let `movement` infer it by leaving `source_software` unset or setting `source_software="auto"`.
 If a DLC-style `.csv` file could plausibly come from either DeepLabCut or LightningPose, `movement` loads it with the shared DeepLabCut-compatible loader and sets `ds.attrs["source_software"] = "DeepLabCut/LightningPose"` to preserve that ambiguity.
 If you want to inspect what `movement` would infer, use `movement.io.infer_source_software(file)`.
-Optionally, also provide `fps` to put the time coordinates into seconds (when supported).
+Optionally, also provide `fps` to put the time coordinates into seconds.
 
 For example, to load pose tracks from a DeepLabCut .h5 file:
 ```python
