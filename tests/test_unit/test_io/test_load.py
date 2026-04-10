@@ -227,3 +227,13 @@ def test_load_dataset_auto_handles_ambiguous_dlc_style_csv(
 
     ds = load.load_dataset(ambiguous_file, source_software="auto")
     assert ds.attrs["source_software"] == "DeepLabCut/LightningPose"
+
+
+def test_load_dataset_accepts_inferred_ambiguous_source(lp_csv_file, tmp_path):
+    """Test inferred ambiguous source can be passed back to load_dataset."""
+    ambiguous_file = tmp_path / "mouse-face.predictions.csv"
+    ambiguous_file.write_bytes(lp_csv_file.read_bytes())
+
+    inferred = load.infer_source_software(ambiguous_file)
+    ds = load.load_dataset(ambiguous_file, source_software=inferred)
+    assert ds.attrs["source_software"] == "DeepLabCut/LightningPose"
