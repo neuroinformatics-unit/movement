@@ -25,6 +25,16 @@ Load the ``.csv`` files from `FreeMoCap <https://freemocap.org>`_ into
 
 .. GENERATED FROM PYTHON SOURCE LINES 9-16
 
+.. admonition:: Acknowledgements
+  :class: acknowledgements
+
+  This example was originally contributed by `Max Staras
+  <https://github.com/maxstaras>`_—a high school student completing
+  a work experience placement at the `Neuroinformatics Unit
+  <https://neuroinformatics.dev/>`_—and uses data he collected.
+
+.. GENERATED FROM PYTHON SOURCE LINES 18-25
+
 Imports
 -------
 To run this example, you will need to install the ``networkx`` package.
@@ -33,7 +43,7 @@ virtual environment (see `NetworkX's documentation
 <https://networkx.org/documentation/stable/install.html>`_
 for more details).
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-29
+.. GENERATED FROM PYTHON SOURCE LINES 27-38
 
 .. code-block:: Python
 
@@ -55,7 +65,7 @@ for more details).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 30-58
+.. GENERATED FROM PYTHON SOURCE LINES 39-67
 
 Load sample dataset
 -----------------------
@@ -86,7 +96,7 @@ In the second recording, they write the word "world"
 Let's first fetch the dataset using the ``sample_data`` module and verify
 the folder structure.
 
-.. GENERATED FROM PYTHON SOURCE LINES 58-84
+.. GENERATED FROM PYTHON SOURCE LINES 67-93
 
 .. code-block:: Python
 
@@ -131,7 +141,7 @@ the folder structure.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 85-92
+.. GENERATED FROM PYTHON SOURCE LINES 94-101
 
 Read FreeMoCap output files as a single ``movement`` dataset
 -------------------------------------------------------------
@@ -141,7 +151,7 @@ data available in the output files, we set the confidence of all
 keypoints to the default NaN value. We also use the default individual
 name ``id_0``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 92-149
+.. GENERATED FROM PYTHON SOURCE LINES 101-158
 
 .. code-block:: Python
 
@@ -209,12 +219,12 @@ name ``id_0``.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 150-152
+.. GENERATED FROM PYTHON SOURCE LINES 159-161
 
 We can now use the helper function to read the files
 in each output directory as a ``movement`` dataset.
 
-.. GENERATED FROM PYTHON SOURCE LINES 152-156
+.. GENERATED FROM PYTHON SOURCE LINES 161-165
 
 .. code-block:: Python
 
@@ -229,12 +239,12 @@ in each output directory as a ``movement`` dataset.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 157-159
+.. GENERATED FROM PYTHON SOURCE LINES 166-168
 
 Note that each ``movement`` dataset holds the data for
 all keypoints across all models used by FreeMoCap.
 
-.. GENERATED FROM PYTHON SOURCE LINES 159-164
+.. GENERATED FROM PYTHON SOURCE LINES 168-173
 
 .. code-block:: Python
 
@@ -257,7 +267,7 @@ all keypoints across all models used by FreeMoCap.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 165-174
+.. GENERATED FROM PYTHON SOURCE LINES 174-183
 
 Visualise a subset of the data
 ----------------------------------
@@ -269,7 +279,7 @@ used for writing in the air.  Note that at the moment, FreeMoCap can only
 track `one individual at a time
 <https://docs.freemocap.org/documentation/frequently-asked-questions-faq.html#can-freemocap-track-multiple-people-at-once>`_.
 
-.. GENERATED FROM PYTHON SOURCE LINES 174-182
+.. GENERATED FROM PYTHON SOURCE LINES 183-191
 
 .. code-block:: Python
 
@@ -288,7 +298,7 @@ track `one individual at a time
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 183-190
+.. GENERATED FROM PYTHON SOURCE LINES 192-199
 
 We use the following helper function for plotting.
 This function is adapted from
@@ -298,7 +308,7 @@ You don't need to understand how this function works in detail, for now it
 is enough to know that we will use it to plot 3D lines with a colour
 determined by a scalar.
 
-.. GENERATED FROM PYTHON SOURCE LINES 190-237
+.. GENERATED FROM PYTHON SOURCE LINES 199-246
 
 .. code-block:: Python
 
@@ -356,14 +366,14 @@ determined by a scalar.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 238-242
+.. GENERATED FROM PYTHON SOURCE LINES 247-251
 
 We can use the above function to plot the trajectory of the right index
 finger as it writes the words "hello" and "world". We colour each
 point by the frame index of each recording within the time window of
 interest.
 
-.. GENERATED FROM PYTHON SOURCE LINES 242-284
+.. GENERATED FROM PYTHON SOURCE LINES 251-293
 
 .. code-block:: Python
 
@@ -421,13 +431,13 @@ interest.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 285-288
+.. GENERATED FROM PYTHON SOURCE LINES 294-297
 
 We can also visualise how the writing speed changes along the trajectory,
 using the above plotting function and the
 :func:`movement.kinematics.compute_speed` function.
 
-.. GENERATED FROM PYTHON SOURCE LINES 288-334
+.. GENERATED FROM PYTHON SOURCE LINES 297-343
 
 .. code-block:: Python
 
@@ -489,12 +499,12 @@ using the above plotting function and the
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 335-337
+.. GENERATED FROM PYTHON SOURCE LINES 344-346
 
 From the above plot, we can see that the speed is highest on long, straight
 strokes and lowest around kinks.
 
-.. GENERATED FROM PYTHON SOURCE LINES 340-345
+.. GENERATED FROM PYTHON SOURCE LINES 349-354
 
 Visualise the skeleton
 -----------------------
@@ -502,7 +512,7 @@ Next, we use the ``networkx`` package to define a graph based on a
 subset of keypoints. This allows us to more easily plot a skeleton of
 the upper-half of the individual.
 
-.. GENERATED FROM PYTHON SOURCE LINES 347-418
+.. GENERATED FROM PYTHON SOURCE LINES 356-427
 
 .. code-block:: Python
 
@@ -584,11 +594,11 @@ the upper-half of the individual.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 419-420
+.. GENERATED FROM PYTHON SOURCE LINES 428-429
 
 We can now use the above graph to plot the skeleton.
 
-.. GENERATED FROM PYTHON SOURCE LINES 422-461
+.. GENERATED FROM PYTHON SOURCE LINES 431-470
 
 .. code-block:: Python
 
@@ -646,7 +656,7 @@ We can now use the above graph to plot the skeleton.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.995 seconds)
+   **Total running time of the script:** (0 minutes 0.975 seconds)
 
 
 .. _sphx_glr_download_examples_load_freemocap_data.py:

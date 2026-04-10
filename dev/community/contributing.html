@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=2f2d43a3" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=29c3578c" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../_static/documentation_options.js?v=5f34a2f3"></script>
+    <script src="../_static/documentation_options.js?v=fb4c26ea"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,7 +141,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev8</p>
+    <p class="title logo__title">movement v0.15.1.dev9</p>
   
 </a></div>
     
@@ -1140,6 +1140,24 @@ This is configured in <code class="docutils literal notranslate"><span class="pr
 and further customised for our repository by the <code class="docutils literal notranslate"><span class="pre">.binder/postBuild</span></code> script.
 If your examples rely on packages that are not among <code class="docutils literal notranslate"><span class="pre">movement</span></code>’s dependencies,
 you will need to add them to the <code class="docutils literal notranslate"><span class="pre">.binder/requirements.txt</span></code> file.</p>
+<p>For examples contributed by people outside the core development team, we add
+acknowledgements as an <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#admonitions-messages-and-warnings">admonition</a> near the top of the example file,
+roughly following the pattern below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Title</span>
+<span class="sd">========</span>
+<span class="sd">Subtitle (one-line summary).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># %%</span>
+<span class="c1"># .. admonition:: Acknowledgements</span>
+<span class="c1">#   :class: acknowledgements</span>
+<span class="c1">#</span>
+<span class="c1">#   This example was originally contributed by</span>
+<span class="c1">#   `{NAME} {SURNAME} &lt;https://github.com/{USERNAME}&gt;`_,</span>
+<span class="c1">#   a {ROLE} at the `{AFFILIATION} &lt;{AFFILIATION_URL}&gt;`_</span>
+<span class="c1">#   studying {SUBJECT}.</span>
+</pre></div>
+</div>
 </section>
 <section id="cross-referencing-python-objects">
 <h3>Cross-referencing Python objects<a class="headerlink" href="#cross-referencing-python-objects" title="Link to this heading">#</a></h3>

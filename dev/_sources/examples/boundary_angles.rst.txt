@@ -23,12 +23,24 @@ Compute distances and angles to regions of interest
 Compute distances, approach vectors, and both egocentric and allocentric
 boundary angles relative to regions of interest (RoIs).
 
-.. GENERATED FROM PYTHON SOURCE LINES 9-11
+.. GENERATED FROM PYTHON SOURCE LINES 9-18
+
+.. admonition:: Acknowledgements
+  :class: acknowledgements
+
+  This example was originally contributed by `Will Graham
+  <https://github.com/willGraham01>`_, as part of a collaboration between the
+  `UCL Advanced Research Computing Centre
+  <https://www.ucl.ac.uk/advanced-research-computing>`_
+  and the `Keshavarzi Laboratory <https://www.keshavarzilab.com/>`_ at the
+  University of Cambridge.
+
+.. GENERATED FROM PYTHON SOURCE LINES 20-22
 
 Imports
 -------
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-24
+.. GENERATED FROM PYTHON SOURCE LINES 22-35
 
 .. code-block:: Python
 
@@ -52,7 +64,7 @@ Imports
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 25-31
+.. GENERATED FROM PYTHON SOURCE LINES 36-42
 
 Load sample dataset
 -------------------
@@ -61,7 +73,7 @@ dataset collected using the `Aeon <https://aeon.swc.ucl.ac.uk/>`_ platform.
 We only need the ``position`` data array, so we store it in a
 separate variable.
 
-.. GENERATED FROM PYTHON SOURCE LINES 31-35
+.. GENERATED FROM PYTHON SOURCE LINES 42-46
 
 .. code-block:: Python
 
@@ -76,13 +88,13 @@ separate variable.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-39
+.. GENERATED FROM PYTHON SOURCE LINES 47-50
 
 Below we plot the image of the
 `Aeon habitat <https://aeon.swc.ucl.ac.uk/user/aeon_modules/hardware/habitat/>`_
 within which the dataset was recorded.
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-50
+.. GENERATED FROM PYTHON SOURCE LINES 50-61
 
 .. code-block:: Python
 
@@ -109,7 +121,7 @@ within which the dataset was recorded.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 51-59
+.. GENERATED FROM PYTHON SOURCE LINES 62-70
 
 The habitat is divided up into three main sub-regions. The cuboidal structure
 on the right-hand-side of the habitat is the nest of the three individuals
@@ -120,7 +132,7 @@ encompasses most of the image. This central region is surrounded by a
 In this example, we will look at how we can use the functionality for regions
 of interest (RoIs) provided by ``movement`` to analyse our sample dataset.
 
-.. GENERATED FROM PYTHON SOURCE LINES 61-75
+.. GENERATED FROM PYTHON SOURCE LINES 72-86
 
 Define regions of interest
 --------------------------
@@ -137,7 +149,7 @@ shapes in the napari GUI. For the time being, we can still define our RoIs
 by specifying the points that make up the interior and exterior boundaries.
 So first, let's define the boundary vertices of our various regions.
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-106
+.. GENERATED FROM PYTHON SOURCE LINES 86-117
 
 .. code-block:: Python
 
@@ -179,13 +191,13 @@ So first, let's define the boundary vertices of our various regions.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 107-110
+.. GENERATED FROM PYTHON SOURCE LINES 118-121
 
 Our central region is a solid shape without any interior holes.
 To create the appropriate RoI, we just pass the coordinates in either
 clockwise or counter-clockwise order.
 
-.. GENERATED FROM PYTHON SOURCE LINES 110-113
+.. GENERATED FROM PYTHON SOURCE LINES 121-124
 
 .. code-block:: Python
 
@@ -199,12 +211,12 @@ clockwise or counter-clockwise order.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 114-116
+.. GENERATED FROM PYTHON SOURCE LINES 125-127
 
 Likewise, the nest is also just a solid shape without any holes.
 Note that we are only registering the "floor" of the nest here.
 
-.. GENERATED FROM PYTHON SOURCE LINES 116-117
+.. GENERATED FROM PYTHON SOURCE LINES 127-128
 
 .. code-block:: Python
 
@@ -216,7 +228,7 @@ Note that we are only registering the "floor" of the nest here.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 118-123
+.. GENERATED FROM PYTHON SOURCE LINES 129-134
 
 To create an RoI representing the ring region, we need to provide an interior
 boundary so that ``movement`` knows our ring region has a "hole".
@@ -224,7 +236,7 @@ boundary so that ``movement`` knows our ring region has a "hole".
 can actually support multiple (non-overlapping) holes, which is why the
 ``holes`` argument takes a ``list``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 123-137
+.. GENERATED FROM PYTHON SOURCE LINES 134-148
 
 .. code-block:: Python
 
@@ -254,7 +266,7 @@ can actually support multiple (non-overlapping) holes, which is why the
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 139-153
+.. GENERATED FROM PYTHON SOURCE LINES 150-164
 
 .. note::
 
@@ -271,14 +283,14 @@ can actually support multiple (non-overlapping) holes, which is why the
       save_rois([central_region, nest_region, ring_region], "rois.geojson")
       loaded_rois = load_rois("rois.geojson")
 
-.. GENERATED FROM PYTHON SOURCE LINES 155-159
+.. GENERATED FROM PYTHON SOURCE LINES 166-170
 
 View individual paths inside the habitat
 ----------------------------------------
 We can now overlay the paths that the individuals followed on top of our
 image of the habitat and the RoIs that we have defined.
 
-.. GENERATED FROM PYTHON SOURCE LINES 159-188
+.. GENERATED FROM PYTHON SOURCE LINES 170-199
 
 .. code-block:: Python
 
@@ -323,14 +335,14 @@ image of the habitat and the RoIs that we have defined.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 189-193
+.. GENERATED FROM PYTHON SOURCE LINES 200-204
 
 At a glance, it looks like all the individuals remained inside the
 ring-region for the duration of the experiment. We can verify this
 programmatically, by asking whether the ``ring_region``
 contained the individuals' locations, at all recorded time-points.
 
-.. GENERATED FROM PYTHON SOURCE LINES 193-208
+.. GENERATED FROM PYTHON SOURCE LINES 204-219
 
 .. code-block:: Python
 
@@ -363,7 +375,7 @@ contained the individuals' locations, at all recorded time-points.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 209-216
+.. GENERATED FROM PYTHON SOURCE LINES 220-227
 
 Compute the distance to the nest
 --------------------------------
@@ -373,7 +385,7 @@ For example, we might be interested in how the distance between an
 individual and the nest region changes over the course of the experiment. We
 can query the ``nest_region`` that we created for this information.
 
-.. GENERATED FROM PYTHON SOURCE LINES 216-232
+.. GENERATED FROM PYTHON SOURCE LINES 227-243
 
 .. code-block:: Python
 
@@ -405,7 +417,7 @@ can query the ``nest_region`` that we created for this information.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 233-256
+.. GENERATED FROM PYTHON SOURCE LINES 244-267
 
 We can see that the ``AEON38_TP2`` individual appears to be moving towards
 the nest during the experiment, whilst the other two individuals are
@@ -431,7 +443,7 @@ The distances that we computed via
 PolygonOfInterest.compute_distance_to>` are just the
 magnitudes of the approach vectors.
 
-.. GENERATED FROM PYTHON SOURCE LINES 256-259
+.. GENERATED FROM PYTHON SOURCE LINES 267-270
 
 .. code-block:: Python
 
@@ -445,7 +457,7 @@ magnitudes of the approach vectors.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 260-270
+.. GENERATED FROM PYTHON SOURCE LINES 271-281
 
 The ``boundary_only`` keyword
 -----------------------------
@@ -458,7 +470,7 @@ individual and the ``ring_region``, using the same commands as above.
 
 However, we get something slightly unexpected:
 
-.. GENERATED FROM PYTHON SOURCE LINES 270-290
+.. GENERATED FROM PYTHON SOURCE LINES 281-301
 
 .. code-block:: Python
 
@@ -500,7 +512,7 @@ However, we get something slightly unexpected:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 291-301
+.. GENERATED FROM PYTHON SOURCE LINES 302-312
 
 The distances are all zero because when a point is inside a region, the
 closest point to it is itself.
@@ -513,7 +525,7 @@ the "boundary" is just the endpoints of the line.
 
 Let's try again with ``boundary_only=True``:
 
-.. GENERATED FROM PYTHON SOURCE LINES 301-323
+.. GENERATED FROM PYTHON SOURCE LINES 312-334
 
 .. code-block:: Python
 
@@ -557,7 +569,7 @@ Let's try again with ``boundary_only=True``:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 324-329
+.. GENERATED FROM PYTHON SOURCE LINES 335-340
 
 The resulting plot looks much more like what we expect, but is again
 not very helpful; we get the distance to the closest point on *either*
@@ -565,7 +577,7 @@ the interior or exterior wall of the ``ring_region``. This means that we
 can't tell if the individuals do move to opposite walls when passing each
 other. Instead, let's ask for the distance  to just the exterior wall.
 
-.. GENERATED FROM PYTHON SOURCE LINES 329-347
+.. GENERATED FROM PYTHON SOURCE LINES 340-358
 
 .. code-block:: Python
 
@@ -599,7 +611,7 @@ other. Instead, let's ask for the distance  to just the exterior wall.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 348-360
+.. GENERATED FROM PYTHON SOURCE LINES 359-371
 
 This output is much more helpful. We see that the individuals are largely the
 same distance from the exterior wall during frames 250-350, and then notice
@@ -614,7 +626,7 @@ the exterior wall again, which is consistent with them having passed each
 other in the ``ring_region`` and once again having the entire width of the
 ring to explore.
 
-.. GENERATED FROM PYTHON SOURCE LINES 362-392
+.. GENERATED FROM PYTHON SOURCE LINES 373-403
 
 Boundary angles
 ---------------
@@ -647,7 +659,7 @@ compute this from ``positions`` using
 We will also define our reference frame, or "global north" direction, to be
 the direction of the positive x-axis.
 
-.. GENERATED FROM PYTHON SOURCE LINES 392-431
+.. GENERATED FROM PYTHON SOURCE LINES 403-442
 
 .. code-block:: Python
 
@@ -702,7 +714,7 @@ the direction of the positive x-axis.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 432-454
+.. GENERATED FROM PYTHON SOURCE LINES 443-465
 
 Allocentric angles show step-like behaviour because they only depend on an
 individual's position relative to the RoI, not their forward vector. This
@@ -730,7 +742,7 @@ other.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.318 seconds)
+   **Total running time of the script:** (0 minutes 1.297 seconds)
 
 
 .. _sphx_glr_download_examples_boundary_angles.py:

@@ -23,7 +23,18 @@ Convert pose tracks between file formats
 Load pose tracks from one file format, modify them,
 and save them to another file format.
 
-.. GENERATED FROM PYTHON SOURCE LINES 9-23
+.. GENERATED FROM PYTHON SOURCE LINES 9-17
+
+.. admonition:: Acknowledgements
+  :class: acknowledgements
+
+  This example was originally contributed by `Laura Schwarz
+  <https://github.com/LauraSchwarz>`_—a PhD student at the
+  `Sainsbury Wellcome Centre <https://www.sainsburywellcome.org/>`_
+  studying social interactions in mice—and uses workflows she
+  developed for her own data.
+
+.. GENERATED FROM PYTHON SOURCE LINES 19-33
 
 Motivation
 ----------
@@ -40,12 +51,12 @@ We'll first walk through each step separately, and then
 combine them into a single function that can be applied
 to multiple files at once.
 
-.. GENERATED FROM PYTHON SOURCE LINES 25-27
+.. GENERATED FROM PYTHON SOURCE LINES 35-37
 
 Imports
 -------
 
-.. GENERATED FROM PYTHON SOURCE LINES 27-33
+.. GENERATED FROM PYTHON SOURCE LINES 37-43
 
 .. code-block:: Python
 
@@ -62,7 +73,7 @@ Imports
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 34-39
+.. GENERATED FROM PYTHON SOURCE LINES 44-49
 
 Load the dataset
 ----------------
@@ -70,7 +81,7 @@ We'll start with the path to a file output by one of
 our :ref:`supported pose estimation frameworks<target-supported-formats>`.
 For example, the path could be something like:
 
-.. GENERATED FROM PYTHON SOURCE LINES 39-43
+.. GENERATED FROM PYTHON SOURCE LINES 49-53
 
 .. code-block:: Python
 
@@ -85,12 +96,12 @@ For example, the path could be something like:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 44-46
+.. GENERATED FROM PYTHON SOURCE LINES 54-56
 
 For the sake of this example, we will use the path to one of
 the sample datasets provided with ``movement``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 46-52
+.. GENERATED FROM PYTHON SOURCE LINES 56-62
 
 .. code-block:: Python
 
@@ -113,13 +124,13 @@ the sample datasets provided with ``movement``.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 53-56
+.. GENERATED FROM PYTHON SOURCE LINES 63-66
 
 Now let's load this file into a
 :ref:`movement poses dataset<target-poses-and-bboxes-dataset>`,
 which we can then modify to our liking.
 
-.. GENERATED FROM PYTHON SOURCE LINES 56-63
+.. GENERATED FROM PYTHON SOURCE LINES 66-73
 
 .. code-block:: Python
 
@@ -161,14 +172,14 @@ which we can then modify to our liking.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 64-68
+.. GENERATED FROM PYTHON SOURCE LINES 74-78
 
 .. note::
     If you're running this code in a Jupyter notebook,
     you can just type ``ds`` (instead of printing it)
     to explore the dataset interactively.
 
-.. GENERATED FROM PYTHON SOURCE LINES 70-76
+.. GENERATED FROM PYTHON SOURCE LINES 80-86
 
 Rename keypoints
 ----------------
@@ -177,7 +188,7 @@ Next, we define a function that takes that dictionary and a dataset
 as inputs, and returns a modified dataset. Notice that under the hood
 this function calls :meth:`xarray.Dataset.assign_coords`.
 
-.. GENERATED FROM PYTHON SOURCE LINES 76-101
+.. GENERATED FROM PYTHON SOURCE LINES 86-111
 
 .. code-block:: Python
 
@@ -213,11 +224,11 @@ this function calls :meth:`xarray.Dataset.assign_coords`.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 102-103
+.. GENERATED FROM PYTHON SOURCE LINES 112-113
 
 Let's apply the function to our dataset and see the results.
 
-.. GENERATED FROM PYTHON SOURCE LINES 103-107
+.. GENERATED FROM PYTHON SOURCE LINES 113-117
 
 .. code-block:: Python
 
@@ -238,7 +249,7 @@ Let's apply the function to our dataset and see the results.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 108-115
+.. GENERATED FROM PYTHON SOURCE LINES 118-125
 
 Delete keypoints
 -----------------
@@ -248,7 +259,7 @@ which is often hard to reliably track.
 We delete it using :meth:`xarray.Dataset.drop_sel`,
 wrapped in an appropriately named function.
 
-.. GENERATED FROM PYTHON SOURCE LINES 115-132
+.. GENERATED FROM PYTHON SOURCE LINES 125-142
 
 .. code-block:: Python
 
@@ -282,7 +293,7 @@ wrapped in an appropriately named function.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 133-138
+.. GENERATED FROM PYTHON SOURCE LINES 143-148
 
 Reorder keypoints
 ------------------
@@ -290,7 +301,7 @@ We start with a list of keypoints in the desired order
 (in this case, we'll just swap the order of the left and right ears).
 We then use :meth:`xarray.Dataset.reindex`, wrapped in yet another function.
 
-.. GENERATED FROM PYTHON SOURCE LINES 138-155
+.. GENERATED FROM PYTHON SOURCE LINES 148-165
 
 .. code-block:: Python
 
@@ -324,7 +335,7 @@ We then use :meth:`xarray.Dataset.reindex`, wrapped in yet another function.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 156-165
+.. GENERATED FROM PYTHON SOURCE LINES 166-175
 
 Save the modified dataset
 ---------------------------
@@ -336,7 +347,7 @@ as the original, but ending in ``_dlc.csv``.
 You will need to specify a different ``target_dir`` and edit
 the ``dest_path`` variable to your liking.
 
-.. GENERATED FROM PYTHON SOURCE LINES 165-172
+.. GENERATED FROM PYTHON SOURCE LINES 175-182
 
 .. code-block:: Python
 
@@ -355,12 +366,12 @@ the ``dest_path`` variable to your liking.
 
  .. code-block:: none
 
-    Saved modified dataset to /tmp/tmp8ou8mipo/SLEAP_single-mouse_EPM.analysis_dlc.csv.
+    Saved modified dataset to /tmp/tmp579nwme5/SLEAP_single-mouse_EPM.analysis_dlc.csv.
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 173-180
+.. GENERATED FROM PYTHON SOURCE LINES 183-190
 
 .. note::
     The ``split_individuals`` argument allows you to save
@@ -370,7 +381,7 @@ the ``dest_path`` variable to your liking.
     one individual in the dataset, and we don't need its name
     appended to the file name.
 
-.. GENERATED FROM PYTHON SOURCE LINES 183-195
+.. GENERATED FROM PYTHON SOURCE LINES 193-205
 
 One function to rule them all
 -----------------------------
@@ -385,7 +396,7 @@ Each file will be loaded, modified according to the
 ``rename_dict``, ``keypoints_to_delete``, and ``ordered_keypoints``
 we've defined above, and saved to the target directory.
 
-.. GENERATED FROM PYTHON SOURCE LINES 195-232
+.. GENERATED FROM PYTHON SOURCE LINES 205-242
 
 .. code-block:: Python
 
@@ -436,7 +447,7 @@ we've defined above, and saved to the target directory.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.360 seconds)
+   **Total running time of the script:** (0 minutes 0.362 seconds)
 
 
 .. _sphx_glr_download_examples_convert_file_formats.py:

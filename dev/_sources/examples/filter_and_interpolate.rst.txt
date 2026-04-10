@@ -23,12 +23,23 @@ Drop outliers and interpolate
 Filter out points with low confidence scores and interpolate over
 missing values.
 
-.. GENERATED FROM PYTHON SOURCE LINES 9-11
+.. GENERATED FROM PYTHON SOURCE LINES 9-17
+
+.. admonition:: Acknowledgements
+  :class: acknowledgements
+
+  This example was originally contributed by `Brandon Peri
+  <https://github.com/b-peri>`_ of the
+  `Keshavarzi Laboratory <https://www.keshavarzilab.com/>`_ at the
+  University of Cambridge, as part of his work on the first
+  functions in the :mod:`movement.filtering` module.
+
+.. GENERATED FROM PYTHON SOURCE LINES 19-21
 
 Imports
 -------
 
-.. GENERATED FROM PYTHON SOURCE LINES 11-17
+.. GENERATED FROM PYTHON SOURCE LINES 21-27
 
 .. code-block:: Python
 
@@ -45,12 +56,12 @@ Imports
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 18-20
+.. GENERATED FROM PYTHON SOURCE LINES 28-30
 
 Load a sample dataset
 ---------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 20-24
+.. GENERATED FROM PYTHON SOURCE LINES 30-34
 
 .. code-block:: Python
 
@@ -87,14 +98,14 @@ Load a sample dataset
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 25-29
+.. GENERATED FROM PYTHON SOURCE LINES 35-39
 
 We see that the dataset contains the 2D pose tracks and confidence scores
 for a single wasp, generated with DeepLabCut. The wasp is tracked at two
 keypoints: "head" and "stinger" in a video that was recorded at 40 fps and
 lasts for approximately 27 seconds.
 
-.. GENERATED FROM PYTHON SOURCE LINES 31-36
+.. GENERATED FROM PYTHON SOURCE LINES 41-46
 
 Visualise the pose tracks
 -------------------------
@@ -102,7 +113,7 @@ Since the data contains only a single wasp, we use
 :meth:`xarray.DataArray.squeeze` to remove
 the dimension of length 1 from the data (the ``individuals`` dimension).
 
-.. GENERATED FROM PYTHON SOURCE LINES 36-41
+.. GENERATED FROM PYTHON SOURCE LINES 46-51
 
 .. code-block:: Python
 
@@ -125,18 +136,18 @@ the dimension of length 1 from the data (the ``individuals`` dimension).
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f1a06c351d0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fb56d364b90>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 42-46
+.. GENERATED FROM PYTHON SOURCE LINES 52-56
 
 We can see that the pose tracks contain some implausible "jumps", such
 as the big shift in the final second, and the "spikes" of the stinger
 near the 14th second. Perhaps we can get rid of those based on the model's
 reported confidence scores?
 
-.. GENERATED FROM PYTHON SOURCE LINES 48-60
+.. GENERATED FROM PYTHON SOURCE LINES 58-70
 
 Visualise confidence scores
 ---------------------------
@@ -151,7 +162,7 @@ Let's first look at a histogram of the confidence scores. As before, we use
 :meth:`xarray.DataArray.squeeze` to remove the ``individuals`` dimension
 from the data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 60-63
+.. GENERATED FROM PYTHON SOURCE LINES 70-73
 
 .. code-block:: Python
 
@@ -182,13 +193,13 @@ from the data.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 64-67
+.. GENERATED FROM PYTHON SOURCE LINES 74-77
 
 Based on the above histogram, we can confirm that the confidence scores
 indeed range between 0 and 1, with most values closer to 1. Now let's see how
 they evolve over time.
 
-.. GENERATED FROM PYTHON SOURCE LINES 67-72
+.. GENERATED FROM PYTHON SOURCE LINES 77-82
 
 .. code-block:: Python
 
@@ -211,18 +222,18 @@ they evolve over time.
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f1a06aacb00>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fb56d248c30>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 73-77
+.. GENERATED FROM PYTHON SOURCE LINES 83-87
 
 Encouragingly, some of the drops in confidence scores do seem to correspond
 to the implausible jumps and spikes we had seen in the position.
 We can use that to our advantage, by leveraging functions from the
 :mod:`movement.filtering` module.
 
-.. GENERATED FROM PYTHON SOURCE LINES 79-93
+.. GENERATED FROM PYTHON SOURCE LINES 89-103
 
 Filter out points with low confidence
 -------------------------------------
@@ -239,7 +250,7 @@ and debugging the impact of filtering on the data.
 We will use :meth:`xarray.Dataset.update` to update ``ds`` in-place
 with the filtered ``position``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 93-102
+.. GENERATED FROM PYTHON SOURCE LINES 103-112
 
 .. code-block:: Python
 
@@ -270,12 +281,12 @@ with the filtered ``position``.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 103-105
+.. GENERATED FROM PYTHON SOURCE LINES 113-115
 
 We can see that the filtering operation has introduced NaN values in the
 ``position`` data variable. Let's visualise the filtered data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-110
+.. GENERATED FROM PYTHON SOURCE LINES 115-120
 
 .. code-block:: Python
 
@@ -298,18 +309,18 @@ We can see that the filtering operation has introduced NaN values in the
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f1a06aac9d0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fb56d248b00>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 111-115
+.. GENERATED FROM PYTHON SOURCE LINES 121-125
 
 Here we can see that gaps (consecutive NaNs) have appeared in the
 pose tracks, some of which are over the implausible jumps and spikes we had
 seen earlier. Moreover, most gaps seem to be brief,
 lasting < 1 second (or 40 frames).
 
-.. GENERATED FROM PYTHON SOURCE LINES 117-126
+.. GENERATED FROM PYTHON SOURCE LINES 127-136
 
 Interpolate over missing values
 -------------------------------
@@ -321,7 +332,7 @@ The default ``max_gap=None`` would interpolate over all gaps, regardless of
 their length, but this should be used with caution as it can introduce
 spurious data. The ``print_report`` argument acts as described above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 126-135
+.. GENERATED FROM PYTHON SOURCE LINES 136-145
 
 .. code-block:: Python
 
@@ -356,13 +367,13 @@ spurious data. The ``print_report`` argument acts as described above.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 136-139
+.. GENERATED FROM PYTHON SOURCE LINES 146-149
 
 We see that most, but not all, NaN values have disappeared, meaning that
 most gaps were indeed shorter than 40 frames.
 Let's visualise the interpolated pose tracks.
 
-.. GENERATED FROM PYTHON SOURCE LINES 139-144
+.. GENERATED FROM PYTHON SOURCE LINES 149-154
 
 .. code-block:: Python
 
@@ -385,11 +396,11 @@ Let's visualise the interpolated pose tracks.
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f19fe4144d0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7fb56d0a6e70>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 145-155
+.. GENERATED FROM PYTHON SOURCE LINES 155-165
 
 .. note::
   By default, interpolation does not apply to gaps at either end of the time
@@ -402,7 +413,7 @@ Let's visualise the interpolated pose tracks.
   ``**kwargs`` by :meth:`xarray.DataArray.interpolate_na`, which in turn
   passes them to its underlying interpolation methods.
 
-.. GENERATED FROM PYTHON SOURCE LINES 157-165
+.. GENERATED FROM PYTHON SOURCE LINES 167-175
 
 Log of processing steps
 -----------------------
@@ -413,7 +424,7 @@ performed are saved in the ``log`` attribute of the ``position`` data array.
 This is useful for keeping track of the processing steps that have been
 applied to the data. Let's inspect the log:
 
-.. GENERATED FROM PYTHON SOURCE LINES 165-168
+.. GENERATED FROM PYTHON SOURCE LINES 175-178
 
 .. code-block:: Python
 
@@ -431,14 +442,14 @@ applied to the data. Let's inspect the log:
     [
       {
         "operation": "filter_by_confidence",
-        "datetime": "2026-04-09 17:47:36.906856",
+        "datetime": "2026-04-10 14:22:09.636889",
         "confidence": "<xarray.DataArray 'confidence' (time: 1085, keypoints: 2, individuals: 1)> Size: 17kB\n0.05305 0.07366 0.03532 0.03293 0.01707 0.01022 ... 0.0 0.0 0.0 0.0 0.0 0.0\nCoordinates:\n  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1\n  * keypoints    (keypoints) <U7 56B 'head' 'stinger'\n  * individuals  (individuals) <U12 48B 'individual_0'",
         "threshold": "0.6",
         "print_report": "True"
       },
       {
         "operation": "interpolate_over_time",
-        "datetime": "2026-04-09 17:47:37.939564",
+        "datetime": "2026-04-10 14:22:10.661324",
         "method": "'linear'",
         "max_gap": "40",
         "print_report": "True"
@@ -448,12 +459,12 @@ applied to the data. Let's inspect the log:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 169-171
+.. GENERATED FROM PYTHON SOURCE LINES 179-181
 
 If you want to retrieve a certain parameter from the log, you can use
 :func:`json.loads` to parse the log string into a list of dictionaries.
 
-.. GENERATED FROM PYTHON SOURCE LINES 171-179
+.. GENERATED FROM PYTHON SOURCE LINES 181-189
 
 .. code-block:: Python
 
@@ -478,7 +489,7 @@ If you want to retrieve a certain parameter from the log, you can use
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 180-191
+.. GENERATED FROM PYTHON SOURCE LINES 190-201
 
 Filtering multiple data variables
 ---------------------------------
@@ -492,7 +503,7 @@ DataArrays as values. Then we can once again use
 :meth:`xarray.Dataset.update`  to update ``ds`` in-place
 with the filtered data variables.
 
-.. GENERATED FROM PYTHON SOURCE LINES 191-204
+.. GENERATED FROM PYTHON SOURCE LINES 201-214
 
 .. code-block:: Python
 
@@ -519,7 +530,7 @@ with the filtered data variables.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.803 seconds)
+   **Total running time of the script:** (0 minutes 1.794 seconds)
 
 
 .. _sphx_glr_download_examples_filter_and_interpolate.py:
