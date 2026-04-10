@@ -663,7 +663,7 @@ If your examples rely on packages that are not among `movement`'s dependencies,
 you will need to add them to the `.binder/requirements.txt` file.
 
 For examples contributed by people outside the core development team, we add
-acknowledgements as an admonition near the top of the example file,
+acknowledgements as an [admonition](sphinx-doc:restructuredtext/directives.html#admonitions-messages-and-warnings) near the top of the example file,
 roughly following the pattern below.
 
 ```python
