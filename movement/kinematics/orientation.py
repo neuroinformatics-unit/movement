@@ -290,10 +290,13 @@ def compute_turning_angle(
 ) -> xr.DataArray:
     """Compute the turning angles between consecutive steps in a trajectory.
 
-    A turning angle is the signed angular change in heading direction between
-    two consecutive displacement vectors. Positive values indicate a left
-    (counter-clockwise) turn; negative values indicate a right (clockwise)
-    turn.
+    The turning angle at time ``t`` is  the :func:`signed angle\
+    <movement.utils.vector.compute_signed_angle_2d>` between two
+    consecutive :func:`backward displacement\
+    <movement.kinematics.compute_backward_displacement>` vectors
+    at times ``t-1`` and ``t``.
+    The returned angles are in radians, spanning the range :math:`(-\pi, \pi]`,
+    unless ``in_degrees`` is set to ``True``.
 
     Parameters
     ----------
