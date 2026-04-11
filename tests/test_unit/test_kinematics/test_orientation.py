@@ -499,7 +499,7 @@ class TestTurningAngle:
         """
         # Trajectory with a tiny "jitter" step in the middle
         # t0 -> t1: length 1.0 (valid)
-        # t1 -> t2: length ~1.4e-5 (invalid jitter)
+        # t1 -> t2: length ~1e-5 (sub-threshold jitter)
         # t2 -> t3: length ~1.0 (valid)
         positions = np.array(
             [[0.0, 0.0], [1.0, 0.0], [1.0 + 1e-5, 1e-5], [2.0, 1e-5]]

@@ -300,16 +300,20 @@ def compute_turning_angle(
 
     Parameters
     ----------
-    data : xr.DataArray
+    data
         The input position data. Must contain ``time`` and ``space``
         dimensions. The ``space`` dimension must contain exactly the
         coordinates ``["x", "y"]`` (2D spatial data only).
-    in_degrees : bool, optional
+    in_degrees
         If ``True``, return turning angles in degrees. Default is
         ``False`` (radians).
-    min_step_length : float, optional
-        The minimum step length to consider for computing the turning angle.
-        Default is ``0.0``.
+    min_step_length
+        The minimum step length to consider for computing the turning
+        angle. Any turning angle involving an incoming or outgoing step
+        shorter than or equal to this value is set to ``NaN``. The
+        default ``0.0`` only masks steps with exactly zero length,
+        which means steps with near-zero lengths may still produce
+        spurious angles. See Note 2 below.
 
     Returns
     -------
@@ -319,68 +323,62 @@ def compute_turning_angle(
 
     Notes
     -----
-    *Time dimension length:* This function uses a `shift` operation
-    to preserve the original `time` dimension length. The first two
-    time steps are always `NaN`: the first because no previous step
-    exists, and the second because a turning angle requires two steps
-    (three positions).
-
-    *Positional jitter and small steps:* Raw pose estimation data often
-    contains positional jitter, meaning a stationary animal will appear to
-    make microscopic movements. By default (`min_step_length=0.0`), these
-    tiny, noisy movements will produce spurious, meaningless turning angles.
-    It is highly recommended to either pre-smooth the trajectory or set
-    `min_step_length` to an appropriate threshold based on your specific
-    tracking resolution. Any turning angle involving an incoming or outgoing
-    step smaller than or equal to this threshold is explicitly set to `NaN`.
-
-    *NaN propagation:* NaN positions in the input propagate to NaN
-    turning angles. A single missing position affects up to two turning
-    angles (the incoming and outgoing steps). Use
-    :func:movement.filtering.interpolate_over_time to fill positional
-    gaps before computing turning angles if continuity is important.
+    1. **Time dimension length:** This function uses a ``shift``
+       operation to preserve the original ``time`` dimension length.
+       The first two time steps are always ``NaN``: the first because
+       no previous step exists, and the second because a turning angle
+       requires two steps (three positions). In other words, the turning angle
+       at time step ``t`` is computed as the angle between the steps
+       from ``t-2`` to ``t-1`` and from ``t-1`` to ``t``.
+    2. **Positional jitter and small steps:** Tracking data
+       often contains positional jitter, meaning a stationary animal
+       may appear to make microscopic movements. With default parameters
+       (``min_step_length=0.0``), these tiny, noisy movements will
+       produce spurious, meaningless turning angles. It is highly
+       recommended to set ``min_step_length`` to an appropriate threshold
+       based on the tracking resolution and the animal's size in the scene.
+       The value should be in the same units as the input position data
+       (e.g. pixels, mm, etc.). Pre-smoothing the trajectory
+       can also help reduce positional jitter.
+    3. **NaN propagation:** ``NaN`` positions in the input propagate
+       to ``NaN`` turning angles. A single missing position affects
+       up to two turning angles (the incoming and outgoing steps).
+       Use :func:`movement.filtering.interpolate_over_time` to fill
+       positional gaps before computing turning angles if continuity
+       is important.
 
     See Also
     --------
     movement.kinematics.compute_backward_displacement :
-     compute the displacement vectors.
+        The underlying function used to compute the displacement vectors.
     movement.utils.vector.compute_signed_angle_2d :
-     compute the angle between displacement vectors.
+        The underlying function used to compute the signed angle
+        between two consecutive displacement vectors.
 
     Examples
     --------
-    Compute turning angles for a specific keypoint:
+    Compute turning angles from the centroid trajectory of a poses
+    dataset ``ds``:
 
-    >>> from movement import sample_data
-    >>> from movement.kinematics import compute_turning_angle
-    >>> ds = sample_data.fetch_dataset("DLC_single-mouse_EPM.predictions.h5")
-    >>> # Select 'snout' and the first individual to get a (time, space) array
-    >>> snout_pos = ds.position.sel(
-    ...     keypoints="snout", individuals="individual_0"
+    >>> centroid = ds.position.mean(dim="keypoints")
+    >>> angles = compute_turning_angle(centroid)
+
+    Compute in degrees, with a minimum step length of 3 pixels to filter out
+    pose estimation jitter:
+
+    >>> angles = compute_turning_angle(
+    ...     centroid, in_degrees=True, min_step_length=3
     ... )
-    >>> angles = compute_turning_angle(snout_pos)
-
-    Compute in degrees for all individuals and keypoints in the dataset:
-
-    >>> angles_deg = compute_turning_angle(ds.position, in_degrees=True)
-
-    Apply a minimum step length to avoid noise from pose estimation jitter:
-
-    >>> angles_clean = compute_turning_angle(ds.position, min_step_length=0.5)
 
     """
     validate_dims_coords(
         data, {"time": [], "space": ["x", "y"]}, exact_coords=True
     )
 
-    # Displacement arriving at each time step.
-    # backward[t] = position[t-1] - position[t]; backward[0] = 0 by convention.
+    # Displacement arriving at each time step t.
     disp = compute_backward_displacement(data)
 
-    # Turning angle at t = signed angle from step[t-1] to step[t].
-    # Negating both operands of a signed angle preserves its value, so
-    # backward displacement vectors (which are negated incoming steps)
-    # give the correct result directly.
+    # Turning angle at t = rotation needed to align step[t-1] onto step[t].
     turning = compute_signed_angle_2d(disp.shift(time=1), disp)
 
     # Mask turning angles involving steps smaller than min_step_length
