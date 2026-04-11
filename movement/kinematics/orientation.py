@@ -288,7 +288,7 @@ def compute_turning_angle(
     in_degrees: bool = False,
     min_step_length: float = 0.0,
 ) -> xr.DataArray:
-    """Compute the turning angles between consecutive steps in a trajectory.
+    r"""Compute the turning angles between consecutive steps in a trajectory.
 
     The turning angle at time ``t`` is  the :func:`signed angle\
     <movement.utils.vector.compute_signed_angle_2d>` between two

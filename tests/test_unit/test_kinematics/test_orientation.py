@@ -441,7 +441,9 @@ class TestTurningAngle:
     def test_output_shape_and_attributes(
         self, valid_data_array_for_forward_vector, in_degrees
     ):
-        """Test that the function returns the correct shape, dimensions, and attributes."""
+        """Test that the function returns the correct shape,
+        dimensions, and attributes.
+        """
         angles = compute_turning_angle(
             valid_data_array_for_forward_vector, in_degrees=in_degrees
         )
@@ -496,6 +498,7 @@ class TestTurningAngle:
     def test_compute_turning_angle_with_invalid_input(
         self, invalid_data, expected_error
     ):
+        """Test that invalid inputs raise the expected error."""
         with pytest.raises(expected_error):
             compute_turning_angle(invalid_data)
 
@@ -553,7 +556,9 @@ class TestTurningAngle:
         ],
     )
     def test_min_step_length_masking(self, min_step, expect_nan):
-        """Test that steps smaller than min_step_length result in NaN turning angles."""
+        """Test that steps smaller than min_step_length
+        result in NaN turning angles.
+        """
         # Trajectory with a tiny "jitter" step in the middle
         # t0 -> t1: length 1.0 (valid)
         # t1 -> t2: length ~1.4e-5 (sub-threshold jitter)
@@ -569,7 +574,8 @@ class TestTurningAngle:
 
         angles = compute_turning_angle(data, min_step_length=min_step)
 
-        # If we expect NaN (1e-4), it should be True. If we don't (0.0), it should be False.
+        # If we expect NaN (1e-4), it should be True.
+        # If we don't (0.0), it should be False.
         assert np.isnan(angles.isel(time=2).item()) == expect_nan
         assert np.isnan(angles.isel(time=3).item()) == expect_nan
 
