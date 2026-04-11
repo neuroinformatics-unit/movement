@@ -47,7 +47,6 @@ from typing import (
     Concatenate,
     Literal,
     ParamSpec,
-    TypeAlias,
     TypeVar,
     overload,
 )
@@ -59,20 +58,22 @@ from numpy.typing import ArrayLike
 ScalarOr1D = TypeVar("ScalarOr1D", float, int, bool, ArrayLike)
 Self = TypeVar("Self")
 P = ParamSpec("P")
-ClsMethod1DTo1D: TypeAlias = Callable[
-    Concatenate[Self, ArrayLike, P], ScalarOr1D
+type ClsMethod1DTo1D[_Self, **_P, _S: (float, int, bool, ArrayLike)] = (
+    Callable[Concatenate[_Self, ArrayLike, _P], _S]
+)
+type ClsMethodDaToDa[_Self, **_P] = Callable[
+    Concatenate[_Self, xr.DataArray, _P], xr.DataArray
 ]
-ClsMethodDaToDa: TypeAlias = Callable[
-    Concatenate[Self, xr.DataArray, P], xr.DataArray
+type Function1DTo1D[**_P, _S: (float, int, bool, ArrayLike)] = Callable[
+    Concatenate[ArrayLike, _P], _S
 ]
-Function1DTo1D: TypeAlias = Callable[Concatenate[ArrayLike, P], ScalarOr1D]
-FunctionDaToDa: TypeAlias = Callable[
-    Concatenate[xr.DataArray, P], xr.DataArray
+type FunctionDaToDa[**_P] = Callable[
+    Concatenate[xr.DataArray, _P], xr.DataArray
 ]
 
 
-def apply_along_da_axis(
-    f: Callable[[ArrayLike], ScalarOr1D],
+def apply_along_da_axis[S: (float, int, bool, ArrayLike)](
+    f: Callable[[ArrayLike], S],
     data: xr.DataArray,
     dimension: str,
     new_dimension_name: str | None = None,
@@ -179,7 +180,7 @@ def make_broadcastable(
 
     Returns
     -------
-    Callable
+    collections.abc.Callable
         Decorator function that can be applied with the
         ``@make_broadcastable(...)`` syntax. See Notes for a description of
         the action of the returned decorator.
@@ -297,7 +298,7 @@ def space_broadcastable(
 
     Returns
     -------
-    Callable
+    collections.abc.Callable
         Callable with signature
         ``(self,) data, *args, broadcast_dimension = str, **kwargs``,
         that applies ``f`` along the ``broadcast_dimension`` of ``data``.
@@ -331,7 +332,7 @@ def broadcastable_method(
 
     Returns
     -------
-    Callable
+    collections.abc.Callable
         Callable with signature
         ``(self,) data, *args, broadcast_dimension = str, **kwargs``,
         that applies ``f`` along the ``broadcast_dimension`` of ``data``.

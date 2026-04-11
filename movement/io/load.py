@@ -8,7 +8,6 @@ from typing import (
     Literal,
     ParamSpec,
     Protocol,
-    TypeAlias,
     TypeVar,
     cast,
 )
@@ -22,7 +21,7 @@ from movement.validators.files import ValidFile
 
 TInputFile = TypeVar("TInputFile", Path, str, pynwb.file.NWBFile)
 P = ParamSpec("P")
-SourceSoftware: TypeAlias = Literal[
+type SourceSoftware = Literal[
     "DeepLabCut",
     "SLEAP",
     "LightningPose",
@@ -35,12 +34,11 @@ SourceSoftware: TypeAlias = Literal[
 class LoaderProtocol(Protocol):
     """Protocol for loader functions to be registered via ``register_loader``.
 
-    All loader functions registered via :func:`register_loader`
-    must conform to this protocol. Loaders must accept a file
-    path (str or Path) or  :class:`pynwb.file.NWBFile` object)
-    as their first argument and return an :class:`xarray.Dataset`
-    containing pose tracks or bounding box tracks. Additional
-    positional and keyword arguments are allowed.
+    All loader functions registered via :func:`register_loader` must conform
+    to this protocol. Loaders must accept a file path or a
+    :class:`pynwb.file.NWBFile` object as their first argument and return an
+    :class:`xarray.Dataset` containing pose tracks or bounding box tracks.
+    Additional positional and keyword arguments are allowed.
 
     See Also
     --------
@@ -102,8 +100,8 @@ def _build_suffix_map(
     return suffix_map
 
 
-def _validate_file(
-    file: TInputFile,
+def _validate_file[T: (Path, str, pynwb.file.NWBFile)](
+    file: T,
     suffix_map: dict[str, type[ValidFile]],
     source_software: SourceSoftware,
     loader_kwargs: dict | None = None,
@@ -176,7 +174,7 @@ def register_loader(
 
     Returns
     -------
-    Callable
+    collections.abc.Callable
         A decorator that registers the loader function.
 
     Notes

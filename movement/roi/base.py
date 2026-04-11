@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable, Hashable, Sequence
-from typing import TYPE_CHECKING, Any, Generic, TypeAlias, TypeVar, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,15 +20,14 @@ if TYPE_CHECKING:
     from matplotlib.figure import Figure, SubFigure
     from numpy.typing import ArrayLike
 
-FloatSequence: TypeAlias = Sequence[float]
-PointLikeList: TypeAlias = Sequence[float] | np.ndarray | CoordinateSequence
-LineLike: TypeAlias = shapely.LinearRing | shapely.LineString
-RegionLike: TypeAlias = shapely.Polygon
-SupportedGeometry: TypeAlias = LineLike | RegionLike
-TGeometry_co = TypeVar("TGeometry_co", bound=SupportedGeometry, covariant=True)
+type FloatSequence = Sequence[float]
+type PointLikeList = Sequence[float] | np.ndarray | CoordinateSequence
+type LineLike = shapely.LinearRing | shapely.LineString
+type RegionLike = shapely.Polygon
+type SupportedGeometry = LineLike | RegionLike
 
 
-class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
+class BaseRegionOfInterest[T: SupportedGeometry](ABC):
     """Abstract base class for regions of interest (RoIs).
 
     This class cannot be instantiated directly. Instead, use one of its
@@ -67,7 +66,7 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
     __default_name: str = "Un-named region"
 
     _name: str | None
-    _shapely_geometry: TGeometry_co
+    _shapely_geometry: T
 
     @property
     def _default_plot_args(self) -> dict[str, Any]:
@@ -102,7 +101,7 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         """
         return (
             self.region.coords
-            if isinstance(self.region, LineLike)
+            if isinstance(self.region, shapely.LinearRing | shapely.LineString)
             else self.region.exterior.coords
         )
 
@@ -130,7 +129,7 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         return self._name if self._name else self.__default_name
 
     @property
-    def region(self) -> TGeometry_co:
+    def region(self) -> T:
         """``shapely.Geometry`` representation of the region."""
         return self._shapely_geometry
 
@@ -216,7 +215,7 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
 
     def __init__(
         self,
-        geometry: TGeometry_co,
+        geometry: T,
         name: str | None = None,
     ) -> None:
         """Initialise a region of interest.
@@ -441,7 +440,9 @@ class BaseRegionOfInterest(ABC, Generic[TGeometry_co]):
         reference_vector
             The reference vector to be used. Dimensions must be compatible with
             the argument of the same name that is passed to
-            :func:`compute_signed_angle_2d`. Default ``(1., 0.)``.
+            :func:`compute_signed_angle_2d()\
+            <movement.utils.vector.compute_signed_angle_2d>`.
+            Default ``(1., 0.)``.
 
         Returns
         -------
