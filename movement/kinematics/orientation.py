@@ -317,12 +317,6 @@ def compute_turning_angle(
         Turning angles with the same shape as the input ``data``, but
         with the ``space`` dimension dropped.
 
-    Raises
-    ------
-    ValueError
-        If ``data`` does not contain ``time`` and ``space`` dimensions,
-        or if ``space`` does not contain exactly 2 coordinates.
-
     Notes
     -----
     *Time dimension length:* This function uses a `shift` operation
