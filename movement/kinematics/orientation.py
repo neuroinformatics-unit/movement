@@ -315,11 +315,7 @@ def compute_turning_angle(
     -------
     xr.DataArray
         Turning angles with the same shape as the input ``data``, but
-        with the ``space`` dimension dropped. Values are wrapped to
-        the interval ``(-π, π]`` (or ``(-180, 180]`` if
-        ``in_degrees=True``). The first two time steps are always
-        ``NaN``, as at least two steps are needed to compute one
-        turning angle.
+        with the ``space`` dimension dropped.
 
     Raises
     ------
