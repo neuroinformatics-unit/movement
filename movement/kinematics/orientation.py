@@ -388,11 +388,12 @@ def compute_turning_angle(
     )
     turning = xr.where(invalid_steps, np.nan, turning)
 
-    turning.name = "turning_angle"
     turning.attrs["units"] = "radians"
 
     if in_degrees:
         turning = np.rad2deg(turning)
         turning.attrs["units"] = "degrees"
+
+    turning.name = "turning_angle"
 
     return turning

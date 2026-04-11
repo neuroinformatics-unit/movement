@@ -437,13 +437,14 @@ class TestForwardVectorAngle:
 class TestTurningAngle:
     """Test the compute_turning_angle function."""
 
+    @pytest.mark.parametrize("in_degrees", [True, False])
     def test_output_shape_and_attributes(
-        self, valid_data_array_for_forward_vector
+        self, valid_data_array_for_forward_vector, in_degrees
     ):
-        """Test that the function returns the correct shape,
-        dimensions, and attributes.
-        """
-        angles = compute_turning_angle(valid_data_array_for_forward_vector)
+        """Test that the function returns the correct shape, dimensions, and attributes."""
+        angles = compute_turning_angle(
+            valid_data_array_for_forward_vector, in_degrees=in_degrees
+        )
 
         # Space dimension must be dropped, others preserved
         assert (
@@ -455,15 +456,62 @@ class TestTurningAngle:
 
         # Attributes
         assert angles.name == "turning_angle"
-        assert angles.attrs.get("units") == "radians"
+        if in_degrees:
+            assert angles.attrs.get("units") == "degrees"
+        else:
+            assert angles.attrs.get("units") == "radians"
+
+    @pytest.mark.parametrize(
+        "invalid_data, expected_error",
+        [
+            pytest.param(
+                xr.DataArray(
+                    np.zeros((3, 2)),
+                    dims=["frame", "space"],
+                    coords={"space": ["x", "y"]},
+                ),
+                ValueError,
+                id="missing_time_dim",
+            ),
+            pytest.param(
+                xr.DataArray(
+                    np.zeros((3, 2)),
+                    dims=["time", "axis"],
+                    coords={"axis": ["x", "y"]},
+                ),
+                ValueError,
+                id="missing_space_dim",
+            ),
+            pytest.param(
+                xr.DataArray(
+                    np.zeros((3, 3)),
+                    dims=["time", "space"],
+                    coords={"space": ["x", "y", "z"]},
+                ),
+                ValueError,
+                id="3d_space_coords",
+            ),
+        ],
+    )
+    def test_compute_turning_angle_with_invalid_input(
+        self, invalid_data, expected_error
+    ):
+        with pytest.raises(expected_error):
+            compute_turning_angle(invalid_data)
 
     @pytest.mark.parametrize(
         "positions, expected_angle_deg",
         [
-            ([[0, 0], [1, 0], [2, 0]], 0.0),
-            ([[0, 0], [1, 0], [1, 1]], 90.0),
-            ([[0, 0], [1, 0], [1, -1]], -90.0),
-            (
+            pytest.param(
+                [[0.0, 0.0], [1.0, 0.0], [2.0, 0.0]], 0.0, id="straight_line"
+            ),
+            pytest.param(
+                [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]], 90.0, id="pos_turn_90"
+            ),
+            pytest.param(
+                [[0.0, 0.0], [1.0, 0.0], [1.0, -1.0]], -90.0, id="neg_turn_90"
+            ),
+            pytest.param(
                 [
                     [0.0, 0.0],
                     [np.cos(np.deg2rad(170)), np.sin(np.deg2rad(170))],
@@ -473,6 +521,10 @@ class TestTurningAngle:
                     ],
                 ],
                 20.0,
+                id="wrap_across_pi_boundary",
+            ),
+            pytest.param(
+                [[0.0, 0.0], [1.0, 0.0], [0.0, 0.0]], 180.0, id="u_turn_180"
             ),
         ],
     )
@@ -493,13 +545,18 @@ class TestTurningAngle:
             angles.isel(time=2).item(), expected_angle_deg, atol=1e-6
         )
 
-    def test_min_step_length_masking(self):
-        """Test that steps smaller than min_step_length
-        result in NaN turning angles.
-        """
+    @pytest.mark.parametrize(
+        "min_step, expect_nan",
+        [
+            pytest.param(0.0, False, id="default_threshold"),
+            pytest.param(1e-4, True, id="sub_threshold_jitter"),
+        ],
+    )
+    def test_min_step_length_masking(self, min_step, expect_nan):
+        """Test that steps smaller than min_step_length result in NaN turning angles."""
         # Trajectory with a tiny "jitter" step in the middle
         # t0 -> t1: length 1.0 (valid)
-        # t1 -> t2: length ~1e-5 (sub-threshold jitter)
+        # t1 -> t2: length ~1.4e-5 (sub-threshold jitter)
         # t2 -> t3: length ~1.0 (valid)
         positions = np.array(
             [[0.0, 0.0], [1.0, 0.0], [1.0 + 1e-5, 1e-5], [2.0, 1e-5]]
@@ -510,24 +567,36 @@ class TestTurningAngle:
             coords={"time": np.arange(len(positions)), "space": ["x", "y"]},
         )
 
-        angles_default = compute_turning_angle(data, min_step_length=0.0)
-        assert not np.isnan(angles_default.isel(time=2).item())
+        angles = compute_turning_angle(data, min_step_length=min_step)
 
-        # With min_step_length=1e-4, the tiny step is masked.
-        angles_masked = compute_turning_angle(data, min_step_length=1e-4)
-        assert np.isnan(angles_masked.isel(time=2).item())
-        assert np.isnan(angles_masked.isel(time=3).item())
+        # If we expect NaN (1e-4), it should be True. If we don't (0.0), it should be False.
+        assert np.isnan(angles.isel(time=2).item()) == expect_nan
+        assert np.isnan(angles.isel(time=3).item()) == expect_nan
 
-    def test_stationary_animal_all_nan(self):
-        """Test that an animal that never moves returns all NaNs."""
-        positions = np.array([[5.0, 5.0], [5.0, 5.0], [5.0, 5.0], [5.0, 5.0]])
-        data = xr.DataArray(
-            positions,
-            dims=["time", "space"],
-            coords={"time": np.arange(len(positions)), "space": ["x", "y"]},
+        @pytest.mark.parametrize(
+            "positions",
+            [
+                pytest.param(
+                    [[5.0, 5.0], [5.0, 5.0], [5.0, 5.0], [5.0, 5.0]],
+                    id="stationary",
+                ),
+                pytest.param(
+                    [[0.0, 0.0], [1.0, 0.0]], id="only_two_timepoints"
+                ),
+            ],
         )
-        angles = compute_turning_angle(data)
-        assert np.all(np.isnan(angles.values))
+        def test_all_nan_output(self, positions):
+            """Test cases where all turning angles should be NaN."""
+            data = xr.DataArray(
+                np.array(positions),
+                dims=["time", "space"],
+                coords={
+                    "time": np.arange(len(positions)),
+                    "space": ["x", "y"],
+                },
+            )
+            angles = compute_turning_angle(data)
+            assert angles.isnull().all()
 
     def test_nan_propagation(self, valid_data_array_for_forward_vector):
         """Test that a NaN position correctly
@@ -550,39 +619,6 @@ class TestTurningAngle:
         assert np.isnan(
             angles.sel(time=3, individuals="id_0", keypoints="left_ear").item()
         )
-
-    def test_u_turn_180_degrees(self):
-        """Test that a perfect 180-degree U-turn
-        returns exactly 180.0 degrees.
-        """
-        # Moves right to (1,0), then immediately back left to (0,0)
-        positions = np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 0.0]])
-        data = xr.DataArray(
-            positions,
-            dims=["time", "space"],
-            coords={"time": np.arange(len(positions)), "space": ["x", "y"]},
-        )
-
-        angles = compute_turning_angle(data, in_degrees=True)
-
-        # The turn happens at time step 2
-        assert np.isclose(angles.isel(time=2).item(), 180.0, atol=1e-6)
-
-    def test_two_time_points_returns_all_nan(self):
-        """With only 2 time steps, all turning angles
-        must be NaN (need ≥3 positions).
-        """
-        positions = np.array([[0.0, 0.0], [1.0, 0.0]])
-        data = xr.DataArray(
-            positions,
-            dims=["time", "space"],
-            coords={"time": np.arange(len(positions)), "space": ["x", "y"]},
-        )
-
-        angles = compute_turning_angle(data)
-
-        # Array length is 2, so everything should be NaN
-        assert np.all(np.isnan(angles.values))
 
     def test_stationary_keypoint_independent_masking(self):
         """Zero-step masking is per-keypoint:
