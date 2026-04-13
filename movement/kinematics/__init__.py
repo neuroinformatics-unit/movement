@@ -15,8 +15,10 @@ from movement.kinematics.orientation import (
     compute_forward_vector,
     compute_forward_vector_angle,
     compute_head_direction_vector,
+    compute_turning_angle,
 )
 from movement.kinematics.kinetic_energy import compute_kinetic_energy
+
 
 __all__ = [
     "compute_displacement",
@@ -32,4 +34,5 @@ __all__ = [
     "compute_head_direction_vector",
     "compute_forward_vector_angle",
     "compute_kinetic_energy",
+    "compute_turning_angle",
 ]
