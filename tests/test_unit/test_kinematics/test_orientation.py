@@ -438,9 +438,8 @@ class TestTurningAngle:
     """Test the compute_turning_angle function."""
 
     @pytest.mark.parametrize(
-            "in_degrees, expected_units",
-            [(True, "degrees"), (False, "radians")]
-        )
+        "in_degrees, expected_units", [(True, "degrees"), (False, "radians")]
+    )
     def test_output_shape_and_attributes(
         self, valid_data_array_for_forward_vector, in_degrees, expected_units
     ):
@@ -592,9 +591,7 @@ class TestTurningAngle:
                 [[5.0, 5.0], [5.0, 5.0], [5.0, 5.0], [5.0, 5.0]],
                 id="stationary",
             ),
-            pytest.param(
-                [[0.0, 0.0], [1.0, 0.0]], id="only_two_timepoints"
-            ),
+            pytest.param([[0.0, 0.0], [1.0, 0.0]], id="only_two_timepoints"),
         ],
     )
     def test_all_nan_output(self, positions):
