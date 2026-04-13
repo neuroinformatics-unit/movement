@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../_static/documentation_options.js?v=fb4c26ea"></script>
+    <script src="../../../_static/documentation_options.js?v=ab8681bf"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -138,7 +138,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev9</p>
+    <p class="title logo__title">movement v0.15.1.dev10</p>
   
 </a></div>
     
@@ -473,8 +473,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_backward_displacement</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.vector</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">compute_norm</span><span class="p">,</span>
     <span class="n">compute_signed_angle_2d</span><span class="p">,</span>
     <span class="n">convert_to_unit</span><span class="p">,</span>
 <span class="p">)</span>
@@ -754,6 +756,127 @@
                 <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
         <span class="p">)</span>
+
+
+<div class="viewcode-block" id="compute_turning_angle">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_turning_angle.html#movement.kinematics.compute_turning_angle">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_turning_angle</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">in_degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">min_step_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the turning angles between consecutive steps in a trajectory.</span>
+
+<span class="sd">    The turning angle at time ``t`` is  the :func:`signed angle\</span>
+<span class="sd">    &lt;movement.utils.vector.compute_signed_angle_2d&gt;` between two</span>
+<span class="sd">    consecutive :func:`backward displacement\</span>
+<span class="sd">    &lt;movement.kinematics.compute_backward_displacement&gt;` vectors</span>
+<span class="sd">    at times ``t-1`` and ``t``.</span>
+<span class="sd">    The returned angles are in radians, spanning the range :math:`(-\pi, \pi]`,</span>
+<span class="sd">    unless ``in_degrees`` is set to ``True``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data</span>
+<span class="sd">        The input position data. Must contain ``time`` and ``space``</span>
+<span class="sd">        dimensions. The ``space`` dimension must contain exactly the</span>
+<span class="sd">        coordinates ``[&quot;x&quot;, &quot;y&quot;]`` (2D spatial data only).</span>
+<span class="sd">    in_degrees</span>
+<span class="sd">        If ``True``, return turning angles in degrees. Default is</span>
+<span class="sd">        ``False`` (radians).</span>
+<span class="sd">    min_step_length</span>
+<span class="sd">        The minimum step length to consider for computing the turning</span>
+<span class="sd">        angle. Any turning angle involving an incoming or outgoing step</span>
+<span class="sd">        shorter than or equal to this value is set to ``NaN``. The</span>
+<span class="sd">        default ``0.0`` only masks steps with exactly zero length,</span>
+<span class="sd">        which means steps with near-zero lengths may still produce</span>
+<span class="sd">        spurious angles. See Note 2 below.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xr.DataArray</span>
+<span class="sd">        Turning angles with the same shape as the input ``data``, but</span>
+<span class="sd">        with the ``space`` dimension dropped.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    1. **Time dimension length:** This function uses a ``shift``</span>
+<span class="sd">       operation to preserve the original ``time`` dimension length.</span>
+<span class="sd">       The first two time steps are always ``NaN``: the first because</span>
+<span class="sd">       no previous step exists, and the second because a turning angle</span>
+<span class="sd">       requires two steps (three positions). In other words, the turning angle</span>
+<span class="sd">       at time step ``t`` is computed as the angle between the steps</span>
+<span class="sd">       from ``t-2`` to ``t-1`` and from ``t-1`` to ``t``.</span>
+<span class="sd">    2. **Positional jitter and small steps:** Tracking data</span>
+<span class="sd">       often contains positional jitter, meaning a stationary animal</span>
+<span class="sd">       may appear to make microscopic movements. With default parameters</span>
+<span class="sd">       (``min_step_length=0.0``), these tiny, noisy movements will</span>
+<span class="sd">       produce spurious, meaningless turning angles. It is highly</span>
+<span class="sd">       recommended to set ``min_step_length`` to an appropriate threshold</span>
+<span class="sd">       based on the tracking resolution and the animal&#39;s size in the scene.</span>
+<span class="sd">       The value should be in the same units as the input position data</span>
+<span class="sd">       (e.g. pixels, mm, etc.). Pre-smoothing the trajectory</span>
+<span class="sd">       can also help reduce positional jitter.</span>
+<span class="sd">    3. **NaN propagation:** ``NaN`` positions in the input propagate</span>
+<span class="sd">       to ``NaN`` turning angles. A single missing position affects</span>
+<span class="sd">       up to two turning angles (the incoming and outgoing steps).</span>
+<span class="sd">       Use :func:`movement.filtering.interpolate_over_time` to fill</span>
+<span class="sd">       positional gaps before computing turning angles if continuity</span>
+<span class="sd">       is important.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    movement.kinematics.compute_backward_displacement :</span>
+<span class="sd">        The underlying function used to compute the displacement vectors.</span>
+<span class="sd">    movement.utils.vector.compute_signed_angle_2d :</span>
+<span class="sd">        The underlying function used to compute the signed angle</span>
+<span class="sd">        between two consecutive displacement vectors.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from movement.kinematics import compute_turning_angle</span>
+
+<span class="sd">    Compute turning angles from the centroid trajectory of a poses</span>
+<span class="sd">    dataset ``ds``:</span>
+
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoints&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; angles = compute_turning_angle(centroid)</span>
+
+<span class="sd">    Compute in degrees, with a minimum step length of 3 pixels to filter out</span>
+<span class="sd">    pose estimation jitter:</span>
+
+<span class="sd">    &gt;&gt;&gt; angles = compute_turning_angle(</span>
+<span class="sd">    ...     centroid, in_degrees=True, min_step_length=3</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]},</span> <span class="n">exact_coords</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Displacement arriving at each time step t.</span>
+    <span class="n">disp</span> <span class="o">=</span> <span class="n">compute_backward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1"># Turning angle at t = rotation needed to align step[t-1] onto step[t].</span>
+    <span class="n">turning</span> <span class="o">=</span> <span class="n">compute_signed_angle_2d</span><span class="p">(</span><span class="n">disp</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">disp</span><span class="p">)</span>
+
+    <span class="c1"># Mask turning angles involving steps smaller than min_step_length</span>
+    <span class="n">step_lengths</span> <span class="o">=</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">disp</span><span class="p">)</span>
+    <span class="n">invalid_steps</span> <span class="o">=</span> <span class="p">(</span><span class="n">step_lengths</span> <span class="o">&lt;=</span> <span class="n">min_step_length</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span>
+        <span class="n">step_lengths</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">min_step_length</span>
+    <span class="p">)</span>
+    <span class="n">turning</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">invalid_steps</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">turning</span><span class="p">)</span>
+
+    <span class="n">turning</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;radians&quot;</span>
+
+    <span class="k">if</span> <span class="n">in_degrees</span><span class="p">:</span>
+        <span class="n">turning</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">turning</span><span class="p">)</span>
+        <span class="n">turning</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;degrees&quot;</span>
+
+    <span class="n">turning</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;turning_angle&quot;</span>
+
+    <span class="k">return</span> <span class="n">turning</span></div>
+
 </pre></div>
 <div class="section ablog__blog_comments">
    

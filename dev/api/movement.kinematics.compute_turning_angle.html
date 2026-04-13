@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>savgol_filter &#8212; movement</title>
+    <title>compute_turning_angle &#8212; movement</title>
   
   
   
@@ -49,7 +49,10 @@
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.filtering.savgol_filter';</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.kinematics.compute_turning_angle';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
@@ -59,12 +62,12 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <script src="../_static/js/contributors.js?v=4c153e30"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.filtering.savgol_filter.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.kinematics.compute_turning_angle.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="movement.io.load" href="movement.io.load.html" />
-    <link rel="prev" title="rolling_filter" href="movement.filtering.rolling_filter.html" /> 
+    <link rel="next" title="compute_velocity" href="movement.kinematics.compute_velocity.html" />
+    <link rel="prev" title="compute_time_derivative" href="movement.kinematics.compute_time_derivative.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -427,11 +430,11 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.filtering.html">movement.filtering</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.filtering.html">movement.filtering</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.filter_by_confidence.html">filter_by_confidence</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.interpolate_over_time.html">interpolate_over_time</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.rolling_filter.html">rolling_filter</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">savgol_filter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.filtering.savgol_filter.html">savgol_filter</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load.html">movement.io.load</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -476,7 +479,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">to_sleap_analysis_file</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="movement.kinematics.html">movement.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.kinematics.html">movement.kinematics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_acceleration.html">compute_acceleration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_backward_displacement.html">compute_backward_displacement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_displacement.html">compute_displacement</a></li>
@@ -489,7 +492,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_length.html">compute_path_length</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_speed.html">compute_speed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_time_derivative.html">compute_time_derivative</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_turning_angle.html">compute_turning_angle</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">compute_turning_angle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_velocity.html">compute_velocity</a></li>
 </ul>
 </details></li>
@@ -623,9 +626,9 @@
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="movement.filtering.html" class="nav-link">movement.filtering</a></li>
+    <li class="breadcrumb-item"><a href="movement.kinematics.html" class="nav-link">movement.kinematics</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">savgol_filter</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compute_turning_angle</span></li>
   </ul>
 </nav>
 </div>
@@ -641,60 +644,95 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="savgol-filter">
-<h1>savgol_filter<a class="headerlink" href="#savgol-filter" title="Link to this heading">#</a></h1>
+                   <section id="compute-turning-angle">
+<h1>compute_turning_angle<a class="headerlink" href="#compute-turning-angle" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="movement.filtering.savgol_filter">
-<span class="sig-prename descclassname"><span class="pre">movement.filtering.</span></span><span class="sig-name descname"><span class="pre">savgol_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">polyorder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/filtering.html#savgol_filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.filtering.savgol_filter" title="Link to this definition">#</a></dt>
-<dd><p>Smooth data by applying a Savitzky-Golay filter over time.</p>
+<dt class="sig sig-object py" id="movement.kinematics.compute_turning_angle">
+<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_turning_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_step_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/orientation.html#compute_turning_angle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_turning_angle" title="Link to this definition">#</a></dt>
+<dd><p>Compute the turning angles between consecutive steps in a trajectory.</p>
+<p>The turning angle at time <code class="docutils literal notranslate"><span class="pre">t</span></code> is  the <a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d" title="movement.utils.vector.compute_signed_angle_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">signed</span> <span class="pre">angle</span></code></a> between two
+consecutive <a class="reference internal" href="movement.kinematics.compute_backward_displacement.html#movement.kinematics.compute_backward_displacement" title="movement.kinematics.compute_backward_displacement"><code class="xref py py-func docutils literal notranslate"><span class="pre">backward</span> <span class="pre">displacement</span></code></a> vectors
+at times <code class="docutils literal notranslate"><span class="pre">t-1</span></code> and <code class="docutils literal notranslate"><span class="pre">t</span></code>.
+The returned angles are in radians, spanning the range <span class="math notranslate nohighlight">\((-\pi, \pi]\)</span>,
+unless <code class="docutils literal notranslate"><span class="pre">in_degrees</span></code> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input data to be smoothed.</p></li>
-<li><p><strong>window</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – The size of the smoothing window, representing the fixed number
-of observations used for each window.</p></li>
-<li><p><strong>polyorder</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – The order of the polynomial used to fit the samples. Must be
-less than <code class="docutils literal notranslate"><span class="pre">window</span></code>. By default, a <code class="docutils literal notranslate"><span class="pre">polyorder</span></code> of
-2 is used.</p></li>
-<li><p><strong>print_report</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Whether to print a report on the number of NaNs in the dataset
-before and after smoothing. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-<li><p><strong>**kwargs</strong> – Additional keyword arguments are passed to
-<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html#scipy.signal.savgol_filter" title="(in SciPy v1.17.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.savgol_filter()</span></code></a>.
-Note that the <code class="docutils literal notranslate"><span class="pre">axis</span></code> keyword argument may not be overridden,
-as the filter is always applied over the <code class="docutils literal notranslate"><span class="pre">time</span></code> dimension.</p></li>
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input position data. Must contain <code class="docutils literal notranslate"><span class="pre">time</span></code> and <code class="docutils literal notranslate"><span class="pre">space</span></code>
+dimensions. The <code class="docutils literal notranslate"><span class="pre">space</span></code> dimension must contain exactly the
+coordinates <code class="docutils literal notranslate"><span class="pre">[&quot;x&quot;,</span> <span class="pre">&quot;y&quot;]</span></code> (2D spatial data only).</p></li>
+<li><p><strong>in_degrees</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, return turning angles in degrees. Default is
+<code class="docutils literal notranslate"><span class="pre">False</span></code> (radians).</p></li>
+<li><p><strong>min_step_length</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – The minimum step length to consider for computing the turning
+angle. Any turning angle involving an incoming or outgoing step
+shorter than or equal to this value is set to <code class="docutils literal notranslate"><span class="pre">NaN</span></code>. The
+default <code class="docutils literal notranslate"><span class="pre">0.0</span></code> only masks steps with exactly zero length,
+which means steps with near-zero lengths may still produce
+spurious angles. See Note 2 below.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The data smoothed using a Savitzky-Golay filter with the
-provided parameters.</p>
+<dd class="field-even"><p>Turning angles with the same shape as the input <code class="docutils literal notranslate"><span class="pre">data</span></code>, but
+with the <code class="docutils literal notranslate"><span class="pre">space</span></code> dimension dropped.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Uses the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html#scipy.signal.savgol_filter" title="(in SciPy v1.17.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">scipy.signal.savgol_filter()</span></code></a> function to apply a
-Savitzky-Golay filter to the input data.
-See the SciPy documentation for more information on that function.</p>
-<p>Whenever one or more NaNs are present in a smoothing window of the
-input data, a NaN is returned to the output array. As a result, any
-stretch of NaNs present in the input data will be propagated
-proportionally to the size of the window (specifically, by
-<code class="docutils literal notranslate"><span class="pre">floor(window/2)</span></code>). Note that, unlike
-<a class="reference internal" href="movement.filtering.rolling_filter.html#movement.filtering.rolling_filter" title="movement.filtering.rolling_filter"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.filtering.rolling_filter()</span></code></a>, there is no <code class="docutils literal notranslate"><span class="pre">min_periods</span></code>
-option to control this behaviour.</p>
-<p>The function raises a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> if NaNs are found within the signal’s
-edge windows. To avoid this, fill any edge NaNs before filtering, or switch
-from the default <code class="docutils literal notranslate"><span class="pre">mode='interp'</span></code> to an alternative edge handling
-mode (e.g., <code class="docutils literal notranslate"><span class="pre">mode='nearest'</span></code> or <code class="docutils literal notranslate"><span class="pre">mode='mirror'</span></code>).</p>
+<ol class="arabic simple">
+<li><p><strong>Time dimension length:</strong> This function uses a <code class="docutils literal notranslate"><span class="pre">shift</span></code>
+operation to preserve the original <code class="docutils literal notranslate"><span class="pre">time</span></code> dimension length.
+The first two time steps are always <code class="docutils literal notranslate"><span class="pre">NaN</span></code>: the first because
+no previous step exists, and the second because a turning angle
+requires two steps (three positions). In other words, the turning angle
+at time step <code class="docutils literal notranslate"><span class="pre">t</span></code> is computed as the angle between the steps
+from <code class="docutils literal notranslate"><span class="pre">t-2</span></code> to <code class="docutils literal notranslate"><span class="pre">t-1</span></code> and from <code class="docutils literal notranslate"><span class="pre">t-1</span></code> to <code class="docutils literal notranslate"><span class="pre">t</span></code>.</p></li>
+<li><p><strong>Positional jitter and small steps:</strong> Tracking data
+often contains positional jitter, meaning a stationary animal
+may appear to make microscopic movements. With default parameters
+(<code class="docutils literal notranslate"><span class="pre">min_step_length=0.0</span></code>), these tiny, noisy movements will
+produce spurious, meaningless turning angles. It is highly
+recommended to set <code class="docutils literal notranslate"><span class="pre">min_step_length</span></code> to an appropriate threshold
+based on the tracking resolution and the animal’s size in the scene.
+The value should be in the same units as the input position data
+(e.g. pixels, mm, etc.). Pre-smoothing the trajectory
+can also help reduce positional jitter.</p></li>
+<li><p><strong>NaN propagation:</strong> <code class="docutils literal notranslate"><span class="pre">NaN</span></code> positions in the input propagate
+to <code class="docutils literal notranslate"><span class="pre">NaN</span></code> turning angles. A single missing position affects
+up to two turning angles (the incoming and outgoing steps).
+Use <a class="reference internal" href="movement.filtering.interpolate_over_time.html#movement.filtering.interpolate_over_time" title="movement.filtering.interpolate_over_time"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.filtering.interpolate_over_time()</span></code></a> to fill
+positional gaps before computing turning angles if continuity
+is important.</p></li>
+</ol>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.kinematics.compute_backward_displacement.html#movement.kinematics.compute_backward_displacement" title="movement.kinematics.compute_backward_displacement"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.kinematics.compute_backward_displacement</span></code></a></dt><dd><p>The underlying function used to compute the displacement vectors.</p>
+</dd>
+<dt><a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d" title="movement.utils.vector.compute_signed_angle_2d"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.utils.vector.compute_signed_angle_2d</span></code></a></dt><dd><p>The underlying function used to compute the signed angle between two consecutive displacement vectors.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_turning_angle</span>
+</pre></div>
+</div>
+<p>Compute turning angles from the centroid trajectory of a poses
+dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">centroid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">angles</span> <span class="o">=</span> <span class="n">compute_turning_angle</span><span class="p">(</span><span class="n">centroid</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Compute in degrees, with a minimum step length of 3 pixels to filter out
+pose estimation jitter:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">angles</span> <span class="o">=</span> <span class="n">compute_turning_angle</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">centroid</span><span class="p">,</span> <span class="n">in_degrees</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_step_length</span><span class="o">=</span><span class="mi">3</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
-<section id="examples-using-savgol-filter">
-<h2>Examples using <code class="docutils literal notranslate"><span class="pre">savgol_filter</span></code><a class="headerlink" href="#examples-using-savgol-filter" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Smooth pose tracks using the rolling median and Savitzky-Golay filters."><img alt="" src="../_images/sphx_glr_smooth_thumb.png" />
-<p><a class="reference internal" href="../examples/smooth.html"><span class="doc">Smooth pose tracks</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Smooth pose tracks</div>
-</div></div></section>
 </section>
 
 <div class="section ablog__blog_comments">
@@ -711,20 +749,20 @@ mode (e.g., <code class="docutils literal notranslate"><span class="pre">mode='n
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.filtering.rolling_filter.html"
+       href="movement.kinematics.compute_time_derivative.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">rolling_filter</p>
+        <p class="prev-next-title">compute_time_derivative</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.io.load.html"
+       href="movement.kinematics.compute_velocity.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">movement.io.load</p>
+        <p class="prev-next-title">compute_velocity</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -747,15 +785,14 @@ mode (e.g., <code class="docutils literal notranslate"><span class="pre">mode='n
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.filtering.savgol_filter"><code class="docutils literal notranslate"><span class="pre">savgol_filter()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-using-savgol-filter">Examples using <code class="docutils literal notranslate"><span class="pre">savgol_filter</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.kinematics.compute_turning_angle"><code class="docutils literal notranslate"><span class="pre">compute_turning_angle()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/api/movement.filtering.savgol_filter.rst.txt">
+    <a href="../_sources/api/movement.kinematics.compute_turning_angle.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

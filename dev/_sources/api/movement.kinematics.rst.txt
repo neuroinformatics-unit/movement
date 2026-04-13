@@ -40,6 +40,8 @@ movement.kinematics
     
     compute_time_derivative
     
+    compute_turning_angle
+    
     compute_velocity
     
 
