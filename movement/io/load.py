@@ -30,25 +30,14 @@ type SourceSoftware = Literal[
     "NWB",
     "VIA-tracks",
 ]
-type AmbiguousDLCCSVSourceSoftware = Literal["DeepLabCut/LightningPose"]
-type InferredSourceSoftware = SourceSoftware | AmbiguousDLCCSVSourceSoftware
+AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE: Final = "DeepLabCut/LightningPose"
 
-type AutoSourceSoftware = Literal["auto"]
+type InferredSourceSoftware = (
+    SourceSoftware | Literal["DeepLabCut/LightningPose"]
+)
 type SourceSoftwareOrAuto = (
-    SourceSoftware | AutoSourceSoftware | AmbiguousDLCCSVSourceSoftware
+    SourceSoftware | Literal["auto", "DeepLabCut/LightningPose"]
 )
-AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE: Final[AmbiguousDLCCSVSourceSoftware] = (
-    "DeepLabCut/LightningPose"
-)
-
-SUPPORTED_SOURCE_SOFTWARES: set[SourceSoftware] = {
-    "DeepLabCut",
-    "SLEAP",
-    "LightningPose",
-    "Anipose",
-    "NWB",
-    "VIA-tracks",
-}
 
 
 class LoaderProtocol(Protocol):
@@ -90,45 +79,7 @@ class LoaderProtocol(Protocol):
 
 
 _LOADER_REGISTRY: dict[str, LoaderProtocol] = {}
-_LOADER_VALIDATORS_REGISTRY: dict[str, list[type[ValidFile]]] = {}
-
-
-def _dlc_vs_lp(file_path: Path) -> InferredSourceSoftware:
-    """Disambiguate between DeepLabCut and LightningPose CSV files.
-
-    Parameters
-    ----------
-    file_path
-        Path to the CSV file.
-
-    Returns
-    -------
-    InferredSourceSoftware
-        "DeepLabCut", "LightningPose", or an ambiguous DLC/LP value when
-        the CSV is structurally compatible with both and cannot be
-        disambiguated from lightweight hints.
-
-    """
-    scorer = ""
-    try:
-        with file_path.open(encoding="utf-8", errors="replace") as f:
-            header = f.readline().strip().split(",")
-    except OSError:
-        header = []
-
-    if len(header) > 1:
-        scorer = header[1].strip().lower()
-
-    filename = file_path.name.lower()
-    if (
-        "lightning" in scorer
-        or "lightning" in filename
-        or filename.startswith("lp_")
-    ):
-        return "LightningPose"
-    if scorer.startswith("dlc_") or filename.startswith("dlc_"):
-        return "DeepLabCut"
-    return AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE
+_LOADER_VALIDATORS_REGISTRY: dict[SourceSoftware, list[type[ValidFile]]] = {}
 
 
 def infer_source_software(
@@ -137,11 +88,11 @@ def infer_source_software(
 ) -> InferredSourceSoftware:
     """Infer the ``source_software`` from a given input file.
 
-    This helper tries the file validators registered for each built-in loader.
-    If multiple software candidates match, the function raises an error
-    except for ambiguous DLC-style CSV files that are compatible with both
-    DeepLabCut and LightningPose. In that case, it returns
-    ``AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE``.
+    Tries the file validators registered for each built-in loader and
+    returns the name of the matching source software. If multiple candidates
+    match (i.e. the file format is shared across software packages, as with
+    DeepLabCut-style CSV files), a combined label is returned (e.g.
+    ``"DeepLabCut/LightningPose"``).
 
     Parameters
     ----------
@@ -159,8 +110,7 @@ def infer_source_software(
     Raises
     ------
     ValueError
-        If the source software cannot be inferred or is ambiguous in ways
-        other than DeepLabCut vs LightningPose CSV compatibility.
+        If no registered validator matches the file.
 
     """
     if isinstance(file, pynwb.file.NWBFile):
@@ -169,11 +119,7 @@ def infer_source_software(
     file_path = Path(file)
     candidates: list[SourceSoftware] = []
 
-    for source_sw in SUPPORTED_SOURCE_SOFTWARES:
-        validators_list = _LOADER_VALIDATORS_REGISTRY.get(source_sw, [])
-        # Some loaders might be registered without validators; skip them.
-        if not validators_list:
-            continue
+    for source_sw, validators_list in _LOADER_VALIDATORS_REGISTRY.items():
         suffix_map = _build_suffix_map(validators_list)
         try:
             _validate_file(
@@ -188,7 +134,7 @@ def infer_source_software(
 
     if not candidates:
         suffix = file_path.suffix or "<no suffix>"
-        supported = ", ".join(sorted(SUPPORTED_SOURCE_SOFTWARES))
+        supported = ", ".join(sorted(_LOADER_VALIDATORS_REGISTRY.keys()))
         raise logger.error(
             ValueError(
                 f"Could not infer source_software from file '{file_path}'. "
@@ -199,17 +145,12 @@ def infer_source_software(
     if len(candidates) == 1:
         return candidates[0]
 
-    # DeepLabCut and LightningPose share the same DLC-style CSV validator.
+    # DeepLabCut and LightningPose currently share the same CSV validator.
     if set(candidates) == {"DeepLabCut", "LightningPose"}:
-        return _dlc_vs_lp(file_path)
+        return AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE
 
-    candidates_str = ", ".join(sorted(candidates))
-    raise logger.error(
-        ValueError(
-            "Could not uniquely infer source_software from "
-            f"'{file_path}'. Candidates: {candidates_str}. "
-            "Please specify `source_software` explicitly."
-        )
+    raise AssertionError(
+        f"Unexpected ambiguity in infer_source_software: {sorted(candidates)}"
     )
 
 
@@ -390,12 +331,8 @@ def load_dataset(
         the value of ``source_software``, the appropriate loading function
         will be called.
     source_software
-        The source software of the file.
-        If set to ``"auto"`` (default), it is inferred from the file format.
-        For ambiguous DeepLabCut-style CSV files that also match
-        LightningPose, the shared DeepLabCut loader is used and
-        ``source_software`` metadata is set to
-        ``AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE``.
+        The source software of the file. If set to ``"auto"`` (default),
+        it is inferred from the file format via :func:`infer_source_software`.
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
@@ -427,13 +364,9 @@ def load_dataset(
 
     """
     if source_software == "auto":
-        inferred_source_software = infer_source_software(file, **kwargs)
-        if inferred_source_software == AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE:
-            ds = _LOADER_REGISTRY["DeepLabCut"](file, fps, **kwargs)
-            ds.attrs["source_software"] = AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE
-            return ds
-        source_software = cast("SourceSoftware", inferred_source_software)
-    elif source_software == AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE:
+        source_software = infer_source_software(file, **kwargs)
+
+    if source_software == AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE:
         ds = _LOADER_REGISTRY["DeepLabCut"](file, fps, **kwargs)
         ds.attrs["source_software"] = AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE
         return ds
@@ -467,8 +400,8 @@ def load_multiview_dataset(
     file_dict
         A dict whose keys are the view names and values are the paths to load.
     source_software
-        The source software of the files.
-        If set to ``"auto"`` (default), it is inferred for each file.
+        The source software of the files. If set to ``"auto"`` (default),
+        it is inferred from the file format via :func:`infer_source_software`.
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.

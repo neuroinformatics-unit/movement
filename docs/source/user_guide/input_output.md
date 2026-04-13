@@ -52,22 +52,33 @@ To import {func}`load_dataset()<movement.io.load.load_dataset>`:
 from movement.io import load_dataset
 ```
 
-To load data from any supported format, specify the `file` path.
-You can either set `source_software` explicitly, or let `movement` infer it by leaving `source_software` unset or setting `source_software="auto"`.
-If a DLC-style `.csv` file could plausibly come from either DeepLabCut or LightningPose, `movement` loads it with the shared DeepLabCut-compatible loader and sets `ds.attrs["source_software"] = "DeepLabCut/LightningPose"` to preserve that ambiguity.
-If you want to inspect what `movement` would infer, use `movement.io.infer_source_software(file)`.
-Optionally, also provide `fps` to put the time coordinates into seconds.
+By default, `movement` infers `source_software` from the file format via
+{func}`infer_source_software()<movement.io.load.infer_source_software>`.
 
-For example, to load pose tracks from a DeepLabCut .h5 file:
 ```python
-ds = load_dataset(
-    "/path/to/file.h5",
-    source_software="auto",
-    fps=30, # Optional; time coords will be in seconds if provided, otherwise in frames
-)
+ds = load_dataset("/path/to/file.h5", fps=30)
 ```
 
-This reads the file and returns a [movement dataset](target-poses-and-bboxes-dataset) containing the tracked trajectories and associated confidence values.
+This reads the file and returns a [movement dataset](target-poses-and-bboxes-dataset)
+containing the tracked trajectories, the associated confidence values and
+some metadata attributes. Providing an `fps` (frames per second) value ensures
+that time coordinates are in seconds rather than in frame numbers.
+
+When a file format could have plausibly come from multiple software packages
+(e.g. DeepLabCut-style `.csv` files, which are also used by LightningPose),
+`movement` records the ambiguity in the loaded dataset's attributes
+(e.g. `ds.attrs["source_software"] = "DeepLabCut/LightningPose"`).
+
+If you know the source software or want to ensure a specific loader
+is used, you can set `source_software` explicitly:
+
+```python
+ds = load_dataset(
+    "/path/to/file.csv",
+    source_software="DeepLabCut",
+    fps=30,
+)
+```
 
 #### Passing additional options
 
