@@ -357,6 +357,8 @@ def compute_turning_angle(
 
     Examples
     --------
+    >>> from movement.kinematics import compute_turning_angle
+
     Compute turning angles from the centroid trajectory of a poses
     dataset ``ds``:
 
