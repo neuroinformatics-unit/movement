@@ -6,6 +6,16 @@ and save them to another file format.
 """
 
 # %%
+# .. admonition:: Acknowledgements
+#   :class: acknowledgements
+#
+#   This example was originally contributed by `Laura Schwarz
+#   <https://github.com/LauraSchwarz>`_—a PhD student at the
+#   `Sainsbury Wellcome Centre <https://www.sainsburywellcome.org/>`_
+#   studying social interactions in mice—and uses workflows she
+#   developed for her own data.
+
+# %%
 # Motivation
 # ----------
 # When working with pose estimation data, it's often useful to convert
