@@ -192,6 +192,18 @@ def test_infer_source_software(
     assert not caplog.records
 
 
+def test_infer_source_software_raises_for_unsupported_format(
+    valid_netcdf_file,
+):
+    """Test inference fails for a file format not supported by load_dataset.
+
+    Here we use a valid netCDF file, which is not one of our supported
+    third-party formats, and hence doesn't have a corresponding file validator.
+    """
+    with pytest.raises(ValueError, match="Could not infer source_software"):
+        load.infer_source_software(valid_netcdf_file)
+
+
 @pytest.mark.parametrize(
     "file_fixture, expected_source_software", AUTO_SOURCE_SOFTWARE_CASES
 )
@@ -213,17 +225,3 @@ def test_load_dataset_auto_detects(
     )
 
     xr.testing.assert_identical(auto_ds, explicit_ds)
-
-
-def test_infer_source_software_raises_when_no_candidates_match(
-    monkeypatch, tmp_path
-):
-    """Test inference fails when no registered validator matches the file."""
-    monkeypatch.setattr(
-        load,
-        "_LOADER_VALIDATORS_REGISTRY",
-        {"DeepLabCut": [StubValidFile]},
-    )
-
-    with pytest.raises(ValueError, match="Could not infer source_software"):
-        load.infer_source_software(tmp_path / "file.unknown")
