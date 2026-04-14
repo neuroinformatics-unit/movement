@@ -56,7 +56,11 @@ By default, `movement` infers `source_software` from the file format via
 {func}`infer_source_software()<movement.io.load.infer_source_software>`.
 
 ```python
-ds = load_dataset("/path/to/file.h5", fps=30)
+ds = load_dataset(
+    "/path/to/file.h5",
+    source_software="auto",  # default
+    fps=30,
+)
 ```
 
 This reads the file and returns a [movement dataset](target-poses-and-bboxes-dataset)
@@ -90,7 +94,7 @@ For example, to specify the tracked individual's name when loading pose tracks f
 ds = load_dataset(
     "/path/to/file.csv",
     source_software="Anipose",
-    individual_name="id_0"
+    individual_name="id_0",
 )
 ```
 
