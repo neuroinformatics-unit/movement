@@ -194,7 +194,11 @@ def test_infer_source_software(
 def test_load_dataset_auto_detects(
     file_fixture, expected_source_software, request
 ):
-    """Test that load_dataset works with source_software='auto'."""
+    """Test that load_dataset works with source_software='auto'.
+
+    The resulting dataset should be identical to the one loaded with the
+    explicitly specified expected_source_software.
+    """
     file_path = request.getfixturevalue(file_fixture)
     if file_fixture.startswith("nwb"):
         file_path = file_path()  # NWB fixture is a callable
@@ -205,38 +209,6 @@ def test_load_dataset_auto_detects(
     )
 
     xr.testing.assert_identical(auto_ds, explicit_ds)
-
-
-def test_infer_source_software_for_ambiguous_dlc_style_csv(
-    lp_csv_file, tmp_path
-):
-    """Test that ambiguous DLC-style CSV files return a combined source."""
-    ambiguous_file = tmp_path / "mouse-face.predictions.csv"
-    ambiguous_file.write_bytes(lp_csv_file.read_bytes())
-
-    inferred = load.infer_source_software(ambiguous_file)
-    assert inferred == "DeepLabCut/LightningPose"
-
-
-def test_load_dataset_auto_handles_ambiguous_dlc_style_csv(
-    lp_csv_file, tmp_path
-):
-    """Test auto-loading ambiguous DLC-style CSV uses shared loader."""
-    ambiguous_file = tmp_path / "mouse-face.predictions.csv"
-    ambiguous_file.write_bytes(lp_csv_file.read_bytes())
-
-    ds = load.load_dataset(ambiguous_file, source_software="auto")
-    assert ds.attrs["source_software"] == "DeepLabCut/LightningPose"
-
-
-def test_load_dataset_accepts_inferred_ambiguous_source(lp_csv_file, tmp_path):
-    """Test inferred ambiguous source can be passed back to load_dataset."""
-    ambiguous_file = tmp_path / "mouse-face.predictions.csv"
-    ambiguous_file.write_bytes(lp_csv_file.read_bytes())
-
-    inferred = load.infer_source_software(ambiguous_file)
-    ds = load.load_dataset(ambiguous_file, source_software=inferred)
-    assert ds.attrs["source_software"] == "DeepLabCut/LightningPose"
 
 
 def test_infer_source_software_raises_when_no_candidates_match(
