@@ -111,7 +111,7 @@ def infer_source_software(
     ------
     ValueError
         If no registered validator matches the file or if multiple
-        source_software candidates (beyond the known
+        ``source_software`` candidates (beyond the expected
         DeepLabCut/LightningPose case) match the file.
 
     """
