@@ -113,10 +113,12 @@ def infer_source_software(
         If no registered validator matches the file.
 
     """
+    # If it's an NWBFile object, we can immediately return "NWB"
     if isinstance(file, pynwb.file.NWBFile):
         return "NWB"
-
     file_path = Path(file)
+
+    # Try all registered validators and keep track of matching candidates
     candidates: list[SourceSoftware] = []
 
     for source_sw, validators_list in _LOADER_VALIDATORS_REGISTRY.items():
@@ -132,25 +134,23 @@ def infer_source_software(
             continue
         candidates.append(source_sw)
 
-    if not candidates:
-        suffix = file_path.suffix or "<no suffix>"
-        supported = ", ".join(sorted(_LOADER_VALIDATORS_REGISTRY.keys()))
-        raise logger.error(
-            ValueError(
-                f"Could not infer source_software from file '{file_path}'. "
-                f"File suffix is '{suffix}'. Supported sources: {supported}."
-            )
-        )
-
+    # If exactly one candidate matches, return it.
     if len(candidates) == 1:
         return candidates[0]
 
     # DeepLabCut and LightningPose currently share the same CSV validator.
+    # If both match, we return a combined label to indicate the ambiguity.
     if set(candidates) == {"DeepLabCut", "LightningPose"}:
         return AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE
 
-    raise AssertionError(
-        f"Unexpected ambiguity in infer_source_software: {sorted(candidates)}"
+    # In every other case (no candidates or multiple candidates),
+    # we cannot infer the source software.
+    raise logger.error(
+        ValueError(
+            f"Could not infer source_software from file '{file_path}'. "
+            "Verify that the file format is supported by movement or "
+            "try passing an explicit source_software value to load_dataset."
+        )
     )
 
 
