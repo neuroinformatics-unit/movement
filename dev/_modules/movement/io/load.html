@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../../../_static/documentation_options.js?v=0ffe05a6"></script>
+    <script src="../../../_static/documentation_options.js?v=38068fcc"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
@@ -138,7 +138,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev11</p>
+    <p class="title logo__title">movement v0.15.1.dev12</p>
   
 </a></div>
     
@@ -471,6 +471,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Concatenate</span><span class="p">,</span>
+    <span class="n">Final</span><span class="p">,</span>
     <span class="n">Literal</span><span class="p">,</span>
     <span class="n">ParamSpec</span><span class="p">,</span>
     <span class="n">Protocol</span><span class="p">,</span>
@@ -495,6 +496,14 @@
     <span class="s2">&quot;NWB&quot;</span><span class="p">,</span>
     <span class="s2">&quot;VIA-tracks&quot;</span><span class="p">,</span>
 <span class="p">]</span>
+<span class="n">AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;DeepLabCut/LightningPose&quot;</span>
+
+<span class="nb">type</span> <span class="n">InferredSourceSoftware</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">SourceSoftware</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DeepLabCut/LightningPose&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="nb">type</span> <span class="n">SourceSoftwareOrAuto</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">SourceSoftware</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="s2">&quot;DeepLabCut/LightningPose&quot;</span><span class="p">]</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="LoaderProtocol">
@@ -542,6 +551,89 @@
 
 
 <span class="n">_LOADER_REGISTRY</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">LoaderProtocol</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_LOADER_VALIDATORS_REGISTRY</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">SourceSoftware</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ValidFile</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="infer_source_software">
+<a class="viewcode-back" href="../../../api/movement.io.load.infer_source_software.html#movement.io.load.infer_source_software">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">infer_source_software</span><span class="p">(</span>
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">loader_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">InferredSourceSoftware</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Infer the ``source_software`` from a given input file.</span>
+
+<span class="sd">    Tries the file validators registered for each built-in loader and</span>
+<span class="sd">    returns the name of the matching source software. If multiple candidates</span>
+<span class="sd">    match (i.e. the file format is shared across software packages, as with</span>
+<span class="sd">    DeepLabCut-style CSV files), a combined label is returned (e.g.</span>
+<span class="sd">    ``&quot;DeepLabCut/LightningPose&quot;``).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file</span>
+<span class="sd">        Input file path or an :class:`pynwb.file.NWBFile` object.</span>
+<span class="sd">    **loader_kwargs</span>
+<span class="sd">        Optional keyword arguments forwarded to file validators (when they</span>
+<span class="sd">        accept additional parameters, e.g. VIA-tracks `frame_regexp`).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    InferredSourceSoftware</span>
+<span class="sd">        The inferred source software name.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If no registered validator matches the file or if multiple</span>
+<span class="sd">        ``source_software`` candidates (beyond the expected</span>
+<span class="sd">        DeepLabCut/LightningPose case) match the file.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># If it&#39;s an NWBFile object, we can immediately return &quot;NWB&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;NWB&quot;</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+    <span class="c1"># Try all registered validators and keep track of matching candidates</span>
+    <span class="n">candidates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">SourceSoftware</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">source_sw</span><span class="p">,</span> <span class="n">validators_list</span> <span class="ow">in</span> <span class="n">_LOADER_VALIDATORS_REGISTRY</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">suffix_map</span> <span class="o">=</span> <span class="n">_build_suffix_map</span><span class="p">(</span><span class="n">validators_list</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Temporarily disable the logger to avoid flooding the console</span>
+            <span class="c1"># with expected validation errors during candidate testing</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">disable</span><span class="p">(</span><span class="s2">&quot;movement&quot;</span><span class="p">)</span>
+            <span class="n">_validate_file</span><span class="p">(</span>
+                <span class="n">file_path</span><span class="p">,</span>
+                <span class="n">suffix_map</span><span class="p">,</span>
+                <span class="n">source_sw</span><span class="p">,</span>
+                <span class="n">loader_kwargs</span><span class="o">=</span><span class="n">loader_kwargs</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">enable</span><span class="p">(</span><span class="s2">&quot;movement&quot;</span><span class="p">)</span>  <span class="c1"># re-store logging</span>
+        <span class="n">candidates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_sw</span><span class="p">)</span>
+
+    <span class="c1"># If exactly one candidate matches, return it.</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">candidates</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># DeepLabCut and LightningPose currently share the same CSV validator.</span>
+    <span class="c1"># If both match, we return a combined label to indicate the ambiguity.</span>
+    <span class="k">if</span> <span class="nb">set</span><span class="p">(</span><span class="n">candidates</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="s2">&quot;LightningPose&quot;</span><span class="p">}:</span>
+        <span class="k">return</span> <span class="n">AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE</span>
+
+    <span class="c1"># In every other case (no candidates or multiple unexpected candidates),</span>
+    <span class="c1"># we cannot infer a valid source software.</span>
+    <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+        <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Could not infer source_software from file &#39;</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+            <span class="s2">&quot;Verify that the file format is supported by movement or &quot;</span>
+            <span class="s2">&quot;try passing an explicit source_software value to load_dataset.&quot;</span>
+        <span class="p">)</span>
+    <span class="p">)</span></div>
+
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_validator_kwargs</span><span class="p">(</span>
@@ -679,6 +771,7 @@
         <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">file_validators</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
         <span class="k">else</span> <span class="n">file_validators</span> <span class="ow">or</span> <span class="p">[]</span>
     <span class="p">)</span>
+    <span class="n">_LOADER_VALIDATORS_REGISTRY</span><span class="p">[</span><span class="n">source_software</span><span class="p">]</span> <span class="o">=</span> <span class="n">validators_list</span>
     <span class="c1"># Map suffixes to validator classes</span>
     <span class="n">suffix_map</span> <span class="o">=</span> <span class="n">_build_suffix_map</span><span class="p">(</span><span class="n">validators_list</span><span class="p">)</span>
 
@@ -707,7 +800,7 @@
 <a class="viewcode-back" href="../../../api/movement.io.load.load_dataset.html#movement.io.load.load_dataset">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_dataset</span><span class="p">(</span>
     <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">,</span>
-    <span class="n">source_software</span><span class="p">:</span> <span class="n">SourceSoftware</span><span class="p">,</span>
+    <span class="n">source_software</span><span class="p">:</span> <span class="n">SourceSoftwareOrAuto</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
@@ -725,7 +818,8 @@
 <span class="sd">        the value of ``source_software``, the appropriate loading function</span>
 <span class="sd">        will be called.</span>
 <span class="sd">    source_software</span>
-<span class="sd">        The source software of the file.</span>
+<span class="sd">        The source software of the file. If set to ``&quot;auto&quot;`` (default),</span>
+<span class="sd">        it is inferred from the file format via :func:`infer_source_software`.</span>
 <span class="sd">    fps</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
 <span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
@@ -756,6 +850,14 @@
 <span class="sd">    ... )</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+        <span class="n">source_software</span> <span class="o">=</span> <span class="n">infer_source_software</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">source_software</span> <span class="o">==</span> <span class="n">AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE</span><span class="p">:</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">_LOADER_REGISTRY</span><span class="p">[</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">](</span><span class="n">file</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source_software&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE</span>
+        <span class="k">return</span> <span class="n">ds</span>
+
     <span class="k">if</span> <span class="n">source_software</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_LOADER_REGISTRY</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported source software: </span><span class="si">{</span><span class="n">source_software</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -768,6 +870,7 @@
                 <span class="s2">&quot;metadata in the file.&quot;</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">_LOADER_REGISTRY</span><span class="p">[</span><span class="n">source_software</span><span class="p">](</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">_LOADER_REGISTRY</span><span class="p">[</span><span class="n">source_software</span><span class="p">](</span><span class="n">file</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
@@ -776,7 +879,7 @@
 <a class="viewcode-back" href="../../../api/movement.io.load.load_multiview_dataset.html#movement.io.load.load_multiview_dataset">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_multiview_dataset</span><span class="p">(</span>
     <span class="n">file_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">],</span>
-    <span class="n">source_software</span><span class="p">:</span> <span class="n">SourceSoftware</span><span class="p">,</span>
+    <span class="n">source_software</span><span class="p">:</span> <span class="n">SourceSoftwareOrAuto</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
@@ -787,7 +890,8 @@
 <span class="sd">    file_dict</span>
 <span class="sd">        A dict whose keys are the view names and values are the paths to load.</span>
 <span class="sd">    source_software</span>
-<span class="sd">        The source software of the file.</span>
+<span class="sd">        The source software of the files. If set to ``&quot;auto&quot;`` (default),</span>
+<span class="sd">        it is inferred from the file format via :func:`infer_source_software`.</span>
 <span class="sd">    fps</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
 <span class="sd">        the ``time`` coordinates will be in frame numbers.</span>

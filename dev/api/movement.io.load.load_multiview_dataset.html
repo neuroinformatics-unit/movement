@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../_static/documentation_options.js?v=0ffe05a6"></script>
+    <script src="../_static/documentation_options.js?v=38068fcc"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,7 +141,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev11</p>
+    <p class="title logo__title">movement v0.15.1.dev12</p>
   
 </a></div>
     
@@ -436,6 +436,7 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.io.load.html">movement.io.load</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.LoaderProtocol.html">LoaderProtocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.infer_source_software.html">infer_source_software</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_dataset.html">load_dataset</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">load_multiview_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.register_loader.html">register_loader</a></li>
@@ -645,13 +646,14 @@
 <h1>load_multiview_dataset<a class="headerlink" href="#load-multiview-dataset" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.io.load.load_multiview_dataset">
-<span class="sig-prename descclassname"><span class="pre">movement.io.load.</span></span><span class="sig-name descname"><span class="pre">load_multiview_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_software</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/load.html#load_multiview_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.load.load_multiview_dataset" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">movement.io.load.</span></span><span class="sig-name descname"><span class="pre">load_multiview_dataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_software</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/load.html#load_multiview_dataset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.load.load_multiview_dataset" title="Link to this definition">#</a></dt>
 <dd><p>Load and merge data from multiple files representing different views.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file_dict</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>) – A dict whose keys are the view names and values are the paths to load.</p></li>
-<li><p><strong>source_software</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code></span>) – The source software of the file.</p></li>
+<li><p><strong>source_software</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeAliasType</span></code></span>) – The source software of the files. If set to <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> (default),
+it is inferred from the file format via <a class="reference internal" href="movement.io.load.infer_source_software.html#movement.io.load.infer_source_software" title="movement.io.load.infer_source_software"><code class="xref py py-func docutils literal notranslate"><span class="pre">infer_source_software()</span></code></a>.</p></li>
 <li><p><strong>fps</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – The number of frames per second in the video. If None (default),
 the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates will be in frame numbers.
 This argument is ignored when <code class="docutils literal notranslate"><span class="pre">source_software</span></code> is “NWB”, as the
@@ -666,13 +668,13 @@ loading functions in modules listed under “See Also”.</p></li>
 <code class="docutils literal notranslate"><span class="pre">view</span></code> dimension.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a></span></p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
 <p>The attributes of the resulting dataset will be taken from the first
 dataset specified in <code class="docutils literal notranslate"><span class="pre">file_path_dict</span></code>. This is the default
-behaviour of <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.concat.html#xarray.concat" title="(in xarray v2026.2.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.concat()</span></code></a> used under the hood.</p>
+behaviour of <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.concat.html#xarray.concat" title="(in xarray v2026.4.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.concat()</span></code></a> used under the hood.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a>, <a class="reference internal" href="movement.io.load_bboxes.html#module-movement.io.load_bboxes" title="movement.io.load_bboxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_bboxes</span></code></a></p>

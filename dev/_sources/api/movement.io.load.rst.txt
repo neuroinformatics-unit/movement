@@ -26,6 +26,8 @@
     :toctree: .
     :nosignatures:
     
+    infer_source_software
+    
     load_dataset
     
     load_multiview_dataset

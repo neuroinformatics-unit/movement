@@ -436,7 +436,9 @@ ds = from_mysoftware_file("path/to/mysoftware_output.csv")
 If a `file_validators` argument is supplied to the {func}`@register_loader()<movement.io.load.register_loader>` decorator, the decorator selects the appropriate validator—based on its declared `suffixes`—and uses it to normalise and validate the input `file` before invoking the loader.
 As a result, the loader receives the validated file object instead of the raw path or handle.
 
-If no validator is provided, the loader is passed the raw `file` argument as-is.
+Providing `file_validators` also enables **automatic source software inference**: when users call {func}`load_dataset()<movement.io.load.load_dataset>` with `source_software="auto"` (the default), `movement` probes the registered validators to determine which loader to use.
+A new loader with validators will therefore be picked up by auto-inference automatically, without any additional changes.
+If no validator is provided, the auto-inference will not be able to detect that file format.
 
 :::{dropdown} Handling multiple file formats for the same software
 :color: success
