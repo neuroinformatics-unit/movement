@@ -110,7 +110,9 @@ def infer_source_software(
     Raises
     ------
     ValueError
-        If no registered validator matches the file.
+        If no registered validator matches the file or if multiple
+        source_software candidates (beyond the known
+        DeepLabCut/LightningPose case) match the file.
 
     """
     # If it's an NWBFile object, we can immediately return "NWB"
@@ -143,8 +145,8 @@ def infer_source_software(
     if set(candidates) == {"DeepLabCut", "LightningPose"}:
         return AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE
 
-    # In every other case (no candidates or multiple candidates),
-    # we cannot infer the source software.
+    # In every other case (no candidates or multiple unexpected candidates),
+    # we cannot infer a valid source software.
     raise logger.error(
         ValueError(
             f"Could not infer source_software from file '{file_path}'. "
