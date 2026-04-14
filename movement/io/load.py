@@ -126,6 +126,9 @@ def infer_source_software(
     for source_sw, validators_list in _LOADER_VALIDATORS_REGISTRY.items():
         suffix_map = _build_suffix_map(validators_list)
         try:
+            # Temporarily disable the logger to avoid flooding the console
+            # with expected validation errors during candidate testing
+            logger.disable("movement")
             _validate_file(
                 file_path,
                 suffix_map,
@@ -134,6 +137,8 @@ def infer_source_software(
             )
         except (OSError, TypeError, ValueError):
             continue
+        finally:
+            logger.enable("movement")  # re-store logging
         candidates.append(source_sw)
 
     # If exactly one candidate matches, return it.

@@ -178,14 +178,18 @@ def test_build_suffix_map():
     "file_fixture, expected_source_software", AUTO_SOURCE_SOFTWARE_CASES
 )
 def test_infer_source_software(
-    file_fixture, expected_source_software, request
+    file_fixture, expected_source_software, request, caplog
 ):
-    """Test auto-detection of source_software."""
+    """Test auto-detection of source_software works as expected
+    and does not log validation errors when a match is found.
+    """
     file_path = request.getfixturevalue(file_fixture)
     if file_fixture.startswith("nwb"):
         file_path = file_path()  # NWB fixture is a callable
-    inferred = load.infer_source_software(file_path)
+    with caplog.at_level("ERROR"):
+        inferred = load.infer_source_software(file_path)
     assert inferred == expected_source_software
+    assert not caplog.records
 
 
 @pytest.mark.parametrize(
