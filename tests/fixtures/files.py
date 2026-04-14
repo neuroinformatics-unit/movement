@@ -211,6 +211,12 @@ def dlc_csv_file():
     return pytest.DATA_PATHS.get("DLC_single-wasp.predictions.csv")
 
 
+@pytest.fixture
+def lp_csv_file():
+    """Return the path to a LightningPose .csv file."""
+    return pytest.DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
+
+
 # ---------------- SLEAP file fixtures ----------------------------
 @pytest.fixture(
     params=[
@@ -517,12 +523,19 @@ def anipose_csv_file():
 
 # ---------------- netCDF file fixtures ----------------------------
 @pytest.fixture(scope="session")
-def invalid_netcdf_file_missing_confidence(tmp_path_factory):
+def valid_netcdf_file():
+    """Return the path to a valid netCDF file."""
+    return pytest.DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
+
+
+@pytest.fixture(scope="session")
+def invalid_netcdf_file_missing_confidence(
+    tmp_path_factory, valid_netcdf_file
+):
     """Create an invalid 'poses' netCDF file missing the
     'confidence' variable.
     """
-    valid_file = pytest.DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
-    ds = xr.open_dataset(valid_file)
+    ds = xr.open_dataset(valid_netcdf_file)
     del ds["confidence"]
 
     temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
@@ -544,10 +557,9 @@ def unopenable_netcdf_file(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
-def invalid_dstype_netcdf_file(tmp_path_factory):
+def invalid_dstype_netcdf_file(tmp_path_factory, valid_netcdf_file):
     """Create a valid netCDF file but with an invalid 'ds_type' attribute."""
-    valid_file = pytest.DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
-    ds = xr.open_dataset(valid_file)
+    ds = xr.open_dataset(valid_netcdf_file)
 
     ds.attrs["ds_type"] = "not_a_valid_type"
 

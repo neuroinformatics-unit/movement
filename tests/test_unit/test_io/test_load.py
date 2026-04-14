@@ -9,6 +9,17 @@ from requests_cache import Path
 
 from movement.io import load
 
+AUTO_SOURCE_SOFTWARE_CASES = [
+    ("dlc_csv_file", "DeepLabCut/LightningPose"),
+    ("lp_csv_file", "DeepLabCut/LightningPose"),
+    ("dlc_h5_file", "DeepLabCut"),
+    ("sleap_slp_file", "SLEAP"),
+    ("sleap_analysis_file", "SLEAP"),
+    ("anipose_csv_file", "Anipose"),
+    ("via_tracks_csv", "VIA-tracks"),
+    ("nwbfile_object", "NWB"),
+]
+
 
 @define
 class StubValidFile:
@@ -161,3 +172,56 @@ def test_build_suffix_map():
     """
     suffix_map = load._build_suffix_map([StubValidFile])
     assert suffix_map == {".stub": StubValidFile}
+
+
+@pytest.mark.parametrize(
+    "file_fixture, expected_source_software", AUTO_SOURCE_SOFTWARE_CASES
+)
+def test_infer_source_software(
+    file_fixture, expected_source_software, request, caplog
+):
+    """Test auto-detection of source_software works as expected
+    and does not log validation errors when a match is found.
+    """
+    file_path = request.getfixturevalue(file_fixture)
+    if file_fixture.startswith("nwb"):
+        file_path = file_path()  # NWB fixture is a callable
+    with caplog.at_level("ERROR"):
+        inferred = load.infer_source_software(file_path)
+    assert inferred == expected_source_software
+    assert not caplog.records
+
+
+def test_infer_source_software_raises_for_unsupported_format(
+    valid_netcdf_file,
+):
+    """Test inference fails for a file format not supported by load_dataset.
+
+    Here we use a valid netCDF file, which is not one of our supported
+    third-party formats, and hence doesn't have a corresponding file validator.
+    """
+    with pytest.raises(ValueError, match="Could not infer source_software"):
+        load.infer_source_software(valid_netcdf_file)
+
+
+@pytest.mark.parametrize(
+    "file_fixture, expected_source_software", AUTO_SOURCE_SOFTWARE_CASES
+)
+def test_load_dataset_auto_detects(
+    file_fixture, expected_source_software, request
+):
+    """Test that load_dataset works with source_software='auto'.
+
+    The resulting dataset should be identical to the one loaded with the
+    explicitly specified expected_source_software.
+    """
+    file_path = request.getfixturevalue(file_fixture)
+    if file_fixture.startswith("nwb"):
+        file_path = file_path()  # NWB fixture is a callable
+
+    auto_ds = load.load_dataset(file_path, source_software="auto")
+    explicit_ds = load.load_dataset(
+        file_path, source_software=expected_source_software
+    )
+
+    xr.testing.assert_identical(auto_ds, explicit_ds)
