@@ -6,7 +6,7 @@ from unittest.mock import patch
 import pytest
 from typer.testing import CliRunner
 
-from movement.cli_entrypoint import app
+from movement.cli_entrypoint import app, main
 
 runner = CliRunner()
 
@@ -70,3 +70,10 @@ def test_launch_command(run_side_effect, expected_exit_code, expected_output):
     # Assert exit code and output
     assert result.exit_code == expected_exit_code
     assert expected_output in result.output
+
+
+def test_main_invokes_app():
+    """Test that ``main()`` invokes the Typer app."""
+    with patch("movement.cli_entrypoint.app") as mock_app:
+        main()
+    mock_app.assert_called_once_with()
