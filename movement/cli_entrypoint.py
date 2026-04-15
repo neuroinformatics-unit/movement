@@ -1,6 +1,5 @@
 """CLI entrypoint for the ``movement`` package."""
 
-import argparse
 import platform
 import subprocess
 import sys
@@ -8,6 +7,7 @@ import sys
 import numpy as np
 import pandas as pd
 import scipy as sp
+import typer
 import xarray as xr
 
 import movement
@@ -39,34 +39,23 @@ ASCII_ART = r"""
                              ,..###(
     """
 
-
-def main() -> None:
-    """Entrypoint for the CLI."""
-    parser = argparse.ArgumentParser(prog="movement")
-    subparsers = parser.add_subparsers(dest="command", title="commands")
-
-    # Add 'info' command
-    info_parser = subparsers.add_parser(
-        "info", help="output diagnostic information about the environment"
-    )
-    info_parser.set_defaults(func=info)
-
-    # Add 'launch' command
-    launch_parser = subparsers.add_parser(
-        "launch", help="launch the movement plugin in napari"
-    )
-    launch_parser.set_defaults(func=launch)
-
-    args = parser.parse_args()
-    if args.command is None:
-        help_message = parser.format_help()
-        print(help_message)
-    else:
-        args.func()
+app = typer.Typer(
+    name="movement",
+    help="A Python toolbox for analysing animal body movements.",
+    add_completion=False,
+)
 
 
+@app.callback(invoke_without_command=True)
+def callback(ctx: typer.Context) -> None:
+    """Show help when no subcommand is provided."""
+    if ctx.invoked_subcommand is None:
+        typer.echo(ctx.get_help())
+
+
+@app.command()
 def info() -> None:
-    """Output diagnostic information."""
+    """Output diagnostic information about the environment."""
     text = (
         f"{ASCII_ART}\n"
         f"     movement: {movement.__version__}\n"
@@ -85,9 +74,10 @@ def info() -> None:
         text += "     napari: not installed\n"
 
     text += f"     Platform: {platform.platform()}\n"
-    print(text)
+    typer.echo(text)
 
 
+@app.command()
 def launch() -> None:
     """Launch the movement plugin in napari."""
     try:
@@ -97,10 +87,16 @@ def launch() -> None:
         )
     except subprocess.CalledProcessError as e:
         # if subprocess.run() fails with non-zero exit code
-        print(
+        typer.echo(
             "\nAn error occurred while launching the movement plugin "
             f"for napari:\n  {e}"
         )
+        raise typer.Exit(code=1)
+
+
+def main() -> None:
+    """Entrypoint for the CLI."""
+    app()
 
 
 if __name__ == "__main__":  # pragma: no cover
