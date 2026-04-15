@@ -42,7 +42,6 @@ ASCII_ART = r"""
 app = typer.Typer(
     name="movement",
     help="A Python toolbox for analysing animal body movements.",
-    add_completion=False,
 )
 
 
