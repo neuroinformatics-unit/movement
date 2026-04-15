@@ -90,7 +90,7 @@ def launch() -> None:
             "\nAn error occurred while launching the movement plugin "
             f"for napari:\n  {e}"
         )
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from e
 
 
 def main() -> None:
