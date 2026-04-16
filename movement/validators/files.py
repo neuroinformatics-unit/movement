@@ -12,6 +12,7 @@ import jsonschema
 import numpy as np
 import orjson
 import pandas as pd
+import pyarrow.parquet as pq
 from attrs import Attribute, define, field, validators
 from pynwb import NWBFile
 
@@ -921,6 +922,58 @@ class ValidNWBFile:
         ),
     )
     """Path to the NWB file on disk (ending in ".nwb") or an NWBFile object."""
+
+
+@define
+class ValidAniframeParquet:
+    """Class for validating aniframe Parquet files.
+
+    The validator ensures that the file:
+
+    - is a readable ``.parquet`` file, and
+    - contains the aniframe metadata key (``"r"``) in the Parquet
+      file-level schema metadata, which is written by the R
+      ``arrow`` package when saving an aniframe object.
+
+    Raises
+    ------
+    ValueError
+        If the file is not a readable Parquet file or does not contain
+        the expected aniframe metadata key.
+
+    """
+
+    suffixes: ClassVar[set[str]] = {".parquet"}
+    """Expected suffix(es) for the file."""
+
+    file: Path = field(
+        converter=Path,
+        validator=_file_validator(permission="r", suffixes=suffixes),
+    )
+    """Path to the aniframe Parquet file to validate."""
+
+    @file.validator
+    def _file_is_valid_aniframe_parquet(self, attribute, value):
+        """Ensure the Parquet file contains aniframe metadata."""
+        try:
+            schema_meta = pq.read_schema(value).metadata
+        except Exception as e:
+            raise logger.error(
+                ValueError(
+                    f"Could not read Parquet schema from {value}. "
+                    f"Make sure the file is a valid Parquet file. "
+                    f"Error: {e}"
+                )
+            ) from e
+
+        if schema_meta is None or b"r" not in schema_meta:
+            raise logger.error(
+                ValueError(
+                    f"File {value} does not appear to be an aniframe "
+                    "Parquet file. The expected aniframe metadata key "
+                    "was not found in the file schema."
+                )
+            )
 
 
 def _check_roi_type_matches_geometry(data: Mapping[str, Any]) -> None:

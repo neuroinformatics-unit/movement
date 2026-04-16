@@ -29,6 +29,7 @@ type SourceSoftware = Literal[
     "Anipose",
     "NWB",
     "VIA-tracks",
+    "aniframe",
 ]
 AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE: Final = "DeepLabCut/LightningPose"
 
