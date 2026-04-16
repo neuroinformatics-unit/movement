@@ -13,6 +13,7 @@ public API may be revised to reflect this distinction more explicitly.
 import warnings
 from typing import Literal
 
+import numpy as np
 import xarray as xr
 
 from movement.utils.logging import logger
@@ -494,3 +495,24 @@ def _compute_scaled_path_length(
     valid_proportion = valid_segments / (data.sizes["time"] - 1)
     # return scaled path length
     return compute_norm(displacement).sum(dim="time") / valid_proportion
+
+
+def compute_u_turns(
+    heading: xr.DataArray, threshold: float = 180
+) -> xr.DataArray:
+    """Compute U-turn segments in a trajectory based on heading data."""
+    # Ensure headings are in [0, 360] range
+    heading = heading % 360
+
+    # Calculate displacement (comparing current frame to previous frame)
+    # Using fill_value=heading[0] prevents a fake U-turn at the very start
+    heading_then = heading.shift(time=1, fill_value=heading[0])
+    delta_heading = heading - heading_then
+
+    # Handle circular wrap-around to find the shortest path
+    delta_heading.values[delta_heading > 180] -= 360
+    delta_heading.values[delta_heading < -180] += 360
+
+    # Identify U-turns where the absolute change exceeds the threshold
+    u_turn_mask = np.abs(delta_heading) >= threshold
+    return u_turn_mask
