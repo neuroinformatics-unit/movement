@@ -300,6 +300,13 @@ def _r_categorical_to_python(value: pd.Categorical) -> str | None:
     return None if pd.isna(v) else str(v)
 
 
+def _r_scalar_to_python(v: Any) -> Any:
+    """Convert a single rdata element to a plain Python value or ``None``."""
+    if isinstance(v, float) and math.isnan(v):
+        return None
+    return v.item() if isinstance(v, np.generic) else v
+
+
 def _r_ndarray_to_python(value: np.ndarray) -> Any:
     """Convert a numpy array decoded by rdata to a Python scalar or list.
 
@@ -318,17 +325,8 @@ def _r_ndarray_to_python(value: np.ndarray) -> Any:
     if value.size == 0:
         return None
     if value.ndim == 0 or value.size == 1:
-        v = value.flat[0]
-        if isinstance(v, float) and math.isnan(v):
-            return None
-        return v.item() if isinstance(v, np.generic) else v
-    result: list[Any] = []
-    for v in value:
-        if isinstance(v, float) and math.isnan(v):
-            result.append(None)
-        else:
-            result.append(v.item() if isinstance(v, np.generic) else v)
-    return result
+        return _r_scalar_to_python(value.flat[0])
+    return [_r_scalar_to_python(v) for v in value]
 
 
 def _resolve_columns(df: pd.DataFrame) -> pd.DataFrame:
