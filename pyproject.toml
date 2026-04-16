@@ -17,7 +17,7 @@ dependencies = [
   "numpy>=2.0.0",
   "pandas",
   "h5py",
-  "netCDF4<1.7.3",
+  "netCDF4>=1.7.2,<1.7.3",
   "tables>=3.10.1",
   "attrs",
   "pooch",
