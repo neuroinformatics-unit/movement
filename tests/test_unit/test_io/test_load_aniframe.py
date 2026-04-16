@@ -1,5 +1,6 @@
 """Test suite for the load_aniframe module."""
 
+import itertools
 from pathlib import Path
 from unittest.mock import patch
 
@@ -112,22 +113,27 @@ def _minimal_df(
         keypoints = ["nose", "tail"]
 
     rng = np.random.default_rng(seed=0)
-    rows = []
-    for ind in individuals:
-        for kp in keypoints:
-            for t in range(1, n_frames + 1):
-                row: dict = {
-                    "individual": ind,
-                    "keypoint": kp,
-                    "time": t,
-                    "x": rng.standard_normal(),
-                    "y": rng.standard_normal(),
-                }
-                if include_confidence:
-                    row["confidence"] = rng.uniform(0.5, 1.0)
-                if extra_cols:
-                    row.update(extra_cols)
-                rows.append(row)
+    extra = extra_cols or {}
+
+    def _make_row(ind: str | int, kp: str, t: int) -> dict:
+        row: dict = {
+            "individual": ind,
+            "keypoint": kp,
+            "time": t,
+            "x": rng.standard_normal(),
+            "y": rng.standard_normal(),
+            **extra,
+        }
+        if include_confidence:
+            row["confidence"] = rng.uniform(0.5, 1.0)
+        return row
+
+    rows = [
+        _make_row(ind, kp, t)
+        for ind, kp, t in itertools.product(
+            individuals, keypoints, range(1, n_frames + 1)
+        )
+    ]
     return pd.DataFrame(rows)
 
 
