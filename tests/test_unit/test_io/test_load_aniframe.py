@@ -12,8 +12,11 @@ import pytest
 import xarray as xr
 
 from movement.io.load_aniframe import (
+    _build_extra_array,
     _check_no_polar_coords,
+    _extract_meta_vars,
     _flatten_r_metadata,
+    _infer_extra_dims,
     _r_value_to_python,
     _resolve_columns,
     _resolve_fps,
@@ -38,7 +41,15 @@ _BASE_META: dict = {
     "unit_space": "px",
     "reference_frame": "allocentric",
     "point_of_reference": "top_left",
+    "variables_what": ["individual", "keypoint"],
+    "variables_when": ["time"],
+    "variables_where": ["x", "y"],
 }
+
+# Default var lists for _resolve_columns unit tests
+_DEFAULT_VARS_WHAT = ["individual", "keypoint"]
+_DEFAULT_VARS_WHEN = ["time"]
+_DEFAULT_VARS_WHERE = ["x", "y"]
 
 
 def _make_parquet(
@@ -250,34 +261,62 @@ def test_resolve_columns_renames_track_to_individual():
     """_resolve_columns renames 'track' to 'individual' with a UserWarning."""
     df = _minimal_df().rename(columns={"individual": "track"})
     with pytest.warns(UserWarning, match="renamed to 'individual'"):
-        result = _resolve_columns(df)
+        result, _ = _resolve_columns(
+            df, _DEFAULT_VARS_WHAT, _DEFAULT_VARS_WHEN, _DEFAULT_VARS_WHERE
+        )
     assert "individual" in result.columns
     assert "track" not in result.columns
 
 
 def test_resolve_columns_drops_single_value_extra_cols(caplog):
-    """_resolve_columns drops constant extra columns at INFO level."""
+    """_resolve_columns drops constant extra when/what columns at INFO."""
     df = _minimal_df(extra_cols={"session": 1, "trial": 1})
-    result = _resolve_columns(df)
+    result, _ = _resolve_columns(
+        df,
+        _DEFAULT_VARS_WHAT,
+        ["time", "session", "trial"],
+        _DEFAULT_VARS_WHERE,
+    )
     assert "session" not in result.columns
     assert "trial" not in result.columns
 
 
-@pytest.mark.parametrize("extra_col", ["session", "trial", "model"])
-def test_resolve_columns_errors_on_multi_value_extra_cols(extra_col):
+@pytest.mark.parametrize(
+    "extra_col, vars_what, vars_when",
+    [
+        ("session", _DEFAULT_VARS_WHAT, ["time", "session"]),
+        ("trial", _DEFAULT_VARS_WHAT, ["time", "trial"]),
+        ("model", ["individual", "keypoint", "model"], _DEFAULT_VARS_WHEN),
+    ],
+)
+def test_resolve_columns_errors_on_multi_value_extra_cols(
+    extra_col, vars_what, vars_when
+):
     """_resolve_columns raises ValueError for multi-valued extra columns."""
     df = _minimal_df()
     df[extra_col] = [i % 2 for i in range(len(df))]
     with pytest.raises(ValueError, match="unique values"):
-        _resolve_columns(df)
+        _resolve_columns(df, vars_what, vars_when, _DEFAULT_VARS_WHERE)
 
 
 def test_resolve_columns_leaves_canonical_columns_intact():
     """_resolve_columns does not modify individual, keypoint, time, x, y."""
     df = _minimal_df()
-    result = _resolve_columns(df)
+    result, _ = _resolve_columns(
+        df, _DEFAULT_VARS_WHAT, _DEFAULT_VARS_WHEN, _DEFAULT_VARS_WHERE
+    )
     for col in ("individual", "keypoint", "time", "x", "y", "confidence"):
         assert col in result.columns
+
+
+def test_resolve_columns_returns_extra_data_cols():
+    """_resolve_columns identifies columns outside all aniframe categories."""
+    df = _minimal_df()
+    df["speed"] = 1.0
+    _, extra = _resolve_columns(
+        df, _DEFAULT_VARS_WHAT, _DEFAULT_VARS_WHEN, _DEFAULT_VARS_WHERE
+    )
+    assert extra == ["speed"]
 
 
 # ---------------------------------------------------------------------------
@@ -466,7 +505,7 @@ def test_from_aniframe_file_3d_cartesian(tmp_path):
     path = _make_parquet(tmp_path, df=df)
     with patch(
         "movement.io.load_aniframe._decode_aniframe_metadata",
-        return_value=_mock_meta(),
+        return_value=_mock_meta(variables_where=["x", "y", "z"]),
     ):
         ds = from_aniframe_file(path)
 
@@ -491,20 +530,31 @@ def test_from_aniframe_file_track_renamed_to_individual(tmp_path):
 
 
 def test_from_aniframe_file_single_value_session_dropped(tmp_path):
-    """from_aniframe_file drops a constant session column without error."""
+    """from_aniframe_file drops constant session/trial columns silently."""
     df = _minimal_df(extra_cols={"session": 1, "trial": 1})
     path = _make_parquet(tmp_path, df=df)
     with patch(
         "movement.io.load_aniframe._decode_aniframe_metadata",
-        return_value=_mock_meta(),
+        return_value=_mock_meta(variables_when=["time", "session", "trial"]),
     ):
         ds = from_aniframe_file(path)
 
     assert isinstance(ds, xr.Dataset)
+    assert "session" not in ds
+    assert "trial" not in ds
 
 
-@pytest.mark.parametrize("extra_col", ["session", "trial", "model"])
-def test_from_aniframe_file_multi_value_extra_col_raises(tmp_path, extra_col):
+@pytest.mark.parametrize(
+    "extra_col, meta_override",
+    [
+        ("session", {"variables_when": ["time", "session"]}),
+        ("trial", {"variables_when": ["time", "trial"]}),
+        ("model", {"variables_what": ["individual", "keypoint", "model"]}),
+    ],
+)
+def test_from_aniframe_file_multi_value_extra_col_raises(
+    tmp_path, extra_col, meta_override
+):
     """from_aniframe_file raises ValueError for multi-valued extra columns."""
     df = _minimal_df()
     df[extra_col] = [i % 2 for i in range(len(df))]
@@ -512,7 +562,7 @@ def test_from_aniframe_file_multi_value_extra_col_raises(tmp_path, extra_col):
     with (
         patch(
             "movement.io.load_aniframe._decode_aniframe_metadata",
-            return_value=_mock_meta(),
+            return_value=_mock_meta(**meta_override),
         ),
         pytest.raises(ValueError, match="unique values"),
     ):
@@ -589,3 +639,197 @@ def test_auto_inference_rejects_plain_parquet(tmp_path):
     path = _make_parquet(tmp_path, r_meta_bytes=None)
     with pytest.raises(ValueError, match="Could not infer source_software"):
         load_dataset(path, source_software="auto")
+
+
+# ---------------------------------------------------------------------------
+# _extract_meta_vars tests
+# ---------------------------------------------------------------------------
+
+
+def test_extract_meta_vars_raises_for_missing_fields():
+    """_extract_meta_vars raises ValueError when required fields are absent."""
+    with pytest.raises(ValueError, match="missing required field"):
+        _extract_meta_vars({}, Path("fake.parquet"))
+
+
+def test_extract_meta_vars_raises_for_partial_fields():
+    """_extract_meta_vars raises when only some required fields are present."""
+    partial = {"variables_what": ["individual", "keypoint"]}
+    with pytest.raises(ValueError, match="missing required field"):
+        _extract_meta_vars(partial, Path("fake.parquet"))
+
+
+def test_extract_meta_vars_normalises_scalar_to_list():
+    """_extract_meta_vars wraps a scalar value in a list."""
+    meta = {
+        "variables_what": ["individual", "keypoint"],
+        "variables_when": "time",  # scalar, as returned for length-1 R vectors
+        "variables_where": ["x", "y"],
+    }
+    vars_what, vars_when, vars_where = _extract_meta_vars(
+        meta, Path("fake.parquet")
+    )
+    assert vars_when == ["time"]
+    assert vars_what == ["individual", "keypoint"]
+    assert vars_where == ["x", "y"]
+
+
+# ---------------------------------------------------------------------------
+# _infer_extra_dims tests
+# ---------------------------------------------------------------------------
+
+
+def test_infer_extra_dims_full_dims():
+    """_infer_extra_dims returns all three dims when col varies freely."""
+    df = _minimal_df()
+    rng = np.random.default_rng(seed=42)
+    df["speed"] = rng.standard_normal(len(df))
+    assert _infer_extra_dims(df, "speed") == (
+        "time",
+        "keypoints",
+        "individuals",
+    )
+
+
+def test_infer_extra_dims_time_and_individual():
+    """_infer_extra_dims returns (time, individuals) for per-individual col."""
+    df = _minimal_df(
+        individuals=[1, 2], keypoints=["nose", "tail"], n_frames=3
+    )
+    # Same value for all keypoints of a given (time, individual) pair
+    df["area"] = (df["time"] * 10 + df["individual"]).astype(float)
+    assert _infer_extra_dims(df, "area") == ("time", "individuals")
+
+
+def test_infer_extra_dims_time_only():
+    """_infer_extra_dims returns (time,) for a per-frame column."""
+    df = _minimal_df()
+    df["temp"] = df["time"].astype(float)
+    assert _infer_extra_dims(df, "temp") == ("time",)
+
+
+def test_infer_extra_dims_constant():
+    """_infer_extra_dims returns () for a constant column."""
+    df = _minimal_df()
+    df["fixed"] = 42.0
+    assert _infer_extra_dims(df, "fixed") == ()
+
+
+# ---------------------------------------------------------------------------
+# _build_extra_array tests
+# ---------------------------------------------------------------------------
+
+
+def test_build_extra_array_numeric():
+    """_build_extra_array builds a float64 array for a numeric column."""
+    df = _minimal_df(individuals=["a"], keypoints=["nose"], n_frames=3)
+    df["score"] = [1.0, 2.0, 3.0]
+    ti = np.array([0, 1, 2])
+    ki = np.array([0, 0, 0])
+    ii = np.array([0, 0, 0])
+    arr = _build_extra_array(
+        df,
+        "score",
+        ("time",),
+        ti=ti,
+        ki=ki,
+        ii=ii,
+        n_frames=3,
+        n_keypoints=1,
+        n_individuals=1,
+    )
+    assert arr.dtype == np.float64
+    assert arr.shape == (3,)
+    np.testing.assert_array_equal(arr, [1.0, 2.0, 3.0])
+
+
+def test_build_extra_array_object():
+    """_build_extra_array uses object dtype for non-numeric columns."""
+    df = _minimal_df(individuals=["a"], keypoints=["nose"], n_frames=2)
+    df["label"] = ["foo", "bar"]
+    ti = np.array([0, 1])
+    ki = np.array([0, 0])
+    ii = np.array([0, 0])
+    arr = _build_extra_array(
+        df,
+        "label",
+        ("time",),
+        ti=ti,
+        ki=ki,
+        ii=ii,
+        n_frames=2,
+        n_keypoints=1,
+        n_individuals=1,
+    )
+    assert arr.dtype == object
+    assert list(arr) == ["foo", "bar"]
+
+
+# ---------------------------------------------------------------------------
+# from_aniframe_file extra data column integration tests
+# ---------------------------------------------------------------------------
+
+
+def test_from_aniframe_file_extra_col_full_dims(tmp_path):
+    """from_aniframe_file adds a freely-varying extra column with full dims."""
+    rng = np.random.default_rng(seed=7)
+    df = _minimal_df()
+    df["speed"] = rng.standard_normal(len(df))
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.load_aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(),
+    ):
+        ds = from_aniframe_file(path)
+
+    assert "speed" in ds
+    assert ds["speed"].dims == ("time", "keypoints", "individuals")
+    assert ds["speed"].shape == (5, 2, 2)
+
+
+def test_from_aniframe_file_extra_col_time_individual_dims(tmp_path):
+    """from_aniframe_file correctly infers (time, individuals) dims."""
+    df = _minimal_df(
+        individuals=[1, 2], keypoints=["nose", "tail"], n_frames=3
+    )
+    df["area"] = (df["time"] * 10 + df["individual"]).astype(float)
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.load_aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(),
+    ):
+        ds = from_aniframe_file(path)
+
+    assert "area" in ds
+    assert ds["area"].dims == ("time", "individuals")
+    assert ds["area"].shape == (3, 2)
+
+
+def test_from_aniframe_file_constant_extra_col_skipped(tmp_path):
+    """from_aniframe_file skips constant extra columns."""
+    df = _minimal_df()
+    df["fixed"] = 42.0
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.load_aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(),
+    ):
+        ds = from_aniframe_file(path)
+
+    assert "fixed" not in ds
+
+
+def test_from_aniframe_file_string_extra_col_added(tmp_path):
+    """from_aniframe_file adds a non-constant string extra column."""
+    df = _minimal_df(individuals=["a"], keypoints=["nose"], n_frames=3)
+    df["label"] = ["running", "still", "running"]
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.load_aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(),
+    ):
+        ds = from_aniframe_file(path)
+
+    assert "label" in ds
+    assert ds["label"].dtype == object
+    assert ds["label"].dims == ("time",)

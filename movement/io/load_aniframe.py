@@ -17,13 +17,28 @@ from movement.io.load_poses import from_numpy
 from movement.utils.logging import logger
 from movement.validators.files import ValidAniframeParquet, ValidFile
 
-# Recognised column-name sets (mirrors aniframe's own detection heuristics)
-_WHAT_COLS: frozenset[str] = frozenset(
-    {"model", "individual", "track", "keypoint"}
-)
-_WHEN_COLS: frozenset[str] = frozenset({"session", "trial", "time"})
 _WHERE_CARTESIAN: frozenset[str] = frozenset({"x", "y", "z"})
 _WHERE_POLAR: frozenset[str] = frozenset({"rho", "phi", "theta"})
+
+# Ordered dimension subsets used when inferring dimensionality of extra
+# data columns. Checked from coarsest (constant) to finest (all axes).
+_EXTRA_DIM_CANDIDATES: tuple[tuple[str, ...], ...] = (
+    (),
+    ("time",),
+    ("keypoints",),
+    ("individuals",),
+    ("time", "keypoints"),
+    ("time", "individuals"),
+    ("keypoints", "individuals"),
+    ("time", "keypoints", "individuals"),
+)
+
+# Maps movement dimension names to the corresponding DataFrame column names.
+_DIM_TO_DF_COL: dict[str, str] = {
+    "time": "time",
+    "keypoints": "keypoint",
+    "individuals": "individual",
+}
 
 # Conversion factors from each time unit to seconds
 _TIME_UNIT_TO_SECONDS: dict[str, float] = {
@@ -69,9 +84,10 @@ def from_aniframe_file(
     ------
     ValueError
         If the file contains polar or spherical coordinate columns
-        (``rho``, ``phi``, ``theta``), or if any extra identity or temporal
-        column (e.g. ``model``, ``session``, ``trial``) holds more than one
-        unique value.
+        (``rho``, ``phi``, ``theta``), if any extra identity or temporal
+        column holds more than one unique value, or if the aniframe metadata
+        is missing the required ``variables_what``, ``variables_when``, or
+        ``variables_where`` fields.
 
     Warns
     -----
@@ -96,6 +112,13 @@ def from_aniframe_file(
     ``session``, ``trial``) are silently dropped when they hold a single
     unique value; they raise a ``ValueError`` when they hold multiple values.
 
+    Columns that do not belong to any aniframe variable category
+    (``variables_what``, ``variables_when``, ``variables_where``) are
+    treated as extra data variables and added to the returned Dataset with
+    automatically inferred dimensions. Numeric columns are stored as
+    ``float64``; all other types are stored as ``object``. Constant columns
+    (identical across every row) are skipped.
+
     The original tracking software is taken from the ``source`` field in
     the aniframe metadata (e.g., ``"SLEAP"`` or ``"DeepLabCut"``).
 
@@ -105,7 +128,10 @@ def from_aniframe_file(
 
     df = pd.read_parquet(file_path)
     meta = _decode_aniframe_metadata(file_path)
-    df = _resolve_columns(df)
+    vars_what, vars_when, vars_where = _extract_meta_vars(meta, file_path)
+    df, extra_data_cols = _resolve_columns(
+        df, vars_what, vars_when, vars_where
+    )
     _check_no_polar_coords(set(df.columns))
 
     # Detect which Cartesian space columns are present
@@ -152,6 +178,28 @@ def from_aniframe_file(
     if has_confidence:
         confidence_array[ti, ki, ii] = df["confidence"].to_numpy()  # type: ignore[index]
 
+    # Infer dimensions and build arrays for extra data columns
+    extra_vars: dict[str, tuple[tuple[str, ...], np.ndarray]] = {}
+    for col in extra_data_cols:
+        dims = _infer_extra_dims(df, col)
+        if not dims:
+            logger.info(f"Column '{col}' is constant and will be skipped.")
+            continue
+        extra_vars[col] = (
+            dims,
+            _build_extra_array(
+                df,
+                col,
+                dims,
+                ti=ti,
+                ki=ki,
+                ii=ii,
+                n_frames=n_frames,
+                n_keypoints=n_keypoints,
+                n_individuals=n_individuals,
+            ),
+        )
+
     fps_to_use = _resolve_fps(fps, meta)
     source = meta.get("source") or None
 
@@ -163,6 +211,10 @@ def from_aniframe_file(
         fps=fps_to_use,
         source_software=source,
     )
+
+    for col, (dims, arr) in extra_vars.items():
+        ds[col] = xr.DataArray(arr, dims=dims)
+
     _attach_extra_attrs(ds, meta, file_path)
     logger.info(f"Loaded poses dataset from {file_path.name}")
     return ds
@@ -329,23 +381,42 @@ def _r_ndarray_to_python(value: np.ndarray) -> Any:
     return [_r_scalar_to_python(v) for v in value]
 
 
-def _resolve_columns(df: pd.DataFrame) -> pd.DataFrame:
+def _resolve_columns(
+    df: pd.DataFrame,
+    vars_what: list[str],
+    vars_when: list[str],
+    vars_where: list[str],
+) -> tuple[pd.DataFrame, list[str]]:
     """Rename and validate aniframe columns for movement compatibility.
 
     Renames ``track`` to ``individual`` with a warning if needed.
-    Drops extra ``variables_what`` / ``variables_when`` columns that have
-    only one unique value (logged at INFO level). Raises if any such column
-    has multiple unique values.
+    Drops extra identity/temporal columns that hold a single unique value
+    (logged at INFO level). Raises if any such column has multiple unique
+    values. Returns the cleaned DataFrame alongside a sorted list of extra
+    data columns — those not belonging to any aniframe variable category —
+    which callers may add as supplementary Dataset variables.
 
     Parameters
     ----------
     df
         The raw DataFrame read from the Parquet file.
+    vars_what
+        Column names classified as identity variables by the aniframe
+        metadata (``variables_what``).
+    vars_when
+        Column names classified as temporal variables by the aniframe
+        metadata (``variables_when``).
+    vars_where
+        Column names classified as coordinate variables by the aniframe
+        metadata (``variables_where``).
 
     Returns
     -------
-    pandas.DataFrame
-        DataFrame with canonical column names and extra columns removed.
+    tuple[pandas.DataFrame, list[str]]
+        ``(df, extra_data_cols)`` where *df* has canonical column names and
+        extra identity/temporal columns removed, and *extra_data_cols* is a
+        sorted list of column names that do not belong to any aniframe
+        variable category (e.g. derived measurements such as ``speed``).
 
     Raises
     ------
@@ -366,9 +437,26 @@ def _resolve_columns(df: pd.DataFrame) -> pd.DataFrame:
         df = df.rename(columns={"track": "individual"})
         cols = set(df.columns)
 
-    # Columns that are recognised but not canonical in movement
-    extra_what = (_WHAT_COLS - {"individual", "keypoint"}) & cols
-    extra_when = (_WHEN_COLS - {"time"}) & cols
+    # All columns that belong to a known aniframe or movement category.
+    # Hardcoding the movement canonical names and all coordinate names
+    # ensures they are never mistaken for extra data columns, even when the
+    # metadata vars lists use aliases (e.g. "track" instead of "individual").
+    known_cols: set[str] = (
+        set(vars_what)
+        | set(vars_when)
+        | set(vars_where)
+        | _WHERE_CARTESIAN
+        | _WHERE_POLAR
+        | {"individual", "keypoint", "track", "confidence"}
+    )
+    extra_data_cols = sorted(cols - known_cols)
+
+    # Extra identity/temporal columns (classified by metadata but not
+    # canonical in movement): drop if constant, error if multi-valued.
+    canonical_what = {"individual", "keypoint"}
+    canonical_when = {"time"}
+    extra_what = (set(vars_what) - canonical_what - {"track"}) & cols
+    extra_when = (set(vars_when) - canonical_when) & cols
 
     for col in sorted(extra_what | extra_when):
         n_unique = df[col].nunique()
@@ -389,7 +477,7 @@ def _resolve_columns(df: pd.DataFrame) -> pd.DataFrame:
                 )
             )
 
-    return df
+    return df, extra_data_cols
 
 
 def _check_no_polar_coords(cols: set[str]) -> None:
@@ -509,3 +597,157 @@ def _attach_extra_attrs(
             UserWarning,
             stacklevel=4,
         )
+
+
+def _extract_meta_vars(
+    meta: dict[str, Any],
+    file_path: Path,
+) -> tuple[list[str], list[str], list[str]]:
+    """Extract and validate the variable-classification lists from metadata.
+
+    aniframe metadata carries ``variables_what``, ``variables_when``, and
+    ``variables_where`` fields that classify every DataFrame column into an
+    identity, temporal, or coordinate role. This function validates that all
+    three are present, then normalises each to a plain ``list[str]``
+    (R length-1 vectors are decoded as scalars rather than lists by
+    :func:`_r_ndarray_to_python`).
+
+    Parameters
+    ----------
+    meta
+        Decoded aniframe metadata dict.
+    file_path
+        Path to the source file (used in error messages only).
+
+    Returns
+    -------
+    tuple[list[str], list[str], list[str]]
+        ``(vars_what, vars_when, vars_where)`` as lists of strings.
+
+    Raises
+    ------
+    ValueError
+        If any of ``variables_what``, ``variables_when``, or
+        ``variables_where`` is absent from the metadata.
+
+    """
+    required = ("variables_what", "variables_when", "variables_where")
+    missing = [k for k in required if meta.get(k) is None]
+    if missing:
+        raise logger.error(
+            ValueError(
+                f"aniframe metadata in {file_path.name} is missing required "
+                f"field(s): {missing}. "
+                "These fields are needed to classify DataFrame columns."
+            )
+        )
+
+    def _to_list(val: Any) -> list[str]:
+        if isinstance(val, list):
+            return [str(v) for v in val]
+        return [str(val)]
+
+    return (
+        _to_list(meta["variables_what"]),
+        _to_list(meta["variables_when"]),
+        _to_list(meta["variables_where"]),
+    )
+
+
+def _infer_extra_dims(df: pd.DataFrame, col: str) -> tuple[str, ...]:
+    """Return the minimum xarray dimensions needed to represent a column.
+
+    Checks ordered subsets of ``{"time", "keypoints", "individuals"}`` from
+    coarsest (constant) to finest (all three axes), and returns the first
+    subset whose groupby uniquely determines every value of ``col``.
+
+    Parameters
+    ----------
+    df
+        Long-format DataFrame containing ``time``, ``keypoint``, and
+        ``individual`` columns.
+    col
+        Name of the extra data column to inspect.
+
+    Returns
+    -------
+    tuple[str, ...]
+        Movement dimension names (e.g. ``("time", "individuals")``).
+        Empty tuple if the column is constant across every row.
+
+    """
+    for dims in _EXTRA_DIM_CANDIDATES:
+        if not dims:
+            if df[col].nunique() <= 1:
+                return ()
+            continue
+        group_cols = [_DIM_TO_DF_COL[d] for d in dims]
+        if df.groupby(group_cols)[col].nunique().max() <= 1:
+            return dims
+    return ("time", "keypoints", "individuals")
+
+
+def _build_extra_array(
+    df: pd.DataFrame,
+    col: str,
+    dims: tuple[str, ...],
+    *,
+    ti: np.ndarray,
+    ki: np.ndarray,
+    ii: np.ndarray,
+    n_frames: int,
+    n_keypoints: int,
+    n_individuals: int,
+) -> np.ndarray:
+    """Build a numpy array for an extra data column given its dimensions.
+
+    Numeric columns are cast to ``float64`` with ``nan`` fill. All other
+    dtypes (strings, mixed objects) use an ``object`` array with ``None``
+    fill. When multiple rows map to the same index (because the column does
+    not vary along the omitted axes), the last written value is kept; this
+    is always correct when the column's dimensionality was correctly inferred.
+
+    Parameters
+    ----------
+    df
+        Long-format DataFrame.
+    col
+        Name of the column to extract.
+    dims
+        Movement dimension names as returned by :func:`_infer_extra_dims`.
+    ti, ki, ii
+        Integer row-index arrays for the ``time``, ``keypoints``, and
+        ``individuals`` dimensions respectively.
+    n_frames, n_keypoints, n_individuals
+        Axis sizes.
+
+    Returns
+    -------
+    numpy.ndarray
+        Array with shape determined by ``dims``.
+
+    """
+    _dim_idx: dict[str, np.ndarray] = {
+        "time": ti,
+        "keypoints": ki,
+        "individuals": ii,
+    }
+    _dim_size: dict[str, int] = {
+        "time": n_frames,
+        "keypoints": n_keypoints,
+        "individuals": n_individuals,
+    }
+    series = df[col]
+    if pd.api.types.is_numeric_dtype(series):
+        fill: Any = np.nan
+        dtype: Any = np.float64
+        vals = series.to_numpy(dtype=np.float64, na_value=np.nan)
+    else:
+        fill = None
+        dtype = object
+        vals = series.to_numpy(dtype=object)
+    shape = tuple(_dim_size[d] for d in dims)
+    arr = np.full(shape, fill, dtype=dtype)
+    idx = tuple(_dim_idx[d] for d in dims)
+    arr[idx] = vals
+    return arr
