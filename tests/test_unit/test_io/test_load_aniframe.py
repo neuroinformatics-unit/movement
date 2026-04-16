@@ -401,7 +401,7 @@ def test_from_aniframe_file_fps_from_metadata(aniframe_parquet):
     ):
         ds = from_aniframe_file(aniframe_parquet)
 
-    assert ds.attrs.get("fps") == 25.0
+    assert ds.attrs.get("fps") == pytest.approx(25.0)
     assert ds.attrs.get("time_unit") == "seconds"
 
 
@@ -413,7 +413,7 @@ def test_from_aniframe_file_fps_override_takes_precedence(aniframe_parquet):
     ):
         ds = from_aniframe_file(aniframe_parquet, fps=60.0)
 
-    assert ds.attrs.get("fps") == 60.0
+    assert ds.attrs.get("fps") == pytest.approx(60.0)
 
 
 def test_from_aniframe_file_frame_time_when_unit_is_frame(aniframe_parquet):
