@@ -92,8 +92,7 @@ def from_aniframe_file(
     Warns
     -----
     UserWarning
-        If the column ``track`` is renamed to ``individual``, or if
-        ``point_of_reference`` is ``"bottom_left"`` (which differs from
+        If ``point_of_reference`` is ``"bottom_left"`` (which differs from
         the top-left origin used by ``movement`` and napari).
 
     See Also
@@ -111,6 +110,11 @@ def from_aniframe_file(
     ``variables_what`` or ``variables_when`` columns (e.g., ``model``,
     ``session``, ``trial``) are silently dropped when they hold a single
     unique value; they raise a ``ValueError`` when they hold multiple values.
+
+    If the file uses a ``track`` column instead of ``individual``, each
+    track is interpreted as an individual and an INFO message is logged.
+    If your data contains multiple tracks per individual, stitch them
+    before loading.
 
     Columns that do not belong to any aniframe variable category
     (``variables_what``, ``variables_when``, ``variables_where``) are
@@ -428,11 +432,10 @@ def _resolve_columns(
     cols = set(df.columns)
 
     if "track" in cols and "individual" not in cols:
-        warnings.warn(
-            "Column 'track' has been renamed to 'individual' for "
-            "compatibility with movement.",
-            UserWarning,
-            stacklevel=4,
+        logger.info(
+            "Column 'track' has been interpreted as 'individual'. "
+            "movement treats tracks as individuals. If your data contains "
+            "multiple tracks per individual, stitch them before loading."
         )
         df = df.rename(columns={"track": "individual"})
         cols = set(df.columns)

@@ -257,13 +257,12 @@ def test_flatten_r_metadata_returns_empty_for_non_dict():
 # ---------------------------------------------------------------------------
 
 
-def test_resolve_columns_renames_track_to_individual():
-    """_resolve_columns renames 'track' to 'individual' with a UserWarning."""
+def test_resolve_columns_renames_track_to_individual(caplog):
+    """_resolve_columns renames 'track' to 'individual' with an INFO log."""
     df = _minimal_df().rename(columns={"individual": "track"})
-    with pytest.warns(UserWarning, match="renamed to 'individual'"):
-        result, _ = _resolve_columns(
-            df, _DEFAULT_VARS_WHAT, _DEFAULT_VARS_WHEN, _DEFAULT_VARS_WHERE
-        )
+    result, _ = _resolve_columns(
+        df, _DEFAULT_VARS_WHAT, _DEFAULT_VARS_WHEN, _DEFAULT_VARS_WHERE
+    )
     assert "individual" in result.columns
     assert "track" not in result.columns
 
@@ -513,16 +512,13 @@ def test_from_aniframe_file_3d_cartesian(tmp_path):
     assert list(ds.coords["space"].values) == ["x", "y", "z"]
 
 
-def test_from_aniframe_file_track_renamed_to_individual(tmp_path):
-    """from_aniframe_file renames 'track' to 'individual' with a warning."""
+def test_from_aniframe_file_track_interpreted_as_individual(tmp_path):
+    """from_aniframe_file treats 'track' as 'individual' with an INFO log."""
     df = _minimal_df().rename(columns={"individual": "track"})
     path = _make_parquet(tmp_path, df=df)
-    with (
-        patch(
-            "movement.io.load_aniframe._decode_aniframe_metadata",
-            return_value=_mock_meta(),
-        ),
-        pytest.warns(UserWarning, match="renamed to 'individual'"),
+    with patch(
+        "movement.io.load_aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(),
     ):
         ds = from_aniframe_file(path)
 
