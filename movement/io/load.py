@@ -301,6 +301,7 @@ def register_loader(
     def decorator(
         loader_fn: Callable[Concatenate[TInputFile, P], xr.Dataset],
     ) -> Callable[Concatenate[TInputFile, P], xr.Dataset]:
+
         @wraps(loader_fn)
         def wrapper(file: TInputFile, *args, **kwargs) -> xr.Dataset:
             if not validators_list:
@@ -311,8 +312,15 @@ def register_loader(
             )
             return loader_fn(valid_file, *args, **kwargs)  # type: ignore[arg-type]
 
+        # Warn if loader already exists
+        if source_software in _LOADER_REGISTRY:
+            logger.warning(
+                f"Loader for '{source_software}' is being overwritten."
+            )
+
         # Register the loader in the global registry
         _LOADER_REGISTRY[source_software] = cast("LoaderProtocol", wrapper)
+
         return wrapper
 
     return decorator
