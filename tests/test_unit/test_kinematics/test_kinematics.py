@@ -180,6 +180,18 @@ def test_time_derivative_with_invalid_order(order, expected_exception):
         kinematics.compute_time_derivative(data, order=order)
 
 
+def test_time_derivative_single_frame():
+    """Test error is raised when input data has fewer than 2 frames."""
+    data = xr.DataArray(
+        np.zeros((1, 2)), dims=["time", "space"], coords={"time": [1]}
+    )
+    with pytest.raises(
+        ValueError,
+        match="Cannot compute the time derivative.*fewer than 2 time frames",
+    ):
+        kinematics.compute_time_derivative(data, order=1)
+
+
 time_points_value_error = pytest.raises(
     ValueError,
     match="At least 2 time points are required to compute path length",
