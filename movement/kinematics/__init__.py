@@ -36,3 +36,4 @@ __all__ = [
     "compute_kinetic_energy",
     "compute_turning_angle",
 ]
+from .trajectory_metrics import trajectory_length, trajectory_variance
