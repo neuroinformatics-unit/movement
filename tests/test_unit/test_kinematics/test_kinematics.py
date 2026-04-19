@@ -180,6 +180,18 @@ def test_time_derivative_with_invalid_order(order, expected_exception):
         kinematics.compute_time_derivative(data, order=order)
 
 
+def test_time_derivative_single_frame():
+    """Test error is raised when input data has fewer than 2 frames."""
+    data = xr.DataArray(
+        np.zeros((1, 2)), dims=["time", "space"], coords={"time": [1]}
+    )
+    with pytest.raises(
+        ValueError,
+        match="Cannot compute the time derivative.*fewer than 2 time frames",
+    ):
+        kinematics.compute_time_derivative(data, order=1)
+
+
 time_points_value_error = pytest.raises(
     ValueError,
     match="At least 2 time points are required to compute path length",
@@ -339,6 +351,95 @@ def test_path_length_nan_warn_threshold(
             position, nan_warn_threshold=nan_warn_threshold
         )
         assert result.name == "path_length"
+
+
+def test_sinuosity_straight_line():
+    """Test sinuosity equals 1 for a straight trajectory."""
+    data = xr.DataArray(
+        np.array(
+            [
+                [[0.0], [0.0]],
+                [[1.0], [1.0]],
+                [[2.0], [2.0]],
+                [[3.0], [3.0]],
+            ]
+        ),
+        dims=["time", "space", "individuals"],
+        coords={
+            "time": [0.0, 1.0, 2.0, 3.0],
+            "space": ["x", "y"],
+            "individuals": ["id_0"],
+        },
+    )
+    result = kinematics.compute_sinuosity(data)
+    assert result.name == "sinuosity"
+    np.testing.assert_allclose(result.values, np.ones_like(result.values))
+
+
+def test_sinuosity_curved_trajectory():
+    """Test sinuosity is greater than 1 for a curved trajectory."""
+    data = xr.DataArray(
+        np.array(
+            [
+                [[0.0], [0.0]],
+                [[1.0], [0.0]],
+                [[1.0], [1.0]],
+            ]
+        ),
+        dims=["time", "space", "individuals"],
+        coords={
+            "time": [0.0, 1.0, 2.0],
+            "space": ["x", "y"],
+            "individuals": ["id_0"],
+        },
+    )
+    result = kinematics.compute_sinuosity(data)
+    np.testing.assert_allclose(result.values, [np.sqrt(2)])
+
+
+def test_sinuosity_stationary_trajectory_returns_nan():
+    """Test sinuosity is NaN when start and end positions are identical."""
+    data = xr.DataArray(
+        np.array(
+            [
+                [[0.0], [0.0]],
+                [[0.0], [0.0]],
+                [[0.0], [0.0]],
+            ]
+        ),
+        dims=["time", "space", "individuals"],
+        coords={
+            "time": [0.0, 1.0, 2.0],
+            "space": ["x", "y"],
+            "individuals": ["id_0"],
+        },
+    )
+    result = kinematics.compute_sinuosity(data)
+    assert np.isnan(result.values)
+
+
+def test_sinuosity_with_too_short_time_range_raises():
+    """Test that too-short selected time range raises ValueError."""
+    data = xr.DataArray(
+        np.array(
+            [
+                [[0.0], [0.0]],
+                [[1.0], [1.0]],
+                [[2.0], [2.0]],
+            ]
+        ),
+        dims=["time", "space", "individuals"],
+        coords={
+            "time": [0.0, 1.0, 2.0],
+            "space": ["x", "y"],
+            "individuals": ["id_0"],
+        },
+    )
+    with pytest.raises(
+        ValueError,
+        match="At least 2 time points are required to compute sinuosity",
+    ):
+        kinematics.compute_sinuosity(data, start=0.0, stop=0.5)
 
 
 def test_forward_displacement_with_multiindex_coords():
