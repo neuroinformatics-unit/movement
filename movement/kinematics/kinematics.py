@@ -112,7 +112,7 @@ def compute_displacement(data: xr.DataArray) -> xr.DataArray:
     )
     validate_dims_coords(data, {"time": [], "space": []})
     result = data.diff(dim="time")
-    result = result.reindex_like(data, fill_value=0)
+    result = result.reindex_like(data)
     result.name = "displacement"
     return result
 
@@ -126,7 +126,8 @@ def _compute_forward_displacement(data: xr.DataArray) -> xr.DataArray:
     """
     validate_dims_coords(data, {"time": [], "space": []})
     result = data.diff(dim="time", label="lower")
-    result = result.reindex_like(data, fill_value=0)
+    result = result.reindex_like(data)
+
     return result
 
 
