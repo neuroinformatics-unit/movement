@@ -33,7 +33,8 @@ dependencies = [
   "pynwb",
   "ndx-pose>=0.2.1",
   "jsonschema",
-  "orjson"
+  "orjson",
+  "typer>=0.9.0"
 ]
 
 classifiers = [
