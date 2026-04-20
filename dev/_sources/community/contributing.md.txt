@@ -481,6 +481,17 @@ SourceSoftware: TypeAlias = Literal[
 ]
 ```
 
+### Developing the CLI
+
+The `movement` command-line interface lives in `movement/cli_entrypoint`
+and is built with [Typer](https://typer.tiangolo.com/). Subcommands are
+defined by decorating functions with `@app.command()` on the shared `app`
+instance (see the existing `info` and `launch` subcommands as a template).
+The console script is registered via `[project.scripts]` in `pyproject.toml`,
+pointing to `movement.cli_entrypoint:main`. Tests for the CLI live in
+`tests/test_unit/test_cli_entrypoint.py` and use `typer.testing.CliRunner`
+to invoke the app and assert on exit codes and output.
+
 ### Developing the napari plugin
 
 The `movement` plugin for `napari` is built following the

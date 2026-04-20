@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
 
-    <script src="../_static/documentation_options.js?v=38068fcc"></script>
+    <script src="../_static/documentation_options.js?v=9c7e0bd5"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -141,7 +141,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev12</p>
+    <p class="title logo__title">movement v0.15.1.dev13</p>
   
 </a></div>
     
@@ -966,6 +966,17 @@ When adding a new loader, update this type alias to include the new software nam
 </div>
 </section>
 </section>
+<section id="developing-the-cli">
+<h3>Developing the CLI<a class="headerlink" href="#developing-the-cli" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">movement</span></code> command-line interface lives in <code class="docutils literal notranslate"><span class="pre">movement/cli_entrypoint</span></code>
+and is built with <a class="reference external" href="https://typer.tiangolo.com/">Typer</a>. Subcommands are
+defined by decorating functions with <code class="docutils literal notranslate"><span class="pre">&#64;app.command()</span></code> on the shared <code class="docutils literal notranslate"><span class="pre">app</span></code>
+instance (see the existing <code class="docutils literal notranslate"><span class="pre">info</span></code> and <code class="docutils literal notranslate"><span class="pre">launch</span></code> subcommands as a template).
+The console script is registered via <code class="docutils literal notranslate"><span class="pre">[project.scripts]</span></code> in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>,
+pointing to <code class="docutils literal notranslate"><span class="pre">movement.cli_entrypoint:main</span></code>. Tests for the CLI live in
+<code class="docutils literal notranslate"><span class="pre">tests/test_unit/test_cli_entrypoint.py</span></code> and use <code class="docutils literal notranslate"><span class="pre">typer.testing.CliRunner</span></code>
+to invoke the app and assert on exit codes and output.</p>
+</section>
 <section id="developing-the-napari-plugin">
 <h3>Developing the napari plugin<a class="headerlink" href="#developing-the-napari-plugin" title="Link to this heading">#</a></h3>
 <p>The <code class="docutils literal notranslate"><span class="pre">movement</span></code> plugin for <code class="docutils literal notranslate"><span class="pre">napari</span></code> is built following the
@@ -1496,6 +1507,7 @@ verify that the video is correctly linked to the dataset:</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-sourcesoftware-type-alias">Update SourceSoftware type alias</a></li>
 </ul>
 </li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#developing-the-cli">Developing the CLI</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#developing-the-napari-plugin">Developing the napari plugin</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#qt-model-view-architecture">Qt Model/View architecture</a></li>
 </ul>
