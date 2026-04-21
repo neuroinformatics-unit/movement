@@ -299,10 +299,10 @@ def test_path_length_with_nan(
 
 # Regex patterns to match the warning messages
 exclude_id_1_and_left = r"(?s)(?!.*id_1)(?!.*left)"
-include_threshold_100 = r".*The result may be unreliable.*right.*id_0.*10/10.*"
-include_threshold_20 = (
-    r".*The result may be unreliable.*centroid.*right.*id_0.*3/10.*10/10.*"
+include_threshold_100 = (
+    r".*The result may be unreliable.*100\.0 %.*right.*id_0.*10/10.*"
 )
+include_threshold_20 = r".*The result may be unreliable.*20\.0 %.*centroid.*right.*id_0.*3/10.*10/10.*"
 
 
 @pytest.mark.parametrize(
@@ -310,6 +310,13 @@ include_threshold_20 = (
     [
         (
             1,
+            pytest.warns(
+                UserWarning,
+                match=f"{exclude_id_1_and_left}{include_threshold_100}",
+            ),
+        ),
+        (
+            1.0,
             pytest.warns(
                 UserWarning,
                 match=f"{exclude_id_1_and_left}{include_threshold_100}",

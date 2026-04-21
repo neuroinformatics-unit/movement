@@ -453,7 +453,7 @@ def _warn_about_nan_proportion(
         warnings.warn(
             "The result may be unreliable for point tracks with many "
             "missing values. The following tracks have at least "
-            f"{nan_warn_threshold * 100:.3} % NaN values:\n"
+            f"{nan_warn_threshold * 100:.1f} % NaN values:\n"
             f"{report_nan_values(data_to_warn_about)}",
             UserWarning,
             stacklevel=2,
