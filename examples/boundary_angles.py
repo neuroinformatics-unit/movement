@@ -125,9 +125,8 @@ habitat_fig.show()
 #    Since ``napari`` does not support drawing polygons with holes, we
 #    draw the outer and inner boundaries as separate polygons and
 #    combine them in code below.
-#
-# Once saved, load the regions in Python:
 
+regions_file = "habitat_regions.geojson"  # replace with the path to your file
 # sphinx_gallery_start_ignore
 import os  # noqa: E402
 import tempfile  # noqa: E402
@@ -155,6 +154,7 @@ core_coords = (ring_extent - ring_width) / 2.0 * unit_shape
 core_coords = np.array([core_coords.real, core_coords.imag]).T + centre
 nest_corners = ((1245, 585), (1245, 475), (1330, 480), (1330, 580))
 
+# overrides above definition to make the example work
 regions_file = os.path.join(tempfile.mkdtemp(), "habitat_regions.geojson")
 save_rois(
     [
@@ -170,6 +170,22 @@ rois = load_rois(regions_file)
 print(f"Loaded {len(rois)} regions: {[r.name for r in rois]}")
 
 # %%
+# .. admonition:: Defining regions programmatically
+#    :class: tip
+#
+#    If your region vertices are already known (e.g. stored in a config file
+#    or derived from experimental metadata), you can create and save RoIs
+#    directly in Python, without using the GUI:
+#
+#    .. code-block:: python
+#
+#       from movement.roi import PolygonOfInterest
+#
+#       rois = [
+#           PolygonOfInterest([(x0, y0), (x1, y1), ...], name="Region A"),
+#           PolygonOfInterest([(x0, y0), (x1, y1), ...], name="Region B"),
+#       ]
+#
 # We now have three
 # :class:`~movement.roi.PolygonOfInterest` objects. Let's assign them
 # to named variables for clarity.
