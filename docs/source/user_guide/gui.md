@@ -8,13 +8,6 @@ visualise 2D [movement datasets](target-poses-and-bboxes-dataset)
 as points, tracks, and rectangular bounding boxes (if defined) overlaid on
 video frames, as well as to define regions of interest (RoIs).
 
-:::{warning}
-The GUI is still in early stages of development but we are working on ironing
-out the [kinks](movement-github:issues?q=sort%3Aupdated-desc+is%3Aissue+state%3Aopen+label%3AGUI+label%3Abug).
-Please [get in touch](target-connect-with-us)
-if you find any bugs or have suggestions for improvements!
-:::
-
 The `napari` plugin is shipped with the `movement` package starting from
 version `0.1.0`.  To use it, you need to
 [install the package](target-installation) with a method that
