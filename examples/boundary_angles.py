@@ -99,8 +99,8 @@ habitat_fig.show()
 #    into the viewer.
 #
 # Then use the :ref:`Define regions of interest <target-define-rois>`
-# menu to create a region layer and draw **three polygons** representing
-# the key sub-regions of the habitat:
+# menu to create a region layer (by clicking the ``Add new layer`` button)
+# and draw **three polygons** representing the key sub-regions of the habitat:
 #
 # 1. The **Ring outer boundary**: trace the outer octadecagonal
 #    (18-sided) edge of the ring that surrounds the central area.
