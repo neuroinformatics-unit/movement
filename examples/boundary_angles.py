@@ -78,21 +78,28 @@ habitat_fig.show()
 # and saving them to a GeoJSON file.
 #
 # .. attention::
-#    The following steps require ``napari`` to be installed. If you
-#    haven't already, install ``movement`` with the optional GUI
-#    dependencies by following the
+#    The following steps require running this example locally (not on
+#    Binder), with ``napari`` installed. If you haven't already, install
+#    ``movement`` with the optional ``napari`` dependencies by following the
 #    :ref:`installation instructions<target-installation>`.
 #
-# First, open the habitat frame in napari:
+# First, open a single video frame (or the entire video) in the ``movement``
+# GUI by running the following code in a Jupyter notebook:
 #
 # .. code-block:: python
 #
 #    import napari
 #    viewer = napari.Viewer()
-#    viewer.open(ds.frame_path)
+#    viewer.window.add_plugin_dock_widget("movement", "movement")
+#    viewer.open(ds.frame_path)  # can also use ds.video_path
+#
+# .. note::
+#    Alternatively, you can type ``movement launch`` in a terminal, wait for
+#    the ``napari`` viewer to open, and drag-and-drop the frame/video file
+#    into the viewer.
 #
 # Then use the :ref:`Define regions of interest <target-define-rois>`
-# widget to create a region layer and draw **three polygons** representing
+# menu to create a region layer and draw **three polygons** representing
 # the key sub-regions of the habitat:
 #
 # 1. The **Ring outer boundary**: trace the outer octadecagonal
