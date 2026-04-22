@@ -40,6 +40,10 @@ _DIM_TO_DF_COL: dict[str, str] = {
     "individuals": "individual",
 }
 
+_VALID_EXTRA_VAR_DIMS: frozenset[str] = frozenset(
+    {"time", "keypoints", "individuals"}
+)
+
 # Conversion factors from each time unit to seconds
 _TIME_UNIT_TO_SECONDS: dict[str, float] = {
     "ns": 1e-9,
@@ -53,7 +57,9 @@ _TIME_UNIT_TO_SECONDS: dict[str, float] = {
 
 @register_loader("aniframe", file_validators=ValidAniframeParquet)
 def from_aniframe_file(
-    file: str | Path, fps: float | None = None
+    file: str | Path,
+    fps: float | None = None,
+    extra_var_dims: str | tuple[str, ...] = (),
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from an aniframe Parquet file.
 
@@ -73,6 +79,17 @@ def from_aniframe_file(
         explicitly provided value takes precedence over the metadata.
         If no fps can be determined and ``unit_time`` is not ``"frame"``,
         the time coordinates will be in frame numbers.
+    extra_var_dims
+        Minimum set of dimensions that every extra data variable must have.
+        Dimensions are automatically inferred from the data; any dimension
+        listed here that is not already in the inferred set will be added.
+        Valid values are ``"time"``, ``"keypoints"``, and ``"individuals"``.
+        A single dimension may be passed as a plain string (e.g.
+        ``"individuals"``) or as a one-element tuple (``("individuals",)``).
+        Defaults to ``()`` (no floor — pure auto-inference).
+        Pass ``"individuals"`` to ensure all extra variables carry the
+        ``individuals`` dimension even in single-individual files, where
+        auto-inference would otherwise collapse it away.
 
     Returns
     -------
@@ -85,9 +102,10 @@ def from_aniframe_file(
     ValueError
         If the file contains polar or spherical coordinate columns
         (``rho``, ``phi``, ``theta``), if any extra identity or temporal
-        column holds more than one unique value, or if the aniframe metadata
+        column holds more than one unique value, if the aniframe metadata
         is missing the required ``variables_what``, ``variables_when``, or
-        ``variables_where`` fields.
+        ``variables_where`` fields, or if ``extra_var_dims`` contains
+        invalid dimension names.
 
     Warns
     -----
@@ -127,6 +145,16 @@ def from_aniframe_file(
     the aniframe metadata (e.g., ``"SLEAP"`` or ``"DeepLabCut"``).
 
     """
+    if isinstance(extra_var_dims, str):
+        extra_var_dims = (extra_var_dims,)
+    if invalid := set(extra_var_dims) - _VALID_EXTRA_VAR_DIMS:
+        raise logger.error(
+            ValueError(
+                f"Invalid dimension(s) in extra_var_dims: {sorted(invalid)}. "
+                f"Valid values are: {sorted(_VALID_EXTRA_VAR_DIMS)}."
+            )
+        )
+
     valid_file = cast("ValidFile", file)
     file_path = valid_file.file
 
@@ -189,6 +217,12 @@ def from_aniframe_file(
         if not dims:
             logger.info(f"Column '{col}' is constant and will be skipped.")
             continue
+        if extra_var_dims:
+            dims = tuple(
+                d
+                for d in ("time", "keypoints", "individuals")
+                if d in dims or d in extra_var_dims
+            )
         extra_vars[col] = (
             dims,
             _build_extra_array(

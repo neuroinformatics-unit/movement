@@ -829,3 +829,66 @@ def test_from_aniframe_file_string_extra_col_added(tmp_path):
     assert "label" in ds
     assert ds["label"].dtype == object
     assert ds["label"].dims == ("time",)
+
+
+# ---------------------------------------------------------------------------
+# extra_var_dims tests
+# ---------------------------------------------------------------------------
+
+
+def test_from_aniframe_file_extra_var_dims_floor_adds_individuals(tmp_path):
+    """extra_var_dims floor ensures individuals dim on single-individual data."""
+    df = _minimal_df(individuals=["a"], keypoints=["nose"], n_frames=3)
+    df["score"] = df["time"].astype(float)  # auto-infers to ("time",)
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.load_aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(),
+    ):
+        ds = from_aniframe_file(path, extra_var_dims=("individuals",))
+
+    assert "score" in ds
+    assert ds["score"].dims == ("time", "individuals")
+    assert ds["score"].shape == (3, 1)
+
+
+def test_from_aniframe_file_extra_var_dims_does_not_affect_constant_cols(
+    tmp_path,
+):
+    """extra_var_dims floor does not resurrect constant (skipped) columns."""
+    df = _minimal_df(individuals=["a"], keypoints=["nose"], n_frames=3)
+    df["fixed"] = 42.0
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.load_aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(),
+    ):
+        ds = from_aniframe_file(path, extra_var_dims=("individuals",))
+
+    assert "fixed" not in ds
+
+
+def test_from_aniframe_file_extra_var_dims_string_accepted(tmp_path):
+    """extra_var_dims accepts a plain string as well as a tuple."""
+    df = _minimal_df(individuals=["a"], keypoints=["nose"], n_frames=3)
+    df["score"] = df["time"].astype(float)
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.load_aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(),
+    ):
+        ds = from_aniframe_file(path, extra_var_dims="individuals")
+
+    assert ds["score"].dims == ("time", "individuals")
+
+
+def test_from_aniframe_file_extra_var_dims_invalid_raises(aniframe_parquet):
+    """from_aniframe_file raises ValueError for invalid extra_var_dims names."""
+    with (
+        patch(
+            "movement.io.load_aniframe._decode_aniframe_metadata",
+            return_value=_mock_meta(),
+        ),
+        pytest.raises(ValueError, match="Invalid dimension"),
+    ):
+        from_aniframe_file(aniframe_parquet, extra_var_dims=("space",))
