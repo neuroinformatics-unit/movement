@@ -57,9 +57,7 @@ def roi_to_napari_shape(
         Shape coordinates as an (N, 2) array in ``(y, x)`` order
         (``napari`` convention), with no repeated closing vertex.
     shape_type : NapariShapeType
-        The ``napari`` shape type string: ``"path"`` for
-        :class:`~movement.roi.LineOfInterest` and ``"polygon"`` for
-        :class:`~movement.roi.PolygonOfInterest`.
+        The ``napari`` shape type string, e.g. ``"path"``, ``"polygon"``.
 
     Notes
     -----
@@ -103,7 +101,9 @@ def roi_to_napari_shape(
             logger.warning(
                 f"LineOfInterest '{roi.name}' is a closed loop, but napari "
                 f"has no closed-path shape type. Converting to 'path'; the "
-                f"closing segment will not be shown in napari."
+                f"closing segment will not be shown in napari. If your "
+                f"intent is an enclosed region, use PolygonOfInterest "
+                f"instead."
             )
 
     # Swap (x, y) → (y, x) to match napari's coordinate convention
@@ -235,7 +235,7 @@ def napari_shape_to_roi(
     if shape_type not in NAPARI_SHAPE_TO_ROI_CLASS:
         raise logger.error(
             ValueError(
-                f"Unrecognized napari shape type '{shape_type}'. "
+                f"Unrecognised napari shape type '{shape_type}'. "
                 f"Expected one of: {list(NAPARI_SHAPE_TO_ROI_CLASS.keys())}."
             )
         )
@@ -248,7 +248,7 @@ def napari_shape_to_roi(
     if shape_type == "ellipse":
         xy = _ellipse_to_polygon(xy)
         logger.info(
-            f"Ellipse {name or ''} will be approximated as a "
+            f"Ellipse{f' {name}' if name else ''} will be approximated as a "
             f"PolygonOfInterest with {xy.shape[0]} vertices."
         )
 
