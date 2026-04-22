@@ -3,7 +3,7 @@
 import pytest
 import shapely
 
-from movement.napari.convert_roi import napari_shapes_to_rois
+from movement.napari.convert_roi import napari_shapes_layer_to_rois
 from movement.napari.regions_widget import REGIONS_LAYER_KEY, RegionsWidget
 from movement.roi.io import load_rois
 
@@ -51,7 +51,7 @@ def test_draw_save_analyse_load(make_napari_viewer_proxy, mocker, tmp_path):
     assert rois[0].name == "arena"
     assert rois[1].name == "boundary"
 
-    original_rois = napari_shapes_to_rois(layer)
+    original_rois = napari_shapes_layer_to_rois(layer)
     for orig, loaded in zip(original_rois, rois, strict=True):
         assert shapely.normalize(orig.region) == shapely.normalize(
             loaded.region
@@ -72,7 +72,7 @@ def test_draw_save_analyse_load(make_napari_viewer_proxy, mocker, tmp_path):
     assert len(loaded_layer.data) == 2
 
     # Verify geometry survives the full roundtrip
-    reloaded_rois = napari_shapes_to_rois(loaded_layer)
+    reloaded_rois = napari_shapes_layer_to_rois(loaded_layer)
     for orig, reloaded in zip(original_rois, reloaded_rois, strict=True):
         assert shapely.normalize(orig.region) == shapely.normalize(
             reloaded.region

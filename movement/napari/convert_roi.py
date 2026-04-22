@@ -137,7 +137,7 @@ def rois_to_napari_shapes(
     See Also
     --------
     roi_to_napari_shape : The underlying per-shape conversion function.
-    napari_shapes_to_rois : The inverse of this function.
+    napari_shapes_layer_to_rois : The inverse of this function.
 
     """
     data, shape_types, names = [], [], []
@@ -216,7 +216,7 @@ def napari_shape_to_roi(
     See Also
     --------
     roi_to_napari_shape : The inverse of this function.
-    napari_shapes_to_rois : Batch conversion of an entire ``napari`` layer.
+    napari_shapes_layer_to_rois : Conversion of an entire ``napari`` layer.
 
     """
     data = np.asarray(data, dtype=float)
@@ -255,7 +255,7 @@ def napari_shape_to_roi(
     return roi_class(xy, name=name or None)
 
 
-def napari_shapes_to_rois(
+def napari_shapes_layer_to_rois(
     layer: Shapes,
 ) -> list[BaseRegionOfInterest]:
     """Convert all shapes in a ``napari`` Shapes layer to ``movement`` RoIs.

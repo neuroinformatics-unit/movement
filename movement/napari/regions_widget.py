@@ -26,7 +26,7 @@ from qtpy.QtWidgets import (
 )
 
 from movement.napari.convert_roi import (
-    napari_shapes_to_rois,
+    napari_shapes_layer_to_rois,
     rois_to_napari_shapes,
 )
 from movement.napari.layer_styles import RegionsStyle, _sample_colormap
@@ -292,7 +292,7 @@ class RegionsWidget(QWidget):
             return
 
         try:
-            rois = napari_shapes_to_rois(layer)
+            rois = napari_shapes_layer_to_rois(layer)
             save_rois(rois, file_path)
             logger.info(f"Saved {len(rois)} regions to '{file_path}'.")
         except Exception as e:

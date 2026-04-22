@@ -7,7 +7,7 @@ from napari.layers import Shapes
 
 from movement.napari.convert_roi import (
     napari_shape_to_roi,
-    napari_shapes_to_rois,
+    napari_shapes_layer_to_rois,
     roi_to_napari_shape,
     rois_to_napari_shapes,
 )
@@ -284,7 +284,7 @@ def test_napari_shape_to_roi_ellipse_approximation(ellipse_yx):
         pytest.param(
             np.array([[0.0, 1.0], [2.0, 3.0]]),
             "circle",  # type: ignore[arg-type]
-            "Unrecognized napari shape type",
+            "Unrecognised napari shape type",
             id="unknown shape_type raises ValueError",
         ),
     ],
@@ -296,7 +296,7 @@ def test_napari_shape_to_roi_invalid_input(data, shape_type, match):
 
 
 # ===========================================================================
-# napari_shapes_to_rois
+# napari_shapes_layer_to_rois
 # ===========================================================================
 
 
@@ -312,13 +312,13 @@ def test_napari_shape_to_roi_invalid_input(data, shape_type, match):
         ),
     ],
 )
-def test_napari_shapes_to_rois_output(
+def test_napari_shapes_layer_to_rois_output(
     data_fixtures, shape_types, expected_roi_types, request
 ):
     """Returns one RoI per shape with the correct type, in order."""
     data = [request.getfixturevalue(f) for f in data_fixtures]
     layer = Shapes(data, shape_type=shape_types)
-    rois = napari_shapes_to_rois(layer)
+    rois = napari_shapes_layer_to_rois(layer)
     assert len(rois) == len(expected_roi_types)
     for roi, expected_type in zip(rois, expected_roi_types, strict=True):
         assert isinstance(roi, expected_type)
@@ -344,7 +344,7 @@ def test_napari_shapes_to_rois_output(
         ),
     ],
 )
-def test_napari_shapes_to_rois_names(
+def test_napari_shapes_layer_to_rois_names(
     square_yx, path_yx, properties, expected_names
 ):
     """Names are read from layer properties.
@@ -355,7 +355,7 @@ def test_napari_shapes_to_rois_names(
         shape_type=["polygon", "path"],
         properties=properties,
     )
-    rois = napari_shapes_to_rois(layer)
+    rois = napari_shapes_layer_to_rois(layer)
     assert [roi.name for roi in rois] == expected_names
 
 
@@ -416,7 +416,7 @@ def test_roundtrip_rois_to_shapes_layer_to_rois(
     """Converting RoIs to a layer and back preserves geometry and names."""
     rois = [segment_of_y_equals_x, unit_square, triangle]
     layer = Shapes(**rois_to_napari_shapes(rois))
-    rois2 = napari_shapes_to_rois(layer)
+    rois2 = napari_shapes_layer_to_rois(layer)
     assert len(rois2) == len(rois)
     for roi, roi2 in zip(rois, rois2, strict=True):
         assert shapely.normalize(roi.region) == shapely.normalize(roi2.region)
