@@ -212,7 +212,7 @@ class RegionsWidget(QWidget):
         if not layer_name or layer_name == DROPDOWN_PLACEHOLDER:
             self._clear_region_table_model()
             self.viewer.layers.selection.clear()
-            self._update_table_tooltip()
+            self._update_table_tooltip_and_save_button()
             return
 
         region_layer = self._get_region_layers().get(layer_name)
@@ -366,10 +366,12 @@ class RegionsWidget(QWidget):
         # Connect to layer name changes
         region_layer.events.name.connect(self._on_layer_renamed)
         # Connect model reset signal to tooltip updater
-        self.region_table_model.modelReset.connect(self._update_table_tooltip)
+        self.region_table_model.modelReset.connect(
+            self._update_table_tooltip_and_save_button
+        )
 
         # Update the tooltip based on the new model state
-        self._update_table_tooltip()
+        self._update_table_tooltip_and_save_button()
 
     def _auto_assign_region_names(self, region_layer: Shapes) -> None:
         """Auto-assign names to regions if the layer has shapes without names.
@@ -422,7 +424,7 @@ class RegionsWidget(QWidget):
                 )
             # Always disconnect model/viewer events (don't depend on layer)
             self.region_table_model.modelReset.disconnect(
-                self._update_table_tooltip
+                self._update_table_tooltip_and_save_button
             )
             self.viewer.layers.events.removed.disconnect(
                 self.region_table_model._on_layer_deleted
@@ -442,10 +444,10 @@ class RegionsWidget(QWidget):
         )
         self.save_layer_button.setEnabled(has_shapes)
 
-    def _update_table_tooltip(self):
-        """Update the table tooltip based on current state.
+    def _update_table_tooltip_and_save_button(self):
+        """Update save button and set table tooltip based on current state.
 
-        Shows contextual hints:
+        Shows contextual tooltip hints for the following scenarios:
 
         - How to create region layers when none exist
         - How to draw shapes when layer is empty
