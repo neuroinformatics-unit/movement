@@ -27,8 +27,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=2a6fe4dd" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
@@ -39,12 +39,12 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=9c7e0bd5"></script>
+    <script src="../_static/documentation_options.js?v=57f79b18"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
@@ -54,7 +54,7 @@
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/boundary_angles';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -88,7 +88,9 @@
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -144,7 +146,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev13</p>
+    <p class="title logo__title">movement v0.15.1.dev14</p>
   
 </a></div>
     
@@ -534,7 +536,7 @@ University of Cambridge.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity" title="movement.kinematics.compute_velocity" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_velocity</span></a>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.plots</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory" class="sphx-glr-backref-module-movement-plots sphx-glr-backref-type-py-function"><span class="n">plot_centroid_trajectory</span></a>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class"><span class="n">PolygonOfInterest</span></a>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class"><span class="n">PolygonOfInterest</span></a><span class="p">,</span> <a href="../api/movement.roi.load_rois.html#movement.roi.load_rois" title="movement.roi.load_rois" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-function"><span class="n">load_rois</span></a>
 </pre></div>
 </div>
 </section>
@@ -573,70 +575,107 @@ of interest (RoIs) provided by <code class="docutils literal notranslate"><span 
 </section>
 <section id="define-regions-of-interest">
 <h2>Define regions of interest<a class="headerlink" href="#define-regions-of-interest" title="Link to this heading">#</a></h2>
-<p>In order to ask questions about the behaviour of our individuals with respect
-to the habitat, we first need to define the RoIs to represent the separate
-pieces of the habitat programmatically. Since each part of the habitat is
-two-dimensional, we will use <a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">movement.roi.PolygonOfInterest</span></code></a>
-to describe each of them.</p>
-<p>In the future, the
-<a class="reference internal" href="../user_guide/gui.html"><span class="doc">movement plugin for napari</span></a>
-will support creating regions of interest by clicking points and drawing
-shapes in the napari GUI. For the time being, we can still define our RoIs
-by specifying the points that make up the interior and exterior boundaries.
-So first, let’s define the boundary vertices of our various regions.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The centre of the habitat is located roughly here</span>
-<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centre</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="numpy.array" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">([</span><span class="mf">712.5</span><span class="p">,</span> <span class="mi">541</span><span class="p">])</span>
-<span class="c1"># The &quot;width&quot; (distance between the inner and outer octadecagonal rings) is 40</span>
-<span class="c1"># pixels wide</span>
-<a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_width</span></a> <span class="o">=</span> <span class="mf">40.0</span>
-<span class="c1"># The distance between opposite vertices of the outer ring is 1090 pixels</span>
-<a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_extent</span></a> <span class="o">=</span> <span class="mf">1090.0</span>
+<p>In order to ask questions about the behaviour of our individuals with
+respect to the habitat, we first need to define the RoIs to represent
+the distinct components of the habitat. We can do this interactively by
+drawing regions in the <a class="reference internal" href="../user_guide/gui.html#target-gui"><span class="std std-ref">movement GUI</span></a>
+and saving them to a GeoJSON file.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The following steps require running this example locally (not on
+Binder), with <code class="docutils literal notranslate"><span class="pre">napari</span></code> installed. If you haven’t already, install
+<code class="docutils literal notranslate"><span class="pre">movement</span></code> with the optional <code class="docutils literal notranslate"><span class="pre">napari</span></code> dependencies by following the
+<a class="reference internal" href="../user_guide/installation.html#target-installation"><span class="std std-ref">installation instructions</span></a>.</p>
+</div>
+<p>First, open a single video frame (or the entire video) in the <code class="docutils literal notranslate"><span class="pre">movement</span></code>
+GUI by running the following code in a Jupyter notebook:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">napari</span>
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">napari</span><span class="o">.</span><span class="n">Viewer</span><span class="p">()</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">add_plugin_dock_widget</span><span class="p">(</span><span class="s2">&quot;movement&quot;</span><span class="p">,</span> <span class="s2">&quot;movement&quot;</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">frame_path</span></a><span class="p">)</span>  <span class="c1"># can also use ds.video_path</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Alternatively, you can type <code class="docutils literal notranslate"><span class="pre">movement</span> <span class="pre">launch</span></code> in a terminal, wait for
+the <code class="docutils literal notranslate"><span class="pre">napari</span></code> viewer to open, and drag-and-drop the frame/video file
+into the viewer.</p>
+</div>
+<p>Then use the <a class="reference internal" href="../user_guide/gui.html#target-define-rois"><span class="std std-ref">Define regions of interest</span></a>
+menu to create a region layer (by clicking the <code class="docutils literal notranslate"><span class="pre">Add</span> <span class="pre">new</span> <span class="pre">layer</span></code> button)
+and draw <strong>three polygons</strong> representing the key sub-regions of the habitat:</p>
+<ol class="arabic simple">
+<li><p>The <strong>Ring outer boundary</strong>: trace the outer octadecagonal
+(18-sided) edge of the ring that surrounds the central area.</p></li>
+<li><p>The <strong>Central region</strong>: trace the inner octadecagonal boundary
+enclosing the bright open area.</p></li>
+<li><p>The <strong>Nest region</strong>: draw a rectangle around the cuboidal structure on
+the right-hand side.</p></li>
+</ol>
+<figure class="align-default" id="id1">
+<a class="reference internal image-reference" href="../_images/napari_aeon_regions.png"><img alt="../_images/napari_aeon_regions.png" src="../_images/napari_aeon_regions.png" width="800" />
+</a>
+<figcaption>
+<p><span class="caption-text">Three polygons drawn over the Aeon habitat. Note that we’ve assigned
+custom colours to each polygon to make them easier to distinguish,
+but this is not necessary.</span><a class="headerlink" href="#id1" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<p>Name each polygon as shown above, then click <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">layer</span></code>
+to export them to a GeoJSON file
+(e.g. <code class="docutils literal notranslate"><span class="pre">habitat_regions.geojson</span></code>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The ring is really a polygon with a hole (the central region).
+Since <code class="docutils literal notranslate"><span class="pre">napari</span></code> does not support drawing polygons with holes, we
+draw the outer and inner boundaries as separate polygons and
+combine them in code below.</p>
+</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">regions_file</span></a> <span class="o">=</span> <span class="s2">&quot;habitat_regions.geojson&quot;</span>  <span class="c1"># replace with the path to your file</span>
 
-<span class="c1"># Create the vertices of a &quot;unit&quot; octadecagon, centred on (0,0)</span>
-<a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_pts</span></a> <span class="o">=</span> <span class="mi">18</span>
-<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">unit_shape</span></a> <span class="o">=</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="numpy.array" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">(</span>
-    <span class="p">[</span>
-        <a href="https://numpy.org/doc/stable/reference/generated/numpy.ufunc.html#numpy.ufunc" title="numpy.ufunc" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">exp</span></a><span class="p">((</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">pi</span></a> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">+</span> <span class="p">(</span><span class="mf">2.0</span> <span class="o">*</span> <span class="n">i</span> <span class="o">*</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">np</span><span class="o">.</span><span class="n">pi</span></a><span class="p">)</span> <span class="o">/</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_pts</span></a><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span><span class="n">j</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">n_pts</span></a><span class="p">)</span>
-    <span class="p">],</span>
-    <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="c1"># Then stretch and translate the reference to match the habitat</span>
-<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_outer_boundary</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_extent</span></a> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">*</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">unit_shape</span></a><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_outer_boundary</span></a> <span class="o">=</span> <span class="p">(</span>
-    <a href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="numpy.array" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">([</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_outer_boundary</span><span class="o">.</span><span class="n">real</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_outer_boundary</span><span class="o">.</span><span class="n">imag</span></a><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
-    <span class="o">+</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centre</span></a>
-<span class="p">)</span>
-<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">core_boundary</span></a> <span class="o">=</span> <span class="p">(</span><a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_extent</span></a> <span class="o">-</span> <a href="https://docs.python.org/3/library/functions.html#float" title="builtins.float" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_width</span></a><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">*</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">unit_shape</span></a><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">core_boundary</span></a> <span class="o">=</span> <span class="p">(</span>
-    <a href="https://numpy.org/doc/stable/reference/generated/numpy.array.html#numpy.array" title="numpy.array" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-function"><span class="n">np</span><span class="o">.</span><span class="n">array</span></a><span class="p">([</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">core_boundary</span><span class="o">.</span><span class="n">real</span></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">core_boundary</span><span class="o">.</span><span class="n">imag</span></a><span class="p">])</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span> <span class="o">+</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centre</span></a>
-<span class="p">)</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rois</span></a> <span class="o">=</span> <a href="../api/movement.roi.load_rois.html#movement.roi.load_rois" title="movement.roi.load_rois" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-function"><span class="n">load_rois</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">regions_file</span></a><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rois</span></a><span class="p">)</span><span class="si">}</span><span class="s2"> regions: </span><span class="si">{</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">r</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rois</span></a><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Loaded 3 regions: [&#39;Ring outer boundary&#39;, &#39;Central region&#39;, &#39;Nest region&#39;]
+</pre></div>
+</div>
+<div class="tip admonition">
+<p class="admonition-title">Defining regions programmatically</p>
+<p>If your region vertices are already known (e.g. stored in a config file
+or derived from experimental metadata), you can create and save RoIs
+directly in Python, without using the GUI:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class"><span class="n">PolygonOfInterest</span></a>
 
-<a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nest_corners</span></a> <span class="o">=</span> <span class="p">((</span><span class="mi">1245</span><span class="p">,</span> <span class="mi">585</span><span class="p">),</span> <span class="p">(</span><span class="mi">1245</span><span class="p">,</span> <span class="mi">475</span><span class="p">),</span> <span class="p">(</span><span class="mi">1330</span><span class="p">,</span> <span class="mi">480</span><span class="p">),</span> <span class="p">(</span><span class="mi">1330</span><span class="p">,</span> <span class="mi">580</span><span class="p">))</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rois</span></a> <span class="o">=</span> <span class="p">[</span>
+    <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class"><span class="n">PolygonOfInterest</span></a><span class="p">([(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">),</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span> <span class="o">...</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Region A&quot;</span><span class="p">),</span>
+    <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class"><span class="n">PolygonOfInterest</span></a><span class="p">([(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">),</span> <span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">),</span> <span class="o">...</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Region B&quot;</span><span class="p">),</span>
+<span class="p">]</span>
 </pre></div>
 </div>
-<p>Our central region is a solid shape without any interior holes.
-To create the appropriate RoI, we just pass the coordinates in either
-clockwise or counter-clockwise order.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">central_region</span></a> <span class="o">=</span> <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class"><span class="n">PolygonOfInterest</span></a><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">core_boundary</span></a><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Central region&quot;</span><span class="p">)</span>
+</div>
+<p>We now have three
+<a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a> objects. Let’s assign them
+to named variables for clarity.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_outer</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rois</span></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">central_region</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rois</span></a><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nest_region</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rois</span></a><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>Likewise, the nest is also just a solid shape without any holes.
-Note that we are only registering the “floor” of the nest here.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nest_region</span></a> <span class="o">=</span> <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class"><span class="n">PolygonOfInterest</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#tuple" title="builtins.tuple" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nest_corners</span></a><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Nest region&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>To create an RoI representing the ring region, we need to provide an interior
-boundary so that <code class="docutils literal notranslate"><span class="pre">movement</span></code> knows our ring region has a “hole”.
-<a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a>
-can actually support multiple (non-overlapping) holes, which is why the
-<code class="docutils literal notranslate"><span class="pre">holes</span></code> argument takes a <code class="docutils literal notranslate"><span class="pre">list</span></code>.</p>
+<p>To represent the ring (with the central region as a hole), we
+create a new <a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a> using the
+outer boundary’s coordinates and the central region as an interior
+boundary. The <code class="docutils literal notranslate"><span class="pre">holes</span></code> argument accepts a <code class="docutils literal notranslate"><span class="pre">list</span></code> because a polygon
+can have multiple non-overlapping holes.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_region</span></a> <span class="o">=</span> <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class"><span class="n">PolygonOfInterest</span></a><span class="p">(</span>
-    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_outer_boundary</span></a><span class="p">,</span> <span class="n">holes</span><span class="o">=</span><span class="p">[</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">core_boundary</span></a><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Ring region&quot;</span>
+    <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest.coords" title="movement.roi.PolygonOfInterest.coords" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-property"><span class="n">ring_outer</span><span class="o">.</span><span class="n">coords</span></a><span class="p">,</span>
+    <span class="n">holes</span><span class="o">=</span><span class="p">[</span><a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest.coords" title="movement.roi.PolygonOfInterest.coords" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-property"><span class="n">central_region</span><span class="o">.</span><span class="n">coords</span></a><span class="p">],</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Ring region&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="c1"># Overlay an image of the habitat</span>
+</pre></div>
+</div>
+<p>Let’s visualise our three analysis regions overlaid on the habitat.</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.imshow.html#matplotlib.axes.Axes.imshow" title="matplotlib.axes.Axes.imshow" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">habitat_ax</span><span class="o">.</span><span class="n">imshow</span></a><span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.imread.html#matplotlib.pyplot.imread" title="matplotlib.pyplot.imread" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">imread</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_image</span></a><span class="p">))</span>
 
 <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest.plot" title="movement.roi.PolygonOfInterest.plot" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-method"><span class="n">central_region</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">habitat_ax</span></a><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;lightblue&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span>
@@ -646,21 +685,7 @@ can actually support multiple (non-overlapping) holes, which is why the
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.show.html#matplotlib.figure.Figure.show" title="matplotlib.figure.Figure.show" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">habitat_fig</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_boundary_angles_002.png" srcset="../_images/sphx_glr_boundary_angles_002.png" alt="boundary angles" class = "sphx-glr-single-img"/><div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Once you have defined your RoIs, you can save them to a GeoJSON file
-using <a class="reference internal" href="../api/movement.roi.save_rois.html#movement.roi.save_rois" title="movement.roi.save_rois"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_rois()</span></code></a> and load them back
-later with <a class="reference internal" href="../api/movement.roi.load_rois.html#movement.roi.load_rois" title="movement.roi.load_rois"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_rois()</span></code></a>. This is useful
-for sharing RoI definitions with collaborators or reusing them across
-multiple analysis scripts.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_rois</span><span class="p">,</span> <span class="n">load_rois</span>
-
-<span class="n">save_rois</span><span class="p">([</span><a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">central_region</span></a><span class="p">,</span> <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">nest_region</span></a><span class="p">,</span> <a href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest" class="sphx-glr-backref-module-movement-roi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ring_region</span></a><span class="p">],</span> <span class="s2">&quot;rois.geojson&quot;</span><span class="p">)</span>
-<span class="n">loaded_rois</span> <span class="o">=</span> <span class="n">load_rois</span><span class="p">(</span><span class="s2">&quot;rois.geojson&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</section>
+<img src="../_images/sphx_glr_boundary_angles_002.png" srcset="../_images/sphx_glr_boundary_angles_002.png" alt="boundary angles" class = "sphx-glr-single-img"/></section>
 <section id="view-individual-paths-inside-the-habitat">
 <h2>View individual paths inside the habitat<a class="headerlink" href="#view-individual-paths-inside-the-habitat" title="Link to this heading">#</a></h2>
 <p>We can now overlay the paths that the individuals followed on top of our
@@ -953,7 +978,7 @@ their forward vectors rapidly change.</p></li>
 the egocentric angles of all the individuals, reflecting the individuals’
 attempts to avoid colliding with (and to make space to move passed) each
 other.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.363 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.342 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-boundary-angles-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/boundary_angles.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
@@ -1055,8 +1080,8 @@ other.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1070,7 +1095,7 @@ other.</p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.17.0.
+    0.17.1.
     </p></div>
       
     </div>

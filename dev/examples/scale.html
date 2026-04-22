@@ -27,8 +27,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=2a6fe4dd" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
@@ -39,19 +39,19 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=9c7e0bd5"></script>
+    <script src="../_static/documentation_options.js?v=57f79b18"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/scale';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -85,7 +85,9 @@
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -141,7 +143,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev13</p>
+    <p class="title logo__title">movement v0.15.1.dev14</p>
   
 </a></div>
     
@@ -770,21 +772,24 @@ distance in the video using the <code class="docutils literal notranslate"><span
 <h2>Measure a known distance from video footage<a class="headerlink" href="#measure-a-known-distance-from-video-footage" title="Link to this heading">#</a></h2>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
-<p>The following steps require <code class="docutils literal notranslate"><span class="pre">napari</span></code> to be installed. If you haven’t
-already, install <code class="docutils literal notranslate"><span class="pre">movement</span></code> with the optional GUI dependencies by
-following the <a class="reference internal" href="../user_guide/installation.html#target-installation"><span class="std std-ref">installation instructions</span></a>.</p>
+<p>The following steps require running this example locally (not on
+Binder), with <code class="docutils literal notranslate"><span class="pre">napari</span></code> installed. If you haven’t already, install
+<code class="docutils literal notranslate"><span class="pre">movement</span></code> with the optional <code class="docutils literal notranslate"><span class="pre">napari</span></code> dependencies by following the
+<a class="reference internal" href="../user_guide/installation.html#target-installation"><span class="std std-ref">installation instructions</span></a>.</p>
 </div>
-<p>First, open the video file in napari:</p>
+<p>First, open the video file (or a single video frame) in <code class="docutils literal notranslate"><span class="pre">napari</span></code> by running
+the following code in a Jupyter notebook:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">napari</span>
 <span class="n">viewer</span> <span class="o">=</span> <span class="n">napari</span><span class="o">.</span><span class="n">Viewer</span><span class="p">()</span>
-<span class="n">viewer</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="o">.</span><span class="n">video_path</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="o">.</span><span class="n">video_path</span><span class="p">)</span>  <span class="c1"># can also use ds_mouse.frame_path</span>
 </pre></div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You can also load a single frame image instead of the full video.</p>
+<p>Alternatively, you can type <code class="docutils literal notranslate"><span class="pre">napari</span></code> in a terminal, wait for the
+viewer to open, and drag-and-drop the video/frame file into the viewer.</p>
 </div>
-<p>Next, measure a known distance in the napari viewer:</p>
+<p>Next, measure a known distance in the <code class="docutils literal notranslate"><span class="pre">napari</span></code> viewer:</p>
 <ol class="arabic simple">
 <li><p>Add a new shapes layer by clicking ‘New shapes layer’ in the layer list.</p></li>
 <li><p>Select the ‘Add lines’ tool (shortcut: L) from the layer controls.</p></li>
@@ -800,7 +805,7 @@ corresponds to the line length in pixels, and the area will always be 0.</p>
 <a class="reference internal image-reference" href="../_images/napari_scale_measure.png"><img alt="../_images/napari_scale_measure.png" src="../_images/napari_scale_measure.png" width="600" />
 </a>
 <ol class="arabic simple" start="5">
-<li><p>Close the napari viewer.</p></li>
+<li><p>Close the <code class="docutils literal notranslate"><span class="pre">napari</span></code> viewer.</p></li>
 </ol>
 <p>We can then retrieve the measured distance and line coordinates from the
 shapes layer.</p>
@@ -927,21 +932,21 @@ Log:
 [
   {
     &quot;operation&quot;: &quot;filter_by_confidence&quot;,
-    &quot;datetime&quot;: &quot;2026-04-20 11:12:07.814610&quot;,
+    &quot;datetime&quot;: &quot;2026-04-22 19:01:26.878039&quot;,
     &quot;confidence&quot;: &quot;&lt;xarray.DataArray &#39;confidence&#39; (time: 418, keypoints: 43)&gt; Size: 144kB\n0.02365 0.01434 0.01821 0.02692 0.05129 ... 0.004628 0.007376 0.003921 0.005941\nCoordinates:\n  * time         (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688\n  * keypoints    (keypoints) &lt;U15 3kB &#39;Nose&#39; &#39;EarL&#39; ... &#39;HindpawKneeL&#39;\n    individuals  &lt;U12 48B &#39;individual_0&#39;&quot;,
     &quot;threshold&quot;: &quot;0.9&quot;,
     &quot;print_report&quot;: &quot;False&quot;
   },
   {
     &quot;operation&quot;: &quot;interpolate_over_time&quot;,
-    &quot;datetime&quot;: &quot;2026-04-20 11:12:07.829372&quot;,
+    &quot;datetime&quot;: &quot;2026-04-22 19:01:26.892175&quot;,
     &quot;method&quot;: &quot;&#39;linear&#39;&quot;,
     &quot;max_gap&quot;: &quot;40&quot;,
     &quot;print_report&quot;: &quot;False&quot;
   },
   {
     &quot;operation&quot;: &quot;rolling_filter&quot;,
-    &quot;datetime&quot;: &quot;2026-04-20 11:12:07.832885&quot;,
+    &quot;datetime&quot;: &quot;2026-04-22 19:01:26.895487&quot;,
     &quot;window&quot;: &quot;6&quot;,
     &quot;statistic&quot;: &quot;&#39;median&#39;&quot;,
     &quot;min_periods&quot;: &quot;2&quot;,
@@ -949,7 +954,7 @@ Log:
   },
   {
     &quot;operation&quot;: &quot;scale&quot;,
-    &quot;datetime&quot;: &quot;2026-04-20 11:12:08.127163&quot;,
+    &quot;datetime&quot;: &quot;2026-04-22 19:01:27.185490&quot;,
     &quot;factor&quot;: &quot;np.float64(0.03440766330229682)&quot;,
     &quot;space_unit&quot;: &quot;&#39;cm&#39;&quot;
   }
@@ -1144,7 +1149,7 @@ this difference grows more than tenfold, reflecting the gait adjustments
 the mouse makes to accommodate the speed differential between belts.</p>
 <p>Having the data in real-world units makes these quantitative comparisons
 possible.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.883 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.822 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-scale-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/scale.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
@@ -1246,8 +1251,8 @@ possible.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1261,7 +1266,7 @@ possible.</p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.17.0.
+    0.17.1.
     </p></div>
       
     </div>

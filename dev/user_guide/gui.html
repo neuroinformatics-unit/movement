@@ -27,8 +27,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=7f76b32a3354e82990f2" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=2a6fe4dd" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
@@ -39,19 +39,19 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=9c7e0bd5"></script>
+    <script src="../_static/documentation_options.js?v=57f79b18"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/gui';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.17.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -85,7 +85,9 @@
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -141,7 +143,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev13</p>
+    <p class="title logo__title">movement v0.15.1.dev14</p>
   
 </a></div>
     
@@ -498,13 +500,6 @@ motion tracks. Currently, you can use it to
 visualise 2D <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a>
 as points, tracks, and rectangular bounding boxes (if defined) overlaid on
 video frames, as well as to define regions of interest (RoIs).</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The GUI is still in early stages of development but we are working on ironing
-out the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/issues">kinks</a>.
-Please <a class="reference internal" href="../community/index.html#target-connect-with-us"><span class="std std-ref">get in touch</span></a>
-if you find any bugs or have suggestions for improvements!</p>
-</div>
 <p>The <code class="docutils literal notranslate"><span class="pre">napari</span></code> plugin is shipped with the <code class="docutils literal notranslate"><span class="pre">movement</span></code> package starting from
 version <code class="docutils literal notranslate"><span class="pre">0.1.0</span></code>.  To use it, you need to
 <a class="reference internal" href="installation.html#target-installation"><span class="std std-ref">install the package</span></a> with a method that
@@ -747,9 +742,9 @@ an internal napari track ID, rather than the individual or the keypoint ID. This
 </section>
 </section>
 <section id="define-regions-of-interest">
-<h2>Define regions of interest<a class="headerlink" href="#define-regions-of-interest" title="Link to this heading">#</a></h2>
+<span id="target-define-rois"></span><h2>Define regions of interest<a class="headerlink" href="#define-regions-of-interest" title="Link to this heading">#</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">Define</span> <span class="pre">regions</span> <span class="pre">of</span> <span class="pre">interest</span></code> menu allows you to draw shapes on the
-viewer and use them as regions of interest (RoIs) for analysis.</p>
+viewer and use them as <code class="docutils literal notranslate"><span class="pre">movement</span></code> <a class="reference internal" href="../api/movement.roi.html#module-movement.roi" title="movement.roi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">RoIs</span></code></a> for analysis.</p>
 <p>Each shape you draw represents a static region
 that remains fixed across all frames.</p>
 <div class="note admonition">
@@ -759,8 +754,10 @@ that remains fixed across all frames.</p>
 (e.g. a polygon or a line). Shapes are grouped together in
 <code class="docutils literal notranslate"><span class="pre">napari</span></code> <a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">shapes layers</a>.</p>
 </dd>
-<dt><strong>Region</strong></dt><dd><p>A named <code class="docutils literal notranslate"><span class="pre">napari</span></code> shape that <code class="docutils literal notranslate"><span class="pre">movement</span></code> recognises as a
-region of interest (RoI) for analysis.</p>
+<dt><strong>Region</strong></dt><dd><p>A named <code class="docutils literal notranslate"><span class="pre">napari</span></code> shape that <code class="docutils literal notranslate"><span class="pre">movement</span></code> recognises as a</p>
+</dd>
+<dd><p>A named <code class="docutils literal notranslate"><span class="pre">napari</span></code> shape that <code class="docutils literal notranslate"><span class="pre">movement</span></code> recognises as an
+<a class="reference internal" href="../api/movement.roi.html#module-movement.roi" title="movement.roi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">RoI</span></code></a> for analysis.</p>
 </dd>
 <dt><strong>Region layer</strong></dt><dd><p>A <code class="docutils literal notranslate"><span class="pre">napari</span></code> <a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">shapes layers</a> managed
 by <code class="docutils literal notranslate"><span class="pre">movement</span></code>, whose shapes are treated as <strong>regions</strong>.</p>
@@ -798,6 +795,7 @@ for example:</p>
 </ul>
 <p>Tools are also provided for selecting, moving, transforming,
 and deleting shapes, as well as for editing their vertices.
+Hover over any tool button to see a tooltip describing what it does.
 You can also copy-paste shapes within a layer.
 See the <a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">napari shapes layer guide</a> for
 details on the drawing tools and how to use them.</p>
@@ -830,13 +828,94 @@ colour.</p>
 </section>
 <section id="save-and-load-regions">
 <h3>Save and load regions<a class="headerlink" href="#save-and-load-regions" title="Link to this heading">#</a></h3>
-<p>Save and load functionality for region layers is coming soon.
-You will be able to save a region layer to a GeoJSON file,
-and load it back later or share it with others. This will also allow you
-to import drawn regions into your Python code using the
+<p>You can save a region layer to a <a class="reference external" href="https://geojson.org/">GeoJSON</a> file
+and load it back later—or share it with collaborators. This also lets you
+import drawn regions into your Python code using the
 <a class="reference internal" href="../api/movement.roi.load_rois.html#movement.roi.load_rois" title="movement.roi.load_rois"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_rois()</span></code></a> function.</p>
-<p><strong>Stay tuned!</strong></p>
-</section>
+<p>To save a region layer:</p>
+<ol class="arabic simple">
+<li><p>Select a non-empty region layer you want to save,
+via the dropdown or the layer list.</p></li>
+<li><p>Click <code class="docutils literal notranslate"><span class="pre">Save</span> <span class="pre">layer</span></code> and choose a destination file ending in a
+<code class="docutils literal notranslate"><span class="pre">.geojson</span></code> (or <code class="docutils literal notranslate"><span class="pre">.json</span></code>) extension.
+All regions in the layer are written to the chosen file.</p></li>
+</ol>
+<p>To load a region layer:</p>
+<ol class="arabic simple">
+<li><p>Click <code class="docutils literal notranslate"><span class="pre">Load</span> <span class="pre">layer</span></code> and select a GeoJSON file previously saved with
+the <code class="docutils literal notranslate"><span class="pre">movement</span></code> GUI (or any file produced by <a class="reference internal" href="../api/movement.roi.save_rois.html#movement.roi.save_rois" title="movement.roi.save_rois"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_rois()</span></code></a>).</p></li>
+<li><p>A new region layer is created and automatically selected in the dropdown,
+with its regions shown in the table.</p></li>
+</ol>
+<p>When regions are saved and reloaded, the underlying geometry is preserved
+but the exact <code class="docutils literal notranslate"><span class="pre">napari</span></code> shape type may change (e.g. a <code class="docutils literal notranslate"><span class="pre">rectangle</span></code> reloads
+as a <code class="docutils literal notranslate"><span class="pre">polygon</span></code>). Expand the dropdown below for details.</p>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header sd-bg-info sd-bg-text-info">
+<span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-info" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg></span><span class="sd-summary-text">Using saved regions in Python</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Once you have saved a region layer to a GeoJSON file, you can load it
+in Python with <a class="reference internal" href="../api/movement.roi.load_rois.html#movement.roi.load_rois" title="movement.roi.load_rois"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_rois()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_rois</span>
+
+<span class="n">rois</span> <span class="o">=</span> <span class="n">load_rois</span><span class="p">(</span><span class="s2">&quot;path/to/regions.geojson&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sd-card-text">This returns a list of <a class="reference internal" href="../api/movement.roi.LineOfInterest.html#movement.roi.LineOfInterest" title="movement.roi.LineOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">LineOfInterest</span></code></a> and/or
+<a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a> objects, depending on the
+shapes that were saved. The mapping between <code class="docutils literal notranslate"><span class="pre">napari</span></code> shape types and
+<code class="docutils literal notranslate"><span class="pre">movement</span></code> RoI classes is as follows:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p class="sd-card-text">drawn napari shape</p></th>
+<th class="head"><p class="sd-card-text">movement RoI</p></th>
+<th class="head"><p class="sd-card-text">reloaded napari shape</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">line</span></code></p></td>
+<td><p class="sd-card-text"><a class="reference internal" href="../api/movement.roi.LineOfInterest.html#movement.roi.LineOfInterest" title="movement.roi.LineOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">LineOfInterest</span></code></a></p></td>
+<td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">path</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">path</span></code></p></td>
+<td><p class="sd-card-text"><a class="reference internal" href="../api/movement.roi.LineOfInterest.html#movement.roi.LineOfInterest" title="movement.roi.LineOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">LineOfInterest</span></code></a></p></td>
+<td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">path</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">polygon</span></code></p></td>
+<td><p class="sd-card-text"><a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a></p></td>
+<td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">polygon</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">rectangle</span></code></p></td>
+<td><p class="sd-card-text"><a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a></p></td>
+<td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">polygon</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">ellipse</span></code></p></td>
+<td><p class="sd-card-text"><a class="reference internal" href="../api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a>*</p></td>
+<td><p class="sd-card-text"><code class="docutils literal notranslate"><span class="pre">polygon</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="sd-card-text">*Ellipses have no native GeoJSON representation and are approximated
+as polygons. The approximation is accurate enough for most practical
+purposes, but we encourage you to inspect the reloaded shape to ensure
+it meets your needs. For more details on the shape-RoI conversion process,
+refer to the <a class="reference internal" href="../api/movement.napari.convert_roi.html#module-movement.napari.convert_roi" title="movement.napari.convert_roi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.napari.convert_roi</span></code></a> module documentation.</p>
+<p class="sd-card-text">You can use the loaded RoI objects for analysis, for example:</p>
+<ul class="simple">
+<li><p class="sd-card-text">Pass a list of polygon regions to
+<a class="reference internal" href="../api/movement.roi.compute_region_occupancy.html#movement.roi.compute_region_occupancy" title="movement.roi.compute_region_occupancy"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_region_occupancy()</span></code></a>.</p></li>
+<li><p class="sd-card-text">Call methods such as
+<a class="reference internal" href="../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.contains_point" title="movement.roi.BaseRegionOfInterest.contains_point"><code class="xref py py-meth docutils literal notranslate"><span class="pre">contains_point()</span></code></a> or
+<a class="reference internal" href="../api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.compute_distance_to" title="movement.roi.BaseRegionOfInterest.compute_distance_to"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute_distance_to()</span></code></a>
+on individual RoIs.</p></li>
+</ul>
+<p class="sd-card-text">See the <a class="reference internal" href="../api/movement.roi.html#module-movement.roi" title="movement.roi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.roi</span></code></a> API reference for the full list of
+available methods, and
+<a class="reference internal" href="../examples/boundary_angles.html#sphx-glr-examples-boundary-angles-py"><span class="std std-ref">this example in our gallery</span></a>
+for a complete walkthrough that loads GUI-drawn regions and uses them
+for analysis.</p>
+</div>
+</details></section>
 <section id="working-with-multiple-region-layers">
 <h3>Working with multiple region layers<a class="headerlink" href="#working-with-multiple-region-layers" title="Link to this heading">#</a></h3>
 <p>You can use region layers to group related regions together.
@@ -945,8 +1024,8 @@ belonging to the selected layer.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=7f76b32a3354e82990f2"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=7f76b32a3354e82990f2"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -960,7 +1039,7 @@ belonging to the selected layer.</p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.17.0.
+    0.17.1.
     </p></div>
       
     </div>

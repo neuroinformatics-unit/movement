@@ -400,27 +400,30 @@ we need to convert to physical units. We can do this by measuring a known
 distance in the video using the ``napari`` GUI and then applying
 :func:`movement.transforms.scale` to convert from pixels to centimetres.
 
-.. GENERATED FROM PYTHON SOURCE LINES 217-254
+.. GENERATED FROM PYTHON SOURCE LINES 217-257
 
 Measure a known distance from video footage
 -------------------------------------------
 .. attention::
-  The following steps require ``napari`` to be installed. If you haven't
-  already, install ``movement`` with the optional GUI dependencies by
-  following the :ref:`installation instructions<target-installation>`.
+   The following steps require running this example locally (not on
+   Binder), with ``napari`` installed. If you haven't already, install
+   ``movement`` with the optional ``napari`` dependencies by following the
+   :ref:`installation instructions<target-installation>`.
 
-First, open the video file in napari:
+First, open the video file (or a single video frame) in ``napari`` by running
+the following code in a Jupyter notebook:
 
 .. code-block:: python
 
    import napari
    viewer = napari.Viewer()
-   viewer.open(ds_mouse.video_path)
+   viewer.open(ds_mouse.video_path)  # can also use ds_mouse.frame_path
 
 .. note::
-   You can also load a single frame image instead of the full video.
+   Alternatively, you can type ``napari`` in a terminal, wait for the
+   viewer to open, and drag-and-drop the video/frame file into the viewer.
 
-Next, measure a known distance in the napari viewer:
+Next, measure a known distance in the ``napari`` viewer:
 
 1. Add a new shapes layer by clicking 'New shapes layer' in the layer list.
 2. Select the 'Add lines' tool (shortcut: L) from the layer controls.
@@ -438,14 +441,14 @@ corresponds to the line length in pixels, and the area will always be 0.
 .. image:: /_static/napari_scale_measure.png
    :width: 600
 
-5. Close the napari viewer.
+5. Close the ``napari`` viewer.
 
-.. GENERATED FROM PYTHON SOURCE LINES 256-258
+.. GENERATED FROM PYTHON SOURCE LINES 259-261
 
 We can then retrieve the measured distance and line coordinates from the
 shapes layer.
 
-.. GENERATED FROM PYTHON SOURCE LINES 258-270
+.. GENERATED FROM PYTHON SOURCE LINES 261-273
 
 .. code-block:: Python
 
@@ -480,7 +483,7 @@ shapes layer.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 307-317
+.. GENERATED FROM PYTHON SOURCE LINES 310-320
 
 Transform poses to real units
 -----------------------------
@@ -493,7 +496,7 @@ First, we calculate the scaling factor. The measured line spans one grid
 square, which we know to be 1 cm. Dividing this known length by the
 distance in pixels gives us the scaling factor.
 
-.. GENERATED FROM PYTHON SOURCE LINES 317-321
+.. GENERATED FROM PYTHON SOURCE LINES 320-324
 
 .. code-block:: Python
 
@@ -514,7 +517,7 @@ distance in pixels gives us the scaling factor.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 322-333
+.. GENERATED FROM PYTHON SOURCE LINES 325-336
 
 .. note::
    This scaling factor assumes a constant relationship between pixels and
@@ -528,11 +531,11 @@ distance in pixels gives us the scaling factor.
    setups avoid these assumptions by mapping image coordinates directly
    to real-world 3D space.
 
-.. GENERATED FROM PYTHON SOURCE LINES 335-336
+.. GENERATED FROM PYTHON SOURCE LINES 338-339
 
 Let's inspect the position values before scaling.
 
-.. GENERATED FROM PYTHON SOURCE LINES 336-341
+.. GENERATED FROM PYTHON SOURCE LINES 339-344
 
 .. code-block:: Python
 
@@ -571,13 +574,13 @@ Let's inspect the position values before scaling.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 342-345
+.. GENERATED FROM PYTHON SOURCE LINES 345-348
 
 Now we apply :func:`movement.transforms.scale` to convert from pixels to
 centimetres. We can assign our space unit 'cm' here, to be stored as an
 attribute in ``xarray.DataArray.attrs['space_unit']``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 345-350
+.. GENERATED FROM PYTHON SOURCE LINES 348-353
 
 .. code-block:: Python
 
@@ -593,12 +596,12 @@ attribute in ``xarray.DataArray.attrs['space_unit']``.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 351-353
+.. GENERATED FROM PYTHON SOURCE LINES 354-356
 
 Now we inspect our sample of values again. We can see the values have been
 adjusted.
 
-.. GENERATED FROM PYTHON SOURCE LINES 353-356
+.. GENERATED FROM PYTHON SOURCE LINES 356-359
 
 .. code-block:: Python
 
@@ -635,13 +638,13 @@ adjusted.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 357-360
+.. GENERATED FROM PYTHON SOURCE LINES 360-363
 
 The scaled data array's attributes now contain the ``space_unit`` and a
 ``log`` entry recording the operation and its parameters, alongside the
 operations applied in earlier steps.
 
-.. GENERATED FROM PYTHON SOURCE LINES 360-364
+.. GENERATED FROM PYTHON SOURCE LINES 363-367
 
 .. code-block:: Python
 
@@ -664,21 +667,21 @@ operations applied in earlier steps.
     [
       {
         "operation": "filter_by_confidence",
-        "datetime": "2026-04-20 11:12:07.814610",
+        "datetime": "2026-04-22 19:01:26.878039",
         "confidence": "<xarray.DataArray 'confidence' (time: 418, keypoints: 43)> Size: 144kB\n0.02365 0.01434 0.01821 0.02692 0.05129 ... 0.004628 0.007376 0.003921 0.005941\nCoordinates:\n  * time         (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688\n  * keypoints    (keypoints) <U15 3kB 'Nose' 'EarL' ... 'HindpawKneeL'\n    individuals  <U12 48B 'individual_0'",
         "threshold": "0.9",
         "print_report": "False"
       },
       {
         "operation": "interpolate_over_time",
-        "datetime": "2026-04-20 11:12:07.829372",
+        "datetime": "2026-04-22 19:01:26.892175",
         "method": "'linear'",
         "max_gap": "40",
         "print_report": "False"
       },
       {
         "operation": "rolling_filter",
-        "datetime": "2026-04-20 11:12:07.832885",
+        "datetime": "2026-04-22 19:01:26.895487",
         "window": "6",
         "statistic": "'median'",
         "min_periods": "2",
@@ -686,7 +689,7 @@ operations applied in earlier steps.
       },
       {
         "operation": "scale",
-        "datetime": "2026-04-20 11:12:08.127163",
+        "datetime": "2026-04-22 19:01:27.185490",
         "factor": "np.float64(0.03440766330229682)",
         "space_unit": "'cm'"
       }
@@ -695,14 +698,14 @@ operations applied in earlier steps.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 365-369
+.. GENERATED FROM PYTHON SOURCE LINES 368-372
 
 Next, we flip the y-axis by subtracting each y value from the maximum y
 value in the dataset. Note that the zero point in y is anchored to the
 lowest y position of the mouse in this recording, which approximates
 the belt surface.
 
-.. GENERATED FROM PYTHON SOURCE LINES 369-373
+.. GENERATED FROM PYTHON SOURCE LINES 372-376
 
 .. code-block:: Python
 
@@ -717,12 +720,12 @@ the belt surface.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 374-376
+.. GENERATED FROM PYTHON SOURCE LINES 377-379
 
 We can now re-plot the same skeleton, this time in centimetres and with
 the y-axis pointing upward.
 
-.. GENERATED FROM PYTHON SOURCE LINES 376-385
+.. GENERATED FROM PYTHON SOURCE LINES 379-388
 
 .. code-block:: Python
 
@@ -747,14 +750,14 @@ the y-axis pointing upward.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 387-391
+.. GENERATED FROM PYTHON SOURCE LINES 390-394
 
 Working with real-world distances
 ----------------------------------
 With the data now in centimetres, we can measure the mouse directly. Let's
 first compute its approximate body length and height in ``example_frame``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 391-401
+.. GENERATED FROM PYTHON SOURCE LINES 394-404
 
 .. code-block:: Python
 
@@ -782,13 +785,13 @@ first compute its approximate body length and height in ``example_frame``.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 402-405
+.. GENERATED FROM PYTHON SOURCE LINES 405-408
 
 Beyond simple static measurements, real-world units also make aspects of
 movement, such as gait-related distances interpretable. Let's visualise
 the paw trajectories in x and y over time.
 
-.. GENERATED FROM PYTHON SOURCE LINES 405-431
+.. GENERATED FROM PYTHON SOURCE LINES 408-434
 
 .. code-block:: Python
 
@@ -830,12 +833,12 @@ the paw trajectories in x and y over time.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 432-434
+.. GENERATED FROM PYTHON SOURCE LINES 435-437
 
 Here we see the mouse traverses approximately 60 cm across the travelator,
 and step heights typically remain below around 0.5 cm.
 
-.. GENERATED FROM PYTHON SOURCE LINES 436-442
+.. GENERATED FROM PYTHON SOURCE LINES 439-445
 
 These trajectories give us a broad sense of limb movement, but we can go
 further and quantify dynamics between limbs, such as the inter-limb
@@ -844,7 +847,7 @@ distances in real-world units using
 the toe keypoints to compare the anterior-posterior separation of the fore-
 and hindpaw pairs.
 
-.. GENERATED FROM PYTHON SOURCE LINES 442-454
+.. GENERATED FROM PYTHON SOURCE LINES 445-457
 
 .. code-block:: Python
 
@@ -867,14 +870,14 @@ and hindpaw pairs.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 455-459
+.. GENERATED FROM PYTHON SOURCE LINES 458-462
 
 We plot these inter-limb distances for the fore- and hindpaws against the
 mean x-position of the body as the mouse traverses the travelator. Since
 we know the first belt is 47 cm long, we can also easily plot the
 transition point at which the mouse moves onto the faster second belt.
 
-.. GENERATED FROM PYTHON SOURCE LINES 459-475
+.. GENERATED FROM PYTHON SOURCE LINES 462-478
 
 .. code-block:: Python
 
@@ -906,7 +909,7 @@ transition point at which the mouse moves onto the faster second belt.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 476-491
+.. GENERATED FROM PYTHON SOURCE LINES 479-494
 
 The forepaw and hindpaw inter-limb distances oscillate largely in
 synchrony, consistent with a trotting gait, with peak separations of
@@ -924,7 +927,7 @@ across all strides with those during only the transitioning stride.
 
 First, let's compute the mean peak inter-limb distance across all strides.
 
-.. GENERATED FROM PYTHON SOURCE LINES 491-525
+.. GENERATED FROM PYTHON SOURCE LINES 494-528
 
 .. code-block:: Python
 
@@ -977,13 +980,13 @@ First, let's compute the mean peak inter-limb distance across all strides.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 526-529
+.. GENERATED FROM PYTHON SOURCE LINES 529-532
 
 Now let's compare these average distances with the maximum inter-limb
 distances during the transitioning stride where the mouse steps onto the
 faster second belt (the second-to-last peak in each trace).
 
-.. GENERATED FROM PYTHON SOURCE LINES 529-544
+.. GENERATED FROM PYTHON SOURCE LINES 532-547
 
 .. code-block:: Python
 
@@ -1017,7 +1020,7 @@ faster second belt (the second-to-last peak in each trace).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 545-553
+.. GENERATED FROM PYTHON SOURCE LINES 548-556
 
 Here we can see that during typical locomotion, the fore- and hindpaw
 inter-limb distances are synchronised and closely matched, differing by
@@ -1031,7 +1034,7 @@ possible.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.883 seconds)
+   **Total running time of the script:** (0 minutes 1.822 seconds)
 
 
 .. _sphx_glr_download_examples_scale.py:

@@ -24,6 +24,7 @@ Information on specific functions, classes, and methods.
     movement.io.save_poses
     movement.kinematics
     movement.napari.convert
+    movement.napari.convert_roi
     movement.napari.layer_styles
     movement.plots
     movement.roi
