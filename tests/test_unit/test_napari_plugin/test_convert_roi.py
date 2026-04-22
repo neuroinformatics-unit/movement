@@ -158,6 +158,7 @@ def test_rois_to_napari_shapes_output(
     assert all(arr.shape[1] == 2 for arr in result["data"])
     assert result["properties"]["name"] == [roi.name for roi in rois]
 
+
 # ===========================================================================
 # napari_shape_to_roi
 # ===========================================================================
