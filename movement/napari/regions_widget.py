@@ -7,21 +7,31 @@ for more background.
 """
 
 import re
+from pathlib import Path
 
 from napari.layers import Shapes
+from napari.utils.notifications import show_error
 from napari.viewer import Viewer
 from qtpy.QtCore import QAbstractTableModel, QModelIndex, Qt
 from qtpy.QtWidgets import (
     QComboBox,
+    QFileDialog,
+    QGridLayout,
     QGroupBox,
-    QHBoxLayout,
+    QMessageBox,
     QPushButton,
     QTableView,
     QVBoxLayout,
     QWidget,
 )
 
+from movement.napari.convert_roi import (
+    napari_shapes_layer_to_rois,
+    rois_to_napari_shapes,
+)
 from movement.napari.layer_styles import RegionsStyle, _sample_colormap
+from movement.roi.io import load_rois, save_rois
+from movement.utils.logging import logger
 
 DEFAULT_REGION_NAME = "region"
 DROPDOWN_PLACEHOLDER = "No region layers"
@@ -96,25 +106,40 @@ class RegionsWidget(QWidget):
     def _setup_region_layer_controls(self):
         """Create the region layer controls layout.
 
-        Returns a QHBoxLayout containing:
+        Returns a QGridLayout with two rows sharing the same column widths:
 
-        - Dropdown (QComboBox) for selecting region layers
-        - "Add new layer" button (QPushButton)
+        - Row 0: Dropdown (QComboBox) for selecting region layers and
+          an ``"Add new layer"`` button (QPushButton)
+        - Row 1: ``"Save layer"`` and ``"Load layer"`` buttons (QPushButton)
         """
-        layer_controls_layout = QHBoxLayout()
+        grid = QGridLayout()
 
         self.layer_dropdown = QComboBox()
         self.layer_dropdown.setMinimumWidth(150)
         self.layer_dropdown.currentTextChanged.connect(self._on_layer_selected)
 
         self.add_layer_button = QPushButton("Add new layer")
-        self.add_layer_button.setEnabled(True)
         self.add_layer_button.clicked.connect(self._add_new_layer)
 
-        layer_controls_layout.addWidget(self.layer_dropdown)
-        layer_controls_layout.addWidget(self.add_layer_button)
+        self.save_layer_button = QPushButton("Save layer")
+        self.save_layer_button.setEnabled(False)
+        self.save_layer_button.setToolTip(
+            "Save all regions in this layer to a GeoJSON file."
+        )
+        self.save_layer_button.clicked.connect(self._save_region_layer)
 
-        return layer_controls_layout
+        self.load_layer_button = QPushButton("Load layer")
+        self.load_layer_button.setToolTip(
+            "Load regions from a GeoJSON file into a new region layer."
+        )
+        self.load_layer_button.clicked.connect(self._load_region_layer)
+
+        grid.addWidget(self.layer_dropdown, 0, 0)
+        grid.addWidget(self.add_layer_button, 0, 1)
+        grid.addWidget(self.save_layer_button, 1, 0)
+        grid.addWidget(self.load_layer_button, 1, 1)
+
+        return grid
 
     def _setup_regions_table(self):
         """Create the table view layout.
@@ -187,7 +212,7 @@ class RegionsWidget(QWidget):
         if not layer_name or layer_name == DROPDOWN_PLACEHOLDER:
             self._clear_region_table_model()
             self.viewer.layers.selection.clear()
-            self._update_table_tooltip()
+            self._update_table_tooltip_and_save_button()
             return
 
         region_layer = self._get_region_layers().get(layer_name)
@@ -235,6 +260,72 @@ class RegionsWidget(QWidget):
         )
         self.layer_dropdown.setCurrentText(new_layer.name)
 
+    def _save_region_layer(self):
+        """Save all regions in the current layer to a GeoJSON file.
+
+        If duplicate region names are detected, a warning dialog is
+        shown, giving the user the option to cancel and rename first.
+        """
+        layer = self.region_table_model.layer
+        names = list(self.region_table_model.layer.properties.get("name", []))
+        duplicates = {n for n in names if names.count(n) > 1}
+        if duplicates:
+            answer = QMessageBox.warning(
+                self,
+                title="Duplicate region names detected",
+                text="These region names are used more than once:\n"
+                f"{', '.join(sorted(duplicates))}.\n\n"
+                "Unique names are required to reliably look up regions "
+                "by name. Proceed anyway?",
+                buttons=QMessageBox.Save | QMessageBox.Cancel,
+                defaultButton=QMessageBox.Cancel,
+            )
+            if answer != QMessageBox.Save:
+                return
+
+        file_path, _ = QFileDialog.getSaveFileName(
+            self,
+            "Save region layer",
+            "",
+            "GeoJSON files (*.geojson *.json)",
+        )
+        if not file_path:
+            return
+
+        try:
+            rois = napari_shapes_layer_to_rois(layer)
+            save_rois(rois, file_path)
+            logger.info(f"Saved {len(rois)} regions to '{file_path}'.")
+        except Exception as e:
+            show_error(f"Failed to save regions to '{file_path}': {e}")
+
+    def _load_region_layer(self):
+        """Open a GeoJSON file and load its regions into a new region layer."""
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            "Load region layer",
+            "",
+            "GeoJSON files (*.geojson *.json)",
+        )
+        if not file_path:
+            return
+
+        try:
+            rois = load_rois(file_path)
+        except Exception as e:
+            show_error(f"Failed to load regions from '{file_path}': {e}")
+            return
+
+        shapes_kwargs = rois_to_napari_shapes(rois)
+        new_layer = self.viewer.add_shapes(
+            **shapes_kwargs,
+            name=Path(file_path).stem,
+            metadata={REGIONS_LAYER_KEY: True},
+        )
+        # Select the new layer (which also triggers linking to the table model)
+        self.layer_dropdown.setCurrentText(new_layer.name)
+        logger.info(f"Loaded {len(rois)} regions from '{file_path}'.")
+
     def _link_layer_to_model(self, region_layer: Shapes):
         """Link a regions layer to a new table model.
 
@@ -275,10 +366,12 @@ class RegionsWidget(QWidget):
         # Connect to layer name changes
         region_layer.events.name.connect(self._on_layer_renamed)
         # Connect model reset signal to tooltip updater
-        self.region_table_model.modelReset.connect(self._update_table_tooltip)
+        self.region_table_model.modelReset.connect(
+            self._update_table_tooltip_and_save_button
+        )
 
         # Update the tooltip based on the new model state
-        self._update_table_tooltip()
+        self._update_table_tooltip_and_save_button()
 
     def _auto_assign_region_names(self, region_layer: Shapes) -> None:
         """Auto-assign names to regions if the layer has shapes without names.
@@ -331,7 +424,7 @@ class RegionsWidget(QWidget):
                 )
             # Always disconnect model/viewer events (don't depend on layer)
             self.region_table_model.modelReset.disconnect(
-                self._update_table_tooltip
+                self._update_table_tooltip_and_save_button
             )
             self.viewer.layers.events.removed.disconnect(
                 self.region_table_model._on_layer_deleted
@@ -343,26 +436,29 @@ class RegionsWidget(QWidget):
         self.region_table_model = None
         self.region_table_view.setModel(None)
 
-    def _update_table_tooltip(self):
-        """Update the table tooltip based on current state.
+    def _update_table_tooltip_and_save_button(self):
+        """Update save button and set table tooltip based on current state.
 
-        Shows contextual hints:
+        Shows contextual tooltip hints for the following scenarios:
 
         - How to create region layers when none exist
         - How to draw shapes when layer is empty
         - Usage tips when layer has shapes
         """
         layer_name = self.layer_dropdown.currentText()
+        # Enable save button only when the current layer has shapes to save
+        has_shapes = (
+            self.region_table_model is not None
+            and self.region_table_model.rowCount() > 0
+        )
+        self.save_layer_button.setEnabled(has_shapes)
 
         if not layer_name or layer_name == DROPDOWN_PLACEHOLDER:
             # No region layers exist
             self.region_table_view.setToolTip(
                 "No region layers found.\nClick 'Add new layer' to create one."
             )
-        elif (
-            self.region_table_model is None
-            or self.region_table_model.rowCount() == 0
-        ):
+        elif not has_shapes:
             # Layer selected but no shapes
             self.region_table_view.setToolTip(
                 "No regions in this layer.\n"
