@@ -276,9 +276,15 @@ def test_napari_shape_to_roi_ellipse_approximation(ellipse_yx):
     ["data", "shape_type", "match"],
     [
         pytest.param(
+            np.array([0.0, 1.0, 2.0]),
+            "line",
+            "2D array with shape",
+            id="1D data raises ValueError",
+        ),
+        pytest.param(
             np.array([[0.0, 1.0, 2.0], [3.0, 4.0, 5.0]]),
             "line",
-            "3 columns",
+            "2D array with shape",
             id="3-column data raises ValueError",
         ),
         pytest.param(

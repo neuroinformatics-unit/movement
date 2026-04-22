@@ -221,13 +221,12 @@ def napari_shape_to_roi(
     """
     data = np.asarray(data, dtype=float)
 
-    # Validate shape only has (y, x) coordinates
-    n_cols = data.shape[1]
-    if n_cols > 2:
+    # Validate data is 2D with 2 columns (y, x)
+    if data.ndim != 2 or data.shape[1] != 2:
         raise logger.error(
             ValueError(
-                f"Shape data has {n_cols} columns, but only 2D shapes with "
-                f"coordinates (y, x) are supported."
+                f"Shape data must be a 2D array with shape (N, 2), "
+                f"got shape {data.shape} instead."
             )
         )
 
