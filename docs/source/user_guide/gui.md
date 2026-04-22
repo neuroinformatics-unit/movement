@@ -330,7 +330,7 @@ You can find all the [keyboard shortcuts](napari:guides/preferences.html#shortcu
 ## Define regions of interest
 
 The `Define regions of interest` menu allows you to draw shapes on the
-viewer and use them as regions of interest (RoIs) for analysis.
+viewer and use them as `movement` {mod}`RoIs<movement.roi>` for analysis.
 
 Each shape you draw represents a static region
 that remains fixed across all frames.
@@ -345,7 +345,8 @@ that remains fixed across all frames.
 
 **Region**
 : A named `napari` shape that `movement` recognises as a
-  region of interest (RoI) for analysis.
+: A named `napari` shape that `movement` recognises as an
+  {mod}`RoI<movement.roi>` for analysis.
 
 **Region layer**
 : A `napari` [shapes layers](napari:howtos/layers/shapes.html) managed
@@ -433,13 +434,13 @@ To save a region layer:
 1. Select a non-empty region layer you want to save,
    via the dropdown or the layer list.
 2. Click `Save layer` and choose a destination file ending in a
-   `.geojson` (or just `.json`) extension.
+   `.geojson` (or `.json`) extension.
    All regions in the layer are written to the chosen file.
 
 To load a region layer:
 
 1. Click `Load layer` and select a GeoJSON file previously saved with
-   `movement` (or any file produced by {func}`~movement.roi.save_rois`).
+   the `movement` GUI (or any file produced by {func}`~movement.roi.save_rois`).
 2. A new region layer is created and automatically selected in the dropdown,
    with its regions shown in the table.
 
