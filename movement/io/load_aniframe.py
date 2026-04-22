@@ -145,16 +145,7 @@ def from_aniframe_file(
     the aniframe metadata (e.g., ``"SLEAP"`` or ``"DeepLabCut"``).
 
     """
-    if isinstance(extra_var_dims, str):
-        extra_var_dims = (extra_var_dims,)
-    if invalid := set(extra_var_dims) - _VALID_EXTRA_VAR_DIMS:
-        raise logger.error(
-            ValueError(
-                f"Invalid dimension(s) in extra_var_dims: {sorted(invalid)}. "
-                f"Valid values are: {sorted(_VALID_EXTRA_VAR_DIMS)}."
-            )
-        )
-
+    extra_var_dims = _normalise_extra_var_dims(extra_var_dims)
     valid_file = cast("ValidFile", file)
     file_path = valid_file.file
 
@@ -261,6 +252,40 @@ def from_aniframe_file(
 # ------------------------------------------------------------------ #
 # Private helpers                                                      #
 # ------------------------------------------------------------------ #
+
+
+def _normalise_extra_var_dims(
+    extra_var_dims: str | tuple[str, ...],
+) -> tuple[str, ...]:
+    """Normalise and validate the ``extra_var_dims`` parameter.
+
+    Parameters
+    ----------
+    extra_var_dims
+        A single dimension name (string) or a tuple of dimension names.
+
+    Returns
+    -------
+    tuple[str, ...]
+        Normalised tuple of dimension names.
+
+    Raises
+    ------
+    ValueError
+        If any name is not one of ``"time"``, ``"keypoints"``,
+        ``"individuals"``.
+
+    """
+    if isinstance(extra_var_dims, str):
+        extra_var_dims = (extra_var_dims,)
+    if invalid := set(extra_var_dims) - _VALID_EXTRA_VAR_DIMS:
+        raise logger.error(
+            ValueError(
+                f"Invalid dimension(s) in extra_var_dims: {sorted(invalid)}."
+                f" Valid values are: {sorted(_VALID_EXTRA_VAR_DIMS)}."
+            )
+        )
+    return extra_var_dims
 
 
 def _decode_aniframe_metadata(file_path: Path) -> dict[str, Any]:

@@ -837,7 +837,7 @@ def test_from_aniframe_file_string_extra_col_added(tmp_path):
 
 
 def test_from_aniframe_file_extra_var_dims_floor_adds_individuals(tmp_path):
-    """extra_var_dims floor ensures individuals dim on single-individual data."""
+    """extra_var_dims floor adds individuals dim on single-individual data."""
     df = _minimal_df(individuals=["a"], keypoints=["nose"], n_frames=3)
     df["score"] = df["time"].astype(float)  # auto-infers to ("time",)
     path = _make_parquet(tmp_path, df=df)
@@ -883,7 +883,7 @@ def test_from_aniframe_file_extra_var_dims_string_accepted(tmp_path):
 
 
 def test_from_aniframe_file_extra_var_dims_invalid_raises(aniframe_parquet):
-    """from_aniframe_file raises ValueError for invalid extra_var_dims names."""
+    """from_aniframe_file raises ValueError for invalid extra_var_dims."""
     with (
         patch(
             "movement.io.load_aniframe._decode_aniframe_metadata",
