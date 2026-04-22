@@ -436,14 +436,6 @@ class RegionsWidget(QWidget):
         self.region_table_model = None
         self.region_table_view.setModel(None)
 
-    def _update_save_button_state(self):
-        """Enable the Save button only when the current layer has shapes."""
-        has_shapes = (
-            self.region_table_model is not None
-            and self.region_table_model.rowCount() > 0
-        )
-        self.save_layer_button.setEnabled(has_shapes)
-
     def _update_table_tooltip_and_save_button(self):
         """Update save button and set table tooltip based on current state.
 
@@ -453,19 +445,20 @@ class RegionsWidget(QWidget):
         - How to draw shapes when layer is empty
         - Usage tips when layer has shapes
         """
-        self._update_save_button_state()
-
         layer_name = self.layer_dropdown.currentText()
+        # Enable save button only when the current layer has shapes to save
+        has_shapes = (
+            self.region_table_model is not None
+            and self.region_table_model.rowCount() > 0
+        )
+        self.save_layer_button.setEnabled(has_shapes)
 
         if not layer_name or layer_name == DROPDOWN_PLACEHOLDER:
             # No region layers exist
             self.region_table_view.setToolTip(
                 "No region layers found.\nClick 'Add new layer' to create one."
             )
-        elif (
-            self.region_table_model is None
-            or self.region_table_model.rowCount() == 0
-        ):
+        elif not has_shapes:
             # Layer selected but no shapes
             self.region_table_view.setToolTip(
                 "No regions in this layer.\n"
