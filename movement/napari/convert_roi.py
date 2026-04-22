@@ -39,7 +39,7 @@ NAPARI_SHAPE_TO_ROI_CLASS: dict[
 }
 
 
-def roi_to_napari_shape(
+def _roi_to_napari_shape(
     roi: BaseRegionOfInterest,
 ) -> tuple[np.ndarray, NapariShapeType]:
     """Convert a ``movement`` RegionOfInterest (RoI) to a ``napari`` shape.
@@ -58,35 +58,6 @@ def roi_to_napari_shape(
         (``napari`` convention), with no repeated closing vertex.
     shape_type : NapariShapeType
         The ``napari`` shape type string, e.g. ``"path"``, ``"polygon"``.
-
-    Notes
-    -----
-    The mapping from ``movement`` RoI classes to ``napari`` shape types is:
-
-    .. list-table::
-       :header-rows: 1
-
-       * - movement RoI class
-         - napari shape type
-       * - :class:`~movement.roi.LineOfInterest`
-         - ``"path"``
-       * - :class:`~movement.roi.PolygonOfInterest`
-         - ``"polygon"``
-
-    This function is the inverse of :func:`napari_shape_to_roi`, but some
-    shape information is not preserved when converting back. Specifically,
-    ``"line"``, ``"rectangle"``, and ``"ellipse"`` shapes drawn in ``napari``
-    are all returned as ``"path"`` or ``"polygon"``.
-
-    A closed :class:`~movement.roi.LineOfInterest` (created with
-    ``loop=True``) is also affected: ``napari`` has no closed-path shape type,
-    so the segment connecting the last point back to the first is dropped
-    and a warning is emitted.
-
-    See Also
-    --------
-    napari_shape_to_roi : The inverse of this function.
-    rois_to_napari_shapes : Batch conversion of multiple RoIs.
 
     """
     xy = np.array(roi.coords)
@@ -134,15 +105,38 @@ def rois_to_napari_shapes(
         - ``"properties"``: dict with a ``"name"`` key containing the
           RoI names.
 
+    Notes
+    -----
+    The mapping from ``movement`` RoI classes to ``napari`` shape types is:
+
+    .. list-table::
+       :header-rows: 1
+
+       * - movement RoI class
+         - napari shape type
+       * - :class:`~movement.roi.LineOfInterest`
+         - ``"path"``
+       * - :class:`~movement.roi.PolygonOfInterest`
+         - ``"polygon"``
+
+    This function is the inverse of :func:`napari_shapes_layer_to_rois`, but
+    some shape information is not preserved when converting back. Specifically,
+    ``"line"``, ``"rectangle"``, and ``"ellipse"`` shapes drawn in ``napari``
+    are all returned as ``"path"`` or ``"polygon"``.
+
+    A closed :class:`~movement.roi.LineOfInterest` (created with
+    ``loop=True``) is also affected: ``napari`` has no closed-path shape type,
+    so the segment connecting the last point back to the first is dropped
+    and a warning is emitted.
+
     See Also
     --------
-    roi_to_napari_shape : The underlying per-shape conversion function.
     napari_shapes_layer_to_rois : The inverse of this function.
 
     """
     data, shape_types, names = [], [], []
     for roi in rois:
-        coords, shape_type = roi_to_napari_shape(roi)
+        coords, shape_type = _roi_to_napari_shape(roi)
         data.append(coords)
         shape_types.append(shape_type)
         names.append(roi.name)
@@ -153,7 +147,7 @@ def rois_to_napari_shapes(
     }
 
 
-def napari_shape_to_roi(
+def _napari_shape_to_roi(
     data: np.ndarray,
     shape_type: NapariShapeType,
     name: str | None = None,
@@ -183,40 +177,6 @@ def napari_shape_to_roi(
         subclass corresponding to the input ``shape_type``, e.g.
         :class:`~movement.roi.LineOfInterest`,
         :class:`~movement.roi.PolygonOfInterest`.
-
-    Raises
-    ------
-    ValueError
-        If ``data`` has more than 2 columns (dimensions other than y and x),
-        or if ``shape_type`` is not one of the recognised ``napari`` shape
-        types.
-
-    Notes
-    -----
-    The mapping from ``napari`` shape types to ``movement`` RoI classes is:
-
-    .. list-table::
-       :header-rows: 1
-
-       * - napari shape type
-         - movement RoI class
-       * - ``"line"``, ``"path"``
-         - :class:`~movement.roi.LineOfInterest`
-       * - ``"polygon"``, ``"rectangle"``
-         - :class:`~movement.roi.PolygonOfInterest`
-       * - ``"ellipse"``
-         - :class:`~movement.roi.PolygonOfInterest` (approximation)
-
-    Ellipses are approximated as polygons because neither ``movement`` nor
-    its underlying geometry library (``shapely``) has a native ellipse type.
-    The approximation uses :meth:`shapely.Point.buffer` scaled and rotated
-    to match the ellipse geometry. This approach was inspired by
-    https://gis.stackexchange.com/questions/243459/drawing-ellipse-with-shapely
-
-    See Also
-    --------
-    roi_to_napari_shape : The inverse of this function.
-    napari_shapes_layer_to_rois : Conversion of an entire ``napari`` layer.
 
     """
     data = np.asarray(data, dtype=float)
@@ -276,17 +236,38 @@ def napari_shapes_layer_to_rois(
     ------
     ValueError
         If any shape has more than 2 coordinate columns, or has an
-        unrecognised shape type. See :func:`napari_shape_to_roi`.
+        unrecognised shape type.
+
+    Notes
+    -----
+    The mapping from ``napari`` shape types to ``movement`` RoI classes is:
+
+    .. list-table::
+       :header-rows: 1
+
+       * - napari shape type
+         - movement RoI class
+       * - ``"line"``, ``"path"``
+         - :class:`~movement.roi.LineOfInterest`
+       * - ``"polygon"``, ``"rectangle"``
+         - :class:`~movement.roi.PolygonOfInterest`
+       * - ``"ellipse"``
+         - :class:`~movement.roi.PolygonOfInterest` (approximation)
+
+    Ellipses are approximated as polygons because neither ``movement`` nor
+    its underlying geometry library (``shapely``) has a native ellipse type.
+    The approximation uses :meth:`shapely.Point.buffer` scaled and rotated
+    to match the ellipse geometry. This approach was inspired by
+    https://gis.stackexchange.com/questions/243459/drawing-ellipse-with-shapely
 
     See Also
     --------
-    napari_shape_to_roi : The underlying per-shape conversion function.
     rois_to_napari_shapes : The inverse of this function.
 
     """
     names = list(layer.properties.get("name", []))
     return [
-        napari_shape_to_roi(
+        _napari_shape_to_roi(
             data,
             shape_type,
             name=names[i] if i < len(names) else None,

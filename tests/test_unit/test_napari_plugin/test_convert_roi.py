@@ -6,9 +6,9 @@ import shapely
 from napari.layers import Shapes
 
 from movement.napari.convert_roi import (
-    napari_shape_to_roi,
+    _napari_shape_to_roi,
+    _roi_to_napari_shape,
     napari_shapes_layer_to_rois,
-    roi_to_napari_shape,
     rois_to_napari_shapes,
 )
 from movement.roi import LineOfInterest, PolygonOfInterest
@@ -80,7 +80,7 @@ def ellipse_yx():
 def test_roi_to_napari_shape_type(roi_fixture, expected_shape_type, request):
     """Each RoI class maps to the correct napari shape type."""
     roi = request.getfixturevalue(roi_fixture)
-    _, shape_type = roi_to_napari_shape(roi)
+    _, shape_type = _roi_to_napari_shape(roi)
     assert shape_type == expected_shape_type
 
 
@@ -95,7 +95,7 @@ def test_roi_to_napari_shape_type(roi_fixture, expected_shape_type, request):
 def test_roi_to_napari_shape_output_array(roi_fixture, request):
     """Output is an (N, 2) array with no repeated closing vertex."""
     roi = request.getfixturevalue(roi_fixture)
-    data, _ = roi_to_napari_shape(roi)
+    data, _ = _roi_to_napari_shape(roi)
     assert data.ndim == 2
     assert data.shape[1] == 2
     assert not np.array_equal(data[0], data[-1])
@@ -103,7 +103,7 @@ def test_roi_to_napari_shape_output_array(roi_fixture, request):
 
 def test_roi_to_napari_shape_coordinate_swap(unit_square):
     """Coordinates are returned in (y, x) order (swapped from (x, y))."""
-    data, _ = roi_to_napari_shape(unit_square)
+    data, _ = _roi_to_napari_shape(unit_square)
     expected_yx = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
     np.testing.assert_array_equal(data, expected_yx)
 
@@ -113,7 +113,7 @@ def test_roi_to_napari_shape_closed_line_warning(caplog):
     closing segment.
     """
     closed_line = LineOfInterest([(0, 0), (1, 0), (0, 1)], loop=True)
-    data, shape_type = roi_to_napari_shape(closed_line)
+    data, shape_type = _roi_to_napari_shape(closed_line)
     assert shape_type == "path"
     assert len(data) == 3  # closing vertex stripped, 3 unique points remain
     assert any("closing segment" in msg for msg in caplog.messages)
@@ -198,7 +198,7 @@ def test_napari_shape_to_roi_type(
 ):
     """Each napari shape type maps to the correct movement RoI class."""
     data = request.getfixturevalue(data_fixture)
-    assert isinstance(napari_shape_to_roi(data, shape_type), expected_type)
+    assert isinstance(_napari_shape_to_roi(data, shape_type), expected_type)
 
 
 @pytest.mark.parametrize(
@@ -211,7 +211,7 @@ def test_napari_shape_to_roi_type(
 )
 def test_napari_shape_to_roi_name(line_yx, name, expected_name):
     """The ``name`` argument is assigned to the resulting RoI."""
-    roi = napari_shape_to_roi(line_yx, "line", name=name)
+    roi = _napari_shape_to_roi(line_yx, "line", name=name)
     assert roi.name == expected_name
 
 
@@ -243,7 +243,7 @@ def test_napari_shape_to_roi_coordinate_swap(
 ):
     """Napari (y, x) coordinates are converted to movement (x, y)."""
     data = request.getfixturevalue(data_fixture)
-    roi = napari_shape_to_roi(data, shape_type)
+    roi = _napari_shape_to_roi(data, shape_type)
     assert shapely.normalize(roi.region) == shapely.normalize(
         expected_geometry
     )
@@ -253,7 +253,7 @@ def test_napari_shape_to_roi_ellipse_approximation(ellipse_yx):
     """An ellipse is approximated as a polygon whose bounds match and
     whose area approximates the theoretical ellipse to within 1%.
     """
-    roi = napari_shape_to_roi(ellipse_yx, "ellipse")
+    roi = _napari_shape_to_roi(ellipse_yx, "ellipse")
     # centre (5, 5), semi_x=2, semi_y=3
     # bounds: (5-2, 5-3, 5+2, 5+3)
     assert roi.region.bounds == pytest.approx((3.0, 2.0, 7.0, 8.0), abs=0.01)
@@ -288,7 +288,7 @@ def test_napari_shape_to_roi_ellipse_approximation(ellipse_yx):
 def test_napari_shape_to_roi_invalid_input(data, shape_type, match):
     """Invalid inputs raise ValueError with an informative message."""
     with pytest.raises(ValueError, match=match):
-        napari_shape_to_roi(data, shape_type)
+        _napari_shape_to_roi(data, shape_type)
 
 
 # ===========================================================================
@@ -352,8 +352,8 @@ def test_napari_shapes_layer_to_rois_output(
 def test_roundtrip_roi_to_napari_to_roi(roi_fixture, request):
     """Converting a RoI to a napari shape and back preserves the geometry."""
     roi = request.getfixturevalue(roi_fixture)
-    data, shape_type = roi_to_napari_shape(roi)
-    roi2 = napari_shape_to_roi(data, shape_type)
+    data, shape_type = _roi_to_napari_shape(roi)
+    roi2 = _napari_shape_to_roi(data, shape_type)
     assert shapely.normalize(roi.region) == shapely.normalize(roi2.region)
 
 
@@ -382,8 +382,8 @@ def test_roundtrip_napari_to_roi_to_napari(
     ``"polygon"``.
     """
     data = request.getfixturevalue(data_fixture)
-    roi = napari_shape_to_roi(data, shape_type)
-    _, shape_type_back = roi_to_napari_shape(roi)
+    roi = _napari_shape_to_roi(data, shape_type)
+    _, shape_type_back = _roi_to_napari_shape(roi)
     assert shape_type_back == expected_shape_type_back
 
 
