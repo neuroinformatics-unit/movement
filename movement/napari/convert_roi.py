@@ -7,7 +7,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal, TypeAlias
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import shapely
@@ -24,12 +24,12 @@ if TYPE_CHECKING:
 
     from movement.roi.base import BaseRegionOfInterest
 
-NapariShapeType: TypeAlias = Literal[
+type NapariShapeType = Literal[
     "line", "path", "polygon", "rectangle", "ellipse"
 ]
 
 NAPARI_SHAPE_TO_ROI_CLASS: dict[
-    NapariShapeType, type[LineOfInterest] | type[PolygonOfInterest]
+    NapariShapeType, type[BaseRegionOfInterest]
 ] = {
     "line": LineOfInterest,
     "path": LineOfInterest,
@@ -47,8 +47,9 @@ def roi_to_napari_shape(
     Parameters
     ----------
     roi
-        A :class:`~movement.roi.LineOfInterest` or
-        :class:`~movement.roi.PolygonOfInterest` to convert.
+        The region of interest to convert, e.g.
+        :class:`~movement.roi.LineOfInterest`,
+        :class:`~movement.roi.PolygonOfInterest`.
 
     Returns
     -------
@@ -156,7 +157,7 @@ def napari_shape_to_roi(
     data: np.ndarray,
     shape_type: NapariShapeType,
     name: str | None = None,
-) -> LineOfInterest | PolygonOfInterest:
+) -> BaseRegionOfInterest:
     """Convert a ``napari`` shape to a ``movement`` RegionOfInterest (RoI).
 
     This function only handles static 2D shapes with coordinates (y, x).
@@ -177,8 +178,10 @@ def napari_shape_to_roi(
 
     Returns
     -------
-    LineOfInterest or PolygonOfInterest
-        A :class:`~movement.roi.LineOfInterest` or
+    BaseRegionOfInterest
+        An instance of a :class:`~movement.roi.BaseRegionOfInterest`
+        subclass corresponding to the input ``shape_type``, e.g.
+        :class:`~movement.roi.LineOfInterest`,
         :class:`~movement.roi.PolygonOfInterest`.
 
     Raises
@@ -254,7 +257,7 @@ def napari_shape_to_roi(
 
 def napari_shapes_to_rois(
     layer: Shapes,
-) -> list[LineOfInterest | PolygonOfInterest]:
+) -> list[BaseRegionOfInterest]:
     """Convert all shapes in a ``napari`` Shapes layer to ``movement`` RoIs.
 
     Parameters
@@ -267,7 +270,7 @@ def napari_shapes_to_rois(
 
     Returns
     -------
-    list[LineOfInterest | PolygonOfInterest]
+    list[BaseRegionOfInterest]
         One region of interest (RoI) per shape in the layer, in the same order.
 
     Raises
