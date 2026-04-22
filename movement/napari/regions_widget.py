@@ -272,12 +272,13 @@ class RegionsWidget(QWidget):
         if duplicates:
             answer = QMessageBox.warning(
                 self,
-                "Duplicate region names detected",
-                "Some regions share the same name: "
+                title="Duplicate region names detected",
+                text="These region names are used more than once:\n"
                 f"{', '.join(sorted(duplicates))}.\n\n"
-                "Save anyway?",
-                QMessageBox.Save | QMessageBox.Cancel,
-                QMessageBox.Cancel,
+                "Unique names are required to reliably look up regions "
+                "by name. Proceed anyway?",
+                buttons=QMessageBox.Save | QMessageBox.Cancel,
+                defaultButton=QMessageBox.Cancel,
             )
             if answer != QMessageBox.Save:
                 return
