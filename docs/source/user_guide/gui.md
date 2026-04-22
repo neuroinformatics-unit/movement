@@ -380,6 +380,7 @@ for example:
 
 Tools are also provided for selecting, moving, transforming,
 and deleting shapes, as well as for editing their vertices.
+Hover over any tool button to see a tooltip describing what it does.
 You can also copy-paste shapes within a layer.
 See the [napari shapes layer guide](napari:howtos/layers/shapes.html) for
 details on the drawing tools and how to use them.
