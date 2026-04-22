@@ -104,9 +104,8 @@ def test_roi_to_napari_shape_output_array(roi_fixture, request):
 def test_roi_to_napari_shape_coordinate_swap(unit_square):
     """Coordinates are returned in (y, x) order (swapped from (x, y))."""
     data, _ = roi_to_napari_shape(unit_square)
-    # coords property returns (x, y); strip the shapely closing vertex
-    expected_xy = np.array(unit_square.coords)[:-1]
-    np.testing.assert_array_equal(data, expected_xy[:, ::-1])
+    expected_yx = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 1.0]])
+    np.testing.assert_array_equal(data, expected_yx)
 
 
 def test_roi_to_napari_shape_closed_line_warning(caplog):
@@ -157,17 +156,7 @@ def test_rois_to_napari_shapes_output(
     assert result["shape_type"] == expected_shape_types
     assert len(result["data"]) == len(rois)
     assert all(arr.shape[1] == 2 for arr in result["data"])
-    assert len(result["properties"]["name"]) == len(rois)
-
-
-def test_rois_to_napari_shapes_names(segment_of_y_equals_x, unit_square):
-    """RoI names, including the default, are preserved in the output."""
-    result = rois_to_napari_shapes([segment_of_y_equals_x, unit_square])
-    assert result["properties"]["name"] == [
-        segment_of_y_equals_x.name,  # "Un-named region" (no name assigned)
-        unit_square.name,  # "Unit square"
-    ]
-
+    assert result["properties"]["name"] == [roi.name for roi in rois]
 
 # ===========================================================================
 # napari_shape_to_roi
@@ -306,28 +295,10 @@ def test_napari_shape_to_roi_invalid_input(data, shape_type, match):
 # ===========================================================================
 
 
-@pytest.mark.parametrize(
-    ["data_fixtures", "shape_types", "expected_roi_types"],
-    [
-        pytest.param([], [], [], id="empty layer"),
-        pytest.param(
-            ["square_yx", "path_yx"],
-            ["polygon", "path"],
-            [PolygonOfInterest, LineOfInterest],
-            id="polygon and path",
-        ),
-    ],
-)
-def test_napari_shapes_layer_to_rois_output(
-    data_fixtures, shape_types, expected_roi_types, request
-):
-    """Returns one RoI per shape with the correct type, in order."""
-    data = [request.getfixturevalue(f) for f in data_fixtures]
-    layer = Shapes(data, shape_type=shape_types)
-    rois = napari_shapes_layer_to_rois(layer)
-    assert len(rois) == len(expected_roi_types)
-    for roi, expected_type in zip(rois, expected_roi_types, strict=True):
-        assert isinstance(roi, expected_type)
+def test_napari_shapes_layer_to_rois_empty_layer():
+    """An empty Shapes layer returns an empty list."""
+    rois = napari_shapes_layer_to_rois(Shapes())
+    assert rois == []
 
 
 @pytest.mark.parametrize(
@@ -350,18 +321,17 @@ def test_napari_shapes_layer_to_rois_output(
         ),
     ],
 )
-def test_napari_shapes_layer_to_rois_names(
+def test_napari_shapes_layer_to_rois_output(
     square_yx, path_yx, properties, expected_names
 ):
-    """Names are read from layer properties.
-    Missing or blank use the default.
-    """
+    """Returns one RoI per shape with the correct type, name, and order."""
     layer = Shapes(
         [square_yx, path_yx],
         shape_type=["polygon", "path"],
         properties=properties,
     )
     rois = napari_shapes_layer_to_rois(layer)
+    assert [type(roi) for roi in rois] == [PolygonOfInterest, LineOfInterest]
     assert [roi.name for roi in rois] == expected_names
 
 
