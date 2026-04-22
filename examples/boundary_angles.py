@@ -73,7 +73,7 @@ habitat_fig.show()
 # --------------------------
 # In order to ask questions about the behaviour of our individuals with
 # respect to the habitat, we first need to define the RoIs to represent
-# the separate pieces of the habitat. We can do this interactively by
+# the distinct components of the habitat. We can do this interactively by
 # drawing regions in the :ref:`movement GUI<target-gui>`
 # and saving them to a GeoJSON file.
 #
