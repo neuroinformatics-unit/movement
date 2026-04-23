@@ -6,6 +6,7 @@ import xarray as xr
 from attrs import define, field, validators
 from pytest import DATA_PATHS
 from requests_cache import Path
+from xarray.structure.alignment import AlignmentError
 
 from movement.io import load
 
@@ -153,6 +154,24 @@ def test_load_multiview_dataset(dataset_name, source_software):
     assert isinstance(multi_view_ds, xr.Dataset)
     assert "view" in multi_view_ds.dims
     assert multi_view_ds.view.values.tolist() == view_names
+
+
+def test_multiview_warning_on_mismatched_frames(mocker):
+    ds1 = xr.Dataset({"x": ("frame", [1, 2, 3])})
+    ds2 = xr.Dataset({"x": ("frame", [1, 2])})
+
+    mocker.patch(
+        "movement.io.load.load_dataset",
+        side_effect=[ds1, ds2],
+    )
+
+    file_dict = {"view1": "file1", "view2": "file2"}
+
+    with (
+        pytest.warns(UserWarning, match=r"Mismatched.*frame"),
+        pytest.raises(AlignmentError),
+    ):
+        load.load_multiview_dataset(file_dict, source_software="DeepLabCut")
 
 
 def test_get_validator_kwargs():
