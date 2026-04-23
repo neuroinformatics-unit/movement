@@ -410,6 +410,21 @@ class ValidDeepLabCutH5:
 
 
 @define
+class ValidIdtrackerH5:
+    """Validator for idtracker.ai .h5 output files."""
+
+    suffixes: ClassVar[set[str]] = {".h5"}
+    file: Path = field(
+        converter=Path,
+        validator=validators.and_(
+            _file_validator(permission="r", suffixes=suffixes),
+            _hdf5_validator(datasets={"trajectories"}),
+        ),
+    )
+    """Path to the idtracker.ai .h5 file to validate."""
+
+
+@define
 class ValidDeepLabCutCSV:
     """Class for validating DeepLabCut-style .csv files.
 
