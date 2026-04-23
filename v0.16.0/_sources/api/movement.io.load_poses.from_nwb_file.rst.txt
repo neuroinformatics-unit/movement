@@ -1,0 +1,9 @@
+from\_nwb\_file
+===============
+
+.. currentmodule:: movement.io.load_poses
+
+.. autofunction:: from_nwb_file
+
+.. minigallery:: movement.io.load_poses.from_nwb_file
+   :add-heading: Examples using ``from_nwb_file``

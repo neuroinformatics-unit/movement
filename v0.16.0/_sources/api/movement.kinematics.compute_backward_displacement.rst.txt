@@ -1,0 +1,9 @@
+﻿compute\_backward\_displacement
+===============================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_backward_displacement
+
+.. minigallery:: movement.kinematics.compute_backward_displacement
+   :add-heading: Examples using ``compute_backward_displacement``

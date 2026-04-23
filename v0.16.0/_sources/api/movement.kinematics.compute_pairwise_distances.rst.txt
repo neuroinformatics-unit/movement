@@ -1,0 +1,9 @@
+﻿compute\_pairwise\_distances
+============================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_pairwise_distances
+
+.. minigallery:: movement.kinematics.compute_pairwise_distances
+   :add-heading: Examples using ``compute_pairwise_distances``

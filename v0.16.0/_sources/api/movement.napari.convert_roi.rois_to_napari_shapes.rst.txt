@@ -1,0 +1,9 @@
+rois\_to\_napari\_shapes
+========================
+
+.. currentmodule:: movement.napari.convert_roi
+
+.. autofunction:: rois_to_napari_shapes
+
+.. minigallery:: movement.napari.convert_roi.rois_to_napari_shapes
+   :add-heading: Examples using ``rois_to_napari_shapes``

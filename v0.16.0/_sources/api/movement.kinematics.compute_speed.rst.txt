@@ -1,0 +1,9 @@
+﻿compute\_speed
+==============
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_speed
+
+.. minigallery:: movement.kinematics.compute_speed
+   :add-heading: Examples using ``compute_speed``

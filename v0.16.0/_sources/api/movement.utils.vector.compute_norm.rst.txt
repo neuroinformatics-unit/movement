@@ -1,0 +1,9 @@
+compute\_norm
+=============
+
+.. currentmodule:: movement.utils.vector
+
+.. autofunction:: compute_norm
+
+.. minigallery:: movement.utils.vector.compute_norm
+   :add-heading: Examples using ``compute_norm``

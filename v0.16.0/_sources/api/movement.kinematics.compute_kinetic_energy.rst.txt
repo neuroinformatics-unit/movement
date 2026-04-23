@@ -1,0 +1,9 @@
+﻿compute\_kinetic\_energy
+========================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_kinetic_energy
+
+.. minigallery:: movement.kinematics.compute_kinetic_energy
+   :add-heading: Examples using ``compute_kinetic_energy``

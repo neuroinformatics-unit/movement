@@ -1,0 +1,21 @@
+﻿movement.io.nwb
+===============
+
+.. rubric:: Description
+
+.. automodule:: movement.io.nwb
+
+.. currentmodule:: movement.io.nwb
+
+
+.. rubric:: Classes
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    NWBFileSaveConfig
+    
+
+
+

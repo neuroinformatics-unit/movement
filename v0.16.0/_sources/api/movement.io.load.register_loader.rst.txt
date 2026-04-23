@@ -1,0 +1,9 @@
+register\_loader
+================
+
+.. currentmodule:: movement.io.load
+
+.. autofunction:: register_loader
+
+.. minigallery:: movement.io.load.register_loader
+   :add-heading: Examples using ``register_loader``

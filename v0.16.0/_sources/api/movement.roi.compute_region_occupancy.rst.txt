@@ -1,0 +1,9 @@
+﻿compute\_region\_occupancy
+==========================
+
+.. currentmodule:: movement.roi
+
+.. autofunction:: compute_region_occupancy
+
+.. minigallery:: movement.roi.compute_region_occupancy
+   :add-heading: Examples using ``compute_region_occupancy``

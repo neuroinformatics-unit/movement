@@ -1,0 +1,27 @@
+﻿movement.utils.broadcasting
+===========================
+
+.. rubric:: Description
+
+.. automodule:: movement.utils.broadcasting
+
+.. currentmodule:: movement.utils.broadcasting
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    apply_along_da_axis
+    
+    broadcastable_method
+    
+    make_broadcastable
+    
+    space_broadcastable
+    
+

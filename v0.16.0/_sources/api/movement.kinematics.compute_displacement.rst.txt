@@ -1,0 +1,9 @@
+﻿compute\_displacement
+=====================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_displacement
+
+.. minigallery:: movement.kinematics.compute_displacement
+   :add-heading: Examples using ``compute_displacement``

@@ -1,0 +1,9 @@
+to\_via\_tracks\_file
+=====================
+
+.. currentmodule:: movement.io.save_bboxes
+
+.. autofunction:: to_via_tracks_file
+
+.. minigallery:: movement.io.save_bboxes.to_via_tracks_file
+   :add-heading: Examples using ``to_via_tracks_file``
