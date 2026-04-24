@@ -20,6 +20,7 @@ from qtpy.QtWidgets import (
     QPushButton,
     QWidget,
 )
+from qtpy.QtCore import Qt, Slot
 
 from movement.io import load_dataset
 from movement.napari.convert import ds_to_napari_layers
@@ -56,13 +57,19 @@ class DataLoader(QWidget):
         """Initialize the data loader widget."""
         super().__init__(parent=parent)
         self.viewer = napari_viewer
-        self.setLayout(QFormLayout())
+        self.main_layout = QFormLayout()
+        self.setLayout(self.main_layout)
 
         # Create widgets
         self._create_source_software_widget()
         self._create_fps_widget()
         self._create_file_path_widget()
         self._create_load_button()
+
+        # Connect signals
+        self.source_software_combo.currentTextChanged.connect(
+            self._on_source_software_changed
+        )
 
         # Connect frame slider range update to layer events
         for action_str in ["inserted", "removed"]:
@@ -76,7 +83,7 @@ class DataLoader(QWidget):
         self.source_software_combo = QComboBox()
         self.source_software_combo.setObjectName("source_software_combo")
         self.source_software_combo.addItems(SUPPORTED_DATA_FILES.keys())
-        self.layout().addRow("source software:", self.source_software_combo)
+        self.main_layout.addRow("source software:", self.source_software_combo)
 
     def _create_fps_widget(self):
         """Create a spinbox for selecting the frames per second (fps)."""
@@ -96,11 +103,7 @@ class DataLoader(QWidget):
         )
 
         self.fps_spinbox.setToolTip(self.fps_default_tooltip)
-        # Connect fps spinbox with _on_source_software_changed
-        self.source_software_combo.currentTextChanged.connect(
-            self._on_source_software_changed,
-        )
-        self.layout().addRow("fps:", self.fps_spinbox)
+        self.main_layout.addRow("fps:", self.fps_spinbox)
 
     def _create_file_path_widget(self):
         """Create a line edit and browse button for selecting the file path.
@@ -119,8 +122,9 @@ class DataLoader(QWidget):
         self.file_path_layout = QHBoxLayout()
         self.file_path_layout.addWidget(self.file_path_edit)
         self.file_path_layout.addWidget(self.browse_button)
-        self.layout().addRow("file path:", self.file_path_layout)
+        self.main_layout.addRow("file path:", self.file_path_layout)
 
+    @Slot(str)
     def _on_source_software_changed(self, current_text: str):
         """Enable/disable the fps spinbox based on source software."""
         is_netcdf = current_text in SUPPORTED_NETCDF_FILES
@@ -140,8 +144,9 @@ class DataLoader(QWidget):
         self.load_button = QPushButton("Load")
         self.load_button.setObjectName("load_button")
         self.load_button.clicked.connect(lambda: self._on_load_clicked())
-        self.layout().addRow(self.load_button)
+        self.main_layout.addRow(self.load_button)
 
+    @Slot()
     def _on_browse_clicked(self):
         """Open a file dialog to select a file."""
         file_suffixes = (
@@ -164,6 +169,7 @@ class DataLoader(QWidget):
         # Add the file path to the line edit (text field)
         self.file_path_edit.setText(file_path)
 
+    @Slot()
     def _on_load_clicked(self):
         """Load the file and add as a Points and Tracks layers."""
         # Get input data

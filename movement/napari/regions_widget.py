@@ -12,7 +12,7 @@ from pathlib import Path
 from napari.layers import Shapes
 from napari.utils.notifications import show_error
 from napari.viewer import Viewer
-from qtpy.QtCore import QAbstractTableModel, QModelIndex, Qt
+from qtpy.QtCore import QAbstractTableModel, QModelIndex, Qt, Slot
 from qtpy.QtWidgets import (
     QComboBox,
     QFileDialog,
@@ -201,6 +201,7 @@ class RegionsWidget(QWidget):
             self.layer_dropdown.addItem(DROPDOWN_PLACEHOLDER)
             self.layer_dropdown.model().item(0).setEnabled(False)
 
+    @Slot(str)
     def _on_layer_selected(self, layer_name: str):
         """Handle layer selection from dropdown.
 
@@ -223,6 +224,7 @@ class RegionsWidget(QWidget):
             # Connect the region layer to the table model
             self._link_layer_to_model(region_layer)
 
+    @Slot()
     def _on_napari_layer_selection_changed(self, event=None):
         """Sync napari layer list selection to the dropdown and table.
 
@@ -247,11 +249,13 @@ class RegionsWidget(QWidget):
         self.layer_dropdown.setCurrentText(active.name)
         self._syncing_layer_selection = False
 
+    @Slot()
     def _on_layer_renamed(self, event=None):
         """Handle layer renaming by updating the dropdown."""
         self._update_layer_dropdown()
         self.layer_dropdown.setCurrentText(event.source.name)
 
+    @Slot()
     def _add_new_layer(self):
         """Create a new Regions layer and select it."""
         new_layer = self.viewer.add_shapes(
@@ -260,6 +264,7 @@ class RegionsWidget(QWidget):
         )
         self.layer_dropdown.setCurrentText(new_layer.name)
 
+    @Slot()
     def _save_region_layer(self):
         """Save all regions in the current layer to a GeoJSON file.
 
@@ -299,6 +304,7 @@ class RegionsWidget(QWidget):
         except Exception as e:
             show_error(f"Failed to save regions to '{file_path}': {e}")
 
+    @Slot()
     def _load_region_layer(self):
         """Open a GeoJSON file and load its regions into a new region layer."""
         file_path, _ = QFileDialog.getOpenFileName(
