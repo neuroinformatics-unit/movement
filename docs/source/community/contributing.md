@@ -436,7 +436,9 @@ ds = from_mysoftware_file("path/to/mysoftware_output.csv")
 If a `file_validators` argument is supplied to the {func}`@register_loader()<movement.io.load.register_loader>` decorator, the decorator selects the appropriate validator—based on its declared `suffixes`—and uses it to normalise and validate the input `file` before invoking the loader.
 As a result, the loader receives the validated file object instead of the raw path or handle.
 
-If no validator is provided, the loader is passed the raw `file` argument as-is.
+Providing `file_validators` also enables **automatic source software inference**: when users call {func}`load_dataset()<movement.io.load.load_dataset>` with `source_software="auto"` (the default), `movement` probes the registered validators to determine which loader to use.
+A new loader with validators will therefore be picked up by auto-inference automatically, without any additional changes.
+If no validator is provided, the auto-inference will not be able to detect that file format.
 
 :::{dropdown} Handling multiple file formats for the same software
 :color: success
@@ -478,6 +480,17 @@ SourceSoftware: TypeAlias = Literal[
     "MySoftware",  # Newly added software
 ]
 ```
+
+### Developing the CLI
+
+The `movement` command-line interface lives in `movement/cli_entrypoint`
+and is built with [Typer](https://typer.tiangolo.com/). Subcommands are
+defined by decorating functions with `@app.command()` on the shared `app`
+instance (see the existing `info` and `launch` subcommands as a template).
+The console script is registered via `[project.scripts]` in `pyproject.toml`,
+pointing to `movement.cli_entrypoint:main`. Tests for the CLI live in
+`tests/test_unit/test_cli_entrypoint.py` and use `typer.testing.CliRunner`
+to invoke the app and assert on exit codes and output.
 
 ### Developing the napari plugin
 
@@ -661,6 +674,26 @@ This is configured in `docs/source/conf.py` under the `sphinx_gallery_conf` vari
 and further customised for our repository by the `.binder/postBuild` script.
 If your examples rely on packages that are not among `movement`'s dependencies,
 you will need to add them to the `.binder/requirements.txt` file.
+
+For examples contributed by people outside the core development team, we add
+acknowledgements as an [admonition](sphinx-doc:restructuredtext/directives.html#admonitions-messages-and-warnings) near the top of the example file,
+roughly following the pattern below.
+
+```python
+"""Title
+========
+Subtitle (one-line summary).
+"""
+
+# %%
+# .. admonition:: Acknowledgements
+#   :class: acknowledgements
+#
+#   This example was originally contributed by
+#   `{NAME} {SURNAME} <https://github.com/{USERNAME}>`_,
+#   a {ROLE} at the `{AFFILIATION} <{AFFILIATION_URL}>`_
+#   studying {SUBJECT}.
+```
 
 ### Cross-referencing Python objects
 :::{note}

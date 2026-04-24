@@ -6,6 +6,17 @@ to efficiently apply functions across any data dimension.
 """
 
 # %%
+# .. admonition:: Acknowledgements
+#   :class: acknowledgements
+#
+#   This example was originally contributed by `Will Graham
+#   <https://github.com/willGraham01>`_, as part of a collaboration between the
+#   `UCL Advanced Research Computing Centre
+#   <https://www.ucl.ac.uk/advanced-research-computing>`_
+#   and the `Keshavarzi Laboratory <https://www.keshavarzilab.com/>`_ at the
+#   University of Cambridge.
+
+# %%
 # Summary
 # -------
 # :func:`@make_broadcastable()<movement.utils.broadcasting.\
@@ -277,7 +288,7 @@ xr.testing.assert_equal(
 # %%
 # But importantly, ``in_slippery_region_broadcastable`` also works on
 # ``DataArrays`` with different dimensions.
-# For example, we could have pre-selected one of our individual beforehand.
+# For example, we could have preselected one of our individual beforehand.
 i_id = "AEON3B_NTP"
 individual_0 = positions.sel(individual=i_id)
 

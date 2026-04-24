@@ -1,7 +1,7 @@
 """Wrappers for plotting occupancy data of select individual."""
 
 from collections.abc import Hashable, Sequence
-from typing import Any, Literal, TypeAlias
+from typing import Any, Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,7 +9,7 @@ import xarray as xr
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure, SubFigure
 
-HistInfoKeys: TypeAlias = Literal["h", "xedges", "yedges"]
+type HistInfoKeys = Literal["h", "xedges", "yedges"]
 
 DEFAULT_HIST_ARGS = {"alpha": 1.0, "bins": 30, "cmap": "viridis"}
 

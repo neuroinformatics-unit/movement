@@ -5,10 +5,10 @@ from functools import wraps
 from pathlib import Path
 from typing import (
     Concatenate,
+    Final,
     Literal,
     ParamSpec,
     Protocol,
-    TypeAlias,
     TypeVar,
     cast,
 )
@@ -22,7 +22,7 @@ from movement.validators.files import ValidFile
 
 TInputFile = TypeVar("TInputFile", Path, str, pynwb.file.NWBFile)
 P = ParamSpec("P")
-SourceSoftware: TypeAlias = Literal[
+type SourceSoftware = Literal[
     "DeepLabCut",
     "SLEAP",
     "LightningPose",
@@ -30,6 +30,14 @@ SourceSoftware: TypeAlias = Literal[
     "NWB",
     "VIA-tracks",
 ]
+AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE: Final = "DeepLabCut/LightningPose"
+
+type InferredSourceSoftware = (
+    SourceSoftware | Literal["DeepLabCut/LightningPose"]
+)
+type SourceSoftwareOrAuto = (
+    SourceSoftware | Literal["auto", "DeepLabCut/LightningPose"]
+)
 
 
 class LoaderProtocol(Protocol):
@@ -71,6 +79,86 @@ class LoaderProtocol(Protocol):
 
 
 _LOADER_REGISTRY: dict[str, LoaderProtocol] = {}
+_LOADER_VALIDATORS_REGISTRY: dict[SourceSoftware, list[type[ValidFile]]] = {}
+
+
+def infer_source_software(
+    file: Path | str | pynwb.file.NWBFile,
+    **loader_kwargs,
+) -> InferredSourceSoftware:
+    """Infer the ``source_software`` from a given input file.
+
+    Tries the file validators registered for each built-in loader and
+    returns the name of the matching source software. If multiple candidates
+    match (i.e. the file format is shared across software packages, as with
+    DeepLabCut-style CSV files), a combined label is returned (e.g.
+    ``"DeepLabCut/LightningPose"``).
+
+    Parameters
+    ----------
+    file
+        Input file path or an :class:`pynwb.file.NWBFile` object.
+    **loader_kwargs
+        Optional keyword arguments forwarded to file validators (when they
+        accept additional parameters, e.g. VIA-tracks `frame_regexp`).
+
+    Returns
+    -------
+    InferredSourceSoftware
+        The inferred source software name.
+
+    Raises
+    ------
+    ValueError
+        If no registered validator matches the file or if multiple
+        ``source_software`` candidates (beyond the expected
+        DeepLabCut/LightningPose case) match the file.
+
+    """
+    # If it's an NWBFile object, we can immediately return "NWB"
+    if isinstance(file, pynwb.file.NWBFile):
+        return "NWB"
+    file_path = Path(file)
+
+    # Try all registered validators and keep track of matching candidates
+    candidates: list[SourceSoftware] = []
+
+    for source_sw, validators_list in _LOADER_VALIDATORS_REGISTRY.items():
+        suffix_map = _build_suffix_map(validators_list)
+        try:
+            # Temporarily disable the logger to avoid flooding the console
+            # with expected validation errors during candidate testing
+            logger.disable("movement")
+            _validate_file(
+                file_path,
+                suffix_map,
+                source_sw,
+                loader_kwargs=loader_kwargs,
+            )
+        except (OSError, TypeError, ValueError):
+            continue
+        finally:
+            logger.enable("movement")  # re-store logging
+        candidates.append(source_sw)
+
+    # If exactly one candidate matches, return it.
+    if len(candidates) == 1:
+        return candidates[0]
+
+    # DeepLabCut and LightningPose currently share the same CSV validator.
+    # If both match, we return a combined label to indicate the ambiguity.
+    if set(candidates) == {"DeepLabCut", "LightningPose"}:
+        return AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE
+
+    # In every other case (no candidates or multiple unexpected candidates),
+    # we cannot infer a valid source software.
+    raise logger.error(
+        ValueError(
+            f"Could not infer source_software from file '{file_path}'. "
+            "Verify that the file format is supported by movement or "
+            "try passing an explicit source_software value to load_dataset."
+        )
+    )
 
 
 def _get_validator_kwargs(
@@ -101,8 +189,8 @@ def _build_suffix_map(
     return suffix_map
 
 
-def _validate_file(
-    file: TInputFile,
+def _validate_file[T: (Path, str, pynwb.file.NWBFile)](
+    file: T,
     suffix_map: dict[str, type[ValidFile]],
     source_software: SourceSoftware,
     loader_kwargs: dict | None = None,
@@ -206,6 +294,7 @@ def register_loader(
         and not isinstance(file_validators, list)
         else file_validators or []
     )
+    _LOADER_VALIDATORS_REGISTRY[source_software] = validators_list
     # Map suffixes to validator classes
     suffix_map = _build_suffix_map(validators_list)
 
@@ -231,7 +320,7 @@ def register_loader(
 
 def load_dataset(
     file: Path | str | pynwb.file.NWBFile,
-    source_software: SourceSoftware,
+    source_software: SourceSoftwareOrAuto = "auto",
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
@@ -249,7 +338,8 @@ def load_dataset(
         the value of ``source_software``, the appropriate loading function
         will be called.
     source_software
-        The source software of the file.
+        The source software of the file. If set to ``"auto"`` (default),
+        it is inferred from the file format via :func:`infer_source_software`.
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
@@ -280,6 +370,14 @@ def load_dataset(
     ... )
 
     """
+    if source_software == "auto":
+        source_software = infer_source_software(file, **kwargs)
+
+    if source_software == AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE:
+        ds = _LOADER_REGISTRY["DeepLabCut"](file, fps, **kwargs)
+        ds.attrs["source_software"] = AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE
+        return ds
+
     if source_software not in _LOADER_REGISTRY:
         raise logger.error(
             ValueError(f"Unsupported source software: {source_software}")
@@ -292,12 +390,13 @@ def load_dataset(
                 "metadata in the file."
             )
         return _LOADER_REGISTRY[source_software](file, **kwargs)
+
     return _LOADER_REGISTRY[source_software](file, fps, **kwargs)
 
 
 def load_multiview_dataset(
     file_dict: dict[str, Path | str],
-    source_software: SourceSoftware,
+    source_software: SourceSoftwareOrAuto = "auto",
     fps: float | None = None,
     **kwargs,
 ) -> xr.Dataset:
@@ -308,7 +407,8 @@ def load_multiview_dataset(
     file_dict
         A dict whose keys are the view names and values are the paths to load.
     source_software
-        The source software of the file.
+        The source software of the files. If set to ``"auto"`` (default),
+        it is inferred from the file format via :func:`infer_source_software`.
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.

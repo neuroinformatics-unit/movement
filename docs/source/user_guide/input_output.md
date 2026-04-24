@@ -52,18 +52,37 @@ To import {func}`load_dataset()<movement.io.load.load_dataset>`:
 from movement.io import load_dataset
 ```
 
-To load data from any supported format, specify the `file` path, the `source_software` that produced the file, and optionally the `fps` of the video from which the data were obtained.
+By default, `movement` infers `source_software` from the file format via
+{func}`infer_source_software()<movement.io.load.infer_source_software>`.
 
-For example, to load pose tracks from a DeepLabCut .h5 file:
 ```python
 ds = load_dataset(
     "/path/to/file.h5",
-    source_software="DeepLabCut",
-    fps=30, # Optional; time coords will be in seconds if provided, otherwise in frames
+    source_software="auto",  # default
+    fps=30,
 )
 ```
 
-This reads the file and returns a [movement dataset](target-poses-and-bboxes-dataset) containing the tracked trajectories and associated confidence values.
+This reads the file and returns a [movement dataset](target-poses-and-bboxes-dataset)
+containing the tracked trajectories, the associated confidence values and
+some metadata attributes. Providing an `fps` (frames per second) value ensures
+that time coordinates are in seconds rather than in frame numbers.
+
+When a file format could have plausibly come from multiple software packages
+(e.g. DeepLabCut-style `.csv` files, which are also used by LightningPose),
+`movement` records the ambiguity in the loaded dataset's attributes
+(e.g. `ds.attrs["source_software"] = "DeepLabCut/LightningPose"`).
+
+If you know the source software or want to ensure a specific loader
+is used, you can set `source_software` explicitly:
+
+```python
+ds = load_dataset(
+    "/path/to/file.csv",
+    source_software="DeepLabCut",
+    fps=30,
+)
+```
 
 #### Passing additional options
 
@@ -75,7 +94,7 @@ For example, to specify the tracked individual's name when loading pose tracks f
 ds = load_dataset(
     "/path/to/file.csv",
     source_software="Anipose",
-    individual_name="id_0"
+    individual_name="id_0",
 )
 ```
 

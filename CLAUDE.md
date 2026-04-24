@@ -286,7 +286,7 @@ git push --follow-tags
 
 This triggers:
 1. Linting checks
-2. Tests across Python 3.11, 3.12, 3.13 on Linux, macOS, Windows
+2. Tests across Python 3.12, 3.13, 3.14 on Linux, macOS, Windows
 3. Build source distribution and wheels
 4. Deployment to PyPI (automatic for tags)
 
