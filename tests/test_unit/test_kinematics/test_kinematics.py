@@ -355,11 +355,11 @@ def test_forward_displacement_with_multiindex_coords():
     # Create DataFrame with MultiIndex (reproduction from issue #794)
     frames = range(3)
     space = ["x", "y"]
-    keypoints = ["centroid"]
-    individuals = ["bird001"]
+    keypoint = ["centroid"]
+    individual = ["bird001"]
 
     df = pd.DataFrame(
-        list(product(frames, space, keypoints, individuals)),
+        list(product(frames, space, keypoint, individual)),
         columns=["time", "space", "keypoint", "individual"],
     )
     df["position"] = np.random.rand(len(df))

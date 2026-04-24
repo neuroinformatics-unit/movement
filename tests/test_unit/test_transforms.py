@@ -475,14 +475,14 @@ def test_poses_to_bboxes(valid_poses_dataset, padding, expected_shape):
     np.testing.assert_array_equal(
         pos_da.coords["time"].values, position.coords["time"].values
     )
-    # keypoints dimension must be gone
+    # keypoint dimension must be gone
     assert "keypoint" not in pos_da.dims
     assert "keypoint" not in shape_da.dims
 
     # At frame 0:
-    #   id_0 keypoints: centroid (0,0), left (0,1), right (1,0)
+    #   id_0 keypoint: centroid (0,0), left (0,1), right (1,0)
     #     -> bbox centroid (0.5, 0.5), shape (1, 1) + padding
-    #   id_1 keypoints: centroid (0,0), left (-1,0), right (0,1)
+    #   id_1 keypoint: centroid (0,0), left (-1,0), right (0,1)
     #     -> bbox centroid (-0.5, 0.5), shape (1, 1) + padding
     assert np.allclose(pos_da.sel(time=0, individual="id_0"), [0.5, 0.5])
     assert np.allclose(shape_da.sel(time=0, individual="id_0"), expected_shape)

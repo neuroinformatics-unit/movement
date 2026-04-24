@@ -133,7 +133,7 @@ def poses_to_bboxes(
     ----------
     position : xarray.DataArray
         A 2D poses position array with dimensions
-        ``(time, space, keypoints, individuals)``, where the ``space``
+        ``(time, space, keypoint, individual)``, where the ``space``
         coordinate contains exactly ``["x", "y"]``.
     padding : float, optional
         Number of pixels to add as padding around the bounding box in all
@@ -146,9 +146,9 @@ def poses_to_bboxes(
         A tuple ``(position, shape)`` where:
 
         - ``position``: bounding box centroids with dimensions
-          ``(time, space, individuals)``.
+          ``(time, space, individual)``.
         - ``shape``: bounding box width and height with dimensions
-          ``(time, space, individuals)``.
+          ``(time, space, individual)``.
 
     Raises
     ------

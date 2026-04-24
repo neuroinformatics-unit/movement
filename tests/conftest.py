@@ -58,3 +58,18 @@ def caplog(caplog: LogCaptureFixture):
 def rng():
     """Return a random number generator with a fixed seed."""
     return np.random.default_rng(seed=42)
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    # execute all other hooks to obtain the report object
+    outcome = yield
+    rep = outcome.get_result()
+
+    # set a report attribute for each phase of a test, which can
+    # be "setup", "call", "teardown"
+    setattr(item, "rep_" + rep.when, rep)
+    # Ensure rep_call exists even if setup fails, to avoid napari crash
+    if not hasattr(item, "rep_call"):
+        item.rep_call = type(
+            "obj", (), {"failed": False, "passed": False, "skipped": False}
+        )()

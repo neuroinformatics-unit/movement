@@ -454,7 +454,7 @@ class TestTurningAngle:
             == valid_data_array_for_forward_vector.sizes["time"]
         )
         assert "space" not in angles.dims
-        assert "individuals" in angles.dims
+        assert "individual" in angles.dims
 
         # Attributes
         assert angles.name == "turning_angle"
@@ -614,17 +614,17 @@ class TestTurningAngle:
 
         # Explicit, guaranteed assignment using .loc
         data.loc[
-            {"time": 2, "individuals": "id_0", "keypoints": "left_ear"}
+            {"time": 2, "individual": "id_0", "keypoint": "left_ear"}
         ] = np.nan  # type: ignore[index]
 
         angles = compute_turning_angle(data)
 
         # A NaN at t=2 must break the steps at t=2 and t=3
         assert np.isnan(
-            angles.sel(time=2, individuals="id_0", keypoints="left_ear").item()
+            angles.sel(time=2, individual="id_0", keypoint="left_ear").item()
         )
         assert np.isnan(
-            angles.sel(time=3, individuals="id_0", keypoints="left_ear").item()
+            angles.sel(time=3, individual="id_0", keypoint="left_ear").item()
         )
 
     def test_stationary_keypoint_independent_masking(self):
@@ -632,7 +632,7 @@ class TestTurningAngle:
         moving kp has valid angles; stationary kp all NaN.
         """
         # Create a 4-timestep array with 2 keypoints
-        # Shape: (time, keypoints, space)
+        # Shape: (time, keypoint, space)
         data = np.zeros((4, 2, 2))
 
         # kp_0: moves along x-axis (0, 1, 2, 3)
@@ -642,10 +642,10 @@ class TestTurningAngle:
 
         ds = xr.DataArray(
             data,
-            dims=["time", "keypoints", "space"],
+            dims=["time", "keypoint", "space"],
             coords={
                 "time": np.arange(4),
-                "keypoints": ["kp_0", "kp_1"],
+                "keypoint": ["kp_0", "kp_1"],
                 "space": ["x", "y"],
             },
         )
@@ -653,7 +653,7 @@ class TestTurningAngle:
         angles = compute_turning_angle(ds)
 
         # Moving keypoint (kp_0): NaN at t=0, t=1; valid (0.0) at t=2, t=3
-        angles_kp0 = angles.isel(keypoints=0)
+        angles_kp0 = angles.isel(keypoint=0)
         assert np.isnan(angles_kp0.isel(time=0).item())
         assert np.isnan(angles_kp0.isel(time=1).item())
         assert np.allclose(
@@ -661,5 +661,5 @@ class TestTurningAngle:
         )
 
         # Stationary keypoint (kp_1): should be all NaN
-        angles_kp1 = angles.isel(keypoints=1)
+        angles_kp1 = angles.isel(keypoint=1)
         assert np.all(np.isnan(angles_kp1.values))

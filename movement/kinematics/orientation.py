@@ -362,7 +362,7 @@ def compute_turning_angle(
     Compute turning angles from the centroid trajectory of a poses
     dataset ``ds``:
 
-    >>> centroid = ds.position.mean(dim="keypoints")
+    >>> centroid = ds.position.mean(dim="keypoint")
     >>> angles = compute_turning_angle(centroid)
 
     Compute in degrees, with a minimum step length of 3 pixels to filter out

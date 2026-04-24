@@ -419,16 +419,16 @@ def _numpy_arrays_from_valid_via_object(
     frame_indices_per_obs = np.searchsorted(unique_frames, frame_numbers)
 
     # Initialise output dense arrays and fill with NaNs
-    n_individuals = len(unique_ids)
+    n_individual = len(unique_ids)
     n_frames = len(unique_frames)
     position_array = np.full(
-        (n_frames, 2, n_individuals), np.nan, dtype=np.float32
+        (n_frames, 2, n_individual), np.nan, dtype=np.float32
     )
     shape_array = np.full(
-        (n_frames, 2, n_individuals), np.nan, dtype=np.float32
+        (n_frames, 2, n_individual), np.nan, dtype=np.float32
     )
     confidence_array = np.full(
-        (n_frames, n_individuals), np.nan, dtype=np.float32
+        (n_frames, n_individual), np.nan, dtype=np.float32
     )
 
     # Place sparse values directly into the output
