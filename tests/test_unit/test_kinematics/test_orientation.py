@@ -613,9 +613,9 @@ class TestTurningAngle:
         data = valid_data_array_for_forward_vector.copy().astype(float)
 
         # Explicit, guaranteed assignment using .loc
-        data.loc[
-            {"time": 2, "individual": "id_0", "keypoint": "left_ear"}
-        ] = np.nan  # type: ignore[index]
+        data.loc[{"time": 2, "individual": "id_0", "keypoint": "left_ear"}] = (
+            np.nan
+        )  # type: ignore[index]
 
         angles = compute_turning_angle(data)
 

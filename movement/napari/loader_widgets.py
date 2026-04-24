@@ -10,6 +10,7 @@ from napari.layers import Image, Points, Shapes, Tracks
 from napari.settings import get_settings
 from napari.utils.notifications import show_error, show_warning
 from napari.viewer import Viewer
+from qtpy.QtCore import Slot
 from qtpy.QtWidgets import (
     QComboBox,
     QDoubleSpinBox,
@@ -20,7 +21,6 @@ from qtpy.QtWidgets import (
     QPushButton,
     QWidget,
 )
-from qtpy.QtCore import Qt, Slot
 
 from movement.io import load_dataset
 from movement.napari.convert import ds_to_napari_layers
