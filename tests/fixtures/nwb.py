@@ -31,7 +31,7 @@ def nwb_file(nwbfile_object, tmp_path):
 @pytest.fixture
 def nwbfile_object(rng):
     """Return an NWBFile object containing poses for
-    a single individual with three keypoints and the associated
+    a single individual with three keypoint and the associated
     skeleton object, as well as a camera device.
     """
 
@@ -47,10 +47,10 @@ def nwbfile_object(rng):
         )
         subject = Subject(subject_id=identifier, species="Mus musculus")
         nwb_file_obj.subject = subject
-        keypoints = ["front_left_paw", "body", "front_right_paw"]
+        keypoint = ["front_left_paw", "body", "front_right_paw"]
         skeleton = Skeleton(
             name="subj1_skeleton",
-            nodes=keypoints,
+            nodes=keypoint,
             edges=np.array([[0, 1], [1, 2]], dtype="uint8"),
             subject=subject,
         )
@@ -61,9 +61,9 @@ def nwbfile_object(rng):
             manufacturer="my manufacturer",
         )
         pose_estimation_series = []
-        for keypoint in keypoints:
+        for kp in keypoint:
             pose_estimation_series.append(
-                create_pose_estimation_series(rng, keypoint, **kwargs)
+                create_pose_estimation_series(rng, kp, **kwargs)
             )
         pose_estimation = PoseEstimation(
             name="PoseEstimation",

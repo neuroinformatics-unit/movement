@@ -3,6 +3,7 @@
 from unittest.mock import patch
 
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 from pytest import DATA_PATHS
@@ -39,12 +40,12 @@ def test_load_from_sleap_file_without_tracks(sleap_file_without_tracks):
     ds_from_tracked = load_poses.from_sleap_file(
         DATA_PATHS.get("SLEAP_single-mouse_EPM.analysis.h5")
     )
-    # Check if the "individuals" coordinate matches
+    # Check if the "individual" coordinate matches
     # the assigned default "id_0"
-    assert ds_from_trackless.individuals.values.tolist() == ["id_0"]
+    assert ds_from_trackless.individual == ["id_0"]
     xr.testing.assert_allclose(
-        ds_from_trackless.drop_vars("individuals"),
-        ds_from_tracked.drop_vars("individuals"),
+        ds_from_trackless.drop_vars("individual"),
+        ds_from_tracked.drop_vars("individual"),
     )
 
 
@@ -116,6 +117,30 @@ def test_load_from_dlc_style_df(
     expected_values = {
         **expected_values_poses,
         "source_software": source_software,
+    }
+    helpers.assert_valid_dataset(ds, expected_values)
+
+
+def test_load_from_dlc_style_df_legacy_individuals(
+    valid_dlc_poses_df, helpers
+):
+    """Test loading pose tracks from DLC DataFrames with
+    legacy 'individuals' level.
+    """
+    df = valid_dlc_poses_df.copy()
+    # Modify the df to have a multi-animal format with 'individuals'
+    cols = [
+        (scorer, "id_0", bodypart, coord)
+        for scorer, bodypart, coord in df.columns.to_list()
+    ]
+    df.columns = pd.MultiIndex.from_tuples(
+        cols, names=["scorer", "individuals", "bodyparts", "coords"]
+    )
+
+    ds = load_poses.from_dlc_style_df(df, source_software="DeepLabCut")
+    expected_values = {
+        **expected_values_poses,
+        "source_software": "DeepLabCut",
     }
     helpers.assert_valid_dataset(ds, expected_values)
 
@@ -235,7 +260,7 @@ def test_load_from_anipose_file():
     ds = load_poses.from_anipose_file(file_path)
     assert ds.position.shape == (246, 3, 6, 1)
     assert ds.confidence.shape == (246, 6, 1)
-    assert ds.coords["keypoints"].values.tolist() == [
+    assert ds.coords["keypoint"].values.tolist() == [
         "l-base",
         "l-edge",
         "l-middle",
@@ -257,8 +282,8 @@ def test_load_from_nwb_file(input_type, kwargs, request):
     ds_from_file_path = load_poses.from_nwb_file(nwb_file)
     assert ds_from_file_path.sizes == {
         "time": 100,
-        "individuals": 1,
-        "keypoints": 3,
+        "individual": 1,
+        "keypoint": 3,
         "space": 2,
     }
     expected_attrs = {
@@ -321,3 +346,30 @@ def test_from_multiview_files():
     assert isinstance(multi_view_ds, xr.Dataset)
     assert "view" in multi_view_ds.dims
     assert multi_view_ds.view.values.tolist() == view_names
+
+
+def test_ds_from_nwb_object_no_confidence():
+    """Test loading poses from an NWBFile object that lacks confidence data."""
+    from unittest.mock import MagicMock
+
+    import numpy as np
+
+    from movement.io.load_poses import _ds_from_nwb_object
+
+    mock_nwb = MagicMock()
+    mock_nwb.identifier = "subj1"
+
+    mock_pes = MagicMock()
+    mock_pes.data = np.zeros((10, 2))
+    mock_pes.timestamps = np.arange(10) / 30.0
+    del mock_pes.confidence
+    mock_pes.rate = None
+
+    mock_pe = MagicMock()
+    mock_pe.source_software = "mock_software"
+    mock_pe.pose_estimation_series = {"mock_kp": mock_pes}
+
+    mock_nwb.processing = {"behavior": {"PoseEstimation": mock_pe}}
+
+    ds = _ds_from_nwb_object(mock_nwb)
+    assert np.isnan(ds.confidence.values).all()

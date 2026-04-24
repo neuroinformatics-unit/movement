@@ -13,10 +13,10 @@ from movement.roi.base import BaseRegionOfInterest
 def sample_position_array() -> xr.DataArray:
     """Return a simulated position array to test the egocentric angle.
 
-    The data has time, space, and keypoints dimensions.
+    The data has time, space, and keypoint dimensions.
 
-    The keypoints are left, right, midpt (midpoint), and wild.
-    The midpt is the mean of the left and right keypoints.
+    The keypoint are left, right, midpt (midpoint), and wild.
+    The midpt is the mean of the left and right keypoint.
     The wild keypoint is a point in the plane distinct from the midpt, and is
     used to test that the function respects the origin of the forward vector
     that the user provides (even if it is physically non-nonsensical).
@@ -71,10 +71,10 @@ def sample_position_array() -> xr.DataArray:
     points[:, :, 2] = np.mean(points[:, :, 0:2], axis=2)
     return xr.DataArray(
         data=points,
-        dims=["time", "space", "keypoints"],
+        dims=["time", "space", "keypoint"],
         coords={
             "space": ["x", "y"],
-            "keypoints": ["left", "right", "midpt", "wild"],
+            "keypoint": ["left", "right", "midpt", "wild"],
         },
     )
 
@@ -88,7 +88,7 @@ def sample_position_array() -> xr.DataArray:
                 compute_forward_vector(
                     sample_position_array(), "left", "right"
                 ),
-                sample_position_array().sel(keypoints="midpt", drop=True),
+                sample_position_array().sel(keypoint="midpt", drop=True),
             ],
             {"in_degrees": True},
             np.array(
@@ -109,7 +109,7 @@ def sample_position_array() -> xr.DataArray:
                 compute_forward_vector(
                     sample_position_array(), "left", "right"
                 ),
-                sample_position_array().sel(keypoints="wild", drop=True),
+                sample_position_array().sel(keypoint="wild", drop=True),
             ],
             {"in_degrees": True},
             np.array(
@@ -130,7 +130,7 @@ def sample_position_array() -> xr.DataArray:
                 compute_forward_vector(
                     sample_position_array(), "left", "right"
                 ),
-                sample_position_array().sel(keypoints="midpt", drop=True),
+                sample_position_array().sel(keypoint="midpt", drop=True),
             ],
             {"in_degrees": True},
             np.array(
@@ -151,7 +151,7 @@ def sample_position_array() -> xr.DataArray:
                 compute_forward_vector(
                     sample_position_array(), "left", "right"
                 ),
-                sample_position_array().sel(keypoints="midpt", drop=True),
+                sample_position_array().sel(keypoint="midpt", drop=True),
             ],
             {
                 "boundary_only": True,
@@ -171,7 +171,7 @@ def sample_position_array() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square_with_hole",
-            [sample_position_array().sel(keypoints="midpt", drop=True)],
+            [sample_position_array().sel(keypoint="midpt", drop=True)],
             {},
             np.deg2rad(
                 np.array(
@@ -189,7 +189,7 @@ def sample_position_array() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square",
-            [sample_position_array().sel(keypoints="midpt", drop=True)],
+            [sample_position_array().sel(keypoint="midpt", drop=True)],
             {},
             np.deg2rad(
                 np.array(
@@ -207,7 +207,7 @@ def sample_position_array() -> xr.DataArray:
         ),
         pytest.param(
             "unit_square",
-            [sample_position_array().sel(keypoints="midpt", drop=True)],
+            [sample_position_array().sel(keypoint="midpt", drop=True)],
             {"boundary_only": True},
             np.deg2rad(
                 np.array(
@@ -258,9 +258,9 @@ def test_ego_and_allocentric_angle_to_region(
 def points_around_segment() -> xr.DataArray:
     """Sample points on either side of the segment y=x.
 
-    Data has (time, space, keypoints) dimensions, shape (, 2, 2).
+    Data has (time, space, keypoint) dimensions, shape (, 2, 2).
 
-    Keypoints are "left" and "right".
+    Keypoint are "left" and "right".
 
     time 1:
         left @ (0., 1.), right @ (0.05, 0.95).
@@ -286,10 +286,10 @@ def points_around_segment() -> xr.DataArray:
     ]
     return xr.DataArray(
         data=points,
-        dims=["time", "space", "keypoints"],
+        dims=["time", "space", "keypoint"],
         coords={
             "space": ["x", "y"],
-            "keypoints": ["left", "right"],
+            "keypoint": ["left", "right"],
         },
     )
 
@@ -316,7 +316,7 @@ def test_angle_to_normal(
     )
 
     fwd_vector = compute_forward_vector(points_around_segment, "left", "right")
-    positions = points_around_segment.mean(dim="keypoints")
+    positions = points_around_segment.mean(dim="keypoint")
     angles_to_support = segment_of_y_equals_x.compute_angle_to_normal(
         fwd_vector, positions
     )

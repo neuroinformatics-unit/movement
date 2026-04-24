@@ -11,40 +11,40 @@ from movement.validators.arrays import validate_dims_coords
 
 def compute_kinetic_energy(
     position: xr.DataArray,
-    keypoints: list | None = None,
+    keypoint: list | None = None,
     masses: dict | None = None,
     decompose: bool = False,
 ) -> xr.DataArray:
     r"""Compute kinetic energy per individual.
 
-    We consider each individual's set of keypoints (pose) as a classical
+    We consider each individual's set of keypoint (pose) as a classical
     system of particles in physics (see Notes).
 
     Parameters
     ----------
-    position
+    position : xr.DataArray
         The input data containing position information, with ``time``,
-        ``space`` and ``keypoints`` as required dimensions.
-    keypoints
+        ``space`` and ``keypoint`` as required dimensions.
+    keypoint : list, optional
         A list of keypoint names to include in the computation.
         By default, all are used.
-    masses
+    masses : dict, optional
         A dictionary mapping keypoint names to masses, e.g.
         {"snout": 1.2, "tail": 0.8}.
-        By default, unit mass is assumed for all keypoints.
-    decompose
+        By default, unit mass is assumed for all keypoint.
+    decompose : bool, optional
         If True, the kinetic energy is decomposed into "translational" and
-        "internal" components (see Notes). This requires at least two keypoints
+        "internal" components (see Notes). This requires at least two keypoint
         per individual, but more would be desirable for a meaningful
         decomposition. The default is False, meaning the total kinetic energy
         is returned.
 
     Returns
     -------
-    xarray.DataArray
+    xr.DataArray
         A data array containing the kinetic energy per individual, for every
         time point. Note that the output array lacks ``space`` and
-        ``keypoints`` dimensions.
+        ``keypoint`` dimensions.
         If ``decompose=True`` an extra ``energy`` dimension is added,
         with coordinates ``translational`` and ``internal``.
 
@@ -63,7 +63,7 @@ def compute_kinetic_energy(
 
     - Translational kinetic energy: the kinetic energy of the individual's
       total mass :math:`M` moving with the centre of mass velocity;
-    - Internal kinetic energy: the kinetic energy of the keypoints moving
+    - Internal kinetic energy: the kinetic energy of the keypoint moving
       relative to the individual's centre of mass.
 
     We compute translational kinetic energy :math:`T_{trans}` as follows:
@@ -92,21 +92,21 @@ def compute_kinetic_energy(
     ...     np.random.rand(3, 2, 4, 2),
     ...     coords={
     ...         "time": np.arange(3),
-    ...         "individuals": ["id0", "id1"],
-    ...         "keypoints": ["snout", "spine", "tail_base", "tail_tip"],
+    ...         "individual": ["id0", "id1"],
+    ...         "keypoint": ["snout", "spine", "tail_base", "tail_tip"],
     ...         "space": ["x", "y"],
     ...     },
-    ...     dims=["time", "individuals", "keypoints", "space"],
+    ...     dims=["time", "individual", "keypoint", "space"],
     ... )
 
     >>> kinetic_energy_total = compute_kinetic_energy(position)
 
     >>> kinetic_energy_total
-    <xarray.DataArray (time: 3, individuals: 2)> Size: 48B
+    <xarray.DataArray (time: 3, individual: 2)> Size: 48B
     0.6579 0.7394 0.1304 0.05152 0.2436 0.5719
     Coordinates:
     * time         (time) int64 24B 0 1 2
-    * individuals  (individuals) <U3 24B 'id0' 'id1'
+    * individual  (individual) <U3 24B 'id0' 'id1'
 
     Compute kinetic energy decomposed into translational
     and internal components:
@@ -114,11 +114,11 @@ def compute_kinetic_energy(
     >>> kinetic_energy = compute_kinetic_energy(position, decompose=True)
 
     >>> kinetic_energy
-    <xarray.DataArray (time: 3, individuals: 2, energy: 2)> Size: 96B
+    <xarray.DataArray (time: 3, individual: 2, energy: 2)> Size: 96B
     0.0172 1.318 0.02069 0.6498 0.02933 ... 0.1716 0.07829 0.7942 0.06901 0.857
     Coordinates:
     * time         (time) int64 24B 0 1 2
-    * individuals  (individuals) <U3 24B 'id0' 'id1'
+    * individual  (individual) <U3 24B 'id0' 'id1'
     * energy       (energy) <U13 104B 'translational' 'internal'
 
     Select the 'internal' component:
@@ -132,7 +132,7 @@ def compute_kinetic_energy(
 
     >>> kinetic_energy = compute_kinetic_energy(
     ...     position,
-    ...     keypoints=["snout", "spine", "tail_base"],
+    ...     keypoint=["snout", "spine", "tail_base"],
     ...     masses=masses,
     ...     decompose=True,
     ... )
@@ -140,18 +140,18 @@ def compute_kinetic_energy(
     """
     # Validate required dimensions and coordinate labels
     validate_dims_coords(
-        position, {"time": [], "space": ["x", "y"], "keypoints": []}
+        position, {"time": [], "space": ["x", "y"], "keypoint": []}
     )
 
-    # Subset keypoints if requested
-    if keypoints is not None:
-        position = position.sel(keypoints=keypoints)
+    # Subset keypoint if requested
+    if keypoint is not None:
+        position = position.sel(keypoint=keypoint)
 
-    # Validate that at least 2 keypoints exist for decomposition
-    if decompose and position.sizes["keypoints"] < 2:
+    # Validate that at least 2 keypoint exist for decomposition
+    if decompose and position.sizes["keypoint"] < 2:
         raise logger.error(
             ValueError(
-                "At least 2 keypoints are required to decompose "
+                "At least 2 keypoint are required to decompose "
                 "kinetic energy into translational and internal components."
             )
         )
@@ -161,9 +161,9 @@ def compute_kinetic_energy(
 
     # Initialise unit weights
     weights = xr.DataArray(
-        np.ones(position.sizes["keypoints"]),
-        dims=["keypoints"],
-        coords={"keypoints": position.coords["keypoints"]},
+        np.ones(position.sizes["keypoint"]),
+        dims=["keypoint"],
+        coords={"keypoint": position.coords["keypoint"]},
     )
 
     # Update weights with keypoint masses, if provided
@@ -173,14 +173,14 @@ def compute_kinetic_energy(
 
     # Compute total KE
     weighted_ke = 0.5 * weights * (compute_norm(velocity) ** 2)
-    ke_total = weighted_ke.sum(dim="keypoints")
+    ke_total = weighted_ke.sum(dim="keypoint")
 
     if not decompose:
         return ke_total
     else:
         # Compute translational KE based on centre of mass velocity
         v_cm = (velocity * weights.expand_dims(space=["x", "y"])).sum(
-            dim="keypoints"
+            dim="keypoint"
         ) / weights.sum()
         ke_trans = 0.5 * weights.sum() * compute_norm(v_cm) ** 2
 

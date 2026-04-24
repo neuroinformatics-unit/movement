@@ -27,7 +27,7 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
     at most by the filter's window length minus one (``window - 1``)
     multiplied by the number of consecutive NaNs in the input data.
     """
-    # Compute number of low confidence keypoints
+    # Compute number of low confidence keypoint
     n_low_confidence_kpts = (sample_dataset.confidence.data < 0.6).sum()
 
     # Check filter position by confidence creates correct number of NaNs

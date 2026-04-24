@@ -22,7 +22,7 @@ def test_load_and_save_to_dlc_style_df(dlc_poses_df, request):
     """
     dlc_poses_df = request.getfixturevalue(dlc_poses_df)
     ds = load_poses.from_dlc_style_df(dlc_poses_df)
-    df = save_poses.to_dlc_style_df(ds, split_individuals=False)
+    df = save_poses.to_dlc_style_df(ds, split_individual=False)
     np.testing.assert_allclose(df.values, dlc_poses_df.values)
 
 
@@ -31,7 +31,7 @@ def test_save_and_load_dlc_file(dlc_output_file, valid_poses_dataset):
     loading them back in returns the same Dataset.
     """
     save_poses.to_dlc_file(
-        valid_poses_dataset, dlc_output_file, split_individuals=False
+        valid_poses_dataset, dlc_output_file, split_individual=False
     )
     ds = load_poses.from_dlc_file(dlc_output_file)
     xr.testing.assert_allclose(ds, valid_poses_dataset)
@@ -43,7 +43,7 @@ def test_convert_sleap_to_dlc_file(sleap_file, dlc_output_file):
     the same Datasets.
     """
     sleap_ds = load_poses.from_sleap_file(sleap_file)
-    save_poses.to_dlc_file(sleap_ds, dlc_output_file, split_individuals=False)
+    save_poses.to_dlc_file(sleap_ds, dlc_output_file, split_individual=False)
     dlc_ds = load_poses.from_dlc_file(dlc_output_file)
     xr.testing.assert_allclose(sleap_ds, dlc_ds)
 

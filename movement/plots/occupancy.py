@@ -1,4 +1,4 @@
-"""Wrappers for plotting occupancy data of select individuals."""
+"""Wrappers for plotting occupancy data of select individual."""
 
 from collections.abc import Hashable, Sequence
 from typing import Any, Literal
@@ -16,16 +16,16 @@ DEFAULT_HIST_ARGS = {"alpha": 1.0, "bins": 30, "cmap": "viridis"}
 
 def plot_occupancy(
     da: xr.DataArray,
-    individuals: Hashable | Sequence[Hashable] | None = None,
-    keypoints: Hashable | Sequence[Hashable] | None = None,
+    individual: Hashable | Sequence[Hashable] | None = None,
+    keypoint: Hashable | Sequence[Hashable] | None = None,
     ax: Axes | None = None,
     **kwargs: Any,
 ) -> tuple[Figure | SubFigure, Axes, dict[HistInfoKeys, np.ndarray]]:
     """Create a 2D occupancy histogram.
 
-    - If there are multiple keypoints selected, the occupancy of the centroid
-      of these keypoints is computed.
-    - If there are multiple individuals selected, their occupancies are
+    - If there are multiple keypoint selected, the occupancy of the centroid
+      of these keypoint is computed.
+    - If there are multiple individual selected, their occupancies are
       aggregated.
 
     Points whose corresponding spatial coordinates have NaN values
@@ -37,18 +37,18 @@ def plot_occupancy(
 
     Parameters
     ----------
-    da
+    da : xarray.DataArray
         Spatial data to create histogram for. NaN values are dropped.
-    individuals
+    individual : Hashable, optional
         The name of the individual(s) to be aggregated and plotted. By default,
-        all individuals are aggregated.
-    keypoints
+        all individual are aggregated.
+    keypoint : Hashable | list[Hashable], optional
         Name of a keypoint or list of such names. The centroid of all provided
-        keypoints is computed, then plotted in the histogram.
-    ax
+        keypoint is computed, then plotted in the histogram.
+    ax : matplotlib.axes.Axes, optional
         Axes object on which to draw the histogram. If not provided, a new
         figure and axes are created and returned.
-    kwargs
+    kwargs : Any
         Keyword arguments passed to :meth:`matplotlib.axes.Axes.hist2d`.
 
     Returns
@@ -68,7 +68,7 @@ def plot_occupancy(
     Examples
     --------
     Simple use-case is to plot a histogram of the centroid of all
-    keypoints, aggregated over all individuals.
+    keypoint, aggregated over all individual.
 
     >>> from movement import sample_data
     >>> from movement.plots import plot_occupancy
@@ -78,15 +78,15 @@ def plot_occupancy(
     >>> plot_occupancy(positions)
 
     However, one can restrict the histogram to only counting the positions of
-    (the centroid of) certain keypoints and/or individuals.
+    (the centroid of) certain keypoint and/or individual.
 
-    >>> print("Available individuals:", positions["individuals"])
+    >>> print("Available individual:", positions["individual"])
     >>> plot_occupancy(
     ...     positions,
-    ...     # plot the centroid of keypoints located on the head
-    ...     keypoints=["snout", "leftear", "rightear"],
+    ...     # plot the centroid of keypoint located on the head
+    ...     keypoint=["snout", "leftear", "rightear"],
     ...     # only plot data for 1 individual
-    ...     individuals="individual1",
+    ...     individual="individual1",
     ... )
 
     ``kwargs`` are passed to the ``matplotlib`` backend as keyword-arguments to
@@ -94,10 +94,10 @@ def plot_occupancy(
 
     >>> plot_occupancy(
     ...     positions,
-    ...     # plot the centroid of keypoints located on the head
-    ...     keypoints=["snout", "leftear", "rightear"],
+    ...     # plot the centroid of keypoint located on the head
+    ...     keypoint=["snout", "leftear", "rightear"],
     ...     # only plot data for 1 individual
-    ...     individuals="individual1",
+    ...     individual="individual1",
     ...     # fix the number of bins to use
     ...     bins=[30, 20],
     ...     # set the minimum count (bins with a lower count show as 0 count).
@@ -115,26 +115,26 @@ def plot_occupancy(
     """
     # Collapse dimensions if necessary
     data = da.copy(deep=True)
-    if "keypoints" in da.dims:
-        if keypoints is not None:
-            data = data.sel(keypoints=keypoints)
-        # A selection of just one keypoint automatically drops the keypoints
+    if "keypoint" in da.dims:
+        if keypoint is not None:
+            data = data.sel(keypoint=keypoint)
+        # A selection of just one keypoint automatically drops the keypoint
         # dimension, hence the need to re-check this here
-        if "keypoints" in data.dims:
-            data = data.mean(dim="keypoints", skipna=True)
-    if "individuals" in da.dims and individuals is not None:
-        data = data.sel(individuals=individuals)
+        if "keypoint" in data.dims:
+            data = data.mean(dim="keypoint", skipna=True)
+    if "individual" in da.dims and individual is not None:
+        data = data.sel(individual=individual)
 
     # We need to remove NaN values from each individual, but we can't do this
-    # right now because we still potentially have a (time, space, individuals)
+    # right now because we still potentially have a (time, space, individual)
     # array and so dropping NaNs along any axis may remove valid points for
-    # other times / individuals.
-    # Since we only care about a count, we can just unravel the individuals
+    # other times / individual.
+    # Since we only care about a count, we can just unravel the individual
     # dimension and create a "long" array of points. For example, a (10, 2, 5)
-    # time-space-individuals DataArray becomes (50, 2).
-    if "individuals" in data.dims:
+    # time-space-individual DataArray becomes (50, 2).
+    if "individual" in data.dims:
         data = data.stack(
-            {"new": ("time", "individuals")}, create_index=False
+            {"new": ("time", "individual")}, create_index=False
         ).swap_dims({"new": "time"})
     # We should now have just the relevant time-space data,
     # so we can remove time-points with NaN values.

@@ -10,11 +10,11 @@ across space and time.
 ## Scope
 
 At its core, `movement` handles the position and/or orientation
-of one or more individuals over time.
+of one or more individual over time.
 
 There are a few common ways of representing animal motion from video
 recordings: an animal's position could be reduced to that of a single keypoint
-tracked on its body (usually the centroid), or instead a set of keypoints
+tracked on its body (usually the centroid), or instead a set of keypoint
 (often referred to as the pose) to better capture its orientation as well as
 the positions of limbs and appendages. The animal's position could be also
 tracked as a bounding box drawn around each individual, or as a segmentation
@@ -27,13 +27,13 @@ Animal tracking frameworks such as [DeepLabCut](dlc:) or [SLEAP](sleap:) can
 generate keypoint representations from video data by detecting body parts and
 tracking them across frames. In the context of `movement`, we refer to these
 trajectories as _tracks_: we use _pose tracks_ to refer to the trajectories
-of a set of keypoints, _bounding box tracks_ to refer to the trajectories
+of a set of keypoint, _bounding box tracks_ to refer to the trajectories
 of bounding box centroids, or _motion tracks_ in the more general case.
 
 Our vision is to present a **consistent interface for representing motion
 tracks** along with **modular and accessible analysis tools**. We aim to
 support data from a range of animal tracking frameworks, in **2D or 3D**,
-tracking **single or multiple individuals**. As such, `movement` can be
+tracking **single or multiple individual**. As such, `movement` can be
 considered as operating downstream of tools like DeepLabCut and SLEAP.
 The focus is on providing functionalities for data cleaning, visualisation,
 and motion quantification (see the [Roadmap](target-roadmaps) for details).

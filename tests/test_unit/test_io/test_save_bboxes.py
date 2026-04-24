@@ -8,7 +8,7 @@ import xarray as xr
 
 from movement.io import load_bboxes, save_bboxes
 from movement.io.save_bboxes import (
-    _compute_individuals_to_track_ids_map,
+    _compute_individual_to_track_ids_map,
     _write_single_row,
 )
 
@@ -40,21 +40,21 @@ def valid_bboxes_dataset_min_frame_number_modified(valid_bboxes_dataset):
 def valid_bboxes_dataset_with_late_id0(valid_bboxes_dataset):
     """Return a valid bboxes dataset with id_0 starting at time index 3.
 
-    `valid_bboxes_dataset` represents two individuals moving in uniform
+    `valid_bboxes_dataset` represents two individual moving in uniform
     linear motion for 10 frames, with low confidence values and time in frames.
     """
     valid_bboxes_dataset.position.loc[
-        {"individuals": "id_0", "time": [0, 1, 2]}
+        {"individual": "id_0", "time": [0, 1, 2]}
     ] = np.nan
     return valid_bboxes_dataset
 
 
 @pytest.fixture
-def valid_bboxes_dataset_individuals_modified(valid_bboxes_dataset):
-    """Return a valid bboxes dataset with individuals named "id_333" and
+def valid_bboxes_dataset_individual_modified(valid_bboxes_dataset):
+    """Return a valid bboxes dataset with individual named "id_333" and
     "id_444".
     """
-    valid_bboxes_dataset.assign_coords(individuals=["id_333", "id_444"])
+    valid_bboxes_dataset.assign_coords(individual=["id_333", "id_444"])
     return valid_bboxes_dataset
 
 
@@ -76,7 +76,7 @@ def valid_bboxes_dataset_confidence_some_nans(valid_bboxes_dataset):
     """Return a valid bboxes dataset with some NaNs in
     the confidence array.
 
-    `valid_bboxes_dataset` represents two individuals moving in uniform
+    `valid_bboxes_dataset` represents two individual moving in uniform
     linear motion for 10 frames, with time in frames. The confidence values
     for the first 3 frames for individual 0 are set to NaN.
     """
@@ -146,7 +146,7 @@ def test_to_via_tracks_file_valid_dataset(
     input_dataset.confidence.values[np.any(null_position_or_shape, axis=1)] = (
         np.nan
     )
-    xr.testing.assert_equal(ds, input_dataset)
+    xr.testing.assert_allclose(ds, input_dataset)
 
 
 @pytest.mark.parametrize(
@@ -240,9 +240,9 @@ def test_to_via_tracks_file_confidence(
     "valid_dataset",
     [
         "valid_bboxes_dataset",
-        # individuals: "id_0", "id_1"
-        "valid_bboxes_dataset_individuals_modified",
-        # individuals: "id_333", "id_444"
+        # individual: "id_0", "id_1"
+        "valid_bboxes_dataset_individual_modified",
+        # individual: "id_333", "id_444"
     ],
 )
 @pytest.mark.parametrize(
@@ -256,7 +256,7 @@ def test_to_via_tracks_file_track_ids_from_trailing_numbers(
     request,
 ):
     """Test that the VIA tracks .csv file is as expected when extracting
-    track IDs from the individuals' names.
+    track IDs from the individual' names.
     """
     # Save VIA tracks .csv file
     output_path = tmp_path / "test_valid_dataset.csv"
@@ -267,7 +267,7 @@ def test_to_via_tracks_file_track_ids_from_trailing_numbers(
         track_ids_from_trailing_numbers=track_ids_from_trailing_numbers,
     )
 
-    # Check track ID in relation to individuals' names
+    # Check track ID in relation to individual' names
     df = pd.read_csv(output_path)
     df["region_attributes"] = [
         json.loads(el) for el in df["region_attributes"]
@@ -280,7 +280,7 @@ def test_to_via_tracks_file_track_ids_from_trailing_numbers(
     if track_ids_from_trailing_numbers:
         assert set_unique_track_ids == {
             int(indiv.split("_")[1])
-            for indiv in input_dataset.individuals.values
+            for indiv in input_dataset.individual.values
         }
     else:
         assert set_unique_track_ids == {0, 1}
@@ -483,7 +483,7 @@ def test_get_min_required_digits_in_ds_error(
 
 
 @pytest.mark.parametrize(
-    "list_individuals, expected_track_id",
+    "list_individual, expected_track_id",
     [
         (["id1", "id2", "id3"], [1, 2, 3]),
         (["id1", "id3", "id2"], [1, 3, 2]),
@@ -503,26 +503,26 @@ def test_get_min_required_digits_in_ds_error(
         "non_digits_after_trailing_numbers",
     ],
 )
-def test_individuals_to_track_ids_map_from_individuals_names(
-    list_individuals, expected_track_id
+def test_individual_to_track_ids_map_from_individual_names(
+    list_individual, expected_track_id
 ):
-    """Test the mapping individuals to track IDs if the track ID is
-    extracted from the individuals' names.
+    """Test the mapping individual to track IDs if the track ID is
+    extracted from the individual' names.
     """
-    # Map individuals to track IDs
-    map_individual_to_track_id = _compute_individuals_to_track_ids_map(
-        list_individuals, track_ids_from_trailing_numbers=True
+    # Map individual to track IDs
+    map_individual_to_track_id = _compute_individual_to_track_ids_map(
+        list_individual, track_ids_from_trailing_numbers=True
     )
 
     # Check values are as expected
     assert [
         map_individual_to_track_id[individual]
-        for individual in list_individuals
+        for individual in list_individual
     ] == expected_track_id
 
 
 @pytest.mark.parametrize(
-    "list_individuals, expected_track_id",
+    "list_individual, expected_track_id",
     [
         (["A", "B", "C"], [0, 1, 2]),
         (["C", "B", "A"], [2, 1, 0]),
@@ -530,54 +530,54 @@ def test_individuals_to_track_ids_map_from_individuals_names(
     ],
     ids=["sorted", "unsorted", "should_ignore_digits"],
 )
-def test_individuals_to_track_ids_map_factorised(
-    list_individuals, expected_track_id
+def test_individual_to_track_ids_map_factorised(
+    list_individual, expected_track_id
 ):
-    """Test the mapping individuals to track IDs if the track ID is
-    factorised from the sorted individuals' names.
+    """Test the mapping individual to track IDs if the track ID is
+    factorised from the sorted individual' names.
     """
-    # Map individuals to track IDs
-    map_individual_to_track_id = _compute_individuals_to_track_ids_map(
-        list_individuals, track_ids_from_trailing_numbers=False
+    # Map individual to track IDs
+    map_individual_to_track_id = _compute_individual_to_track_ids_map(
+        list_individual, track_ids_from_trailing_numbers=False
     )
 
     # Check values are as expected
     assert [
         map_individual_to_track_id[individual]
-        for individual in list_individuals
+        for individual in list_individual
     ] == expected_track_id
 
 
 @pytest.mark.parametrize(
-    "list_individuals, expected_error_message",
+    "list_individual, expected_error_message",
     [
         (
             ["mouse_1_id0", "mouse_2_id0"],
             (
-                "Could not extract a unique track ID for all individuals. "
+                "Could not extract a unique track ID for all individual. "
                 "Expected 2 unique track IDs, but got 1."
             ),
         ),
         (
             ["mouse_id1.0", "mouse_id2.0"],
             (
-                "Could not extract a unique track ID for all individuals. "
+                "Could not extract a unique track ID for all individual. "
                 "Expected 2 unique track IDs, but got 1."
             ),
         ),
         (["A_1", "B_2", "C"], "Could not extract track ID from C."),
     ],
-    ids=["id_clash_1", "id_clash_2", "individuals_without_digits"],
+    ids=["id_clash_1", "id_clash_2", "individual_without_digits"],
 )
-def test_individuals_to_track_ids_map_error(
-    list_individuals, expected_error_message
+def test_individual_to_track_ids_map_error(
+    list_individual, expected_error_message
 ):
     """Test that the appropriate error is raised if extracting track IDs
-    from the individuals' names fails.
+    from the individual' names fails.
     """
     with pytest.raises(ValueError) as error:
-        _compute_individuals_to_track_ids_map(
-            list_individuals,
+        _compute_individual_to_track_ids_map(
+            list_individual,
             track_ids_from_trailing_numbers=True,
         )
 

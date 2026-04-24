@@ -15,16 +15,16 @@ def valid_bboxes_arrays_all_zeros():
     valid bboxes dataset.
     """
     # define the shape of the arrays
-    n_frames, n_space, n_individuals = (10, 2, 2)
+    n_frames, n_space, n_individual = (10, 2, 2)
 
     # build a valid array for position or shape with all zeros
-    valid_bbox_array_all_zeros = np.zeros((n_frames, n_space, n_individuals))
+    valid_bbox_array_all_zeros = np.zeros((n_frames, n_space, n_individual))
 
     # return as a dict
     return {
         "position": valid_bbox_array_all_zeros,
         "shape": valid_bbox_array_all_zeros,
-        "individual_names": ["id_" + str(id) for id in range(n_individuals)],
+        "individual_names": ["id_" + str(id) for id in range(n_individual)],
     }
 
 
@@ -33,7 +33,7 @@ def valid_bboxes_arrays():
     """Return a dictionary of valid arrays for a
     ValidBboxesInputs representing a uniform linear motion.
 
-    It represents 2 individuals for 10 frames, in 2D space.
+    It represents 2 individual for 10 frames, in 2D space.
     - Individual 0 moves along the x=y line from the origin.
     - Individual 1 moves along the x=-y line line from the origin.
 
@@ -43,26 +43,26 @@ def valid_bboxes_arrays():
     - Individual 1 at frames 2, 3
     """
     # define the shape of the arrays
-    n_frames, n_space, n_individuals = (10, 2, 2)
+    n_frames, n_space, n_individual = (10, 2, 2)
 
     # build a valid array for position
     # make bbox with id_i move along x=((-1)**(i))*y line from the origin
     # if i is even: along x = y line
     # if i is odd: along x = -y line
     # moving one unit along each axis in each frame
-    position = np.zeros((n_frames, n_space, n_individuals))
-    for i in range(n_individuals):
+    position = np.zeros((n_frames, n_space, n_individual))
+    for i in range(n_individual):
         position[:, 0, i] = np.arange(n_frames)
         position[:, 1, i] = (-1) ** i * np.arange(n_frames)
 
     # build a valid array for constant bbox shape (60, 40)
-    constant_shape = np.array([60.0, 40.0])  # width, height
-    shape = np.tile(constant_shape, (n_frames, n_individuals, 1)).transpose(
+    constant_shape = float(60), float(40)  # width, height in pixels
+    shape = np.tile(constant_shape, (n_frames, n_individual, 1)).transpose(
         0, 2, 1
     )
 
     # build an array of confidence values, all 0.9
-    confidence = np.full((n_frames, n_individuals), 0.9)
+    confidence = np.full((n_frames, n_individual), 0.9)
 
     # set 5 low-confidence values
     # - set 3 confidence values for bbox id_0 to 0.1
@@ -72,18 +72,18 @@ def valid_bboxes_arrays():
     confidence[idx_start : idx_start + 2, 1] = 0.1
 
     return {
-        "position": position.astype(np.float32),
-        "shape": shape.astype(np.float32),
-        "confidence": confidence.astype(np.float32),
+        "position": position,
+        "shape": shape,
+        "confidence": confidence,
     }
 
 
 @pytest.fixture
 def valid_bboxes_dataset(valid_bboxes_arrays):
-    """Return a valid bboxes dataset for two individuals moving in uniform
+    """Return a valid bboxes dataset for two individual moving in uniform
     linear motion, with 5 frames with low confidence values and time in frames.
 
-    It represents 2 individuals for 10 frames, in 2D space.
+    It represents 2 individual for 10 frames, in 2D space.
     - Individual 0 moves along the x=y line from the origin,
       in the x positive, y positive quadrant.
     - Individual 1 moves along the x=-y line line from the origin,
@@ -100,7 +100,7 @@ def valid_bboxes_dataset(valid_bboxes_arrays):
     shape_array = valid_bboxes_arrays["shape"]
     confidence_array = valid_bboxes_arrays["confidence"]
 
-    n_frames, n_individuals, _ = position_array.shape
+    n_frames, n_individual, _ = position_array.shape
 
     return xr.Dataset(
         data_vars={
@@ -113,7 +113,7 @@ def valid_bboxes_dataset(valid_bboxes_arrays):
         coords={
             dim_names[0]: np.arange(n_frames),
             dim_names[1]: ["x", "y"],
-            dim_names[2]: [f"id_{id}" for id in range(n_individuals)],
+            dim_names[2]: [f"id_{id}" for id in range(n_individual)],
         },
         attrs={
             "time_unit": "frames",
@@ -143,7 +143,7 @@ def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
     """Return a valid bboxes dataset with NaN values in the position array."""
     # Set 3 NaN values in the position array for id_0
     valid_bboxes_dataset.position.loc[
-        {"individuals": "id_0", "time": [3, 7, 8]}
+        {"individual": "id_0", "time": [3, 7, 8]}
     ] = np.nan
     return valid_bboxes_dataset
 
@@ -157,15 +157,15 @@ def valid_poses_arrays():
     This fixture is a factory of fixtures.
     Depending on the ``array_type`` requested (``multi_individual_array``,
     ``single_keypoint_array``, or ``single_individual_array``),
-    the returned array can represent up to 2 individuals with
-    up to 3 keypoints, moving at constant velocity for 10 frames in 2D space.
-    Default is a ``multi_individual_array`` (2 individuals, 3 keypoints each).
-    At each frame the individuals cover a distance of sqrt(2) in x-y space.
+    the returned array can represent up to 2 individual with
+    up to 3 keypoint, moving at constant velocity for 10 frames in 2D space.
+    Default is a ``multi_individual_array`` (2 individual, 3 keypoint each).
+    At each frame the individual cover a distance of sqrt(2) in x-y space.
     Specifically:
     - Individual 0 moves along the x=y line from the origin.
     - Individual 1 moves along the x=-y line line from the origin.
 
-    All confidence values for all keypoints are set to 0.9 except
+    All confidence values for all keypoint are set to 0.9 except
     for the "centroid" (index=0) at the following frames,
     which are set to 0.1:
     - Individual 0 at frames 2, 3, 4
@@ -175,8 +175,8 @@ def valid_poses_arrays():
     def _valid_poses_arrays(array_type):
         """Return a dictionary of valid arrays for ValidPosesInputs."""
         # Unless specified, default is a ``multi_individual_array`` with
-        # 10 frames, 3 keypoints, and 2 individuals in 2D space.
-        n_frames, n_space, n_keypoints, n_individuals = (10, 2, 3, 2)
+        # 10 frames, 3 keypoint, and 2 individual in 2D space.
+        n_frames, n_space, n_keypoint, n_individual = (10, 2, 3, 2)
 
         # define centroid (index=0) trajectory in position array
         # for each individual, the centroid moves along
@@ -185,12 +185,12 @@ def valid_poses_arrays():
         # - individual 1 moves along x = -y line (if applicable)
         # They move one unit along x and y axes in each frame
         frames = np.arange(n_frames)
-        position = np.zeros((n_frames, n_space, n_keypoints, n_individuals))
+        position = np.zeros((n_frames, n_space, n_keypoint, n_individual))
         position[:, 0, 0, :] = frames[:, None]  # reshape to (n_frames, 1)
         position[:, 1, 0, 0] = frames
         position[:, 1, 0, 1] = -frames
 
-        # define trajectory of left and right keypoints
+        # define trajectory of left and right keypoint
         # for individual 0, at each timepoint:
         # - the left keypoint (index=1) is at x_centroid, y_centroid + 1
         # - the right keypoint (index=2) is at x_centroid + 1, y_centroid
@@ -201,14 +201,14 @@ def valid_poses_arrays():
             [
                 (0, 1),
                 (1, 0),
-            ],  # individual 0: left, right keypoints (x,y) offsets
+            ],  # individual 0: left, right keypoint (x,y) offsets
             [
                 (-1, 0),
                 (0, 1),
-            ],  # individual 1: left, right keypoints (x,y) offsets
+            ],  # individual 1: left, right keypoint (x,y) offsets
         ]
-        for i in range(n_individuals):
-            for kpt in range(1, n_keypoints):
+        for i in range(n_individual):
+            for kpt in range(1, n_keypoint):
                 position[:, 0, kpt, i] = (
                     position[:, 0, 0, i] + offsets[i][kpt - 1][0]
                 )
@@ -217,7 +217,7 @@ def valid_poses_arrays():
                 )
 
         # build an array of confidence values, all 0.9
-        confidence = np.full((n_frames, n_keypoints, n_individuals), 0.9)
+        confidence = np.full((n_frames, n_keypoint, n_individual), 0.9)
         # set 5 low-confidence values
         # - set 3 confidence values for individual id_0's centroid to 0.1
         # - set 2 confidence values for individual id_1's centroid to 0.1
@@ -244,10 +244,10 @@ def valid_poses_dataset(valid_poses_arrays, request):
 
     Depending on the ``array_type`` requested (``multi_individual_array``,
     ``single_keypoint_array``, or ``single_individual_array``),
-    the dataset can represent up to 2 individuals ("id_0" and "id_1")
-    with up to 3 keypoints ("centroid", "left", "right")
+    the dataset can represent up to 2 individual ("id_0" and "id_1")
+    with up to 3 keypoint ("centroid", "left", "right")
     moving in uniform linear motion for 10 frames in 2D space.
-    Default is a ``multi_individual_array`` (2 individuals, 3 keypoints each).
+    Default is a ``multi_individual_array`` (2 individual, 3 keypoint each).
     See the ``valid_poses_arrays`` fixture for details.
     """
     dim_names = ValidPosesInputs.DIM_NAMES
@@ -259,7 +259,7 @@ def valid_poses_dataset(valid_poses_arrays, request):
     poses_array = valid_poses_arrays(array_type)
     position_array = poses_array["position"]
     confidence_array = poses_array["confidence"]
-    n_frames, _, n_keypoints, n_individuals = position_array.shape
+    n_frames, _, n_keypoint, n_individual = position_array.shape
     return xr.Dataset(
         data_vars={
             "position": xr.DataArray(position_array, dims=dim_names),
@@ -270,8 +270,8 @@ def valid_poses_dataset(valid_poses_arrays, request):
         coords={
             dim_names[0]: np.arange(n_frames),
             dim_names[1]: ["x", "y"],
-            dim_names[2]: ["centroid", "left", "right"][:n_keypoints],
-            dim_names[3]: [f"id_{i}" for i in range(n_individuals)],
+            dim_names[2]: ["centroid", "left", "right"][:n_keypoint],
+            dim_names[3]: [f"id_{i}" for i in range(n_individual)],
         },
         attrs={
             "time_unit": "frames",
@@ -295,13 +295,13 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
     - Individual "id_1" has no missing values.
     """
     valid_poses_dataset.position.loc[
-        {"individuals": "id_0", "keypoints": "centroid", "time": [3, 7, 8]}
+        {"individual": "id_0", "keypoint": "centroid", "time": [3, 7, 8]}
     ] = np.nan
     valid_poses_dataset.position.loc[
-        {"individuals": "id_0", "keypoints": "left", "time": 0}
+        {"individual": "id_0", "keypoint": "left", "time": 0}
     ] = np.nan
     valid_poses_dataset.position.loc[
-        {"individuals": "id_0", "keypoints": "right"}
+        {"individual": "id_0", "keypoint": "right"}
     ] = np.nan
     return valid_poses_dataset
 

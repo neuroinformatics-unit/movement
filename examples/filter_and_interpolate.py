@@ -34,7 +34,7 @@ print(ds)
 # %%
 # We see that the dataset contains the 2D pose tracks and confidence scores
 # for a single wasp, generated with DeepLabCut. The wasp is tracked at two
-# keypoints: "head" and "stinger" in a video that was recorded at 40 fps and
+# keypoint: "head" and "stinger" in a video that was recorded at 40 fps and
 # lasts for approximately 27 seconds.
 
 # %%
@@ -42,10 +42,10 @@ print(ds)
 # -------------------------
 # Since the data contains only a single wasp, we use
 # :meth:`xarray.DataArray.squeeze` to remove
-# the dimension of length 1 from the data (the ``individuals`` dimension).
+# the dimension of length 1 from the data (the ``individual`` dimension).
 
 ds.position.squeeze().plot.line(
-    x="time", row="keypoints", hue="space", aspect=2, size=2.5
+    x="time", row="keypoint", hue="space", aspect=2, size=2.5
 )
 
 # %%
@@ -65,7 +65,7 @@ ds.position.squeeze().plot.line(
 # it's always a good idea to inspect the actual confidence values in the data.
 #
 # Let's first look at a histogram of the confidence scores. As before, we use
-# :meth:`xarray.DataArray.squeeze` to remove the ``individuals`` dimension
+# :meth:`xarray.DataArray.squeeze` to remove the ``individual`` dimension
 # from the data.
 
 ds.confidence.squeeze().plot.hist(bins=20)
@@ -75,9 +75,7 @@ ds.confidence.squeeze().plot.hist(bins=20)
 # indeed range between 0 and 1, with most values closer to 1. Now let's see how
 # they evolve over time.
 
-ds.confidence.squeeze().plot.line(
-    x="time", row="keypoints", aspect=2, size=2.5
-)
+ds.confidence.squeeze().plot.line(x="time", row="keypoint", aspect=2, size=2.5)
 
 # %%
 # Encouragingly, some of the drops in confidence scores do seem to correspond
@@ -114,7 +112,7 @@ ds.update(
 # ``position`` data variable. Let's visualise the filtered data.
 
 ds.position.squeeze().plot.line(
-    x="time", row="keypoints", hue="space", aspect=2, size=2.5
+    x="time", row="keypoint", hue="space", aspect=2, size=2.5
 )
 
 # %%
@@ -148,7 +146,7 @@ ds.update(
 # Let's visualise the interpolated pose tracks.
 
 ds.position.squeeze().plot.line(
-    x="time", row="keypoints", hue="space", aspect=2, size=2.5
+    x="time", row="keypoint", hue="space", aspect=2, size=2.5
 )
 
 # %%

@@ -442,22 +442,26 @@ class ValidDeepLabCutCSV:
 
         These are to be found in the first column of the first four rows.
         """
-        expected_levels = ["scorer", "individuals", "bodyparts", "coords"]
+        expected_levels = ["scorer", "individual", "bodyparts", "coords"]
+        legacy_levels = ["scorer", "individuals", "bodyparts", "coords"]
         with open(value) as f:
             level_names = [f.readline().split(",")[0] for _ in range(4)]
             if level_names[3].isdigit():
                 # if 4th row starts with a digit, assume single-animal DLC file
-                # and compare only first 3 rows, removing 'individuals' level
-                expected_levels.remove("individuals")
+                # and compare only first 3 rows, removing 'individual' level
+                expected_levels.remove("individual")
+                legacy_levels.remove("individuals")
                 level_names.pop()
-            if level_names != expected_levels:
+            if level_names != expected_levels and level_names != legacy_levels:
                 raise logger.error(
                     ValueError(
                         ".csv header rows do not match the known format for "
                         "DeepLabCut pose estimation output files."
                     )
                 )
-            self.level_names = level_names
+            self.level_names = [
+                "individual" if x == "individuals" else x for x in level_names
+            ]
 
 
 @define

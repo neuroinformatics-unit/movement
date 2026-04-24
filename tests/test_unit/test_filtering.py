@@ -1,7 +1,9 @@
 from contextlib import nullcontext as does_not_raise
+from unittest.mock import patch
 
 import pytest
 import xarray as xr
+from scipy import signal
 
 from movement.filtering import (
     filter_by_confidence,
@@ -60,8 +62,8 @@ class TestFilteringValidDataset:
         )
         # Compute n nans in position after filtering per individual
         n_nans_after_filtering_per_indiv = [
-            helpers.count_nans(position_filtered.isel(individuals=i))
-            for i in range(valid_input_dataset.sizes["individuals"])
+            helpers.count_nans(position_filtered.isel(individual=i))
+            for i in range(valid_input_dataset.sizes["individual"])
         ]
         # Check number of nans per indiv is as expected
         assert (
@@ -76,7 +78,7 @@ class TestFilteringValidDataset:
             ({"axis": 1}, pytest.raises(ValueError)),
             ({"mode": "nearest", "axis": 1}, pytest.raises(ValueError)),
             (  # polyorder >= window: re-raised unchanged by savgol_filter
-                {"polyorder": 5},
+                {"polyorder": 5, "mode": "nearest"},
                 pytest.raises(ValueError, match="polyorder"),
             ),
         ],
@@ -94,6 +96,30 @@ class TestFilteringValidDataset:
                 window=3,
                 **override_kwargs,
             )
+
+    def test_savgol_filter_raises_interp_nan_error_mock(
+        self, valid_dataset, request
+    ):
+        """Test that savgol_filter translates the exact SciPy ValueError
+        when using mode='interp' into the movement specific ValueError.
+        """
+        dataset = request.getfixturevalue(valid_dataset)
+        # We must use mode='nearest' to bypass the initial explicit
+        # edge-NaN check in movement
+        # to ensure the ValueError from SciPy itself is correctly caught.
+        with (
+            patch.object(
+                signal,
+                "savgol_filter",
+                side_effect=ValueError(
+                    "array must not contain infs or NaNs in something"
+                ),
+            ),
+            pytest.raises(
+                ValueError, match="mode='interp' does not support NaNs"
+            ),
+        ):
+            savgol_filter(dataset.position, window=3, mode="nearest")
 
     @pytest.mark.parametrize(
         "statistic, expected_exception",
@@ -244,6 +270,9 @@ class TestFilteringValidDatasetWithNaNs:
         a ValueError should be raised.
         """
         dataset = request.getfixturevalue(valid_dataset_with_nan)
+        # movement explicitly checks for NaNs in edge windows
+        # and raises ValueError for mode='interp'
+
         with expected_exception:
             kwargs = {"window": 3, "polyorder": 2}
             if mode is not None:
@@ -272,9 +301,9 @@ def test_filter_by_confidence_on_position(
     # Count number of NaNs in the full array
     n_nans = helpers.count_nans(position_filtered)
     # expected number of nans for poses:
-    # 5 timepoints * 2 individuals * 2 keypoints
+    # 5 timepoints * 2 individual * 2 keypoint
     # Note: we count the number of nans in the array, so we multiply
-    # the number of low confidence keypoints by the number of
+    # the number of low confidence keypoint by the number of
     # space dimensions
     n_low_confidence_kpts = 5
     assert isinstance(position_filtered, xr.DataArray)

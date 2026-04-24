@@ -21,10 +21,10 @@ and save them to another file format.
 # When working with pose estimation data, it's often useful to convert
 # between file formats. For example, you may need to
 # use some downstream analysis tool that requires a specific file
-# format, or expects the keypoints to be named in a certain way.
+# format, or expects the keypoint to be named in a certain way.
 #
 # In the following example, we will load a dataset from a
-# SLEAP file, modify the keypoints (rename, delete, reorder),
+# SLEAP file, modify the keypoint (rename, delete, reorder),
 # and save the modified dataset as a DeepLabCut file.
 #
 # We'll first walk through each step separately, and then
@@ -66,8 +66,8 @@ print(file_path)
 
 ds = load_poses.from_sleap_file(file_path, fps=30)
 print(ds, "\n")
-print("Individuals:", ds.coords["individuals"].values)
-print("Keypoints:", ds.coords["keypoints"].values)
+print("Individual:", ds.coords["individual"].values)
+print("Keypoint:", ds.coords["keypoint"].values)
 
 
 # %%
@@ -77,7 +77,7 @@ print("Keypoints:", ds.coords["keypoints"].values)
 #     to explore the dataset interactively.
 
 # %%
-# Rename keypoints
+# Rename keypoint
 # ----------------
 # We start with a dictionary that maps old keypoint names to new ones.
 # Next, we define a function that takes that dictionary and a dataset
@@ -94,73 +94,71 @@ rename_dict = {
 }
 
 
-def rename_keypoints(ds, rename_dict):
-    # get the current names of the keypoints
-    keypoint_names = ds.coords["keypoints"].values
+def rename_keypoint(ds, rename_dict):
+    # get the current names of the keypoint
+    keypoint_names = ds.coords["keypoint"].values
 
-    # rename the keypoints
+    # rename the keypoint
     if not rename_dict:
-        print("No keypoints to rename. Skipping renaming step.")
+        print("No keypoint to rename. Skipping renaming step.")
     else:
-        new_keypoints = [rename_dict.get(kp, str(kp)) for kp in keypoint_names]
+        new_keypoint = [rename_dict.get(kp, str(kp)) for kp in keypoint_names]
         # Assign the modified values back to the Dataset
-        ds = ds.assign_coords(keypoints=new_keypoints)
+        ds = ds.assign_coords(keypoint=new_keypoint)
     return ds
 
 
 # %%
 # Let's apply the function to our dataset and see the results.
-ds_renamed = rename_keypoints(ds, rename_dict)
-print("Keypoints in modified dataset:", ds_renamed.coords["keypoints"].values)
+ds_renamed = rename_keypoint(ds, rename_dict)
+print("Keypoint in modified dataset:", ds_renamed.coords["keypoint"].values)
 
 
 # %%
-# Delete keypoints
+# Delete keypoint
 # -----------------
-# Let's create a list of keypoints to delete.
+# Let's create a list of keypoint to delete.
 # In this case, we choose to get rid of the ``tailend`` keypoint,
 # which is often hard to reliably track.
 # We delete it using :meth:`xarray.Dataset.drop_sel`,
 # wrapped in an appropriately named function.
 
-keypoints_to_delete = ["tailend"]
+keypoint_to_delete = ["tailend"]
 
 
-def delete_keypoints(ds, delete_keypoints):
-    if not delete_keypoints:
-        print("No keypoints to delete. Skipping deleting step.")
+def delete_keypoint(ds, delete_keypoint):
+    if not delete_keypoint:
+        print("No keypoint to delete. Skipping deleting step.")
     else:
-        # Delete the specified keypoints and their corresponding data
-        ds = ds.drop_sel(keypoints=delete_keypoints)
+        # Delete the specified keypoint and their corresponding data
+        ds = ds.drop_sel(keypoint=delete_keypoint)
     return ds
 
 
-ds_deleted = delete_keypoints(ds_renamed, keypoints_to_delete)
-print("Keypoints in modified dataset:", ds_deleted.coords["keypoints"].values)
+ds_deleted = delete_keypoint(ds_renamed, keypoint_to_delete)
+print("Keypoint in modified dataset:", ds_deleted.coords["keypoint"].values)
 
 
 # %%
-# Reorder keypoints
+# Reorder keypoint
 # ------------------
-# We start with a list of keypoints in the desired order
+# We start with a list of keypoint in the desired order
 # (in this case, we'll just swap the order of the left and right ears).
 # We then use :meth:`xarray.Dataset.reindex`, wrapped in yet another function.
 
-ordered_keypoints = ["nose", "earR", "earL", "middle", "tailbase"]
+ordered_keypoint = ["nose", "earR", "earL", "middle", "tailbase"]
 
 
-def reorder_keypoints(ds, ordered_keypoints):
-    if not ordered_keypoints:
-        print("No keypoints to reorder. Skipping reordering step.")
+def reorder_keypoint(ds, ordered_keypoint):
+    if not ordered_keypoint:
+        print("No keypoint to reorder. Skipping reordering step.")
     else:
-        ds = ds.reindex(keypoints=ordered_keypoints)
+        ds = ds.reindex(keypoint=ordered_keypoint)
     return ds
 
 
-ds_reordered = reorder_keypoints(ds_deleted, ordered_keypoints)
-print(
-    "Keypoints in modified dataset:", ds_reordered.coords["keypoints"].values
-)
+ds_reordered = reorder_keypoint(ds_deleted, ordered_keypoint)
+print("Keypoint in modified dataset:", ds_reordered.coords["keypoint"].values)
 
 # %%
 # Save the modified dataset
@@ -176,13 +174,13 @@ print(
 target_dir = tempfile.mkdtemp()
 dest_path = Path(target_dir) / f"{file_path.stem}_dlc.csv"
 
-save_poses.to_dlc_file(ds_reordered, dest_path, split_individuals=False)
+save_poses.to_dlc_file(ds_reordered, dest_path, split_individual=False)
 print(f"Saved modified dataset to {dest_path}.")
 
 # %%
 # .. note::
-#     The ``split_individuals`` argument allows you to save
-#     a dataset with multiple individuals as separate files,
+#     The ``split_individual`` argument allows you to save
+#     a dataset with multiple individual as separate files,
 #     with the individual ID appended to each file name.
 #     In this case, we set it to ``False`` because we only have
 #     one individual in the dataset, and we don't need its name
@@ -192,7 +190,7 @@ print(f"Saved modified dataset to {dest_path}.")
 # %%
 # One function to rule them all
 # -----------------------------
-# Since we know how to rename, delete, and reorder keypoints,
+# Since we know how to rename, delete, and reorder keypoint,
 # let's put it all together in a single function
 # and see how we could apply it to multiple files at once,
 # as we might do in a real-world scenario.
@@ -200,7 +198,7 @@ print(f"Saved modified dataset to {dest_path}.")
 # The following function will convert all files in a folder
 # (that end with a specified suffix) from SLEAP to DeepLabCut format.
 # Each file will be loaded, modified according to the
-# ``rename_dict``, ``keypoints_to_delete``, and ``ordered_keypoints``
+# ``rename_dict``, ``keypoint_to_delete``, and ``ordered_keypoint``
 # we've defined above, and saved to the target directory.
 
 
@@ -227,12 +225,12 @@ def convert_all(data_dir, target_dir, suffix=".slp"):
             # load the data from SLEAP file
             ds = load_poses.from_sleap_file(file_path)
             # modify the data
-            ds_renamed = rename_keypoints(ds, rename_dict)
-            ds_deleted = delete_keypoints(ds_renamed, keypoints_to_delete)
-            ds_reordered = reorder_keypoints(ds_deleted, ordered_keypoints)
+            ds_renamed = rename_keypoint(ds, rename_dict)
+            ds_deleted = delete_keypoint(ds_renamed, keypoint_to_delete)
+            ds_reordered = reorder_keypoint(ds_deleted, ordered_keypoint)
             # save modified data to a DeepLabCut file
             save_poses.to_dlc_file(
-                ds_reordered, dest_path, split_individuals=False
+                ds_reordered, dest_path, split_individual=False
             )
         else:
             raise ValueError(

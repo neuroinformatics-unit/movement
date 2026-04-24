@@ -39,20 +39,20 @@ def from_numpy(
     Parameters
     ----------
     position_array
-        Array of shape (n_frames, n_space, n_keypoints, n_individuals)
+        Array of shape (n_frames, n_space, n_keypoint, n_individual)
         containing the poses. It will be converted to a
         :class:`xarray.DataArray` object named "position".
     confidence_array
-        Array of shape (n_frames, n_keypoints, n_individuals) containing
+        Array of shape (n_frames, n_keypoint, n_individual) containing
         the point-wise confidence scores. It will be converted to a
         :class:`xarray.DataArray` object named "confidence".
         If None (default), the scores will be set to an array of NaNs.
     individual_names
-        List of unique names for the individuals in the video. If None
-        (default), the individuals will be named "id_0", "id_1", etc.
+        List of unique names for the individual in the video. If None
+        (default), the individual will be named "id_0", "id_1", etc.
     keypoint_names
-        List of unique names for the keypoints in the skeleton. If None
-        (default), the keypoints will be named "keypoint_0", "keypoint_1",
+        List of unique names for the keypoint in the skeleton. If None
+        (default), the keypoint will be named "keypoint_0", "keypoint_1",
         etc.
     fps
         Frames per second of the video. Defaults to None, in which case
@@ -69,8 +69,8 @@ def from_numpy(
 
     Examples
     --------
-    Create random position data for two individuals, ``Alice`` and ``Bob``,
-    with three keypoints each: ``snout``, ``centre``, and ``tail_base``.
+    Create random position data for two individual, ``Alice`` and ``Bob``,
+    with three keypoint each: ``snout``, ``centre``, and ``tail_base``.
     These are tracked in 2D space over 100 frames, at 30 fps.
     The confidence scores are set to 1 for all points.
 
@@ -217,8 +217,8 @@ def from_dlc_style_df(
     Notes
     -----
     The DataFrame must have a multi-index column with the following levels:
-    "scorer", ("individuals"), "bodyparts", "coords".
-    The "individuals" level may be omitted if there is only one individual
+    "scorer", ("individual"), "bodyparts", "coords".
+    The "individual" level may be omitted if there is only one individual
     in the video.
     The "coords" level contains either:
 
@@ -235,8 +235,12 @@ def from_dlc_style_df(
     movement.io.load_poses.from_dlc_file
 
     """
-    # Read names of individuals and keypoints from the DataFrame
-    if "individuals" in df.columns.names:
+    # Read names of individual and keypoint from the DataFrame
+    if "individual" in df.columns.names:
+        individual_names = (
+            df.columns.get_level_values("individual").unique().to_list()
+        )
+    elif "individuals" in df.columns.names:
         individual_names = (
             df.columns.get_level_values("individuals").unique().to_list()
         )
@@ -368,12 +372,12 @@ def from_lp_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     ds = _ds_from_lp_or_dlc_file(
         valid_file=valid_file, source_software="LightningPose", fps=fps
     )
-    n_individuals = ds.sizes.get("individuals", 1)
-    if n_individuals > 1:
+    n_individual = ds.sizes.get("individual", 1)
+    if n_individual > 1:
         raise logger.error(
             ValueError(
                 "LightningPose only supports single-individual datasets, "
-                f"but the loaded dataset has {n_individuals} individuals. "
+                f"but the loaded dataset has {n_individual} individual. "
                 "Did you mean to load from a DeepLabCut file instead?"
             )
         )
@@ -412,10 +416,10 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
 
     Notes
     -----
-    In ``movement``, pose data can only be loaded if all individuals have
-    the same set of keypoints (i.e., the same labeled body parts).
-    While DeepLabCut supports assigning keypoints that are not shared across
-    individuals (see the `DeepLabCut documentation for multi-animal projects
+    In ``movement``, pose data can only be loaded if all individual have
+    the same set of keypoint (i.e., the same labeled body parts).
+    While DeepLabCut supports assigning keypoint that are not shared across
+    individual (see the `DeepLabCut documentation for multi-animal projects
     <https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#b-configure-the-project>`_),
     this feature is not currently supported in ``movement``.
 
@@ -533,7 +537,7 @@ def _ds_from_sleap_analysis_file(file: Path, fps: float | None) -> xr.Dataset:
 
     """
     with h5py.File(file, "r") as f:
-        # Transpose to shape: (n_frames, n_space, n_keypoints, n_tracks)
+        # Transpose to shape: (n_frames, n_space, n_keypoint, n_tracks)
         tracks = f["tracks"][:].transpose(3, 1, 2, 0)
         # Create an array of NaNs for the confidence scores
         scores = np.full(tracks.shape[:1] + tracks.shape[2:], np.nan)
@@ -545,7 +549,7 @@ def _ds_from_sleap_analysis_file(file: Path, fps: float | None) -> xr.Dataset:
                 "default individual name."
             )
         # If present, read the point-wise scores,
-        # and transpose to shape: (n_frames, n_keypoints, n_tracks)
+        # and transpose to shape: (n_frames, n_keypoint, n_tracks)
         if "point_scores" in f:
             scores = f["point_scores"][:].T
         return from_numpy(
@@ -635,7 +639,7 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
     last_frame = max(0, max(frame_idxs))
 
     n_tracks = len(labels.tracks) or 1  # If no tracks, assume 1 individual
-    individuals = labels.tracks or [None]
+    individual = labels.tracks or [None]
     skeleton = labels.skeletons[-1]  # Assume project only uses last skeleton
     n_nodes = len(skeleton.nodes)
     n_frames = int(last_frame - first_frame + 1)
@@ -645,7 +649,7 @@ def _sleap_labels_to_numpy(labels: Labels) -> np.ndarray:
         i = int(lf.frame_idx - first_frame)
         user_instances = lf.user_instances
         predicted_instances = lf.predicted_instances
-        for j, ind in enumerate(individuals):
+        for j, ind in enumerate(individual):
             user_track_instances = [
                 inst for inst in user_instances if inst.track == ind
             ]
@@ -726,8 +730,8 @@ def from_anipose_style_df(
     Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z,
     keypoint1_score,keypoint2_x, keypoint2_y, keypoint2_z,
     keypoint2_score...to array of positions with dimensions
-    time, space, keypoints, individuals, and array of confidence (from scores)
-    with dimensions time, keypoints, individuals.
+    time, space, keypoint, individual, and array of confidence (from scores)
+    with dimensions time, keypoint, individual.
 
     """
     keypoint_names = sorted(
@@ -743,13 +747,13 @@ def from_anipose_style_df(
     )
 
     n_frames = len(df)
-    n_keypoints = len(keypoint_names)
+    n_keypoint = len(keypoint_names)
 
     # Initialize arrays and fill
     position_array = np.zeros(
-        (n_frames, 3, n_keypoints, 1)
+        (n_frames, 3, n_keypoint, 1)
     )  # 1 for single individual
-    confidence_array = np.zeros((n_frames, n_keypoints, 1))
+    confidence_array = np.zeros((n_frames, n_keypoint, 1))
     for i, kp in enumerate(keypoint_names):
         for j, coord in enumerate(["x", "y", "z"]):
             position_array[:, j, i, 0] = df[f"{kp}_{coord}"]

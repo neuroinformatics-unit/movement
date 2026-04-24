@@ -263,37 +263,37 @@ def test_on_load_clicked_without_file_path(make_napari_viewer_proxy, capsys):
             "VIA-tracks",
             (35, 4),
             True,
-        ),  # single individual, no keypoints (bboxes)
+        ),  # single individual, no keypoint (bboxes)
         (
             "VIA_multiple-crabs_5-frames_labels.csv",
             "VIA-tracks",
             (430, 4),
             True,
-        ),  # multiple individuals, no keypoints (bboxes)
+        ),  # multiple individual, no keypoint (bboxes)
         (
             "SLEAP_single-mouse_EPM.predictions.slp",
             "SLEAP",
             (110910, 4),
             False,
-        ),  # single individual, multiple keypoints
+        ),  # single individual, multiple keypoint
         (
             "DLC_single-wasp.predictions.h5",
             "DeepLabCut",
             (2170, 4),
             False,
-        ),  # single individual, multiple keypoints
+        ),  # single individual, multiple keypoint
         (
             "DLC_two-mice.predictions.csv",
             "DeepLabCut",
             (1439976, 4),
             False,
-        ),  # two individuals, multiple keypoints
+        ),  # two individual, multiple keypoint
         (
             "SLEAP_three-mice_Aeon_mixed-labels.analysis.h5",
             "SLEAP",
             (1803, 4),
             False,
-        ),  # three individuals, one keypoint
+        ),  # three individual, one keypoint
         (
             "MOVE_two-mice_octagon.analysis.nc",
             "movement (netCDF)",
@@ -502,20 +502,20 @@ def test_on_load_clicked_with_invalid_netcdf(
     ["start", "middle", "end"],
 )
 @pytest.mark.parametrize(
-    "nan_individuals",
+    "nan_individual",
     [["id_0"], ["id_0", "id_1"]],
-    ids=["one_individual", "all_individuals"],
+    ids=["one_individual", "all_individual"],
 )
 @pytest.mark.parametrize(
-    "nan_keypoints",
+    "nan_keypoint",
     [["centroid"], ["centroid", "left", "right"]],
-    ids=["one_keypoint", "all_keypoints"],
+    ids=["one_keypoint", "all_keypoint"],
 )
 def test_dimension_slider_with_nans(
     valid_poses_path_and_ds_with_localised_nans,
     nan_time_location,
-    nan_individuals,
-    nan_keypoints,
+    nan_individual,
+    nan_keypoint,
     make_napari_viewer_proxy,
 ):
     """Test that the dimension slider is set to the total number of frames
@@ -524,8 +524,8 @@ def test_dimension_slider_with_nans(
     # Get data with nans at the expected locations
     nan_location = {
         "time": nan_time_location,
-        "individuals": nan_individuals,
-        "keypoints": nan_keypoints,
+        "individual": nan_individual,
+        "keypoint": nan_keypoint,
     }
     file_path, ds = valid_poses_path_and_ds_with_localised_nans(nan_location)
 
@@ -549,8 +549,8 @@ def test_dimension_slider_with_nans(
     # Check the data contains nans where expected
     assert (
         ds.position.sel(
-            individuals=nan_location["individuals"],
-            keypoints=nan_location["keypoints"],
+            individual=nan_location["individual"],
+            keypoint=nan_location["keypoint"],
             time=expected_frame,
         )
         .isnull()
@@ -839,10 +839,10 @@ def test_empty_layer_excluded_from_frame_slider_update(
         ),
     ],
     ids=[
-        "multiple individuals, no keypoints",
-        "single individual, multiple keypoints",
-        "multiple individuals, multiple keypoints",
-        "multiple individuals, one keypoint",
+        "multiple individual, no keypoint",
+        "single individual, multiple keypoint",
+        "multiple individual, multiple keypoint",
+        "multiple individual, one keypoint",
     ],
 )
 def test_add_points_and_tracks_layer_style(

@@ -12,19 +12,19 @@ plt.switch_backend("Agg")  # to avoid pop-up window
     [
         pytest.param(
             True,
-            {"keypoints": ["left", "right"]},
+            {"keypoint": ["left", "right"]},
             np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float),
             id="left-right + image",
         ),
         pytest.param(
             False,
-            {"keypoints": ["snout", "tail"]},
+            {"keypoint": ["snout", "tail"]},
             np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float),
             id="snout-tail",
         ),
         pytest.param(
             False,
-            {"keypoints": "centre"},
+            {"keypoint": "centre"},
             np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float),
             id="centre",
         ),
@@ -32,7 +32,7 @@ plt.switch_backend("Agg")  # to avoid pop-up window
             False,
             {},
             np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float),
-            id="no specified keypoints or individuals",
+            id="no specified keypoint or individual",
         ),
         pytest.param(
             False,
@@ -42,13 +42,13 @@ plt.switch_backend("Agg")  # to avoid pop-up window
         ),
         pytest.param(
             False,
-            {"keypoints": ["centre", "snout"]},
+            {"keypoint": ["centre", "snout"]},
             np.array([[0, 0.5], [0, 1.5], [0, 2.5], [0, 3.5]], dtype=float),
             id="centre-snout",
         ),
         pytest.param(
             True,
-            {"keypoints": ["centre", "snout"]},
+            {"keypoint": ["centre", "snout"]},
             np.array([[0, 0.5], [0, 1.5], [0, 2.5], [0, 3.5]], dtype=float),
             id="centre-snout + image",
         ),
@@ -69,26 +69,26 @@ def test_trajectory_plot(one_individual, image, selection, expected_data):
     ["selection"],
     [
         pytest.param(
-            {"keypoints": "centre"},
-            id="no_keypoints",
+            {"keypoint": "centre"},
+            id="no_keypoint",
         ),
         pytest.param(
-            {"individuals": "id_0"},
-            id="no_individuals",
+            {"individual": "id_0"},
+            id="no_individual",
         ),
         pytest.param(
-            {"keypoints": "centre", "individuals": "id_0"},
+            {"keypoint": "centre", "individual": "id_0"},
             id="only_time_space",
         ),
     ],
 )
-def test_trajectory_dropped_dim(two_individuals, selection):
-    """Test trajectory plot without keypoints and/or individuals dimensions.
+def test_trajectory_dropped_dim(two_individual, selection):
+    """Test trajectory plot without keypoint and/or individual dimensions.
 
     When only one coordinate is selected per dimension, that dimension will
     be squeezed out of the data array.
     """
-    da = two_individuals.sel(**selection).squeeze()
+    da = two_individual.sel(**selection).squeeze()
     _, ax = plot_centroid_trajectory(da)
     output_data = ax.collections[0].get_offsets().data
     expected_data = np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float)
@@ -109,32 +109,32 @@ def test_trajectory_dropped_dim(two_individuals, selection):
             id="id_0",
         ),
         pytest.param(
-            {"keypoints": ["snout", "tail"]},
+            {"keypoint": ["snout", "tail"]},
             np.array([[0, 0], [0, 1], [0, 2], [0, 3]], dtype=float),
             id="snout-tail",
         ),
         pytest.param(
-            {"individual": "id_0", "keypoints": ["tail"]},
+            {"individual": "id_0", "keypoint": ["tail"]},
             np.array([[0, -1], [0, 0], [0, 1], [0, 2]], dtype=float),
             id="tail id_0",
         ),
         pytest.param(
-            {"individual": "id_1", "keypoints": ["tail"]},
+            {"individual": "id_1", "keypoint": ["tail"]},
             np.array([[0, 1], [0, 0], [0, -1], [0, -2]], dtype=float),
             id="tail id_1",
         ),
     ],
 )
-def test_trajectory_two_crosses(two_individuals, selection, expected_data):
-    da = two_individuals
+def test_trajectory_two_crosses(two_individual, selection, expected_data):
+    da = two_individual
     _, ax = plot_centroid_trajectory(da, **selection)
     output_data = ax.collections[0].get_offsets().data
     np.testing.assert_array_almost_equal(output_data, expected_data)
 
 
-def test_trajectory_multiple_individuals(two_individuals):
-    """Test trajectory plot with two individuals selected."""
+def test_trajectory_multiple_individual(two_individual):
+    """Test trajectory plot with two individual selected."""
     with pytest.raises(
         ValueError, match="Only one individual can be selected."
     ):
-        plot_centroid_trajectory(two_individuals, individual=["id_0", "id_1"])
+        plot_centroid_trajectory(two_individual, individual=["id_0", "id_1"])
