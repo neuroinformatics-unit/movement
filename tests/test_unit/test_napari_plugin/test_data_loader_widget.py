@@ -24,10 +24,12 @@ from napari.settings import get_settings
 from napari.utils.events import EmitterGroup
 from pytest import DATA_PATHS
 from qtpy.QtWidgets import (
+    QCheckBox,
     QComboBox,
     QDoubleSpinBox,
     QLineEdit,
     QPushButton,
+    QWidget,
 )
 
 from movement.napari.loader_widgets import (
@@ -46,13 +48,17 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     # Instantiate the data loader widget
     data_loader_widget = DataLoader(make_napari_viewer_proxy())
 
-    # Check that the widget has the expected number of rows
-    assert data_loader_widget.layout().rowCount() == 4
+    assert data_loader_widget.layout().rowCount() == 9
 
     # Check that the expected widgets are present in the layout
     expected_widgets = [
         (QComboBox, "source_software_combo"),
         (QDoubleSpinBox, "fps_spinbox"),
+        (QLineEdit, "individual_name_edit"),
+        (QLineEdit, "processing_module_key_edit"),
+        (QLineEdit, "pose_estimation_key_edit"),
+        (QCheckBox, "use_frame_numbers_checkbox"),
+        (QLineEdit, "frame_regexp_edit"),
         (QLineEdit, "file_path_edit"),
         (QPushButton, "load_button"),
         (QPushButton, "browse_button"),
@@ -155,6 +161,7 @@ def test_on_layer_added_and_deleted(
     "choice, fps_enabled, tooltip_contains",
     [
         ("movement (netCDF)", False, "netCDF file attributes"),
+        ("NWB", False, "NWB file metadata"),
         ("SLEAP", True, "Set the frames per second"),
         ("DeepLabCut", True, "Set the frames per second"),
     ],
@@ -181,6 +188,65 @@ def test_on_source_software_changed_sets_fps_state(
     assert data_loader_widget.fps_spinbox.isEnabled() is fps_enabled
     # Assert tooltip content
     assert tooltip_contains in data_loader_widget.fps_spinbox.toolTip()
+
+
+@pytest.mark.parametrize(
+    "choice, visible_widgets, hidden_widgets",
+    [
+        (
+            "Anipose",
+            ["individual_name_edit"],
+            [
+                "processing_module_key_edit",
+                "pose_estimation_key_edit",
+                "use_frame_numbers_checkbox",
+                "frame_regexp_edit",
+            ],
+        ),
+        (
+            "NWB",
+            ["processing_module_key_edit", "pose_estimation_key_edit"],
+            [
+                "individual_name_edit",
+                "use_frame_numbers_checkbox",
+                "frame_regexp_edit",
+            ],
+        ),
+        (
+            "VIA-tracks",
+            ["use_frame_numbers_checkbox", "frame_regexp_edit"],
+            [
+                "individual_name_edit",
+                "processing_module_key_edit",
+                "pose_estimation_key_edit",
+            ],
+        ),
+        (
+            "DeepLabCut",
+            [],
+            [
+                "individual_name_edit",
+                "processing_module_key_edit",
+                "pose_estimation_key_edit",
+                "use_frame_numbers_checkbox",
+                "frame_regexp_edit",
+            ],
+        ),
+    ],
+)
+def test_on_source_software_changed_row_visibility(
+    make_napari_viewer_proxy, choice, visible_widgets, hidden_widgets
+):
+    """Selecting a source software shows only its relevant rows."""
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
+    data_loader_widget._on_source_software_changed(choice)
+    layout = data_loader_widget.layout()
+    for name in visible_widgets:
+        widget = data_loader_widget.findChild(QWidget, name)
+        assert layout.isRowVisible(widget), f"{name} should be visible"
+    for name in hidden_widgets:
+        widget = data_loader_widget.findChild(QWidget, name)
+        assert not layout.isRowVisible(widget), f"{name} should be hidden"
 
 
 @pytest.mark.parametrize(
@@ -222,6 +288,8 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
         ("DeepLabCut", "*.h5 *.csv"),
         ("SLEAP", "*.h5 *.slp"),
         ("LightningPose", "*.csv"),
+        ("Anipose", "*.csv"),
+        ("NWB", "*.nwb"),
         ("VIA-tracks", "*.csv"),
         ("movement (netCDF)", "*.nc"),
     ],
