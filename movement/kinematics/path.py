@@ -123,9 +123,9 @@ def compute_path_straightness(
 ) -> xr.DataArray:
     """Compute the straightness index of a path (D / L).
 
-    The straightness index is the ratio of the Euclidean distance
+    The straightness index is the ratio of the Euclidean distance (D)
     between the start and end positions of a trajectory to the
-    total path length (D / L). Values range from 0 to 1, where 1
+    total path length (L). Values range from 0 to 1, where 1
     indicates a perfectly straight path and 0 indicates the animal
     returned to its starting point. Returns NaN if path length is zero.
 
@@ -152,19 +152,7 @@ def compute_path_straightness(
     validate_dims_coords(data, {"time": [], "space": []})
     data = data.sel(time=slice(start, stop))
 
-    n_time = data.sizes["time"]
-    if n_time < 2:
-        raise logger.error(
-            ValueError(
-                "At least 2 time points are required to compute "
-                f"path straightness, but {n_time} were found. "
-                "Double-check the start and stop times."
-            )
-        )
-
-    start_point = data.isel(time=0)
-    end_point = data.isel(time=-1)
-    distance = compute_norm(end_point - start_point)
+    distance = compute_norm(data.isel(time=-1) - data.isel(time=0))
 
     path_length = compute_path_length(
         data,
