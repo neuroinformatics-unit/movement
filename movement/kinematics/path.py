@@ -162,9 +162,6 @@ def compute_path_straightness(
 
     result = xr.where(path_length > 0, distance / path_length, np.nan)
 
-    if "space" in result.dims:
-        result = result.isel(space=0, drop=True)
-
     result.name = "straightness_index"
     result.attrs["units"] = "dimensionless"
     result.attrs["long_name"] = "Straightness Index (D/L)"
