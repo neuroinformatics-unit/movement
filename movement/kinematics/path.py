@@ -123,7 +123,7 @@ def compute_path_straightness(
     result = distance / path_length.where(path_length > 0)
 
     result.name = "straightness_index"
-    result.attrs["long_name"] = "Straightness Index (D/L)"
+    result.attrs["long_name"] = "Path Straightness Index"
     return result
 
 
