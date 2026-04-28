@@ -34,7 +34,9 @@ dependencies = [
   "ndx-pose>=0.2.1",
   "jsonschema",
   "orjson",
-  "typer>=0.9.0"
+  "typer>=0.9.0",
+  "pyarrow",
+  "rdata",
 ]
 
 classifiers = [
@@ -141,6 +143,7 @@ exclude = ["tests/", "docs/", "examples/"]
 module = [
   "pooch.*",
   "h5py.*",
+  "rdata.*",
   "sleap_io.*",
   "ndx_pose.*",
   "pynwb.*",
