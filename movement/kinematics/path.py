@@ -89,39 +89,60 @@ def compute_path_straightness(
     nan_policy: Literal["ffill", "scale"] = "ffill",
     nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
-    """Compute the straightness index of a path (D / L).
+    r"""Compute the straightness index of a path :math:`(D/L)`.
 
-    The straightness index is the ratio of the Euclidean distance (D)
-    between the start and end positions of a trajectory to the
-    total path length (L). Values range from 0 to 1, where 1
+    The straightness index is the ratio of the Euclidean distance :math:`D`
+    between the first and last valid positions of a trajectory to the
+    total path length :math:`L`. Values range from 0 to 1, where 1
     indicates a perfectly straight path and 0 indicates the animal
-    returned to its starting point. Returns NaN if path length is zero.
+    returned to its starting point. Returns NaN if the path length is zero.
 
     Parameters
     ----------
     data : xarray.DataArray
-        Position data with ``time`` and ``space`` dimensions.
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
     start : float, optional
-        Start time. Defaults to first time coordinate.
+        The start time of the path. If None (default),
+        the minimum time coordinate in the data is used.
     stop : float, optional
-        Stop time. Defaults to last time coordinate.
+        The end time of the path. If None (default),
+        the maximum time coordinate in the data is used.
     nan_policy : Literal["ffill", "scale"], optional
-        How to handle NaN values. See ``compute_path_length``.
+        Policy to handle NaN (missing) values for the path length computation.
+        Can be one of ``"ffill"`` or ``"scale"``. Defaults to ``"ffill"``
+        (forward fill). See :func:`compute_path_length` for more details on
+        the two policies.
     nan_warn_threshold : float, optional
-        Warn if NaN proportion exceeds this. Defaults to 0.2.
+        If any point track in the data has at least (:math:`\ge`)
+        this proportion of values missing, a warning will be emitted.
+        Defaults to 0.2 (20%). Directly passed to :func:`compute_path_length`.
 
     Returns
     -------
     xarray.DataArray
-        Straightness index per individual/keypoint, with ``time``
-        and ``space`` dimensions removed.
+        An xarray DataArray containing the computed path length,
+        with dimensions matching those of the input data,
+        except ``time`` and ``space`` are removed.
+
+    Notes
+    -----
+    The Euclidean distance :math:`D`, also known as the "straight-line" or
+    "beeline" distance, is calculated using the first and last valid (non-NaN)
+    spatial coordinates within the specified time window. This ensures that
+    missing data at the exact ``start`` or ``stop`` boundaries do not nullify
+    the result, provided there are valid observed positions within the slice.
+
+    See Also
+    --------
+    :func:`compute_path_length` : The underlying function used to
+        compute the path length :math:`L`.
 
     """
     data = _slice_and_validate(data, start, stop, "path straightness")
-    distance = compute_norm(data.isel(time=-1) - data.isel(time=0))
     path_length = _path_length(data, nan_policy, nan_warn_threshold)
-    result = distance / path_length.where(path_length > 0)
-
+    # Compute D/L ratio, avoiding division by zero
+    result = _path_distance(data) / path_length.where(path_length > 0)
     result.name = "straightness_index"
     result.attrs["long_name"] = "Path Straightness Index"
     return result
@@ -172,6 +193,22 @@ def _path_segments(data: xr.DataArray) -> xr.DataArray:
     The first segment is skipped since it is always 0 (no previous point).
     """
     return compute_backward_displacement(data).isel(time=slice(1, None))
+
+
+def _path_distance(data: xr.DataArray) -> xr.DataArray:
+    """Compute Euclidean distance between the first and last valid positions.
+
+    Also known as the "straight-line" or "beeline" distance.
+    Uses forward and backward filling along the time dimension to ensure
+    the distance is calculated between the first and last observed locations,
+    preventing NaNs at the exact start/stop boundaries from nullifying the
+    entire calculation.
+    """
+    anchored_data = data.ffill(dim="time").bfill(dim="time")
+    distance = compute_norm(
+        anchored_data.isel(time=-1) - anchored_data.isel(time=0)
+    )
+    return distance
 
 
 def _path_length(

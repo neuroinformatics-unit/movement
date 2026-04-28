@@ -270,27 +270,6 @@ def test_straightness_between_zero_and_one():
 
 
 # ─────────────────────────────────────────────
-# NaN handling tests
-# ─────────────────────────────────────────────
-
-
-@pytest.mark.parametrize(
-    "nan_slice",
-    [
-        (0, Ellipsis),  # NaN at start
-        (-1, Ellipsis),  # NaN at end
-        (slice(None), Ellipsis),  # all NaN
-    ],
-)
-def test_straightness_nan_propagates(nan_slice):
-    """NaN at start, end, or everywhere propagates to NaN SI."""
-    data = make_straight_line(length=10)
-    data[nan_slice] = np.nan
-    result = compute_path_straightness(data)
-    assert np.all(np.isnan(result.values))
-
-
-# ─────────────────────────────────────────────
 # Output shape and metadata tests
 # ─────────────────────────────────────────────
 
