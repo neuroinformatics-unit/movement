@@ -1,8 +1,7 @@
-"""Compute core kinematic variables such as time derivatives of ``position``.
+"""Compute core kinematic variables such as time derivatives of position.
 
 This module provides functions for computing fundamental kinematic properties
-such as forward & backward displacement, velocity, acceleration, speed, and
-path length (distance travelled between two time points).
+such as forward & backward displacement, velocity, acceleration, and speed.
 The ``movement.kinematics`` subpackage encompasses a broader range of
 functionality (e.g., orientations and distances ), but this file is
 intended to isolate 'true' kinematics for clarity. In a future release, the

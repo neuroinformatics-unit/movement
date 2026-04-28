@@ -1,4 +1,10 @@
-"""Path-level kinematic descriptors."""
+"""Compute path-level metrics such as path length and straightness.
+
+By 'path' we refer to the spatial trajectory of an individual between two
+time points. While these metrics can be computed based on any set of
+keypoints, they are most meaningful when applied to a single keypoint
+representing the individual's overall position (e.g., centroid).
+"""
 
 import warnings
 from typing import Literal
