@@ -166,6 +166,14 @@ def _slice_and_validate(
     return data
 
 
+def _path_segments(data: xr.DataArray) -> xr.DataArray:
+    """Compute path segments as displacements between consecutive time points.
+
+    The first segment is skipped since it is always 0 (no previous point).
+    """
+    return compute_backward_displacement(data).isel(time=slice(1, None))
+
+
 def _path_length(
     data: xr.DataArray,
     nan_policy: Literal["ffill", "scale"],
@@ -174,17 +182,16 @@ def _path_length(
     """Compute path length on already-validated data.
 
     See :func:`compute_path_length` for parameter details.
-
     """
     _warn_about_nan_proportion(data, nan_warn_threshold)
     if nan_policy == "ffill":
-        result = compute_norm(
-            compute_backward_displacement(data.ffill(dim="time")).isel(
-                time=slice(1, None)
-            )  # skip first displacement (always 0)
-        ).sum(dim="time", min_count=1)  # return NaN if no valid segment
+        segments = _path_segments(data.ffill(dim="time"))
+        result = compute_norm(segments).sum(dim="time", min_count=1)
     elif nan_policy == "scale":
-        result = _compute_scaled_path_length(data)
+        segments = _path_segments(data)
+        valid_segments = (~segments.isnull()).all(dim="space").sum(dim="time")
+        valid_proportion = valid_segments / (data.sizes["time"] - 1)
+        result = compute_norm(segments).sum(dim="time") / valid_proportion
     else:
         raise logger.error(
             ValueError(
@@ -234,39 +241,3 @@ def _warn_about_nan_proportion(
             UserWarning,
             stacklevel=2,
         )
-
-
-def _compute_scaled_path_length(
-    data: xr.DataArray,
-) -> xr.DataArray:
-    """Compute scaled path length based on proportion of valid segments.
-
-    Path length is first computed based on valid segments (non-NaN values
-    on both ends of the segment) and then scaled based on the proportion of
-    valid segments per point track - i.e. the result is divided by the
-    proportion of valid segments.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        The input data containing position information, with ``time``
-        and ``space`` (in Cartesian coordinates) as required dimensions.
-
-    Returns
-    -------
-    xarray.DataArray
-        An xarray DataArray containing the computed path length,
-        with dimensions matching those of the input data,
-        except ``time`` and ``space`` are removed.
-
-    """
-    # Skip first displacement segment (always 0) to not mess up the scaling
-    displacement = compute_backward_displacement(data).isel(
-        time=slice(1, None)
-    )
-    # count number of valid displacement segments per point track
-    valid_segments = (~displacement.isnull()).all(dim="space").sum(dim="time")
-    # compute proportion of valid segments per point track
-    valid_proportion = valid_segments / (data.sizes["time"] - 1)
-    # return scaled path length
-    return compute_norm(displacement).sum(dim="time") / valid_proportion
