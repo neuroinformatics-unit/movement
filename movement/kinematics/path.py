@@ -9,7 +9,6 @@ representing the individual's overall position (e.g., centroid).
 import warnings
 from typing import Literal
 
-import numpy as np
 import xarray as xr
 
 from movement.kinematics.kinematics import compute_backward_displacement
@@ -121,10 +120,9 @@ def compute_path_straightness(
     data = _slice_and_validate(data, start, stop, "path straightness")
     distance = compute_norm(data.isel(time=-1) - data.isel(time=0))
     path_length = _path_length(data, nan_policy, nan_warn_threshold)
-    result = xr.where(path_length > 0, distance / path_length, np.nan)
+    result = distance / path_length.where(path_length > 0)
 
     result.name = "straightness_index"
-    result.attrs["units"] = "dimensionless"
     result.attrs["long_name"] = "Straightness Index (D/L)"
     return result
 
@@ -195,6 +193,7 @@ def _path_length(
             )
         )
     result.name = "path_length"
+    result.attrs["long_name"] = "Path Length"
     return result
 
 
