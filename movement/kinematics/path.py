@@ -79,39 +79,8 @@ def compute_path_length(
     segments, which may not accurately reflect actual conditions.
 
     """
-    validate_dims_coords(data, {"time": [], "space": []})
-    data = data.sel(time=slice(start, stop))
-    # Check that the data is not empty or too short
-    n_time = data.sizes["time"]
-    if n_time < 2:
-        raise logger.error(
-            ValueError(
-                "At least 2 time points are required to compute path length, "
-                f"but {n_time} were found. "
-                "Double-check the start and stop times."
-            )
-        )
-
-    _warn_about_nan_proportion(data, nan_warn_threshold)
-
-    if nan_policy == "ffill":
-        result = compute_norm(
-            compute_backward_displacement(data.ffill(dim="time")).isel(
-                time=slice(1, None)
-            )  # skip first displacement (always 0)
-        ).sum(dim="time", min_count=1)  # return NaN if no valid segment
-    elif nan_policy == "scale":
-        result = _compute_scaled_path_length(data)
-    else:
-        raise logger.error(
-            ValueError(
-                f"Invalid value for nan_policy: {nan_policy}. "
-                "Must be one of 'ffill' or 'scale'."
-            )
-        )
-
-    result.name = "path_length"
-    return result
+    data = _slice_and_validate(data, start, stop, "path length")
+    return _path_length(data, nan_policy, nan_warn_threshold)
 
 
 def compute_path_straightness(
@@ -149,22 +118,83 @@ def compute_path_straightness(
         and ``space`` dimensions removed.
 
     """
-    validate_dims_coords(data, {"time": [], "space": []})
-    data = data.sel(time=slice(start, stop))
-
+    data = _slice_and_validate(data, start, stop, "path straightness")
     distance = compute_norm(data.isel(time=-1) - data.isel(time=0))
-
-    path_length = compute_path_length(
-        data,
-        nan_policy=nan_policy,
-        nan_warn_threshold=nan_warn_threshold,
-    )
-
+    path_length = _path_length(data, nan_policy, nan_warn_threshold)
     result = xr.where(path_length > 0, distance / path_length, np.nan)
 
     result.name = "straightness_index"
     result.attrs["units"] = "dimensionless"
     result.attrs["long_name"] = "Straightness Index (D/L)"
+    return result
+
+
+def _slice_and_validate(
+    data: xr.DataArray,
+    start: float | None,
+    stop: float | None,
+    metric_name: str,
+) -> xr.DataArray:
+    """Validate dims/coords and slice ``data`` along ``time``.
+
+    Requires the sliced data to contain at least 2 time points.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        Position data with ``time`` and ``space`` dimensions.
+    start, stop : float, optional
+        Time slice bounds. ``None`` means "use the data's extent".
+    metric_name : str
+        Used in the error message when the time range is too short.
+
+    Returns
+    -------
+    xarray.DataArray
+        The validated, time-sliced data.
+
+    """
+    validate_dims_coords(data, {"time": [], "space": []})
+    data = data.sel(time=slice(start, stop))
+    n_time = data.sizes["time"]
+    if n_time < 2:
+        raise logger.error(
+            ValueError(
+                "At least 2 time points are required to compute "
+                f"{metric_name}, but {n_time} were found. "
+                "Double-check the start and stop times."
+            )
+        )
+    return data
+
+
+def _path_length(
+    data: xr.DataArray,
+    nan_policy: Literal["ffill", "scale"],
+    nan_warn_threshold: float,
+) -> xr.DataArray:
+    """Compute path length on already-validated data.
+
+    See :func:`compute_path_length` for parameter details.
+
+    """
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+    if nan_policy == "ffill":
+        result = compute_norm(
+            compute_backward_displacement(data.ffill(dim="time")).isel(
+                time=slice(1, None)
+            )  # skip first displacement (always 0)
+        ).sum(dim="time", min_count=1)  # return NaN if no valid segment
+    elif nan_policy == "scale":
+        result = _compute_scaled_path_length(data)
+    else:
+        raise logger.error(
+            ValueError(
+                f"Invalid value for nan_policy: {nan_policy}. "
+                "Must be one of 'ffill' or 'scale'."
+            )
+        )
+    result.name = "path_length"
     return result
 
 
