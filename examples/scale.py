@@ -217,22 +217,25 @@ plt.show()
 # Measure a known distance from video footage
 # -------------------------------------------
 # .. attention::
-#   The following steps require ``napari`` to be installed. If you haven't
-#   already, install ``movement`` with the optional GUI dependencies by
-#   following the :ref:`installation instructions<target-installation>`.
+#    The following steps require running this example locally (not on
+#    Binder), with ``napari`` installed. If you haven't already, install
+#    ``movement`` with the optional ``napari`` dependencies by following the
+#    :ref:`installation instructions<target-installation>`.
 #
-# First, open the video file in napari:
+# First, open the video file (or a single video frame) in ``napari`` by running
+# the following code in a Jupyter notebook:
 #
 # .. code-block:: python
 #
 #    import napari
 #    viewer = napari.Viewer()
-#    viewer.open(ds_mouse.video_path)
+#    viewer.open(ds_mouse.video_path)  # can also use ds_mouse.frame_path
 #
 # .. note::
-#    You can also load a single frame image instead of the full video.
+#    Alternatively, you can type ``napari`` in a terminal, wait for the
+#    viewer to open, and drag-and-drop the video/frame file into the viewer.
 #
-# Next, measure a known distance in the napari viewer:
+# Next, measure a known distance in the ``napari`` viewer:
 #
 # 1. Add a new shapes layer by clicking 'New shapes layer' in the layer list.
 # 2. Select the 'Add lines' tool (shortcut: L) from the layer controls.
@@ -250,7 +253,7 @@ plt.show()
 # .. image:: /_static/napari_scale_measure.png
 #    :width: 600
 #
-# 5. Close the napari viewer.
+# 5. Close the ``napari`` viewer.
 
 # %%
 # We can then retrieve the measured distance and line coordinates from the
