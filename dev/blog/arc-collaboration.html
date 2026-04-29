@@ -32,7 +32,7 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=2a6fe4dd" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -44,9 +44,10 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=57f79b18"></script>
+    <script src="../_static/documentation_options.js?v=5d8aea74"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'blog/arc-collaboration';</script>
@@ -141,7 +142,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.15.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev1</p>
   
 </a></div>
     
@@ -504,7 +505,7 @@ It is early days currently, but you can join in the conversation for what’s pl
 <section id="plotting-made-easier">
 <h3>Plotting Made Easier<a class="headerlink" href="#plotting-made-easier" title="Link to this heading">#</a></h3>
 <p>The <a class="reference internal" href="../api/movement.plots.html#module-movement.plots" title="movement.plots"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.plots</span></code></a> submodule has been created, which provides some helpful wrapper functions for producing some of the more common plot types that come out of the analysis of <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets.
-These plots can be added to existing figure axes you have created, and you can pass them the same formatting arguments as you would to the appropriate <a class="reference external" href="https://matplotlib.org/stable/api/pyplot_summary.html#module-matplotlib.pyplot" title="(in Matplotlib v3.10.8)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib.pyplot</span></code></a>.
+These plots can be added to existing figure axes you have created, and you can pass them the same formatting arguments as you would to the appropriate <a class="reference external" href="https://matplotlib.org/stable/api/pyplot_summary.html#module-matplotlib.pyplot" title="(in Matplotlib v3.10.9)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib.pyplot</span></code></a>.
 Currently, the submodule has two wrappers to use:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_centroid_trajectory</span></code></a>, which creates a plot of the trajectory of a given keypoint (or the centroid of a collection of keypoints) with a single line of code. Introduced in <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/pull/394">#394</a>.</p></li>

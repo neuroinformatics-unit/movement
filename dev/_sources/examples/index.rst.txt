@@ -9,6 +9,10 @@ Below is a gallery of examples showcasing the core functionality and concepts
 of ``movement``.
 
 
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
+
 
 .. raw:: html
 
@@ -233,6 +237,10 @@ Advanced
 These examples are intended for experienced users who want to leverage the
 full power of ``movement``.
 
+
+.. raw:: html
+
+  <div id='sg-tag-list' class='sphx-glr-tag-list'></div>
 
 
 .. raw:: html
