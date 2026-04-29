@@ -121,7 +121,7 @@ def compute_path_straightness(
     Returns
     -------
     xarray.DataArray
-        An xarray DataArray containing the computed path length,
+        An xarray DataArray containing the computed straightness index,
         with dimensions matching those of the input data,
         except ``time`` and ``space`` are removed.
 
