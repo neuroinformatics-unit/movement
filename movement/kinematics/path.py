@@ -77,6 +77,17 @@ def compute_path_length(
     that motion dynamics are similar across observed and missing time
     segments, which may not accurately reflect actual conditions.
 
+    **Sampling rate sensitivity ('coastline paradox'):**
+    The measured path length is sensitive to the temporal sampling rate 
+    (i.e., frames per second) of the tracking data. Higher sampling rates 
+    capture finer micro-movements and tracking jitter, which inherently 
+    increases the total measured path length. Exercise caution when comparing 
+    path lengths across datasets with different temporal resolutions.
+
+    See Also
+    --------
+    :func:`compute_path_straightness`
+
     Examples
     --------
     >>> from movement.kinematics import compute_path_length
@@ -150,6 +161,10 @@ def compute_path_straightness(
     spatial coordinates within the specified time window. This ensures that
     missing data at the exact ``start`` or ``stop`` boundaries do not nullify
     the result, provided there are valid observed positions within the slice.
+
+    Note that the total path length (L), and therefore the straightness index,
+    is sensitive to the temporal sampling  rate (i.e. frames per second),
+    as decribed in the Notes of :func:`compute_path_length`.
 
     See Also
     --------
