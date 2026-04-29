@@ -12,6 +12,7 @@ from attrs import define, field
 from movement.validators.files import (
     DEFAULT_FRAME_REGEXP,
     ValidAniposeCSV,
+    ValidBVHFile,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
     ValidNWBFile,
@@ -32,6 +33,7 @@ from movement.validators.files import (
         ("readable_csv_file", "r", None, does_not_raise()),
         ("readable_csv_file", "r", {".csv"}, does_not_raise()),
         ("readable_csv_file", "r", {".csv", ".h5"}, does_not_raise()),
+        ("readable_bvh_file", "r", {".bvh"}, does_not_raise()),
         ("new_csv_file", "w", None, does_not_raise()),
         ("unreadable_file", "r", None, pytest.raises(PermissionError)),
         ("unwriteable_file", "w", None, pytest.raises(PermissionError)),
@@ -50,6 +52,7 @@ from movement.validators.files import (
         "has read permission, exists, and is not a directory",
         "has expected suffix",
         "has one of the expected suffixes",
+        "has expected suffix",
         "has write permission and does not exist",
         "lacks read permission",
         "lacks write permission",
@@ -687,3 +690,27 @@ def test_roi_collection_geojson_validator(content, expected_context, tmp_path):
     with expected_context:
         validated = ValidROICollectionGeoJSON(file_path)
         assert validated.file == file_path
+
+
+def test_valid_bvh_file(readable_bvh_file):
+    """Test that a valid BVH file passes validation."""
+    valid = ValidBVHFile(file=readable_bvh_file)
+    assert valid.file == readable_bvh_file
+
+
+def test_invalid_bvh_no_hierarchy(bvh_file_no_hierarchy):
+    """Test BVH without HIERARCHY fails validation."""
+    with pytest.raises(ValueError, match="HIERARCHY"):
+        ValidBVHFile(file=bvh_file_no_hierarchy)
+
+
+def test_invalid_bvh_no_motion(bvh_file_no_motion):
+    """Test BVH without MOTION fails validation."""
+    with pytest.raises(ValueError, match="MOTION"):
+        ValidBVHFile(file=bvh_file_no_motion)
+
+
+def test_invalid_bvh_wrong_extension(wrong_extension_file):
+    """Test that wrong file extension fails."""
+    with pytest.raises(ValueError, match="suffix"):
+        ValidBVHFile(file=wrong_extension_file)

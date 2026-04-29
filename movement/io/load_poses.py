@@ -4,6 +4,7 @@ import warnings
 from pathlib import Path
 from typing import Literal, cast
 
+import bvhio
 import h5py
 import numpy as np
 import pandas as pd
@@ -17,6 +18,7 @@ from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import (
     ValidAniposeCSV,
+    ValidBVHFile,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
     ValidFile,
@@ -105,6 +107,7 @@ def from_file(
         "LightningPose",
         "Anipose",
         "NWB",
+        "BVH",
     ],
     fps: float | None = None,
     **kwargs,
@@ -174,6 +177,8 @@ def from_file(
         return from_lp_file(file, fps)
     elif source_software == "Anipose":
         return from_anipose_file(file, fps, **kwargs)
+    elif source_software == "BVH":
+        return from_bvh_file(file, fps)
     elif source_software == "NWB":
         if fps is not None:
             logger.warning(
@@ -943,3 +948,69 @@ def _ds_from_nwb_object(
     return xr.merge(
         single_keypoint_datasets, join="outer", compat="no_conflicts"
     )
+
+
+@register_loader("BVH", file_validators=[ValidBVHFile])
+def from_bvh_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from a BVH file.
+
+    Parameters
+    ----------
+    file
+        Path to the file containing the poses in .bvh format.
+    fps
+        The number of frames per second in the video. If None (default),
+        the fps value will be computed using the BVH file frame time.
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks,
+        and associated metadata.
+
+    Examples
+    --------
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_bvh_file("path/to/file.bvh")
+
+    """
+    valid_file = cast("ValidFile", file)
+    file_path = valid_file.file
+
+    # Read the BVH hierarchy from the file
+    bvh = bvhio.readAsBvh(file_path)
+    frame_time = bvh.FrameTime
+    root = bvhio.readAsHierarchy(file_path)
+
+    # Collect joint names
+    joint_names = [joint.Name for joint, _, _ in root.layout()]
+    n_keypoints = len(joint_names)
+
+    # Frame range and fps
+    first, last = root.getKeyframeRange()
+    n_frames = last - first + 1
+    fps = fps or (1 / frame_time)
+
+    position_array = np.zeros(
+        (n_frames, 3, n_keypoints, 1), dtype=np.float32
+    )  # 1 for single individual
+
+    for f in range(n_frames):
+        root.loadPose(f)
+        for j_idx, (joint, _, _) in enumerate(root.layout()):
+            pos = joint.PositionWorld
+            position_array[f, :, j_idx, 0] = [pos.x, pos.y, pos.z]
+
+    ds = from_numpy(
+        position_array=position_array,
+        confidence_array=None,  # BVH is marker based, so maybe confidence= 1?
+        individual_names=["individual_0"],
+        keypoint_names=joint_names,
+        fps=fps,
+        source_software="BVH",
+    )
+
+    ds.attrs["source_file"] = file_path.as_posix()
+    ds.attrs["source_software"] = "BVH"
+    logger.info(f"Loaded poses from {file_path.name}")
+    return ds

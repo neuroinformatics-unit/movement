@@ -275,7 +275,15 @@ def test_load_from_nwb_file(input_type, kwargs, request):
 @pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
 @pytest.mark.parametrize(
     "source_software",
-    ["DeepLabCut", "SLEAP", "LightningPose", "Anipose", "NWB", "Unknown"],
+    [
+        "DeepLabCut",
+        "SLEAP",
+        "LightningPose",
+        "Anipose",
+        "NWB",
+        "BVH",
+        "Unknown",
+    ],
 )
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 def test_from_file_delegates_correctly(source_software, fps, caplog):
@@ -288,6 +296,7 @@ def test_from_file_delegates_correctly(source_software, fps, caplog):
         "LightningPose": "movement.io.load_poses.from_lp_file",
         "Anipose": "movement.io.load_poses.from_anipose_file",
         "NWB": "movement.io.load_poses.from_nwb_file",
+        "BVH": "movement.io.load_poses.from_bvh_file",
     }
     if source_software == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source"):
@@ -321,3 +330,59 @@ def test_from_multiview_files():
     assert isinstance(multi_view_ds, xr.Dataset)
     assert "view" in multi_view_ds.dims
     assert multi_view_ds.view.values.tolist() == view_names
+
+
+@pytest.mark.parametrize(
+    "bvh_file, n_frames, n_joints",
+    [
+        ("simple_bvh_file", 2, 2),
+        ("complex_bvh_file", 3, 5),
+    ],
+)
+def test_load_from_bvh_file(request, bvh_file, n_frames, n_joints, helpers):
+    """Test loading BVH file returns valid Dataset."""
+    bvh_file = request.getfixturevalue(bvh_file)
+    ds = load_poses.from_bvh_file(bvh_file)
+
+    expected_values = {
+        **expected_values_poses,
+        "source_software": "BVH",
+        "file_path": bvh_file,
+        "fps": 20.0,
+        "time_unit": "seconds",
+    }
+    helpers.assert_valid_dataset(ds, expected_values)
+
+    # Verify shape
+    assert ds.position.shape == (n_frames, 3, n_joints, 1)
+    assert ds.confidence.shape == (n_frames, n_joints, 1)
+
+
+@pytest.mark.parametrize(
+    "fixture_name, expected_joints",
+    [
+        ("simple_bvh_file", ["Armature", "Bone1"]),
+        ("complex_bvh_file", ["Root", "Torso", "Neck", "LeftArm", "RightArm"]),
+    ],
+    ids=["simple_bvh", "complex_bvh"],
+)
+def test_bvh_joint_names(request, fixture_name, expected_joints):
+    """Test that joint names match BVH hierarchy."""
+    bvh_file = request.getfixturevalue(fixture_name)
+    ds = load_poses.from_bvh_file(bvh_file)
+    actual = ds.coords["keypoints"].values.tolist()
+    assert actual == expected_joints
+
+
+def test_bvh_fps_from_frame_time(simple_bvh_file):
+    """Test fps is computed from BVH Frame Time."""
+    ds = load_poses.from_bvh_file(simple_bvh_file)
+    assert ds.fps == 20
+    assert ds.time_unit == "seconds"
+
+
+def test_bvh_fps_none(simple_bvh_file):
+    """Test that fps=None computes fps from BVH Frame Time."""
+    ds = load_poses.from_bvh_file(simple_bvh_file, fps=None)
+    assert ds.fps == 20
+    assert ds.time_unit == "seconds"
