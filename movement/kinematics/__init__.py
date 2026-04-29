@@ -31,6 +31,7 @@ __all__ = [
     "compute_acceleration",
     "compute_speed",
     "compute_path_length",
+    "compute_path_straightness",
     "compute_time_derivative",
     "compute_pairwise_distances",
     "compute_forward_vector",
@@ -38,5 +39,4 @@ __all__ = [
     "compute_forward_vector_angle",
     "compute_kinetic_energy",
     "compute_turning_angle",
-    "compute_straightness_index",
 ]
