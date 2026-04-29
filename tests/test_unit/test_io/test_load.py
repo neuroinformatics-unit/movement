@@ -174,6 +174,26 @@ def test_build_suffix_map():
     assert suffix_map == {".stub": StubValidFile}
 
 
+def test_get_supported_source_software():
+    """Test that get_supported_source_software returns a non-empty
+    mapping whose keys match the loader registry and whose values
+    are sets of file-suffix strings.
+
+    We intentionally avoid checking exact values here, to avoid
+    having to update this test every time we add a new format.
+    """
+    supported = load.get_supported_source_software()
+    assert isinstance(supported, dict)
+    assert len(supported) > 0
+    assert set(supported) == set(load._LOADER_REGISTRY)
+    for sw, suffixes in supported.items():
+        assert isinstance(sw, str)
+        assert isinstance(suffixes, set)
+        for suffix in suffixes:
+            assert isinstance(suffix, str)
+            assert suffix.startswith(".")
+
+
 @pytest.mark.parametrize(
     "file_fixture, expected_source_software", AUTO_SOURCE_SOFTWARE_CASES
 )
