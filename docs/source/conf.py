@@ -87,6 +87,10 @@ autodoc_default_options = {
     "special-members": "__call__",
     "member-order": "groupwise",
 }
+
+# sphinx-autodoc-typehints configuration
+always_use_bars_union = True
+
 # Prefix section labels with the document name
 autosectionlabel_prefix_document = True
 
