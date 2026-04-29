@@ -321,4 +321,3 @@ def compute_speed(data: xr.DataArray) -> xr.DataArray:
     result = compute_norm(compute_velocity(data))
     result.name = "speed"
     return result
-
