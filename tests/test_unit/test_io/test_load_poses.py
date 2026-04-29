@@ -1,7 +1,5 @@
 """Test suite for the load_poses module."""
 
-from unittest.mock import patch
-
 import numpy as np
 import pytest
 import xarray as xr
