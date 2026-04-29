@@ -1,4 +1,4 @@
-"""Computing spatial relationships between points, such as distances."""
+"""Compute pairwise spatial distances between points."""
 
 import itertools
 from typing import Literal
