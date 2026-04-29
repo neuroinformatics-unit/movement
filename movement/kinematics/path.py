@@ -269,15 +269,18 @@ def _warn_about_nan_proportion(
             ValueError("nan_warn_threshold must be between 0 and 1.")
         )
     n_nans = data.isnull().any(dim="space").sum(dim="time")
-    data_to_warn_about = data.where(
-        n_nans >= data.sizes["time"] * nan_warn_threshold, drop=True
+    exceeds_threshold = n_nans >= data.sizes["time"] * nan_warn_threshold
+    if not exceeds_threshold.any():
+        return
+    track_dims = [d for d in data.dims if d not in ("time", "space")]
+    stacked = data.stack(tracks=track_dims)
+    mask = exceeds_threshold.stack(tracks=track_dims)
+    data_to_warn_about = stacked.sel(tracks=mask).unstack("tracks")
+    warnings.warn(
+        "The result may be unreliable for point tracks with many "
+        "missing values. The following tracks have at least "
+        f"{nan_warn_threshold * 100:.3} % NaN values:\n"
+        f"{report_nan_values(data_to_warn_about)}",
+        UserWarning,
+        stacklevel=2,
     )
-    if data_to_warn_about.size > 0:
-        warnings.warn(
-            "The result may be unreliable for point tracks with many "
-            "missing values. The following tracks have at least "
-            f"{nan_warn_threshold * 100:.3} % NaN values:\n"
-            f"{report_nan_values(data_to_warn_about)}",
-            UserWarning,
-            stacklevel=2,
-        )

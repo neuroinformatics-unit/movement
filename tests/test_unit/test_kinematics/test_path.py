@@ -6,6 +6,38 @@ import xarray as xr
 
 from movement.kinematics import compute_path_length, compute_path_straightness
 
+
+@pytest.fixture
+def valid_poses_dataset_with_cross_nan(valid_poses_dataset):
+    """Return a valid poses dataset with NaNs crossing both dimensions.
+
+    NaN layout (10 frames):
+    - (right, id_0): 10/10 NaN (100%)
+    - (centroid, id_1): 6/10 NaN (60%)
+    - (right, id_1): 1/10 NaN (10%)
+    - (centroid, id_0): 1/10 NaN (10%)
+    - All other tracks: 0 NaN
+    """
+    position = valid_poses_dataset.position
+    position.loc[
+        {"individuals": "id_0", "keypoints": "right"}
+    ] = np.nan
+    position.loc[
+        {
+            "individuals": "id_1",
+            "keypoints": "centroid",
+            "time": [0, 1, 2, 3, 4, 5],
+        }
+    ] = np.nan
+    position.loc[
+        {"individuals": "id_1", "keypoints": "right", "time": 0}
+    ] = np.nan
+    position.loc[
+        {"individuals": "id_0", "keypoints": "centroid", "time": 0}
+    ] = np.nan
+    return valid_poses_dataset
+
+
 time_points_value_error = pytest.raises(
     ValueError,
     match="At least 2 time points are required to compute path length",
@@ -121,42 +153,79 @@ def test_path_length_with_nan(
 
 
 # Regex patterns to match the warning messages
-exclude_id_1_and_left = r"(?s)(?!.*id_1)(?!.*left)"
-include_threshold_100 = r".*The result may be unreliable.*right.*id_0.*10/10.*"
-include_threshold_20 = (
-    r".*The result may be unreliable.*centroid.*right.*id_0.*3/10.*10/10.*"
+_exclude_id_1_and_left = r"(?s)(?!.*id_1)(?!.*left)"
+_include_threshold_100 = (
+    r".*The result may be unreliable.*right.*id_0.*10/10.*"
+)
+_include_threshold_20 = (
+    r".*The result may be unreliable"
+    r".*centroid.*right.*id_0.*3/10.*10/10.*"
+)
+_cross_nan_threshold_50 = (
+    r"(?s)(?!.*1/10)(?=.*10/10)(?=.*6/10)"
+    r".*The result may be unreliable.*"
 )
 
 
 @pytest.mark.parametrize(
-    "nan_warn_threshold, expected_exception",
+    "fixture_name, nan_warn_threshold, expected_exception",
     [
-        (
+        pytest.param(
+            "valid_poses_dataset_with_nan",
             1,
             pytest.warns(
                 UserWarning,
-                match=f"{exclude_id_1_and_left}{include_threshold_100}",
+                match=(
+                    f"{_exclude_id_1_and_left}"
+                    f"{_include_threshold_100}"
+                ),
             ),
+            id="standard-threshold-100",
         ),
-        (
+        pytest.param(
+            "valid_poses_dataset_with_nan",
             0.2,
             pytest.warns(
                 UserWarning,
-                match=f"{exclude_id_1_and_left}{include_threshold_20}",
+                match=(
+                    f"{_exclude_id_1_and_left}"
+                    f"{_include_threshold_20}"
+                ),
             ),
+            id="standard-threshold-20",
         ),
-        (-1, pytest.raises(ValueError, match="between 0 and 1")),
+        pytest.param(
+            "valid_poses_dataset_with_nan",
+            -1,
+            pytest.raises(
+                ValueError, match="between 0 and 1"
+            ),
+            id="invalid-threshold",
+        ),
+        pytest.param(
+            "valid_poses_dataset_with_cross_nan",
+            0.5,
+            pytest.warns(
+                UserWarning,
+                match=_cross_nan_threshold_50,
+            ),
+            id="cross-nan-threshold-50",
+        ),
     ],
 )
 def test_path_length_nan_warn_threshold(
-    valid_poses_dataset_with_nan, nan_warn_threshold, expected_exception
+    request,
+    fixture_name,
+    nan_warn_threshold,
+    expected_exception,
 ):
     """Test that a warning is raised with matching message containing
     information on the individuals and keypoints whose number of missing
     values exceeds the given threshold or that an error is raised
     when the threshold is invalid.
     """
-    position = valid_poses_dataset_with_nan.position
+    dataset = request.getfixturevalue(fixture_name)
+    position = dataset.position
     with expected_exception:
         result = compute_path_length(
             position, nan_warn_threshold=nan_warn_threshold
