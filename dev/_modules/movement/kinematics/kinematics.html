@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=6a72601e"></script>
+    <script src="../../../_static/documentation_options.js?v=058374ca"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev2</p>
+    <p class="title logo__title">movement v0.16.1.dev4</p>
   
 </a></div>
     
@@ -467,11 +467,10 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.kinematics.kinematics</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Compute core kinematic variables such as time derivatives of ``position``.</span>
+<span></span><span class="sd">&quot;&quot;&quot;Compute core kinematic variables such as time derivatives of position.</span>
 
 <span class="sd">This module provides functions for computing fundamental kinematic properties</span>
-<span class="sd">such as forward &amp; backward displacement, velocity, acceleration, speed, and</span>
-<span class="sd">path length (distance travelled between two time points).</span>
+<span class="sd">such as forward &amp; backward displacement, velocity, acceleration, and speed.</span>
 <span class="sd">The ``movement.kinematics`` subpackage encompasses a broader range of</span>
 <span class="sd">functionality (e.g., orientations and distances ), but this file is</span>
 <span class="sd">intended to isolate &#39;true&#39; kinematics for clarity. In a future release, the</span>
@@ -480,12 +479,10 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.reports</span><span class="w"> </span><span class="kn">import</span> <span class="n">report_nan_values</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.vector</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_norm</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.arrays</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_dims_coords</span>
 
@@ -814,179 +811,6 @@
     <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;speed&quot;</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
-
-
-<div class="viewcode-block" id="compute_path_length">
-<a class="viewcode-back" href="../../../api/movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">compute_path_length</span><span class="p">(</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">stop</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">nan_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;ffill&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ffill&quot;</span><span class="p">,</span>
-    <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the length of a path travelled between two time points.</span>
-
-<span class="sd">    The path length is defined as the sum of the norms (magnitudes) of the</span>
-<span class="sd">    displacement vectors between two time points ``start`` and ``stop``,</span>
-<span class="sd">    which should be provided in the time units of the data array.</span>
-<span class="sd">    If not specified, the minimum and maximum time coordinates of the data</span>
-<span class="sd">    array are used as start and stop times, respectively.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data</span>
-<span class="sd">        The input data containing position information, with ``time``</span>
-<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
-<span class="sd">    start</span>
-<span class="sd">        The start time of the path. If None (default),</span>
-<span class="sd">        the minimum time coordinate in the data is used.</span>
-<span class="sd">    stop</span>
-<span class="sd">        The end time of the path. If None (default),</span>
-<span class="sd">        the maximum time coordinate in the data is used.</span>
-<span class="sd">    nan_policy</span>
-<span class="sd">        Policy to handle NaN (missing) values. Can be one of the ``&quot;ffill&quot;``</span>
-<span class="sd">        or ``&quot;scale&quot;``. Defaults to ``&quot;ffill&quot;`` (forward fill).</span>
-<span class="sd">        See Notes for more details on the two policies.</span>
-<span class="sd">    nan_warn_threshold</span>
-<span class="sd">        If any point track in the data has at least (:math:`\ge`)</span>
-<span class="sd">        this proportion of values missing, a warning will be emitted.</span>
-<span class="sd">        Defaults to 0.2 (20%).</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    xarray.DataArray</span>
-<span class="sd">        An xarray DataArray containing the computed path length,</span>
-<span class="sd">        with dimensions matching those of the input data,</span>
-<span class="sd">        except ``time`` and ``space`` are removed.</span>
-
-<span class="sd">    Notes</span>
-<span class="sd">    -----</span>
-<span class="sd">    Choosing ``nan_policy=&quot;ffill&quot;`` will use :meth:`xarray.DataArray.ffill`</span>
-<span class="sd">    to forward-fill missing segments (NaN values) across time.</span>
-<span class="sd">    This equates to assuming that a track remains stationary for</span>
-<span class="sd">    the duration of the missing segment and then instantaneously moves to</span>
-<span class="sd">    the next valid position, following a straight line. This approach tends</span>
-<span class="sd">    to underestimate the path length, and the error increases with the number</span>
-<span class="sd">    of missing values.</span>
-
-<span class="sd">    Choosing ``nan_policy=&quot;scale&quot;`` will adjust the path length based on the</span>
-<span class="sd">    the proportion of valid segments per point track. For example, if only</span>
-<span class="sd">    80% of segments are present, the path length will be computed based on</span>
-<span class="sd">    these and the result will be divided by 0.8. This approach assumes</span>
-<span class="sd">    that motion dynamics are similar across observed and missing time</span>
-<span class="sd">    segments, which may not accurately reflect actual conditions.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[]})</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">))</span>
-    <span class="c1"># Check that the data is not empty or too short</span>
-    <span class="n">n_time</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">n_time</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;At least 2 time points are required to compute path length, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;but </span><span class="si">{</span><span class="n">n_time</span><span class="si">}</span><span class="s2"> were found. &quot;</span>
-                <span class="s2">&quot;Double-check the start and stop times.&quot;</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-
-    <span class="n">_warn_about_nan_proportion</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">nan_policy</span> <span class="o">==</span> <span class="s2">&quot;ffill&quot;</span><span class="p">:</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">compute_norm</span><span class="p">(</span>
-            <span class="n">compute_backward_displacement</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
-                <span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="p">)</span>  <span class="c1"># skip first displacement (always 0)</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># return NaN if no valid segment</span>
-    <span class="k">elif</span> <span class="n">nan_policy</span> <span class="o">==</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">_compute_scaled_path_length</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid value for nan_policy: </span><span class="si">{</span><span class="n">nan_policy</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="s2">&quot;Must be one of &#39;ffill&#39; or &#39;scale&#39;.&quot;</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-
-    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;path_length&quot;</span>
-    <span class="k">return</span> <span class="n">result</span></div>
-
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_warn_about_nan_proportion</span><span class="p">(</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Issue warning if the proportion of NaN values exceeds a threshold.</span>
-
-<span class="sd">    The NaN proportion is evaluated per point track, and a given point is</span>
-<span class="sd">    considered NaN if any of its ``space`` coordinates are NaN. The warning</span>
-<span class="sd">    specifically lists the point tracks with at least (&gt;=)</span>
-<span class="sd">    ``nan_warn_threshold`` proportion of NaN values.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data</span>
-<span class="sd">        The input data array.</span>
-<span class="sd">    nan_warn_threshold</span>
-<span class="sd">        The threshold for the proportion of NaN values. Must be a number</span>
-<span class="sd">        between 0 and 1.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">nan_warn_threshold</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">nan_warn_threshold</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">nan_warn_threshold</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;nan_warn_threshold must be between 0 and 1.&quot;</span><span class="p">)</span>
-        <span class="p">)</span>
-    <span class="n">n_nans</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
-    <span class="n">data_to_warn_about</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-        <span class="n">n_nans</span> <span class="o">&gt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">nan_warn_threshold</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">data_to_warn_about</span><span class="o">.</span><span class="n">size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;The result may be unreliable for point tracks with many &quot;</span>
-            <span class="s2">&quot;missing values. The following tracks have at least &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">nan_warn_threshold</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.3</span><span class="si">}</span><span class="s2"> % NaN values:</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_to_warn_about</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="ne">UserWarning</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_compute_scaled_path_length</span><span class="p">(</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute scaled path length based on proportion of valid segments.</span>
-
-<span class="sd">    Path length is first computed based on valid segments (non-NaN values</span>
-<span class="sd">    on both ends of the segment) and then scaled based on the proportion of</span>
-<span class="sd">    valid segments per point track - i.e. the result is divided by the</span>
-<span class="sd">    proportion of valid segments.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    data</span>
-<span class="sd">        The input data containing position information, with ``time``</span>
-<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    xarray.DataArray</span>
-<span class="sd">        An xarray DataArray containing the computed path length,</span>
-<span class="sd">        with dimensions matching those of the input data,</span>
-<span class="sd">        except ``time`` and ``space`` are removed.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Skip first displacement segment (always 0) to not mess up the scaling</span>
-    <span class="n">displacement</span> <span class="o">=</span> <span class="n">compute_backward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
-        <span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="p">)</span>
-    <span class="c1"># count number of valid displacement segments per point track</span>
-    <span class="n">valid_segments</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">displacement</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
-    <span class="c1"># compute proportion of valid segments per point track</span>
-    <span class="n">valid_proportion</span> <span class="o">=</span> <span class="n">valid_segments</span> <span class="o">/</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="c1"># return scaled path length</span>
-    <span class="k">return</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">displacement</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">valid_proportion</span>
 </pre></div>
 <div class="section ablog__blog_comments">
    

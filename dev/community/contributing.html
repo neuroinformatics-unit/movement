@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=6a72601e"></script>
+    <script src="../_static/documentation_options.js?v=058374ca"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev2</p>
+    <p class="title logo__title">movement v0.16.1.dev4</p>
   
 </a></div>
     
@@ -564,7 +564,7 @@ conda<span class="w"> </span>activate<span class="w"> </span>movement-dev
 </pre></div>
 </div>
 <p>Then, install the package in editable mode with development dependencies:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--group<span class="w"> </span>dev
 </pre></div>
 </div>
 </div>
@@ -578,12 +578,17 @@ uv</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 <p>Then, install the package in editable mode with development dependencies:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--group<span class="w"> </span>dev
 </pre></div>
 </div>
 </div>
 </div>
-<p>If you also want to edit the documentation and preview the changes locally, you will additionally need the <code class="docutils literal notranslate"><span class="pre">docs</span></code> extra dependencies. See <a class="reference internal" href="#editing-the-documentation"><span class="std std-ref">Editing the documentation</span></a> for more details.</p>
+<p>If you also want to <a class="reference internal" href="#editing-the-documentation"><span class="std std-ref">edit the documentation</span></a> and preview the changes locally, you will additionally need the <code class="docutils literal notranslate"><span class="pre">docs</span></code> dependencies.
+To install both <code class="docutils literal notranslate"><span class="pre">dev</span></code> and <code class="docutils literal notranslate"><span class="pre">docs</span></code> dependencies at once, use <code class="docutils literal notranslate"><span class="pre">--all-groups</span></code>:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--all-groups<span class="w">      </span><span class="c1"># conda env</span>
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--all-groups<span class="w">   </span><span class="c1"># uv env</span>
+</pre></div>
+</div>
 </li>
 <li><p>Finally, initialise the <a class="reference internal" href="#formatting-and-pre-commit-hooks"><span class="std std-ref">pre-commit hooks</span></a>:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pre-commit<span class="w"> </span>install
@@ -1101,9 +1106,9 @@ This keeps the documentation aligned with releases, while allowing manual redepl
 <section id="editing-the-documentation">
 <h3>Editing the documentation<a class="headerlink" href="#editing-the-documentation" title="Link to this heading">#</a></h3>
 <p>To edit the documentation, ensure you have already set up a <a class="reference internal" href="#creating-a-development-environment"><span class="std std-ref">development environment</span></a>.</p>
-<p>To build the documentation locally, install the extra dependencies by running the following command from the repository root:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[docs]&quot;</span><span class="w">      </span><span class="c1"># conda env</span>
-uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[docs]&quot;</span><span class="w">   </span><span class="c1"># uv env</span>
+<p>To build the documentation locally, install the <code class="docutils literal notranslate"><span class="pre">docs</span></code> dependencies by running the following command from the repository root:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--group<span class="w"> </span>docs<span class="w">      </span><span class="c1"># conda env</span>
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--group<span class="w"> </span>docs<span class="w">   </span><span class="c1"># uv env</span>
 </pre></div>
 </div>
 <p>Now create a new branch, edit the documentation source files (<code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> in the <code class="docutils literal notranslate"><span class="pre">docs</span></code> folder),

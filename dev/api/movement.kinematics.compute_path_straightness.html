@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>compute_path_length &#8212; movement</title>
+    <title>compute_path_straightness &#8212; movement</title>
   
   
   
@@ -53,7 +53,7 @@
     <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.kinematics.compute_path_length';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.kinematics.compute_path_straightness';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
@@ -63,12 +63,12 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <script src="../_static/js/contributors.js?v=e7143984"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.kinematics.compute_path_length.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.kinematics.compute_path_straightness.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="compute_path_straightness" href="movement.kinematics.compute_path_straightness.html" />
-    <link rel="prev" title="compute_pairwise_distances" href="movement.kinematics.compute_pairwise_distances.html" /> 
+    <link rel="next" title="compute_speed" href="movement.kinematics.compute_speed.html" />
+    <link rel="prev" title="compute_path_length" href="movement.kinematics.compute_path_length.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -493,8 +493,8 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_head_direction_vector.html">compute_head_direction_vector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_kinetic_energy.html">compute_kinetic_energy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_pairwise_distances.html">compute_pairwise_distances</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">compute_path_length</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_straightness.html">compute_path_straightness</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_length.html">compute_path_length</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">compute_path_straightness</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_speed.html">compute_speed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_time_derivative.html">compute_time_derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_turning_angle.html">compute_turning_angle</a></li>
@@ -638,7 +638,7 @@
     
     <li class="breadcrumb-item"><a href="movement.kinematics.html" class="nav-link">movement.kinematics</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compute_path_length</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compute_path_straightness</span></li>
   </ul>
 </nav>
 </div>
@@ -654,17 +654,17 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="compute-path-length">
-<h1>compute_path_length<a class="headerlink" href="#compute-path-length" title="Link to this heading">#</a></h1>
+                   <section id="compute-path-straightness">
+<h1>compute_path_straightness<a class="headerlink" href="#compute-path-straightness" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="movement.kinematics.compute_path_length">
-<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_path_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ffill'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_warn_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/path.html#compute_path_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_path_length" title="Link to this definition">#</a></dt>
-<dd><p>Compute the length of a path travelled between two time points.</p>
-<p>The path length is defined as the sum of the norms (magnitudes) of the
-displacement vectors between two time points <code class="docutils literal notranslate"><span class="pre">start</span></code> and <code class="docutils literal notranslate"><span class="pre">stop</span></code>,
-which should be provided in the time units of the data array.
-If not specified, the minimum and maximum time coordinates of the data
-array are used as start and stop times, respectively.</p>
+<dt class="sig sig-object py" id="movement.kinematics.compute_path_straightness">
+<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_path_straightness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ffill'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_warn_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/path.html#compute_path_straightness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_path_straightness" title="Link to this definition">#</a></dt>
+<dd><p>Compute the straightness index of a path <span class="math notranslate nohighlight">\((D/L)\)</span>.</p>
+<p>The straightness index is the ratio of the Euclidean distance <span class="math notranslate nohighlight">\(D\)</span>
+between the first and last valid positions of a trajectory to the
+total path length <span class="math notranslate nohighlight">\(L\)</span>. Values range from 0 to 1, where 1
+indicates a perfectly straight path and 0 indicates the animal
+returned to its starting point. Returns NaN if the path length is zero.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -674,16 +674,17 @@ and <code class="docutils literal notranslate"><span class="pre">space</span></c
 the minimum time coordinate in the data is used.</p></li>
 <li><p><strong>stop</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – The end time of the path. If None (default),
 the maximum time coordinate in the data is used.</p></li>
-<li><p><strong>nan_policy</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'ffill'</span></code>, <code class="docutils literal notranslate"><span class="pre">'scale'</span></code>]</span>) – Policy to handle NaN (missing) values. Can be one of the <code class="docutils literal notranslate"><span class="pre">&quot;ffill&quot;</span></code>
-or <code class="docutils literal notranslate"><span class="pre">&quot;scale&quot;</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;ffill&quot;</span></code> (forward fill).
-See Notes for more details on the two policies.</p></li>
+<li><p><strong>nan_policy</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'ffill'</span></code>, <code class="docutils literal notranslate"><span class="pre">'scale'</span></code>]</span>) – Policy to handle NaN (missing) values for the path length computation.
+Can be one of <code class="docutils literal notranslate"><span class="pre">&quot;ffill&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;scale&quot;</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;ffill&quot;</span></code>
+(forward fill). See <a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_path_length()</span></code></a> for more details on
+the two policies.</p></li>
 <li><p><strong>nan_warn_threshold</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – If any point track in the data has at least (<span class="math notranslate nohighlight">\(\ge\)</span>)
 this proportion of values missing, a warning will be emitted.
-Defaults to 0.2 (20%).</p></li>
+Defaults to 0.2 (20%). Directly passed to <a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_path_length()</span></code></a>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>An xarray DataArray containing the computed path length,
+<dd class="field-even"><p>An xarray DataArray containing the computed straightness index,
 with dimensions matching those of the input data,
 except <code class="docutils literal notranslate"><span class="pre">time</span></code> and <code class="docutils literal notranslate"><span class="pre">space</span></code> are removed.</p>
 </dd>
@@ -692,55 +693,37 @@ except <code class="docutils literal notranslate"><span class="pre">time</span><
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Choosing <code class="docutils literal notranslate"><span class="pre">nan_policy=&quot;ffill&quot;</span></code> will use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.ffill.html#xarray.DataArray.ffill" title="(in xarray v2026.4.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.ffill()</span></code></a>
-to forward-fill missing segments (NaN values) across time.
-This equates to assuming that a track remains stationary for
-the duration of the missing segment and then instantaneously moves to
-the next valid position, following a straight line. This approach tends
-to underestimate the path length, and the error increases with the number
-of missing values.</p>
-<p>Choosing <code class="docutils literal notranslate"><span class="pre">nan_policy=&quot;scale&quot;</span></code> will adjust the path length based on the
-the proportion of valid segments per point track. For example, if only
-80% of segments are present, the path length will be computed based on
-these and the result will be divided by 0.8. This approach assumes
-that motion dynamics are similar across observed and missing time
-segments, which may not accurately reflect actual conditions.</p>
-<p><strong>Sampling rate sensitivity (‘coastline paradox’):</strong>
-The measured path length is sensitive to the temporal sampling rate
-(i.e., frames per second) of the tracking data. Higher sampling rates
-capture finer micro-movements and tracking jitter, which inherently
-increases the total measured path length. Exercise caution when comparing
-path lengths across datasets with different temporal resolutions.</p>
+<p>The Euclidean distance <span class="math notranslate nohighlight">\(D\)</span>, also known as the “straight-line” or
+“beeline” distance, is calculated using the first and last valid (non-NaN)
+spatial coordinates within the specified time window. This ensures that
+missing data at the exact <code class="docutils literal notranslate"><span class="pre">start</span></code> or <code class="docutils literal notranslate"><span class="pre">stop</span></code> boundaries do not nullify
+the result, provided there are valid observed positions within the slice.</p>
+<p>Note that the total path length (L), and therefore the straightness index,
+is sensitive to the temporal sampling  rate (i.e. frames per second),
+as described in the Notes of <a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_path_length()</span></code></a>.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="movement.kinematics.compute_path_straightness.html#movement.kinematics.compute_path_straightness" title="movement.kinematics.compute_path_straightness"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_path_straightness()</span></code></a></p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_path_length()</span></code></a></dt><dd><p>The underlying function used to compute the path length <span class="math notranslate nohighlight">\(L\)</span>.</p>
+</dd>
+</dl>
 </div>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_path_length</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_path_straightness</span>
 </pre></div>
 </div>
-<p>Compute the path length from the centroid trajectory of a poses
-dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code>:</p>
+<p>Compute the straightness index from the centroid trajectory of a
+poses dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code>:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">centroid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="n">compute_path_length</span><span class="p">(</span><span class="n">centroid</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">si</span> <span class="o">=</span> <span class="n">compute_path_straightness</span><span class="p">(</span><span class="n">centroid</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Compute path length over a specific time window:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="n">compute_path_length</span><span class="p">(</span><span class="n">centroid</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Use the scale policy to handle missing values:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="n">compute_path_length</span><span class="p">(</span><span class="n">centroid</span><span class="p">,</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s2">&quot;scale&quot;</span><span class="p">)</span>
+<p>Compute straightness over a specific time window:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">si</span> <span class="o">=</span> <span class="n">compute_path_straightness</span><span class="p">(</span><span class="n">centroid</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
 
-<section id="examples-using-compute-path-length">
-<h2>Examples using <code class="docutils literal notranslate"><span class="pre">compute_path_length</span></code><a class="headerlink" href="#examples-using-compute-path-length" title="Link to this heading">#</a></h2>
-<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Compute displacement, velocity and acceleration, and visualise the results."><img alt="" src="../_images/sphx_glr_compute_kinematics_thumb.png" />
-<p><a class="reference internal" href="../examples/compute_kinematics.html"><span class="doc">Compute and visualise kinematics</span></a></p>
-  <div class="sphx-glr-thumbnail-title">Compute and visualise kinematics</div>
-</div></div></section>
 </section>
 
 <div class="section ablog__blog_comments">
@@ -757,20 +740,20 @@ dataset <code class="docutils literal notranslate"><span class="pre">ds</span></
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.kinematics.compute_pairwise_distances.html"
+       href="movement.kinematics.compute_path_length.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">compute_pairwise_distances</p>
+        <p class="prev-next-title">compute_path_length</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.kinematics.compute_path_straightness.html"
+       href="movement.kinematics.compute_speed.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">compute_path_straightness</p>
+        <p class="prev-next-title">compute_speed</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -793,15 +776,14 @@ dataset <code class="docutils literal notranslate"><span class="pre">ds</span></
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.kinematics.compute_path_length"><code class="docutils literal notranslate"><span class="pre">compute_path_length()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-using-compute-path-length">Examples using <code class="docutils literal notranslate"><span class="pre">compute_path_length</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.kinematics.compute_path_straightness"><code class="docutils literal notranslate"><span class="pre">compute_path_straightness()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/api/movement.kinematics.compute_path_length.rst.txt">
+    <a href="../_sources/api/movement.kinematics.compute_path_straightness.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>
