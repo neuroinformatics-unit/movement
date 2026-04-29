@@ -187,12 +187,14 @@ def _slice_and_validate(
     return data
 
 
-def _path_segments(data: xr.DataArray) -> xr.DataArray:
-    """Compute path segments as displacements between consecutive time points.
+def _segment_lengths(data: xr.DataArray) -> xr.DataArray:
+    """Compute Euclidean distances between consecutive time points.
 
-    The first segment is skipped since it is always 0 (no previous point).
+    The first entry of backward displacement is always zero (no previous
+    point), so it is dropped before computing the norm.
     """
-    return compute_backward_displacement(data).isel(time=slice(1, None))
+    segments = compute_backward_displacement(data).isel(time=slice(1, None))
+    return compute_norm(segments)
 
 
 def _path_distance(data: xr.DataArray) -> xr.DataArray:
@@ -222,13 +224,14 @@ def _path_length(
     """
     _warn_about_nan_proportion(data, nan_warn_threshold)
     if nan_policy == "ffill":
-        segments = _path_segments(data.ffill(dim="time"))
-        result = compute_norm(segments).sum(dim="time", min_count=1)
+        result = _segment_lengths(data.ffill(dim="time")).sum(
+            dim="time", min_count=1
+        )
     elif nan_policy == "scale":
-        segments = _path_segments(data)
-        valid_segments = (~segments.isnull()).all(dim="space").sum(dim="time")
+        lengths = _segment_lengths(data)
+        valid_segments = (~lengths.isnull()).sum(dim="time")
         valid_proportion = valid_segments / (data.sizes["time"] - 1)
-        result = compute_norm(segments).sum(dim="time") / valid_proportion
+        result = lengths.sum(dim="time") / valid_proportion
     else:
         raise logger.error(
             ValueError(
