@@ -9,8 +9,6 @@ public API may be revised to reflect this distinction more explicitly.
 
 """
 
-import warnings
-
 import xarray as xr
 
 from movement.utils.logging import logger
