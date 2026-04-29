@@ -601,6 +601,89 @@ Alternatively, you can also use the GitHub web interface to create a new release
 The addition of a GitHub tag triggers the package's deployment to PyPI.
 The version number is automatically determined from the latest tag on the _main_ branch.
 
+### Deprecation lifecycle
+
+When a public function is superseded by a new one, or completely removed,
+we issue a deprecation warning rather than deleting it immediately.
+This gives users time to migrate.
+
+#### 1. Mark the function as deprecated
+
+Add a {func}`warnings.warn` call at the top of the function body, with
+``DeprecationWarning`` as the category:
+
+```python
+import warnings
+
+def old_function(...):
+    """Do something.
+
+    .. deprecated:: <version>
+        This function is deprecated and will be removed in a future
+        release.
+        Use :func:`new_function` instead.
+    """
+    warnings.warn(
+        "`old_function` is deprecated and will be removed in a future "
+        "release. Please use `new_function` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    # keep rest as is or delegate to the new implementation
+```
+
+Key points:
+
+- Add the ``.. deprecated::`` directive to the docstring so the
+  deprecation appears in the API reference.
+- The warning message should name the deprecated function and the
+  recommended replacement(s).
+- The body of the deprecated function should still work as before.
+  Depending on context, it may delegate to the new implementation or
+  keep its original logic; the important thing is that existing user
+  code continues to produce correct results.
+
+Any existing tests that call the deprecated function will now emit a
+``DeprecationWarning``. Add a ``filterwarnings`` marker to those tests
+so they don't pollute output during the maintenance period:
+
+```python
+@pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
+def test_old_function(...):
+    ...
+```
+
+#### 2. Test the deprecation
+
+Add a parametrised case to ``tests/test_unit/test_deprecations.py``.
+Each case specifies the deprecated callable, mock inputs, a patch
+context to prevent real work, and strings to look for in the warning
+message. See the docstring and git history of that file for concrete
+examples.
+
+Where appropriate, you may also add backwards-compatibility tests that
+verify the deprecated function produces equivalent results to the new
+one. These are especially useful when the old and new implementations
+differ in structure but should agree on output.
+
+#### 3. Remove the deprecated function
+
+After at least one minor release, the deprecated function can be
+removed in a follow-up PR. When removing:
+
+- Delete the function and its imports, including those in
+  ``__init__.py`` if applicable.
+- Remove any existing tests for the deprecated function (the ones
+  with ``filterwarnings`` markers), including any
+  backwards-compatibility tests.
+- Remove the corresponding test case from ``test_deprecations.py``.
+
+:::{note}
+Both the release that introduces the deprecation and the release that
+removes the function should mention the change in the release notes,
+with migration instructions pointing users to the replacement.
+:::
+
 (target-contributing-docs)=
 ## Contributing documentation
 The documentation is hosted via [GitHub pages](https://pages.github.com/) at
