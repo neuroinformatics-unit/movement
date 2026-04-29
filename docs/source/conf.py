@@ -8,8 +8,11 @@
 
 import os
 import sys
+import types
+from typing import TypeAliasType
 
 import setuptools_scm
+from sphinx_autodoc_typehints import format_annotation
 
 # Used when building API docs, put the dependencies
 # of any class you are documenting here
@@ -88,8 +91,57 @@ autodoc_default_options = {
     "member-order": "groupwise",
 }
 
+
+def _get_canonical_type_alias_name(annotation):
+    """Get canonical public qualified name for a TypeAliasType.
+
+    For types defined in private modules (e.g. ``numpy._typing.ArrayLike``),
+    search ``sys.modules`` for a public re-export
+    (e.g. ``numpy.typing.ArrayLike``).
+    """
+    module = getattr(annotation, "__module__", "") or ""
+    name = getattr(annotation, "__name__", "") or ""
+    if not module or not name:
+        return ""
+    if not any(part.startswith("_") for part in module.split(".")):
+        return f"{module}.{name}"
+    top_pkg = module.split(".")[0]
+    for mod_name in sorted(sys.modules):
+        if not mod_name.startswith(top_pkg):
+            continue
+        mod = sys.modules[mod_name]
+        if not isinstance(mod, types.ModuleType):
+            continue
+        if any(part.startswith("_") for part in mod_name.split(".")):
+            continue
+        if getattr(mod, name, None) is annotation:
+            return f"{mod_name}.{name}"
+    return f"{module}.{name}"
+
+
+def _typehints_formatter(annotation, config):
+    """Handle formatting of PEP695 type aliases in sphinx-autodoc-typehints."""
+    if isinstance(annotation, TypeAliasType):
+        module = getattr(annotation, "__module__", "") or ""
+        name = getattr(annotation, "__name__", "") or ""
+        intersphinx_mapping = getattr(config, "intersphinx_mapping", {})
+        is_external = module and any(
+            module == pkg or module.startswith(f"{pkg}.")
+            for pkg in intersphinx_mapping
+        )
+        # Handle external PEP695 type aliases
+        if is_external and name:
+            canonical = _get_canonical_type_alias_name(annotation)
+            if canonical:
+                return f":py:data:`~{canonical}`"
+        # Unwrap internal PEP695 type aliases to their underlying types
+        return format_annotation(annotation.__value__, config)
+    return None
+
+
 # sphinx-autodoc-typehints configuration
 always_use_bars_union = True
+typehints_formatter = _typehints_formatter
 
 # Prefix section labels with the document name
 autosectionlabel_prefix_document = True
