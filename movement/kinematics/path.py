@@ -77,6 +77,24 @@ def compute_path_length(
     that motion dynamics are similar across observed and missing time
     segments, which may not accurately reflect actual conditions.
 
+    Examples
+    --------
+    >>> from movement.kinematics import compute_path_length
+
+    Compute the path length from the centroid trajectory of a poses
+    dataset ``ds``:
+
+    >>> centroid = ds.position.mean(dim="keypoints")
+    >>> length = compute_path_length(centroid)
+
+    Compute path length over a specific time window:
+
+    >>> length = compute_path_length(centroid, start=0, stop=100)
+
+    Use the scale policy to handle missing values:
+
+    >>> length = compute_path_length(centroid, nan_policy="scale")
+
     """
     data = _slice_and_validate(data, start, stop, "path length")
     return _path_length(data, nan_policy, nan_warn_threshold)
@@ -137,6 +155,20 @@ def compute_path_straightness(
     --------
     :func:`compute_path_length` : The underlying function used to
         compute the path length :math:`L`.
+
+    Examples
+    --------
+    >>> from movement.kinematics import compute_path_straightness
+
+    Compute the straightness index from the centroid trajectory of a
+    poses dataset ``ds``:
+
+    >>> centroid = ds.position.mean(dim="keypoints")
+    >>> si = compute_path_straightness(centroid)
+
+    Compute straightness over a specific time window:
+
+    >>> si = compute_path_straightness(centroid, start=0, stop=100)
 
     """
     data = _slice_and_validate(data, start, stop, "path straightness")
