@@ -164,7 +164,7 @@ def compute_path_straightness(
 
     Note that the total path length (L), and therefore the straightness index,
     is sensitive to the temporal sampling  rate (i.e. frames per second),
-    as decribed in the Notes of :func:`compute_path_length`.
+    as described in the Notes of :func:`compute_path_length`.
 
     See Also
     --------
