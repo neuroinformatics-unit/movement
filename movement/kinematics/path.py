@@ -78,10 +78,10 @@ def compute_path_length(
     segments, which may not accurately reflect actual conditions.
 
     **Sampling rate sensitivity ('coastline paradox'):**
-    The measured path length is sensitive to the temporal sampling rate 
-    (i.e., frames per second) of the tracking data. Higher sampling rates 
-    capture finer micro-movements and tracking jitter, which inherently 
-    increases the total measured path length. Exercise caution when comparing 
+    The measured path length is sensitive to the temporal sampling rate
+    (i.e., frames per second) of the tracking data. Higher sampling rates
+    capture finer micro-movements and tracking jitter, which inherently
+    increases the total measured path length. Exercise caution when comparing
     path lengths across datasets with different temporal resolutions.
 
     See Also
