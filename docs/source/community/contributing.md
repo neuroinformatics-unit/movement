@@ -76,7 +76,7 @@ Now that you have the repository locally, you need to set up a Python environmen
     Then, install the package in editable mode with development dependencies:
 
     ```sh
-    pip install -e ".[dev]"
+    pip install -e . --group dev
     ```
     :::
 
@@ -93,12 +93,18 @@ Now that you have the repository locally, you need to set up a Python environmen
     Then, install the package in editable mode with development dependencies:
 
     ```sh
-    uv pip install -e ".[dev]"
+    uv pip install -e . --group dev
     ```
     :::
 
     ::::
-    If you also want to edit the documentation and preview the changes locally, you will additionally need the `docs` extra dependencies. See [Editing the documentation](#editing-the-documentation) for more details.
+    If you also want to [edit the documentation](#editing-the-documentation) and preview the changes locally, you will additionally need the `docs` dependencies.
+    To install both `dev` and `docs` dependencies at once, use `--all-groups`:
+
+    ```sh
+    pip install -e . --all-groups      # conda env
+    uv pip install -e . --all-groups   # uv env
+    ```
 
 2. Finally, initialise the [pre-commit hooks](#formatting-and-pre-commit-hooks):
 
@@ -615,10 +621,10 @@ This keeps the documentation aligned with releases, while allowing manual redepl
 ### Editing the documentation
 To edit the documentation, ensure you have already set up a [development environment](#creating-a-development-environment).
 
-To build the documentation locally, install the extra dependencies by running the following command from the repository root:
+To build the documentation locally, install the `docs` dependencies by running the following command from the repository root:
 ```sh
-pip install -e ".[docs]"      # conda env
-uv pip install -e ".[docs]"   # uv env
+pip install -e . --group docs      # conda env
+uv pip install -e . --group docs   # uv env
 ```
 
 Now create a new branch, edit the documentation source files (`.md` or `.rst` in the `docs` folder),
