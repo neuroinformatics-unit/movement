@@ -3,7 +3,6 @@
 from movement.kinematics.distances import compute_pairwise_distances
 from movement.kinematics.kinematics import (
     compute_acceleration,
-    compute_displacement,
     compute_forward_displacement,
     compute_backward_displacement,
     compute_speed,
@@ -24,7 +23,6 @@ from movement.kinematics.path import (
 
 
 __all__ = [
-    "compute_displacement",
     "compute_forward_displacement",
     "compute_backward_displacement",
     "compute_velocity",

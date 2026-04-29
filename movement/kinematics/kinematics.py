@@ -57,63 +57,6 @@ def compute_time_derivative(data: xr.DataArray, order: int) -> xr.DataArray:
     return result
 
 
-def compute_displacement(data: xr.DataArray) -> xr.DataArray:
-    """Compute displacement array in Cartesian coordinates.
-
-    .. deprecated:: 0.9.1
-        This function is deprecated and will be removed in a future release.
-        Use :func:`compute_forward_displacement` or
-        :func:`compute_backward_displacement` instead.
-
-    The displacement array is defined as the difference between the position
-    array at time point ``t`` and the position array at time point ``t-1``.
-
-    As a result, for a given individual and keypoint, the displacement vector
-    at time point ``t``, is the vector pointing from the previous
-    ``(t-1)`` to the current ``(t)`` position, in Cartesian coordinates.
-
-    Parameters
-    ----------
-    data
-        The input data containing position information, with ``time``
-        and ``space`` (in Cartesian coordinates) as required dimensions.
-
-    Returns
-    -------
-    xarray.DataArray
-        An xarray DataArray containing displacement vectors in Cartesian
-        coordinates.
-
-    Notes
-    -----
-    For the ``position`` array of a ``poses`` dataset, the ``displacement``
-    array will hold the displacement vectors for every keypoint and every
-    individual.
-
-    For the ``position`` array of a ``bboxes`` dataset, the ``displacement``
-    array will hold the displacement vectors for the centroid of every
-    individual bounding box.
-
-    For the ``shape`` array of a ``bboxes`` dataset, the
-    ``displacement`` array will hold vectors with the change in width and
-    height per bounding box, between consecutive time points.
-
-    """
-    warnings.warn(
-        "The function `movement.kinematics.compute_displacement` is deprecated"
-        " and will be removed in a future release. "
-        "Please use `movement.kinematics.compute_forward_displacement` or "
-        "`movement.kinematics.compute_backward_displacement` instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    validate_dims_coords(data, {"time": [], "space": []})
-    result = data.diff(dim="time")
-    result = result.reindex_like(data, fill_value=0)
-    result.name = "displacement"
-    return result
-
-
 def _compute_forward_displacement(data: xr.DataArray) -> xr.DataArray:
     """Compute forward displacement vectors in Cartesian coordinates.
 
