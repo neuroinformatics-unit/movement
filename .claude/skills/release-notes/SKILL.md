@@ -218,5 +218,6 @@ ds = load_dataset("file.h5", source_software="DeepLabCut", fps=30)
 - Always keep the original PR bullet text intact — do not reword them.
 - Every PR from the input must appear exactly once in the output.
 - Ask the user which PR(s) to highlight if they don't specify.
-- Use `gh pr view <number>` and read source code to understand highlight PRs before writing about them.
+- Use `gh pr view <number> --json title,body,author 2>/dev/null` to fetch PR details — bare `gh pr view` throws a GraphQL deprecation error. Run these calls one at a time, not in parallel (parallel calls cause cancellations). Read relevant source files alongside the PR body to understand the new APIs.
 - Present a draft to the user for review; iterate based on their feedback.
+- When the user edits the GitHub notes file after the initial draft, proactively sync those changes to the Zulip file without waiting to be asked. Pay attention to wording differences between the two files (e.g. UI element names, sentence framing).
