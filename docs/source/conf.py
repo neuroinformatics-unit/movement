@@ -133,7 +133,7 @@ def _typehints_formatter(annotation, config):
         if is_external and name:
             canonical = _get_canonical_type_alias_name(annotation)
             if canonical:
-                return f":py:data:`~{canonical}`"
+                return f":py:obj:`~{canonical}`"
         # Unwrap internal PEP695 type aliases to their underlying types
         return format_annotation(annotation.__value__, config)
     return None
