@@ -146,6 +146,10 @@ typehints_formatter = _typehints_formatter
 # Prefix section labels with the document name
 autosectionlabel_prefix_document = True
 
+# Suppress config cache warning caused by `typehints_formatter`
+# as Sphinx cannot pickle callables
+suppress_warnings = ["config.cache"]
+
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
