@@ -20,13 +20,13 @@ def test_ds_to_pose_and_skeletons(valid_poses_dataset):
     ``ndx_pose`` PoseEstimation and Skeletons.
     """
     pose_estimation, skeletons = _ds_to_pose_and_skeletons(
-        valid_poses_dataset.sel(individuals="id_0"),
+        valid_poses_dataset.sel(individual="id_0"),
         subject=Subject(subject_id="id_0"),
     )
     assert isinstance(pose_estimation, ndx_pose.PoseEstimation)
     assert isinstance(skeletons, ndx_pose.Skeletons)
     assert (
-        set(valid_poses_dataset.keypoints.values)
+        set(valid_poses_dataset.keypoint.values)
         == pose_estimation.pose_estimation_series.keys()
     )
     assert {"skeleton_id_0"} == skeletons.skeletons.keys()

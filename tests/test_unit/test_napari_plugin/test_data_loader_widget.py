@@ -549,8 +549,8 @@ def test_dimension_slider_with_nans(
     # Check the data contains nans where expected
     assert (
         ds.position.sel(
-            individuals=nan_location["individuals"],
-            keypoints=nan_location["keypoints"],
+            individual=nan_location["individuals"],
+            keypoint=nan_location["keypoints"],
             time=expected_frame,
         )
         .isnull()

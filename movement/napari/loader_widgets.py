@@ -27,6 +27,44 @@ from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
 
+_LEGACY_DIM_RENAME = {
+    "keypoints": "keypoint",
+    "individuals": "individual",
+}
+
+
+def _rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
+    """Rename deprecated plural dimension names to singular.
+
+    Parameters
+    ----------
+    ds
+        Dataset that may contain legacy plural dimension names.
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset with dimension names updated to singular form.
+
+    """
+    rename_map = {
+        old: new for old, new in _LEGACY_DIM_RENAME.items() if old in ds.dims
+    }
+    if rename_map:
+        import warnings
+
+        warnings.warn(
+            "The dataset contains deprecated plural dimension "
+            f"names {list(rename_map.keys())}. They have been "
+            "automatically renamed to singular form. Please "
+            "re-save your file to update it.",
+            FutureWarning,
+            stacklevel=2,
+        )
+        ds = ds.rename(rename_map)
+    return ds
+
+
 # Allowed file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
     "DeepLabCut": ["h5", "csv"],
@@ -248,6 +286,8 @@ class DataLoader(QWidget):
         except Exception as e:
             show_error(f"Error opening netCDF file: {e}")
             return None
+
+        ds = _rename_legacy_dimensions(ds)
 
         ds_type = ds.attrs.get("ds_type", None)
         if ds_type not in {"poses", "bboxes"}:

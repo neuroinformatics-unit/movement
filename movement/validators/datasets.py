@@ -83,10 +83,10 @@ class _BaseDatasetInputs(ABC):
         converter=converters.optional(_convert_to_list_of_str),
     )
     """List of unique names for the individuals in the video. The length of
-    this list should match the size of the 'individuals' dimension in the
+    this list should match the size of the 'individual' dimension in the
     ``position_array``. If None (default), the names will be in the format of
     ``id_<N>``, where <N> is an integer from 0 to the size of the
-    'individuals' dimension minus 1."""
+    'individual' dimension minus 1."""
 
     fps: float | None = field(
         default=None,
@@ -128,9 +128,9 @@ class _BaseDatasetInputs(ABC):
                 "Setting to an array of NaNs."
             )
         # individual_names default: id_0, id_1, ...
-        if self.individual_names is None and "individuals" in self.DIM_NAMES:
+        if self.individual_names is None and "individual" in self.DIM_NAMES:
             n_inds = self.position_array.shape[
-                self.DIM_NAMES.index("individuals")
+                self.DIM_NAMES.index("individual")
             ]
             self.individual_names = [f"id_{i}" for i in range(n_inds)]
             logger.info(
@@ -191,7 +191,7 @@ class _BaseDatasetInputs(ABC):
     def _validate_individual_names(self, attribute, value):
         """Validate individual_names length and uniqueness."""
         if value is not None:
-            individuals_dim_index = self.DIM_NAMES.index("individuals")
+            individuals_dim_index = self.DIM_NAMES.index("individual")
             self._validate_list_length(
                 attribute,
                 value,
@@ -335,8 +335,8 @@ class ValidPosesInputs(_BaseDatasetInputs):
     DIM_NAMES: ClassVar[tuple[str, ...]] = (
         "time",
         "space",
-        "keypoints",
-        "individuals",
+        "keypoint",
+        "individual",
     )
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "confidence")
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[Iterable[int]] = (2, 3)
@@ -344,7 +344,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
         """Validate keypoint_names length and uniqueness."""
-        keypoints_dim_index = self.DIM_NAMES.index("keypoints")
+        keypoints_dim_index = self.DIM_NAMES.index("keypoint")
         self._validate_list_length(
             attribute, value, self.position_array.shape[keypoints_dim_index]
         )
@@ -354,7 +354,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
         """Assign default values to optional attributes (if None)."""
         super().__attrs_post_init__()
         position_array_shape = self.position_array.shape
-        keypoints_dim_index = self.DIM_NAMES.index("keypoints")
+        keypoints_dim_index = self.DIM_NAMES.index("keypoint")
         if self.keypoint_names is None:
             self.keypoint_names = [
                 f"keypoint_{i}"
@@ -464,7 +464,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
     assigned based on the first dimension of the position_array, starting from
     0."""
 
-    DIM_NAMES: ClassVar[tuple[str, ...]] = ("time", "space", "individuals")
+    DIM_NAMES: ClassVar[tuple[str, ...]] = ("time", "space", "individual")
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "shape", "confidence")
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[int] = 2
 
@@ -541,7 +541,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
             dataset_attrs["fps"] = self.fps
         dataset_attrs["time_unit"] = time_unit
         # Convert data to an xarray.Dataset
-        # with dimensions ('time', 'space', 'individuals')
+        # with dimensions ('time', 'space', 'individual')
         DIM_NAMES = self.DIM_NAMES
         n_space = self.position_array.shape[1]
         return xr.Dataset(

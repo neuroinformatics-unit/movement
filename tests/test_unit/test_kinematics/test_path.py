@@ -23,20 +23,20 @@ def valid_poses_dataset_with_cross_nan(valid_poses_dataset):
     - All other tracks: 0 NaN
     """
     position = valid_poses_dataset.position
-    position.loc[{"individuals": "id_0", "keypoints": "right"}] = np.nan
+    position.loc[{"individual": "id_0", "keypoint": "right"}] = np.nan
     position.loc[
         {
-            "individuals": "id_1",
-            "keypoints": "centroid",
+            "individual": "id_1",
+            "keypoint": "centroid",
             "time": [0, 1, 2, 3, 4, 5],
         }
     ] = np.nan
-    position.loc[{"individuals": "id_1", "keypoints": "right", "time": 0}] = (
+    position.loc[{"individual": "id_1", "keypoint": "right", "time": 0}] = (
         np.nan
     )
-    position.loc[
-        {"individuals": "id_0", "keypoints": "centroid", "time": 0}
-    ] = np.nan
+    position.loc[{"individual": "id_0", "keypoint": "centroid", "time": 0}] = (
+        np.nan
+    )
     return valid_poses_dataset
 
 
@@ -47,7 +47,7 @@ def straight_paths(valid_poses_dataset):
     Both individuals move in straight lines at constant steps of sqrt(2).
      "id_0" moves along the x=y line, while "id_1" moves along the x=-y line.
     """
-    return valid_poses_dataset.position.sel(keypoints="centroid")
+    return valid_poses_dataset.position.sel(keypoint="centroid")
 
 
 @pytest.fixture
@@ -150,10 +150,10 @@ def test_path_length_across_time_ranges(
 
         expected_path_length = xr.DataArray(
             np.ones((3, 2)) * np.sqrt(2) * num_segments,
-            dims=["keypoints", "individuals"],
+            dims=["keypoint", "individual"],
             coords={
-                "keypoints": position.coords["keypoints"],
-                "individuals": position.coords["individuals"],
+                "keypoint": position.coords["keypoint"],
+                "individual": position.coords["individual"],
             },
         )
         xr.testing.assert_allclose(path_length, expected_path_length)
@@ -200,7 +200,7 @@ def test_path_length_with_nan(
         path_length = compute_path_length(position, nan_policy=nan_policy)
         assert path_length.name == "path_length"
         # Get path_length for individual "id_0" as a numpy array
-        path_length_id_0 = path_length.sel(individuals="id_0").values
+        path_length_id_0 = path_length.sel(individual="id_0").values
         # Check them against the expected values
         np.testing.assert_allclose(
             path_length_id_0, expected_path_lengths_id_0

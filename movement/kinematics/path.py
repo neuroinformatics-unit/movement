@@ -95,7 +95,7 @@ def compute_path_length(
     Compute the path length from the centroid trajectory of a poses
     dataset ``ds``:
 
-    >>> centroid = ds.position.mean(dim="keypoints")
+    >>> centroid = ds.position.mean(dim="keypoint")
     >>> length = compute_path_length(centroid)
 
     Compute path length over a specific time window:
@@ -178,7 +178,7 @@ def compute_path_straightness(
     Compute the straightness index from the centroid trajectory of a
     poses dataset ``ds``:
 
-    >>> centroid = ds.position.mean(dim="keypoints")
+    >>> centroid = ds.position.mean(dim="keypoint")
     >>> si = compute_path_straightness(centroid)
 
     Compute straightness over a specific time window:

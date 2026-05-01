@@ -69,15 +69,15 @@ def test_trajectory_plot(one_individual, image, selection, expected_data):
     ["selection"],
     [
         pytest.param(
-            {"keypoints": "centre"},
+            {"keypoint": "centre"},
             id="no_keypoints",
         ),
         pytest.param(
-            {"individuals": "id_0"},
+            {"individual": "id_0"},
             id="no_individuals",
         ),
         pytest.param(
-            {"keypoints": "centre", "individuals": "id_0"},
+            {"keypoint": "centre", "individual": "id_0"},
             id="only_time_space",
         ),
     ],

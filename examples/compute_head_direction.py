@@ -32,14 +32,14 @@ ds = sample_data.fetch_dataset("DLC_single-mouse_EPM.predictions.h5")
 
 print(ds)
 print("-----------------------------")
-print(f"Individuals: {ds.individuals.values}")
-print(f"Keypoints: {ds.keypoints.values}")
+print(f"Individuals: {ds.individual.values}")
+print(f"Keypoints: {ds.keypoint.values}")
 
 # %%
 # The loaded dataset ``ds`` contains two data arrays:``position`` and
 # ``confidence``. In this tutorial, we will only use the ``position`` data
 # array. We use :meth:`xarray.DataArray.squeeze` to remove
-# the redundant ``individuals`` dimension, as there is only one individual
+# the redundant ``individual`` dimension, as there is only one individual
 # in this dataset.
 
 position = ds.position.squeeze()
@@ -100,12 +100,12 @@ fig.show()
 # the ears to the snout.
 
 # Compute the head centre as the midpoint between the ears
-midpoint_ears = position.sel(keypoints=["left_ear", "right_ear"]).mean(
-    dim="keypoints"
+midpoint_ears = position.sel(keypoint=["left_ear", "right_ear"]).mean(
+    dim="keypoint"
 )
 # Snout position
-# (`drop=True` removes the keypoints dimension, which is now redundant)
-snout = position.sel(keypoints="snout", drop=True)
+# (`drop=True` removes the keypoint dimension, which is now redundant)
+snout = position.sel(keypoint="snout", drop=True)
 
 # Compute the head vector as the difference vector between the snout position
 # and the head-centre position.
