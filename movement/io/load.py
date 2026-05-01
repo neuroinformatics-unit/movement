@@ -98,14 +98,12 @@ def get_supported_source_software() -> dict[str, set[str]]:
         without file validators will map to an empty set.
 
     """
-    result: dict[str, set[str]] = {}
-    for sw, validators_list in _LOADER_VALIDATORS_REGISTRY.items():
-        result[sw] = {
-            suffix
-            for validator_cls in validators_list
-            for suffix in getattr(validator_cls, "suffixes", set())
-        }
-    return result
+    return {
+        sw: set().union(
+            *(validator_cls.suffixes for validator_cls in validators_list)
+        )
+        for sw, validators_list in _LOADER_VALIDATORS_REGISTRY.items()
+    }
 
 
 def infer_source_software(
