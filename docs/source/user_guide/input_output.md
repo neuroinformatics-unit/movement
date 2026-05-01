@@ -23,6 +23,10 @@ You are also welcome to try `movement` by loading some [sample data](target-samp
 which are represented as [movement datasets](target-poses-and-bboxes-dataset)
 and can be loaded from and saved to various third-party formats.
 
+:::{tip}
+To programmatically query the supported source software names and their file suffixes, use {func}`~movement.io.load.get_supported_source_software`.
+:::
+
 | Source Software                                                             | Abbreviation | Source Format                                                                                                             | Dataset Type         | Supported Operations |
 | --------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
 | [DeepLabCut](dlc:)                                                          | DLC          | DLC-style .h5 or .csv file, or corresponding pandas DataFrame                                                             | Pose                 | Load & Save          |
