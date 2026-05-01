@@ -426,8 +426,6 @@ providing sample data, or by actively participating in discussions).
                     <sub><b>Angela Albi</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/edeno">
                     <img src="https://avatars.githubusercontent.com/u/8053989?v=4" width="100;" alt="edeno"/>
@@ -435,6 +433,8 @@ providing sample data, or by actively participating in discussions).
                     <sub><b>Eric Denovellis</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/luiztauffer">
                     <img src="https://avatars.githubusercontent.com/u/24541631?v=4" width="100;" alt="luiztauffer"/>
