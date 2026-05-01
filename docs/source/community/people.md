@@ -343,7 +343,7 @@ This section contains other manually added contributors (on GitHub) who have not
 contributed to the movement repository, but have contributed in other ways (e.g. by
 providing sample data, or by actively participating in discussions).
 =============================================================================== -->
-<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol,Mahi7828,ShigrafS,albiangela,edeno,luiztauffer,Akseli-Ilmanen -start -->
+<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,Mahi7828,ShigrafS,albiangela,edeno,luiztauffer,Akseli-Ilmanen -start -->
 <table>
 	<tbody>
 		<tr>
@@ -406,13 +406,6 @@ providing sample data, or by actively participating in discussions).
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/roaldarbol">
-                    <img src="https://avatars.githubusercontent.com/u/25629697?v=4" width="100;" alt="roaldarbol"/>
-                    <br />
-                    <sub><b>Mikkel Roald-Arbøl</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/mahi7828">
                     <img src="https://avatars.githubusercontent.com/u/140162102?v=4" width="100;" alt="mahi7828"/>
                     <br />
@@ -459,7 +452,7 @@ providing sample data, or by actively participating in discussions).
 		</tr>
 	<tbody>
 </table>
-<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,roaldarbol,Mahi7828,ShigrafS,albiangela,edeno,luiztauffer,Akseli-Ilmanen -end -->
+<!-- readme: Sepidak,sannatitus,lkatsouri,athenaakrami,dimokaramanlis,shailajaAkella,mehulrastogi,NeuroDuan,Mahi7828,ShigrafS,albiangela,edeno,luiztauffer,Akseli-Ilmanen -end -->
 
 <!-- =================== MANUAL: OTHER NON-GITHUB CONTRIBUTORS ===================
 This section contains other manually added contributors (not on GitHub) who have not
