@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>movement.napari.convert_roi &#8212; movement</title>
+    <title>get_supported_source_software &#8212; movement</title>
   
   
   
@@ -50,7 +50,7 @@
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.napari.convert_roi';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.io.load.get_supported_source_software';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
@@ -60,12 +60,12 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <script src="../_static/js/contributors.js?v=e7143984"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.napari.convert_roi.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.io.load.get_supported_source_software.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="napari_shapes_layer_to_rois" href="movement.napari.convert_roi.napari_shapes_layer_to_rois.html" />
-    <link rel="prev" title="ds_to_napari_layers" href="movement.napari.convert.ds_to_napari_layers.html" /> 
+    <link rel="next" title="infer_source_software" href="movement.io.load.infer_source_software.html" />
+    <link rel="prev" title="LoaderProtocol" href="movement.io.load.LoaderProtocol.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -437,9 +437,9 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.savgol_filter.html">savgol_filter</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load.html">movement.io.load</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.io.load.html">movement.io.load</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.LoaderProtocol.html">LoaderProtocol</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.io.load.get_supported_source_software.html">get_supported_source_software</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">get_supported_source_software</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.infer_source_software.html">infer_source_software</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_dataset.html">load_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_multiview_dataset.html">load_multiview_dataset</a></li>
@@ -503,7 +503,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_layers.html">ds_to_napari_layers</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">movement.napari.convert_roi</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.convert_roi.html">movement.napari.convert_roi</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.convert_roi.napari_shapes_layer_to_rois.html">napari_shapes_layer_to_rois</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.convert_roi.rois_to_napari_shapes.html">rois_to_napari_shapes</a></li>
 </ul>
@@ -633,7 +633,10 @@
     
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API reference</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.napari.convert_roi</span></li>
+    
+    <li class="breadcrumb-item"><a href="movement.io.load.html" class="nav-link">movement.io.load</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">get_supported_source_software</span></li>
   </ul>
 </nav>
 </div>
@@ -649,27 +652,28 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="movement-napari-convert-roi">
-<h1>movement.napari.convert_roi<a class="headerlink" href="#movement-napari-convert-roi" title="Link to this heading">#</a></h1>
-<p class="rubric">Description</p>
-<p id="module-movement.napari.convert_roi">Conversion functions between <code class="docutils literal notranslate"><span class="pre">napari</span></code> shapes and <code class="docutils literal notranslate"><span class="pre">movement</span></code> RoIs.</p>
-<ul class="simple">
-<li><p>For information on <code class="docutils literal notranslate"><span class="pre">napari</span></code> shapes,
-see <a class="reference external" href="https://napari.org/stable/howtos/layers/shapes.html">https://napari.org/stable/howtos/layers/shapes.html</a></p></li>
-<li><p>RoI: Region of Interest, as defined in <a class="reference internal" href="movement.roi.html#module-movement.roi" title="movement.roi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.roi</span></code></a>.</p></li>
-</ul>
-<p class="rubric">Functions</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.napari.convert_roi.napari_shapes_layer_to_rois.html#movement.napari.convert_roi.napari_shapes_layer_to_rois" title="movement.napari.convert_roi.napari_shapes_layer_to_rois"><code class="xref py py-obj docutils literal notranslate"><span class="pre">napari_shapes_layer_to_rois</span></code></a></p></td>
-<td><p>Convert all shapes in a <code class="docutils literal notranslate"><span class="pre">napari</span></code> Shapes layer to <code class="docutils literal notranslate"><span class="pre">movement</span></code> RoIs.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.napari.convert_roi.rois_to_napari_shapes.html#movement.napari.convert_roi.rois_to_napari_shapes" title="movement.napari.convert_roi.rois_to_napari_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rois_to_napari_shapes</span></code></a></p></td>
-<td><p>Convert a sequence of <code class="docutils literal notranslate"><span class="pre">movement</span></code> RoIs to <code class="docutils literal notranslate"><span class="pre">napari</span></code> shapes.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
+                   <section id="get-supported-source-software">
+<h1>get_supported_source_software<a class="headerlink" href="#get-supported-source-software" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="movement.io.load.get_supported_source_software">
+<span class="sig-prename descclassname"><span class="pre">movement.io.load.</span></span><span class="sig-name descname"><span class="pre">get_supported_source_software</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/load.html#get_supported_source_software"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.load.get_supported_source_software" title="Link to this definition">#</a></dt>
+<dd><p>Return registered source software and supported file suffixes.</p>
+<p>Returns a mapping of each registered source software name to the
+set of file suffixes (extensions) it can load. This is useful for
+downstream packages that depend on <code class="docutils literal notranslate"><span class="pre">movement</span></code> for I/O and want to
+programmatically discover supported formats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Mapping of source software names to sets of supported file
+suffixes (e.g. <code class="docutils literal notranslate"><span class="pre">{&quot;.h5&quot;,</span> <span class="pre">&quot;.csv&quot;}</span></code>). Loaders registered
+without file validators will map to an empty set.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]]</span></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
 <div class="section ablog__blog_comments">
@@ -686,20 +690,20 @@ see <a class="reference external" href="https://napari.org/stable/howtos/layers/
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.napari.convert.ds_to_napari_layers.html"
+       href="movement.io.load.LoaderProtocol.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">ds_to_napari_layers</p>
+        <p class="prev-next-title">LoaderProtocol</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.napari.convert_roi.napari_shapes_layer_to_rois.html"
+       href="movement.io.load.infer_source_software.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">napari_shapes_layer_to_rois</p>
+        <p class="prev-next-title">infer_source_software</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -715,9 +719,21 @@ see <a class="reference external" href="https://napari.org/stable/howtos/layers/
 
 
   <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.load.get_supported_source_software"><code class="docutils literal notranslate"><span class="pre">get_supported_source_software()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/api/movement.napari.convert_roi.rst.txt">
+    <a href="../_sources/api/movement.io.load.get_supported_source_software.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

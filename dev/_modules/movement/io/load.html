@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=da615d62"></script>
+    <script src="../../../_static/documentation_options.js?v=7e19d97b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev8</p>
+    <p class="title logo__title">movement v0.16.1.dev9</p>
   
 </a></div>
     
@@ -557,6 +557,33 @@
 <span class="n">_LOADER_VALIDATORS_REGISTRY</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">SourceSoftware</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">ValidFile</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
 
 
+<div class="viewcode-block" id="get_supported_source_software">
+<a class="viewcode-back" href="../../../api/movement.io.load.get_supported_source_software.html#movement.io.load.get_supported_source_software">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_supported_source_software</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return registered source software and supported file suffixes.</span>
+
+<span class="sd">    Returns a mapping of each registered source software name to the</span>
+<span class="sd">    set of file suffixes (extensions) it can load. This is useful for</span>
+<span class="sd">    downstream packages that depend on ``movement`` for I/O and want to</span>
+<span class="sd">    programmatically discover supported formats.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, set[str]]</span>
+<span class="sd">        Mapping of source software names to sets of supported file</span>
+<span class="sd">        suffixes (e.g. ``{&quot;.h5&quot;, &quot;.csv&quot;}``). Loaders registered</span>
+<span class="sd">        without file validators will map to an empty set.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">sw</span><span class="p">:</span> <span class="nb">set</span><span class="p">()</span><span class="o">.</span><span class="n">union</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">validator_cls</span><span class="o">.</span><span class="n">suffixes</span> <span class="k">for</span> <span class="n">validator_cls</span> <span class="ow">in</span> <span class="n">validators_list</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">sw</span><span class="p">,</span> <span class="n">validators_list</span> <span class="ow">in</span> <span class="n">_LOADER_VALIDATORS_REGISTRY</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span></div>
+
+
+
 <div class="viewcode-block" id="infer_source_software">
 <a class="viewcode-back" href="../../../api/movement.io.load.infer_source_software.html#movement.io.load.infer_source_software">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">infer_source_software</span><span class="p">(</span>
@@ -823,6 +850,8 @@
 <span class="sd">    source_software</span>
 <span class="sd">        The source software of the file. If set to ``&quot;auto&quot;`` (default),</span>
 <span class="sd">        it is inferred from the file format via :func:`infer_source_software`.</span>
+<span class="sd">        Use :func:`get_supported_source_software` to list all registered</span>
+<span class="sd">        source software names and their supported file suffixes.</span>
 <span class="sd">    fps</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
 <span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
@@ -895,6 +924,8 @@
 <span class="sd">    source_software</span>
 <span class="sd">        The source software of the files. If set to ``&quot;auto&quot;`` (default),</span>
 <span class="sd">        it is inferred from the file format via :func:`infer_source_software`.</span>
+<span class="sd">        Use :func:`get_supported_source_software` to list all registered</span>
+<span class="sd">        source software names and their supported file suffixes.</span>
 <span class="sd">    fps</span>
 <span class="sd">        The number of frames per second in the video. If None (default),</span>
 <span class="sd">        the ``time`` coordinates will be in frame numbers.</span>

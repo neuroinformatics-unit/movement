@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=da615d62"></script>
+    <script src="../_static/documentation_options.js?v=7e19d97b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev8</p>
+    <p class="title logo__title">movement v0.16.1.dev9</p>
   
 </a></div>
     
@@ -439,6 +439,7 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.io.load.html">movement.io.load</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.LoaderProtocol.html">LoaderProtocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.get_supported_source_software.html">get_supported_source_software</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.infer_source_software.html">infer_source_software</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">load_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_multiview_dataset.html">load_multiview_dataset</a></li>
@@ -669,7 +670,9 @@ The file format must be among those supported by the
 the value of <code class="docutils literal notranslate"><span class="pre">source_software</span></code>, the appropriate loading function
 will be called.</p></li>
 <li><p><strong>source_software</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'DeepLabCut'</span></code>, <code class="docutils literal notranslate"><span class="pre">'SLEAP'</span></code>, <code class="docutils literal notranslate"><span class="pre">'LightningPose'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Anipose'</span></code>, <code class="docutils literal notranslate"><span class="pre">'NWB'</span></code>, <code class="docutils literal notranslate"><span class="pre">'VIA-tracks'</span></code>] | <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'auto'</span></code>, <code class="docutils literal notranslate"><span class="pre">'DeepLabCut/LightningPose'</span></code>]</span>) – The source software of the file. If set to <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> (default),
-it is inferred from the file format via <a class="reference internal" href="movement.io.load.infer_source_software.html#movement.io.load.infer_source_software" title="movement.io.load.infer_source_software"><code class="xref py py-func docutils literal notranslate"><span class="pre">infer_source_software()</span></code></a>.</p></li>
+it is inferred from the file format via <a class="reference internal" href="movement.io.load.infer_source_software.html#movement.io.load.infer_source_software" title="movement.io.load.infer_source_software"><code class="xref py py-func docutils literal notranslate"><span class="pre">infer_source_software()</span></code></a>.
+Use <a class="reference internal" href="movement.io.load.get_supported_source_software.html#movement.io.load.get_supported_source_software" title="movement.io.load.get_supported_source_software"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_supported_source_software()</span></code></a> to list all registered
+source software names and their supported file suffixes.</p></li>
 <li><p><strong>fps</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – The number of frames per second in the video. If None (default),
 the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates will be in frame numbers.
 This argument is ignored when <code class="docutils literal notranslate"><span class="pre">source_software</span></code> is “NWB”, as the

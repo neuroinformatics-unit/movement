@@ -26,6 +26,8 @@
     :toctree: .
     :nosignatures:
     
+    get_supported_source_software
+    
     infer_source_software
     
     load_dataset
