@@ -23,6 +23,7 @@ from movement.kinematics.path import (
 )
 
 
+
 __all__ = [
     "compute_displacement",
     "compute_forward_displacement",
