@@ -122,6 +122,7 @@ A `movement` bounding boxes dataset has the following **dimensions**s:
 - `time`, with size equal to the number of frames in the video.
 - `space`, which is the number of spatial dimensions. Currently, we support only 2D bounding boxes data.
 - `individual`, with size equal to the number of tracked individuals/instances.
+
 Notice that these are the same dimensions as for a poses dataset, except for the `keypoint` dimension.
 :::
 ::::
