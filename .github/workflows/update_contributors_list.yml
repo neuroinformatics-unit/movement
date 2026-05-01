@@ -24,4 +24,4 @@ jobs:
           commit_message: 'Update contributors list'
           pr_title_on_protected: 'Contributors-Readme-Action: Update contributors list'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CONTRIBUTORS_PAT }}
