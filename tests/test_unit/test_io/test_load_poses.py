@@ -245,6 +245,54 @@ def test_load_from_anipose_file():
     ]
 
 
+def test_load_from_idtracker_file(idtracker_h5_file, helpers):
+    ds = load_poses.from_idtracker_file(idtracker_h5_file)
+    expected_values = {
+        **expected_values_poses,
+        "source_software": "idtracker.ai",
+        "file_path": idtracker_h5_file,
+        "fps": 30.0,
+    }
+    helpers.assert_valid_dataset(ds, expected_values)
+
+
+def test_load_from_idtracker_style_dict(helpers):
+    """Test loading pose tracks from an idtracker.ai style dictionary."""
+    idtracker_dict = {
+        "trajectories": np.ones(
+            (10, 3, 2)
+        ),  # 10 frames, 3 individuals, 2 spatial (x, y)
+        "id_probabilities": np.ones((10, 3)),
+        "frames_per_second": 30.0,
+    }
+
+    # Pass it directly to our formatter
+    ds = load_poses.from_idtracker_style_dict(idtracker_dict)
+
+    # Verify it creates a perfect movement dataset
+    expected_values = {
+        **expected_values_poses,
+        "source_software": "idtracker.ai",
+        "fps": 30.0,
+    }
+    helpers.assert_valid_dataset(ds, expected_values)
+
+
+def test_load_idtracker_without_probs(idtracker_trackless_h5_file):
+    """Test that loading an idtracker.ai file without identity probabilities
+    returns a dataset with NaN confidence scores and default individual names.
+    """
+    ds = load_poses.from_idtracker_file(idtracker_trackless_h5_file)
+
+    # 1. Check if default individual names were assigned
+    # (our fixture has 3 individuals)
+    assert ds.individuals.values.tolist() == ["id_0", "id_1", "id_2"]
+
+    # 2. Check if confidence scores are NaN
+    # (since no probabilities were provided)
+    assert np.isnan(ds.confidence.values).all()
+
+
 @pytest.mark.parametrize("kwargs", [{}, {"rate": 10.0, "starting_time": 0.0}])
 @pytest.mark.parametrize("input_type", ["nwb_file", "nwbfile_object"])
 def test_load_from_nwb_file(input_type, kwargs, request):
@@ -275,7 +323,15 @@ def test_load_from_nwb_file(input_type, kwargs, request):
 @pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
 @pytest.mark.parametrize(
     "source_software",
-    ["DeepLabCut", "SLEAP", "LightningPose", "Anipose", "NWB", "Unknown"],
+    [
+        "DeepLabCut",
+        "SLEAP",
+        "LightningPose",
+        "Anipose",
+        "NWB",
+        "idtracker.ai",
+        "Unknown",
+    ],
 )
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 def test_from_file_delegates_correctly(source_software, fps, caplog):
@@ -288,6 +344,7 @@ def test_from_file_delegates_correctly(source_software, fps, caplog):
         "LightningPose": "movement.io.load_poses.from_lp_file",
         "Anipose": "movement.io.load_poses.from_anipose_file",
         "NWB": "movement.io.load_poses.from_nwb_file",
+        "idtracker.ai": "movement.io.load_poses.from_idtracker_file",
     }
     if source_software == "Unknown":
         with pytest.raises(ValueError, match="Unsupported source"):
