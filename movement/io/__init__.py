@@ -4,6 +4,7 @@ from .load import (
     infer_source_software,
     load_dataset,
     load_multiview_dataset,
+    rename_legacy_dimensions,
 )
 
 __all__ = [
@@ -11,4 +12,5 @@ __all__ = [
     "infer_source_software",
     "load_dataset",
     "load_multiview_dataset",
+    "rename_legacy_dimensions",
 ]
