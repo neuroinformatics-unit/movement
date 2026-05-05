@@ -26,16 +26,10 @@ def test_deprecated_callable(
         A ``unittest.mock.patch`` context manager that prevents the
         callable from doing real work, or
         ``contextlib.nullcontext()`` if patching is not needed.
-    check_in_message : list of str
-        Strings that must appear in the warning message (typically the
-        names of the recommended replacements).
+    check_in_message : str
+        A string or regex that must appear in the warning message
+        (typically the name of the recommended replacement).
 
     """
-    with patch_context, pytest.warns(DeprecationWarning) as record:
-        _ = deprecated_callable(**mocked_inputs)
-    assert f"{deprecated_callable.__name__}` is deprecated" in str(
-        record[0].message
-    )
-    assert all(
-        message in str(record[0].message) for message in check_in_message
-    )
+    with patch_context, pytest.deprecated_call(match=check_in_message):
+        deprecated_callable(**mocked_inputs)
