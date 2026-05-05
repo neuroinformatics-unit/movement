@@ -605,13 +605,11 @@ The version number is automatically determined from the latest tag on the _main_
 
 When a public API element (function, method, class, etc.) is superseded
 or slated for removal, we emit a deprecation warning rather than
-removing it immediately.
-This gives users time to migrate.
+removing it immediately. This gives users time to migrate.
 
-#### 1. Mark the function as deprecated
+#### 1. Mark the deprecated element
 
-Add a {func}`warnings.warn` call at the top of the function body, with
-``DeprecationWarning`` as the category:
+For example, to deprecate a function:
 
 ```python
 import warnings
@@ -620,8 +618,7 @@ def old_function(...):
     """Do something.
 
     .. deprecated:: <version>
-        This function is deprecated and will be removed in a future
-        release.
+        This function is deprecated and will be removed in a future release.
         Use :func:`new_function` instead.
     """
     warnings.warn(
@@ -634,14 +631,19 @@ def old_function(...):
 ```
 
 - Add the ``.. deprecated::`` directive to the docstring so the
-  deprecation appears in the API reference.
-- The warning message should state which API is deprecated and
-  suggest the appropriate replacement(s).
+  deprecation appears in the API reference. Replace ``<version>`` with
+  the upcoming release number that will first include this deprecation
+  (e.g. ``0.14.0``).
+- Add a {func}`warnings.warn` call right after the docstring, with
+``DeprecationWarning`` as the category.
+- The warning message, which also appears under the docstring directive,
+  should state which API element is deprecated
+  and suggest the appropriate replacement(s).
 - Keep the API's behaviour intact. It may delegate to the new
   implementation or retain its original logic; the important point is
   that existing user code continues to produce correct results.
 
-Any existing tests that call the deprecated function will now emit a
+Any existing tests that call the deprecated element will now emit a
 ``DeprecationWarning``. Add a ``filterwarnings`` marker to those tests
 so they do not clutter the test output during the deprecation window:
 
@@ -653,26 +655,26 @@ def test_old_function(...):
 
 #### 2. Test the deprecation
 
-Add a parametrised case to ``tests/test_unit/test_deprecations.py``.
-Each case specifies the deprecated callable, mock inputs, a patch
-context to prevent real work, and strings to look for in the warning
-message. See the docstring and git history of that file for concrete
-examples.
+Add a parametrised case to the ``test_deprecated_callable`` test in
+``tests/test_unit/test_deprecations.py``. See the docstring of that
+test for the expected parameters and an
+`older version of the test file <https://github.com/neuroinformatics-unit/movement/blob/v0.16.0/tests/test_unit/test_deprecations.py>`_
+for concrete examples.
 
 Where appropriate, you may also add backwards-compatibility tests that
-verify the deprecated function produces equivalent results to the new
+verify the deprecated API produces equivalent results to the new
 one. These are especially useful when the old and new implementations
 differ in structure but should agree on output.
 
-#### 3. Remove the deprecated function
+#### 3. Remove the deprecated element
 
-After at least one minor release, the deprecated function can be
-removed in a follow-up PR. When removing:
+After at least one minor release, the deprecated API element can be
+removed in a follow-up PR.
 
-- Delete the function and its imports, including those in
+- Remove the element and its imports, including those in
   ``__init__.py`` if applicable.
-- Remove any existing tests for the deprecated function (the ones
-  with ``filterwarnings`` markers), including any
+- Remove any existing tests for the deprecated element (search for
+  ``DeprecationWarning`` to find them), including any
   backwards-compatibility tests.
 - Remove the corresponding test case from ``test_deprecations.py``.
 
