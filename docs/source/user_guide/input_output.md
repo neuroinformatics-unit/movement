@@ -431,6 +431,19 @@ import xarray as xr
 ds = xr.open_dataset("my_data.nc")
 ```
 
+:::{note}
+Datasets saved with `movement` versions prior to 0.17.0 used plural dimension
+names (`"keypoints"`, `"individuals"`). If you load such a file, rename
+these dimensions with {func}`~movement.io.load.rename_legacy_dimensions`
+before further processing:
+
+```python
+from movement.io import rename_legacy_dimensions
+
+ds = rename_legacy_dimensions(ds)
+```
+:::
+
 Similarly, an {class}`xarray.DataArray` object (e.g. the `position` variable
 of a `movement` dataset) can be saved to disk using the
 {meth}`to_netcdf()<xarray.DataArray.to_netcdf()>` method, and loaded from disk using the
