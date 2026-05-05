@@ -633,9 +633,9 @@ def old_function(...):
 - Add the ``.. deprecated::`` directive to the docstring so the
   deprecation appears in the API reference. Replace ``<version>`` with
   the upcoming release number that will first include this deprecation
-  (e.g. ``0.14.0``).
+  (e.g. ``0.99.0``).
 - Add a {func}`warnings.warn` call right after the docstring, with
-``DeprecationWarning`` as the category.
+  ``DeprecationWarning`` as the category.
 - The warning message, which also appears under the docstring directive,
   should state which API element is deprecated
   and suggest the appropriate replacement(s).
