@@ -603,8 +603,9 @@ The version number is automatically determined from the latest tag on the _main_
 
 ### Deprecation lifecycle
 
-When a public function is superseded by a new one, or completely removed,
-we issue a deprecation warning rather than deleting it immediately.
+When a public API element (function, method, class, etc.) is superseded
+or slated for removal, we emit a deprecation warning rather than
+removing it immediately.
 This gives users time to migrate.
 
 #### 1. Mark the function as deprecated
@@ -632,20 +633,17 @@ def old_function(...):
     # keep rest as is or delegate to the new implementation
 ```
 
-Key points:
-
 - Add the ``.. deprecated::`` directive to the docstring so the
   deprecation appears in the API reference.
-- The warning message should name the deprecated function and the
-  recommended replacement(s).
-- The body of the deprecated function should still work as before.
-  Depending on context, it may delegate to the new implementation or
-  keep its original logic; the important thing is that existing user
-  code continues to produce correct results.
+- The warning message should state which API is deprecated and
+  suggest the appropriate replacement(s).
+- Keep the API's behaviour intact. It may delegate to the new
+  implementation or retain its original logic; the important point is
+  that existing user code continues to produce correct results.
 
 Any existing tests that call the deprecated function will now emit a
 ``DeprecationWarning``. Add a ``filterwarnings`` marker to those tests
-so they don't pollute output during the maintenance period:
+so they do not clutter the test output during the deprecation window:
 
 ```python
 @pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
@@ -680,7 +678,7 @@ removed in a follow-up PR. When removing:
 
 :::{note}
 Both the release that introduces the deprecation and the release that
-removes the function should mention the change in the release notes,
+removes the API must mention the change in the release notes,
 with migration instructions pointing users to the replacement.
 :::
 
