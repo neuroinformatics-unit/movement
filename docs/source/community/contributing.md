@@ -644,8 +644,10 @@ def old_function(...):
   that existing user code continues to produce correct results.
 
 Any existing tests that call the deprecated element will now emit a
-``DeprecationWarning``. Add a ``filterwarnings`` marker to those tests
-so they do not clutter the test output during the deprecation window:
+``DeprecationWarning``. Add a
+[`filterwarnings`](https://docs.pytest.org/en/stable/reference/reference.html#pytest-mark-filterwarnings-ref)
+marker to those tests so they do not clutter the test output
+during the deprecation window:
 
 ```python
 @pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
@@ -658,7 +660,7 @@ def test_old_function(...):
 Add a parametrised case to the ``test_deprecated_callable`` test in
 ``tests/test_unit/test_deprecations.py``. See the docstring of that
 test for the expected parameters and an
-`older version of the test file <https://github.com/neuroinformatics-unit/movement/blob/v0.16.0/tests/test_unit/test_deprecations.py>`_
+[older version of the test file](https://github.com/neuroinformatics-unit/movement/blob/v0.16.0/tests/test_unit/test_deprecations.py)
 for concrete examples.
 
 Where appropriate, you may also add backwards-compatibility tests that
