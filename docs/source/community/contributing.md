@@ -601,6 +601,91 @@ Alternatively, you can also use the GitHub web interface to create a new release
 The addition of a GitHub tag triggers the package's deployment to PyPI.
 The version number is automatically determined from the latest tag on the _main_ branch.
 
+### Deprecation lifecycle
+
+When a public API element (function, method, class, etc.) is superseded
+or slated for removal, we emit a deprecation warning rather than
+removing it immediately. This gives users time to migrate.
+
+#### 1. Mark the deprecated element
+
+For example, to deprecate a function:
+
+```python
+import warnings
+
+def old_function(...):
+    """Do something.
+
+    .. deprecated:: <version>
+        This function is deprecated and will be removed in a future release.
+        Use :func:`new_function` instead.
+    """
+    warnings.warn(
+        "`old_function` is deprecated and will be removed in a future "
+        "release. Please use `new_function` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    # keep rest as is or delegate to the new implementation
+```
+
+- Add the ``.. deprecated::`` directive to the docstring so the
+  deprecation appears in the API reference. Replace ``<version>`` with
+  the upcoming release number that will first include this deprecation
+  (e.g. ``0.99.0``).
+- Add a {func}`warnings.warn` call right after the docstring, with
+  ``DeprecationWarning`` as the category.
+- The warning message, which also appears under the docstring directive,
+  should state which API element is deprecated
+  and suggest the appropriate replacement(s).
+- Keep the API's behaviour intact. It may delegate to the new
+  implementation or retain its original logic; the important point is
+  that existing user code continues to produce correct results.
+
+Any existing tests that call the deprecated element will now emit a
+``DeprecationWarning``. Add a
+[`filterwarnings`](https://docs.pytest.org/en/stable/reference/reference.html#pytest-mark-filterwarnings-ref)
+marker to those tests so they do not clutter the test output
+during the deprecation window:
+
+```python
+@pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
+def test_old_function(...):
+    ...
+```
+
+#### 2. Test the deprecation
+
+Add a parametrised case to the ``test_deprecated_callable`` test in
+``tests/test_unit/test_deprecations.py``. See the docstring of that
+test for the expected parameters and an
+[older version of the test file](https://github.com/neuroinformatics-unit/movement/blob/v0.16.0/tests/test_unit/test_deprecations.py)
+for concrete examples.
+
+Where appropriate, you may also add backwards-compatibility tests that
+verify the deprecated API produces equivalent results to the new
+one. These are especially useful when the old and new implementations
+differ in structure but should agree on output.
+
+#### 3. Remove the deprecated element
+
+After at least one minor release, the deprecated API element can be
+removed in a follow-up PR.
+
+- Remove the element and its imports, including those in
+  ``__init__.py`` if applicable.
+- Remove any existing tests for the deprecated element (search for
+  ``DeprecationWarning`` to find them), including any
+  backwards-compatibility tests.
+- Remove the corresponding test case from ``test_deprecations.py``.
+
+:::{note}
+Both the release that introduces the deprecation and the release that
+removes the API must mention the change in the release notes,
+with migration instructions pointing users to the replacement.
+:::
+
 (target-contributing-docs)=
 ## Contributing documentation
 The documentation is hosted via [GitHub pages](https://pages.github.com/) at
