@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=2c0b7792"></script>
+    <script src="../../../_static/documentation_options.js?v=8873f38b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev10</p>
+    <p class="title logo__title">movement v0.16.1.dev11</p>
   
 </a></div>
     
@@ -469,7 +469,6 @@
                    <h1>Source code for movement.io.load_poses</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Load pose tracking data from various frameworks into ``movement``.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
 
@@ -566,100 +565,6 @@
         <span class="n">source_software</span><span class="o">=</span><span class="n">source_software</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">valid_poses_inputs</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span></div>
-
-
-
-<div class="viewcode-block" id="from_file">
-<a class="viewcode-back" href="../../../api/movement.io.load_poses.from_file.html#movement.io.load_poses.from_file">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span>
-    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span>
-        <span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;LightningPose&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;Anipose&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;NWB&quot;</span><span class="p">,</span>
-    <span class="p">],</span>
-    <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` poses dataset from any supported file.</span>
-
-<span class="sd">    .. deprecated:: 0.14.0</span>
-<span class="sd">        This function is deprecated and will be removed in a future release.</span>
-<span class="sd">        Use :func:`movement.io.load_dataset&lt;movement.io.load.load_dataset&gt;`</span>
-<span class="sd">        instead.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    file</span>
-<span class="sd">        Path to the file containing predicted poses. The file format must</span>
-<span class="sd">        be among those supported by the ``from_dlc_file()``,</span>
-<span class="sd">        ``from_slp_file()`` or ``from_lp_file()`` functions. One of these</span>
-<span class="sd">        these functions will be called internally, based on</span>
-<span class="sd">        the value of ``source_software``.</span>
-<span class="sd">    source_software</span>
-<span class="sd">        The source software of the file.</span>
-<span class="sd">    fps</span>
-<span class="sd">        The number of frames per second in the video. If None (default),</span>
-<span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
-<span class="sd">        This argument is ignored when ``source_software`` is &quot;NWB&quot;, as the</span>
-<span class="sd">        frame rate will be directly read or estimated from metadata in</span>
-<span class="sd">        the NWB file.</span>
-<span class="sd">    **kwargs</span>
-<span class="sd">        Additional keyword arguments to pass to the software-specific</span>
-<span class="sd">        loading functions that are listed under &quot;See Also&quot;.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    xarray.Dataset</span>
-<span class="sd">        ``movement`` dataset containing the pose tracks, confidence scores,</span>
-<span class="sd">        and associated metadata.</span>
-
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    movement.io.load_poses.from_dlc_file</span>
-<span class="sd">    movement.io.load_poses.from_sleap_file</span>
-<span class="sd">    movement.io.load_poses.from_lp_file</span>
-<span class="sd">    movement.io.load_poses.from_anipose_file</span>
-<span class="sd">    movement.io.load_poses.from_nwb_file</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; from movement.io import load_poses</span>
-<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_file(</span>
-<span class="sd">    ...     &quot;path/to/file.h5&quot;, source_software=&quot;DeepLabCut&quot;, fps=30</span>
-<span class="sd">    ... )</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-        <span class="s2">&quot;The function `movement.io.load_poses.from_file` is deprecated&quot;</span>
-        <span class="s2">&quot; and will be removed in a future release. &quot;</span>
-        <span class="s2">&quot;Please use `movement.io.load_dataset` instead.&quot;</span><span class="p">,</span>
-        <span class="ne">DeprecationWarning</span><span class="p">,</span>
-        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;DeepLabCut&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">from_dlc_file</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fps</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;SLEAP&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">from_sleap_file</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fps</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;LightningPose&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">from_lp_file</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fps</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;Anipose&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">from_anipose_file</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;NWB&quot;</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;The fps argument is ignored when loading from an NWB file. &quot;</span>
-                <span class="s2">&quot;The frame rate will be directly read or estimated from &quot;</span>
-                <span class="s2">&quot;metadata in the file.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">from_nwb_file</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported source software: </span><span class="si">{</span><span class="n">source_software</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="p">)</span></div>
 
 
 
@@ -911,54 +816,6 @@
         <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span>
         <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
     <span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="from_multiview_files">
-<a class="viewcode-back" href="../../../api/movement.io.load_poses.from_multiview_files.html#movement.io.load_poses.from_multiview_files">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">from_multiview_files</span><span class="p">(</span>
-    <span class="n">file_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">],</span>
-    <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="s2">&quot;SLEAP&quot;</span><span class="p">,</span> <span class="s2">&quot;LightningPose&quot;</span><span class="p">],</span>
-    <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load and merge pose tracking data from multiple views (cameras).</span>
-
-<span class="sd">    .. deprecated:: 0.14.0</span>
-<span class="sd">        This function is deprecated and will be removed in a future release.</span>
-<span class="sd">        Use :func:`movement.io.load_multiview_dataset&lt;movement.io.\</span>
-<span class="sd">        load.load_multiview_dataset&gt;` instead.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    file_dict</span>
-<span class="sd">        A dict whose keys are the view names and values are the paths to load.</span>
-<span class="sd">    source_software</span>
-<span class="sd">        The source software of the file.</span>
-<span class="sd">    fps</span>
-<span class="sd">        The number of frames per second in the video. If None (default),</span>
-<span class="sd">        the ``time`` coordinates will be in frame numbers.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    xarray.Dataset</span>
-<span class="sd">        ``movement`` dataset containing the pose tracks, confidence scores,</span>
-<span class="sd">        and associated metadata, with an additional ``views`` dimension.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-        <span class="s2">&quot;The function `movement.io.load_poses.from_multiview_files` is &quot;</span>
-        <span class="s2">&quot;deprecated and will be removed in a future release. &quot;</span>
-        <span class="s2">&quot;Please use `movement.io.load_multiview_dataset` instead.&quot;</span><span class="p">,</span>
-        <span class="ne">DeprecationWarning</span><span class="p">,</span>
-        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">views_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">file_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    <span class="n">new_coord_views</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">views_list</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="s2">&quot;view&quot;</span><span class="p">)</span>
-    <span class="n">dataset_list</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">from_file</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="n">source_software</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">file_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-    <span class="p">]</span>
-    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">new_coord_views</span><span class="p">)</span></div>
 
 
 

@@ -16,8 +16,6 @@
     :toctree: .
     :nosignatures:
     
-    from_file
-    
     from_numpy
     
     from_via_tracks_file

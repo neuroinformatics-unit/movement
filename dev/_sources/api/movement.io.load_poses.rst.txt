@@ -24,11 +24,7 @@
     
     from_dlc_style_df
     
-    from_file
-    
     from_lp_file
-    
-    from_multiview_files
     
     from_numpy
     

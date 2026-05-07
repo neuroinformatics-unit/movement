@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=2c0b7792"></script>
+    <script src="../_static/documentation_options.js?v=8873f38b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -64,7 +64,7 @@
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="from_file" href="movement.io.load_bboxes.from_file.html" />
+    <link rel="next" title="from_numpy" href="movement.io.load_bboxes.from_numpy.html" />
     <link rel="prev" title="register_loader" href="movement.io.load.register_loader.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev10</p>
+    <p class="title logo__title">movement v0.16.1.dev11</p>
   
 </a></div>
     
@@ -447,7 +447,6 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">movement.io.load_bboxes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_file.html">from_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_numpy.html">from_numpy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_bboxes.from_via_tracks_file.html">from_via_tracks_file</a></li>
 </ul>
@@ -457,9 +456,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_anipose_style_df.html">from_anipose_style_df</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_dlc_file.html">from_dlc_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_dlc_style_df.html">from_dlc_style_df</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_file.html">from_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_lp_file.html">from_lp_file</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_multiview_files.html">from_multiview_files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_numpy.html">from_numpy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_nwb_file.html">from_nwb_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load_poses.from_sleap_file.html">from_sleap_file</a></li>
@@ -484,7 +481,6 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.kinematics.html">movement.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_acceleration.html">compute_acceleration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_backward_displacement.html">compute_backward_displacement</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_displacement.html">compute_displacement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_forward_displacement.html">compute_forward_displacement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_forward_vector.html">compute_forward_vector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_forward_vector_angle.html">compute_forward_vector_angle</a></li>
@@ -656,13 +652,10 @@
 <p class="rubric">Functions</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.io.load_bboxes.from_file.html#movement.io.load_bboxes.from_file" title="movement.io.load_bboxes.from_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_file</span></code></a></p></td>
-<td><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset from a supported file.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.io.load_bboxes.from_numpy.html#movement.io.load_bboxes.from_numpy" title="movement.io.load_bboxes.from_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_numpy</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.io.load_bboxes.from_numpy.html#movement.io.load_bboxes.from_numpy" title="movement.io.load_bboxes.from_numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_numpy</span></code></a></p></td>
 <td><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset from NumPy arrays.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.io.load_bboxes.from_via_tracks_file.html#movement.io.load_bboxes.from_via_tracks_file" title="movement.io.load_bboxes.from_via_tracks_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_via_tracks_file</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.io.load_bboxes.from_via_tracks_file.html#movement.io.load_bboxes.from_via_tracks_file" title="movement.io.load_bboxes.from_via_tracks_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">from_via_tracks_file</span></code></a></p></td>
 <td><p>Create a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset from a VIA tracks .csv file.</p></td>
 </tr>
 </tbody>
@@ -693,11 +686,11 @@
       </div>
     </a>
     <a class="right-next"
-       href="movement.io.load_bboxes.from_file.html"
+       href="movement.io.load_bboxes.from_numpy.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">from_file</p>
+        <p class="prev-next-title">from_numpy</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

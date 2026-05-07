@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=2c0b7792"></script>
+    <script src="../../../_static/documentation_options.js?v=8873f38b"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev10</p>
+    <p class="title logo__title">movement v0.16.1.dev11</p>
   
 </a></div>
     
@@ -469,9 +469,8 @@
                    <h1>Source code for movement.io.load_bboxes</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Load bounding boxes tracking data into ``movement``.&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
@@ -611,105 +610,6 @@
         <span class="n">source_software</span><span class="o">=</span><span class="n">source_software</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">valid_bboxes_inputs</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span></div>
-
-
-
-<div class="viewcode-block" id="from_file">
-<a class="viewcode-back" href="../../../api/movement.io.load_bboxes.from_file.html#movement.io.load_bboxes.from_file">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span>
-    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">source_software</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;VIA-tracks&quot;</span><span class="p">],</span>
-    <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">use_frame_numbers_from_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` bounding boxes dataset from a supported file.</span>
-
-<span class="sd">    .. deprecated:: 0.14.0</span>
-<span class="sd">        This function is deprecated and will be removed in a future release.</span>
-<span class="sd">        Use :func:`movement.io.load_dataset&lt;movement.io.load.load_dataset&gt;`</span>
-<span class="sd">        instead.</span>
-
-<span class="sd">    At the moment, we only support VIA tracks .csv files.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    file</span>
-<span class="sd">        Path to the file containing the tracked bounding boxes. Currently</span>
-<span class="sd">        only VIA tracks .csv files are supported.</span>
-<span class="sd">    source_software</span>
-<span class="sd">        The source software of the file. Currently only files from the</span>
-<span class="sd">        VIA 2.0.12 annotator [1]_ (&quot;VIA-tracks&quot;) are supported.</span>
-<span class="sd">        See .</span>
-<span class="sd">    fps</span>
-<span class="sd">        The video sampling rate. If None (default), the ``time`` coordinates</span>
-<span class="sd">        of the resulting ``movement`` dataset will be in frame numbers. If</span>
-<span class="sd">        ``fps`` is provided, the ``time`` coordinates  will be in seconds. If</span>
-<span class="sd">        the ``time`` coordinates are in seconds, they will indicate the</span>
-<span class="sd">        elapsed time from the capture of the first frame (assumed to be frame</span>
-<span class="sd">        0).</span>
-<span class="sd">    use_frame_numbers_from_file</span>
-<span class="sd">        If True, the frame numbers in the resulting dataset are</span>
-<span class="sd">        the same as the ones specified for each tracked bounding box in the</span>
-<span class="sd">        input file. This may be useful if the bounding boxes are tracked for a</span>
-<span class="sd">        subset of frames in a video, but you want to maintain the start of the</span>
-<span class="sd">        full video as the time origin. If False (default), the frame numbers</span>
-<span class="sd">        in the VIA tracks .csv file are instead mapped to a 0-based sequence of</span>
-<span class="sd">        consecutive integers.</span>
-<span class="sd">    frame_regexp</span>
-<span class="sd">        Regular expression pattern to extract the frame number from the frame</span>
-<span class="sd">        filename. By default, the frame number is expected to be encoded in</span>
-<span class="sd">        the filename as an integer number led by at least one zero, followed</span>
-<span class="sd">        by the file extension. Only used if ``use_frame_numbers_from_file`` is</span>
-<span class="sd">        True.</span>
-
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    xarray.Dataset</span>
-<span class="sd">        ``movement`` dataset containing the position, shape, and confidence</span>
-<span class="sd">        scores of the tracked bounding boxes, and any associated metadata.</span>
-
-<span class="sd">    See Also</span>
-<span class="sd">    --------</span>
-<span class="sd">    movement.io.load_bboxes.from_via_tracks_file</span>
-
-<span class="sd">    References</span>
-<span class="sd">    ----------</span>
-<span class="sd">    .. [1] https://www.robots.ox.ac.uk/~vgg/software/via/</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    Create a dataset from the VIA tracks .csv file at &quot;path/to/file.csv&quot;, with</span>
-<span class="sd">    the time coordinates in seconds, and assuming t = 0 seconds corresponds to</span>
-<span class="sd">    the first tracked frame in the file.</span>
-
-<span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
-<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_file(</span>
-<span class="sd">    &gt;&gt;&gt;     &quot;path/to/file.csv&quot;,</span>
-<span class="sd">    &gt;&gt;&gt;     source_software=&quot;VIA-tracks&quot;,</span>
-<span class="sd">    &gt;&gt;&gt;     fps=30,</span>
-<span class="sd">    &gt;&gt;&gt; )</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-        <span class="s2">&quot;The function `movement.io.load_bboxes.from_file` is deprecated&quot;</span>
-        <span class="s2">&quot; and will be removed in a future release. &quot;</span>
-        <span class="s2">&quot;Please use `movement.io.load_dataset` instead.&quot;</span><span class="p">,</span>
-        <span class="ne">DeprecationWarning</span><span class="p">,</span>
-        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">&quot;VIA-tracks&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">from_via_tracks_file</span><span class="p">(</span>
-            <span class="n">file</span><span class="p">,</span>
-            <span class="n">fps</span><span class="p">,</span>
-            <span class="n">use_frame_numbers_from_file</span><span class="o">=</span><span class="n">use_frame_numbers_from_file</span><span class="p">,</span>
-            <span class="n">frame_regexp</span><span class="o">=</span><span class="n">frame_regexp</span><span class="p">,</span>
-        <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported source software: </span><span class="si">{</span><span class="n">source_software</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="p">)</span></div>
 
 
 

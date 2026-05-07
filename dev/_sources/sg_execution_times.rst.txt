@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:19.869** total execution time for 12 files **from all galleries**:
+**00:20.125** total execution time for 12 files **from all galleries**:
 
 .. container::
 
@@ -33,38 +33,38 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_examples_load_and_upsample_bboxes.py` (``../../examples/load_and_upsample_bboxes.py``)
-     - 00:03.509
+     - 00:03.599
      - 0.0
    * - :ref:`sphx_glr_examples_mouse_eye_movements.py` (``../../examples/mouse_eye_movements.py``)
-     - 00:03.421
+     - 00:03.508
      - 0.0
    * - :ref:`sphx_glr_examples_compute_kinematics.py` (``../../examples/compute_kinematics.py``)
-     - 00:02.228
-     - 0.0
-   * - :ref:`sphx_glr_examples_filter_and_interpolate.py` (``../../examples/filter_and_interpolate.py``)
-     - 00:01.859
+     - 00:02.285
      - 0.0
    * - :ref:`sphx_glr_examples_scale.py` (``../../examples/scale.py``)
-     - 00:01.818
+     - 00:01.857
+     - 0.0
+   * - :ref:`sphx_glr_examples_filter_and_interpolate.py` (``../../examples/filter_and_interpolate.py``)
+     - 00:01.847
      - 0.0
    * - :ref:`sphx_glr_examples_smooth.py` (``../../examples/smooth.py``)
-     - 00:01.622
+     - 00:01.602
      - 0.0
    * - :ref:`sphx_glr_examples_boundary_angles.py` (``../../examples/boundary_angles.py``)
      - 00:01.372
      - 0.0
    * - :ref:`sphx_glr_examples_advanced_broadcasting_your_own_methods.py` (``../../examples/advanced/broadcasting_your_own_methods.py``)
-     - 00:01.100
+     - 00:01.090
      - 0.0
    * - :ref:`sphx_glr_examples_load_freemocap_data.py` (``../../examples/load_freemocap_data.py``)
-     - 00:00.988
+     - 00:01.014
      - 0.0
    * - :ref:`sphx_glr_examples_compute_head_direction.py` (``../../examples/compute_head_direction.py``)
-     - 00:00.827
+     - 00:00.842
      - 0.0
    * - :ref:`sphx_glr_examples_load_and_explore_poses.py` (``../../examples/load_and_explore_poses.py``)
-     - 00:00.768
+     - 00:00.745
      - 0.0
    * - :ref:`sphx_glr_examples_convert_file_formats.py` (``../../examples/convert_file_formats.py``)
-     - 00:00.356
+     - 00:00.365
      - 0.0

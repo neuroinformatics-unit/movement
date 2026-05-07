@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=2c0b7792"></script>
+    <script src="../_static/documentation_options.js?v=8873f38b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev10</p>
+    <p class="title logo__title">movement v0.16.1.dev11</p>
   
 </a></div>
     
@@ -1087,6 +1087,89 @@ git<span class="w"> </span>push<span class="w"> </span>--follow-tags
 <p>The addition of a GitHub tag triggers the package’s deployment to PyPI.
 The version number is automatically determined from the latest tag on the <em>main</em> branch.</p>
 </section>
+<section id="deprecation-lifecycle">
+<h3>Deprecation lifecycle<a class="headerlink" href="#deprecation-lifecycle" title="Link to this heading">#</a></h3>
+<p>When a public API element (function, method, class, etc.) is superseded
+or slated for removal, we emit a deprecation warning rather than
+removing it immediately. This gives users time to migrate.</p>
+<section id="mark-the-deprecated-element">
+<h4>1. Mark the deprecated element<a class="headerlink" href="#mark-the-deprecated-element" title="Link to this heading">#</a></h4>
+<p>For example, to deprecate a function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">old_function</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Do something.</span>
+
+<span class="sd">    .. deprecated:: &lt;version&gt;</span>
+<span class="sd">        This function is deprecated and will be removed in a future release.</span>
+<span class="sd">        Use :func:`new_function` instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">&quot;`old_function` is deprecated and will be removed in a future &quot;</span>
+        <span class="s2">&quot;release. Please use `new_function` instead.&quot;</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># keep rest as is or delegate to the new implementation</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Add the <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">deprecated::</span></code> directive to the docstring so the
+deprecation appears in the API reference. Replace <code class="docutils literal notranslate"><span class="pre">&lt;version&gt;</span></code> with
+the upcoming release number that will first include this deprecation
+(e.g. <code class="docutils literal notranslate"><span class="pre">0.99.0</span></code>).</p></li>
+<li><p>Add a <a class="reference external" href="https://docs.python.org/3/library/warnings.html#warnings.warn" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.warn()</span></code></a> call right after the docstring, with
+<code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code> as the category.</p></li>
+<li><p>The warning message, which also appears under the docstring directive,
+should state which API element is deprecated
+and suggest the appropriate replacement(s).</p></li>
+<li><p>Keep the API’s behaviour intact. It may delegate to the new
+implementation or retain its original logic; the important point is
+that existing user code continues to produce correct results.</p></li>
+</ul>
+<p>Any existing tests that call the deprecated element will now emit a
+<code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code>. Add a
+<a class="reference external" href="https://docs.pytest.org/en/stable/reference/reference.html#pytest-mark-filterwarnings-ref"><code class="docutils literal notranslate"><span class="pre">filterwarnings</span></code></a>
+marker to those tests so they do not clutter the test output
+during the deprecation window:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore:.*is deprecated:DeprecationWarning&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_old_function</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</section>
+<section id="test-the-deprecation">
+<h4>2. Test the deprecation<a class="headerlink" href="#test-the-deprecation" title="Link to this heading">#</a></h4>
+<p>Add a parametrised case to the <code class="docutils literal notranslate"><span class="pre">test_deprecated_callable</span></code> test in
+<code class="docutils literal notranslate"><span class="pre">tests/test_unit/test_deprecations.py</span></code>. See the docstring of that
+test for the expected parameters and an
+<a class="reference external" href="https://github.com/neuroinformatics-unit/movement/blob/v0.16.0/tests/test_unit/test_deprecations.py">older version of the test file</a>
+for concrete examples.</p>
+<p>Where appropriate, you may also add backwards-compatibility tests that
+verify the deprecated API produces equivalent results to the new
+one. These are especially useful when the old and new implementations
+differ in structure but should agree on output.</p>
+</section>
+<section id="remove-the-deprecated-element">
+<h4>3. Remove the deprecated element<a class="headerlink" href="#remove-the-deprecated-element" title="Link to this heading">#</a></h4>
+<p>After at least one minor release, the deprecated API element can be
+removed in a follow-up PR.</p>
+<ul class="simple">
+<li><p>Remove the element and its imports, including those in
+<code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> if applicable.</p></li>
+<li><p>Remove any existing tests for the deprecated element (search for
+<code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code> to find them), including any
+backwards-compatibility tests.</p></li>
+<li><p>Remove the corresponding test case from <code class="docutils literal notranslate"><span class="pre">test_deprecations.py</span></code>.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Both the release that introduces the deprecation and the release that
+removes the API must mention the change in the release notes,
+with migration instructions pointing users to the replacement.</p>
+</div>
+</section>
+</section>
 </section>
 <section id="contributing-documentation">
 <span id="target-contributing-docs"></span><h2>Contributing documentation<a class="headerlink" href="#contributing-documentation" title="Link to this heading">#</a></h2>
@@ -1522,6 +1605,12 @@ verify that the video is correctly linked to the dataset:</p>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-integration">Continuous integration</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#versioning-and-releases">Versioning and releases</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecation-lifecycle">Deprecation lifecycle</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#mark-the-deprecated-element">1. Mark the deprecated element</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#test-the-deprecation">2. Test the deprecation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#remove-the-deprecated-element">3. Remove the deprecated element</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-documentation">Contributing documentation</a><ul class="nav section-nav flex-column">
