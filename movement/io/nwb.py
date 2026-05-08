@@ -5,6 +5,7 @@ NWB extension, see https://github.com/rly/ndx-pose.
 """
 
 import datetime
+import warnings
 from typing import Any
 
 import ndx_pose
@@ -643,7 +644,11 @@ def _write_processing_module(
             processing_module.add(obj)
             logger.debug(f"Added {obj_name} object to NWB file.")
         except ValueError:
-            logger.warning(f"{obj_name} object already exists. Skipping...")
+            warnings.warn(
+                f"{obj_name} object already exists. Skipping...",
+                UserWarning,
+                stacklevel=2,
+            )
 
     processing_module_name = processing_module_kwargs.get("name")
     processing_module = nwb_file.processing.get(processing_module_name)

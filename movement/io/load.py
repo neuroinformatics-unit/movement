@@ -1,5 +1,6 @@
 """Load data from various frameworks into ``movement``."""
 
+import warnings
 from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
@@ -410,10 +411,12 @@ def load_dataset(
         )
     if source_software == "NWB":
         if fps is not None:
-            logger.warning(
+            warnings.warn(
                 "The fps argument is ignored when loading from an NWB file. "
                 "The frame rate will be directly read or estimated from "
-                "metadata in the file."
+                "metadata in the file.",
+                UserWarning,
+                stacklevel=2,
             )
         return _LOADER_REGISTRY[source_software](file, **kwargs)
 

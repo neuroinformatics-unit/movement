@@ -45,22 +45,23 @@ def test_ds_to_pose_and_skeletons_invalid(valid_poses_dataset):
         _ds_to_pose_and_skeletons(valid_poses_dataset)
 
 
-def test_write_processing_module(nwbfile_object, caplog):
+def test_write_processing_module(nwbfile_object):
     """Test that writing to an NWBFile with existing "behavior"
     processing module, Skeletons, and PoseEstimation will
     not overwrite them.
     """
-    _write_processing_module(
-        nwbfile_object(),
-        {"name": "behavior"},
-        ndx_pose.PoseEstimation(),
-        ndx_pose.Skeletons(),
-    )
-    assert {
+    expected_messages = {
         "Using existing behavior processing module.",
         "Skeletons object already exists. Skipping...",
         "PoseEstimation object already exists. Skipping...",
-    } == set(caplog.messages)
+    }
+    with pytest.warns(UserWarning, match="|".join(expected_messages)):
+        _write_processing_module(
+            nwbfile_object(),
+            {"name": "behavior"},
+            ndx_pose.PoseEstimation(),
+            ndx_pose.Skeletons(),
+        )
 
 
 NWBFileSaveConfigTestCase = tuple[
