@@ -282,7 +282,8 @@ raise logger.exception(ValueError("message")) # with traceback
 We aim to adhere to the [When to use logging guide](inv:python#logging-basic-tutorial) to ensure consistency in our logging practices.
 In general:
 * Use {func}`print` for simple, non-critical messages that do not need to be logged.
-* Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within `movement`, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesInputs<movement.validators.datasets.ValidPosesInputs>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
+* Use {func}`warnings.warn` for conditions the user can avoid or address within `movement`, e.g. deprecated function calls that are redirected, an invalid `fps` value that is implicitly set to `None`, or data with excessive NaNs that the user may want to address using appropriate {mod}`~movement.filtering` functions.
+* Use {meth}`logger.warning()<loguru._logger.Logger.warning>` for unexpected situations `movement` handles automatically (by falling back to a default or making an assumption), where the user cannot directly intervene, e.g. a failed network request that falls back to a cached local file, or missing track information that triggers a single-individual assumption.
 * Use {meth}`logger.info()<loguru._logger.Logger.info>` for informational messages about expected behaviours that do not indicate problems, e.g. where default values are assigned to optional parameters.
 
 ### Implementing new loaders

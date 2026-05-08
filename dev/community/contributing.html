@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=bf8b79e1"></script>
+    <script src="../_static/documentation_options.js?v=1bf3fdf8"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev12</p>
+    <p class="title logo__title">movement v0.16.1.dev13</p>
   
 </a></div>
     
@@ -767,7 +767,8 @@ As these methods will return the logged Exception, you can log and raise the Exc
 In general:</p>
 <ul class="simple">
 <li><p>Use <a class="reference external" href="https://docs.python.org/3/library/functions.html#print" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">print()</span></code></a> for simple, non-critical messages that do not need to be logged.</p></li>
-<li><p>Use <a class="reference external" href="https://docs.python.org/3/library/warnings.html#warnings.warn" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.warn()</span></code></a> for user input issues that are non-critical and can be addressed within <code class="docutils literal notranslate"><span class="pre">movement</span></code>, e.g. deprecated function calls that are redirected, invalid <code class="docutils literal notranslate"><span class="pre">fps</span></code> number in <a class="reference internal" href="../api/movement.validators.datasets.ValidPosesInputs.html#movement.validators.datasets.ValidPosesInputs" title="movement.validators.datasets.ValidPosesInputs"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValidPosesInputs</span></code></a> that is implicitly set to <code class="docutils literal notranslate"><span class="pre">None</span></code>; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. <a class="reference internal" href="../api/movement.filtering.interpolate_over_time.html#movement.filtering.interpolate_over_time" title="movement.filtering.interpolate_over_time"><code class="xref py py-func docutils literal notranslate"><span class="pre">interpolate_over_time()</span></code></a></p></li>
+<li><p>Use <a class="reference external" href="https://docs.python.org/3/library/warnings.html#warnings.warn" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.warn()</span></code></a> for conditions the user can avoid or address within <code class="docutils literal notranslate"><span class="pre">movement</span></code>, e.g. deprecated function calls that are redirected, an invalid <code class="docutils literal notranslate"><span class="pre">fps</span></code> value that is implicitly set to <code class="docutils literal notranslate"><span class="pre">None</span></code>, or data with excessive NaNs that the user may want to address using appropriate <a class="reference internal" href="../api/movement.filtering.html#module-movement.filtering" title="movement.filtering"><code class="xref py py-mod docutils literal notranslate"><span class="pre">filtering</span></code></a> functions.</p></li>
+<li><p>Use <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.warning" title="(in loguru)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.warning()</span></code></a> for unexpected situations <code class="docutils literal notranslate"><span class="pre">movement</span></code> handles automatically (by falling back to a default or making an assumption), where the user cannot directly intervene, e.g. a failed network request that falls back to a cached local file, or missing track information that triggers a single-individual assumption.</p></li>
 <li><p>Use <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.info" title="(in loguru)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.info()</span></code></a> for informational messages about expected behaviours that do not indicate problems, e.g. where default values are assigned to optional parameters.</p></li>
 </ul>
 </section>
