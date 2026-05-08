@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=8873f38b"></script>
+    <script src="../../../_static/documentation_options.js?v=bf8b79e1"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev11</p>
+    <p class="title logo__title">movement v0.16.1.dev12</p>
   
 </a></div>
     
@@ -730,7 +730,7 @@
         <span class="k">def</span><span class="w"> </span><span class="nf">infer_entity_or_raise</span><span class="p">(</span><span class="n">cfg</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">inferred</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">cfg</span><span class="p">))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">entity_type</span><span class="si">}</span><span class="s2"> was provided. Assuming &#39;</span><span class="si">{</span><span class="n">inferred</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;since there is only one entry in </span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">.&quot;</span>
                 <span class="p">)</span>
@@ -750,7 +750,7 @@
                 <span class="n">entity</span> <span class="o">=</span> <span class="n">infer_entity_or_raise</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
             <span class="n">base</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="p">{}))</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">base</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2">&#39; not found in </span><span class="si">{</span><span class="n">attr_name</span><span class="si">}</span><span class="s2">; &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;setting &#39;</span><span class="si">{</span><span class="n">entity</span><span class="si">}</span><span class="s2">&#39; as </span><span class="si">{</span><span class="n">id_key</span><span class="si">}</span><span class="s2">.&quot;</span>
                 <span class="p">)</span>
@@ -794,7 +794,7 @@
             <span class="n">prioritise_entity</span><span class="o">=</span><span class="n">prioritise_individual</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="s2">&quot;session_start_time&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">&quot;No session_start_time provided in nwbfile_kwargs; &quot;</span>
                 <span class="s2">&quot;using current UTC time as default.&quot;</span>
             <span class="p">)</span>
