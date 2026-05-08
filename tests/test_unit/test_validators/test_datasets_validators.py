@@ -175,7 +175,7 @@ class TestBaseDatasetInputs:
             (np.zeros((5, 3)), "have 2 spatial dimensions, but got 3"),
         ],
         ids=[
-            "Unexpected additional individuals dimension",
+            "Unexpected additional individual dimension",
             "Expect 2D positions but got 3D positions",
         ],
     )
@@ -385,14 +385,14 @@ class TestValidBboxesInputs:
         ],
         ids=[
             "Valid shape_array",
-            "Mismatch with position_array individuals dimension",
+            "Mismatch with position_array individual dimension",
             "Missing one dimension",
             "Expect 2D (width, height) shape but got 3D",
         ],
     )
     def test_shape_array(self, shape_array, expected_context):
         """Test shape_array validation."""
-        position_array = np.zeros((5, 2, 3))  # time, space, individuals
+        position_array = np.zeros((5, 2, 3))  # time, space, individual
         with expected_context:
             ValidBboxesInputs(
                 position_array=position_array,
@@ -444,7 +444,7 @@ class TestValidBboxesInputs:
     )
     def test_frame_array(self, frame_array, expected_context):
         """Test frame_array validation."""
-        position_array = np.zeros((5, 2, 3))  # time, space, individuals
+        position_array = np.zeros((5, 2, 3))  # time, space, individual
         shape_array = np.zeros((5, 2, 3))
         with expected_context as expected_frame_array:
             data = ValidBboxesInputs(

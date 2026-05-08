@@ -126,12 +126,12 @@ def plot_occupancy(
         data = data.sel(individual=individuals)
 
     # We need to remove NaN values from each individual, but we can't do this
-    # right now because we still potentially have a (time, space, individuals)
+    # right now because we still potentially have a (time, space, individual)
     # array and so dropping NaNs along any axis may remove valid points for
     # other times / individuals.
-    # Since we only care about a count, we can just unravel the individuals
+    # Since we only care about a count, we can just unravel the individual
     # dimension and create a "long" array of points. For example, a (10, 2, 5)
-    # time-space-individuals DataArray becomes (50, 2).
+    # time-space-individual DataArray becomes (50, 2).
     if "individual" in data.dims:
         data = data.stack(
             {"new": ("time", "individual")}, create_index=False

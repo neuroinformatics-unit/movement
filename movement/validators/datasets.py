@@ -191,11 +191,11 @@ class _BaseDatasetInputs(ABC):
     def _validate_individual_names(self, attribute, value):
         """Validate individual_names length and uniqueness."""
         if value is not None:
-            individuals_dim_index = self.DIM_NAMES.index("individual")
+            individual_dim_index = self.DIM_NAMES.index("individual")
             self._validate_list_length(
                 attribute,
                 value,
-                self.position_array.shape[individuals_dim_index],
+                self.position_array.shape[individual_dim_index],
             )
             self._validate_list_uniqueness(attribute, value)
 
@@ -344,9 +344,9 @@ class ValidPosesInputs(_BaseDatasetInputs):
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
         """Validate keypoint_names length and uniqueness."""
-        keypoints_dim_index = self.DIM_NAMES.index("keypoint")
+        keypoint_dim_index = self.DIM_NAMES.index("keypoint")
         self._validate_list_length(
-            attribute, value, self.position_array.shape[keypoints_dim_index]
+            attribute, value, self.position_array.shape[keypoint_dim_index]
         )
         self._validate_list_uniqueness(attribute, value)
 
@@ -354,11 +354,11 @@ class ValidPosesInputs(_BaseDatasetInputs):
         """Assign default values to optional attributes (if None)."""
         super().__attrs_post_init__()
         position_array_shape = self.position_array.shape
-        keypoints_dim_index = self.DIM_NAMES.index("keypoint")
+        keypoint_dim_index = self.DIM_NAMES.index("keypoint")
         if self.keypoint_names is None:
             self.keypoint_names = [
                 f"keypoint_{i}"
-                for i in range(position_array_shape[keypoints_dim_index])
+                for i in range(position_array_shape[keypoint_dim_index])
             ]
             logger.info(
                 "Keypoint names were not provided. "

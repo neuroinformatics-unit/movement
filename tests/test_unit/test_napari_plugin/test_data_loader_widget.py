@@ -524,8 +524,8 @@ def test_dimension_slider_with_nans(
     # Get data with nans at the expected locations
     nan_location = {
         "time": nan_time_location,
-        "individuals": nan_individuals,
-        "keypoints": nan_keypoints,
+        "individual": nan_individuals,
+        "keypoint": nan_keypoints,
     }
     file_path, ds = valid_poses_path_and_ds_with_localised_nans(nan_location)
 
@@ -549,8 +549,8 @@ def test_dimension_slider_with_nans(
     # Check the data contains nans where expected
     assert (
         ds.position.sel(
-            individual=nan_location["individuals"],
-            keypoint=nan_location["keypoints"],
+            individual=nan_location["individual"],
+            keypoint=nan_location["keypoint"],
             time=expected_frame,
         )
         .isnull()

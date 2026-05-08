@@ -15,8 +15,8 @@ def valid_data_array_for_forward_vector():
     (left ear, right ear and nose), tracked for 4 frames, in x-y space.
     """
     time = [0, 1, 2, 3]
-    individuals = ["id_0"]
-    keypoints = ["left_ear", "right_ear", "nose"]
+    individual = ["id_0"]
+    keypoint = ["left_ear", "right_ear", "nose"]
     space = ["x", "y"]
 
     ds = xr.DataArray(
@@ -29,8 +29,8 @@ def valid_data_array_for_forward_vector():
         dims=["time", "individual", "keypoint", "space"],
         coords={
             "time": time,
-            "individual": individuals,
-            "keypoint": keypoints,
+            "individual": individual,
+            "keypoint": keypoint,
             "space": space,
         },
     )

@@ -39,19 +39,19 @@ def occupancy_data() -> xr.DataArray:
         [[0.0, 4.0], [1.0, 3.0], [2.0, 2.0], [3.0, 1.0], [4.0, 0.0]]
     )
 
-    time_space_keypoints = np.repeat(
+    time_space_keypoint = np.repeat(
         time_space[:, :, np.newaxis], repeats=3, axis=2
     )
     # Set right = left + (1., 1.)
-    time_space_keypoints[:, :, 1] += (1.0, 1.0)
+    time_space_keypoint[:, :, 1] += (1.0, 1.0)
     # Set centre = mean(left, right)
-    time_space_keypoints[:, :, 2] = np.mean(
-        time_space_keypoints[:, :, :2], axis=2
+    time_space_keypoint[:, :, 2] = np.mean(
+        time_space_keypoint[:, :, :2], axis=2
     )
 
     # individuals 0-2 (inclusive) are copies
     data_vals = np.repeat(
-        time_space_keypoints[:, :, :, np.newaxis], repeats=4, axis=3
+        time_space_keypoint[:, :, :, np.newaxis], repeats=4, axis=3
     )
     # individual 3 is (1., 0) offset from the others
     for keypoint_index in range(data_vals.shape[2]):

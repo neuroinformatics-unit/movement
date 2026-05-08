@@ -130,8 +130,8 @@ def test_region_occupancy_multiple_dims(triangle, two_individuals):
     """Tests region occupancy for data with common dimensions.
 
     This test ensures that the 'space' dimension is removed and the 'region'
-    dimension is added, while all other dimensions ('time', 'keypoints',
-    'individuals') are preserved.
+    dimension is added, while all other dimensions ('time', 'keypoint',
+    'individual') are preserved.
     """
     regions = [triangle, triangle, triangle]
     occupancies = compute_region_occupancy(two_individuals, regions)

@@ -13,7 +13,7 @@ from movement.roi.base import BaseRegionOfInterest
 def sample_position_array() -> xr.DataArray:
     """Return a simulated position array to test the egocentric angle.
 
-    The data has time, space, and keypoints dimensions.
+    The data has time, space, and keypoint dimensions.
 
     The keypoints are left, right, midpt (midpoint), and wild.
     The midpt is the mean of the left and right keypoints.
@@ -258,7 +258,7 @@ def test_ego_and_allocentric_angle_to_region(
 def points_around_segment() -> xr.DataArray:
     """Sample points on either side of the segment y=x.
 
-    Data has (time, space, keypoints) dimensions, shape (, 2, 2).
+    Data has (time, space, keypoint) dimensions, shape (, 2, 2).
 
     Keypoints are "left" and "right".
 
