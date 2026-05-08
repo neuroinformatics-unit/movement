@@ -108,15 +108,15 @@ def test_roi_to_napari_shape_coordinate_swap(unit_square):
     np.testing.assert_array_equal(data, expected_yx)
 
 
-def test_roi_to_napari_shape_closed_line_warning(caplog):
+def test_roi_to_napari_shape_closed_line_warning():
     """Converting a closed LineOfInterest emits a warning about the lost
     closing segment.
     """
     closed_line = LineOfInterest([(0, 0), (1, 0), (0, 1)], loop=True)
-    data, shape_type = _roi_to_napari_shape(closed_line)
-    assert shape_type == "path"
-    assert len(data) == 3  # closing vertex stripped, 3 unique points remain
-    assert any("closing segment" in msg for msg in caplog.messages)
+    with pytest.warns(UserWarning, match="closing segment"):
+        data, shape_type = _roi_to_napari_shape(closed_line)
+        assert shape_type == "path"
+        assert len(data) == 3  # closing vertex stripped, 3 unique points left
 
 
 # ===========================================================================
