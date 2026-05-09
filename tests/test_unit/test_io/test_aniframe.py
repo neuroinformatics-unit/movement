@@ -687,7 +687,7 @@ def test_from_aniframe_file_bottom_left_flips_with_metadata_height(tmp_path):
     y_values = ds["position"].sel(space="y").values.ravel()
     np.testing.assert_allclose(sorted(y_values), [70.0, 80.0, 90.0])
     assert ds.attrs.get("origin") == "top_left"
-    assert ds.attrs.get("y_height") == 100.0
+    assert ds.attrs.get("y_height") == pytest.approx(100.0)
 
 
 def test_from_aniframe_file_bottom_left_flips_with_max_y_fallback(tmp_path):
@@ -705,7 +705,7 @@ def test_from_aniframe_file_bottom_left_flips_with_max_y_fallback(tmp_path):
     y_values = ds["position"].sel(space="y").values.ravel()
     np.testing.assert_allclose(sorted(y_values), [0.0, 10.0, 20.0])
     assert ds.attrs.get("origin") == "top_left"
-    assert ds.attrs.get("y_height") == 30.0
+    assert ds.attrs.get("y_height") == pytest.approx(30.0)
 
 
 def test_from_aniframe_file_top_left_no_flip(tmp_path):
