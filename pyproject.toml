@@ -61,6 +61,8 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 [project.optional-dependencies]
 napari = ["napari[all]>=0.6.0"]
 aniframe = ["pyarrow", "rdata"]
+
+[dependency-groups]
 dev = [
   "pytest",
   "pytest-cov",
@@ -218,7 +220,7 @@ passenv =
     XAUTHORITY
     NUMPY_EXPERIMENTAL_ARRAY_FUNCTION
     PYVISTA_OFF_SCREEN
-extras =
+dependency_groups =
     dev
 commands =
     pytest -v --color=yes --cov=movement --cov-report=xml

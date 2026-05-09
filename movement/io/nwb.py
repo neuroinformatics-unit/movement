@@ -5,6 +5,7 @@ NWB extension, see https://github.com/rly/ndx-pose.
 """
 
 import datetime
+import warnings
 from typing import Any
 
 import ndx_pose
@@ -259,7 +260,7 @@ class NWBFileSaveConfig:
         def infer_entity_or_raise(cfg: dict) -> str:
             if len(cfg) == 1:
                 inferred = next(iter(cfg))
-                logger.warning(
+                logger.info(
                     f"No {entity_type} was provided. Assuming '{inferred}' "
                     f"since there is only one entry in {attr_name}."
                 )
@@ -279,7 +280,7 @@ class NWBFileSaveConfig:
                 entity = infer_entity_or_raise(cfg)
             base = dict(cfg.get(entity, {}))
             if not base:
-                logger.warning(
+                logger.info(
                     f"'{entity}' not found in {attr_name}; "
                     f"setting '{entity}' as {id_key}."
                 )
@@ -323,7 +324,7 @@ class NWBFileSaveConfig:
             prioritise_entity=prioritise_individual,
         )
         if "session_start_time" not in kwargs:
-            logger.warning(
+            logger.info(
                 "No session_start_time provided in nwbfile_kwargs; "
                 "using current UTC time as default."
             )
@@ -643,7 +644,11 @@ def _write_processing_module(
             processing_module.add(obj)
             logger.debug(f"Added {obj_name} object to NWB file.")
         except ValueError:
-            logger.warning(f"{obj_name} object already exists. Skipping...")
+            warnings.warn(
+                f"{obj_name} object already exists. Skipping...",
+                UserWarning,
+                stacklevel=2,
+            )
 
     processing_module_name = processing_module_kwargs.get("name")
     processing_module = nwb_file.processing.get(processing_module_name)

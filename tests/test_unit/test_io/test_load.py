@@ -66,7 +66,7 @@ def test_register_loader_decorator(file_validators, expected_file_type):
 )
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 def test_load_dataset_delegates_correctly(
-    source_software, loader_fn, fps, caplog, mocker
+    source_software, loader_fn, fps, mocker
 ):
     """Test load_dataset delegates to the correct loader function
     according to the source_software.
@@ -79,13 +79,15 @@ def test_load_dataset_delegates_correctly(
         mocker.patch.dict(
             load._LOADER_REGISTRY, {source_software: mock_loader}
         )
-        load.load_dataset("some_file", source_software, fps)
+        if source_software == "NWB" and fps is not None:
+            with pytest.warns(UserWarning, match="fps argument is ignored"):
+                load.load_dataset("some_file", source_software, fps)
+        else:
+            load.load_dataset("some_file", source_software, fps)
         expected_call_args = (
             ("some_file", fps) if source_software != "NWB" else ("some_file",)
         )
         mock_loader.assert_called_with(*expected_call_args)
-        if source_software == "NWB" and fps is not None:
-            assert "fps argument is ignored" in caplog.messages[0]
 
 
 @pytest.mark.parametrize(
@@ -172,6 +174,19 @@ def test_build_suffix_map():
     """
     suffix_map = load._build_suffix_map([StubValidFile])
     assert suffix_map == {".stub": StubValidFile}
+
+
+def test_get_supported_source_software():
+    """Test that get_supported_source_software returns a non-empty
+    mapping whose keys match the loader registry and whose values
+    are sets of file-suffix strings.
+    """
+    supported = load.get_supported_source_software()
+    assert isinstance(supported, dict)
+    assert set(supported) == set(load._LOADER_REGISTRY)
+    for sw, suffixes in supported.items():
+        for validator_cls in load._LOADER_VALIDATORS_REGISTRY.get(sw, []):
+            assert validator_cls.suffixes.issubset(suffixes)
 
 
 @pytest.mark.parametrize(

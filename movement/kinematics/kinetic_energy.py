@@ -1,4 +1,4 @@
-"""Functions for computing kinetic energy."""
+"""Compute kinetic energy from position data."""
 
 import numpy as np
 import xarray as xr

@@ -7,6 +7,7 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
@@ -69,12 +70,14 @@ def _roi_to_napari_shape(
         shape_type = "path"
         if roi.is_closed:
             xy = xy[:-1]  # shapely LinearRing repeats the first vertex
-            logger.warning(
+            warnings.warn(
                 f"LineOfInterest '{roi.name}' is a closed loop, but napari "
                 f"has no closed-path shape type. Converting to 'path'; the "
                 f"closing segment will not be shown in napari. If your "
                 f"intent is an enclosed region, use PolygonOfInterest "
-                f"instead."
+                f"instead.",
+                UserWarning,
+                stacklevel=2,
             )
 
     # Swap (x, y) → (y, x) to match napari's coordinate convention

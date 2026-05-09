@@ -1,6 +1,5 @@
 """Load pose tracking data from various frameworks into ``movement``."""
 
-import warnings
 from pathlib import Path
 from typing import Literal, cast
 
@@ -96,97 +95,6 @@ def from_numpy(
         source_software=source_software,
     )
     return valid_poses_inputs.to_dataset()
-
-
-def from_file(
-    file: Path | str,
-    source_software: Literal[
-        "DeepLabCut",
-        "SLEAP",
-        "LightningPose",
-        "Anipose",
-        "NWB",
-    ],
-    fps: float | None = None,
-    **kwargs,
-) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from any supported file.
-
-    .. deprecated:: 0.14.0
-        This function is deprecated and will be removed in a future release.
-        Use :func:`movement.io.load_dataset<movement.io.load.load_dataset>`
-        instead.
-
-    Parameters
-    ----------
-    file
-        Path to the file containing predicted poses. The file format must
-        be among those supported by the ``from_dlc_file()``,
-        ``from_slp_file()`` or ``from_lp_file()`` functions. One of these
-        these functions will be called internally, based on
-        the value of ``source_software``.
-    source_software
-        The source software of the file.
-    fps
-        The number of frames per second in the video. If None (default),
-        the ``time`` coordinates will be in frame numbers.
-        This argument is ignored when ``source_software`` is "NWB", as the
-        frame rate will be directly read or estimated from metadata in
-        the NWB file.
-    **kwargs
-        Additional keyword arguments to pass to the software-specific
-        loading functions that are listed under "See Also".
-
-    Returns
-    -------
-    xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
-        and associated metadata.
-
-
-    See Also
-    --------
-    movement.io.load_poses.from_dlc_file
-    movement.io.load_poses.from_sleap_file
-    movement.io.load_poses.from_lp_file
-    movement.io.load_poses.from_anipose_file
-    movement.io.load_poses.from_nwb_file
-
-    Examples
-    --------
-    >>> from movement.io import load_poses
-    >>> ds = load_poses.from_file(
-    ...     "path/to/file.h5", source_software="DeepLabCut", fps=30
-    ... )
-
-    """
-    warnings.warn(
-        "The function `movement.io.load_poses.from_file` is deprecated"
-        " and will be removed in a future release. "
-        "Please use `movement.io.load_dataset` instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    if source_software == "DeepLabCut":
-        return from_dlc_file(file, fps)
-    elif source_software == "SLEAP":
-        return from_sleap_file(file, fps)
-    elif source_software == "LightningPose":
-        return from_lp_file(file, fps)
-    elif source_software == "Anipose":
-        return from_anipose_file(file, fps, **kwargs)
-    elif source_software == "NWB":
-        if fps is not None:
-            logger.warning(
-                "The fps argument is ignored when loading from an NWB file. "
-                "The frame rate will be directly read or estimated from "
-                "metadata in the file."
-            )
-        return from_nwb_file(file, **kwargs)
-    else:
-        raise logger.error(
-            ValueError(f"Unsupported source software: {source_software}")
-        )
 
 
 def from_dlc_style_df(
@@ -428,51 +336,6 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     )
 
 
-def from_multiview_files(
-    file_dict: dict[str, Path | str],
-    source_software: Literal["DeepLabCut", "SLEAP", "LightningPose"],
-    fps: float | None = None,
-) -> xr.Dataset:
-    """Load and merge pose tracking data from multiple views (cameras).
-
-    .. deprecated:: 0.14.0
-        This function is deprecated and will be removed in a future release.
-        Use :func:`movement.io.load_multiview_dataset<movement.io.\
-        load.load_multiview_dataset>` instead.
-
-    Parameters
-    ----------
-    file_dict
-        A dict whose keys are the view names and values are the paths to load.
-    source_software
-        The source software of the file.
-    fps
-        The number of frames per second in the video. If None (default),
-        the ``time`` coordinates will be in frame numbers.
-
-    Returns
-    -------
-    xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
-        and associated metadata, with an additional ``views`` dimension.
-
-    """
-    warnings.warn(
-        "The function `movement.io.load_poses.from_multiview_files` is "
-        "deprecated and will be removed in a future release. "
-        "Please use `movement.io.load_multiview_dataset` instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    views_list = list(file_dict.keys())
-    new_coord_views = xr.DataArray(views_list, dims="view")
-    dataset_list = [
-        from_file(f, source_software=source_software, fps=fps)
-        for f in file_dict.values()
-    ]
-    return xr.concat(dataset_list, dim=new_coord_views)
-
-
 def _ds_from_lp_or_dlc_file(
     valid_file: ValidFile,
     source_software: Literal["LightningPose", "DeepLabCut"],
@@ -540,7 +403,7 @@ def _ds_from_sleap_analysis_file(file: Path, fps: float | None) -> xr.Dataset:
         scores = np.full(tracks.shape[:1] + tracks.shape[2:], np.nan)
         individual_names = [n.decode() for n in f["track_names"][:]] or None
         if individual_names is None:
-            logger.warning(
+            logger.info(
                 f"Could not find SLEAP Track in {file}. "
                 "Assuming single-individual dataset and assigning "
                 "default individual name."
@@ -581,7 +444,7 @@ def _ds_from_sleap_labels_file(file: Path, fps: float | None) -> xr.Dataset:
     tracks_with_scores = _sleap_labels_to_numpy(labels)
     individual_names = [track.name for track in labels.tracks] or None
     if individual_names is None:
-        logger.warning(
+        logger.info(
             f"Could not find SLEAP Track in {file}. "
             "Assuming single-individual dataset and assigning "
             "default individual name."

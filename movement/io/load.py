@@ -1,5 +1,6 @@
 """Load data from various frameworks into ``movement``."""
 
+import warnings
 from collections.abc import Callable
 from functools import wraps
 from pathlib import Path
@@ -81,6 +82,30 @@ class LoaderProtocol(Protocol):
 
 _LOADER_REGISTRY: dict[str, LoaderProtocol] = {}
 _LOADER_VALIDATORS_REGISTRY: dict[SourceSoftware, list[type[ValidFile]]] = {}
+
+
+def get_supported_source_software() -> dict[str, set[str]]:
+    """Return registered source software and supported file suffixes.
+
+    Returns a mapping of each registered source software name to the
+    set of file suffixes (extensions) it can load. This is useful for
+    downstream packages that depend on ``movement`` for I/O and want to
+    programmatically discover supported formats.
+
+    Returns
+    -------
+    dict[str, set[str]]
+        Mapping of source software names to sets of supported file
+        suffixes (e.g. ``{".h5", ".csv"}``). Loaders registered
+        without file validators will map to an empty set.
+
+    """
+    return {
+        sw: set().union(
+            *(validator_cls.suffixes for validator_cls in validators_list)
+        )
+        for sw, validators_list in _LOADER_VALIDATORS_REGISTRY.items()
+    }
 
 
 def infer_source_software(
@@ -341,6 +366,8 @@ def load_dataset(
     source_software
         The source software of the file. If set to ``"auto"`` (default),
         it is inferred from the file format via :func:`infer_source_software`.
+        Use :func:`get_supported_source_software` to list all registered
+        source software names and their supported file suffixes.
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
@@ -385,10 +412,12 @@ def load_dataset(
         )
     if source_software == "NWB":
         if fps is not None:
-            logger.warning(
+            warnings.warn(
                 "The fps argument is ignored when loading from an NWB file. "
                 "The frame rate will be directly read or estimated from "
-                "metadata in the file."
+                "metadata in the file.",
+                UserWarning,
+                stacklevel=2,
             )
         return _LOADER_REGISTRY[source_software](file, **kwargs)
 
@@ -410,6 +439,8 @@ def load_multiview_dataset(
     source_software
         The source software of the files. If set to ``"auto"`` (default),
         it is inferred from the file format via :func:`infer_source_software`.
+        Use :func:`get_supported_source_software` to list all registered
+        source software names and their supported file suffixes.
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.

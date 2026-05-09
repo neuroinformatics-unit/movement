@@ -76,7 +76,7 @@ Now that you have the repository locally, you need to set up a Python environmen
     Then, install the package in editable mode with development dependencies:
 
     ```sh
-    pip install -e ".[dev]"
+    pip install -e . --group dev
     ```
     :::
 
@@ -93,12 +93,18 @@ Now that you have the repository locally, you need to set up a Python environmen
     Then, install the package in editable mode with development dependencies:
 
     ```sh
-    uv pip install -e ".[dev]"
+    uv pip install -e . --group dev
     ```
     :::
 
     ::::
-    If you also want to edit the documentation and preview the changes locally, you will additionally need the `docs` extra dependencies. See [Editing the documentation](#editing-the-documentation) for more details.
+    If you also want to [edit the documentation](#editing-the-documentation) and preview the changes locally, you will additionally need the `docs` dependencies.
+    To install both `dev` and `docs` dependencies at once, use `--all-groups`:
+
+    ```sh
+    pip install -e . --all-groups      # conda env
+    uv pip install -e . --all-groups   # uv env
+    ```
 
 2. Finally, initialise the [pre-commit hooks](#formatting-and-pre-commit-hooks):
 
@@ -276,7 +282,8 @@ raise logger.exception(ValueError("message")) # with traceback
 We aim to adhere to the [When to use logging guide](inv:python#logging-basic-tutorial) to ensure consistency in our logging practices.
 In general:
 * Use {func}`print` for simple, non-critical messages that do not need to be logged.
-* Use {func}`warnings.warn` for user input issues that are non-critical and can be addressed within `movement`, e.g. deprecated function calls that are redirected, invalid `fps` number in {class}`ValidPosesInputs<movement.validators.datasets.ValidPosesInputs>` that is implicitly set to `None`; or when processing data containing excessive NaNs, which the user can potentially address using appropriate methods, e.g. {func}`interpolate_over_time()<movement.filtering.interpolate_over_time>`
+* Use {func}`warnings.warn` for conditions the user can avoid or address within `movement`, e.g. deprecated function calls that are redirected, an invalid `fps` value that is implicitly set to `None`, or data with excessive NaNs that the user may want to address using appropriate {mod}`~movement.filtering` functions.
+* Use {meth}`logger.warning()<loguru._logger.Logger.warning>` for unexpected situations `movement` handles automatically (by falling back to a default or making an assumption), where the user cannot directly intervene, e.g. a failed network request that falls back to a cached local file, or missing track information that triggers a single-individual assumption.
 * Use {meth}`logger.info()<loguru._logger.Logger.info>` for informational messages about expected behaviours that do not indicate problems, e.g. where default values are assigned to optional parameters.
 
 ### Implementing new loaders
@@ -595,6 +602,91 @@ Alternatively, you can also use the GitHub web interface to create a new release
 The addition of a GitHub tag triggers the package's deployment to PyPI.
 The version number is automatically determined from the latest tag on the _main_ branch.
 
+### Deprecation lifecycle
+
+When a public API element (function, method, class, etc.) is superseded
+or slated for removal, we emit a deprecation warning rather than
+removing it immediately. This gives users time to migrate.
+
+#### 1. Mark the deprecated element
+
+For example, to deprecate a function:
+
+```python
+import warnings
+
+def old_function(...):
+    """Do something.
+
+    .. deprecated:: <version>
+        This function is deprecated and will be removed in a future release.
+        Use :func:`new_function` instead.
+    """
+    warnings.warn(
+        "`old_function` is deprecated and will be removed in a future "
+        "release. Please use `new_function` instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    # keep rest as is or delegate to the new implementation
+```
+
+- Add the ``.. deprecated::`` directive to the docstring so the
+  deprecation appears in the API reference. Replace ``<version>`` with
+  the upcoming release number that will first include this deprecation
+  (e.g. ``0.99.0``).
+- Add a {func}`warnings.warn` call right after the docstring, with
+  ``DeprecationWarning`` as the category.
+- The warning message, which also appears under the docstring directive,
+  should state which API element is deprecated
+  and suggest the appropriate replacement(s).
+- Keep the API's behaviour intact. It may delegate to the new
+  implementation or retain its original logic; the important point is
+  that existing user code continues to produce correct results.
+
+Any existing tests that call the deprecated element will now emit a
+``DeprecationWarning``. Add a
+[`filterwarnings`](https://docs.pytest.org/en/stable/reference/reference.html#pytest-mark-filterwarnings-ref)
+marker to those tests so they do not clutter the test output
+during the deprecation window:
+
+```python
+@pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
+def test_old_function(...):
+    ...
+```
+
+#### 2. Test the deprecation
+
+Add a parametrised case to the ``test_deprecated_callable`` test in
+``tests/test_unit/test_deprecations.py``. See the docstring of that
+test for the expected parameters and an
+[older version of the test file](https://github.com/neuroinformatics-unit/movement/blob/v0.16.0/tests/test_unit/test_deprecations.py)
+for concrete examples.
+
+Where appropriate, you may also add backwards-compatibility tests that
+verify the deprecated API produces equivalent results to the new
+one. These are especially useful when the old and new implementations
+differ in structure but should agree on output.
+
+#### 3. Remove the deprecated element
+
+After at least one minor release, the deprecated API element can be
+removed in a follow-up PR.
+
+- Remove the element and its imports, including those in
+  ``__init__.py`` if applicable.
+- Remove any existing tests for the deprecated element (search for
+  ``DeprecationWarning`` to find them), including any
+  backwards-compatibility tests.
+- Remove the corresponding test case from ``test_deprecations.py``.
+
+:::{note}
+Both the release that introduces the deprecation and the release that
+removes the API must mention the change in the release notes,
+with migration instructions pointing users to the replacement.
+:::
+
 (target-contributing-docs)=
 ## Contributing documentation
 The documentation is hosted via [GitHub pages](https://pages.github.com/) at
@@ -615,10 +707,10 @@ This keeps the documentation aligned with releases, while allowing manual redepl
 ### Editing the documentation
 To edit the documentation, ensure you have already set up a [development environment](#creating-a-development-environment).
 
-To build the documentation locally, install the extra dependencies by running the following command from the repository root:
+To build the documentation locally, install the `docs` dependencies by running the following command from the repository root:
 ```sh
-pip install -e ".[docs]"      # conda env
-uv pip install -e ".[docs]"   # uv env
+pip install -e . --group docs      # conda env
+uv pip install -e . --group docs   # uv env
 ```
 
 Now create a new branch, edit the documentation source files (`.md` or `.rst` in the `docs` folder),
