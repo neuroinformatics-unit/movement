@@ -1,4 +1,4 @@
-"""Test suite for the load_aniframe module."""
+"""Test suite for the aniframe loader."""
 
 import itertools
 from pathlib import Path
@@ -11,17 +11,18 @@ import pyarrow.parquet as pq
 import pytest
 import xarray as xr
 
-from movement.io.load_aniframe import (
+from movement.io.aniframe import (
     _build_extra_array,
     _check_no_polar_coords,
+    _decode_aniframe_metadata,
     _extract_meta_vars,
     _flatten_r_metadata,
     _infer_extra_dims,
     _r_value_to_python,
     _resolve_columns,
     _resolve_fps,
-    from_aniframe_file,
 )
+from movement.io.load_poses import from_aniframe_file
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import ValidAniframeParquet
 
@@ -40,7 +41,7 @@ _BASE_META: dict = {
     "unit_time": "frame",
     "unit_space": "px",
     "reference_frame": "allocentric",
-    "point_of_reference": "top_left",
+    "origin": "top_left",
     "variables_what": ["individual", "keypoint"],
     "variables_when": ["time"],
     "variables_where": ["x", "y"],
@@ -156,7 +157,11 @@ def _minimal_df(
 def test_valid_aniframe_parquet_accepts_valid_file(tmp_path):
     """ValidAniframeParquet accepts a Parquet file with the aniframe key."""
     path = _make_parquet(tmp_path)
-    v = ValidAniframeParquet(file=path)
+    with patch(
+        "movement.io.aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(),
+    ):
+        v = ValidAniframeParquet(file=path)
     assert v.file == path
 
 
@@ -179,6 +184,92 @@ def test_valid_aniframe_parquet_rejects_nonexistent_file(tmp_path):
     """ValidAniframeParquet rejects a file that does not exist."""
     path = tmp_path / "missing.parquet"
     with pytest.raises(FileNotFoundError):
+        ValidAniframeParquet(file=path)
+
+
+def test_valid_aniframe_parquet_rejects_missing_required_fields(tmp_path):
+    """ValidAniframeParquet rejects when required fields are absent."""
+    path = _make_parquet(tmp_path)
+    with (
+        patch(
+            "movement.io.aniframe._decode_aniframe_metadata",
+            return_value={},
+        ),
+        pytest.raises(ValueError, match="missing required field"),
+    ):
+        ValidAniframeParquet(file=path)
+
+
+def test_valid_aniframe_parquet_rejects_partial_required_fields(tmp_path):
+    """ValidAniframeParquet rejects when only some required fields exist."""
+    path = _make_parquet(tmp_path)
+    partial = {"variables_what": ["individual", "keypoint"]}
+    with (
+        patch(
+            "movement.io.aniframe._decode_aniframe_metadata",
+            return_value=partial,
+        ),
+        pytest.raises(ValueError, match="missing required field"),
+    ):
+        ValidAniframeParquet(file=path)
+
+
+def test_decode_aniframe_metadata_raises_when_extras_missing(
+    tmp_path, monkeypatch
+):
+    """_decode_aniframe_metadata raises ImportError when extras are missing."""
+    import movement.io.aniframe as aniframe_mod
+
+    monkeypatch.setattr(aniframe_mod, "pq", None)
+    monkeypatch.setattr(aniframe_mod, "rdata", None)
+    path = _make_parquet(tmp_path)
+    with pytest.raises(ImportError, match="movement\\[aniframe\\]"):
+        _decode_aniframe_metadata(path)
+
+
+def test_parquet_validator_raises_when_pyarrow_missing(tmp_path, monkeypatch):
+    """_parquet_validator raises ImportError with hint when pyarrow is gone."""
+    import builtins
+
+    real_import = builtins.__import__
+
+    def fake_import(name, *args, **kwargs):
+        if name == "pyarrow.parquet" or name.startswith("pyarrow"):
+            raise ImportError("simulated missing pyarrow")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+    path = _make_parquet(tmp_path)
+    with pytest.raises(ImportError, match="movement\\[aniframe\\]"):
+        ValidAniframeParquet(file=path)
+
+
+def test_decode_aniframe_metadata_raises_for_missing_r_key(tmp_path):
+    """_decode_aniframe_metadata raises when the 'r' metadata key is absent."""
+    path = _make_parquet(tmp_path, r_meta_bytes=None)
+    with pytest.raises(ValueError, match="No aniframe metadata found"):
+        _decode_aniframe_metadata(path)
+
+
+def test_decode_aniframe_metadata_raises_for_corrupt_r_blob(tmp_path):
+    """_decode_aniframe_metadata raises a clear error on undecodable bytes."""
+    path = _make_parquet(tmp_path, r_meta_bytes=b"not a valid R blob")
+    with pytest.raises(ValueError, match="Could not decode aniframe metadata"):
+        _decode_aniframe_metadata(path)
+
+
+def test_valid_aniframe_parquet_propagates_decode_error(tmp_path):
+    """ValidAniframeParquet propagates corrupt-R-blob errors from decode."""
+    path = _make_parquet(tmp_path, r_meta_bytes=b"not a valid R blob")
+    with pytest.raises(ValueError, match="Could not decode aniframe metadata"):
+        ValidAniframeParquet(file=path)
+
+
+def test_valid_aniframe_parquet_rejects_corrupt_parquet(tmp_path):
+    """ValidAniframeParquet rejects a file that is not a valid Parquet file."""
+    path = tmp_path / "data.parquet"
+    path.write_bytes(b"not a parquet file")
+    with pytest.raises(ValueError, match="valid Parquet file"):
         ValidAniframeParquet(file=path)
 
 
@@ -384,7 +475,7 @@ def _mock_meta(**overrides):
 def test_from_aniframe_file_returns_valid_dataset(aniframe_parquet):
     """from_aniframe_file returns a valid movement poses Dataset."""
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(),
     ):
         ds = from_aniframe_file(aniframe_parquet)
@@ -400,7 +491,7 @@ def test_from_aniframe_file_returns_valid_dataset(aniframe_parquet):
 def test_from_aniframe_file_correct_shape(aniframe_parquet):
     """from_aniframe_file produces arrays with the expected shape."""
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(),
     ):
         ds = from_aniframe_file(aniframe_parquet)
@@ -416,7 +507,7 @@ def test_from_aniframe_file_correct_shape(aniframe_parquet):
 def test_from_aniframe_file_source_software_from_metadata(aniframe_parquet):
     """from_aniframe_file sets source_software from aniframe metadata."""
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(source="DeepLabCut"),
     ):
         ds = from_aniframe_file(aniframe_parquet)
@@ -429,7 +520,7 @@ def test_from_aniframe_file_missing_source_software(
 ):
     """from_aniframe_file sets source_software to None when source is NA."""
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(source=None),
     ):
         ds = from_aniframe_file(aniframe_parquet)
@@ -440,7 +531,7 @@ def test_from_aniframe_file_missing_source_software(
 def test_from_aniframe_file_fps_from_metadata(aniframe_parquet):
     """from_aniframe_file reads fps from sampling_rate when unit_time='s'."""
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(unit_time="s", sampling_rate=25.0),
     ):
         ds = from_aniframe_file(aniframe_parquet)
@@ -452,7 +543,7 @@ def test_from_aniframe_file_fps_from_metadata(aniframe_parquet):
 def test_from_aniframe_file_fps_override_takes_precedence(aniframe_parquet):
     """from_aniframe_file uses caller-supplied fps over metadata fps."""
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(unit_time="s", sampling_rate=25.0),
     ):
         ds = from_aniframe_file(aniframe_parquet, fps=60.0)
@@ -463,7 +554,7 @@ def test_from_aniframe_file_fps_override_takes_precedence(aniframe_parquet):
 def test_from_aniframe_file_frame_time_when_unit_is_frame(aniframe_parquet):
     """from_aniframe_file uses frame-number time when unit_time='frame'."""
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(unit_time="frame"),
     ):
         ds = from_aniframe_file(aniframe_parquet)
@@ -475,7 +566,7 @@ def test_from_aniframe_file_frame_time_when_unit_is_frame(aniframe_parquet):
 def test_from_aniframe_file_individual_names_are_strings(aniframe_parquet):
     """from_aniframe_file coerces individual names to strings."""
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(),
     ):
         ds = from_aniframe_file(aniframe_parquet)
@@ -488,7 +579,7 @@ def test_from_aniframe_file_no_confidence_fills_nan(tmp_path):
     df = _minimal_df(include_confidence=False)
     path = _make_parquet(tmp_path, df=df)
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(),
     ):
         ds = from_aniframe_file(path)
@@ -503,7 +594,7 @@ def test_from_aniframe_file_3d_cartesian(tmp_path):
     df["z"] = rng.standard_normal(len(df))
     path = _make_parquet(tmp_path, df=df)
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(variables_where=["x", "y", "z"]),
     ):
         ds = from_aniframe_file(path)
@@ -517,7 +608,7 @@ def test_from_aniframe_file_track_interpreted_as_individual(tmp_path):
     df = _minimal_df().rename(columns={"individual": "track"})
     path = _make_parquet(tmp_path, df=df)
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(),
     ):
         ds = from_aniframe_file(path)
@@ -530,7 +621,7 @@ def test_from_aniframe_file_single_value_session_dropped(tmp_path):
     df = _minimal_df(extra_cols={"session": 1, "trial": 1})
     path = _make_parquet(tmp_path, df=df)
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(variables_when=["time", "session", "trial"]),
     ):
         ds = from_aniframe_file(path)
@@ -557,7 +648,7 @@ def test_from_aniframe_file_multi_value_extra_col_raises(
     path = _make_parquet(tmp_path, df=df)
     with (
         patch(
-            "movement.io.load_aniframe._decode_aniframe_metadata",
+            "movement.io.aniframe._decode_aniframe_metadata",
             return_value=_mock_meta(**meta_override),
         ),
         pytest.raises(ValueError, match="unique values"),
@@ -573,7 +664,7 @@ def test_from_aniframe_file_polar_coords_raise(tmp_path, polar_col):
     path = _make_parquet(tmp_path, df=df)
     with (
         patch(
-            "movement.io.load_aniframe._decode_aniframe_metadata",
+            "movement.io.aniframe._decode_aniframe_metadata",
             return_value=_mock_meta(),
         ),
         pytest.raises(ValueError, match="Polar"),
@@ -581,23 +672,112 @@ def test_from_aniframe_file_polar_coords_raise(tmp_path, polar_col):
         from_aniframe_file(path)
 
 
-def test_from_aniframe_file_bottom_left_warns(tmp_path):
-    """from_aniframe_file warns when point_of_reference is 'bottom_left'."""
-    path = _make_parquet(tmp_path)
-    with (
-        patch(
-            "movement.io.load_aniframe._decode_aniframe_metadata",
-            return_value=_mock_meta(point_of_reference="bottom_left"),
-        ),
-        pytest.warns(UserWarning, match="bottom-left"),
+def test_from_aniframe_file_bottom_left_flips_with_metadata_height(tmp_path):
+    """bottom_left origin with y_height in meta → y flipped via h - y."""
+    df = _minimal_df(individuals=["a"], keypoints=["nose"], n_frames=3)
+    df["y"] = [10.0, 20.0, 30.0]  # known y values
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(origin="bottom_left", y_height=100.0),
     ):
-        from_aniframe_file(path)
+        ds = from_aniframe_file(path)
+
+    # Each y value should be replaced with 100 - y
+    y_values = ds["position"].sel(space="y").values.ravel()
+    np.testing.assert_allclose(sorted(y_values), [70.0, 80.0, 90.0])
+    assert ds.attrs.get("origin") == "top_left"
+    assert ds.attrs.get("y_height") == 100.0
+
+
+def test_from_aniframe_file_bottom_left_flips_with_max_y_fallback(tmp_path):
+    """Without y_height in metadata, the flip falls back to max(y)."""
+    df = _minimal_df(individuals=["a"], keypoints=["nose"], n_frames=3)
+    df["y"] = [10.0, 20.0, 30.0]
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(origin="bottom_left"),  # no y_height
+    ):
+        ds = from_aniframe_file(path)
+
+    # max(y) is 30, so flip is new_y = 30 - y → values become 20, 10, 0
+    y_values = ds["position"].sel(space="y").values.ravel()
+    np.testing.assert_allclose(sorted(y_values), [0.0, 10.0, 20.0])
+    assert ds.attrs.get("origin") == "top_left"
+    assert ds.attrs.get("y_height") == 30.0
+
+
+def test_from_aniframe_file_top_left_no_flip(tmp_path):
+    """top_left origin → y is left untouched, no y_height attached."""
+    df = _minimal_df(individuals=["a"], keypoints=["nose"], n_frames=3)
+    df["y"] = [10.0, 20.0, 30.0]
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(origin="top_left"),
+    ):
+        ds = from_aniframe_file(path)
+
+    y_values = ds["position"].sel(space="y").values.ravel()
+    np.testing.assert_allclose(sorted(y_values), [10.0, 20.0, 30.0])
+    assert ds.attrs.get("origin") == "top_left"
+    assert "y_height" not in ds.attrs
+
+
+def test_from_aniframe_file_use_frame_numbers_preserves_values(tmp_path):
+    """use_frame_numbers_from_file=True keeps the file's time values."""
+    df = _minimal_df(n_frames=3)
+    # Replace 0-based regular times with irregular, 1-based frame numbers
+    # to verify they are preserved (not overwritten by np.arange).
+    df["time"] = df["time"].map({1: 1, 2: 5, 3: 10})
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(unit_time="frame"),
+    ):
+        ds = from_aniframe_file(path, use_frame_numbers_from_file=True)
+
+    np.testing.assert_array_equal(ds["time"].values, [1, 5, 10])
+    assert ds.attrs.get("time_unit") == "frames"
+
+
+def test_from_aniframe_file_use_frame_numbers_converts_ms_to_seconds(
+    tmp_path,
+):
+    """use_frame_numbers_from_file=True converts ms time values to seconds."""
+    df = _minimal_df(n_frames=3)
+    df["time"] = df["time"].map({1: 0, 2: 33, 3: 66})
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(unit_time="ms", sampling_rate=30.0),
+    ):
+        ds = from_aniframe_file(path, use_frame_numbers_from_file=True)
+
+    np.testing.assert_allclose(ds["time"].values, [0.0, 0.033, 0.066])
+    assert ds.attrs.get("time_unit") == "seconds"
+
+
+def test_from_aniframe_file_use_frame_numbers_default_unchanged(tmp_path):
+    """Default (False) keeps the np.arange-based time coord."""
+    df = _minimal_df(n_frames=3)
+    df["time"] = df["time"].map({1: 10, 2: 20, 3: 30})
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(unit_time="frame"),
+    ):
+        ds = from_aniframe_file(path)
+
+    # default behaviour: regenerate time as 0..n-1, ignoring file values
+    np.testing.assert_array_equal(ds["time"].values, [0, 1, 2])
 
 
 def test_from_aniframe_file_extra_attrs_attached(aniframe_parquet):
     """from_aniframe_file attaches space_unit and reference_frame attrs."""
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(
             unit_space="mm",
             reference_frame="egocentric",
@@ -620,7 +800,7 @@ def test_auto_inference_detects_aniframe_parquet(tmp_path):
 
     path = _make_parquet(tmp_path)
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(),
     ):
         ds = load_dataset(path, source_software="auto")
@@ -642,19 +822,6 @@ def test_auto_inference_rejects_plain_parquet(tmp_path):
 # ---------------------------------------------------------------------------
 
 
-def test_extract_meta_vars_raises_for_missing_fields():
-    """_extract_meta_vars raises ValueError when required fields are absent."""
-    with pytest.raises(ValueError, match="missing required field"):
-        _extract_meta_vars({}, Path("fake.parquet"))
-
-
-def test_extract_meta_vars_raises_for_partial_fields():
-    """_extract_meta_vars raises when only some required fields are present."""
-    partial = {"variables_what": ["individual", "keypoint"]}
-    with pytest.raises(ValueError, match="missing required field"):
-        _extract_meta_vars(partial, Path("fake.parquet"))
-
-
 def test_extract_meta_vars_normalises_scalar_to_list():
     """_extract_meta_vars wraps a scalar value in a list."""
     meta = {
@@ -662,9 +829,7 @@ def test_extract_meta_vars_normalises_scalar_to_list():
         "variables_when": "time",  # scalar, as returned for length-1 R vectors
         "variables_where": ["x", "y"],
     }
-    vars_what, vars_when, vars_where = _extract_meta_vars(
-        meta, Path("fake.parquet")
-    )
+    vars_what, vars_when, vars_where = _extract_meta_vars(meta)
     assert vars_when == ["time"]
     assert vars_what == ["individual", "keypoint"]
     assert vars_where == ["x", "y"]
@@ -773,7 +938,7 @@ def test_from_aniframe_file_extra_col_full_dims(tmp_path):
     df["speed"] = rng.standard_normal(len(df))
     path = _make_parquet(tmp_path, df=df)
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(),
     ):
         ds = from_aniframe_file(path)
@@ -791,7 +956,7 @@ def test_from_aniframe_file_extra_col_time_individual_dims(tmp_path):
     df["area"] = (df["time"] * 10 + df["individual"]).astype(float)
     path = _make_parquet(tmp_path, df=df)
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(),
     ):
         ds = from_aniframe_file(path)
@@ -801,13 +966,33 @@ def test_from_aniframe_file_extra_col_time_individual_dims(tmp_path):
     assert ds["area"].shape == (3, 2)
 
 
+def test_from_aniframe_file_bool_extra_col_preserves_dtype(tmp_path):
+    """from_aniframe_file keeps bool extra columns as object (not float)."""
+    df = _minimal_df(
+        individuals=[1, 2], keypoints=["nose", "tail"], n_frames=3
+    )
+    df["is_visible"] = df["time"] % 2 == 0
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(),
+    ):
+        ds = from_aniframe_file(path)
+
+    assert "is_visible" in ds
+    assert ds["is_visible"].dtype == object
+    # values should be preserved as booleans, not coerced to floats
+    flat = ds["is_visible"].values.ravel()
+    assert all(isinstance(v, (bool, np.bool_)) for v in flat)
+
+
 def test_from_aniframe_file_constant_extra_col_skipped(tmp_path):
     """from_aniframe_file skips constant extra columns."""
     df = _minimal_df()
     df["fixed"] = 42.0
     path = _make_parquet(tmp_path, df=df)
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(),
     ):
         ds = from_aniframe_file(path)
@@ -821,74 +1006,69 @@ def test_from_aniframe_file_string_extra_col_added(tmp_path):
     df["label"] = ["running", "still", "running"]
     path = _make_parquet(tmp_path, df=df)
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(),
     ):
         ds = from_aniframe_file(path)
 
     assert "label" in ds
     assert ds["label"].dtype == object
-    assert ds["label"].dims == ("time",)
+    # Singleton individuals + keypoints get auto-expanded into the dims.
+    assert ds["label"].dims == ("time", "keypoints", "individuals")
+    assert ds["label"].shape == (3, 1, 1)
 
 
 # ---------------------------------------------------------------------------
-# extra_var_dims tests
+# Singleton-dim auto-expansion tests
 # ---------------------------------------------------------------------------
 
 
-def test_from_aniframe_file_extra_var_dims_floor_adds_individuals(tmp_path):
-    """extra_var_dims floor adds individuals dim on single-individual data."""
-    df = _minimal_df(individuals=["a"], keypoints=["nose"], n_frames=3)
-    df["score"] = df["time"].astype(float)  # auto-infers to ("time",)
+def test_from_aniframe_file_singleton_individual_expanded(tmp_path):
+    """A time-only column gains 'individuals' on single-individual files."""
+    df = _minimal_df(individuals=["a"], keypoints=["nose", "tail"], n_frames=3)
+    df["score"] = df["time"].astype(float)  # varies only with time
     path = _make_parquet(tmp_path, df=df)
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(),
     ):
-        ds = from_aniframe_file(path, extra_var_dims=("individuals",))
+        ds = from_aniframe_file(path)
 
-    assert "score" in ds
+    # individuals is singleton (1) so it gets auto-expanded; keypoints (2)
+    # is not a singleton, so it is excluded since the column doesn't vary
+    # along it.
     assert ds["score"].dims == ("time", "individuals")
     assert ds["score"].shape == (3, 1)
 
 
-def test_from_aniframe_file_extra_var_dims_does_not_affect_constant_cols(
+def test_from_aniframe_file_no_singleton_no_expansion(tmp_path):
+    """No singleton canonical dim → inferred dims are kept as-is."""
+    df = _minimal_df(
+        individuals=[1, 2], keypoints=["nose", "tail"], n_frames=3
+    )
+    df["area"] = (df["time"] * 10 + df["individual"]).astype(float)
+    path = _make_parquet(tmp_path, df=df)
+    with patch(
+        "movement.io.aniframe._decode_aniframe_metadata",
+        return_value=_mock_meta(),
+    ):
+        ds = from_aniframe_file(path)
+
+    # No canonical dim is singleton → no expansion beyond inferred
+    assert ds["area"].dims == ("time", "individuals")
+
+
+def test_from_aniframe_file_singleton_does_not_resurrect_constant_col(
     tmp_path,
 ):
-    """extra_var_dims floor does not resurrect constant (skipped) columns."""
+    """Singleton expansion does not add back a constant (skipped) column."""
     df = _minimal_df(individuals=["a"], keypoints=["nose"], n_frames=3)
     df["fixed"] = 42.0
     path = _make_parquet(tmp_path, df=df)
     with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
+        "movement.io.aniframe._decode_aniframe_metadata",
         return_value=_mock_meta(),
     ):
-        ds = from_aniframe_file(path, extra_var_dims=("individuals",))
+        ds = from_aniframe_file(path)
 
     assert "fixed" not in ds
-
-
-def test_from_aniframe_file_extra_var_dims_string_accepted(tmp_path):
-    """extra_var_dims accepts a plain string as well as a tuple."""
-    df = _minimal_df(individuals=["a"], keypoints=["nose"], n_frames=3)
-    df["score"] = df["time"].astype(float)
-    path = _make_parquet(tmp_path, df=df)
-    with patch(
-        "movement.io.load_aniframe._decode_aniframe_metadata",
-        return_value=_mock_meta(),
-    ):
-        ds = from_aniframe_file(path, extra_var_dims="individuals")
-
-    assert ds["score"].dims == ("time", "individuals")
-
-
-def test_from_aniframe_file_extra_var_dims_invalid_raises(aniframe_parquet):
-    """from_aniframe_file raises ValueError for invalid extra_var_dims."""
-    with (
-        patch(
-            "movement.io.load_aniframe._decode_aniframe_metadata",
-            return_value=_mock_meta(),
-        ),
-        pytest.raises(ValueError, match="Invalid dimension"),
-    ):
-        from_aniframe_file(aniframe_parquet, extra_var_dims=("space",))

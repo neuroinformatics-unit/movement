@@ -1,21 +1,55 @@
-"""Load pose tracking data from aniframe Parquet files into ``movement``."""
+"""Helpers for loading aniframe Parquet files into ``movement``.
+
+The public loader entry point :func:`movement.io.load_poses.from_aniframe_file`
+lives alongside the other format-specific loaders in
+:mod:`movement.io.load_poses`. This module collects the private helpers and
+constants used to decode aniframe metadata and assemble the resulting
+``movement`` poses dataset.
+"""
 
 import io
 import math
 import warnings
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 import numpy as np
 import pandas as pd
-import pyarrow.parquet as pq
-import rdata
 import xarray as xr
 
-from movement.io.load import register_loader
-from movement.io.load_poses import from_numpy
 from movement.utils.logging import logger
-from movement.validators.files import ValidAniframeParquet, ValidFile
+
+# pyarrow and rdata are optional dependencies (the 'aniframe' extra). Defer
+# their import errors so that ``import movement`` works without them, and
+# raise a clear, install-instruction-bearing ImportError only when an
+# aniframe-specific code path is actually invoked.
+_ANIFRAME_DEPS_INSTALL_HINT = (
+    "Reading aniframe Parquet files requires the optional 'aniframe' "
+    "dependencies (pyarrow, rdata), which are not installed.\n\n"
+    "Install them with one of:\n"
+    "  pip install 'movement[aniframe]'\n"
+    "  uv pip install 'movement[aniframe]'\n"
+    "  conda install -c conda-forge pyarrow rdata\n\n"
+    "See https://movement.neuroinformatics.dev/latest/user_guide/"
+    "installation.html for details."
+)
+
+try:
+    import pyarrow.parquet as pq
+except ImportError:
+    pq = None  # type: ignore[assignment]
+
+try:
+    import rdata
+except ImportError:
+    rdata = None  # type: ignore[assignment]
+
+
+def _require_aniframe_extras() -> None:
+    """Raise ImportError if pyarrow or rdata is missing."""
+    if pq is None or rdata is None:
+        raise ImportError(_ANIFRAME_DEPS_INSTALL_HINT)
+
 
 _WHERE_CARTESIAN: frozenset[str] = frozenset({"x", "y", "z"})
 _WHERE_POLAR: frozenset[str] = frozenset({"rho", "phi", "theta"})
@@ -40,10 +74,6 @@ _DIM_TO_DF_COL: dict[str, str] = {
     "individuals": "individual",
 }
 
-_VALID_EXTRA_VAR_DIMS: frozenset[str] = frozenset(
-    {"time", "keypoints", "individuals"}
-)
-
 # Conversion factors from each time unit to seconds
 _TIME_UNIT_TO_SECONDS: dict[str, float] = {
     "ns": 1e-9,
@@ -53,239 +83,6 @@ _TIME_UNIT_TO_SECONDS: dict[str, float] = {
     "m": 60.0,
     "h": 3600.0,
 }
-
-
-@register_loader("aniframe", file_validators=ValidAniframeParquet)
-def from_aniframe_file(
-    file: str | Path,
-    fps: float | None = None,
-    extra_var_dims: str | tuple[str, ...] = (),
-) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from an aniframe Parquet file.
-
-    `aniframe <https://animovement.dev/aniframe/>`_ is a long-format tidy
-    data structure produced by the
-    `animovement <https://animovement.dev/>`_ R ecosystem. Each row
-    represents a single observation for one individual, keypoint, and
-    timepoint.
-
-    Parameters
-    ----------
-    file
-        Path to the aniframe Parquet file (``.parquet``).
-    fps
-        Frames per second. If ``None`` (default), the value is read from
-        the file's embedded metadata (``sampling_rate`` field). An
-        explicitly provided value takes precedence over the metadata.
-        If no fps can be determined and ``unit_time`` is not ``"frame"``,
-        the time coordinates will be in frame numbers.
-    extra_var_dims
-        Minimum set of dimensions that every extra data variable must have.
-        Dimensions are automatically inferred from the data; any dimension
-        listed here that is not already in the inferred set will be added.
-        Valid values are ``"time"``, ``"keypoints"``, and ``"individuals"``.
-        A single dimension may be passed as a plain string (e.g.
-        ``"individuals"``) or as a one-element tuple (``("individuals",)``).
-        Defaults to ``()`` (no floor — pure auto-inference).
-        Pass ``"individuals"`` to ensure all extra variables carry the
-        ``individuals`` dimension even in single-individual files, where
-        auto-inference would otherwise collapse it away.
-
-    Returns
-    -------
-    xarray.Dataset
-        ``movement`` dataset containing the pose tracks, confidence scores,
-        and associated metadata.
-
-    Raises
-    ------
-    ValueError
-        If the file contains polar or spherical coordinate columns
-        (``rho``, ``phi``, ``theta``), if any extra identity or temporal
-        column holds more than one unique value, if the aniframe metadata
-        is missing the required ``variables_what``, ``variables_when``, or
-        ``variables_where`` fields, or if ``extra_var_dims`` contains
-        invalid dimension names.
-
-    Warns
-    -----
-    UserWarning
-        If ``point_of_reference`` is ``"bottom_left"`` (which differs from
-        the top-left origin used by ``movement`` and napari).
-
-    See Also
-    --------
-    movement.io.load_poses.from_numpy
-
-    Examples
-    --------
-    >>> from movement.io import load_dataset
-    >>> ds = load_dataset("path/to/file.parquet", source_software="aniframe")
-
-    Notes
-    -----
-    Only 2D and 3D Cartesian coordinate systems are supported. Extra
-    ``variables_what`` or ``variables_when`` columns (e.g., ``model``,
-    ``session``, ``trial``) are silently dropped when they hold a single
-    unique value; they raise a ``ValueError`` when they hold multiple values.
-
-    If the file uses a ``track`` column instead of ``individual``, each
-    track is interpreted as an individual and an INFO message is logged.
-    If your data contains multiple tracks per individual, stitch them
-    before loading.
-
-    Columns that do not belong to any aniframe variable category
-    (``variables_what``, ``variables_when``, ``variables_where``) are
-    treated as extra data variables and added to the returned Dataset with
-    automatically inferred dimensions. Numeric columns are stored as
-    ``float64``; all other types are stored as ``object``. Constant columns
-    (identical across every row) are skipped.
-
-    The original tracking software is taken from the ``source`` field in
-    the aniframe metadata (e.g., ``"SLEAP"`` or ``"DeepLabCut"``).
-
-    """
-    extra_var_dims = _normalise_extra_var_dims(extra_var_dims)
-    valid_file = cast("ValidFile", file)
-    file_path = valid_file.file
-
-    df = pd.read_parquet(file_path)
-    meta = _decode_aniframe_metadata(file_path)
-    vars_what, vars_when, vars_where = _extract_meta_vars(meta, file_path)
-    df, extra_data_cols = _resolve_columns(
-        df, vars_what, vars_when, vars_where
-    )
-    _check_no_polar_coords(set(df.columns))
-
-    # Detect which Cartesian space columns are present
-    space_cols = sorted(_WHERE_CARTESIAN & set(df.columns))
-
-    # Preserve keypoint order as it appears in the file (first occurrence)
-    seen: set[str] = set()
-    keypoint_names: list[str] = []
-    for kp in df["keypoint"].astype(str):
-        if kp not in seen:
-            keypoint_names.append(kp)
-            seen.add(kp)
-
-    individual_names = sorted(df["individual"].astype(str).unique().tolist())
-    time_values = sorted(df["time"].unique().tolist())
-
-    n_frames = len(time_values)
-    n_space = len(space_cols)
-    n_keypoints = len(keypoint_names)
-    n_individuals = len(individual_names)
-
-    position_array = np.full(
-        (n_frames, n_space, n_keypoints, n_individuals), np.nan
-    )
-    has_confidence = "confidence" in df.columns
-    confidence_array = (
-        np.full((n_frames, n_keypoints, n_individuals), np.nan)
-        if has_confidence
-        else None
-    )
-
-    # Build fast integer-index lookups then fill arrays in one vectorised pass
-    time_idx = {t: i for i, t in enumerate(time_values)}
-    ind_idx = {ind: i for i, ind in enumerate(individual_names)}
-    kp_idx = {kp: i for i, kp in enumerate(keypoint_names)}
-
-    ti = df["time"].map(time_idx).to_numpy()
-    ii = df["individual"].astype(str).map(ind_idx).to_numpy()
-    ki = df["keypoint"].astype(str).map(kp_idx).to_numpy()
-
-    for si, sc in enumerate(space_cols):
-        position_array[ti, si, ki, ii] = df[sc].to_numpy()
-
-    if has_confidence:
-        confidence_array[ti, ki, ii] = df["confidence"].to_numpy()  # type: ignore[index]
-
-    # Infer dimensions and build arrays for extra data columns
-    extra_vars: dict[str, tuple[tuple[str, ...], np.ndarray]] = {}
-    for col in extra_data_cols:
-        dims = _infer_extra_dims(df, col)
-        if not dims:
-            logger.info(f"Column '{col}' is constant and will be skipped.")
-            continue
-        if extra_var_dims:
-            dims = tuple(
-                d
-                for d in ("time", "keypoints", "individuals")
-                if d in dims or d in extra_var_dims
-            )
-        extra_vars[col] = (
-            dims,
-            _build_extra_array(
-                df,
-                col,
-                dims,
-                ti=ti,
-                ki=ki,
-                ii=ii,
-                n_frames=n_frames,
-                n_keypoints=n_keypoints,
-                n_individuals=n_individuals,
-            ),
-        )
-
-    fps_to_use = _resolve_fps(fps, meta)
-    source = meta.get("source") or None
-
-    ds = from_numpy(
-        position_array=position_array,
-        confidence_array=confidence_array,
-        individual_names=individual_names,
-        keypoint_names=keypoint_names,
-        fps=fps_to_use,
-        source_software=source,
-    )
-
-    for col, (dims, arr) in extra_vars.items():
-        ds[col] = xr.DataArray(arr, dims=dims)
-
-    _attach_extra_attrs(ds, meta, file_path)
-    logger.info(f"Loaded poses dataset from {file_path.name}")
-    return ds
-
-
-# ------------------------------------------------------------------ #
-# Private helpers                                                      #
-# ------------------------------------------------------------------ #
-
-
-def _normalise_extra_var_dims(
-    extra_var_dims: str | tuple[str, ...],
-) -> tuple[str, ...]:
-    """Normalise and validate the ``extra_var_dims`` parameter.
-
-    Parameters
-    ----------
-    extra_var_dims
-        A single dimension name (string) or a tuple of dimension names.
-
-    Returns
-    -------
-    tuple[str, ...]
-        Normalised tuple of dimension names.
-
-    Raises
-    ------
-    ValueError
-        If any name is not one of ``"time"``, ``"keypoints"``,
-        ``"individuals"``.
-
-    """
-    if isinstance(extra_var_dims, str):
-        extra_var_dims = (extra_var_dims,)
-    if invalid := set(extra_var_dims) - _VALID_EXTRA_VAR_DIMS:
-        raise logger.error(
-            ValueError(
-                f"Invalid dimension(s) in extra_var_dims: {sorted(invalid)}."
-                f" Valid values are: {sorted(_VALID_EXTRA_VAR_DIMS)}."
-            )
-        )
-    return extra_var_dims
 
 
 def _decode_aniframe_metadata(file_path: Path) -> dict[str, Any]:
@@ -299,18 +96,28 @@ def _decode_aniframe_metadata(file_path: Path) -> dict[str, Any]:
     Returns
     -------
     dict
-        Decoded metadata fields. Returns an empty dict if metadata
-        cannot be read or decoded.
+        Decoded metadata fields.
+
+    Raises
+    ------
+    ImportError
+        If the optional ``aniframe`` extras (``pyarrow``, ``rdata``) are
+        not installed.
+    ValueError
+        If the Parquet schema lacks the aniframe metadata key (``b"r"``)
+        or the embedded R blob cannot be parsed.
 
     """
+    _require_aniframe_extras()
     schema_meta = pq.read_schema(file_path).metadata
     if schema_meta is None or b"r" not in schema_meta:
-        logger.warning(
-            f"No aniframe metadata found in {file_path.name}. "
-            "Source software, fps, and units will not be set from "
-            "file metadata."
+        raise logger.error(
+            ValueError(
+                f"No aniframe metadata found in {file_path.name}. "
+                "The expected aniframe metadata key 'r' was not found "
+                "in the file's Parquet schema metadata."
+            )
         )
-        return {}
 
     try:
         with warnings.catch_warnings():
@@ -320,13 +127,14 @@ def _decode_aniframe_metadata(file_path: Path) -> dict[str, Any]:
                 category=UserWarning,
             )
             r_obj = rdata.read_rds(io.BytesIO(schema_meta[b"r"]))
-    except Exception as e:  # noqa: BLE001
-        logger.warning(
-            f"Could not decode aniframe metadata in {file_path.name}: {e}. "
-            "Source software, fps, and units will not be set from "
-            "file metadata."
-        )
-        return {}
+    except Exception as e:
+        raise logger.error(
+            ValueError(
+                f"Could not decode aniframe metadata in {file_path.name}: "
+                f"{e}. The 'r' metadata key is present but the embedded "
+                "R blob could not be parsed as an aniframe metadata object."
+            )
+        ) from e
 
     return _flatten_r_metadata(r_obj)
 
@@ -407,6 +215,8 @@ def _r_categorical_to_python(value: pd.Categorical) -> str | None:
     Returns
     -------
     str or None
+        The first category's string value, or ``None`` if the value is empty
+        or NA.
 
     """
     if len(value) == 0:
@@ -452,7 +262,7 @@ def _resolve_columns(
 ) -> tuple[pd.DataFrame, list[str]]:
     """Rename and validate aniframe columns for movement compatibility.
 
-    Renames ``track`` to ``individual`` with a warning if needed.
+    Renames ``track`` to ``individual`` (logged at INFO level) if needed.
     Drops extra identity/temporal columns that hold a single unique value
     (logged at INFO level). Raises if any such column has multiple unique
     values. Returns the cleaned DataFrame alongside a sorted list of extra
@@ -601,8 +411,8 @@ def _resolve_fps(
     if unit_time is None or unit_time == "frame":
         return None
 
-    # All other recognised time units → derive fps from sampling_rate
-    if unit_time in _TIME_UNIT_TO_SECONDS or unit_time == "s":
+    # All recognised time units → derive fps from sampling_rate
+    if unit_time in _TIME_UNIT_TO_SECONDS:
         if sampling_rate is not None:
             try:
                 return float(sampling_rate)
@@ -621,10 +431,134 @@ def _resolve_fps(
     return None
 
 
+def _flip_y_to_top_left(
+    position_array: np.ndarray,
+    meta: dict[str, Any],
+    space_cols: list[str],
+) -> float | None:
+    """Flip y values in-place when the file uses a bottom-left origin.
+
+    movement and napari use a top-left image-coordinate origin. aniframe
+    files often store y in a bottom-left convention; this helper converts
+    them via ``new_y = y_height - y`` so the data overlays correctly on
+    the source video/frame.
+
+    The conversion height is taken from the ``y_height`` metadata field
+    when present (this is what ``animovement`` writes). If absent — e.g.
+    older files or third-party producers — it falls back to
+    ``max(y)`` from the data and logs an INFO message so the choice is
+    visible.
+
+    Parameters
+    ----------
+    position_array
+        Array of shape ``(n_frames, n_space, n_keypoints, n_individuals)``,
+        modified in-place along the y axis.
+    meta
+        Decoded aniframe metadata dict.
+    space_cols
+        Cartesian space columns present in the file (e.g. ``["x", "y"]``
+        or ``["x", "y", "z"]``), in the same order as the position
+        array's space axis.
+
+    Returns
+    -------
+    float or None
+        The ``y_height`` value used for the flip, or ``None`` when the
+        flip was skipped (no y axis in the data).
+
+    """
+    if "y" not in space_cols:
+        logger.info(
+            "Origin is 'bottom_left' but the file has no y column; "
+            "skipping the bottom_left → top_left flip."
+        )
+        return None
+
+    y_index = space_cols.index("y")
+    y_height_meta = meta.get("y_height")
+    if y_height_meta is None:
+        y_height = float(np.nanmax(position_array[:, y_index, :, :]))
+        logger.info(
+            "No 'y_height' in aniframe metadata; using max(y) "
+            f"= {y_height} as the height for the bottom_left → "
+            "top_left flip."
+        )
+    else:
+        y_height = float(y_height_meta)
+
+    position_array[:, y_index, :, :] = (
+        y_height - position_array[:, y_index, :, :]
+    )
+    logger.info(
+        f"Flipped y-axis (bottom_left → top_left) using y_height={y_height}."
+    )
+    return y_height
+
+
+def _override_time_coord_from_file(
+    ds: xr.Dataset,
+    time_values: list[Any],
+    meta: dict[str, Any],
+) -> xr.Dataset:
+    """Replace the ``time`` coord with values read from the file.
+
+    Used when the caller passes ``use_frame_numbers_from_file=True`` to
+    preserve original time stamps (including irregular sampling). The
+    ``unit_time`` metadata field decides how raw values are mapped to the
+    dataset's ``time`` coord:
+
+    - ``"frame"`` → kept as ``int64`` frame numbers; ``time_unit="frames"``.
+    - any unit in :data:`_TIME_UNIT_TO_SECONDS` → multiplied by the
+      corresponding factor to land in seconds; ``time_unit="seconds"``.
+    - missing or unrecognised → values kept as ``float64`` and
+      ``time_unit="seconds"`` is assumed; an INFO log is emitted.
+
+    Parameters
+    ----------
+    ds
+        Dataset returned by :func:`from_numpy`.
+    time_values
+        Sorted list of unique values from the file's ``time`` column.
+    meta
+        Decoded aniframe metadata dict.
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset with the ``time`` coord and ``time_unit`` attribute updated.
+
+    """
+    unit_time = meta.get("unit_time")
+    time_arr = np.asarray(time_values)
+
+    if unit_time == "frame":
+        time_arr = time_arr.astype(np.int64)
+        time_unit = "frames"
+    elif unit_time in _TIME_UNIT_TO_SECONDS:
+        time_arr = (
+            time_arr.astype(np.float64) * _TIME_UNIT_TO_SECONDS[unit_time]
+        )
+        time_unit = "seconds"
+    else:
+        if unit_time is not None:
+            logger.info(
+                f"Unrecognised unit_time '{unit_time}'. Time values from "
+                "the file will be kept without conversion."
+            )
+        time_arr = time_arr.astype(np.float64)
+        time_unit = "seconds"
+
+    ds = ds.assign_coords(time=time_arr)
+    ds.attrs["time_unit"] = time_unit
+    return ds
+
+
 def _attach_extra_attrs(
     ds: xr.Dataset,
     meta: dict[str, Any],
     file_path: Path,
+    flipped_y_height: float | None = None,
 ) -> None:
     """Attach aniframe-specific metadata to the dataset attributes.
 
@@ -636,6 +570,11 @@ def _attach_extra_attrs(
         Decoded aniframe metadata dict.
     file_path
         Path to the source file.
+    flipped_y_height
+        Height value used by :func:`_flip_y_to_top_left`, or ``None`` if
+        no flip was applied. When non-``None``, the dataset's ``origin``
+        attribute is set to ``"top_left"`` and ``y_height`` is recorded
+        so the flip can be reversed later.
 
     """
     ds.attrs["source_file"] = file_path.as_posix()
@@ -643,66 +582,48 @@ def _attach_extra_attrs(
     for attr_key, meta_key in (
         ("space_unit", "unit_space"),
         ("reference_frame", "reference_frame"),
-        ("point_of_reference", "point_of_reference"),
     ):
         value = meta.get(meta_key)
         if value is not None:
             ds.attrs[attr_key] = value
 
-    por = meta.get("point_of_reference")
-    if por == "bottom_left":
-        warnings.warn(
-            "The aniframe file uses a bottom-left coordinate origin "
-            "('point_of_reference' = 'bottom_left'). movement and napari "
-            "conventionally use a top-left origin. "
-            "Y-axis values may appear flipped.",
-            UserWarning,
-            stacklevel=4,
-        )
+    if flipped_y_height is not None:
+        # Data has been converted to top_left; advertise the new origin
+        # and preserve y_height so callers can roundtrip back if needed.
+        ds.attrs["origin"] = "top_left"
+        ds.attrs["y_height"] = flipped_y_height
+    else:
+        origin = meta.get("origin")
+        if origin is not None:
+            ds.attrs["origin"] = origin
+        y_height_meta = meta.get("y_height")
+        if y_height_meta is not None:
+            ds.attrs["y_height"] = float(y_height_meta)
 
 
 def _extract_meta_vars(
     meta: dict[str, Any],
-    file_path: Path,
 ) -> tuple[list[str], list[str], list[str]]:
-    """Extract and validate the variable-classification lists from metadata.
+    """Extract the variable-classification lists from metadata.
 
     aniframe metadata carries ``variables_what``, ``variables_when``, and
     ``variables_where`` fields that classify every DataFrame column into an
-    identity, temporal, or coordinate role. This function validates that all
-    three are present, then normalises each to a plain ``list[str]``
-    (R length-1 vectors are decoded as scalars rather than lists by
-    :func:`_r_ndarray_to_python`).
+    identity, temporal, or coordinate role. Their presence is enforced by
+    :class:`movement.validators.files.ValidAniframeParquet`; this helper
+    only normalises each to a plain ``list[str]`` (R length-1 vectors are
+    decoded as scalars rather than lists by :func:`_r_ndarray_to_python`).
 
     Parameters
     ----------
     meta
         Decoded aniframe metadata dict.
-    file_path
-        Path to the source file (used in error messages only).
 
     Returns
     -------
     tuple[list[str], list[str], list[str]]
         ``(vars_what, vars_when, vars_where)`` as lists of strings.
 
-    Raises
-    ------
-    ValueError
-        If any of ``variables_what``, ``variables_when``, or
-        ``variables_where`` is absent from the metadata.
-
     """
-    required = ("variables_what", "variables_when", "variables_where")
-    missing = [k for k in required if meta.get(k) is None]
-    if missing:
-        raise logger.error(
-            ValueError(
-                f"aniframe metadata in {file_path.name} is missing required "
-                f"field(s): {missing}. "
-                "These fields are needed to classify DataFrame columns."
-            )
-        )
 
     def _to_list(val: Any) -> list[str]:
         if isinstance(val, list):
@@ -763,11 +684,13 @@ def _build_extra_array(
 ) -> np.ndarray:
     """Build a numpy array for an extra data column given its dimensions.
 
-    Numeric columns are cast to ``float64`` with ``nan`` fill. All other
-    dtypes (strings, mixed objects) use an ``object`` array with ``None``
-    fill. When multiple rows map to the same index (because the column does
-    not vary along the omitted axes), the last written value is kept; this
-    is always correct when the column's dimensionality was correctly inferred.
+    Numeric columns (excluding bool) are cast to ``float64`` with ``nan``
+    fill. Boolean and other dtypes (strings, mixed objects) use an
+    ``object`` array with ``None`` fill so True/False values are preserved
+    rather than coerced to 0.0/1.0. When multiple rows map to the same
+    index (because the column does not vary along the omitted axes), the
+    last written value is kept; this is always correct when the column's
+    dimensionality was correctly inferred.
 
     Parameters
     ----------
@@ -800,9 +723,15 @@ def _build_extra_array(
         "individuals": n_individuals,
     }
     series = df[col]
-    if pd.api.types.is_numeric_dtype(series):
-        fill: Any = np.nan
-        dtype: Any = np.float64
+    if pd.api.types.is_bool_dtype(series):
+        # is_numeric_dtype also returns True for bool, so check this first
+        # to avoid silently coercing True/False to 0.0/1.0 with NaN fill.
+        fill: Any = None
+        dtype: Any = object
+        vals = series.to_numpy(dtype=object)
+    elif pd.api.types.is_numeric_dtype(series):
+        fill = np.nan
+        dtype = np.float64
         vals = series.to_numpy(dtype=np.float64, na_value=np.nan)
     else:
         fill = None

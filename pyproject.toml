@@ -35,8 +35,6 @@ dependencies = [
   "jsonschema",
   "orjson",
   "typer>=0.9.0",
-  "pyarrow",
-  "rdata",
 ]
 
 classifiers = [
@@ -62,6 +60,7 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 
 [project.optional-dependencies]
 napari = ["napari[all]>=0.6.0"]
+aniframe = ["pyarrow", "rdata"]
 dev = [
   "pytest",
   "pytest-cov",
@@ -83,10 +82,10 @@ dev = [
   "scipy-stubs",
   "types-shapely",
   "types-jsonschema",
-  "movement[napari]",
+  "movement[napari,aniframe]",
 ]
 docs = [
-  "movement[napari]",
+  "movement[napari,aniframe]",
   "ablog>=0.11.13",
   "linkify-it-py",
   "myst-parser",
