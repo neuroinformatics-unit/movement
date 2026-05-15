@@ -57,7 +57,7 @@ from movement.io import load_dataset
 ```
 
 By default, `movement` infers `source_software` from the file format via
-{func}`infer_source_software()<movement.io.load.infer_source_software>`.
+{func}`~movement.io.load.infer_source_software`.
 
 ```python
 ds = load_dataset(
@@ -390,11 +390,11 @@ with open(filepath, mode="w", newline="") as file:
     writer.writerow(["frame_idx", "bbox_ID", "x", "y", "width", "height", "confidence"])
 
     # write the data
-    for individual in ds.individuals.data:
+    for individual in ds.individual.data:
         for frame in ds.time.data:
-            x, y = ds.position.sel(time=frame, individuals=individual).data
-            width, height = ds.shape.sel(time=frame, individuals=individual).data
-            confidence = ds.confidence.sel(time=frame, individuals=individual).data
+            x, y = ds.position.sel(time=frame, individual=individual).data
+            width, height = ds.shape.sel(time=frame, individual=individual).data
+            confidence = ds.confidence.sel(time=frame, individual=individual).data
             writer.writerow([frame, individual, x, y, width, height, confidence])
 
 ```
@@ -430,6 +430,19 @@ import xarray as xr
 
 ds = xr.open_dataset("my_data.nc")
 ```
+
+:::{note}
+Datasets created with `movement` versions prior to 0.17.0 used plural dimension names
+ (`"keypoints"`, `"individuals"`). If you load a file saved from such a dataset, rename these
+dimensions to (`"keypoint"`, `"individual"`) with {func}`~movement.io.load.rename_legacy_dimensions`
+before further processing:
+
+```python
+from movement.io.load import rename_legacy_dimensions
+
+ds = rename_legacy_dimensions(ds)
+```
+:::
 
 Similarly, an {class}`xarray.DataArray` object (e.g. the `position` variable
 of a `movement` dataset) can be saved to disk using the

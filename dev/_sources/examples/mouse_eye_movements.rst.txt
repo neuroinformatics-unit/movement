@@ -112,15 +112,15 @@ Print the content of one of the datasets.
  .. code-block:: none
 
     <xarray.Dataset> Size: 728kB
-    Dimensions:      (time: 7000, space: 2, keypoints: 4, individuals: 1)
+    Dimensions:     (time: 7000, space: 2, keypoint: 4, individual: 1)
     Coordinates:
-      * time         (time) float64 56kB 0.0 0.025 0.05 0.075 ... 174.9 174.9 175.0
-      * space        (space) <U1 8B 'x' 'y'
-      * keypoints    (keypoints) <U7 112B 'pupil-L' 'pupil-R' 'eye-L' 'eye-R'
-      * individuals  (individuals) <U12 48B 'individual_0'
+      * time        (time) float64 56kB 0.0 0.025 0.05 0.075 ... 174.9 174.9 175.0
+      * space       (space) <U1 8B 'x' 'y'
+      * keypoint    (keypoint) <U7 112B 'pupil-L' 'pupil-R' 'eye-L' 'eye-R'
+      * individual  (individual) <U12 48B 'individual_0'
     Data variables:
-        position     (time, space, keypoints, individuals) float64 448kB 258.8 .....
-        confidence   (time, keypoints, individuals) float64 224kB 1.0 1.0 ... 1.0
+        position    (time, space, keypoint, individual) float64 448kB 258.8 ... 2...
+        confidence  (time, keypoint, individual) float64 224kB 1.0 1.0 ... 1.0 1.0
     Attributes:
         source_software:  DeepLabCut
         ds_type:          poses
@@ -185,9 +185,9 @@ Plot first frame with keypoints
     fig, ax = plt.subplots(1, 2, figsize=(7.5, 4))
     for i, (da_name, ds) in enumerate(ds_dict.items()):
         ax[i].imshow(ds.video[0], cmap="gray")  # plot first video frame
-        for keypoint in ds.keypoints.values:
-            x = ds.position.sel(time=0, space="x", keypoints=keypoint)
-            y = ds.position.sel(time=0, space="y", keypoints=keypoint)
+        for keypoint in ds.keypoint.values:
+            x = ds.position.sel(time=0, space="x", keypoint=keypoint)
+            y = ds.position.sel(time=0, space="y", keypoint=keypoint)
             ax[i].scatter(x, y, label=keypoint)  # plot keypoints
         ax[i].legend()
         ax[i].set_title(f"{da_name} (First Frame)")
@@ -306,7 +306,7 @@ Define plotting parameters for reuse.
 
     plot_params = {
         "x": "time",
-        "hue": "keypoints",
+        "hue": "keypoint",
         "col": "space",
         "row": "lighting",
         "aspect": 1.5,
@@ -357,7 +357,7 @@ In the rest of the example, the normalised data will be used.
 
 .. code-block:: Python
 
-    eye_midpoint = positions.sel(keypoints=["eye-L", "eye-R"]).mean("keypoints")
+    eye_midpoint = positions.sel(keypoint=["eye-L", "eye-R"]).mean("keypoint")
     positions_norm = positions - eye_midpoint
 
 
@@ -404,9 +404,9 @@ pupil centroid (in this case the midpoint between keypoints ``pupil-L`` and
 
 
     pupil_centroid = (
-        positions_norm.sel(keypoints=["pupil-L", "pupil-R"])
-        .mean("keypoints")
-        .assign_coords({"keypoints": "pupil-C"})
+        positions_norm.sel(keypoint=["pupil-L", "pupil-R"])
+        .mean("keypoint")
+        .assign_coords({"keypoint": "pupil-C"})
     )
 
 
@@ -424,7 +424,7 @@ using :func:`xarray.concat`.
 
 .. code-block:: Python
 
-    positions_norm = xr.concat([positions_norm, pupil_centroid], dim="keypoints")
+    positions_norm = xr.concat([positions_norm, pupil_centroid], dim="keypoint")
 
 
 
@@ -440,7 +440,7 @@ Now the position of the pupil centroid ``pupil-C`` can be plotted.
 
 .. code-block:: Python
 
-    positions_norm.sel(keypoints="pupil-C", **sel).squeeze().plot.line(
+    positions_norm.sel(keypoint="pupil-C", **sel).squeeze().plot.line(
         x="time", hue="space", row="lighting", aspect=3.5, size=1.5
     )
     plt.show()
@@ -479,7 +479,7 @@ to calculate the velocity of the eye movements.
 
 .. code-block:: Python
 
-    pupil_velocity = kin.compute_velocity(positions_norm.sel(keypoints="pupil-C"))
+    pupil_velocity = kin.compute_velocity(positions_norm.sel(keypoint="pupil-C"))
     pupil_velocity.name = "pupil velocity"
     pupil_velocity.sel(**sel).squeeze().plot.line(
         x="time", hue="space", row="lighting", aspect=3.5, size=1.5
@@ -515,7 +515,7 @@ to calculate the Euclidean distance between ``pupil-L`` and ``pupil-R``.
 .. code-block:: Python
 
     pupil_diameter: xr.DataArray = kin.compute_pairwise_distances(
-        positions_norm, dim="keypoints", pairs={"pupil-L": "pupil-R"}
+        positions_norm, dim="keypoint", pairs={"pupil-L": "pupil-R"}
     )
     pupil_diameter.name = "pupil diameter"
 
@@ -561,7 +561,7 @@ of whether (and when) the animal is blinking or squinting.
 .. code-block:: Python
 
     distance_between_eye_keypoints: xr.DataArray = kin.compute_pairwise_distances(
-        positions_norm, dim="keypoints", pairs={"eye-L": "eye-R"}
+        positions_norm, dim="keypoint", pairs={"eye-L": "eye-R"}
     )
     distance_between_eye_keypoints.name = "distance (eye-L - eye-R)"
 
@@ -686,7 +686,7 @@ option for the ``statistic`` argument, and should be more robust to outliers.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.197 seconds)
+   **Total running time of the script:** (0 minutes 3.133 seconds)
 
 
 .. _sphx_glr_download_examples_mouse_eye_movements.py:

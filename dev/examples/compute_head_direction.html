@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -146,7 +146,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -542,20 +542,20 @@ to download the full example code or to run this example in your browser via Bin
 
 <span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-----------------------------&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Individuals: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Keypoints: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Individuals: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">individual</span><span class="o">.</span><span class="n">values</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Keypoints: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">keypoint</span><span class="o">.</span><span class="n">values</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 4MB
-Dimensions:      (time: 18485, space: 2, keypoints: 8, individuals: 1)
+Dimensions:     (time: 18485, space: 2, keypoint: 8, individual: 1)
 Coordinates:
-  * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
-  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
-  * keypoints    (keypoints) &lt;U13 416B &#39;snout&#39; &#39;left_ear&#39; ... &#39;tail_end&#39;
-  * individuals  (individuals) &lt;U12 48B &#39;individual_0&#39;
+  * time        (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
+  * space       (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+  * keypoint    (keypoint) &lt;U13 416B &#39;snout&#39; &#39;left_ear&#39; ... &#39;tail_end&#39;
+  * individual  (individual) &lt;U12 48B &#39;individual_0&#39;
 Data variables:
-    position     (time, space, keypoints, individuals) float64 2MB 508.4 ... ...
-    confidence   (time, keypoints, individuals) float64 1MB 0.0002829 ... 0.9978
+    position    (time, space, keypoint, individual) float64 2MB 508.4 ... 390.5
+    confidence  (time, keypoint, individual) float64 1MB 0.0002829 ... 0.9978
 Attributes:
     source_software:  DeepLabCut
     ds_type:          poses
@@ -572,7 +572,7 @@ Keypoints: [&#39;snout&#39; &#39;left_ear&#39; &#39;right_ear&#39; &#39;centre&#
 <p>The loaded dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> contains two data arrays:<code class="docutils literal notranslate"><span class="pre">position</span></code> and
 <code class="docutils literal notranslate"><span class="pre">confidence</span></code>. In this tutorial, we will only use the <code class="docutils literal notranslate"><span class="pre">position</span></code> data
 array. We use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="(in xarray v2026.4.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.squeeze()</span></code></a> to remove
-the redundant <code class="docutils literal notranslate"><span class="pre">individuals</span></code> dimension, as there is only one individual
+the redundant <code class="docutils literal notranslate"><span class="pre">individual</span></code> dimension, as there is only one individual
 in this dataset.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span>
 </pre></div>
@@ -628,12 +628,12 @@ covered arms of the maze (the vertical arms).</p>
 <p>We can define the head direction as the vector from the midpoint between
 the ears to the snout.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute the head centre as the midpoint between the ears</span>
-<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">midpoint_ears</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;left_ear&quot;</span><span class="p">,</span> <span class="s2">&quot;right_ear&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
-    <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">midpoint_ears</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;left_ear&quot;</span><span class="p">,</span> <span class="s2">&quot;right_ear&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span>
+    <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span>
 <span class="p">)</span>
 <span class="c1"># Snout position</span>
-<span class="c1"># (`drop=True` removes the keypoints dimension, which is now redundant)</span>
-<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">snout</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># (`drop=True` removes the keypoint dimension, which is now redundant)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">snout</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Compute the head vector as the difference vector between the snout position</span>
 <span class="c1"># and the head-centre position.</span>
@@ -702,7 +702,7 @@ We will do this for a small time window to make the plot more readable.</p>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="matplotlib.axes.Axes.legend" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">legend</span></a><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_compute_head_direction_002.png" srcset="../_images/sphx_glr_compute_head_direction_002.png" alt="Zoomed in head-to-snout vectors" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7f9b1ca5f4d0&gt;
+<img src="../_images/sphx_glr_compute_head_direction_002.png" srcset="../_images/sphx_glr_compute_head_direction_002.png" alt="Zoomed in head-to-snout vectors" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend object at 0x7f91b04574d0&gt;
 </pre></div>
 </div>
 </section>
@@ -720,9 +720,9 @@ vector from cartesian to polar coordinates using the
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;position&#39; (time: 18485, space_pol: 2)&gt; Size: 296kB
 1.637 1.995 1.624 1.99 1.67 1.994 1.681 ... 22.11 0.937 22.12 0.9768 20.81 1.011
 Coordinates:
-  * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
-  * space_pol    (space_pol) &lt;U3 24B &#39;rho&#39; &#39;phi&#39;
-    individuals  &lt;U12 48B &#39;individual_0&#39;
+  * time        (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
+  * space_pol   (space_pol) &lt;U3 24B &#39;rho&#39; &#39;phi&#39;
+    individual  &lt;U12 48B &#39;individual_0&#39;
 </pre></div>
 </div>
 <p>Notice how the resulting array has a <code class="docutils literal notranslate"><span class="pre">space_pol</span></code> dimension with two
@@ -757,9 +757,9 @@ dimension with two coordinates: <code class="docutils literal notranslate"><span
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;position&#39; (time: 18485, space: 2)&gt; Size: 296kB
 -0.6741 1.492 -0.661 1.484 -0.6864 1.522 ... 13.09 17.82 12.38 18.33 11.05 17.64
 Coordinates:
-  * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
-  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
-    individuals  &lt;U12 48B &#39;individual_0&#39;
+  * time        (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
+  * space       (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+    individual  &lt;U12 48B &#39;individual_0&#39;
 </pre></div>
 </div>
 </section>
@@ -786,9 +786,9 @@ unreliable (e.g., because it’s often occluded in a top-down camera view).</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;forward_vector&#39; (time: 18485, space: 2)&gt; Size: 296kB
 -0.01196 0.9999 -0.01182 0.9999 -0.0153 ... 0.9058 0.4111 0.9116 0.3797 0.9251
 Coordinates:
-  * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
-  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
-    individuals  &lt;U12 48B &#39;individual_0&#39;
+  * time        (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
+  * space       (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+    individual  &lt;U12 48B &#39;individual_0&#39;
 </pre></div>
 </div>
 <div class="note admonition">
@@ -837,8 +837,8 @@ by default would return the same <code class="docutils literal notranslate"><spa
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray &#39;forward_vector_angle&#39; (time: 18485)&gt; Size: 148kB
 1.583 1.583 1.586 1.588 1.585 1.585 ... 1.088 1.171 1.258 1.133 1.147 1.181
 Coordinates:
-  * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
-    individuals  &lt;U12 48B &#39;individual_0&#39;
+  * time        (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
+    individual  &lt;U12 48B &#39;individual_0&#39;
 </pre></div>
 </div>
 <p>The resulting <code class="docutils literal notranslate"><span class="pre">forward_vector_angle</span></code> array contains the head direction
@@ -929,7 +929,7 @@ We could check that by plotting a histogram of the differences.</p>
 </div>
 <p>For the majority of the time, the two methods
 differ less than 20 degrees (2 histogram bins).</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.764 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.759 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-compute-head-direction-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/compute_head_direction.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />

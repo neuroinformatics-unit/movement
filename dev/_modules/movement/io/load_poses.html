@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../../../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -756,7 +756,7 @@
     <span class="n">ds</span> <span class="o">=</span> <span class="n">_ds_from_lp_or_dlc_file</span><span class="p">(</span>
         <span class="n">valid_file</span><span class="o">=</span><span class="n">valid_file</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;LightningPose&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">fps</span>
     <span class="p">)</span>
-    <span class="n">n_individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">n_individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">n_individuals</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
@@ -1075,8 +1075,8 @@
 <span class="sd">    Reshape dataframe with columns keypoint1_x, keypoint1_y, keypoint1_z,</span>
 <span class="sd">    keypoint1_score,keypoint2_x, keypoint2_y, keypoint2_z,</span>
 <span class="sd">    keypoint2_score...to array of positions with dimensions</span>
-<span class="sd">    time, space, keypoints, individuals, and array of confidence (from scores)</span>
-<span class="sd">    with dimensions time, keypoints, individuals.</span>
+<span class="sd">    time, space, keypoint, individual, and array of confidence (from scores)</span>
+<span class="sd">    with dimensions time, keypoint, individual.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">keypoint_names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>

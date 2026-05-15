@@ -116,15 +116,15 @@ Load the data into movement
  .. code-block:: none
 
     <xarray.Dataset> Size: 27kB
-    Dimensions:      (time: 601, space: 2, keypoints: 1, individuals: 3)
+    Dimensions:     (time: 601, space: 2, keypoint: 1, individual: 3)
     Coordinates:
-      * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
-      * space        (space) <U1 8B 'x' 'y'
-      * keypoints    (keypoints) <U8 32B 'centroid'
-      * individuals  (individuals) <U10 120B 'AEON3B_NTP' 'AEON3B_TP1' 'AEON3B_TP2'
+      * time        (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.94 11.96 11.98 12.0
+      * space       (space) <U1 8B 'x' 'y'
+      * keypoint    (keypoint) <U8 32B 'centroid'
+      * individual  (individual) <U10 120B 'AEON3B_NTP' 'AEON3B_TP1' 'AEON3B_TP2'
     Data variables:
-        position     (time, space, keypoints, individuals) float32 14kB 770.3 ......
-        confidence   (time, keypoints, individuals) float32 7kB nan nan ... nan nan
+        position    (time, space, keypoint, individual) float32 14kB 770.3 ... 755.1
+        confidence  (time, keypoint, individual) float32 7kB nan nan nan ... nan nan
     Attributes:
         source_software:  SLEAP
         ds_type:          poses
@@ -168,7 +168,7 @@ for a single keypoint of the first individual:
 .. code-block:: Python
 
 
-    da = position.sel(individuals="AEON3B_NTP", keypoints="centroid")
+    da = position.sel(individual="AEON3B_NTP", keypoint="centroid")
     print(da)
 
 
@@ -182,10 +182,10 @@ for a single keypoint of the first individual:
     <xarray.DataArray 'position' (time: 601, space: 2)> Size: 5kB
     770.3 1.062e+03 773.3 1.062e+03 773.3 ... 618.6 194.6 618.4 194.6 616.4
     Coordinates:
-      * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
-      * space        (space) <U1 8B 'x' 'y'
-        keypoints    <U8 32B 'centroid'
-        individuals  <U10 40B 'AEON3B_NTP'
+      * time        (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.94 11.96 11.98 12.0
+      * space       (space) <U1 8B 'x' 'y'
+        keypoint    <U8 32B 'centroid'
+        individual  <U10 40B 'AEON3B_NTP'
 
 
 
@@ -215,7 +215,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f9b2f291010>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f91babc5010>
 
 
 
@@ -229,14 +229,14 @@ for all individuals:
 .. code-block:: Python
 
 
-    da = position.sel(keypoints="centroid")
-    da.plot.line(x="time", row="individuals", aspect=2, size=2.5)
+    da = position.sel(keypoint="centroid")
+    da.plot.line(x="time", row="individual", aspect=2, size=2.5)
 
 
 
 
 .. image-sg:: /examples/images/sphx_glr_load_and_explore_poses_002.png
-   :alt: individuals = AEON3B_NTP, individuals = AEON3B_TP1, individuals = AEON3B_TP2
+   :alt: individual = AEON3B_NTP, individual = AEON3B_TP1, individual = AEON3B_TP2
    :srcset: /examples/images/sphx_glr_load_and_explore_poses_002.png
    :class: sphx-glr-single-img
 
@@ -246,7 +246,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f9b2f439e50>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f91bad89e50>
 
 
 
@@ -282,7 +282,7 @@ visualisations, like :func:`plot_centroid_trajectory()\
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.666 seconds)
+   **Total running time of the script:** (0 minutes 0.670 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_explore_poses.py:

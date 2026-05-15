@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../../../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -551,7 +551,7 @@
 <span class="sd">    However, one can restrict the histogram to only counting the positions of</span>
 <span class="sd">    (the centroid of) certain keypoints and/or individuals.</span>
 
-<span class="sd">    &gt;&gt;&gt; print(&quot;Available individuals:&quot;, positions[&quot;individuals&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; print(&quot;Available individuals:&quot;, positions[&quot;individual&quot;])</span>
 <span class="sd">    &gt;&gt;&gt; plot_occupancy(</span>
 <span class="sd">    ...     positions,</span>
 <span class="sd">    ...     # plot the centroid of keypoints located on the head</span>
@@ -586,26 +586,26 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Collapse dimensions if necessary</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="s2">&quot;keypoints&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">&quot;keypoint&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">keypoints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="n">keypoints</span><span class="p">)</span>
-        <span class="c1"># A selection of just one keypoint automatically drops the keypoints</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="n">keypoints</span><span class="p">)</span>
+        <span class="c1"># A selection of just one keypoint automatically drops the keypoint</span>
         <span class="c1"># dimension, hence the need to re-check this here</span>
-        <span class="k">if</span> <span class="s2">&quot;keypoints&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="s2">&quot;individuals&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">individuals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="n">individuals</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;keypoint&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;individual&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">individuals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individual</span><span class="o">=</span><span class="n">individuals</span><span class="p">)</span>
 
     <span class="c1"># We need to remove NaN values from each individual, but we can&#39;t do this</span>
-    <span class="c1"># right now because we still potentially have a (time, space, individuals)</span>
+    <span class="c1"># right now because we still potentially have a (time, space, individual)</span>
     <span class="c1"># array and so dropping NaNs along any axis may remove valid points for</span>
     <span class="c1"># other times / individuals.</span>
-    <span class="c1"># Since we only care about a count, we can just unravel the individuals</span>
+    <span class="c1"># Since we only care about a count, we can just unravel the individual</span>
     <span class="c1"># dimension and create a &quot;long&quot; array of points. For example, a (10, 2, 5)</span>
-    <span class="c1"># time-space-individuals DataArray becomes (50, 2).</span>
-    <span class="k">if</span> <span class="s2">&quot;individuals&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+    <span class="c1"># time-space-individual DataArray becomes (50, 2).</span>
+    <span class="k">if</span> <span class="s2">&quot;individual&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;new&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">)},</span> <span class="n">create_index</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">{</span><span class="s2">&quot;new&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">)},</span> <span class="n">create_index</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;new&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">})</span>
     <span class="c1"># We should now have just the relevant time-space data,</span>
     <span class="c1"># so we can remove time-points with NaN values.</span>

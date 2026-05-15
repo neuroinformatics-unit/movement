@@ -78,15 +78,15 @@ Load a sample dataset
  .. code-block:: none
 
     <xarray.Dataset> Size: 61kB
-    Dimensions:      (time: 1085, space: 2, keypoints: 2, individuals: 1)
+    Dimensions:     (time: 1085, space: 2, keypoint: 2, individual: 1)
     Coordinates:
-      * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1
-      * space        (space) <U1 8B 'x' 'y'
-      * keypoints    (keypoints) <U7 56B 'head' 'stinger'
-      * individuals  (individuals) <U12 48B 'individual_0'
+      * time        (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1
+      * space       (space) <U1 8B 'x' 'y'
+      * keypoint    (keypoint) <U7 56B 'head' 'stinger'
+      * individual  (individual) <U12 48B 'individual_0'
     Data variables:
-        position     (time, space, keypoints, individuals) float64 35kB 1.086e+03...
-        confidence   (time, keypoints, individuals) float64 17kB 0.05305 ... 0.0
+        position    (time, space, keypoint, individual) float64 35kB 1.086e+03 .....
+        confidence  (time, keypoint, individual) float64 17kB 0.05305 ... 0.0
     Attributes:
         source_software:  DeepLabCut
         ds_type:          poses
@@ -111,7 +111,7 @@ Visualise the pose tracks
 -------------------------
 Since the data contains only a single wasp, we use
 :meth:`xarray.DataArray.squeeze` to remove
-the dimension of length 1 from the data (the ``individuals`` dimension).
+the dimension of length 1 from the data (the ``individual`` dimension).
 
 .. GENERATED FROM PYTHON SOURCE LINES 46-51
 
@@ -119,14 +119,14 @@ the dimension of length 1 from the data (the ``individuals`` dimension).
 
 
     ds.position.squeeze().plot.line(
-        x="time", row="keypoints", hue="space", aspect=2, size=2.5
+        x="time", row="keypoint", hue="space", aspect=2, size=2.5
     )
 
 
 
 
 .. image-sg:: /examples/images/sphx_glr_filter_and_interpolate_001.png
-   :alt: keypoints = head, keypoints = stinger
+   :alt: keypoint = head, keypoint = stinger
    :srcset: /examples/images/sphx_glr_filter_and_interpolate_001.png
    :class: sphx-glr-single-img
 
@@ -136,7 +136,7 @@ the dimension of length 1 from the data (the ``individuals`` dimension).
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f9b2e03b4d0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f91b898f4d0>
 
 
 
@@ -159,7 +159,7 @@ estimation frameworks, and their ranges can vary. Therefore,
 it's always a good idea to inspect the actual confidence values in the data.
 
 Let's first look at a histogram of the confidence scores. As before, we use
-:meth:`xarray.DataArray.squeeze` to remove the ``individuals`` dimension
+:meth:`xarray.DataArray.squeeze` to remove the ``individual`` dimension
 from the data.
 
 .. GENERATED FROM PYTHON SOURCE LINES 70-73
@@ -173,7 +173,7 @@ from the data.
 
 
 .. image-sg:: /examples/images/sphx_glr_filter_and_interpolate_002.png
-   :alt: individuals = individual_0
+   :alt: individual = individual_0
    :srcset: /examples/images/sphx_glr_filter_and_interpolate_002.png
    :class: sphx-glr-single-img
 
@@ -199,20 +199,18 @@ Based on the above histogram, we can confirm that the confidence scores
 indeed range between 0 and 1, with most values closer to 1. Now let's see how
 they evolve over time.
 
-.. GENERATED FROM PYTHON SOURCE LINES 77-82
+.. GENERATED FROM PYTHON SOURCE LINES 77-80
 
 .. code-block:: Python
 
 
-    ds.confidence.squeeze().plot.line(
-        x="time", row="keypoints", aspect=2, size=2.5
-    )
+    ds.confidence.squeeze().plot.line(x="time", row="keypoint", aspect=2, size=2.5)
 
 
 
 
 .. image-sg:: /examples/images/sphx_glr_filter_and_interpolate_003.png
-   :alt: keypoints = head, keypoints = stinger
+   :alt: keypoint = head, keypoint = stinger
    :srcset: /examples/images/sphx_glr_filter_and_interpolate_003.png
    :class: sphx-glr-single-img
 
@@ -222,18 +220,18 @@ they evolve over time.
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f9b2dff3950>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f91b894b950>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 83-87
+.. GENERATED FROM PYTHON SOURCE LINES 81-85
 
 Encouragingly, some of the drops in confidence scores do seem to correspond
 to the implausible jumps and spikes we had seen in the position.
 We can use that to our advantage, by leveraging functions from the
 :mod:`movement.filtering` module.
 
-.. GENERATED FROM PYTHON SOURCE LINES 89-103
+.. GENERATED FROM PYTHON SOURCE LINES 87-101
 
 Filter out points with low confidence
 -------------------------------------
@@ -250,7 +248,7 @@ and debugging the impact of filtering on the data.
 We will use :meth:`xarray.Dataset.update` to update ``ds`` in-place
 with the filtered ``position``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 103-112
+.. GENERATED FROM PYTHON SOURCE LINES 101-110
 
 .. code-block:: Python
 
@@ -274,32 +272,32 @@ with the filtered ``position``.
     No missing points (marked as NaN) in input.
     Missing points (marked as NaN) in output:
 
-    keypoints                  head          stinger
-    individuals                                     
+    keypoint                   head          stinger
+    individual                                      
     individual_0  121/1085 (11.15%)  93/1085 (8.57%)
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 113-115
+.. GENERATED FROM PYTHON SOURCE LINES 111-113
 
 We can see that the filtering operation has introduced NaN values in the
 ``position`` data variable. Let's visualise the filtered data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 115-120
+.. GENERATED FROM PYTHON SOURCE LINES 113-118
 
 .. code-block:: Python
 
 
     ds.position.squeeze().plot.line(
-        x="time", row="keypoints", hue="space", aspect=2, size=2.5
+        x="time", row="keypoint", hue="space", aspect=2, size=2.5
     )
 
 
 
 
 .. image-sg:: /examples/images/sphx_glr_filter_and_interpolate_004.png
-   :alt: keypoints = head, keypoints = stinger
+   :alt: keypoint = head, keypoint = stinger
    :srcset: /examples/images/sphx_glr_filter_and_interpolate_004.png
    :class: sphx-glr-single-img
 
@@ -309,18 +307,18 @@ We can see that the filtering operation has introduced NaN values in the
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f9b82d063f0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f920e6123f0>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 121-125
+.. GENERATED FROM PYTHON SOURCE LINES 119-123
 
 Here we can see that gaps (consecutive NaNs) have appeared in the
 pose tracks, some of which are over the implausible jumps and spikes we had
 seen earlier. Moreover, most gaps seem to be brief,
 lasting < 1 second (or 40 frames).
 
-.. GENERATED FROM PYTHON SOURCE LINES 127-136
+.. GENERATED FROM PYTHON SOURCE LINES 125-134
 
 Interpolate over missing values
 -------------------------------
@@ -332,7 +330,7 @@ The default ``max_gap=None`` would interpolate over all gaps, regardless of
 their length, but this should be used with caution as it can introduce
 spurious data. The ``print_report`` argument acts as described above.
 
-.. GENERATED FROM PYTHON SOURCE LINES 136-145
+.. GENERATED FROM PYTHON SOURCE LINES 134-143
 
 .. code-block:: Python
 
@@ -355,38 +353,38 @@ spurious data. The ``print_report`` argument acts as described above.
 
     Missing points (marked as NaN) in input:
 
-    keypoints                  head          stinger
-    individuals                                     
+    keypoint                   head          stinger
+    individual                                      
     individual_0  121/1085 (11.15%)  93/1085 (8.57%)
     Missing points (marked as NaN) in output:
 
-    keypoints                head          stinger
-    individuals                                   
+    keypoint                 head          stinger
+    individual                                    
     individual_0  15/1085 (1.38%)  15/1085 (1.38%)
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 146-149
+.. GENERATED FROM PYTHON SOURCE LINES 144-147
 
 We see that most, but not all, NaN values have disappeared, meaning that
 most gaps were indeed shorter than 40 frames.
 Let's visualise the interpolated pose tracks.
 
-.. GENERATED FROM PYTHON SOURCE LINES 149-154
+.. GENERATED FROM PYTHON SOURCE LINES 147-152
 
 .. code-block:: Python
 
 
     ds.position.squeeze().plot.line(
-        x="time", row="keypoints", hue="space", aspect=2, size=2.5
+        x="time", row="keypoint", hue="space", aspect=2, size=2.5
     )
 
 
 
 
 .. image-sg:: /examples/images/sphx_glr_filter_and_interpolate_005.png
-   :alt: keypoints = head, keypoints = stinger
+   :alt: keypoint = head, keypoint = stinger
    :srcset: /examples/images/sphx_glr_filter_and_interpolate_005.png
    :class: sphx-glr-single-img
 
@@ -396,11 +394,11 @@ Let's visualise the interpolated pose tracks.
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7f9b2f3aed50>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7f91bad530b0>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 155-165
+.. GENERATED FROM PYTHON SOURCE LINES 153-163
 
 .. note::
   By default, interpolation does not apply to gaps at either end of the time
@@ -413,7 +411,7 @@ Let's visualise the interpolated pose tracks.
   ``**kwargs`` by :meth:`xarray.DataArray.interpolate_na`, which in turn
   passes them to its underlying interpolation methods.
 
-.. GENERATED FROM PYTHON SOURCE LINES 167-175
+.. GENERATED FROM PYTHON SOURCE LINES 165-173
 
 Log of processing steps
 -----------------------
@@ -424,7 +422,7 @@ performed are saved in the ``log`` attribute of the ``position`` data array.
 This is useful for keeping track of the processing steps that have been
 applied to the data. Let's inspect the log:
 
-.. GENERATED FROM PYTHON SOURCE LINES 175-178
+.. GENERATED FROM PYTHON SOURCE LINES 173-176
 
 .. code-block:: Python
 
@@ -442,14 +440,14 @@ applied to the data. Let's inspect the log:
     [
       {
         "operation": "filter_by_confidence",
-        "datetime": "2026-05-15 14:41:46.179793",
-        "confidence": "<xarray.DataArray 'confidence' (time: 1085, keypoints: 2, individuals: 1)> Size: 17kB\n0.05305 0.07366 0.03532 0.03293 0.01707 0.01022 ... 0.0 0.0 0.0 0.0 0.0 0.0\nCoordinates:\n  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1\n  * keypoints    (keypoints) <U7 56B 'head' 'stinger'\n  * individuals  (individuals) <U12 48B 'individual_0'",
+        "datetime": "2026-05-15 17:05:05.159349",
+        "confidence": "<xarray.DataArray 'confidence' (time: 1085, keypoint: 2, individual: 1)> Size: 17kB\n0.05305 0.07366 0.03532 0.03293 0.01707 0.01022 ... 0.0 0.0 0.0 0.0 0.0 0.0\nCoordinates:\n  * time        (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1\n  * keypoint    (keypoint) <U7 56B 'head' 'stinger'\n  * individual  (individual) <U12 48B 'individual_0'",
         "threshold": "0.6",
         "print_report": "True"
       },
       {
         "operation": "interpolate_over_time",
-        "datetime": "2026-05-15 14:41:47.147753",
+        "datetime": "2026-05-15 17:05:06.112904",
         "method": "'linear'",
         "max_gap": "40",
         "print_report": "True"
@@ -459,12 +457,12 @@ applied to the data. Let's inspect the log:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 179-181
+.. GENERATED FROM PYTHON SOURCE LINES 177-179
 
 If you want to retrieve a certain parameter from the log, you can use
 :func:`json.loads` to parse the log string into a list of dictionaries.
 
-.. GENERATED FROM PYTHON SOURCE LINES 181-189
+.. GENERATED FROM PYTHON SOURCE LINES 179-187
 
 .. code-block:: Python
 
@@ -489,7 +487,7 @@ If you want to retrieve a certain parameter from the log, you can use
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 190-201
+.. GENERATED FROM PYTHON SOURCE LINES 188-199
 
 Filtering multiple data variables
 ---------------------------------
@@ -503,7 +501,7 @@ DataArrays as values. Then we can once again use
 :meth:`xarray.Dataset.update`  to update ``ds`` in-place
 with the filtered data variables.
 
-.. GENERATED FROM PYTHON SOURCE LINES 201-214
+.. GENERATED FROM PYTHON SOURCE LINES 199-212
 
 .. code-block:: Python
 
@@ -530,7 +528,7 @@ with the filtered data variables.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.652 seconds)
+   **Total running time of the script:** (0 minutes 1.640 seconds)
 
 
 .. _sphx_glr_download_examples_filter_and_interpolate.py:

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -444,6 +444,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_dataset.html">load_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_multiview_dataset.html">load_multiview_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.register_loader.html">register_loader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.rename_legacy_dimensions.html">rename_legacy_dimensions</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load_bboxes.html">movement.io.load_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -662,7 +663,7 @@ by its centroid (center point) and shape (width and height).</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>position</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – A 2D poses position array with dimensions
-<code class="docutils literal notranslate"><span class="pre">(time,</span> <span class="pre">space,</span> <span class="pre">keypoints,</span> <span class="pre">individuals)</span></code>, where the <code class="docutils literal notranslate"><span class="pre">space</span></code>
+<code class="docutils literal notranslate"><span class="pre">(time,</span> <span class="pre">space,</span> <span class="pre">keypoint,</span> <span class="pre">individual)</span></code>, where the <code class="docutils literal notranslate"><span class="pre">space</span></code>
 coordinate contains exactly <code class="docutils literal notranslate"><span class="pre">[&quot;x&quot;,</span> <span class="pre">&quot;y&quot;]</span></code>.</p></li>
 <li><p><strong>padding</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – Number of pixels to add as padding around the bounding box in all
 directions. The padding increases both width and height by
@@ -673,9 +674,9 @@ directions. The padding increases both width and height by
 <dd class="field-even"><p><p>A tuple <code class="docutils literal notranslate"><span class="pre">(position,</span> <span class="pre">shape)</span></code> where:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">position</span></code>: bounding box centroids with dimensions
-<code class="docutils literal notranslate"><span class="pre">(time,</span> <span class="pre">space,</span> <span class="pre">individuals)</span></code>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">(time,</span> <span class="pre">space,</span> <span class="pre">individual)</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">shape</span></code>: bounding box width and height with dimensions
-<code class="docutils literal notranslate"><span class="pre">(time,</span> <span class="pre">space,</span> <span class="pre">individuals)</span></code>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">(time,</span> <span class="pre">space,</span> <span class="pre">individual)</span></code>.</p></li>
 </ul>
 </p>
 </dd>

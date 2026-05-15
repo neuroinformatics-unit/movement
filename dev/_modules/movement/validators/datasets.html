@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../../../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -552,10 +552,10 @@
         <span class="n">converter</span><span class="o">=</span><span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">_convert_to_list_of_str</span><span class="p">),</span>
     <span class="p">)</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;List of unique names for the individuals in the video. The length of</span>
-<span class="sd">    this list should match the size of the &#39;individuals&#39; dimension in the</span>
+<span class="sd">    this list should match the size of the &#39;individual&#39; dimension in the</span>
 <span class="sd">    ``position_array``. If None (default), the names will be in the format of</span>
 <span class="sd">    ``id_&lt;N&gt;``, where &lt;N&gt; is an integer from 0 to the size of the</span>
-<span class="sd">    &#39;individuals&#39; dimension minus 1.&quot;&quot;&quot;</span>
+<span class="sd">    &#39;individual&#39; dimension minus 1.&quot;&quot;&quot;</span>
 
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -597,9 +597,9 @@
                 <span class="s2">&quot;Setting to an array of NaNs.&quot;</span>
             <span class="p">)</span>
         <span class="c1"># individual_names default: id_0, id_1, ...</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;individuals&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;individual&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="p">:</span>
             <span class="n">n_inds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;individuals&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;individual&quot;</span><span class="p">)</span>
             <span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;id_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_inds</span><span class="p">)]</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -660,11 +660,11 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_individual_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate individual_names length and uniqueness.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">individuals_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;individuals&quot;</span><span class="p">)</span>
+            <span class="n">individual_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;individual&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_validate_list_length</span><span class="p">(</span>
                 <span class="n">attribute</span><span class="p">,</span>
                 <span class="n">value</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">individuals_dim_index</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">individual_dim_index</span><span class="p">],</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_validate_list_uniqueness</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
@@ -806,8 +806,8 @@
     <span class="n">DIM_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="s2">&quot;time&quot;</span><span class="p">,</span>
         <span class="s2">&quot;space&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;keypoints&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;individuals&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;individual&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">VAR_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;position&quot;</span><span class="p">,</span> <span class="s2">&quot;confidence&quot;</span><span class="p">)</span>
     <span class="n">_ALLOWED_SPACE_DIM_SIZE</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
@@ -815,9 +815,9 @@
     <span class="nd">@keypoint_names</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_keypoint_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate keypoint_names length and uniqueness.&quot;&quot;&quot;</span>
-        <span class="n">keypoints_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;keypoints&quot;</span><span class="p">)</span>
+        <span class="n">keypoint_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;keypoint&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_list_length</span><span class="p">(</span>
-            <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">keypoints_dim_index</span><span class="p">]</span>
+            <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">keypoint_dim_index</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_list_uniqueness</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
@@ -825,11 +825,11 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign default values to optional attributes (if None).&quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__attrs_post_init__</span><span class="p">()</span>
         <span class="n">position_array_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span>
-        <span class="n">keypoints_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;keypoints&quot;</span><span class="p">)</span>
+        <span class="n">keypoint_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;keypoint&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keypoint_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">keypoint_names</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="sa">f</span><span class="s2">&quot;keypoint_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">position_array_shape</span><span class="p">[</span><span class="n">keypoints_dim_index</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">position_array_shape</span><span class="p">[</span><span class="n">keypoint_dim_index</span><span class="p">])</span>
             <span class="p">]</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">&quot;Keypoint names were not provided. &quot;</span>
@@ -941,7 +941,7 @@
 <span class="sd">    assigned based on the first dimension of the position_array, starting from</span>
 <span class="sd">    0.&quot;&quot;&quot;</span>
 
-    <span class="n">DIM_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">)</span>
+    <span class="n">DIM_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">)</span>
     <span class="n">VAR_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;position&quot;</span><span class="p">,</span> <span class="s2">&quot;shape&quot;</span><span class="p">,</span> <span class="s2">&quot;confidence&quot;</span><span class="p">)</span>
     <span class="n">_ALLOWED_SPACE_DIM_SIZE</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
 
@@ -1020,7 +1020,7 @@
             <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">&quot;fps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span>
         <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">&quot;time_unit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_unit</span>
         <span class="c1"># Convert data to an xarray.Dataset</span>
-        <span class="c1"># with dimensions (&#39;time&#39;, &#39;space&#39;, &#39;individuals&#39;)</span>
+        <span class="c1"># with dimensions (&#39;time&#39;, &#39;space&#39;, &#39;individual&#39;)</span>
         <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span>
         <span class="n">n_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>

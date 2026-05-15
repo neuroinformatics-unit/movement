@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -607,7 +607,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    position : xarray.DataArray</span>
 <span class="sd">        A 2D poses position array with dimensions</span>
-<span class="sd">        ``(time, space, keypoints, individuals)``, where the ``space``</span>
+<span class="sd">        ``(time, space, keypoint, individual)``, where the ``space``</span>
 <span class="sd">        coordinate contains exactly ``[&quot;x&quot;, &quot;y&quot;]``.</span>
 <span class="sd">    padding : float, optional</span>
 <span class="sd">        Number of pixels to add as padding around the bounding box in all</span>
@@ -620,9 +620,9 @@
 <span class="sd">        A tuple ``(position, shape)`` where:</span>
 
 <span class="sd">        - ``position``: bounding box centroids with dimensions</span>
-<span class="sd">          ``(time, space, individuals)``.</span>
+<span class="sd">          ``(time, space, individual)``.</span>
 <span class="sd">        - ``shape``: bounding box width and height with dimensions</span>
-<span class="sd">          ``(time, space, individuals)``.</span>
+<span class="sd">          ``(time, space, individual)``.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -670,7 +670,7 @@
         <span class="p">)</span>
     <span class="n">validate_dims_coords</span><span class="p">(</span>
         <span class="n">position</span><span class="p">,</span>
-        <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="s2">&quot;keypoints&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;individuals&quot;</span><span class="p">:</span> <span class="p">[]},</span>
+        <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;individual&quot;</span><span class="p">:</span> <span class="p">[]},</span>
         <span class="n">exact_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">padding</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">):</span>
@@ -684,8 +684,8 @@
     <span class="n">valid_mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">position</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span>
     <span class="n">masked</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">valid_mask</span><span class="p">)</span>
 
-    <span class="n">pos_min</span> <span class="o">=</span> <span class="n">masked</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">pos_max</span> <span class="o">=</span> <span class="n">masked</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">pos_min</span> <span class="o">=</span> <span class="n">masked</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">pos_max</span> <span class="o">=</span> <span class="n">masked</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">centroid</span> <span class="o">=</span> <span class="p">(</span><span class="n">pos_min</span> <span class="o">+</span> <span class="n">pos_max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
     <span class="n">shape</span> <span class="o">=</span> <span class="n">pos_max</span> <span class="o">-</span> <span class="n">pos_min</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">padding</span>

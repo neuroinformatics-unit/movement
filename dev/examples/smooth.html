@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -539,15 +539,15 @@ display of the dataset’s contents.</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 61kB
-Dimensions:      (time: 1085, space: 2, keypoints: 2, individuals: 1)
+Dimensions:     (time: 1085, space: 2, keypoint: 2, individual: 1)
 Coordinates:
-  * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1
-  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
-  * keypoints    (keypoints) &lt;U7 56B &#39;head&#39; &#39;stinger&#39;
-  * individuals  (individuals) &lt;U12 48B &#39;individual_0&#39;
+  * time        (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1
+  * space       (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+  * keypoint    (keypoint) &lt;U7 56B &#39;head&#39; &#39;stinger&#39;
+  * individual  (individual) &lt;U12 48B &#39;individual_0&#39;
 Data variables:
-    position     (time, space, keypoints, individuals) float64 35kB 1.086e+03...
-    confidence   (time, keypoints, individuals) float64 17kB 0.05305 ... 0.0
+    position    (time, space, keypoint, individual) float64 35kB 1.086e+03 .....
+    confidence  (time, keypoint, individual) float64 17kB 0.05305 ... 0.0
 Attributes:
     source_software:  DeepLabCut
     ds_type:          poses
@@ -580,15 +580,15 @@ specify the spatial coordinate (<code class="docutils literal notranslate"><span
 <span class="p">):</span>
     <span class="c1"># If no individual is specified, use the first one</span>
     <span class="k">if</span> <span class="n">individual</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">individual</span> <span class="o">=</span> <span class="n">ds_raw</span><span class="o">.</span><span class="n">individuals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">individual</span> <span class="o">=</span> <span class="n">ds_raw</span><span class="o">.</span><span class="n">individual</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="c1"># If no time range is specified, plot the entire time series</span>
     <span class="k">if</span> <span class="n">time_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">time_range</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ds_raw</span><span class="o">.</span><span class="n">time</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
     <span class="n">selection</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">time_range</span><span class="p">,</span>
-        <span class="s2">&quot;individuals&quot;</span><span class="p">:</span> <span class="n">individual</span><span class="p">,</span>
-        <span class="s2">&quot;keypoints&quot;</span><span class="p">:</span> <span class="n">keypoint</span><span class="p">,</span>
+        <span class="s2">&quot;individual&quot;</span><span class="p">:</span> <span class="n">individual</span><span class="p">,</span>
+        <span class="s2">&quot;keypoint&quot;</span><span class="p">:</span> <span class="n">keypoint</span><span class="p">,</span>
         <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="n">space</span><span class="p">,</span>
     <span class="p">}</span>
 
@@ -696,15 +696,15 @@ dataset that contains missing values.</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 1MB
-Dimensions:      (time: 18485, space: 2, keypoints: 6, individuals: 1)
+Dimensions:     (time: 18485, space: 2, keypoint: 6, individual: 1)
 Coordinates:
-  * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
-  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
-  * keypoints    (keypoints) &lt;U9 216B &#39;snout&#39; &#39;left_ear&#39; ... &#39;tail_end&#39;
-  * individuals  (individuals) &lt;U4 16B &#39;id_0&#39;
+  * time        (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
+  * space       (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+  * keypoint    (keypoint) &lt;U9 216B &#39;snout&#39; &#39;left_ear&#39; ... &#39;tail_end&#39;
+  * individual  (individual) &lt;U4 16B &#39;id_0&#39;
 Data variables:
-    position     (time, space, keypoints, individuals) float32 887kB nan ... ...
-    confidence   (time, keypoints, individuals) float32 444kB nan nan ... 0.7607
+    position    (time, space, keypoint, individual) float32 887kB nan ... 476.2
+    confidence  (time, keypoint, individual) float32 444kB nan nan ... 0.7607
 Attributes:
     source_software:  SLEAP
     ds_type:          poses
@@ -733,14 +733,14 @@ to the dataset.</p>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Missing points (marked as NaN) in input:
 
-keypoints                  snout           left_ear          right_ear             centre          tail_base            tail_end
-individuals
-id_0         4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
+keypoint                  snout           left_ear          right_ear             centre          tail_base            tail_end
+individual
+id_0        4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
 Missing points (marked as NaN) in output:
 
-keypoints                  snout           left_ear          right_ear             centre          tail_base             tail_end
-individuals
-id_0         5106/18485 (27.62%)  678/18485 (3.67%)  695/18485 (3.76%)  640/18485 (3.46%)  913/18485 (4.94%)  3103/18485 (16.79%)
+keypoint                  snout           left_ear          right_ear             centre          tail_base             tail_end
+individual
+id_0        5106/18485 (27.62%)  678/18485 (3.67%)  695/18485 (3.76%)  640/18485 (3.46%)  913/18485 (4.94%)  3103/18485 (16.79%)
 </pre></div>
 </div>
 <p>The report informs us that the raw data contains NaN values, most of which
@@ -768,14 +768,14 @@ window are sufficient for the median to be calculated. Let’s try this.</p>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Missing points (marked as NaN) in input:
 
-keypoints                  snout           left_ear          right_ear             centre          tail_base            tail_end
-individuals
-id_0         4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
+keypoint                  snout           left_ear          right_ear             centre          tail_base            tail_end
+individual
+id_0        4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
 Missing points (marked as NaN) in output:
 
-keypoints                 snout           left_ear          right_ear             centre          tail_base             tail_end
-individuals
-id_0         4455/18485 (24.1%)  487/18485 (2.63%)  507/18485 (2.74%)  465/18485 (2.52%)  673/18485 (3.64%)  2428/18485 (13.13%)
+keypoint                 snout           left_ear          right_ear             centre          tail_base             tail_end
+individual
+id_0        4455/18485 (24.1%)  487/18485 (2.63%)  507/18485 (2.74%)  465/18485 (2.52%)  673/18485 (3.64%)  2428/18485 (13.13%)
 </pre></div>
 </div>
 <p>We see that this time the number of NaN values has decreased
@@ -808,14 +808,14 @@ the resulting time series stays quite close to the raw data.</p>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Missing points (marked as NaN) in input:
 
-keypoints                  snout           left_ear          right_ear             centre          tail_base            tail_end
-individuals
-id_0         4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
+keypoint                  snout           left_ear          right_ear             centre          tail_base            tail_end
+individual
+id_0        4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
 Missing points (marked as NaN) in output:
 
-keypoints               snout          left_ear         right_ear            centre         tail_base           tail_end
-individuals
-id_0         795/18485 (4.3%)  80/18485 (0.43%)  80/18485 (0.43%)  80/18485 (0.43%)  80/18485 (0.43%)  239/18485 (1.29%)
+keypoint               snout          left_ear         right_ear            centre         tail_base           tail_end
+individual
+id_0        795/18485 (4.3%)  80/18485 (0.43%)  80/18485 (0.43%)  80/18485 (0.43%)  80/18485 (0.43%)  239/18485 (1.29%)
 </pre></div>
 </div>
 <p>The number of NaN values has decreased even further.
@@ -867,14 +867,14 @@ the <code class="docutils literal notranslate"><span class="pre">ValueError</spa
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Missing points (marked as NaN) in input:
 
-keypoints                  snout           left_ear          right_ear             centre          tail_base            tail_end
-individuals
-id_0         4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
+keypoint                  snout           left_ear          right_ear             centre          tail_base            tail_end
+individual
+id_0        4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
 Missing points (marked as NaN) in output:
 
-keypoints                  snout           left_ear         right_ear             centre           tail_base             tail_end
-individuals
-id_0         5810/18485 (31.43%)  895/18485 (4.84%)  905/18485 (4.9%)  839/18485 (4.54%)  1186/18485 (6.42%)  3801/18485 (20.56%)
+keypoint                  snout           left_ear         right_ear             centre           tail_base             tail_end
+individual
+id_0        5810/18485 (31.43%)  895/18485 (4.84%)  905/18485 (4.9%)  839/18485 (4.54%)  1186/18485 (6.42%)  3801/18485 (20.56%)
 </pre></div>
 </div>
 <p>We see that the number of NaN values has increased after filtering. This is
@@ -964,7 +964,7 @@ what we’ve done.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[
   {
     &quot;operation&quot;: &quot;rolling_filter&quot;,
-    &quot;datetime&quot;: &quot;2026-05-15 14:41:49.477803&quot;,
+    &quot;datetime&quot;: &quot;2026-05-15 17:05:08.434590&quot;,
     &quot;window&quot;: &quot;3&quot;,
     &quot;statistic&quot;: &quot;&#39;median&#39;&quot;,
     &quot;min_periods&quot;: &quot;2&quot;,
@@ -972,14 +972,14 @@ what we’ve done.</p>
   },
   {
     &quot;operation&quot;: &quot;interpolate_over_time&quot;,
-    &quot;datetime&quot;: &quot;2026-05-15 14:41:49.500268&quot;,
+    &quot;datetime&quot;: &quot;2026-05-15 17:05:08.457363&quot;,
     &quot;method&quot;: &quot;&#39;linear&#39;&quot;,
     &quot;max_gap&quot;: &quot;30&quot;,
     &quot;print_report&quot;: &quot;False&quot;
   },
   {
     &quot;operation&quot;: &quot;savgol_filter&quot;,
-    &quot;datetime&quot;: &quot;2026-05-15 14:41:49.504569&quot;,
+    &quot;datetime&quot;: &quot;2026-05-15 17:05:08.461569&quot;,
     &quot;window&quot;: &quot;12&quot;,
     &quot;polyorder&quot;: &quot;2&quot;,
     &quot;print_report&quot;: &quot;False&quot;,
@@ -1006,7 +1006,7 @@ also look at other keypoints and time ranges.</p>
 in the
 <a class="reference internal" href="filter_and_interpolate.html#sphx-glr-examples-filter-and-interpolate-py"><span class="std std-ref">Drop outliers and interpolate</span></a> example.</p>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.410 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.399 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-smooth-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/smooth.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />

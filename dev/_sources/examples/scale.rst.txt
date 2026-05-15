@@ -94,15 +94,15 @@ real-world units.
  .. code-block:: none
 
     <xarray.Dataset> Size: 508kB
-    Dimensions:      (time: 418, space: 2, keypoints: 50, individuals: 1)
+    Dimensions:     (time: 418, space: 2, keypoint: 50, individual: 1)
     Coordinates:
-      * time         (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688
-      * space        (space) <U1 8B 'x' 'y'
-      * keypoints    (keypoints) <U15 3kB 'StartPlatL' 'StepL' ... 'HindpawKneeL'
-      * individuals  (individuals) <U12 48B 'individual_0'
+      * time        (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688
+      * space       (space) <U1 8B 'x' 'y'
+      * keypoint    (keypoint) <U15 3kB 'StartPlatL' 'StepL' ... 'HindpawKneeL'
+      * individual  (individual) <U12 48B 'individual_0'
     Data variables:
-        position     (time, space, keypoints, individuals) float64 334kB 70.12 .....
-        confidence   (time, keypoints, individuals) float64 167kB 1.0 ... 0.005941
+        position    (time, space, keypoint, individual) float64 334kB 70.12 ... 1...
+        confidence  (time, keypoint, individual) float64 167kB 1.0 1.0 ... 0.005941
     Attributes:
         source_software:  DeepLabCut
         ds_type:          poses
@@ -137,7 +137,7 @@ positions along the mouse's body (head, back, tail, and limbs).
 
 .. code-block:: Python
 
-    print(ds.keypoints.values)
+    print(ds.keypoint.values)
 
 
 
@@ -183,13 +183,13 @@ these so we can filter them out of the dataset.
 
     # Select all keypoints excluding the landmarks, and the single individual.
     ds_mouse = ds.sel(
-        keypoints=~ds.keypoints.isin(landmark_keypoints),
-        individuals="individual_0",
+        keypoint=~ds.keypoint.isin(landmark_keypoints),
+        individual="individual_0",
     )
 
     print(ds_mouse)
     print("----------------------------------")
-    print(f"Keypoints:\n{ds_mouse.keypoints.values}")
+    print(f"Keypoints:\n{ds_mouse.keypoint.values}")
 
 
 
@@ -200,15 +200,15 @@ these so we can filter them out of the dataset.
  .. code-block:: none
 
     <xarray.Dataset> Size: 437kB
-    Dimensions:      (time: 418, space: 2, keypoints: 43)
+    Dimensions:     (time: 418, space: 2, keypoint: 43)
     Coordinates:
-      * time         (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688
-      * space        (space) <U1 8B 'x' 'y'
-      * keypoints    (keypoints) <U15 3kB 'Nose' 'EarL' ... 'HindpawKneeL'
-        individuals  <U12 48B 'individual_0'
+      * time        (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688
+      * space       (space) <U1 8B 'x' 'y'
+      * keypoint    (keypoint) <U15 3kB 'Nose' 'EarL' ... 'HindpawKneeL'
+        individual  <U12 48B 'individual_0'
     Data variables:
-        position     (time, space, keypoints) float64 288kB 55.6 47.47 ... 170.1
-        confidence   (time, keypoints) float64 144kB 0.02365 0.01434 ... 0.005941
+        position    (time, space, keypoint) float64 288kB 55.6 47.47 ... 201.7 170.1
+        confidence  (time, keypoint) float64 144kB 0.02365 0.01434 ... 0.005941
     Attributes:
         source_software:  DeepLabCut
         ds_type:          poses
@@ -281,7 +281,7 @@ function that draws the mouse skeleton in a single frame.
         Parameters
         ----------
         position_data : xarray.DataArray
-            Position data with dimensions ``time``, ``keypoints``, and ``space``.
+            Position data with dimensions ``time``, ``keypoint``, and ``space``.
         skeleton : list of tuple
             List of (joint_1, joint_2) pairs defining skeletal connections,
             where each element is a keypoint name present in ``position_data``.
@@ -297,13 +297,13 @@ function that draws the mouse skeleton in a single frame.
 
         # Draw skeleton connections
         for joint_1, joint_2 in skeleton:
-            x1, y1 = pos_frame.sel(keypoints=joint_1)
-            x2, y2 = pos_frame.sel(keypoints=joint_2)
+            x1, y1 = pos_frame.sel(keypoint=joint_1)
+            x2, y2 = pos_frame.sel(keypoint=joint_2)
             ax.plot([x1, x2], [y1, y2], color="b", linewidth=1.5)
 
         # Draw keypoints
-        for bodypart in pos_frame.keypoints:
-            x, y = pos_frame.sel(keypoints=bodypart)
+        for bodypart in pos_frame.keypoint:
+            x, y = pos_frame.sel(keypoint=bodypart)
             ax.scatter(x, y, c="g", s=s)
 
 
@@ -667,21 +667,21 @@ operations applied in earlier steps.
     [
       {
         "operation": "filter_by_confidence",
-        "datetime": "2026-05-15 14:42:02.158425",
-        "confidence": "<xarray.DataArray 'confidence' (time: 418, keypoints: 43)> Size: 144kB\n0.02365 0.01434 0.01821 0.02692 0.05129 ... 0.004628 0.007376 0.003921 0.005941\nCoordinates:\n  * time         (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688\n  * keypoints    (keypoints) <U15 3kB 'Nose' 'EarL' ... 'HindpawKneeL'\n    individuals  <U12 48B 'individual_0'",
+        "datetime": "2026-05-15 17:05:20.968524",
+        "confidence": "<xarray.DataArray 'confidence' (time: 418, keypoint: 43)> Size: 144kB\n0.02365 0.01434 0.01821 0.02692 0.05129 ... 0.004628 0.007376 0.003921 0.005941\nCoordinates:\n  * time        (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688\n  * keypoint    (keypoint) <U15 3kB 'Nose' 'EarL' ... 'HindpawKneeL'\n    individual  <U12 48B 'individual_0'",
         "threshold": "0.9",
         "print_report": "False"
       },
       {
         "operation": "interpolate_over_time",
-        "datetime": "2026-05-15 14:42:02.170963",
+        "datetime": "2026-05-15 17:05:20.980972",
         "method": "'linear'",
         "max_gap": "40",
         "print_report": "False"
       },
       {
         "operation": "rolling_filter",
-        "datetime": "2026-05-15 14:42:02.174030",
+        "datetime": "2026-05-15 17:05:20.983948",
         "window": "6",
         "statistic": "'median'",
         "min_periods": "2",
@@ -689,7 +689,7 @@ operations applied in earlier steps.
       },
       {
         "operation": "scale",
-        "datetime": "2026-05-15 14:42:02.415732",
+        "datetime": "2026-05-15 17:05:21.223628",
         "factor": "np.float64(0.03440766330229682)",
         "space_unit": "'cm'"
       }
@@ -765,7 +765,7 @@ first compute its approximate body length and height in ``example_frame``.
     frame_x = ds_mouse.position.sel(space="x").isel(time=example_frame)
     frame_y = ds_mouse.position.sel(space="y").isel(time=example_frame)
 
-    mouse_length = frame_x.sel(keypoints="Nose") - frame_x.sel(keypoints="Tail12")
+    mouse_length = frame_x.sel(keypoint="Nose") - frame_x.sel(keypoint="Tail12")
     mouse_height = frame_y.max() - frame_y.min()
 
     print(f"Mouse length: {mouse_length.values:.1f} cm")
@@ -805,11 +805,11 @@ the paw trajectories in x and y over time.
     ]
 
     # Construct a new data array with only the toe keypoints
-    ds_limbs = ds_mouse.position.sel(keypoints=toe_keypoint_names)
+    ds_limbs = ds_mouse.position.sel(keypoint=toe_keypoint_names)
 
     ds_limbs.plot.line(
         x="time",
-        hue="keypoints",
+        hue="keypoint",
         row="space",
         size=2.5,
         aspect=2,
@@ -854,12 +854,12 @@ and hindpaw pairs.
 
     forepaw_dist = compute_pairwise_distances(
         ds_mouse.position,
-        dim="keypoints",
+        dim="keypoint",
         pairs={"ForepawToeL": "ForepawToeR"},
     )
     hindpaw_dist = compute_pairwise_distances(
         ds_mouse.position,
-        dim="keypoints",
+        dim="keypoint",
         pairs={"HindpawToeL": "HindpawToeR"},
     )
 
@@ -885,7 +885,7 @@ transition point at which the mouse moves onto the faster second belt.
     belt_transition = 47  # cm
 
     # Compute a proxy for body centre in x
-    avg_body_x = ds_mouse.position.sel(space="x").mean(dim="keypoints")
+    avg_body_x = ds_mouse.position.sel(space="x").mean(dim="keypoint")
 
     fig, ax = plt.subplots()
     ax.plot(avg_body_x, forepaw_dist, color="tab:blue", label="Forepaws")
@@ -1034,7 +1034,7 @@ possible.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.716 seconds)
+   **Total running time of the script:** (0 minutes 1.693 seconds)
 
 
 .. _sphx_glr_download_examples_scale.py:

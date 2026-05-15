@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../../../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -482,7 +482,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_cdist</span><span class="p">(</span>
     <span class="n">a</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">b</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">dim</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoints&quot;</span><span class="p">],</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">],</span>
     <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;euclidean&quot;</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
@@ -491,7 +491,7 @@
 <span class="sd">    This function is a wrapper around :func:`scipy.spatial.distance.cdist`</span>
 <span class="sd">    and computes the pairwise distances between the two input position arrays</span>
 <span class="sd">    across the dimension specified by ``dim``.</span>
-<span class="sd">    The dimension can be either ``individuals`` or ``keypoints``.</span>
+<span class="sd">    The dimension can be either ``individual`` or ``keypoint``.</span>
 <span class="sd">    The distances are computed using the specified ``metric``.</span>
 
 <span class="sd">    Parameters</span>
@@ -499,16 +499,16 @@
 <span class="sd">    a</span>
 <span class="sd">        The first input data containing position information of a</span>
 <span class="sd">        single individual or keypoint, with ``time``, ``space``</span>
-<span class="sd">        (in Cartesian coordinates), and ``individuals`` or ``keypoints``</span>
+<span class="sd">        (in Cartesian coordinates), and ``individual`` or ``keypoint``</span>
 <span class="sd">        (as specified by ``dim``) as required dimensions.</span>
 <span class="sd">    b</span>
 <span class="sd">        The second input data containing position information of a</span>
 <span class="sd">        single individual or keypoint, with ``time``, ``space``</span>
-<span class="sd">        (in Cartesian coordinates), and ``individuals`` or ``keypoints``</span>
+<span class="sd">        (in Cartesian coordinates), and ``individual`` or ``keypoint``</span>
 <span class="sd">        (as specified by ``dim``) as required dimensions.</span>
 <span class="sd">    dim</span>
 <span class="sd">        The dimension to compute the distances for. Must be either</span>
-<span class="sd">        ``&#39;individuals&#39;`` or ``&#39;keypoints&#39;``.</span>
+<span class="sd">        ``&#39;individual&#39;`` or ``&#39;keypoint&#39;``.</span>
 <span class="sd">    metric</span>
 <span class="sd">        The distance metric to use. Must be one of the options supported</span>
 <span class="sd">        by :func:`scipy.spatial.distance.cdist`, e.g. ``&#39;cityblock&#39;``,</span>
@@ -531,27 +531,27 @@
 <span class="sd">    ``ind2`` (i.e. interindividual distance for all keypoints)</span>
 <span class="sd">    using the ``position`` data variable in the Dataset ``ds``:</span>
 
-<span class="sd">    &gt;&gt;&gt; pos1 = ds.position.sel(individuals=&quot;ind1&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; pos2 = ds.position.sel(individuals=&quot;ind2&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; ind_dists = _cdist(pos1, pos2, dim=&quot;individuals&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; pos1 = ds.position.sel(individual=&quot;ind1&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; pos2 = ds.position.sel(individual=&quot;ind2&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; ind_dists = _cdist(pos1, pos2, dim=&quot;individual&quot;)</span>
 
 <span class="sd">    Compute the Euclidean distance (default) between ``key1`` and</span>
 <span class="sd">    ``key2`` (i.e. interkeypoint distance for all individuals)</span>
 <span class="sd">    using the ``position`` data variable in the Dataset ``ds``:</span>
 
-<span class="sd">    &gt;&gt;&gt; pos1 = ds.position.sel(keypoints=&quot;key1&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; pos2 = ds.position.sel(keypoints=&quot;key2&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; key_dists = _cdist(pos1, pos2, dim=&quot;keypoints&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; pos1 = ds.position.sel(keypoint=&quot;key1&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; pos2 = ds.position.sel(keypoint=&quot;key2&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; key_dists = _cdist(pos1, pos2, dim=&quot;keypoint&quot;)</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
 <span class="sd">    scipy.spatial.distance.cdist : The underlying function used.</span>
 <span class="sd">    compute_pairwise_distances : Compute pairwise distances between</span>
-<span class="sd">        ``individuals`` or ``keypoints``</span>
+<span class="sd">        ``individual`` or ``keypoint``</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># The dimension from which ``dim`` labels are obtained</span>
-    <span class="n">labels_dim</span> <span class="o">=</span> <span class="s2">&quot;individuals&quot;</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="s2">&quot;keypoints&quot;</span> <span class="k">else</span> <span class="s2">&quot;keypoints&quot;</span>
+    <span class="n">labels_dim</span> <span class="o">=</span> <span class="s2">&quot;individual&quot;</span> <span class="k">if</span> <span class="n">dim</span> <span class="o">==</span> <span class="s2">&quot;keypoint&quot;</span> <span class="k">else</span> <span class="s2">&quot;keypoint&quot;</span>
     <span class="n">elem1</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
     <span class="n">elem2</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">dim</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">_validate_labels_dimension</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">labels_dim</span><span class="p">)</span>
@@ -580,16 +580,16 @@
 <a class="viewcode-back" href="../../../api/movement.kinematics.compute_pairwise_distances.html#movement.kinematics.compute_pairwise_distances">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_pairwise_distances</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">dim</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoints&quot;</span><span class="p">],</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">],</span>
     <span class="n">pairs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;all&quot;</span><span class="p">],</span>
     <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;euclidean&quot;</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute pairwise distances between ``individuals`` or ``keypoints``.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute pairwise distances between individuals or keypoints.</span>
 
 <span class="sd">    This function computes the distances between</span>
-<span class="sd">    pairs of ``individuals`` (i.e. interindividual distances) or</span>
-<span class="sd">    pairs of ``keypoints`` (i.e. interkeypoint distances),</span>
+<span class="sd">    pairs of individuals (i.e. interindividual distances) or</span>
+<span class="sd">    pairs of keypoints (i.e. interkeypoint distances),</span>
 <span class="sd">    as determined by ``dim``.</span>
 <span class="sd">    The distances are computed for the given ``pairs``</span>
 <span class="sd">    using the specified ``metric``.</span>
@@ -599,19 +599,19 @@
 <span class="sd">    data</span>
 <span class="sd">        The input data containing position information, with ``time``,</span>
 <span class="sd">        ``space`` (in Cartesian coordinates), and</span>
-<span class="sd">        ``individuals`` or ``keypoints`` (as specified by ``dim``)</span>
+<span class="sd">        ``individual`` or ``keypoint`` (as specified by ``dim``)</span>
 <span class="sd">        as required dimensions.</span>
 <span class="sd">    dim</span>
 <span class="sd">        The dimension to compute the distances for. Must be either</span>
-<span class="sd">        ``&#39;individuals&#39;`` or ``&#39;keypoints&#39;``.</span>
+<span class="sd">        ``&#39;individual&#39;`` or ``&#39;keypoint&#39;``.</span>
 <span class="sd">    pairs</span>
 <span class="sd">        Specifies the pairs of elements (either individuals or keypoints)</span>
 <span class="sd">        for which to compute distances, depending on the value of ``dim``.</span>
 
-<span class="sd">        - If ``dim=&#39;individuals&#39;``, ``pairs`` should be a dictionary where</span>
+<span class="sd">        - If ``dim=&#39;individual&#39;``, ``pairs`` should be a dictionary where</span>
 <span class="sd">          each key is an individual name, and each value is also an individual</span>
 <span class="sd">          name or a list of such names to compute distances with.</span>
-<span class="sd">        - If ``dim=&#39;keypoints&#39;``, ``pairs`` should be a dictionary where each</span>
+<span class="sd">        - If ``dim=&#39;keypoint&#39;``, ``pairs`` should be a dictionary where each</span>
 <span class="sd">          key is a keypoint name, and each value is also keypoint name or a</span>
 <span class="sd">          list of such names to compute distances with.</span>
 <span class="sd">        - Alternatively, use the special keyword ``&#39;all&#39;`` to compute distances</span>
@@ -639,7 +639,7 @@
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
-<span class="sd">        If ``dim`` is not one of ``&#39;individuals&#39;`` or ``&#39;keypoints&#39;``;</span>
+<span class="sd">        If ``dim`` is not one of ``&#39;individual&#39;`` or ``&#39;keypoint&#39;``;</span>
 <span class="sd">        if ``pairs`` is not a dictionary or ``&#39;all&#39;``; or</span>
 <span class="sd">        if there are no pairs in ``data`` to compute distances for.</span>
 
@@ -652,14 +652,14 @@
 <span class="sd">    ...     np.arange(36).reshape(2, 3, 3, 2),</span>
 <span class="sd">    ...     coords={</span>
 <span class="sd">    ...         &quot;time&quot;: np.arange(2),</span>
-<span class="sd">    ...         &quot;individuals&quot;: [&quot;ind1&quot;, &quot;ind2&quot;, &quot;ind3&quot;],</span>
-<span class="sd">    ...         &quot;keypoints&quot;: [&quot;key1&quot;, &quot;key2&quot;, &quot;key3&quot;],</span>
+<span class="sd">    ...         &quot;individual&quot;: [&quot;ind1&quot;, &quot;ind2&quot;, &quot;ind3&quot;],</span>
+<span class="sd">    ...         &quot;keypoint&quot;: [&quot;key1&quot;, &quot;key2&quot;, &quot;key3&quot;],</span>
 <span class="sd">    ...         &quot;space&quot;: [&quot;x&quot;, &quot;y&quot;],</span>
 <span class="sd">    ...     },</span>
-<span class="sd">    ...     dims=[&quot;time&quot;, &quot;individuals&quot;, &quot;keypoints&quot;, &quot;space&quot;],</span>
+<span class="sd">    ...     dims=[&quot;time&quot;, &quot;individual&quot;, &quot;keypoint&quot;, &quot;space&quot;],</span>
 <span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; dist_ind1_ind2 = compute_pairwise_distances(</span>
-<span class="sd">    ...     position, &quot;individuals&quot;, {&quot;ind1&quot;: &quot;ind2&quot;}</span>
+<span class="sd">    ...     position, &quot;individual&quot;, {&quot;ind1&quot;: &quot;ind2&quot;}</span>
 <span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; dist_ind1_ind2</span>
 <span class="sd">    &lt;xarray.DataArray (time: 2, ind1: 3, ind2: 3)&gt; Size: 144B</span>
@@ -682,7 +682,7 @@
 <span class="sd">    (i.e. interkeypoint distance), for all possible pairs of individuals.</span>
 
 <span class="sd">    &gt;&gt;&gt; dist_key1_key2 = compute_pairwise_distances(</span>
-<span class="sd">    ...     position, &quot;keypoints&quot;, {&quot;key1&quot;: &quot;key2&quot;}</span>
+<span class="sd">    ...     position, &quot;keypoint&quot;, {&quot;key1&quot;: &quot;key2&quot;}</span>
 <span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; dist_key1_key2</span>
 <span class="sd">    &lt;xarray.DataArray (time: 2, key1: 3, key2: 3)&gt; Size: 144B</span>
@@ -710,7 +710,7 @@
 
 <span class="sd">    &gt;&gt;&gt; key_dists = compute_pairwise_distances(</span>
 <span class="sd">    ...     position,</span>
-<span class="sd">    ...     &quot;keypoints&quot;,</span>
+<span class="sd">    ...     &quot;keypoint&quot;,</span>
 <span class="sd">    ...     {&quot;key1&quot;: &quot;key2&quot;, &quot;key3&quot;: [&quot;key1&quot;, &quot;key2&quot;]},</span>
 <span class="sd">    ...     metric=&quot;cityblock&quot;,</span>
 <span class="sd">    ... )</span>
@@ -726,7 +726,7 @@
 
 <span class="sd">    &gt;&gt;&gt; ind_dists = compute_pairwise_distances(</span>
 <span class="sd">    ...     position,</span>
-<span class="sd">    ...     &quot;individuals&quot;,</span>
+<span class="sd">    ...     &quot;individual&quot;,</span>
 <span class="sd">    ...     &quot;all&quot;,</span>
 <span class="sd">    ...     metric=&quot;cityblock&quot;,</span>
 <span class="sd">    ... )</span>
@@ -738,10 +738,10 @@
 <span class="sd">    scipy.spatial.distance.cdist : The underlying function used.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoints&quot;</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;&#39;dim&#39; must be either &#39;individuals&#39; or &#39;keypoints&#39;, &quot;</span>
+                <span class="s2">&quot;&#39;dim&#39; must be either &#39;individual&#39; or &#39;keypoint&#39;, &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">.&quot;</span>
             <span class="p">)</span>
         <span class="p">)</span>

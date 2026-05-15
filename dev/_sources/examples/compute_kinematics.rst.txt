@@ -77,15 +77,15 @@ First, we load an example dataset. In this case, we select the
  .. code-block:: none
 
     <xarray.Dataset> Size: 27kB
-    Dimensions:      (time: 601, space: 2, keypoints: 1, individuals: 3)
+    Dimensions:     (time: 601, space: 2, keypoint: 1, individual: 3)
     Coordinates:
-      * time         (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.96 11.98 12.0
-      * space        (space) <U1 8B 'x' 'y'
-      * keypoints    (keypoints) <U8 32B 'centroid'
-      * individuals  (individuals) <U10 120B 'AEON3B_NTP' 'AEON3B_TP1' 'AEON3B_TP2'
+      * time        (time) float64 5kB 0.0 0.02 0.04 0.06 ... 11.94 11.96 11.98 12.0
+      * space       (space) <U1 8B 'x' 'y'
+      * keypoint    (keypoint) <U8 32B 'centroid'
+      * individual  (individual) <U10 120B 'AEON3B_NTP' 'AEON3B_TP1' 'AEON3B_TP2'
     Data variables:
-        position     (time, space, keypoints, individuals) float32 14kB 770.3 ......
-        confidence   (time, keypoints, individuals) float32 7kB nan nan ... nan nan
+        position    (time, space, keypoint, individual) float32 14kB 770.3 ... 755.1
+        confidence  (time, keypoint, individual) float32 7kB nan nan nan ... nan nan
     Attributes:
         source_software:  SLEAP
         ds_type:          poses
@@ -148,7 +148,7 @@ The fig and ax objects returned can be used to further customise the plot.
     ax.invert_yaxis()
     # Plot trajectories for each mouse on the same axes
     for mouse_name, col in zip(
-        position.individuals.values,
+        position.individual.values,
         ["r", "g", "b"],  # colours
         strict=False,
     ):
@@ -194,14 +194,12 @@ behaviour of
 :func:`plot_centroid_trajectory()<movement.plots.plot_centroid_trajectory>`
 when the ``c`` argument is not provided:
 
-.. GENERATED FROM PYTHON SOURCE LINES 96-119
+.. GENERATED FROM PYTHON SOURCE LINES 96-117
 
 .. code-block:: Python
 
     fig, axes = plt.subplots(2, 2, sharey=True)
-    for mouse_name, ax in zip(
-        position.individuals.values, axes.flat, strict=False
-    ):
+    for mouse_name, ax in zip(position.individual.values, axes.flat, strict=False):
         ax.invert_yaxis()
         fig, ax = plot_centroid_trajectory(
             position,
@@ -233,32 +231,32 @@ when the ``c`` argument is not provided:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 120-124
+.. GENERATED FROM PYTHON SOURCE LINES 118-122
 
 These plots show that for this snippet of the data,
 two of the mice (``AEON3B_NTP`` and ``AEON3B_TP1``)
 moved around the circle in clockwise direction, and
 the third mouse (``AEON3B_TP2``) followed an anti-clockwise direction.
 
-.. GENERATED FROM PYTHON SOURCE LINES 126-130
+.. GENERATED FROM PYTHON SOURCE LINES 124-128
 
 We can also inspect the components of the position vector against time
 using ``xarray``'s built-in plotting methods. We use
 :meth:`xarray.DataArray.squeeze` to
-remove the dimension of length 1 from the data (the ``keypoints`` dimension).
+remove the dimension of length 1 from the data (the ``keypoint`` dimension).
 
-.. GENERATED FROM PYTHON SOURCE LINES 130-133
+.. GENERATED FROM PYTHON SOURCE LINES 128-131
 
 .. code-block:: Python
 
-    position.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
+    position.squeeze().plot.line(x="time", row="individual", aspect=2, size=2.5)
     plt.gcf().show()
 
 
 
 
 .. image-sg:: /examples/images/sphx_glr_compute_kinematics_003.png
-   :alt: individuals = AEON3B_NTP, individuals = AEON3B_TP1, individuals = AEON3B_TP2
+   :alt: individual = AEON3B_NTP, individual = AEON3B_TP1, individual = AEON3B_TP2
    :srcset: /examples/images/sphx_glr_compute_kinematics_003.png
    :class: sphx-glr-single-img
 
@@ -266,13 +264,13 @@ remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 134-137
+.. GENERATED FROM PYTHON SOURCE LINES 132-135
 
 If we use ``xarray``'s plotting function, the axes units are automatically
 taken from the data array. In our case, ``time`` is expressed in seconds,
 and the ``x`` and ``y`` coordinates of the ``position`` are in pixels.
 
-.. GENERATED FROM PYTHON SOURCE LINES 139-147
+.. GENERATED FROM PYTHON SOURCE LINES 137-145
 
 Compute displacement vectors
 ----------------------------
@@ -283,7 +281,7 @@ how these functions can be used.
 
 We can compute the forward displacement vectors as follows:
 
-.. GENERATED FROM PYTHON SOURCE LINES 147-149
+.. GENERATED FROM PYTHON SOURCE LINES 145-147
 
 .. code-block:: Python
 
@@ -296,7 +294,7 @@ We can compute the forward displacement vectors as follows:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 150-157
+.. GENERATED FROM PYTHON SOURCE LINES 148-155
 
 The :func:`movement.kinematics.compute_forward_displacement`
 function will return a data array equivalent to the ``position`` one,
@@ -306,14 +304,14 @@ The ``forward_displacement`` data array holds, for a given individual and
 keypoint at timestep ``t``, the vector that goes from its current position
 at time ``t`` to its next position at time ``t+1``.
 
-.. GENERATED FROM PYTHON SOURCE LINES 159-163
+.. GENERATED FROM PYTHON SOURCE LINES 157-161
 
 And what happens in the last timestep, when there is no next timepoint?
 We define the forward displacement vector then to be the
 zero vector. This way the shape of the ``forward_displacement`` data array
 is the same as the ``position`` array:
 
-.. GENERATED FROM PYTHON SOURCE LINES 163-166
+.. GENERATED FROM PYTHON SOURCE LINES 161-164
 
 .. code-block:: Python
 
@@ -334,12 +332,12 @@ is the same as the ``position`` array:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 167-169
+.. GENERATED FROM PYTHON SOURCE LINES 165-167
 
 We can visualise the forward displacement vectors with a quiver plot. In
 this case we focus on the mouse ``AEON3B_TP2``:
 
-.. GENERATED FROM PYTHON SOURCE LINES 169-207
+.. GENERATED FROM PYTHON SOURCE LINES 167-205
 
 .. code-block:: Python
 
@@ -350,8 +348,8 @@ this case we focus on the mouse ``AEON3B_TP2``:
 
     # plot position data
     sc = ax.scatter(
-        position.sel(individuals=mouse_name, space="x"),
-        position.sel(individuals=mouse_name, space="y"),
+        position.sel(individual=mouse_name, space="x"),
+        position.sel(individual=mouse_name, space="y"),
         s=15,
         c=position.time,
         cmap="viridis",
@@ -359,10 +357,10 @@ this case we focus on the mouse ``AEON3B_TP2``:
 
     # plot forward displacement vectors: at t, vector from t to t+1
     ax.quiver(
-        position.sel(individuals=mouse_name, space="x"),
-        position.sel(individuals=mouse_name, space="y"),
-        forward_displacement.sel(individuals=mouse_name, space="x"),
-        forward_displacement.sel(individuals=mouse_name, space="y"),
+        position.sel(individual=mouse_name, space="x"),
+        position.sel(individual=mouse_name, space="y"),
+        forward_displacement.sel(individual=mouse_name, space="x"),
+        forward_displacement.sel(individual=mouse_name, space="y"),
         angles="xy",
         scale=1,
         scale_units="xy",
@@ -395,22 +393,22 @@ this case we focus on the mouse ``AEON3B_TP2``:
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7f9b1d399310>
+    <matplotlib.colorbar.Colorbar object at 0x7f91b8a69310>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 208-210
+.. GENERATED FROM PYTHON SOURCE LINES 206-208
 
 We can visually verify that indeed the forward displacement vector
 connects the previous and current positions as expected.
 
-.. GENERATED FROM PYTHON SOURCE LINES 212-215
+.. GENERATED FROM PYTHON SOURCE LINES 210-213
 
 Similarly, with :func:`movement.kinematics.compute_backward_displacement`
 we can compute the backward displacement vectors, which connect the current
 position to the previous one:
 
-.. GENERATED FROM PYTHON SOURCE LINES 215-217
+.. GENERATED FROM PYTHON SOURCE LINES 213-215
 
 .. code-block:: Python
 
@@ -423,18 +421,18 @@ position to the previous one:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 218-220
+.. GENERATED FROM PYTHON SOURCE LINES 216-218
 
 In this case, the backward displacement vector at the first timestep
 is defined as the zero vector, since there is no previous position.
 
-.. GENERATED FROM PYTHON SOURCE LINES 222-225
+.. GENERATED FROM PYTHON SOURCE LINES 220-223
 
 Adapting the code snippet from above, we can visually check that the
 backward displacement vector is indeed the reverse of the forward
 displacement vector.
 
-.. GENERATED FROM PYTHON SOURCE LINES 225-260
+.. GENERATED FROM PYTHON SOURCE LINES 223-258
 
 .. code-block:: Python
 
@@ -443,18 +441,18 @@ displacement vector.
     ax = fig.add_subplot()
 
     sc = ax.scatter(
-        position.sel(individuals=mouse_name, space="x"),
-        position.sel(individuals=mouse_name, space="y"),
+        position.sel(individual=mouse_name, space="x"),
+        position.sel(individual=mouse_name, space="y"),
         s=15,
         c=position.time,
         cmap="viridis",
     )
 
     ax.quiver(
-        position.sel(individuals=mouse_name, space="x"),
-        position.sel(individuals=mouse_name, space="y"),
-        backward_displacement.sel(individuals=mouse_name, space="x"),
-        backward_displacement.sel(individuals=mouse_name, space="y"),
+        position.sel(individual=mouse_name, space="x"),
+        position.sel(individual=mouse_name, space="y"),
+        backward_displacement.sel(individual=mouse_name, space="x"),
+        backward_displacement.sel(individual=mouse_name, space="y"),
         angles="xy",
         scale=1,
         scale_units="xy",
@@ -487,11 +485,11 @@ displacement vector.
  .. code-block:: none
 
 
-    <matplotlib.colorbar.Colorbar object at 0x7f9b1d4dc2d0>
+    <matplotlib.colorbar.Colorbar object at 0x7f91b8811f90>
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 261-268
+.. GENERATED FROM PYTHON SOURCE LINES 259-266
 
 Compute path length
 --------------------
@@ -501,19 +499,19 @@ displacement vectors along its trajectory.
 Both backward and forward displacement vectors
 should give the same result:
 
-.. GENERATED FROM PYTHON SOURCE LINES 268-301
+.. GENERATED FROM PYTHON SOURCE LINES 266-299
 
 .. code-block:: Python
 
 
     # length of each forward displacement vector
     forward_displacement_lengths = compute_norm(
-        forward_displacement.sel(individuals=mouse_name)
+        forward_displacement.sel(individual=mouse_name)
     )
 
     # length of each backward displacement vector
     backward_displacement_lengths = compute_norm(
-        backward_displacement.sel(individuals=mouse_name)
+        backward_displacement.sel(individual=mouse_name)
     )
 
     # check their lengths are the same
@@ -552,7 +550,7 @@ should give the same result:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 302-307
+.. GENERATED FROM PYTHON SOURCE LINES 300-305
 
 We provide a convenience function
 :func:`movement.kinematics.compute_path_length`
@@ -560,17 +558,17 @@ to compute the path length for all individuals and keypoints in a position
 data array. We can verify that using this function gives the same result
 as before for the ``AEON3B_TP2`` mouse:
 
-.. GENERATED FROM PYTHON SOURCE LINES 307-316
+.. GENERATED FROM PYTHON SOURCE LINES 305-314
 
 .. code-block:: Python
 
 
     path_lengths = kin.compute_path_length(ds.position)
 
-    for mouse_name in path_lengths.individuals.values:
+    for mouse_name in path_lengths.individual.values:
         print(
             f"Path length for {mouse_name}: "
-            f"{path_lengths.sel(individuals=mouse_name).values[0]:.2f} pixels"
+            f"{path_lengths.sel(individual=mouse_name).values[0]:.2f} pixels"
         )
 
 
@@ -588,14 +586,14 @@ as before for the ``AEON3B_TP2`` mouse:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 317-321
+.. GENERATED FROM PYTHON SOURCE LINES 315-319
 
 Compute velocity
 ----------------
 We can also compute the velocity vectors for all individuals in our data
 array:
 
-.. GENERATED FROM PYTHON SOURCE LINES 321-323
+.. GENERATED FROM PYTHON SOURCE LINES 319-321
 
 .. code-block:: Python
 
@@ -608,7 +606,7 @@ array:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 324-329
+.. GENERATED FROM PYTHON SOURCE LINES 322-327
 
 The :func:`movement.kinematics.compute_velocity`
 function will return a data array equivalent to
@@ -616,26 +614,26 @@ the ``position`` one, but holding velocity data along the ``space`` axis,
 rather than position data. Notice how ``xarray`` nicely deals with the
 different individuals and spatial dimensions for us! ✨
 
-.. GENERATED FROM PYTHON SOURCE LINES 331-335
+.. GENERATED FROM PYTHON SOURCE LINES 329-333
 
 We can plot the components of the velocity vector against time
 using ``xarray``'s built-in plotting methods. We use
 :meth:`xarray.DataArray.squeeze` to
-remove the dimension of length 1 from the data (the ``keypoints`` dimension).
+remove the dimension of length 1 from the data (the ``keypoint`` dimension).
 
-.. GENERATED FROM PYTHON SOURCE LINES 335-339
+.. GENERATED FROM PYTHON SOURCE LINES 333-337
 
 .. code-block:: Python
 
 
-    velocity.squeeze().plot.line(x="time", row="individuals", aspect=2, size=2.5)
+    velocity.squeeze().plot.line(x="time", row="individual", aspect=2, size=2.5)
     plt.gcf().show()
 
 
 
 
 .. image-sg:: /examples/images/sphx_glr_compute_kinematics_006.png
-   :alt: individuals = AEON3B_NTP, individuals = AEON3B_TP1, individuals = AEON3B_TP2
+   :alt: individual = AEON3B_NTP, individual = AEON3B_TP1, individual = AEON3B_TP2
    :srcset: /examples/images/sphx_glr_compute_kinematics_006.png
    :class: sphx-glr-single-img
 
@@ -643,7 +641,7 @@ remove the dimension of length 1 from the data (the ``keypoints`` dimension).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 340-346
+.. GENERATED FROM PYTHON SOURCE LINES 338-344
 
 The components of the velocity vector seem noisier than the components of
 the position vector.
@@ -652,19 +650,19 @@ position (which is somewhat noisy), over small stepsizes.
 More specifically, we use :func:`numpy.gradient` internally, which
 uses second order central differences.
 
-.. GENERATED FROM PYTHON SOURCE LINES 348-350
+.. GENERATED FROM PYTHON SOURCE LINES 346-348
 
 We can also visualise the speed, as the magnitude (norm)
 of the velocity vector:
 
-.. GENERATED FROM PYTHON SOURCE LINES 350-361
+.. GENERATED FROM PYTHON SOURCE LINES 348-359
 
 .. code-block:: Python
 
     fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-    for mouse_name, ax in zip(velocity.individuals.values, axes, strict=False):
+    for mouse_name, ax in zip(velocity.individual.values, axes, strict=False):
         # compute the magnitude of the velocity vector for one mouse
-        speed_one_mouse = compute_norm(velocity.sel(individuals=mouse_name))
+        speed_one_mouse = compute_norm(velocity.sel(individual=mouse_name))
         # plot speed against time
         ax.plot(speed_one_mouse)
         ax.set_title(mouse_name)
@@ -684,12 +682,12 @@ of the velocity vector:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 362-364
+.. GENERATED FROM PYTHON SOURCE LINES 360-362
 
 To visualise the direction of the velocity vector at each timestep, we can
 again use a quiver plot:
 
-.. GENERATED FROM PYTHON SOURCE LINES 364-394
+.. GENERATED FROM PYTHON SOURCE LINES 362-392
 
 .. code-block:: Python
 
@@ -698,18 +696,18 @@ again use a quiver plot:
     ax = fig.add_subplot()
     # plot trajectory (position data)
     sc = ax.scatter(
-        position.sel(individuals=mouse_name, space="x"),
-        position.sel(individuals=mouse_name, space="y"),
+        position.sel(individual=mouse_name, space="x"),
+        position.sel(individual=mouse_name, space="y"),
         s=15,
         c=position.time,
         cmap="viridis",
     )
     # plot velocity vectors
     ax.quiver(
-        position.sel(individuals=mouse_name, space="x"),
-        position.sel(individuals=mouse_name, space="y"),
-        velocity.sel(individuals=mouse_name, space="x"),
-        velocity.sel(individuals=mouse_name, space="y"),
+        position.sel(individual=mouse_name, space="x"),
+        position.sel(individual=mouse_name, space="y"),
+        velocity.sel(individual=mouse_name, space="x"),
+        velocity.sel(individual=mouse_name, space="y"),
         angles="xy",
         scale=2,
         scale_units="xy",
@@ -735,19 +733,19 @@ again use a quiver plot:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 395-397
+.. GENERATED FROM PYTHON SOURCE LINES 393-395
 
 Here we scaled the length of vectors to half of their actual value
 (``scale=2``) for easier visualisation.
 
-.. GENERATED FROM PYTHON SOURCE LINES 399-403
+.. GENERATED FROM PYTHON SOURCE LINES 397-401
 
 Compute acceleration
 ---------------------
 Let's now compute the acceleration for all individuals in our data
 array:
 
-.. GENERATED FROM PYTHON SOURCE LINES 403-405
+.. GENERATED FROM PYTHON SOURCE LINES 401-403
 
 .. code-block:: Python
 
@@ -760,25 +758,25 @@ array:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 406-408
+.. GENERATED FROM PYTHON SOURCE LINES 404-406
 
 and plot of the components of the acceleration vector ``ax``, ``ay`` per
 individual:
 
-.. GENERATED FROM PYTHON SOURCE LINES 408-426
+.. GENERATED FROM PYTHON SOURCE LINES 406-424
 
 .. code-block:: Python
 
     fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-    for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
+    for mouse_name, ax in zip(accel.individual.values, axes, strict=False):
         # plot x-component of acceleration vector
         ax.plot(
-            accel.sel(individuals=mouse_name, space=["x"]).squeeze(),
+            accel.sel(individual=mouse_name, space=["x"]).squeeze(),
             label="ax",
         )
         # plot y-component of acceleration vector
         ax.plot(
-            accel.sel(individuals=mouse_name, space=["y"]).squeeze(),
+            accel.sel(individual=mouse_name, space=["y"]).squeeze(),
             label="ay",
         )
         ax.set_title(mouse_name)
@@ -799,19 +797,19 @@ individual:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 427-429
+.. GENERATED FROM PYTHON SOURCE LINES 425-427
 
 We can also compute and visualise the magnitude (norm) of the
 acceleration vector for each individual:
 
-.. GENERATED FROM PYTHON SOURCE LINES 429-440
+.. GENERATED FROM PYTHON SOURCE LINES 427-438
 
 .. code-block:: Python
 
     fig, axes = plt.subplots(3, 1, sharex=True, sharey=True)
-    for mouse_name, ax in zip(accel.individuals.values, axes, strict=False):
+    for mouse_name, ax in zip(accel.individual.values, axes, strict=False):
         # compute magnitude of the acceleration vector for one mouse
-        accel_one_mouse = compute_norm(accel.sel(individuals=mouse_name))
+        accel_one_mouse = compute_norm(accel.sel(individual=mouse_name))
 
         # plot acceleration against time
         ax.plot(accel_one_mouse)
@@ -834,7 +832,7 @@ acceleration vector for each individual:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 2.024 seconds)
+   **Total running time of the script:** (0 minutes 1.990 seconds)
 
 
 .. _sphx_glr_download_examples_compute_kinematics.py:

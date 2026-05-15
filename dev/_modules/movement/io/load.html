@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../../../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -964,6 +964,70 @@
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">file_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
     <span class="p">]</span>
     <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">new_coord_views</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="rename_legacy_dimensions">
+<a class="viewcode-back" href="../../../api/movement.io.load.rename_legacy_dimensions.html#movement.io.load.rename_legacy_dimensions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rename_legacy_dimensions</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rename deprecated plural dimension names to singular form.</span>
+
+<span class="sd">    Datasets created with ``movement`` versions prior to 0.17.0 used plural</span>
+<span class="sd">    dimension names (``&quot;keypoints&quot;``, ``&quot;individuals&quot;``). This function</span>
+<span class="sd">    renames them to the current singular convention (``&quot;keypoint&quot;``,</span>
+<span class="sd">    ``&quot;individual&quot;``).</span>
+
+<span class="sd">    If no legacy dimensions are found, the dataset is returned unchanged.</span>
+
+<span class="sd">    .. deprecated:: 0.17.0</span>
+<span class="sd">        This function is deprecated and will be removed in a future</span>
+<span class="sd">        release. It is a temporary migration helper for datasets created</span>
+<span class="sd">        with ``movement`` versions prior to 0.17.0.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ds</span>
+<span class="sd">        A dataset containing legacy plural dimension names.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        Dataset with dimension names updated to singular form.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Load a dataset created with ``movement`` &lt; 0.17.0 and</span>
+<span class="sd">    rename its dimensions to the current convention:</span>
+
+<span class="sd">    &gt;&gt;&gt; import xarray as xr</span>
+<span class="sd">    &gt;&gt;&gt; from movement.io.load import rename_legacy_dimensions</span>
+<span class="sd">    &gt;&gt;&gt; ds = xr.open_dataset(&quot;old_dataset.nc&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; ds = rename_legacy_dimensions(ds)</span>
+<span class="sd">    &gt;&gt;&gt; ds.to_netcdf(&quot;new_dataset.nc&quot;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">&quot;`rename_legacy_dimensions` is deprecated and will be removed in &quot;</span>
+        <span class="s2">&quot;a future release. It is a temporary migration helper for &quot;</span>
+        <span class="s2">&quot;datasets created with `movement` versions prior to 0.17.0.&quot;</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">legacy_dim_rename</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;keypoints&quot;</span><span class="p">:</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;individuals&quot;</span><span class="p">:</span> <span class="s2">&quot;individual&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">rename_map</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">old</span><span class="p">:</span> <span class="n">new</span> <span class="k">for</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">legacy_dim_rename</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">old</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">dims</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">rename_map</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Renamed deprecated plural dimension names &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">rename_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="si">}</span><span class="s2"> to singular form: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">rename_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">rename_map</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
 
 </pre></div>
 <div class="section ablog__blog_comments">

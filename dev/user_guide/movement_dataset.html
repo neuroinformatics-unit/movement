@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -530,15 +530,15 @@ Poses dataset</label><div class="sd-tab-content docutils">
 </div>
 <p>and we would obtain an output such as:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="o">&gt;</span> <span class="n">Size</span><span class="p">:</span> <span class="mi">27</span><span class="n">kB</span>
-<span class="n">Dimensions</span><span class="p">:</span>      <span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="mi">601</span><span class="p">,</span> <span class="n">space</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="n">keypoints</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="n">individuals</span><span class="p">:</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">Dimensions</span><span class="p">:</span>      <span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="mi">601</span><span class="p">,</span> <span class="n">space</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="n">keypoint</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="n">individual</span><span class="p">:</span> <span class="mi">3</span><span class="p">)</span>
 <span class="n">Coordinates</span><span class="p">:</span>
   <span class="o">*</span> <span class="n">time</span>         <span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">5</span><span class="n">kB</span> <span class="mf">0.0</span> <span class="mf">0.02</span> <span class="mf">0.04</span> <span class="mf">0.06</span> <span class="o">...</span> <span class="mf">11.96</span> <span class="mf">11.98</span> <span class="mf">12.0</span>
   <span class="o">*</span> <span class="n">space</span>        <span class="p">(</span><span class="n">space</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U1</span> <span class="mi">8</span><span class="n">B</span> <span class="s1">&#39;x&#39;</span> <span class="s1">&#39;y&#39;</span>
-  <span class="o">*</span> <span class="n">keypoints</span>    <span class="p">(</span><span class="n">keypoints</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U8</span> <span class="mi">32</span><span class="n">B</span> <span class="s1">&#39;centroid&#39;</span>
-  <span class="o">*</span> <span class="n">individuals</span>  <span class="p">(</span><span class="n">individuals</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U10</span> <span class="mi">120</span><span class="n">B</span> <span class="s1">&#39;AEON3B_NTP&#39;</span> <span class="s1">&#39;AEON3B_TP1&#39;</span> <span class="s1">&#39;AEON3B_TP2&#39;</span>
+  <span class="o">*</span> <span class="n">keypoint</span>     <span class="p">(</span><span class="n">keypoint</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U8</span> <span class="mi">32</span><span class="n">B</span> <span class="s1">&#39;centroid&#39;</span>
+  <span class="o">*</span> <span class="n">individual</span>   <span class="p">(</span><span class="n">individual</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U10</span> <span class="mi">120</span><span class="n">B</span> <span class="s1">&#39;AEON3B_NTP&#39;</span> <span class="s1">&#39;AEON3B_TP1&#39;</span> <span class="s1">&#39;AEON3B_TP2&#39;</span>
 <span class="n">Data</span> <span class="n">variables</span><span class="p">:</span>
-    <span class="n">position</span>     <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">keypoints</span><span class="p">,</span> <span class="n">individuals</span><span class="p">)</span> <span class="n">float32</span> <span class="mi">14</span><span class="n">kB</span> <span class="mf">770.3</span> <span class="o">......</span>
-    <span class="n">confidence</span>   <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">keypoints</span><span class="p">,</span> <span class="n">individuals</span><span class="p">)</span> <span class="n">float32</span> <span class="mi">7</span><span class="n">kB</span> <span class="n">nan</span> <span class="n">nan</span> <span class="o">...</span> <span class="n">nan</span> <span class="n">nan</span>
+    <span class="n">position</span>     <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">keypoint</span><span class="p">,</span> <span class="n">individual</span><span class="p">)</span> <span class="n">float32</span> <span class="mi">14</span><span class="n">kB</span> <span class="mf">770.3</span> <span class="o">......</span>
+    <span class="n">confidence</span>   <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">keypoint</span><span class="p">,</span> <span class="n">individual</span><span class="p">)</span> <span class="n">float32</span> <span class="mi">7</span><span class="n">kB</span> <span class="n">nan</span> <span class="n">nan</span> <span class="o">...</span> <span class="n">nan</span> <span class="n">nan</span>
 <span class="n">Attributes</span><span class="p">:</span>
     <span class="n">fps</span><span class="p">:</span>              <span class="mf">50.0</span>
     <span class="n">time_unit</span><span class="p">:</span>        <span class="n">seconds</span>
@@ -563,15 +563,15 @@ Bounding boxes dataset</label><div class="sd-tab-content docutils">
 </div>
 <p>and the last command would print out:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="o">&gt;</span> <span class="n">Size</span><span class="p">:</span> <span class="mi">19</span><span class="n">kB</span>
-<span class="n">Dimensions</span><span class="p">:</span>      <span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="n">space</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="n">individuals</span><span class="p">:</span> <span class="mi">86</span><span class="p">)</span>
+<span class="n">Dimensions</span><span class="p">:</span>      <span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="n">space</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="n">individual</span><span class="p">:</span> <span class="mi">86</span><span class="p">)</span>
 <span class="n">Coordinates</span><span class="p">:</span>
   <span class="o">*</span> <span class="n">time</span>         <span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="n">int64</span> <span class="mi">40</span><span class="n">B</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span>
   <span class="o">*</span> <span class="n">space</span>        <span class="p">(</span><span class="n">space</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U1</span> <span class="mi">8</span><span class="n">B</span> <span class="s1">&#39;x&#39;</span> <span class="s1">&#39;y&#39;</span>
-  <span class="o">*</span> <span class="n">individuals</span>  <span class="p">(</span><span class="n">individuals</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U5</span> <span class="mi">2</span><span class="n">kB</span> <span class="s1">&#39;id_1&#39;</span> <span class="s1">&#39;id_2&#39;</span> <span class="s1">&#39;id_3&#39;</span> <span class="o">...</span> <span class="s1">&#39;id_89&#39;</span> <span class="s1">&#39;id_90&#39;</span>
+  <span class="o">*</span> <span class="n">individual</span>   <span class="p">(</span><span class="n">individual</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U5</span> <span class="mi">2</span><span class="n">kB</span> <span class="s1">&#39;id_1&#39;</span> <span class="s1">&#39;id_2&#39;</span> <span class="s1">&#39;id_3&#39;</span> <span class="o">...</span> <span class="s1">&#39;id_89&#39;</span> <span class="s1">&#39;id_90&#39;</span>
 <span class="n">Data</span> <span class="n">variables</span><span class="p">:</span>
-    <span class="n">position</span>     <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">individuals</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">7</span><span class="n">kB</span> <span class="mf">901.8</span> <span class="o">...</span> <span class="mf">923.3</span>
-    <span class="n">shape</span>        <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">individuals</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">7</span><span class="n">kB</span> <span class="mf">60.0</span> <span class="mf">30.0</span> <span class="o">...</span> <span class="mf">72.0</span> <span class="mf">36.0</span>
-    <span class="n">confidence</span>   <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">individuals</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">3</span><span class="n">kB</span> <span class="n">nan</span> <span class="n">nan</span> <span class="n">nan</span> <span class="n">nan</span> <span class="o">...</span> <span class="n">nan</span> <span class="n">nan</span> <span class="n">nan</span>
+    <span class="n">position</span>     <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">individual</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">7</span><span class="n">kB</span> <span class="mf">901.8</span> <span class="o">...</span> <span class="mf">923.3</span>
+    <span class="n">shape</span>        <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">individual</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">7</span><span class="n">kB</span> <span class="mf">60.0</span> <span class="mf">30.0</span> <span class="o">...</span> <span class="mf">72.0</span> <span class="mf">36.0</span>
+    <span class="n">confidence</span>   <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">individual</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">3</span><span class="n">kB</span> <span class="n">nan</span> <span class="n">nan</span> <span class="n">nan</span> <span class="n">nan</span> <span class="o">...</span> <span class="n">nan</span> <span class="n">nan</span> <span class="n">nan</span>
 <span class="n">Attributes</span><span class="p">:</span>
     <span class="n">time_unit</span><span class="p">:</span>        <span class="n">frames</span>
     <span class="n">source_software</span><span class="p">:</span>  <span class="n">VIA</span><span class="o">-</span><span class="n">tracks</span>
@@ -597,8 +597,8 @@ Poses dataset</label><div class="sd-tab-content docutils">
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>, with size equal to the number of frames in the video.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">space</span></code>, which is the number of spatial dimensions. Currently, we support only 2D poses.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">keypoints</span></code>, with size equal to the number of tracked keypoints per individual.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">individuals</span></code>, with size equal to the number of tracked individuals/instances.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keypoint</span></code>, with size equal to the number of tracked keypoints per individual.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">individual</span></code>, with size equal to the number of tracked individuals/instances.</p></li>
 </ul>
 </div>
 <input id="sd-tab-item-3" name="sd-tab-set-1" type="radio">
@@ -608,17 +608,17 @@ Bounding boxes dataset</label><div class="sd-tab-content docutils">
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>, with size equal to the number of frames in the video.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">space</span></code>, which is the number of spatial dimensions. Currently, we support only 2D bounding boxes data.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">individuals</span></code>, with size equal to the number of tracked individuals/instances.
-Notice that these are the same dimensions as for a poses dataset, except for the <code class="docutils literal notranslate"><span class="pre">keypoints</span></code> dimension.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">individual</span></code>, with size equal to the number of tracked individuals/instances.</p></li>
 </ul>
+<p>Notice that these are the same dimensions as for a poses dataset, except for the <code class="docutils literal notranslate"><span class="pre">keypoint</span></code> dimension.</p>
 </div>
 </div>
 <p>In both cases, appropriate <strong>coordinates</strong> are assigned to each <strong>dimension</strong>.</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">time</span></code> is labelled in seconds if <code class="docutils literal notranslate"><span class="pre">fps</span></code> is provided, otherwise the <strong>coordinates</strong> are expressed in frames (ascending 0-indexed integers).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">space</span></code> is labelled with either <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code> (2D) or <code class="docutils literal notranslate"><span class="pre">x</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">z</span></code> (3D). Note that bounding boxes datasets are restricted to 2D space.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">keypoints</span></code> are likewise labelled with a list of unique body part names, e.g. <code class="docutils literal notranslate"><span class="pre">snout</span></code>, <code class="docutils literal notranslate"><span class="pre">right_ear</span></code>, etc. Note that this dimension only exists in the poses dataset.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">individuals</span></code> are labelled with a list of unique names (e.g. <code class="docutils literal notranslate"><span class="pre">mouse1</span></code>, <code class="docutils literal notranslate"><span class="pre">mouse2</span></code>, etc. or <code class="docutils literal notranslate"><span class="pre">id_0</span></code>, <code class="docutils literal notranslate"><span class="pre">id_1</span></code>, etc.).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keypoint</span></code> is likewise labelled with a list of unique body part names, e.g. <code class="docutils literal notranslate"><span class="pre">snout</span></code>, <code class="docutils literal notranslate"><span class="pre">right_ear</span></code>, etc. Note that this dimension only exists in the poses dataset.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">individual</span></code> is labelled with a list of unique names (e.g. <code class="docutils literal notranslate"><span class="pre">mouse1</span></code>, <code class="docutils literal notranslate"><span class="pre">mouse2</span></code>, etc. or <code class="docutils literal notranslate"><span class="pre">id_0</span></code>, <code class="docutils literal notranslate"><span class="pre">id_1</span></code>, etc.).</p></li>
 </ul>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header sd-bg-info sd-bg-text-info">
@@ -643,8 +643,8 @@ with the <strong>coordinates</strong> being the names given to each camera view.
 Poses dataset</label><div class="sd-tab-content docutils">
 <p>A <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset contains two <strong>data variables</strong>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">position</span></code>: the 2D or 3D locations of the keypoints over time, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">confidence</span></code>: the confidence scores associated with each predicted keypoint (as reported by the pose estimation model), with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">position</span></code>: the 2D or 3D locations of the keypoints over time, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoint</span></code>, <code class="docutils literal notranslate"><span class="pre">individual</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">confidence</span></code>: the confidence scores associated with each predicted keypoint (as reported by the pose estimation model), with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoint</span></code>, <code class="docutils literal notranslate"><span class="pre">individual</span></code>).</p></li>
 </ul>
 </div>
 <input id="sd-tab-item-5" name="sd-tab-set-2" type="radio">
@@ -652,9 +652,9 @@ Poses dataset</label><div class="sd-tab-content docutils">
 Bounding boxes dataset</label><div class="sd-tab-content docutils">
 <p>A <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset contains three <strong>data variables</strong>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">position</span></code>: the 2D locations of the bounding box centroids over time, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">shape</span></code>: the width and height of the bounding boxes over time, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>).</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">confidence</span></code>: the confidence scores associated with each predicted bounding box, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">individuals</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">position</span></code>: the 2D locations of the bounding box centroids over time, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">individual</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">shape</span></code>: the width and height of the bounding boxes over time, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">space</span></code>, <code class="docutils literal notranslate"><span class="pre">individual</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">confidence</span></code>: the confidence scores associated with each predicted bounding box, with shape (<code class="docutils literal notranslate"><span class="pre">time</span></code>, <code class="docutils literal notranslate"><span class="pre">individual</span></code>).</p></li>
 </ul>
 </div>
 </div>
@@ -699,7 +699,7 @@ and rich built-in functionalities for data manipulation and analysis.</p>
 <ul class="simple">
 <li><p>access the <strong>data variables</strong> and <strong>attributes</strong> of a dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> using dot notation (e.g. <code class="docutils literal notranslate"><span class="pre">ds.position</span></code>, <code class="docutils literal notranslate"><span class="pre">ds.fps</span></code>),</p></li>
 <li><p><a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/indexing.html#">index and select data</a> by <strong>coordinate</strong> label
-(e.g. <code class="docutils literal notranslate"><span class="pre">ds.sel(individuals=[&quot;individual1&quot;,</span> <span class="pre">&quot;individual2&quot;])</span></code>) or by integer index (e.g. <code class="docutils literal notranslate"><span class="pre">ds.isel(time=slice(0,50))</span></code>),</p></li>
+(e.g. <code class="docutils literal notranslate"><span class="pre">ds.sel(individual=[&quot;individual1&quot;,</span> <span class="pre">&quot;individual2&quot;])</span></code>) or by integer index (e.g. <code class="docutils literal notranslate"><span class="pre">ds.isel(time=slice(0,50))</span></code>),</p></li>
 <li><p>use <strong>dimension</strong> names for
 <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/computation.html#">data aggregation and broadcasting</a>, and</p></li>
 <li><p>use <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s built-in <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/plotting.html#">plotting methods</a>.</p></li>
@@ -712,22 +712,22 @@ data:</p>
 <span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
 
 <span class="c1"># select specific individuals or keypoints</span>
-<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individuals</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span> <span class="s2">&quot;individual2&quot;</span><span class="p">])</span>
-<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individual</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span> <span class="s2">&quot;individual2&quot;</span><span class="p">])</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span>
 
 <span class="c1"># combine selections</span>
 <span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
     <span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
-    <span class="n">individuals</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span> <span class="s2">&quot;individual2&quot;</span><span class="p">],</span>
-    <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span>
+    <span class="n">individual</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span> <span class="s2">&quot;individual2&quot;</span><span class="p">],</span>
+    <span class="n">keypoint</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>The same selections can be applied to the <strong>data variables</strong> inside a dataset. In that case the selection operations will
 return an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> rather than an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">position</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
-    <span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span>
-    <span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span>
+    <span class="n">individual</span><span class="o">=</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span>
+    <span class="n">keypoint</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span>
 <span class="p">)</span>  <span class="c1"># the output is a data array</span>
 </pre></div>
 </div>

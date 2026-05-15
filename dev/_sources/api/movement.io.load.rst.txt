@@ -36,4 +36,6 @@
     
     register_loader
     
+    rename_legacy_dimensions
+    
 

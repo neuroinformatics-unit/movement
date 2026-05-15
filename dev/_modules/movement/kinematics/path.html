@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../../../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -566,7 +566,7 @@
 <span class="sd">    Compute the path length from the centroid trajectory of a poses</span>
 <span class="sd">    dataset ``ds``:</span>
 
-<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoints&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoint&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; length = compute_path_length(centroid)</span>
 
 <span class="sd">    Compute path length over a specific time window:</span>
@@ -652,7 +652,7 @@
 <span class="sd">    Compute the straightness index from the centroid trajectory of a</span>
 <span class="sd">    poses dataset ``ds``:</span>
 
-<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoints&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoint&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; si = compute_path_straightness(centroid)</span>
 
 <span class="sd">    Compute straightness over a specific time window:</span>

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>compute_time_derivative &#8212; movement</title>
+    <title>rename_legacy_dimensions &#8212; movement</title>
   
   
   
@@ -50,7 +50,7 @@
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.kinematics.compute_time_derivative';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.io.load.rename_legacy_dimensions';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.17.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
@@ -60,12 +60,12 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <script src="../_static/js/contributors.js?v=e7143984"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.kinematics.compute_time_derivative.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.io.load.rename_legacy_dimensions.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="compute_turning_angle" href="movement.kinematics.compute_turning_angle.html" />
-    <link rel="prev" title="compute_speed" href="movement.kinematics.compute_speed.html" /> 
+    <link rel="next" title="movement.io.load_bboxes" href="movement.io.load_bboxes.html" />
+    <link rel="prev" title="register_loader" href="movement.io.load.register_loader.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -437,14 +437,14 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.filtering.savgol_filter.html">savgol_filter</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load.html">movement.io.load</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.io.load.html">movement.io.load</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.LoaderProtocol.html">LoaderProtocol</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.get_supported_source_software.html">get_supported_source_software</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.infer_source_software.html">infer_source_software</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_dataset.html">load_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_multiview_dataset.html">load_multiview_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.register_loader.html">register_loader</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.io.load.rename_legacy_dimensions.html">rename_legacy_dimensions</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">rename_legacy_dimensions</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load_bboxes.html">movement.io.load_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -479,7 +479,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">to_sleap_analysis_file</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.kinematics.html">movement.kinematics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.kinematics.html">movement.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_acceleration.html">compute_acceleration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_backward_displacement.html">compute_backward_displacement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_forward_displacement.html">compute_forward_displacement</a></li>
@@ -491,7 +491,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_length.html">compute_path_length</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_straightness.html">compute_path_straightness</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_speed.html">compute_speed</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">compute_time_derivative</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_time_derivative.html">compute_time_derivative</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_turning_angle.html">compute_turning_angle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_velocity.html">compute_velocity</a></li>
 </ul>
@@ -631,9 +631,9 @@
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="movement.kinematics.html" class="nav-link">movement.kinematics</a></li>
+    <li class="breadcrumb-item"><a href="movement.io.load.html" class="nav-link">movement.io.load</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compute_time_derivative</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">rename_legacy_dimensions</span></li>
   </ul>
 </nav>
 </div>
@@ -649,37 +649,42 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="compute-time-derivative">
-<h1>compute_time_derivative<a class="headerlink" href="#compute-time-derivative" title="Link to this heading">#</a></h1>
+                   <section id="rename-legacy-dimensions">
+<h1>rename_legacy_dimensions<a class="headerlink" href="#rename-legacy-dimensions" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="movement.kinematics.compute_time_derivative">
-<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_time_derivative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/kinematics.html#compute_time_derivative"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_time_derivative" title="Link to this definition">#</a></dt>
-<dd><p>Compute the time-derivative of an array using numerical differentiation.</p>
-<p>This function uses <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.differentiate.html#xarray.DataArray.differentiate" title="(in xarray v2026.4.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.differentiate()</span></code></a>,
-which differentiates the array with the second-order
-accurate central differences method.</p>
+<dt class="sig sig-object py" id="movement.io.load.rename_legacy_dimensions">
+<span class="sig-prename descclassname"><span class="pre">movement.io.load.</span></span><span class="sig-name descname"><span class="pre">rename_legacy_dimensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/load.html#rename_legacy_dimensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.load.rename_legacy_dimensions" title="Link to this definition">#</a></dt>
+<dd><p>Rename deprecated plural dimension names to singular form.</p>
+<p>Datasets created with <code class="docutils literal notranslate"><span class="pre">movement</span></code> versions prior to 0.17.0 used plural
+dimension names (<code class="docutils literal notranslate"><span class="pre">&quot;keypoints&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;individuals&quot;</span></code>). This function
+renames them to the current singular convention (<code class="docutils literal notranslate"><span class="pre">&quot;keypoint&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;individual&quot;</span></code>).</p>
+<p>If no legacy dimensions are found, the dataset is returned unchanged.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.17.0: </span>This function is deprecated and will be removed in a future
+release. It is a temporary migration helper for datasets created
+with <code class="docutils literal notranslate"><span class="pre">movement</span></code> versions prior to 0.17.0.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input data containing <code class="docutils literal notranslate"><span class="pre">time</span></code> as a required dimension.</p></li>
-<li><p><strong>order</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – The order of the time-derivative. For an input containing position
-data, use 1 to compute velocity, and 2 to compute acceleration. Value
-must be a positive integer.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>ds</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a></span>) – A dataset containing legacy plural dimension names.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>An xarray DataArray containing the time-derivative of the input data.</p>
+<dd class="field-even"><p>Dataset with dimension names updated to singular form.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a></span></p>
 </dd>
 </dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.differentiate.html#xarray.DataArray.differentiate" title="(in xarray v2026.4.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.differentiate()</span></code></a></dt><dd><p>The underlying method used.</p>
-</dd>
-</dl>
+<p class="rubric">Examples</p>
+<p>Load a dataset created with <code class="docutils literal notranslate"><span class="pre">movement</span></code> &lt; 0.17.0 and
+rename its dimensions to the current convention:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io.load</span><span class="w"> </span><span class="kn">import</span> <span class="n">rename_legacy_dimensions</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s2">&quot;old_dataset.nc&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">rename_legacy_dimensions</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s2">&quot;new_dataset.nc&quot;</span><span class="p">)</span>
+</pre></div>
 </div>
 </dd></dl>
 
@@ -699,20 +704,20 @@ must be a positive integer.</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.kinematics.compute_speed.html"
+       href="movement.io.load.register_loader.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">compute_speed</p>
+        <p class="prev-next-title">register_loader</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.kinematics.compute_turning_angle.html"
+       href="movement.io.load_bboxes.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">compute_turning_angle</p>
+        <p class="prev-next-title">movement.io.load_bboxes</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -735,14 +740,14 @@ must be a positive integer.</p></li>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.kinematics.compute_time_derivative"><code class="docutils literal notranslate"><span class="pre">compute_time_derivative()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.io.load.rename_legacy_dimensions"><code class="docutils literal notranslate"><span class="pre">rename_legacy_dimensions()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/api/movement.kinematics.compute_time_derivative.rst.txt">
+    <a href="../_sources/api/movement.io.load.rename_legacy_dimensions.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

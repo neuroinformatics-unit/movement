@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -444,6 +444,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_dataset.html">load_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_multiview_dataset.html">load_multiview_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.register_loader.html">register_loader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.rename_legacy_dimensions.html">rename_legacy_dimensions</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.io.load_bboxes.html">movement.io.load_bboxes</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
@@ -693,7 +694,7 @@ represent the the top-left corner of each bounding box. Instead the
 corresponding <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset holds in its <code class="docutils literal notranslate"><span class="pre">position</span></code> array the
 centroid of each bounding box.</p>
 <p>Additionally, the bounding boxes IDs specified in the “track” field of
-the VIA tracks .csv file are mapped to the <code class="docutils literal notranslate"><span class="pre">individuals</span></code> dimension in the
+the VIA tracks .csv file are mapped to the <code class="docutils literal notranslate"><span class="pre">individual</span></code> dimension in the
 <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset. The individual names follow the format <code class="docutils literal notranslate"><span class="pre">id_&lt;N&gt;</span></code>,
 with N being the bounding box ID.</p>
 <p class="rubric">References</p>

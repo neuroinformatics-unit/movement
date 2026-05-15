@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -146,7 +146,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -446,6 +446,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_dataset.html">load_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_multiview_dataset.html">load_multiview_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.register_loader.html">register_loader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.rename_legacy_dimensions.html">rename_legacy_dimensions</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load_bboxes.html">movement.io.load_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -662,7 +663,7 @@ system of particles in physics (see Notes).</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>position</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input data containing position information, with <code class="docutils literal notranslate"><span class="pre">time</span></code>,
-<code class="docutils literal notranslate"><span class="pre">space</span></code> and <code class="docutils literal notranslate"><span class="pre">keypoints</span></code> as required dimensions.</p></li>
+<code class="docutils literal notranslate"><span class="pre">space</span></code> and <code class="docutils literal notranslate"><span class="pre">keypoint</span></code> as required dimensions.</p></li>
 <li><p><strong>keypoints</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – A list of keypoint names to include in the computation.
 By default, all are used.</p></li>
 <li><p><strong>masses</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – A dictionary mapping keypoint names to masses, e.g.
@@ -678,7 +679,7 @@ is returned.</p></li>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>A data array containing the kinetic energy per individual, for every
 time point. Note that the output array lacks <code class="docutils literal notranslate"><span class="pre">space</span></code> and
-<code class="docutils literal notranslate"><span class="pre">keypoints</span></code> dimensions.
+<code class="docutils literal notranslate"><span class="pre">keypoint</span></code> dimensions.
 If <code class="docutils literal notranslate"><span class="pre">decompose=True</span></code> an extra <code class="docutils literal notranslate"><span class="pre">energy</span></code> dimension is added,
 with coordinates <code class="docutils literal notranslate"><span class="pre">translational</span></code> and <code class="docutils literal notranslate"><span class="pre">internal</span></code>.</p>
 </dd>
@@ -723,11 +724,11 @@ between the total and translational components:</p>
 <span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
 <span class="gp">... </span>        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-<span class="gp">... </span>        <span class="s2">&quot;individuals&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;id0&quot;</span><span class="p">,</span> <span class="s2">&quot;id1&quot;</span><span class="p">],</span>
-<span class="gp">... </span>        <span class="s2">&quot;keypoints&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;snout&quot;</span><span class="p">,</span> <span class="s2">&quot;spine&quot;</span><span class="p">,</span> <span class="s2">&quot;tail_base&quot;</span><span class="p">,</span> <span class="s2">&quot;tail_tip&quot;</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">&quot;individual&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;id0&quot;</span><span class="p">,</span> <span class="s2">&quot;id1&quot;</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">&quot;keypoint&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;snout&quot;</span><span class="p">,</span> <span class="s2">&quot;spine&quot;</span><span class="p">,</span> <span class="s2">&quot;tail_base&quot;</span><span class="p">,</span> <span class="s2">&quot;tail_tip&quot;</span><span class="p">],</span>
 <span class="gp">... </span>        <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="p">},</span>
-<span class="gp">... </span>    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">],</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
@@ -735,11 +736,11 @@ between the total and translational components:</p>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kinetic_energy_total</span>
-<span class="go">&lt;xarray.DataArray (time: 3, individuals: 2)&gt; Size: 48B</span>
+<span class="go">&lt;xarray.DataArray (time: 3, individual: 2)&gt; Size: 48B</span>
 <span class="go">0.6579 0.7394 0.1304 0.05152 0.2436 0.5719</span>
 <span class="go">Coordinates:</span>
-<span class="go">* time         (time) int64 24B 0 1 2</span>
-<span class="go">* individuals  (individuals) &lt;U3 24B &#39;id0&#39; &#39;id1&#39;</span>
+<span class="go">* time        (time) int64 24B 0 1 2</span>
+<span class="go">* individual  (individual) &lt;U3 24B &#39;id0&#39; &#39;id1&#39;</span>
 </pre></div>
 </div>
 <p>Compute kinetic energy decomposed into translational
@@ -748,11 +749,11 @@ and internal components:</p>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kinetic_energy</span>
-<span class="go">&lt;xarray.DataArray (time: 3, individuals: 2, energy: 2)&gt; Size: 96B</span>
+<span class="go">&lt;xarray.DataArray (time: 3, individual: 2, energy: 2)&gt; Size: 96B</span>
 <span class="go">0.0172 1.318 0.02069 0.6498 0.02933 ... 0.1716 0.07829 0.7942 0.06901 0.857</span>
 <span class="go">Coordinates:</span>
-<span class="go">* time         (time) int64 24B 0 1 2</span>
-<span class="go">* individuals  (individuals) &lt;U3 24B &#39;id0&#39; &#39;id1&#39;</span>
+<span class="go">* time        (time) int64 24B 0 1 2</span>
+<span class="go">* individual  (individual) &lt;U3 24B &#39;id0&#39; &#39;id1&#39;</span>
 <span class="go">* energy       (energy) &lt;U13 104B &#39;translational&#39; &#39;internal&#39;</span>
 </pre></div>
 </div>

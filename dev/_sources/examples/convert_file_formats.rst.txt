@@ -137,8 +137,8 @@ which we can then modify to our liking.
 
     ds = load_poses.from_sleap_file(file_path, fps=30)
     print(ds, "\n")
-    print("Individuals:", ds.coords["individuals"].values)
-    print("Keypoints:", ds.coords["keypoints"].values)
+    print("Individuals:", ds.coords["individual"].values)
+    print("Keypoints:", ds.coords["keypoint"].values)
 
 
 
@@ -150,15 +150,15 @@ which we can then modify to our liking.
  .. code-block:: none
 
     <xarray.Dataset> Size: 1MB
-    Dimensions:      (time: 18485, space: 2, keypoints: 6, individuals: 1)
+    Dimensions:     (time: 18485, space: 2, keypoint: 6, individual: 1)
     Coordinates:
-      * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
-      * space        (space) <U1 8B 'x' 'y'
-      * keypoints    (keypoints) <U9 216B 'snout' 'left_ear' ... 'tail_end'
-      * individuals  (individuals) <U4 16B 'id_0'
+      * time        (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
+      * space       (space) <U1 8B 'x' 'y'
+      * keypoint    (keypoint) <U9 216B 'snout' 'left_ear' ... 'tail_end'
+      * individual  (individual) <U4 16B 'id_0'
     Data variables:
-        position     (time, space, keypoints, individuals) float32 887kB nan ... ...
-        confidence   (time, keypoints, individuals) float32 444kB nan nan ... 0.7607
+        position    (time, space, keypoint, individual) float32 887kB nan ... 476.2
+        confidence  (time, keypoint, individual) float32 444kB nan nan ... 0.7607
     Attributes:
         source_software:  SLEAP
         ds_type:          poses
@@ -205,7 +205,7 @@ this function calls :meth:`xarray.Dataset.assign_coords`.
 
     def rename_keypoints(ds, rename_dict):
         # get the current names of the keypoints
-        keypoint_names = ds.coords["keypoints"].values
+        keypoint_names = ds.coords["keypoint"].values
 
         # rename the keypoints
         if not rename_dict:
@@ -213,7 +213,7 @@ this function calls :meth:`xarray.Dataset.assign_coords`.
         else:
             new_keypoints = [rename_dict.get(kp, str(kp)) for kp in keypoint_names]
             # Assign the modified values back to the Dataset
-            ds = ds.assign_coords(keypoints=new_keypoints)
+            ds = ds.assign_coords(keypoint=new_keypoints)
         return ds
 
 
@@ -233,7 +233,7 @@ Let's apply the function to our dataset and see the results.
 .. code-block:: Python
 
     ds_renamed = rename_keypoints(ds, rename_dict)
-    print("Keypoints in modified dataset:", ds_renamed.coords["keypoints"].values)
+    print("Keypoints in modified dataset:", ds_renamed.coords["keypoint"].values)
 
 
 
@@ -272,12 +272,12 @@ wrapped in an appropriately named function.
             print("No keypoints to delete. Skipping deleting step.")
         else:
             # Delete the specified keypoints and their corresponding data
-            ds = ds.drop_sel(keypoints=delete_keypoints)
+            ds = ds.drop_sel(keypoint=delete_keypoints)
         return ds
 
 
     ds_deleted = delete_keypoints(ds_renamed, keypoints_to_delete)
-    print("Keypoints in modified dataset:", ds_deleted.coords["keypoints"].values)
+    print("Keypoints in modified dataset:", ds_deleted.coords["keypoint"].values)
 
 
 
@@ -301,7 +301,7 @@ We start with a list of keypoints in the desired order
 (in this case, we'll just swap the order of the left and right ears).
 We then use :meth:`xarray.Dataset.reindex`, wrapped in yet another function.
 
-.. GENERATED FROM PYTHON SOURCE LINES 148-165
+.. GENERATED FROM PYTHON SOURCE LINES 148-163
 
 .. code-block:: Python
 
@@ -313,14 +313,12 @@ We then use :meth:`xarray.Dataset.reindex`, wrapped in yet another function.
         if not ordered_keypoints:
             print("No keypoints to reorder. Skipping reordering step.")
         else:
-            ds = ds.reindex(keypoints=ordered_keypoints)
+            ds = ds.reindex(keypoint=ordered_keypoints)
         return ds
 
 
     ds_reordered = reorder_keypoints(ds_deleted, ordered_keypoints)
-    print(
-        "Keypoints in modified dataset:", ds_reordered.coords["keypoints"].values
-    )
+    print("Keypoints in modified dataset:", ds_reordered.coords["keypoint"].values)
 
 
 
@@ -335,7 +333,7 @@ We then use :meth:`xarray.Dataset.reindex`, wrapped in yet another function.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 166-175
+.. GENERATED FROM PYTHON SOURCE LINES 164-173
 
 Save the modified dataset
 ---------------------------
@@ -347,7 +345,7 @@ as the original, but ending in ``_dlc.csv``.
 You will need to specify a different ``target_dir`` and edit
 the ``dest_path`` variable to your liking.
 
-.. GENERATED FROM PYTHON SOURCE LINES 175-182
+.. GENERATED FROM PYTHON SOURCE LINES 173-180
 
 .. code-block:: Python
 
@@ -366,12 +364,12 @@ the ``dest_path`` variable to your liking.
 
  .. code-block:: none
 
-    Saved modified dataset to /tmp/tmppjfzhft9/SLEAP_single-mouse_EPM.analysis_dlc.csv.
+    Saved modified dataset to /tmp/tmprhrytf8g/SLEAP_single-mouse_EPM.analysis_dlc.csv.
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 183-190
+.. GENERATED FROM PYTHON SOURCE LINES 181-188
 
 .. note::
     The ``split_individuals`` argument allows you to save
@@ -381,7 +379,7 @@ the ``dest_path`` variable to your liking.
     one individual in the dataset, and we don't need its name
     appended to the file name.
 
-.. GENERATED FROM PYTHON SOURCE LINES 193-205
+.. GENERATED FROM PYTHON SOURCE LINES 191-203
 
 One function to rule them all
 -----------------------------
@@ -396,7 +394,7 @@ Each file will be loaded, modified according to the
 ``rename_dict``, ``keypoints_to_delete``, and ``ordered_keypoints``
 we've defined above, and saved to the target directory.
 
-.. GENERATED FROM PYTHON SOURCE LINES 205-242
+.. GENERATED FROM PYTHON SOURCE LINES 203-240
 
 .. code-block:: Python
 
@@ -447,7 +445,7 @@ we've defined above, and saved to the target directory.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.374 seconds)
+   **Total running time of the script:** (0 minutes 0.373 seconds)
 
 
 .. _sphx_glr_download_examples_convert_file_formats.py:

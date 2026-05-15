@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../../../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -614,7 +614,7 @@
     <span class="p">)</span>
     <span class="c1"># Map individuals&#39; names to track IDs</span>
     <span class="n">map_individual_to_track_id</span> <span class="o">=</span> <span class="n">_compute_individuals_to_track_ids_map</span><span class="p">(</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
         <span class="n">track_ids_from_trailing_numbers</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Write file</span>
@@ -853,7 +853,7 @@
     <span class="c1"># Locate bboxes with null position or shape</span>
     <span class="n">null_position_or_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
-    <span class="p">)</span>  <span class="c1"># (time, individuals)</span>
+    <span class="p">)</span>  <span class="c1"># (time, individual)</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">csv_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -870,10 +870,10 @@
             <span class="n">region_id</span> <span class="o">=</span> <span class="mi">0</span>
 
             <span class="c1"># Loop through individuals</span>
-            <span class="k">for</span> <span class="n">indiv</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">indiv</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">individual</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
                 <span class="c1"># Get position and shape data</span>
-                <span class="n">xy_data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">individuals</span><span class="o">=</span><span class="n">indiv</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-                <span class="n">wh_data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">individuals</span><span class="o">=</span><span class="n">indiv</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+                <span class="n">xy_data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">indiv</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+                <span class="n">wh_data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">indiv</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
 
                 <span class="c1"># If the position or shape data contain NaNs, do not write</span>
                 <span class="c1"># this bounding box to file</span>
@@ -882,7 +882,7 @@
 
                 <span class="c1"># Get confidence score</span>
                 <span class="n">confidence</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
-                    <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">individuals</span><span class="o">=</span><span class="n">indiv</span>
+                    <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">indiv</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">values</span>
                 <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">confidence</span><span class="p">):</span>
                     <span class="n">confidence</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># pass as None if confidence is NaN</span>

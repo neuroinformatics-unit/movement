@@ -330,7 +330,7 @@ image of the habitat and the RoIs that we have defined.
 
     # Plot trajectories of the individuals
     mouse_names_and_colours = list(
-        zip(positions.individuals.values, ["r", "g", "b"], strict=False)
+        zip(positions.individual.values, ["r", "g", "b"], strict=False)
     )
     for mouse_name, col in mouse_names_and_colours:
         plot_centroid_trajectory(
@@ -421,7 +421,7 @@ can query the ``nest_region`` that we created for this information.
     distances_fig, distances_ax = plt.subplots(1, 1)
     for mouse_name, col in mouse_names_and_colours:
         distances_ax.plot(
-            distances_to_nest.sel(individuals=mouse_name),
+            distances_to_nest.sel(individual=mouse_name),
             c=col,
             label=mouse_name,
         )
@@ -504,7 +504,7 @@ However, we get something slightly unexpected:
     distances_fig, distances_ax = plt.subplots(1, 1)
     for mouse_name, col in mouse_names_and_colours:
         distances_ax.plot(
-            distances_to_ring_wall.sel(individuals=mouse_name),
+            distances_to_ring_wall.sel(individual=mouse_name),
             c=col,
             label=mouse_name,
         )
@@ -561,7 +561,7 @@ Let's try again with ``boundary_only=True``:
     distances_fig, distances_ax = plt.subplots(1, 1)
     for mouse_name, col in mouse_names_and_colours:
         distances_ax.plot(
-            distances_to_ring_wall.sel(individuals=mouse_name),
+            distances_to_ring_wall.sel(individual=mouse_name),
             c=col,
             label=mouse_name,
         )
@@ -615,7 +615,7 @@ other. Instead, let's ask for the distance  to just the exterior wall.
     distances_exterior_fig, distances_exterior_ax = plt.subplots(1, 1)
     for mouse_name, col in mouse_names_and_colours:
         distances_exterior_ax.plot(
-            distances_to_exterior.sel(individuals=mouse_name),
+            distances_to_exterior.sel(individual=mouse_name),
             c=col,
             label=mouse_name,
         )
@@ -708,12 +708,12 @@ the direction of the positive x-axis.
 
     for mouse_name, col in mouse_names_and_colours:
         allo_ax.plot(
-            allocentric_angles.sel(individuals=mouse_name),
+            allocentric_angles.sel(individual=mouse_name),
             c=col,
             label=mouse_name,
         )
         ego_ax.plot(
-            egocentric_angles.sel(individuals=mouse_name),
+            egocentric_angles.sel(individual=mouse_name),
             c=col,
             label=mouse_name,
         )
@@ -767,7 +767,7 @@ other.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.159 seconds)
+   **Total running time of the script:** (0 minutes 1.152 seconds)
 
 
 .. _sphx_glr_download_examples_boundary_angles.py:

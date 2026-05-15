@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -554,15 +554,15 @@ real-world units.</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 508kB
-Dimensions:      (time: 418, space: 2, keypoints: 50, individuals: 1)
+Dimensions:     (time: 418, space: 2, keypoint: 50, individual: 1)
 Coordinates:
-  * time         (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688
-  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
-  * keypoints    (keypoints) &lt;U15 3kB &#39;StartPlatL&#39; &#39;StepL&#39; ... &#39;HindpawKneeL&#39;
-  * individuals  (individuals) &lt;U12 48B &#39;individual_0&#39;
+  * time        (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688
+  * space       (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+  * keypoint    (keypoint) &lt;U15 3kB &#39;StartPlatL&#39; &#39;StepL&#39; ... &#39;HindpawKneeL&#39;
+  * individual  (individual) &lt;U12 48B &#39;individual_0&#39;
 Data variables:
-    position     (time, space, keypoints, individuals) float64 334kB 70.12 .....
-    confidence   (time, keypoints, individuals) float64 167kB 1.0 ... 0.005941
+    position    (time, space, keypoint, individual) float64 334kB 70.12 ... 1...
+    confidence  (time, keypoint, individual) float64 167kB 1.0 1.0 ... 0.005941
 Attributes:
     source_software:  DeepLabCut
     ds_type:          poses
@@ -583,7 +583,7 @@ approximately 1.7 seconds.</p>
 data.</p>
 <p>We can see that out of the 50 tracked keypoints, the majority track
 positions along the mouse’s body (head, back, tail, and limbs).</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span></a><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds</span><span class="o">.</span><span class="n">keypoint</span><span class="o">.</span><span class="n">values</span></a><span class="p">)</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;StartPlatL&#39; &#39;StepL&#39; &#39;StartPlatR&#39; &#39;StepR&#39; &#39;Door&#39; &#39;TransitionL&#39;
@@ -612,25 +612,25 @@ these so we can filter them out of the dataset.</p>
 
 <span class="c1"># Select all keypoints excluding the landmarks, and the single individual.</span>
 <a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.sel.html#xarray.Dataset.sel" title="xarray.Dataset.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span>
-    <span class="n">keypoints</span><span class="o">=~</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.isin.html#xarray.DataArray.isin" title="xarray.DataArray.isin" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">isin</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">landmark_keypoints</span></a><span class="p">),</span>
-    <span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;individual_0&quot;</span><span class="p">,</span>
+    <span class="n">keypoint</span><span class="o">=~</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.isin.html#xarray.DataArray.isin" title="xarray.DataArray.isin" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">keypoint</span><span class="o">.</span><span class="n">isin</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">landmark_keypoints</span></a><span class="p">),</span>
+    <span class="n">individual</span><span class="o">=</span><span class="s2">&quot;individual_0&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span></a><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;----------------------------------&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Keypoints:</span><span class="se">\n</span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Keypoints:</span><span class="se">\n</span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">keypoint</span><span class="o">.</span><span class="n">values</span></a><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 437kB
-Dimensions:      (time: 418, space: 2, keypoints: 43)
+Dimensions:     (time: 418, space: 2, keypoint: 43)
 Coordinates:
-  * time         (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688
-  * space        (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
-  * keypoints    (keypoints) &lt;U15 3kB &#39;Nose&#39; &#39;EarL&#39; ... &#39;HindpawKneeL&#39;
-    individuals  &lt;U12 48B &#39;individual_0&#39;
+  * time        (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688
+  * space       (space) &lt;U1 8B &#39;x&#39; &#39;y&#39;
+  * keypoint    (keypoint) &lt;U15 3kB &#39;Nose&#39; &#39;EarL&#39; ... &#39;HindpawKneeL&#39;
+    individual  &lt;U12 48B &#39;individual_0&#39;
 Data variables:
-    position     (time, space, keypoints) float64 288kB 55.6 47.47 ... 170.1
-    confidence   (time, keypoints) float64 144kB 0.02365 0.01434 ... 0.005941
+    position    (time, space, keypoint) float64 288kB 55.6 47.47 ... 201.7 170.1
+    confidence  (time, keypoint) float64 144kB 0.02365 0.01434 ... 0.005941
 Attributes:
     source_software:  DeepLabCut
     ds_type:          poses
@@ -678,7 +678,7 @@ function that draws the mouse skeleton in a single frame.</p>
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    position_data : xarray.DataArray</span>
-<span class="sd">        Position data with dimensions ``time``, ``keypoints``, and ``space``.</span>
+<span class="sd">        Position data with dimensions ``time``, ``keypoint``, and ``space``.</span>
 <span class="sd">    skeleton : list of tuple</span>
 <span class="sd">        List of (joint_1, joint_2) pairs defining skeletal connections,</span>
 <span class="sd">        where each element is a keypoint name present in ``position_data``.</span>
@@ -694,13 +694,13 @@ function that draws the mouse skeleton in a single frame.</p>
 
     <span class="c1"># Draw skeleton connections</span>
     <span class="k">for</span> <span class="n">joint_1</span><span class="p">,</span> <span class="n">joint_2</span> <span class="ow">in</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">skeleton</span></a><span class="p">:</span>
-        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">pos_frame</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="n">joint_1</span><span class="p">)</span>
-        <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">pos_frame</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="n">joint_2</span><span class="p">)</span>
+        <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">pos_frame</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="n">joint_1</span><span class="p">)</span>
+        <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span> <span class="o">=</span> <span class="n">pos_frame</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="n">joint_2</span><span class="p">)</span>
         <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">plot</span></a><span class="p">([</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">],</span> <span class="p">[</span><span class="n">y1</span><span class="p">,</span> <span class="n">y2</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
 
     <span class="c1"># Draw keypoints</span>
-    <span class="k">for</span> <span class="n">bodypart</span> <span class="ow">in</span> <span class="n">pos_frame</span><span class="o">.</span><span class="n">keypoints</span><span class="p">:</span>
-        <span class="n">x</span><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">y</span></a> <span class="o">=</span> <span class="n">pos_frame</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="n">bodypart</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">bodypart</span> <span class="ow">in</span> <span class="n">pos_frame</span><span class="o">.</span><span class="n">keypoint</span><span class="p">:</span>
+        <span class="n">x</span><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">y</span></a> <span class="o">=</span> <span class="n">pos_frame</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="n">bodypart</span><span class="p">)</span>
         <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.scatter.html#matplotlib.axes.Axes.scatter" title="matplotlib.axes.Axes.scatter" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span></a><span class="p">(</span><span class="n">x</span><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">y</span></a><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -933,21 +933,21 @@ Log:
 [
   {
     &quot;operation&quot;: &quot;filter_by_confidence&quot;,
-    &quot;datetime&quot;: &quot;2026-05-15 14:42:02.158425&quot;,
-    &quot;confidence&quot;: &quot;&lt;xarray.DataArray &#39;confidence&#39; (time: 418, keypoints: 43)&gt; Size: 144kB\n0.02365 0.01434 0.01821 0.02692 0.05129 ... 0.004628 0.007376 0.003921 0.005941\nCoordinates:\n  * time         (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688\n  * keypoints    (keypoints) &lt;U15 3kB &#39;Nose&#39; &#39;EarL&#39; ... &#39;HindpawKneeL&#39;\n    individuals  &lt;U12 48B &#39;individual_0&#39;&quot;,
+    &quot;datetime&quot;: &quot;2026-05-15 17:05:20.968524&quot;,
+    &quot;confidence&quot;: &quot;&lt;xarray.DataArray &#39;confidence&#39; (time: 418, keypoint: 43)&gt; Size: 144kB\n0.02365 0.01434 0.01821 0.02692 0.05129 ... 0.004628 0.007376 0.003921 0.005941\nCoordinates:\n  * time        (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688\n  * keypoint    (keypoint) &lt;U15 3kB &#39;Nose&#39; &#39;EarL&#39; ... &#39;HindpawKneeL&#39;\n    individual  &lt;U12 48B &#39;individual_0&#39;&quot;,
     &quot;threshold&quot;: &quot;0.9&quot;,
     &quot;print_report&quot;: &quot;False&quot;
   },
   {
     &quot;operation&quot;: &quot;interpolate_over_time&quot;,
-    &quot;datetime&quot;: &quot;2026-05-15 14:42:02.170963&quot;,
+    &quot;datetime&quot;: &quot;2026-05-15 17:05:20.980972&quot;,
     &quot;method&quot;: &quot;&#39;linear&#39;&quot;,
     &quot;max_gap&quot;: &quot;40&quot;,
     &quot;print_report&quot;: &quot;False&quot;
   },
   {
     &quot;operation&quot;: &quot;rolling_filter&quot;,
-    &quot;datetime&quot;: &quot;2026-05-15 14:42:02.174030&quot;,
+    &quot;datetime&quot;: &quot;2026-05-15 17:05:20.983948&quot;,
     &quot;window&quot;: &quot;6&quot;,
     &quot;statistic&quot;: &quot;&#39;median&#39;&quot;,
     &quot;min_periods&quot;: &quot;2&quot;,
@@ -955,7 +955,7 @@ Log:
   },
   {
     &quot;operation&quot;: &quot;scale&quot;,
-    &quot;datetime&quot;: &quot;2026-05-15 14:42:02.415732&quot;,
+    &quot;datetime&quot;: &quot;2026-05-15 17:05:21.223628&quot;,
     &quot;factor&quot;: &quot;np.float64(0.03440766330229682)&quot;,
     &quot;space_unit&quot;: &quot;&#39;cm&#39;&quot;
   }
@@ -989,7 +989,7 @@ first compute its approximate body length and height in <code class="docutils li
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frame_x</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">example_frame</span></a><span class="p">)</span>
 <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">frame_y</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">example_frame</span></a><span class="p">)</span>
 
-<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_length</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">frame_x</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;Nose&quot;</span><span class="p">)</span> <span class="o">-</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">frame_x</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="s2">&quot;Tail12&quot;</span><span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_length</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">frame_x</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="s2">&quot;Nose&quot;</span><span class="p">)</span> <span class="o">-</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">frame_x</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="s2">&quot;Tail12&quot;</span><span class="p">)</span>
 <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_height</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.max.html#xarray.DataArray.max" title="xarray.DataArray.max" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">frame_y</span><span class="o">.</span><span class="n">max</span></a><span class="p">()</span> <span class="o">-</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.min.html#xarray.DataArray.min" title="xarray.DataArray.min" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">frame_y</span><span class="o">.</span><span class="n">min</span></a><span class="p">()</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mouse length: </span><span class="si">{</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.values.html#xarray.DataArray.values" title="xarray.DataArray.values" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-property"><span class="n">mouse_length</span><span class="o">.</span><span class="n">values</span></a><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> cm&quot;</span><span class="p">)</span>
@@ -1012,11 +1012,11 @@ the paw trajectories in x and y over time.</p>
 <span class="p">]</span>
 
 <span class="c1"># Construct a new data array with only the toe keypoints</span>
-<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_limbs</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">toe_keypoint_names</span></a><span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_limbs</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">toe_keypoint_names</span></a><span class="p">)</span>
 
 <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_limbs</span></a><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
     <span class="n">x</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span>
-    <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span>
+    <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">,</span>
     <span class="n">row</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span>
     <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span>
     <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
@@ -1039,12 +1039,12 @@ the toe keypoints to compare the anterior-posterior separation of the fore-
 and hindpaw pairs.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forepaw_dist</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_pairwise_distances.html#movement.kinematics.compute_pairwise_distances" title="movement.kinematics.compute_pairwise_distances" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_pairwise_distances</span></a><span class="p">(</span>
     <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span>
-    <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span>
+    <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">,</span>
     <span class="n">pairs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ForepawToeL&quot;</span><span class="p">:</span> <span class="s2">&quot;ForepawToeR&quot;</span><span class="p">},</span>
 <span class="p">)</span>
 <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">hindpaw_dist</span></a> <span class="o">=</span> <a href="../api/movement.kinematics.compute_pairwise_distances.html#movement.kinematics.compute_pairwise_distances" title="movement.kinematics.compute_pairwise_distances" class="sphx-glr-backref-module-movement-kinematics sphx-glr-backref-type-py-function"><span class="n">compute_pairwise_distances</span></a><span class="p">(</span>
     <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span></a><span class="p">,</span>
-    <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span>
+    <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">,</span>
     <span class="n">pairs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;HindpawToeL&quot;</span><span class="p">:</span> <span class="s2">&quot;HindpawToeR&quot;</span><span class="p">},</span>
 <span class="p">)</span>
 </pre></div>
@@ -1056,7 +1056,7 @@ transition point at which the mouse moves onto the faster second belt.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">belt_transition</span></a> <span class="o">=</span> <span class="mi">47</span>  <span class="c1"># cm</span>
 
 <span class="c1"># Compute a proxy for body centre in x</span>
-<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">avg_body_x</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">avg_body_x</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds_mouse</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">)</span>
 
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a><span class="p">()</span>
 <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.plot.html#matplotlib.axes.Axes.plot" title="matplotlib.axes.Axes.plot" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">plot</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">avg_body_x</span></a><span class="p">,</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">forepaw_dist</span></a><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;tab:blue&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Forepaws&quot;</span><span class="p">)</span>
@@ -1150,7 +1150,7 @@ this difference grows more than tenfold, reflecting the gait adjustments
 the mouse makes to accommodate the speed differential between belts.</p>
 <p>Having the data in real-world units makes these quantitative comparisons
 possible.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.716 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.693 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-scale-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/scale.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />

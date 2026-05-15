@@ -113,8 +113,8 @@ def read_freemocap_as_ds(output_data_dir):
     -------
     xarray.Dataset
         A ``movement`` dataset containing the data from all FreeMoCap output
-        files. The ``keypoints`` dimension will have the full set of keypoints
-        as coordinates. The ``individuals`` dimension will have a single
+        files. The ``keypoint`` dimension will have the full set of keypoints
+        as coordinates. The ``individual`` dimension will have a single
         coordinate, ``id_0``. The confidence of all keypoints is set to
         the default NaN value.
 
@@ -138,7 +138,7 @@ def read_freemocap_as_ds(output_data_dir):
         )  # time, keypoint, space
 
         # Transpose to align with movement dimensions
-        # and add individuals dimension at the end
+        # and add individual dimension at the end
         data = np.transpose(data, [0, 2, 1])[..., None]
 
         # Read as a movement dataset
@@ -148,7 +148,7 @@ def read_freemocap_as_ds(output_data_dir):
         )
         list_datasets.append(ds)
 
-    # Merge all datasets along keypoint dimension
+    # Merge all datasets along the keypoint dimension
     ds_all_keypoints = xr.merge(
         list_datasets, join="outer", compat="no_conflicts"
     )
@@ -166,8 +166,8 @@ ds_world = read_freemocap_as_ds(output_data_dir_world)
 # Note that each ``movement`` dataset holds the data for
 # all keypoints across all models used by FreeMoCap.
 
-print(f"Number of keypoints in 'hello' dataset: {len(ds_hello.keypoints)}")
-print(f"Number of keypoints in 'world' dataset: {len(ds_world.keypoints)}")
+print(f"Number of keypoints in 'hello' dataset: {len(ds_hello.keypoint)}")
+print(f"Number of keypoints in 'world' dataset: {len(ds_world.keypoint)}")
 
 
 # %%
@@ -182,10 +182,10 @@ print(f"Number of keypoints in 'world' dataset: {len(ds_world.keypoints)}")
 # <https://docs.freemocap.org/documentation/frequently-asked-questions-faq.html#can-freemocap-track-multiple-people-at-once>`_.
 
 right_index_position_hello = ds_hello.position.sel(time=range(30, 180)).sel(
-    keypoints="right_hand_0006", individuals="id_0"
+    keypoint="right_hand_0006", individual="id_0"
 )
 right_index_position_world = ds_world.position.sel(time=range(150)).sel(
-    keypoints="right_hand_0006", individuals="id_0"
+    keypoint="right_hand_0006", individual="id_0"
 )
 
 # %%
@@ -389,7 +389,7 @@ G = nx.Graph()
 for kpt in selected_body_kpts:
     G.add_node(
         kpt,
-        position=ds_hello.position.sel(time=body_frame, keypoints=kpt).values,
+        position=ds_hello.position.sel(time=body_frame, keypoint=kpt).values,
     )
 
 # Add midpoint between the shoulders as node
@@ -397,9 +397,9 @@ G.add_node(
     "body_shoulders_midpoint",
     position=ds_hello.position.sel(
         time=body_frame,
-        keypoints=["body_left_shoulder", "body_right_shoulder"],
+        keypoint=["body_left_shoulder", "body_right_shoulder"],
     )
-    .mean(dim="keypoints")
+    .mean(dim="keypoint")
     .values,
 )
 

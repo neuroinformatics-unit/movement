@@ -75,15 +75,15 @@ display of the dataset's contents.
  .. code-block:: none
 
     <xarray.Dataset> Size: 61kB
-    Dimensions:      (time: 1085, space: 2, keypoints: 2, individuals: 1)
+    Dimensions:     (time: 1085, space: 2, keypoint: 2, individual: 1)
     Coordinates:
-      * time         (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1
-      * space        (space) <U1 8B 'x' 'y'
-      * keypoints    (keypoints) <U7 56B 'head' 'stinger'
-      * individuals  (individuals) <U12 48B 'individual_0'
+      * time        (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1
+      * space       (space) <U1 8B 'x' 'y'
+      * keypoint    (keypoint) <U7 56B 'head' 'stinger'
+      * individual  (individual) <U12 48B 'individual_0'
     Data variables:
-        position     (time, space, keypoints, individuals) float64 35kB 1.086e+03...
-        confidence   (time, keypoints, individuals) float64 17kB 0.05305 ... 0.0
+        position    (time, space, keypoint, individual) float64 35kB 1.086e+03 .....
+        confidence  (time, keypoint, individual) float64 17kB 0.05305 ... 0.0
     Attributes:
         source_software:  DeepLabCut
         ds_type:          poses
@@ -129,15 +129,15 @@ specify the spatial coordinate (``x`` or ``y``) and a time range to focus on.
     ):
         # If no individual is specified, use the first one
         if individual is None:
-            individual = ds_raw.individuals[0]
+            individual = ds_raw.individual[0]
         # If no time range is specified, plot the entire time series
         if time_range is None:
             time_range = slice(0, ds_raw.time[-1])
 
         selection = {
             "time": time_range,
-            "individuals": individual,
-            "keypoints": keypoint,
+            "individual": individual,
+            "keypoint": keypoint,
             "space": space,
         }
 
@@ -307,15 +307,15 @@ dataset that contains missing values.
  .. code-block:: none
 
     <xarray.Dataset> Size: 1MB
-    Dimensions:      (time: 18485, space: 2, keypoints: 6, individuals: 1)
+    Dimensions:     (time: 18485, space: 2, keypoint: 6, individual: 1)
     Coordinates:
-      * time         (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
-      * space        (space) <U1 8B 'x' 'y'
-      * keypoints    (keypoints) <U9 216B 'snout' 'left_ear' ... 'tail_end'
-      * individuals  (individuals) <U4 16B 'id_0'
+      * time        (time) float64 148kB 0.0 0.03333 0.06667 ... 616.1 616.1 616.1
+      * space       (space) <U1 8B 'x' 'y'
+      * keypoint    (keypoint) <U9 216B 'snout' 'left_ear' ... 'tail_end'
+      * individual  (individual) <U4 16B 'id_0'
     Data variables:
-        position     (time, space, keypoints, individuals) float32 887kB nan ... ...
-        confidence   (time, keypoints, individuals) float32 444kB nan nan ... 0.7607
+        position    (time, space, keypoint, individual) float32 887kB nan ... 476.2
+        confidence  (time, keypoint, individual) float32 444kB nan nan ... 0.7607
     Attributes:
         source_software:  SLEAP
         ds_type:          poses
@@ -361,14 +361,14 @@ to the dataset.
 
     Missing points (marked as NaN) in input:
 
-    keypoints                  snout           left_ear          right_ear             centre          tail_base            tail_end
-    individuals                                                                                                                     
-    id_0         4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
+    keypoint                  snout           left_ear          right_ear             centre          tail_base            tail_end
+    individual                                                                                                                     
+    id_0        4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
     Missing points (marked as NaN) in output:
 
-    keypoints                  snout           left_ear          right_ear             centre          tail_base             tail_end
-    individuals                                                                                                                      
-    id_0         5106/18485 (27.62%)  678/18485 (3.67%)  695/18485 (3.76%)  640/18485 (3.46%)  913/18485 (4.94%)  3103/18485 (16.79%)
+    keypoint                  snout           left_ear          right_ear             centre          tail_base             tail_end
+    individual                                                                                                                      
+    id_0        5106/18485 (27.62%)  678/18485 (3.67%)  695/18485 (3.76%)  640/18485 (3.46%)  913/18485 (4.94%)  3103/18485 (16.79%)
 
 
 
@@ -414,14 +414,14 @@ window are sufficient for the median to be calculated. Let's try this.
 
     Missing points (marked as NaN) in input:
 
-    keypoints                  snout           left_ear          right_ear             centre          tail_base            tail_end
-    individuals                                                                                                                     
-    id_0         4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
+    keypoint                  snout           left_ear          right_ear             centre          tail_base            tail_end
+    individual                                                                                                                     
+    id_0        4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
     Missing points (marked as NaN) in output:
 
-    keypoints                 snout           left_ear          right_ear             centre          tail_base             tail_end
-    individuals                                                                                                                     
-    id_0         4455/18485 (24.1%)  487/18485 (2.63%)  507/18485 (2.74%)  465/18485 (2.52%)  673/18485 (3.64%)  2428/18485 (13.13%)
+    keypoint                 snout           left_ear          right_ear             centre          tail_base             tail_end
+    individual                                                                                                                     
+    id_0        4455/18485 (24.1%)  487/18485 (2.63%)  507/18485 (2.74%)  465/18485 (2.52%)  673/18485 (3.64%)  2428/18485 (13.13%)
 
 
 
@@ -491,14 +491,14 @@ What happens if we increase the ``window`` to 2 seconds (60 frames)?
 
     Missing points (marked as NaN) in input:
 
-    keypoints                  snout           left_ear          right_ear             centre          tail_base            tail_end
-    individuals                                                                                                                     
-    id_0         4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
+    keypoint                  snout           left_ear          right_ear             centre          tail_base            tail_end
+    individual                                                                                                                     
+    id_0        4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
     Missing points (marked as NaN) in output:
 
-    keypoints               snout          left_ear         right_ear            centre         tail_base           tail_end
-    individuals                                                                                                             
-    id_0         795/18485 (4.3%)  80/18485 (0.43%)  80/18485 (0.43%)  80/18485 (0.43%)  80/18485 (0.43%)  239/18485 (1.29%)
+    keypoint               snout          left_ear         right_ear            centre         tail_base           tail_end
+    individual                                                                                                             
+    id_0        795/18485 (4.3%)  80/18485 (0.43%)  80/18485 (0.43%)  80/18485 (0.43%)  80/18485 (0.43%)  239/18485 (1.29%)
 
 
 
@@ -587,14 +587,14 @@ the ``ValueError`` triggered by the default ``mode='interp'`` when
 
     Missing points (marked as NaN) in input:
 
-    keypoints                  snout           left_ear          right_ear             centre          tail_base            tail_end
-    individuals                                                                                                                     
-    id_0         4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
+    keypoint                  snout           left_ear          right_ear             centre          tail_base            tail_end
+    individual                                                                                                                     
+    id_0        4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
     Missing points (marked as NaN) in output:
 
-    keypoints                  snout           left_ear         right_ear             centre           tail_base             tail_end
-    individuals                                                                                                                      
-    id_0         5810/18485 (31.43%)  895/18485 (4.84%)  905/18485 (4.9%)  839/18485 (4.54%)  1186/18485 (6.42%)  3801/18485 (20.56%)
+    keypoint                  snout           left_ear         right_ear             centre           tail_base             tail_end
+    individual                                                                                                                      
+    id_0        5810/18485 (31.43%)  895/18485 (4.84%)  905/18485 (4.9%)  839/18485 (4.54%)  1186/18485 (6.42%)  3801/18485 (20.56%)
 
 
 
@@ -769,7 +769,7 @@ what we've done.
     [
       {
         "operation": "rolling_filter",
-        "datetime": "2026-05-15 14:41:49.477803",
+        "datetime": "2026-05-15 17:05:08.434590",
         "window": "3",
         "statistic": "'median'",
         "min_periods": "2",
@@ -777,14 +777,14 @@ what we've done.
       },
       {
         "operation": "interpolate_over_time",
-        "datetime": "2026-05-15 14:41:49.500268",
+        "datetime": "2026-05-15 17:05:08.457363",
         "method": "'linear'",
         "max_gap": "30",
         "print_report": "False"
       },
       {
         "operation": "savgol_filter",
-        "datetime": "2026-05-15 14:41:49.504569",
+        "datetime": "2026-05-15 17:05:08.461569",
         "window": "12",
         "polyorder": "2",
         "print_report": "False",
@@ -839,7 +839,7 @@ also look at other keypoints and time ranges.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.410 seconds)
+   **Total running time of the script:** (0 minutes 1.399 seconds)
 
 
 .. _sphx_glr_download_examples_smooth.py:

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../../../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -502,8 +502,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    da</span>
 <span class="sd">        A data array containing position information, with `time` and `space`</span>
-<span class="sd">        as required dimensions. Optionally, it may have `individuals` and/or</span>
-<span class="sd">        `keypoints` dimensions.</span>
+<span class="sd">        as required dimensions. Optionally, it may have `individual` and/or</span>
+<span class="sd">        `keypoint` dimensions.</span>
 <span class="sd">    individual</span>
 <span class="sd">        The name of the individual to be plotted. By default, the first</span>
 <span class="sd">        individual is plotted.</span>
@@ -534,16 +534,16 @@
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one individual can be selected.&quot;</span><span class="p">)</span>
 
     <span class="n">selection</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="s2">&quot;individuals&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-        <span class="n">selection</span><span class="p">[</span><span class="s2">&quot;individuals&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">individual</span> <span class="ow">or</span> <span class="n">da</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">if</span> <span class="s2">&quot;keypoints&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-        <span class="n">selection</span><span class="p">[</span><span class="s2">&quot;keypoints&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">keypoints</span> <span class="ow">or</span> <span class="n">da</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">if</span> <span class="s2">&quot;individual&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">selection</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">individual</span> <span class="ow">or</span> <span class="n">da</span><span class="o">.</span><span class="n">individual</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;keypoint&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">selection</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">keypoints</span> <span class="ow">or</span> <span class="n">da</span><span class="o">.</span><span class="n">keypoint</span><span class="o">.</span><span class="n">values</span>
 
     <span class="n">plot_point</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">selection</span><span class="p">)</span>
     <span class="c1"># If there are multiple selected keypoints, calculate the centroid</span>
     <span class="n">plot_point</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">plot_point</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;keypoints&quot;</span> <span class="ow">in</span> <span class="n">plot_point</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">plot_point</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;keypoints&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="n">plot_point</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;keypoint&quot;</span> <span class="ow">in</span> <span class="n">plot_point</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">plot_point</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span>
         <span class="k">else</span> <span class="n">plot_point</span>
     <span class="p">)</span>
     <span class="n">plot_point</span> <span class="o">=</span> <span class="n">plot_point</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>  <span class="c1"># Only space and time should remain</span>

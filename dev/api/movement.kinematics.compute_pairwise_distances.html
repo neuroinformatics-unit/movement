@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -444,6 +444,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_dataset.html">load_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.load_multiview_dataset.html">load_multiview_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.load.register_loader.html">register_loader</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.load.rename_legacy_dimensions.html">rename_legacy_dimensions</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.load_bboxes.html">movement.io.load_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -653,10 +654,10 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.kinematics.compute_pairwise_distances">
 <span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_pairwise_distances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pairs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metric</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'euclidean'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/distances.html#compute_pairwise_distances"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_pairwise_distances" title="Link to this definition">#</a></dt>
-<dd><p>Compute pairwise distances between <code class="docutils literal notranslate"><span class="pre">individuals</span></code> or <code class="docutils literal notranslate"><span class="pre">keypoints</span></code>.</p>
+<dd><p>Compute pairwise distances between individuals or keypoints.</p>
 <p>This function computes the distances between
-pairs of <code class="docutils literal notranslate"><span class="pre">individuals</span></code> (i.e. interindividual distances) or
-pairs of <code class="docutils literal notranslate"><span class="pre">keypoints</span></code> (i.e. interkeypoint distances),
+pairs of individuals (i.e. interindividual distances) or
+pairs of keypoints (i.e. interkeypoint distances),
 as determined by <code class="docutils literal notranslate"><span class="pre">dim</span></code>.
 The distances are computed for the given <code class="docutils literal notranslate"><span class="pre">pairs</span></code>
 using the specified <code class="docutils literal notranslate"><span class="pre">metric</span></code>.</p>
@@ -665,17 +666,17 @@ using the specified <code class="docutils literal notranslate"><span class="pre"
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input data containing position information, with <code class="docutils literal notranslate"><span class="pre">time</span></code>,
 <code class="docutils literal notranslate"><span class="pre">space</span></code> (in Cartesian coordinates), and
-<code class="docutils literal notranslate"><span class="pre">individuals</span></code> or <code class="docutils literal notranslate"><span class="pre">keypoints</span></code> (as specified by <code class="docutils literal notranslate"><span class="pre">dim</span></code>)
+<code class="docutils literal notranslate"><span class="pre">individual</span></code> or <code class="docutils literal notranslate"><span class="pre">keypoint</span></code> (as specified by <code class="docutils literal notranslate"><span class="pre">dim</span></code>)
 as required dimensions.</p></li>
-<li><p><strong>dim</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'individuals'</span></code>, <code class="docutils literal notranslate"><span class="pre">'keypoints'</span></code>]</span>) – The dimension to compute the distances for. Must be either
-<code class="docutils literal notranslate"><span class="pre">'individuals'</span></code> or <code class="docutils literal notranslate"><span class="pre">'keypoints'</span></code>.</p></li>
+<li><p><strong>dim</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'individual'</span></code>, <code class="docutils literal notranslate"><span class="pre">'keypoint'</span></code>]</span>) – The dimension to compute the distances for. Must be either
+<code class="docutils literal notranslate"><span class="pre">'individual'</span></code> or <code class="docutils literal notranslate"><span class="pre">'keypoint'</span></code>.</p></li>
 <li><p><strong>pairs</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]] | <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'all'</span></code>]</span>) – <p>Specifies the pairs of elements (either individuals or keypoints)
 for which to compute distances, depending on the value of <code class="docutils literal notranslate"><span class="pre">dim</span></code>.</p>
 <ul>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">dim='individuals'</span></code>, <code class="docutils literal notranslate"><span class="pre">pairs</span></code> should be a dictionary where
+<li><p>If <code class="docutils literal notranslate"><span class="pre">dim='individual'</span></code>, <code class="docutils literal notranslate"><span class="pre">pairs</span></code> should be a dictionary where
 each key is an individual name, and each value is also an individual
 name or a list of such names to compute distances with.</p></li>
-<li><p>If <code class="docutils literal notranslate"><span class="pre">dim='keypoints'</span></code>, <code class="docutils literal notranslate"><span class="pre">pairs</span></code> should be a dictionary where each
+<li><p>If <code class="docutils literal notranslate"><span class="pre">dim='keypoint'</span></code>, <code class="docutils literal notranslate"><span class="pre">pairs</span></code> should be a dictionary where each
 key is a keypoint name, and each value is also keypoint name or a
 list of such names to compute distances with.</p></li>
 <li><p>Alternatively, use the special keyword <code class="docutils literal notranslate"><span class="pre">'all'</span></code> to compute distances
@@ -703,7 +704,7 @@ containing the computed distances for that pair.</p>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a>]</span></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">dim</span></code> is not one of <code class="docutils literal notranslate"><span class="pre">'individuals'</span></code> or <code class="docutils literal notranslate"><span class="pre">'keypoints'</span></code>;
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">dim</span></code> is not one of <code class="docutils literal notranslate"><span class="pre">'individual'</span></code> or <code class="docutils literal notranslate"><span class="pre">'keypoint'</span></code>;
     if <code class="docutils literal notranslate"><span class="pre">pairs</span></code> is not a dictionary or <code class="docutils literal notranslate"><span class="pre">'all'</span></code>; or
     if there are no pairs in <code class="docutils literal notranslate"><span class="pre">data</span></code> to compute distances for.</p>
 </dd>
@@ -715,14 +716,14 @@ containing the computed distances for that pair.</p>
 <span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
 <span class="gp">... </span>        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
-<span class="gp">... </span>        <span class="s2">&quot;individuals&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ind1&quot;</span><span class="p">,</span> <span class="s2">&quot;ind2&quot;</span><span class="p">,</span> <span class="s2">&quot;ind3&quot;</span><span class="p">],</span>
-<span class="gp">... </span>        <span class="s2">&quot;keypoints&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;key1&quot;</span><span class="p">,</span> <span class="s2">&quot;key2&quot;</span><span class="p">,</span> <span class="s2">&quot;key3&quot;</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">&quot;individual&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ind1&quot;</span><span class="p">,</span> <span class="s2">&quot;ind2&quot;</span><span class="p">,</span> <span class="s2">&quot;ind3&quot;</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">&quot;keypoint&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;key1&quot;</span><span class="p">,</span> <span class="s2">&quot;key2&quot;</span><span class="p">,</span> <span class="s2">&quot;key3&quot;</span><span class="p">],</span>
 <span class="gp">... </span>        <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="p">},</span>
-<span class="gp">... </span>    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">],</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dist_ind1_ind2</span> <span class="o">=</span> <span class="n">compute_pairwise_distances</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">position</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;ind1&quot;</span><span class="p">:</span> <span class="s2">&quot;ind2&quot;</span><span class="p">}</span>
+<span class="gp">... </span>    <span class="n">position</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;ind1&quot;</span><span class="p">:</span> <span class="s2">&quot;ind2&quot;</span><span class="p">}</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dist_ind1_ind2</span>
 <span class="go">&lt;xarray.DataArray (time: 2, ind1: 3, ind2: 3)&gt; Size: 144B</span>
@@ -744,7 +745,7 @@ at each time point.</p>
 <p>Compute the Euclidean distance (default) between <code class="docutils literal notranslate"><span class="pre">key1</span></code> and <code class="docutils literal notranslate"><span class="pre">key2</span></code>
 (i.e. interkeypoint distance), for all possible pairs of individuals.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dist_key1_key2</span> <span class="o">=</span> <span class="n">compute_pairwise_distances</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">position</span><span class="p">,</span> <span class="s2">&quot;keypoints&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;key1&quot;</span><span class="p">:</span> <span class="s2">&quot;key2&quot;</span><span class="p">}</span>
+<span class="gp">... </span>    <span class="n">position</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;key1&quot;</span><span class="p">:</span> <span class="s2">&quot;key2&quot;</span><span class="p">}</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dist_key1_key2</span>
 <span class="go">&lt;xarray.DataArray (time: 2, key1: 3, key2: 3)&gt; Size: 144B</span>
@@ -771,7 +772,7 @@ at each time point.</p>
 keypoints using <code class="docutils literal notranslate"><span class="pre">position</span></code>:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">key_dists</span> <span class="o">=</span> <span class="n">compute_pairwise_distances</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">position</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="s2">&quot;keypoints&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="p">{</span><span class="s2">&quot;key1&quot;</span><span class="p">:</span> <span class="s2">&quot;key2&quot;</span><span class="p">,</span> <span class="s2">&quot;key3&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;key1&quot;</span><span class="p">,</span> <span class="s2">&quot;key2&quot;</span><span class="p">]},</span>
 <span class="gp">... </span>    <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cityblock&quot;</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
@@ -786,7 +787,7 @@ of computed distances for each pair of keypoints.</p>
 individuals using <code class="docutils literal notranslate"><span class="pre">position</span></code>:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ind_dists</span> <span class="o">=</span> <span class="n">compute_pairwise_distances</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">position</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="s2">&quot;individuals&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">&quot;individual&quot;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="s2">&quot;all&quot;</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cityblock&quot;</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>

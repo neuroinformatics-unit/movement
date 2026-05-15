@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=d07a6d35"></script>
+    <script src="../../../_static/documentation_options.js?v=7402e92c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev14</p>
+    <p class="title logo__title">movement v0.16.1.dev15</p>
   
 </a></div>
     
@@ -1023,7 +1023,7 @@
 <span class="sd">        Skeletons object containing all Skeleton objects.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">individual</span><span class="o">.</span><span class="n">size</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Dataset must contain only one individual to create &quot;</span>
@@ -1031,8 +1031,8 @@
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">NWBFileSaveConfig</span><span class="p">()</span>
-    <span class="n">individual</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">individuals</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-    <span class="n">keypoints</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">keypoints</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">individual</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">individual</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">keypoints</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">keypoint</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="c1"># Convert timestamps to seconds if necessary</span>
     <span class="n">timestamps</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span>
@@ -1041,8 +1041,8 @@
     <span class="p">)</span>
     <span class="n">pose_estimation_series</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">ndx_pose</span><span class="o">.</span><span class="n">PoseEstimationSeries</span><span class="p">(</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="n">keypoint</span><span class="p">)</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-            <span class="n">confidence</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoints</span><span class="o">=</span><span class="n">keypoint</span><span class="p">)</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">data</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="n">keypoint</span><span class="p">)</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">confidence</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="n">keypoint</span><span class="p">)</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
             <span class="n">timestamps</span><span class="o">=</span><span class="n">timestamps</span><span class="p">,</span>
             <span class="o">**</span><span class="p">(</span>
                 <span class="n">config</span><span class="o">.</span><span class="n">_resolve_pose_estimation_series_kwargs</span><span class="p">(</span>
