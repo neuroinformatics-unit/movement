@@ -122,7 +122,7 @@ class PolygonOfInterest(BaseRegionOfInterest[RegionLike]):
         """The interior boundaries of this RoI.
 
         Interior boundaries are the boundaries of holes contained within the
-        polygon.  A region with no holes returns the empty tuple.
+        polygon. A region with no holes returns the empty tuple.
         """
         return tuple(
             LineOfInterest(
@@ -136,7 +136,7 @@ class PolygonOfInterest(BaseRegionOfInterest[RegionLike]):
     def _plot(
         self, fig: Figure | SubFigure, ax: Axes, **matplotlib_kwargs
     ) -> tuple[Figure | SubFigure, Axes]:
-        """Polygonal regions need to use patch to be plotted.
+        """Polygonal regions need to use a patch to be plotted.
 
         In addition, ``matplotlib`` requires hole coordinates to be listed in
         the reverse orientation to the exterior boundary. Running
