@@ -99,11 +99,11 @@ Now that you have the repository locally, you need to set up a Python environmen
 
     ::::
     If you also want to [edit the documentation](#editing-the-documentation) and preview the changes locally, you will additionally need the `docs` dependencies.
-    To install both `dev` and `docs` dependencies at once, use `--all-groups`:
+    To install both `dev` and `docs` dependencies at once:
 
     ```sh
-    pip install -e . --all-groups      # conda env
-    uv pip install -e . --all-groups   # uv env
+    pip install -e . --group dev --group docs        # conda env
+    uv pip install -e . --group dev --group docs     # uv env
     ```
 
 2. Finally, initialise the [pre-commit hooks](#formatting-and-pre-commit-hooks):

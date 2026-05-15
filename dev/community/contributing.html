@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=1bf3fdf8"></script>
+    <script src="../_static/documentation_options.js?v=d07a6d35"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev13</p>
+    <p class="title logo__title">movement v0.16.1.dev14</p>
   
 </a></div>
     
@@ -584,9 +584,9 @@ uv</label><div class="sd-tab-content docutils">
 </div>
 </div>
 <p>If you also want to <a class="reference internal" href="#editing-the-documentation"><span class="std std-ref">edit the documentation</span></a> and preview the changes locally, you will additionally need the <code class="docutils literal notranslate"><span class="pre">docs</span></code> dependencies.
-To install both <code class="docutils literal notranslate"><span class="pre">dev</span></code> and <code class="docutils literal notranslate"><span class="pre">docs</span></code> dependencies at once, use <code class="docutils literal notranslate"><span class="pre">--all-groups</span></code>:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--all-groups<span class="w">      </span><span class="c1"># conda env</span>
-uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--all-groups<span class="w">   </span><span class="c1"># uv env</span>
+To install both <code class="docutils literal notranslate"><span class="pre">dev</span></code> and <code class="docutils literal notranslate"><span class="pre">docs</span></code> dependencies at once:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--group<span class="w"> </span>dev<span class="w"> </span>--group<span class="w"> </span>docs<span class="w">        </span><span class="c1"># conda env</span>
+uv<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="w"> </span>--group<span class="w"> </span>dev<span class="w"> </span>--group<span class="w"> </span>docs<span class="w">     </span><span class="c1"># uv env</span>
 </pre></div>
 </div>
 </li>
