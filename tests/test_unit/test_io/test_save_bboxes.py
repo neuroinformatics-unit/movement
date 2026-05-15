@@ -44,7 +44,7 @@ def valid_bboxes_dataset_with_late_id0(valid_bboxes_dataset):
     linear motion for 10 frames, with low confidence values and time in frames.
     """
     valid_bboxes_dataset.position.loc[
-        {"individuals": "id_0", "time": [0, 1, 2]}
+        {"individual": "id_0", "time": [0, 1, 2]}
     ] = np.nan
     return valid_bboxes_dataset
 
@@ -54,7 +54,7 @@ def valid_bboxes_dataset_individuals_modified(valid_bboxes_dataset):
     """Return a valid bboxes dataset with individuals named "id_333" and
     "id_444".
     """
-    valid_bboxes_dataset.assign_coords(individuals=["id_333", "id_444"])
+    valid_bboxes_dataset.assign_coords(individual=["id_333", "id_444"])
     return valid_bboxes_dataset
 
 
@@ -280,7 +280,7 @@ def test_to_via_tracks_file_track_ids_from_trailing_numbers(
     if track_ids_from_trailing_numbers:
         assert set_unique_track_ids == {
             int(indiv.split("_")[1])
-            for indiv in input_dataset.individuals.values
+            for indiv in input_dataset.individual.values
         }
     else:
         assert set_unique_track_ids == {0, 1}

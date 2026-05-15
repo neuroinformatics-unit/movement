@@ -15,8 +15,8 @@ def valid_data_array_for_forward_vector():
     (left ear, right ear and nose), tracked for 4 frames, in x-y space.
     """
     time = [0, 1, 2, 3]
-    individuals = ["id_0"]
-    keypoints = ["left_ear", "right_ear", "nose"]
+    individual = ["id_0"]
+    keypoint = ["left_ear", "right_ear", "nose"]
     space = ["x", "y"]
 
     ds = xr.DataArray(
@@ -26,11 +26,11 @@ def valid_data_array_for_forward_vector():
             [[[-1, 0], [1, 0], [0, 1]]],  # time 2
             [[[0, -1], [0, 1], [-1, 0]]],  # time 3
         ],
-        dims=["time", "individuals", "keypoints", "space"],
+        dims=["time", "individual", "keypoint", "space"],
         coords={
             "time": time,
-            "individuals": individuals,
-            "keypoints": keypoints,
+            "individual": individual,
+            "keypoint": keypoint,
             "space": space,
         },
     )
@@ -47,10 +47,10 @@ def invalid_input_type_for_forward_vector(valid_data_array_for_forward_vector):
 
 @pytest.fixture
 def invalid_dimensions_for_forward_vector(valid_data_array_for_forward_vector):
-    """Return a position DataArray in which the ``keypoints`` dimension has
+    """Return a position DataArray in which the ``keypoint`` dimension has
     been dropped.
     """
-    return valid_data_array_for_forward_vector.sel(keypoints="nose", drop=True)
+    return valid_data_array_for_forward_vector.sel(keypoint="nose", drop=True)
 
 
 @pytest.fixture
@@ -73,7 +73,7 @@ def valid_data_array_for_forward_vector_with_nan(
     """
     nan_dataarray = valid_data_array_for_forward_vector.where(
         (valid_data_array_for_forward_vector.time != 1)
-        | (valid_data_array_for_forward_vector.keypoints != "left_ear")
+        | (valid_data_array_for_forward_vector.keypoint != "left_ear")
     )
     return nan_dataarray
 
@@ -108,7 +108,7 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
 
     for output_array in [forward_vector, forward_vector_flipped, head_vector]:
         assert isinstance(output_array, xr.DataArray)
-        for preserved_coord in ["time", "space", "individuals"]:
+        for preserved_coord in ["time", "space", "individual"]:
             assert np.all(
                 output_array[preserved_coord]
                 == valid_data_array_for_forward_vector[preserved_coord]
@@ -131,7 +131,7 @@ def test_compute_forward_vector(valid_data_array_for_forward_vector):
         (
             "invalid_dimensions_for_forward_vector",
             ValueError,
-            "Input data must contain ['keypoints']",
+            "Input data must contain ['keypoint']",
             ["left_ear", "right_ear"],
         ),
         (
@@ -179,7 +179,7 @@ def test_nan_behavior_forward_vector(
     # trunk-ignore(bandit/B101)
     assert forward_vector.name == "forward_vector"
     # Check coord preservation
-    for preserved_coord in ["time", "space", "individuals"]:
+    for preserved_coord in ["time", "space", "individual"]:
         assert np.all(
             forward_vector[preserved_coord]
             == valid_data_array_for_forward_vector_with_nan[preserved_coord]
@@ -245,8 +245,8 @@ class TestForwardVectorAngle:
         data[:, :, 1] = -data[:, :, 0]
         return xr.DataArray(
             data=data,
-            dims=["time", "space", "keypoints"],
-            coords={"space": ["x", "y"], "keypoints": ["left", "right"]},
+            dims=["time", "space", "keypoint"],
+            coords={"space": ["x", "y"], "keypoint": ["left", "right"]},
         )
 
     @pytest.mark.parametrize(
@@ -456,7 +456,7 @@ class TestTurningAngle:
             == valid_data_array_for_forward_vector.sizes["time"]
         )
         assert "space" not in angles.dims
-        assert "individuals" in angles.dims
+        assert "individual" in angles.dims
 
         # Attributes
         assert angles.name == "turning_angle"
@@ -615,18 +615,18 @@ class TestTurningAngle:
         data = valid_data_array_for_forward_vector.copy().astype(float)
 
         # Explicit, guaranteed assignment using .loc
-        data.loc[
-            {"time": 2, "individuals": "id_0", "keypoints": "left_ear"}
-        ] = np.nan  # type: ignore[index]
+        data.loc[{"time": 2, "individual": "id_0", "keypoint": "left_ear"}] = (
+            np.nan
+        )  # type: ignore[index]
 
         angles = compute_turning_angle(data)
 
         # A NaN at t=2 must break the steps at t=2 and t=3
         assert np.isnan(
-            angles.sel(time=2, individuals="id_0", keypoints="left_ear").item()
+            angles.sel(time=2, individual="id_0", keypoint="left_ear").item()
         )
         assert np.isnan(
-            angles.sel(time=3, individuals="id_0", keypoints="left_ear").item()
+            angles.sel(time=3, individual="id_0", keypoint="left_ear").item()
         )
 
     def test_stationary_keypoint_independent_masking(self):
@@ -634,7 +634,7 @@ class TestTurningAngle:
         moving kp has valid angles; stationary kp all NaN.
         """
         # Create a 4-timestep array with 2 keypoints
-        # Shape: (time, keypoints, space)
+        # Shape: (time, keypoint, space)
         data = np.zeros((4, 2, 2))
 
         # kp_0: moves along x-axis (0, 1, 2, 3)
@@ -644,10 +644,10 @@ class TestTurningAngle:
 
         ds = xr.DataArray(
             data,
-            dims=["time", "keypoints", "space"],
+            dims=["time", "keypoint", "space"],
             coords={
                 "time": np.arange(4),
-                "keypoints": ["kp_0", "kp_1"],
+                "keypoint": ["kp_0", "kp_1"],
                 "space": ["x", "y"],
             },
         )
@@ -655,7 +655,7 @@ class TestTurningAngle:
         angles = compute_turning_angle(ds)
 
         # Moving keypoint (kp_0): NaN at t=0, t=1; valid (0.0) at t=2, t=3
-        angles_kp0 = angles.isel(keypoints=0)
+        angles_kp0 = angles.isel(keypoint=0)
         assert np.isnan(angles_kp0.isel(time=0).item())
         assert np.isnan(angles_kp0.isel(time=1).item())
         assert np.allclose(
@@ -663,5 +663,5 @@ class TestTurningAngle:
         )
 
         # Stationary keypoint (kp_1): should be all NaN
-        angles_kp1 = angles.isel(keypoints=1)
+        angles_kp1 = angles.isel(keypoint=1)
         assert np.all(np.isnan(angles_kp1.values))

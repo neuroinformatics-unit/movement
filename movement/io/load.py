@@ -475,3 +475,64 @@ def load_multiview_dataset(
         for f in file_dict.values()
     ]
     return xr.concat(dataset_list, dim=new_coord_views)
+
+
+def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
+    """Rename deprecated plural dimension names to singular form.
+
+    Datasets created with ``movement`` versions prior to 0.17.0 used plural
+    dimension names (``"keypoints"``, ``"individuals"``). This function
+    renames them to the current singular convention (``"keypoint"``,
+    ``"individual"``).
+
+    If no legacy dimensions are found, the dataset is returned unchanged.
+
+    .. deprecated:: 0.17.0
+        This function is deprecated and will be removed in a future
+        release. It is a temporary migration helper for datasets created
+        with ``movement`` versions prior to 0.17.0.
+
+    Parameters
+    ----------
+    ds
+        A dataset containing legacy plural dimension names.
+
+    Returns
+    -------
+    xarray.Dataset
+        Dataset with dimension names updated to singular form.
+
+    Examples
+    --------
+    Load a dataset created with ``movement`` < 0.17.0 and
+    rename its dimensions to the current convention:
+
+    >>> import xarray as xr
+    >>> from movement.io.load import rename_legacy_dimensions
+    >>> ds = xr.open_dataset("old_dataset.nc")
+    >>> ds = rename_legacy_dimensions(ds)
+    >>> ds.to_netcdf("new_dataset.nc")
+
+    """
+    warnings.warn(
+        "`rename_legacy_dimensions` is deprecated and will be removed in "
+        "a future release. It is a temporary migration helper for "
+        "datasets created with `movement` versions prior to 0.17.0.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    legacy_dim_rename = {
+        "keypoints": "keypoint",
+        "individuals": "individual",
+    }
+    rename_map = {
+        old: new for old, new in legacy_dim_rename.items() if old in ds.dims
+    }
+    if rename_map:
+        logger.info(
+            "Renamed deprecated plural dimension names "
+            f"{list(rename_map.keys())} to singular form: "
+            f"{list(rename_map.values())}"
+        )
+        ds = ds.rename(rename_map)
+    return ds

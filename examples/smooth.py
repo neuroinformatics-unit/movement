@@ -56,15 +56,15 @@ def plot_raw_and_smooth_timeseries_and_psd(
 ):
     # If no individual is specified, use the first one
     if individual is None:
-        individual = ds_raw.individuals[0]
+        individual = ds_raw.individual[0]
     # If no time range is specified, plot the entire time series
     if time_range is None:
         time_range = slice(0, ds_raw.time[-1])
 
     selection = {
         "time": time_range,
-        "individuals": individual,
-        "keypoints": keypoint,
+        "individual": individual,
+        "keypoint": keypoint,
         "space": space,
     }
 

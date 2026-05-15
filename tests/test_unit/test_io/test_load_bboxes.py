@@ -330,7 +330,7 @@ def test_from_numpy(
                         ],  # frame 1
                     ]
                 ),
-                # shape (time, space, individuals)
+                # shape (time, space, individual)
                 "shape_array": np.array(
                     [
                         [

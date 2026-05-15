@@ -10,7 +10,7 @@ from movement.napari.convert import ds_to_napari_layers
 
 def set_some_confidence_values_to_nan(ds, individuals, time):
     """Set some confidence values to NaN for specific individuals and time."""
-    ds["confidence"].loc[{"individuals": individuals, "time": time}] = np.nan
+    ds["confidence"].loc[{"individual": individuals, "time": time}] = np.nan
     return ds
 
 
@@ -123,8 +123,8 @@ def test_valid_poses_dataset_to_napari_arrays(ds_dataset, request):
     ds = request.getfixturevalue(ds_name)
 
     n_frames = ds.sizes["time"]
-    n_individuals = ds.sizes["individuals"]
-    n_keypoints = ds.sizes.get("keypoints", 1)
+    n_individuals = ds.sizes["individual"]
+    n_keypoints = ds.sizes.get("keypoint", 1)
     n_tracks = n_individuals * n_keypoints  # total tracked points
 
     # Convert the dataset to a napari Tracks array, napari Shapes array
@@ -136,14 +136,14 @@ def test_valid_poses_dataset_to_napari_arrays(ds_dataset, request):
     # We assume values are extracted from the dataset in a specific way,
     # by iterating first over individuals and then over keypoints.
     y_coords, x_coords, confidence = [], [], []
-    for id in ds.individuals.values:
-        positions = ds.position.sel(individuals=id)
-        confidences = ds.confidence.sel(individuals=id)
+    for id in ds.individual.values:
+        positions = ds.position.sel(individual=id)
+        confidences = ds.confidence.sel(individual=id)
 
-        for kpt in ds.keypoints.values:
-            y_coords.extend(positions.sel(keypoints=kpt, space="y").values)
-            x_coords.extend(positions.sel(keypoints=kpt, space="x").values)
-            confidence.extend(confidences.sel(keypoints=kpt).values)
+        for kpt in ds.keypoint.values:
+            y_coords.extend(positions.sel(keypoint=kpt, space="y").values)
+            x_coords.extend(positions.sel(keypoint=kpt, space="x").values)
+            confidence.extend(confidences.sel(keypoint=kpt).values)
 
     # Generate expected napari tracks array
     expected_tracks = _get_napari_array_for_poses(
@@ -155,12 +155,12 @@ def test_valid_poses_dataset_to_napari_arrays(ds_dataset, request):
     expected_properties_df = pd.DataFrame(
         {
             "individual": np.repeat(
-                ds.individuals.values.repeat(n_keypoints), n_frames
+                ds.individual.values.repeat(n_keypoints), n_frames
             ),
             **(
                 {
                     "keypoint": np.repeat(
-                        np.tile(ds.keypoints.values, n_individuals), n_frames
+                        np.tile(ds.keypoint.values, n_individuals), n_frames
                     )
                 }
             ),
@@ -195,8 +195,8 @@ def test_valid_bboxes_dataset_to_napari_arrays(ds_dataset, request):
     ds = request.getfixturevalue(ds_name)
 
     n_frames = ds.sizes["time"]
-    n_individuals = ds.sizes["individuals"]
-    n_keypoints = ds.sizes.get("keypoints", 1)
+    n_individuals = ds.sizes["individual"]
+    n_keypoints = ds.sizes.get("keypoint", 1)
     n_tracks = n_individuals * n_keypoints  # total tracked points
 
     # Convert the dataset to a napari Tracks array, napari Shapes array
@@ -208,10 +208,10 @@ def test_valid_bboxes_dataset_to_napari_arrays(ds_dataset, request):
     # We assume values are extracted from the dataset
     # by iterating first over individuals and then over keypoints.
     y_coords, x_coords, confidence, heights, widths = [], [], [], [], []
-    for id in ds.individuals.values:
-        positions = ds.position.sel(individuals=id)
-        confidences = ds.confidence.sel(individuals=id)
-        shapes = ds.shape.sel(individuals=id)
+    for id in ds.individual.values:
+        positions = ds.position.sel(individual=id)
+        confidences = ds.confidence.sel(individual=id)
+        shapes = ds.shape.sel(individual=id)
 
         y_coords.extend(positions.sel(space="y").values)
         x_coords.extend(positions.sel(space="x").values)
@@ -228,7 +228,7 @@ def test_valid_bboxes_dataset_to_napari_arrays(ds_dataset, request):
     expected_properties_df = pd.DataFrame(
         {
             "individual": np.repeat(
-                ds.individuals.values.repeat(n_keypoints), n_frames
+                ds.individual.values.repeat(n_keypoints), n_frames
             ),
             "time": np.tile(np.arange(n_frames), n_tracks),
             "confidence": confidence,

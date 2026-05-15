@@ -1,6 +1,7 @@
 from contextlib import nullcontext as does_not_raise
 from typing import ClassVar
 
+import numpy as np
 import pytest
 import xarray as xr
 from attrs import define, field, validators
@@ -240,3 +241,44 @@ def test_load_dataset_auto_detects(
     )
 
     xr.testing.assert_identical(auto_ds, explicit_ds)
+
+
+@pytest.mark.parametrize(
+    "legacy_dims, new_dims, expect_log",
+    [
+        pytest.param(
+            ("time", "space", "keypoints", "individuals"),
+            ("time", "space", "keypoint", "individual"),
+            True,
+            id="both plural dims renamed",
+        ),
+        pytest.param(
+            ("time", "space", "individuals"),
+            ("time", "space", "individual"),
+            True,
+            id="only individuals renamed",
+        ),
+        pytest.param(
+            ("time", "space", "keypoint", "individual"),
+            ("time", "space", "keypoint", "individual"),
+            False,
+            id="already singular",
+        ),
+    ],
+)
+@pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
+def test_rename_legacy_dimensions(legacy_dims, new_dims, expect_log, caplog):
+    """Test that rename_legacy_dimensions renames plural dims to singular."""
+    ds = xr.Dataset(
+        {
+            "position": xr.DataArray(
+                np.zeros([3] * len(legacy_dims)), dims=legacy_dims
+            )
+        },
+    )
+    result = load.rename_legacy_dimensions(ds)
+    assert tuple(result.dims) == new_dims
+    if expect_log:
+        assert "Renamed deprecated plural dimension names" in caplog.text
+    else:
+        assert caplog.text == ""

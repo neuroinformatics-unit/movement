@@ -21,7 +21,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from movement.io import load_dataset
+from movement.io.load import load_dataset, rename_legacy_dimensions
 from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.utils.logging import logger
@@ -248,6 +248,8 @@ class DataLoader(QWidget):
         except Exception as e:
             show_error(f"Error opening netCDF file: {e}")
             return None
+
+        ds = rename_legacy_dimensions(ds)
 
         ds_type = ds.attrs.get("ds_type", None)
         if ds_type not in {"poses", "bboxes"}:
