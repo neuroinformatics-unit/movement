@@ -266,6 +266,7 @@ def test_load_dataset_auto_detects(
         ),
     ],
 )
+@pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
 def test_rename_legacy_dimensions(legacy_dims, new_dims, expect_log, caplog):
     """Test that rename_legacy_dimensions renames plural dims to singular."""
     ds = xr.Dataset(

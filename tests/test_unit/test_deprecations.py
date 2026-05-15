@@ -1,11 +1,23 @@
 """Tests for deprecated API elements (functions, methods, classes)."""
 
+from contextlib import nullcontext
+
 import pytest
+import xarray as xr
+
+from movement.io import load
 
 
 @pytest.mark.parametrize(
     "deprecated_callable, mocked_inputs, patch_context, check_in_message",
-    [],
+    [
+        (
+            load.rename_legacy_dimensions,
+            {"ds": xr.Dataset()},
+            nullcontext(),
+            r"`rename_legacy_dimensions` is deprecated",
+        ),
+    ],
 )
 def test_deprecated_callable(
     deprecated_callable, mocked_inputs, patch_context, check_in_message

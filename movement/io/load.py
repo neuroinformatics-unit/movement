@@ -487,6 +487,11 @@ def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
 
     If no legacy dimensions are found, the dataset is returned unchanged.
 
+    .. deprecated:: 0.17.0
+        This function is deprecated and will be removed in a future
+        release. It is a temporary migration helper for datasets created
+        with ``movement`` versions prior to 0.17.0.
+
     Parameters
     ----------
     ds
@@ -509,6 +514,13 @@ def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
     >>> ds.to_netcdf("new_dataset.nc")
 
     """
+    warnings.warn(
+        "`rename_legacy_dimensions` is deprecated and will be removed in "
+        "a future release. It is a temporary migration helper for "
+        "datasets created with `movement` versions prior to 0.17.0.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     legacy_dim_rename = {
         "keypoints": "keypoint",
         "individuals": "individual",
