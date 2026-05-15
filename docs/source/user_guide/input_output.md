@@ -57,7 +57,7 @@ from movement.io import load_dataset
 ```
 
 By default, `movement` infers `source_software` from the file format via
-{func}`infer_source_software()<movement.io.load.infer_source_software>`.
+{func}`~movement.io.load.infer_source_software`.
 
 ```python
 ds = load_dataset(
@@ -438,7 +438,7 @@ dimensions to (`"keypoint"`, `"individual"`) with {func}`~movement.io.load.renam
 before further processing:
 
 ```python
-from movement.io import rename_legacy_dimensions
+from movement.io.load import rename_legacy_dimensions
 
 ds = rename_legacy_dimensions(ds)
 ```
