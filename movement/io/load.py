@@ -501,7 +501,7 @@ def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
     --------
     Load a dataset created with ``movement`` < 0.17.0 and
     rename its dimensions to the current convention:
-    
+
     >>> import xarray as xr
     >>> from movement.io.load import rename_legacy_dimensions
     >>> ds = xr.open_dataset("old_dataset.nc")
