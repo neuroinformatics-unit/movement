@@ -480,7 +480,7 @@ def load_multiview_dataset(
 def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
     """Rename deprecated plural dimension names to singular form.
 
-    Datasets saved with ``movement`` versions prior to 0.17.0 used plural
+    Datasets created with ``movement`` versions prior to 0.17.0 used plural
     dimension names (``"keypoints"``, ``"individuals"``). This function
     renames them to the current singular convention (``"keypoint"``,
     ``"individual"``).
@@ -490,7 +490,7 @@ def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
     Parameters
     ----------
     ds
-        An xarray Dataset that may contain legacy plural dimension names.
+        A dataset containing legacy plural dimension names.
 
     Returns
     -------
@@ -499,8 +499,11 @@ def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
 
     Examples
     --------
+    Load a dataset created with ``movement`` < 0.17.0 and
+    rename its dimensions to the current convention:
+    
     >>> import xarray as xr
-    >>> from movement.io import rename_legacy_dimensions
+    >>> from movement.io.load import rename_legacy_dimensions
     >>> ds = xr.open_dataset("old_dataset.nc")
     >>> ds = rename_legacy_dimensions(ds)
     >>> ds.to_netcdf("new_dataset.nc")

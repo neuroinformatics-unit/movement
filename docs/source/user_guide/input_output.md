@@ -432,9 +432,9 @@ ds = xr.open_dataset("my_data.nc")
 ```
 
 :::{note}
-Datasets saved with `movement` versions prior to 0.17.0 used plural dimension
-names (`"keypoints"`, `"individuals"`). If you load such a file, rename
-these dimensions with {func}`~movement.io.load.rename_legacy_dimensions`
+Datasets created with `movement` versions prior to 0.17.0 used plural dimension names
+ (`"keypoints"`, `"individuals"`). If you load a file saved from such a dataset, rename these
+dimensions to (`"keypoint"`, `"individual"`) with {func}`~movement.io.load.rename_legacy_dimensions`
 before further processing:
 
 ```python
