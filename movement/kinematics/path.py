@@ -199,6 +199,7 @@ def compute_path_straightness(
     result.attrs["long_name"] = "Path Straightness Index"
     return result
 
+
 def compute_path_sinuosity(
     data: xr.DataArray,
     min_step_length: float = 0.0,
@@ -256,10 +257,11 @@ def compute_path_sinuosity(
         An xarray DataArray containing the computed sinuosity,
         with dimensions matching those of the input data,
         except ``time`` and ``space`` are removed.
+
     """
     # Reuse the internal validation helper (checks for >= 2 points)
     data = _slice_and_validate(data, start, stop, "path sinuosity")
-    
+
     # Sinuosity specifically needs 3 points for angles
     n_time = data.sizes["time"]
     if n_time < 3:
@@ -292,7 +294,7 @@ def compute_path_sinuosity(
     # --- Summary statistics (NaN-aware) -------------------------------------
     p_bar = step_lengths.mean(dim="time", skipna=True)
     c_bar = np.cos(theta).mean(dim="time", skipna=True)
-    
+
     # Protect against division by zero if the animal is stationary
     is_stationary = np.isclose(p_bar, 0.0)
     p_bar_safe = xr.where(is_stationary, np.nan, p_bar)
@@ -306,7 +308,7 @@ def compute_path_sinuosity(
         0.0,
         (1.0 + c_bar) / (1.0 - c_bar),
     )
-    
+
     result = 2.0 * (p_bar_safe * (angle_term + b**2)) ** -0.5
 
     result = xr.where(is_straight, 0.0, result)
@@ -314,8 +316,9 @@ def compute_path_sinuosity(
 
     result.name = "sinuosity"
     result.attrs["long_name"] = "Path Sinuosity"
-    
+
     return result
+
 
 def _slice_and_validate(
     data: xr.DataArray,
