@@ -89,6 +89,69 @@ class TestVector:
         cart_pol_dataset["space_pol"] = ["a", "b"]
         return cart_pol_dataset
 
+    @pytest.fixture
+    def cart_pol_dataset_3d(self):
+        """Return xarray.Dataset with 3D Cartesian and cylindrical coords."""
+        # 3D Cartesian coordinates
+        x_vals = np.array([1.0, 0.0, -1.0, 1.0, 0.0])
+        y_vals = np.array([0.0, 1.0, 0.0, 1.0, 0.0])
+        z_vals = np.array([0.0, 0.0, 2.0, 3.0, -1.0])
+        time_coords = np.arange(len(x_vals))
+
+        # Expected cylindrical coordinates (rho in x-y plane, z passes through)
+        rho = np.sqrt(x_vals**2 + y_vals**2)
+        phi = np.arctan2(y_vals, x_vals)
+        # Handle null vectors in x-y plane
+        phi = np.where(np.isclose(rho, 0.0), 0.0, phi)
+
+        cart = xr.DataArray(
+            np.column_stack((x_vals, y_vals, z_vals)),
+            dims=["time", "space"],
+            coords={"time": time_coords, "space": ["x", "y", "z"]},
+        )
+        pol = xr.DataArray(
+            np.column_stack((rho, phi, z_vals)),
+            dims=["time", "space_pol"],
+            coords={"time": time_coords, "space_pol": ["rho", "phi", "z"]},
+        )
+        return xr.Dataset(data_vars={"cart": cart, "pol": pol})
+
+    @pytest.fixture
+    def cart_sph_dataset(self):
+        """Return an xarray.Dataset with 3D Cartesian and spherical coords."""
+        # 3D Cartesian coordinates (points on/around unit sphere)
+        cart_data = np.array(
+            [
+                [1.0, 0.0, 0.0],  # +x axis
+                [0.0, 1.0, 0.0],  # +y axis
+                [0.0, 0.0, 1.0],  # +z axis (north pole)
+                [0.0, 0.0, -1.0],  # -z axis (south pole)
+                [1.0, 1.0, 0.0],  # x-y plane, 45 deg
+            ]
+        )
+        time_coords = np.arange(len(cart_data))
+
+        # Expected spherical coordinates
+        x, y, z = cart_data[:, 0], cart_data[:, 1], cart_data[:, 2]
+        rho = np.sqrt(x**2 + y**2 + z**2)
+        azimuth = np.arctan2(y, x)
+        elevation = np.where(rho > 0, np.arcsin(z / rho), 0.0)
+
+        cart = xr.DataArray(
+            cart_data,
+            dims=["time", "space"],
+            coords={"time": time_coords, "space": ["x", "y", "z"]},
+        )
+        sph = xr.DataArray(
+            np.column_stack((rho, azimuth, elevation)),
+            dims=["time", "space_sph"],
+            coords={
+                "time": time_coords,
+                "space_sph": ["rho", "azimuth", "elevation"],
+            },
+        )
+        return xr.Dataset(data_vars={"cart": cart, "sph": sph})
+
     @pytest.mark.parametrize(
         "ds, expected_exception",
         [
@@ -196,6 +259,70 @@ class TestVector:
             expected_unit_pol.loc[{"space_pol": "rho"}] = 1
             expected_unit_pol = expected_unit_pol.where(~expected_nan_idxs)
             xr.testing.assert_allclose(unit_pol, expected_unit_pol)
+
+    def test_cart2pol_3d(self, cart_pol_dataset_3d):
+        """Test 3D Cartesian to cylindrical coordinates."""
+        result = vector.cart2pol(cart_pol_dataset_3d.cart)
+        xr.testing.assert_allclose(result, cart_pol_dataset_3d.pol)
+        # Verify z passes through unchanged
+        xr.testing.assert_equal(
+            result.sel(space_pol="z", drop=True),
+            cart_pol_dataset_3d.cart.sel(space="z", drop=True),
+        )
+
+    def test_pol2cart_3d(self, cart_pol_dataset_3d):
+        """Test 3D cylindrical to Cartesian coordinates."""
+        result = vector.pol2cart(cart_pol_dataset_3d.pol)
+        xr.testing.assert_allclose(result, cart_pol_dataset_3d.cart)
+
+    def test_compute_norm_3d(self, cart_pol_dataset_3d):
+        """Test norm computation on 3D Cartesian and cylindrical data."""
+        cart = cart_pol_dataset_3d.cart
+        pol = cart_pol_dataset_3d.pol
+
+        # 3D Cartesian norm: sqrt(x^2 + y^2 + z^2)
+        result_cart = vector.compute_norm(cart)
+        expected = np.sqrt(
+            cart.sel(space="x", drop=True) ** 2
+            + cart.sel(space="y", drop=True) ** 2
+            + cart.sel(space="z", drop=True) ** 2
+        )
+        xr.testing.assert_allclose(result_cart, expected)
+
+        # Cylindrical norm should return rho (x-y plane magnitude)
+        result_pol = vector.compute_norm(pol)
+        expected_pol = pol.sel(space_pol="rho", drop=True)
+        xr.testing.assert_allclose(result_pol, expected_pol)
+
+    def test_convert_to_unit_3d(self, cart_pol_dataset_3d):
+        """Test unit vector conversion on 3D Cartesian data."""
+        cart = cart_pol_dataset_3d.cart
+        unit_cart = vector.convert_to_unit(cart)
+
+        # Unit vectors should have norm = 1
+        norms = vector.compute_norm(unit_cart)
+        # Skip null vectors (where original norm was 0)
+        original_norms = vector.compute_norm(cart)
+        valid_mask = original_norms > 0
+        xr.testing.assert_allclose(
+            norms.where(valid_mask), xr.ones_like(norms).where(valid_mask)
+        )
+
+    def test_cart2sph(self, cart_sph_dataset):
+        """Test 3D Cartesian to spherical coordinates."""
+        result = vector.cart2sph(cart_sph_dataset.cart)
+        xr.testing.assert_allclose(result, cart_sph_dataset.sph)
+
+    def test_sph2cart(self, cart_sph_dataset):
+        """Test spherical to 3D Cartesian coordinates."""
+        result = vector.sph2cart(cart_sph_dataset.sph)
+        xr.testing.assert_allclose(result, cart_sph_dataset.cart)
+
+    def test_cart2sph_sph2cart_roundtrip(self, cart_sph_dataset):
+        """Test roundtrip conversion: cart -> sph -> cart."""
+        cart = cart_sph_dataset.cart
+        roundtrip = vector.sph2cart(vector.cart2sph(cart))
+        xr.testing.assert_allclose(roundtrip, cart)
 
 
 class TestComputeSignedAngle:
