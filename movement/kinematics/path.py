@@ -195,6 +195,120 @@ def compute_path_straightness(
     return result
 
 
+def compute_path_deviation(
+    data: xr.DataArray,
+    start: float | None = None,
+    stop: float | None = None,
+) -> xr.DataArray:
+    r"""Compute the perpendicular deviation from the chord at each time point.
+
+    For each time point :math:`t`, the path deviation is the perpendicular
+    (unsigned) distance between the position :math:`P(t)` and the infinite
+    line passing through the chord endpoints :math:`A` (position at
+    ``start``) and :math:`B` (position at ``stop``).
+
+    Formally, let :math:`\mathbf{u} = B - A` be the chord vector and
+    :math:`\hat{\mathbf{u}} = \mathbf{u} / \|\mathbf{u}\|` its unit vector.
+    The deviation at time :math:`t` is:
+
+    .. math::
+
+        d(t) = \left\|
+            (P(t) - A) -
+            \left[(P(t) - A) \cdot \hat{\mathbf{u}}\right] \hat{\mathbf{u}}
+        \right\|
+
+    This is the norm of the component of :math:`P(t) - A` that is
+    perpendicular to the chord, and is equivalent to the distance from
+    :math:`P(t)` to the infinite line through :math:`A` and :math:`B`.
+    The formulation is dimension-agnostic (works for 2D and 3D data).
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+    start : float, optional
+        The start time of the path. If None (default),
+        the minimum time coordinate in the data is used.
+    stop : float, optional
+        The end time of the path. If None (default),
+        the maximum time coordinate in the data is used.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the perpendicular deviation from
+        the chord at each time point, with dimensions matching those of
+        the input data, except ``space`` is removed. Values are in the
+        same spatial units as the input. Zero means the position lies
+        exactly on the chord line; larger values indicate greater lateral
+        excursion.
+
+    Raises
+    ------
+    ValueError
+        If fewer than 2 time points exist in the sliced data, or if
+        the chord length is zero (i.e. ``A == B``), which means the start
+        and end positions are identical and the chord is degenerate.
+
+    See Also
+    --------
+    :func:`compute_path_straightness` : Ratio of chord length to path length.
+    :func:`compute_path_length` : Total distance travelled along the path.
+
+    Examples
+    --------
+    >>> from movement.kinematics import compute_path_deviation
+
+    Compute per-frame path deviation from the centroid trajectory of a
+    poses dataset ``ds``:
+
+    >>> centroid = ds.position.mean(dim="keypoint")
+    >>> deviation = compute_path_deviation(centroid)
+
+    Compute the maximum lateral excursion over the trajectory:
+
+    >>> max_deviation = deviation.max(dim="time")
+
+    Compute the mean deviation over a specific time window:
+
+    >>> mean_deviation = compute_path_deviation(
+    ...     centroid, start=10, stop=50
+    ... ).mean(dim="time")
+
+    """
+    data = _slice_and_validate(data, start, stop, "path deviation")
+
+    anchored = data.ffill(dim="time").bfill(dim="time")
+    A = anchored.isel(time=0)
+    B = anchored.isel(time=-1)
+
+    chord = B - A
+    chord_length = compute_norm(chord)
+
+    if (chord_length == 0).all():
+        raise logger.error(
+            ValueError(
+                "The chord length is zero (start and end positions are "
+                "identical). Path deviation is undefined for a degenerate "
+                "chord. Consider using a different metric, such as "
+                "compute_path_length."
+            )
+        )
+
+    chord_unit = chord / chord_length
+    p_minus_a = data - A
+    scalar_proj = (p_minus_a * chord_unit).sum(dim="space")
+    vector_proj = scalar_proj * chord_unit
+    rejection = p_minus_a - vector_proj
+
+    deviation = compute_norm(rejection)
+    deviation.name = "path_deviation"
+    deviation.attrs["long_name"] = "Path Deviation"
+    return deviation
+
+
 def _slice_and_validate(
     data: xr.DataArray,
     start: float | None,
