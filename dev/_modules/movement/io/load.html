@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../../../_static/documentation_options.js?v=7402e92c"></script>
+    <script src="../../../_static/documentation_options.js?v=43fa6346"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev15</p>
+    <p class="title logo__title">movement v0.16.1.dev16</p>
   
 </a></div>
     
@@ -951,6 +951,10 @@
 <span class="sd">    dataset specified in ``file_path_dict``. This is the default</span>
 <span class="sd">    behaviour of :func:`xarray.concat` used under the hood.</span>
 
+<span class="sd">    All input views must share identical ``time`` coordinates. If they</span>
+<span class="sd">    do not, :func:`xarray.concat` raises a :class:`ValueError` naming</span>
+<span class="sd">    the offending dimension. This is enforced via ``join=&quot;exact&quot;``.</span>
+
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
 <span class="sd">    movement.io.load_poses</span>
@@ -963,7 +967,7 @@
         <span class="n">load_dataset</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="n">source_software</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">file_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
     <span class="p">]</span>
-    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">new_coord_views</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dataset_list</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">new_coord_views</span><span class="p">,</span> <span class="n">join</span><span class="o">=</span><span class="s2">&quot;exact&quot;</span><span class="p">)</span></div>
 
 
 

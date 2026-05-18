@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
 
-    <script src="../_static/documentation_options.js?v=7402e92c"></script>
+    <script src="../_static/documentation_options.js?v=43fa6346"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev15</p>
+    <p class="title logo__title">movement v0.16.1.dev16</p>
   
 </a></div>
     
@@ -684,6 +684,9 @@ loading functions in modules listed under “See Also”.</p></li>
 <p>The attributes of the resulting dataset will be taken from the first
 dataset specified in <code class="docutils literal notranslate"><span class="pre">file_path_dict</span></code>. This is the default
 behaviour of <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.concat.html#xarray.concat" title="(in xarray v2026.4.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.concat()</span></code></a> used under the hood.</p>
+<p>All input views must share identical <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates. If they
+do not, <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.concat.html#xarray.concat" title="(in xarray v2026.4.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.concat()</span></code></a> raises a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> naming
+the offending dimension. This is enforced via <code class="docutils literal notranslate"><span class="pre">join=&quot;exact&quot;</span></code>.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <p><a class="reference internal" href="movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a>, <a class="reference internal" href="movement.io.load_bboxes.html#module-movement.io.load_bboxes" title="movement.io.load_bboxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.load_bboxes</span></code></a></p>
