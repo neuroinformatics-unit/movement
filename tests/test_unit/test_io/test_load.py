@@ -158,6 +158,32 @@ def test_load_multiview_dataset(dataset_name, source_software):
     assert multi_view_ds.view.values.tolist() == view_names
 
 
+@pytest.mark.parametrize(
+    "modify_second_view, should_raise",
+    [
+        (lambda ds: ds, False),
+        (lambda ds: ds.isel(time=slice(0, -1)), True),
+        (lambda ds: ds.assign_coords(time=ds["time"].values + 1.0), True),
+    ],
+    ids=["identical", "trimmed", "shifted"],
+)
+def test_load_multiview_dataset_strict_alignment(
+    modify_second_view, should_raise, dlc_h5_file, mocker
+):
+    """Mismatched ``time`` coordinates across views must raise via
+    xarray's ``join='exact'`` alignment.
+    """
+    real_ds = load.load_dataset(dlc_h5_file, source_software="DeepLabCut")
+    mocker.patch(
+        "movement.io.load.load_dataset",
+        side_effect=[real_ds, modify_second_view(real_ds)],
+    )
+    file_dict = {"view_0": dlc_h5_file, "view_1": dlc_h5_file}
+    expected = pytest.raises(ValueError) if should_raise else does_not_raise()
+    with expected:
+        load.load_multiview_dataset(file_dict, source_software="DeepLabCut")
+
+
 def test_get_validator_kwargs():
     """Test _get_validator_kwargs correctly extracts kwargs
     for file validators.

@@ -462,6 +462,10 @@ def load_multiview_dataset(
     dataset specified in ``file_path_dict``. This is the default
     behaviour of :func:`xarray.concat` used under the hood.
 
+    All input views must share identical ``time`` coordinates. If they
+    do not, :func:`xarray.concat` raises a :class:`ValueError` naming
+    the offending dimension. This is enforced via ``join="exact"``.
+
     See Also
     --------
     movement.io.load_poses
@@ -474,7 +478,7 @@ def load_multiview_dataset(
         load_dataset(f, source_software=source_software, fps=fps, **kwargs)
         for f in file_dict.values()
     ]
-    return xr.concat(dataset_list, dim=new_coord_views)
+    return xr.concat(dataset_list, dim=new_coord_views, join="exact")
 
 
 def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:
