@@ -462,11 +462,9 @@ def load_multiview_dataset(
     dataset specified in ``file_path_dict``. This is the default
     behaviour of :func:`xarray.concat` used under the hood.
 
-    This function assumes that all input views share identical ``time``
-    coordinates. If this is not the case,
-    :func:`xarray.concat` will follow its default alignment
-    behaviour, which may introduce missing values (NaNs). A warning is
-    raised when views have differing numbers of time points.
+    All input views must share identical ``time`` coordinates. If they
+    do not, :func:`xarray.concat` raises a :class:`ValueError` naming
+    the offending dimension. This is enforced via ``join="exact"``.
 
     See Also
     --------
@@ -480,17 +478,7 @@ def load_multiview_dataset(
         load_dataset(f, source_software=source_software, fps=fps, **kwargs)
         for f in file_dict.values()
     ]
-    time_lengths = [ds.sizes.get("time", None) for ds in dataset_list]
-    valid_lengths = [length for length in time_lengths if length is not None]
-    if len(set(valid_lengths)) > 1:
-        warnings.warn(
-            "Mismatched time coordinates detected across views. "
-            "The resulting dataset may contain NaN values due to "
-            "alignment issues.",
-            UserWarning,
-            stacklevel=2,
-        )
-    return xr.concat(dataset_list, dim=new_coord_views)
+    return xr.concat(dataset_list, dim=new_coord_views, join="exact")
 
 
 def rename_legacy_dimensions(ds: xr.Dataset) -> xr.Dataset:

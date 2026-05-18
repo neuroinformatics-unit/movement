@@ -7,7 +7,6 @@ import xarray as xr
 from attrs import define, field, validators
 from pytest import DATA_PATHS
 from requests_cache import Path
-from xarray.structure.alignment import AlignmentError
 
 from movement.io import load
 
@@ -159,21 +158,29 @@ def test_load_multiview_dataset(dataset_name, source_software):
     assert multi_view_ds.view.values.tolist() == view_names
 
 
-def test_multiview_warning_on_mismatched_frames(mocker):
-    ds1 = xr.Dataset({"x": ("time", [1, 2, 3])})
-    ds2 = xr.Dataset({"x": ("time", [1, 2])})
-
+@pytest.mark.parametrize(
+    "modify_second_view, should_raise",
+    [
+        (lambda ds: ds, False),
+        (lambda ds: ds.isel(time=slice(0, -1)), True),
+        (lambda ds: ds.assign_coords(time=ds["time"].values + 1.0), True),
+    ],
+    ids=["identical", "trimmed", "shifted"],
+)
+def test_load_multiview_dataset_strict_alignment(
+    modify_second_view, should_raise, dlc_h5_file, mocker
+):
+    """Mismatched ``time`` coordinates across views must raise via
+    xarray's ``join='exact'`` alignment.
+    """
+    real_ds = load.load_dataset(dlc_h5_file, source_software="DeepLabCut")
     mocker.patch(
         "movement.io.load.load_dataset",
-        side_effect=[ds1, ds2],
+        side_effect=[real_ds, modify_second_view(real_ds)],
     )
-
-    file_dict = {"view1": "file1", "view2": "file2"}
-
-    with (
-        pytest.warns(UserWarning, match=r"Mismatched.*time"),
-        pytest.raises(AlignmentError),
-    ):
+    file_dict = {"view_0": dlc_h5_file, "view_1": dlc_h5_file}
+    expected = pytest.raises(ValueError) if should_raise else does_not_raise()
+    with expected:
         load.load_multiview_dataset(file_dict, source_software="DeepLabCut")
 
 
