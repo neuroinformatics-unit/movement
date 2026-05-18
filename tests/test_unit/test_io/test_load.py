@@ -160,8 +160,8 @@ def test_load_multiview_dataset(dataset_name, source_software):
 
 
 def test_multiview_warning_on_mismatched_frames(mocker):
-    ds1 = xr.Dataset({"x": ("frame", [1, 2, 3])})
-    ds2 = xr.Dataset({"x": ("frame", [1, 2])})
+    ds1 = xr.Dataset({"x": ("time", [1, 2, 3])})
+    ds2 = xr.Dataset({"x": ("time", [1, 2])})
 
     mocker.patch(
         "movement.io.load.load_dataset",
@@ -171,7 +171,7 @@ def test_multiview_warning_on_mismatched_frames(mocker):
     file_dict = {"view1": "file1", "view2": "file2"}
 
     with (
-        pytest.warns(UserWarning, match=r"Mismatched.*frame"),
+        pytest.warns(UserWarning, match=r"Mismatched.*time"),
         pytest.raises(AlignmentError),
     ):
         load.load_multiview_dataset(file_dict, source_software="DeepLabCut")

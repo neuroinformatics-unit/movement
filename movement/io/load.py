@@ -462,11 +462,11 @@ def load_multiview_dataset(
     dataset specified in ``file_path_dict``. This is the default
     behaviour of :func:`xarray.concat` used under the hood.
 
-    This function assumes that all input views share identical frame
-    indices. If this is not the case,
+    This function assumes that all input views share identical ``time``
+    coordinates. If this is not the case,
     :func:`xarray.concat` will follow its default alignment
     behaviour, which may introduce missing values (NaNs). A warning is
-    raised when mismatched frame counts are detected.
+    raised when views have differing numbers of time points.
 
     See Also
     --------
@@ -480,11 +480,11 @@ def load_multiview_dataset(
         load_dataset(f, source_software=source_software, fps=fps, **kwargs)
         for f in file_dict.values()
     ]
-    frame_length = [ds.sizes.get("frame", None) for ds in dataset_list]
-    valid_lengths = [length for length in frame_length if length is not None]
+    time_lengths = [ds.sizes.get("time", None) for ds in dataset_list]
+    valid_lengths = [length for length in time_lengths if length is not None]
     if len(set(valid_lengths)) > 1:
         warnings.warn(
-            "Mismatched frame counts detected across views. "
+            "Mismatched time coordinates detected across views. "
             "The resulting dataset may contain NaN values due to "
             "alignment issues.",
             UserWarning,
