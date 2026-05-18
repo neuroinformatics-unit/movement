@@ -5,9 +5,9 @@ import pytest
 import xarray as xr
 
 from movement.kinematics import (
+    compute_path_deviation,
     compute_path_length,
     compute_path_straightness,
-    compute_path_deviation,
 )
 
 # ─────────────────────────────────────────────
@@ -413,7 +413,10 @@ degenerate_chord_error = pytest.raises(
         pytest.param(0, 9, does_not_raise(), id="explicit-full-range"),
         pytest.param(1, 8, does_not_raise(), id="partial-range"),
         pytest.param(
-            9, 0, time_points_value_error_deviation, id="start-greater-than-stop"
+            9,
+            0,
+            time_points_value_error_deviation,
+            id="start-greater-than-stop",
         ),
         pytest.param(
             0, 0.5, time_points_value_error_deviation, id="too-few-time-points"
