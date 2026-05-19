@@ -11,6 +11,7 @@ from napari.settings import get_settings
 from napari.utils.notifications import show_error, show_warning
 from napari.viewer import Viewer
 from qtpy.QtWidgets import (
+    QCheckBox,
     QComboBox,
     QDoubleSpinBox,
     QFileDialog,
@@ -26,12 +27,15 @@ from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
+from movement.validators.files import DEFAULT_FRAME_REGEXP
 
 # Allowed file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
     "DeepLabCut": ["h5", "csv"],
     "LightningPose": ["csv"],
     "SLEAP": ["h5", "slp"],
+    "Anipose": ["csv"],
+    "NWB": ["nwb"],
 }
 
 SUPPORTED_BBOXES_FILES = {
@@ -61,6 +65,9 @@ class DataLoader(QWidget):
         # Create widgets
         self._create_source_software_widget()
         self._create_fps_widget()
+        self._create_anipose_widgets()
+        self._create_nwb_widgets()
+        self._create_via_tracks_widgets()
         self._create_file_path_widget()
         self._create_load_button()
 
@@ -102,6 +109,81 @@ class DataLoader(QWidget):
         )
         self.layout().addRow("fps:", self.fps_spinbox)
 
+    def _create_anipose_widgets(self):
+        """Create a line edit for the Anipose individual name.
+
+        Hidden by default; revealed when 'Anipose' is selected.
+        """
+        self.individual_name_edit = QLineEdit()
+        self.individual_name_edit.setObjectName("individual_name_edit")
+        self.individual_name_edit.setText("id_0")
+        self.individual_name_edit.setToolTip(
+            "Name assigned to the individual in the resulting dataset.\n"
+            "Defaults to 'id_0'."
+        )
+        self.layout().addRow("individual name:", self.individual_name_edit)
+        self.layout().setRowVisible(self.individual_name_edit, False)
+
+    def _create_nwb_widgets(self):
+        """Create line edits for NWB processing module and pose estimation key.
+
+        Hidden by default; revealed when 'NWB' is selected.
+        """
+        self.processing_module_key_edit = QLineEdit()
+        self.processing_module_key_edit.setObjectName(
+            "processing_module_key_edit"
+        )
+        self.processing_module_key_edit.setText("behavior")
+        self.processing_module_key_edit.setToolTip(
+            "Name of the NWB ProcessingModule that contains\n"
+            "the pose estimation data. Default: 'behavior'."
+        )
+        self.layout().addRow(
+            "processing module:", self.processing_module_key_edit
+        )
+        self.layout().setRowVisible(self.processing_module_key_edit, False)
+
+        self.pose_estimation_key_edit = QLineEdit()
+        self.pose_estimation_key_edit.setObjectName("pose_estimation_key_edit")
+        self.pose_estimation_key_edit.setText("PoseEstimation")
+        self.pose_estimation_key_edit.setToolTip(
+            "Name of the PoseEstimation object inside the processing module.\n"
+            "Default: 'PoseEstimation'."
+        )
+        self.layout().addRow(
+            "pose estimation key:", self.pose_estimation_key_edit
+        )
+        self.layout().setRowVisible(self.pose_estimation_key_edit, False)
+
+    def _create_via_tracks_widgets(self):
+        """Create widgets for VIA-tracks-specific loading options.
+
+        Hidden by default; revealed when 'VIA-tracks' is selected.
+        """
+        self.use_frame_numbers_checkbox = QCheckBox()
+        self.use_frame_numbers_checkbox.setObjectName(
+            "use_frame_numbers_checkbox"
+        )
+        self.use_frame_numbers_checkbox.setChecked(False)
+        self.use_frame_numbers_checkbox.setToolTip(
+            "If checked, frame numbers from the file are used as-is.\n"
+            "Otherwise, frames are re-indexed from 0."
+        )
+        self.layout().addRow(
+            "use file frame numbers:", self.use_frame_numbers_checkbox
+        )
+        self.layout().setRowVisible(self.use_frame_numbers_checkbox, False)
+
+        self.frame_regexp_edit = QLineEdit()
+        self.frame_regexp_edit.setObjectName("frame_regexp_edit")
+        self.frame_regexp_edit.setText(DEFAULT_FRAME_REGEXP)
+        self.frame_regexp_edit.setToolTip(
+            "Regex to extract frame number from filenames.\n"
+            "Only used when 'use file frame numbers' is checked."
+        )
+        self.layout().addRow("frame regexp:", self.frame_regexp_edit)
+        self.layout().setRowVisible(self.frame_regexp_edit, False)
+
     def _create_file_path_widget(self):
         """Create a line edit and browse button for selecting the file path.
 
@@ -111,8 +193,10 @@ class DataLoader(QWidget):
         # File path line edit and browse button
         self.file_path_edit = QLineEdit()
         self.file_path_edit.setObjectName("file_path_edit")
+        self.file_path_edit.setMinimumHeight(28)
         self.browse_button = QPushButton("Browse")
         self.browse_button.setObjectName("browse_button")
+        self.browse_button.setMinimumHeight(28)
         self.browse_button.clicked.connect(self._on_browse_clicked)
 
         # Layout for line edit and button
@@ -122,23 +206,48 @@ class DataLoader(QWidget):
         self.layout().addRow("file path:", self.file_path_layout)
 
     def _on_source_software_changed(self, current_text: str):
-        """Enable/disable the fps spinbox based on source software."""
-        is_netcdf = current_text in SUPPORTED_NETCDF_FILES
-        # Disable fps box if netCDF
-        self.fps_spinbox.setEnabled(not is_netcdf)
+        """Update widget state based on the selected source software.
 
+        - Disables the fps spinbox for netCDF and NWB files (both read fps
+          directly from the file).
+        - Reveals only the input rows relevant to the selected software and
+          hides all others.
+        """
+        is_netcdf = current_text in SUPPORTED_NETCDF_FILES
+        is_nwb = current_text == "NWB"
+
+        # Disable fps spinbox for formats that read it from the file
+        self.fps_spinbox.setEnabled(not is_netcdf and not is_nwb)
         if is_netcdf:
             self.fps_spinbox.setToolTip(
                 "The fps (frames per second) is read directly \n"
                 "from the netCDF file attributes."
             )
+        elif is_nwb:
+            self.fps_spinbox.setToolTip(
+                "The fps is read directly from the NWB file metadata."
+            )
         else:
             self.fps_spinbox.setToolTip(self.fps_default_tooltip)
+
+        # Toggle per-software rows
+        self.layout().setRowVisible(
+            self.individual_name_edit, current_text == "Anipose"
+        )
+        self.layout().setRowVisible(self.processing_module_key_edit, is_nwb)
+        self.layout().setRowVisible(self.pose_estimation_key_edit, is_nwb)
+        self.layout().setRowVisible(
+            self.use_frame_numbers_checkbox, current_text == "VIA-tracks"
+        )
+        self.layout().setRowVisible(
+            self.frame_regexp_edit, current_text == "VIA-tracks"
+        )
 
     def _create_load_button(self):
         """Create a button to load the file and add layers to the viewer."""
         self.load_button = QPushButton("Load")
         self.load_button.setObjectName("load_button")
+        self.load_button.setMinimumHeight(30)
         self.load_button.clicked.connect(lambda: self._on_load_clicked())
         self.layout().addRow(self.load_button)
 
@@ -231,9 +340,34 @@ class DataLoader(QWidget):
     def _load_third_party_file(self) -> xr.Dataset:
         """Load a third-party file as a ``movement`` dataset.
 
+        Builds a software-specific ``kwargs`` dict from the visible form
+        widgets and forwards it to :func:`movement.io.load_dataset`.
         Validation is handled by the loader functions.
         """
-        ds = load_dataset(self.file_path, self.source_software, self.fps)
+        kwargs: dict = {}
+        if self.source_software == "Anipose":
+            kwargs["individual_name"] = (
+                self.individual_name_edit.text().strip() or "id_0"
+            )
+        elif self.source_software == "NWB":
+            kwargs["processing_module_key"] = (
+                self.processing_module_key_edit.text().strip() or "behavior"
+            )
+            kwargs["pose_estimation_key"] = (
+                self.pose_estimation_key_edit.text().strip()
+                or "PoseEstimation"
+            )
+        elif self.source_software == "VIA-tracks":
+            use_file_frames = self.use_frame_numbers_checkbox.isChecked()
+            kwargs["use_frame_numbers_from_file"] = use_file_frames
+            if use_file_frames:
+                kwargs["frame_regexp"] = (
+                    self.frame_regexp_edit.text().strip()
+                    or DEFAULT_FRAME_REGEXP
+                )
+        ds = load_dataset(
+            self.file_path, self.source_software, self.fps, **kwargs
+        )
         return ds
 
     def _load_netcdf_file(self) -> xr.Dataset | None:
