@@ -12,7 +12,10 @@ import types
 from typing import TypeAliasType
 
 import setuptools_scm
+from ablog.blog import Blog
+from docutils import nodes
 from sphinx_autodoc_typehints import format_annotation
+from sphinx.errors import ExtensionError
 
 # Used when building API docs, put the dependencies
 # of any class you are documenting here
@@ -287,6 +290,54 @@ linkcheck_request_headers = {
 }
 
 
+def add_blog_author_byline(app, doctree, docname):
+    """Add ABlog author metadata to individual blog post pages."""
+    posts = getattr(app.env, "ablog_posts", {}).get(docname, [])
+    if len(posts) != 1:
+        return
+
+    post = posts[0]
+    authors = post.get("author", [])
+    date = post.get("date")
+    if not authors or not date:
+        raise ExtensionError(
+            f"Blog post '{docname}' must define both author and date metadata."
+        )
+
+    byline = nodes.line_block(classes=["blog-post-author"])
+
+    if authors:
+        author_line = nodes.line()
+        author_line += nodes.Text("By ")
+
+        blog = Blog(app)
+        author_catalog = blog.catalogs["author"].collections
+        for index, author in enumerate(authors):
+            if index:
+                author_line += nodes.Text(", ")
+
+            author_page = author_catalog.get(author)
+            if author_page is None:
+                author_line += nodes.Text(author)
+                continue
+
+            author_line += nodes.reference(
+                "",
+                author,
+                refuri=app.builder.get_relative_uri(docname, author_page.docname),
+            )
+
+        byline += author_line
+
+    if date:
+        byline += nodes.line(text=date.strftime(app.config["post_date_format"]))
+
+    for section in doctree.findall(nodes.section):
+        if section.children and isinstance(section.children[0], nodes.title):
+            section.insert(1, byline)
+            return
+
+
 myst_url_schemes = {
     "http": None,
     "https": None,
@@ -348,3 +399,7 @@ notfound_context = {
 # Static files live in /<version>/_static/, but GH pages expects a single
 # 404.html at root, so use latest version for all static asset URLs in 404 page
 notfound_urls_prefix = "/latest/"
+
+
+def setup(app):
+    app.connect("doctree-resolved", add_blog_author_byline)
