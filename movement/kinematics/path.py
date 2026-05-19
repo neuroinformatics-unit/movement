@@ -9,9 +9,14 @@ representing the individual's overall position (e.g., centroid).
 import warnings
 from typing import Literal
 
+import numpy as np
 import xarray as xr
 
-from movement.kinematics.kinematics import compute_backward_displacement
+from movement.kinematics.kinematics import (
+    compute_backward_displacement,
+    compute_forward_displacement,
+    compute_turning_angle,
+)
 from movement.utils.logging import logger
 from movement.utils.reports import report_nan_values
 from movement.utils.vector import compute_norm
@@ -192,6 +197,126 @@ def compute_path_straightness(
     result = _path_distance(data) / path_length.where(path_length > 0)
     result.name = "straightness_index"
     result.attrs["long_name"] = "Path Straightness Index"
+    return result
+
+
+def compute_path_sinuosity(
+    data: xr.DataArray,
+    min_step_length: float = 0.0,
+    start: float | None = None,
+    stop: float | None = None,
+    nan_policy: Literal["ffill", "scale"] = "ffill",
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    r"""Compute the sinuosity of a path (Benhamou 2004).
+
+    Sinuosity quantifies the tortuosity of a random search path by
+    combining turning angle statistics with step-length variability.
+    Higher values indicate more tortuous movement. A perfectly straight
+    path has S = 0.
+
+    The corrected sinuosity index (Benhamou 2004, Eq. 8) is defined as:
+
+    .. math::
+
+        S = 2\left[\bar{p}\left(
+            \frac{1+\bar{c}}{1-\bar{c}} + b^{2}
+        \right)\right]^{-1/2}
+
+    where :math:`\bar{p}` is the mean step length,
+    :math:`\bar{c} = \tfrac{1}{n}\sum_{i=1}^{n}\cos(\phi_i)` is the mean
+    cosine of turning angles, and
+    :math:`b = \mathrm{SD}(p_i)\,/\,\bar{p}` is the coefficient of
+    variation of step length.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+    min_step_length : float, optional
+        Minimum step length threshold to filter out stationary camera noise.
+        Passed down to compute_turning_angle. Defaults to 0.0.
+    start : float, optional
+        The start time of the path. If None (default),
+        the minimum time coordinate in the data is used.
+    stop : float, optional
+        The end time of the path. If None (default),
+        the maximum time coordinate in the data is used.
+    nan_policy : Literal["ffill", "scale"], optional
+        Policy to handle NaN (missing) values. Can be one of the ``"ffill"``
+        or ``"scale"``. Defaults to ``"ffill"`` (forward fill).
+    nan_warn_threshold : float, optional
+        If any point track in the data has at least (:math:`\ge`)
+        this proportion of values missing, a warning will be emitted.
+        Defaults to 0.2 (20%).
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed sinuosity,
+        with dimensions matching those of the input data,
+        except ``time`` and ``space`` are removed.
+
+    """
+    # Reuse the internal validation helper (checks for >= 2 points)
+    data = _slice_and_validate(data, start, stop, "path sinuosity")
+
+    # Sinuosity specifically needs 3 points for angles
+    n_time = data.sizes["time"]
+    if n_time < 3:
+        raise logger.error(
+            ValueError(
+                "At least 3 time points are required to compute sinuosity "
+                f"(got {n_time}). A minimum of two consecutive displacements "
+                "is needed to produce one turning angle."
+            )
+        )
+
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+
+    if nan_policy == "ffill":
+        data = data.ffill(dim="time")
+    elif nan_policy != "scale":
+        raise logger.error(
+            ValueError(
+                f"Invalid value for nan_policy: {nan_policy}. "
+                "Must be one of 'ffill' or 'scale'."
+            )
+        )
+
+    # --- Step lengths -------------------------------------------------------
+    step_lengths = compute_norm(compute_forward_displacement(data))
+
+    # --- Turning angles -----------------------------------------------------
+    theta = compute_turning_angle(data, min_step_length=min_step_length)
+
+    # --- Summary statistics (NaN-aware) -------------------------------------
+    p_bar = step_lengths.mean(dim="time", skipna=True)
+    c_bar = np.cos(theta).mean(dim="time", skipna=True)
+
+    # Protect against division by zero if the animal is stationary
+    is_stationary = np.isclose(p_bar, 0.0)
+    p_bar_safe = xr.where(is_stationary, np.nan, p_bar)
+    b = step_lengths.std(dim="time", skipna=True) / p_bar_safe
+
+    # --- Benhamou 2004 Eq. 8 ------------------------------------------------
+    is_straight = np.isclose(c_bar, 1.0)
+
+    angle_term = xr.where(
+        is_straight,
+        0.0,
+        (1.0 + c_bar) / (1.0 - c_bar),
+    )
+
+    result = 2.0 * (p_bar_safe * (angle_term + b**2)) ** -0.5
+
+    result = xr.where(is_straight, 0.0, result)
+    result = xr.where(is_stationary, np.nan, result)
+
+    result.name = "sinuosity"
+    result.attrs["long_name"] = "Path Sinuosity"
+
     return result
 
 
