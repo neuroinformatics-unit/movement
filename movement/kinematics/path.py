@@ -20,30 +20,21 @@ from movement.validators.arrays import validate_dims_coords
 
 def compute_path_length(
     data: xr.DataArray,
-    start: float | None = None,
-    stop: float | None = None,
     nan_policy: Literal["ffill", "scale"] = "ffill",
     nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
-    r"""Compute the length of a path travelled between two time points.
+    r"""Compute the length of a path travelled.
 
     The path length is defined as the sum of the norms (magnitudes) of the
-    displacement vectors between two time points ``start`` and ``stop``,
-    which should be provided in the time units of the data array.
-    If not specified, the minimum and maximum time coordinates of the data
-    array are used as start and stop times, respectively.
+    displacement vectors between consecutive time points in the data.
+    To constrain the computation to a specific time window, pre-slice the
+    input with ``data.sel(time=slice(start, stop))``.
 
     Parameters
     ----------
     data : xarray.DataArray
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-    start : float, optional
-        The start time of the path. If None (default),
-        the minimum time coordinate in the data is used.
-    stop : float, optional
-        The end time of the path. If None (default),
-        the maximum time coordinate in the data is used.
     nan_policy : Literal["ffill", "scale"], optional
         Policy to handle NaN (missing) values. Can be one of the ``"ffill"``
         or ``"scale"``. Defaults to ``"ffill"`` (forward fill).
@@ -100,21 +91,19 @@ def compute_path_length(
 
     Compute path length over a specific time window:
 
-    >>> length = compute_path_length(centroid, start=0, stop=100)
+    >>> length = compute_path_length(centroid.sel(time=slice(0, 100)))
 
     Use the scale policy to handle missing values:
 
     >>> length = compute_path_length(centroid, nan_policy="scale")
 
     """
-    data = _slice_and_validate(data, start, stop, "path length")
+    data = _slice_and_validate(data, "path length")
     return _path_length(data, nan_policy, nan_warn_threshold)
 
 
 def compute_path_straightness(
     data: xr.DataArray,
-    start: float | None = None,
-    stop: float | None = None,
     nan_policy: Literal["ffill", "scale"] = "ffill",
     nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
@@ -131,12 +120,6 @@ def compute_path_straightness(
     data : xarray.DataArray
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-    start : float, optional
-        The start time of the path. If None (default),
-        the minimum time coordinate in the data is used.
-    stop : float, optional
-        The end time of the path. If None (default),
-        the maximum time coordinate in the data is used.
     nan_policy : Literal["ffill", "scale"], optional
         Policy to handle NaN (missing) values for the path length computation.
         Can be one of ``"ffill"`` or ``"scale"``. Defaults to ``"ffill"``
@@ -158,9 +141,9 @@ def compute_path_straightness(
     -----
     The Euclidean distance :math:`D`, also known as the "straight-line" or
     "beeline" distance, is calculated using the first and last valid (non-NaN)
-    spatial coordinates within the specified time window. This ensures that
-    missing data at the exact ``start`` or ``stop`` boundaries do not nullify
-    the result, provided there are valid observed positions within the slice.
+    spatial coordinates in the data. This ensures that missing data at the
+    edges of the time range do not nullify the result, provided there are
+    valid observed positions in between.
 
     Note that the total path length (L), and therefore the straightness index,
     is sensitive to the temporal sampling  rate (i.e. frames per second),
@@ -183,10 +166,10 @@ def compute_path_straightness(
 
     Compute straightness over a specific time window:
 
-    >>> si = compute_path_straightness(centroid, start=0, stop=100)
+    >>> si = compute_path_straightness(centroid.sel(time=slice(0, 100)))
 
     """
-    data = _slice_and_validate(data, start, stop, "path straightness")
+    data = _slice_and_validate(data, "path straightness")
     path_length = _path_length(data, nan_policy, nan_warn_threshold)
     # Compute D/L ratio, avoiding division by zero
     result = _path_distance(data) / path_length.where(path_length > 0)
@@ -197,38 +180,30 @@ def compute_path_straightness(
 
 def _slice_and_validate(
     data: xr.DataArray,
-    start: float | None,
-    stop: float | None,
     metric_name: str,
 ) -> xr.DataArray:
-    """Validate dims/coords and slice ``data`` along ``time``.
-
-    Requires the sliced data to contain at least 2 time points.
+    """Validate dims/coords and require at least 2 time points.
 
     Parameters
     ----------
     data : xarray.DataArray
         Position data with ``time`` and ``space`` dimensions.
-    start, stop : float, optional
-        Time slice bounds. ``None`` means "use the data's extent".
     metric_name : str
         Used in the error message when the time range is too short.
 
     Returns
     -------
     xarray.DataArray
-        The validated, time-sliced data.
+        The validated data.
 
     """
     validate_dims_coords(data, {"time": [], "space": []})
-    data = data.sel(time=slice(start, stop))
     n_time = data.sizes["time"]
     if n_time < 2:
         raise logger.error(
             ValueError(
                 "At least 2 time points are required to compute "
-                f"{metric_name}, but {n_time} were found. "
-                "Double-check the start and stop times."
+                f"{metric_name}, but {n_time} were found."
             )
         )
     return data
