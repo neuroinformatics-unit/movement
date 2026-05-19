@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from movement.io import save_poses
+from movement.io import save_bboxes, save_poses
 
 
 @pytest.fixture
@@ -127,6 +127,109 @@ def valid_poses_path_and_ds_nan_end(
         filename="ds_with_nan_end.csv",
     )
     return (out_path, ds)
+
+
+@pytest.fixture
+def valid_bboxes_path_and_ds(valid_bboxes_dataset, tmp_path):
+    """Return a (path, dataset) pair representing a bboxes dataset
+    with data for 10 frames.
+
+    The fixture is derived from the ``valid_bboxes_dataset`` fixture.
+    """
+    out_path = tmp_path / "ds_bboxes.csv"
+    save_bboxes.to_via_tracks_file(valid_bboxes_dataset, out_path)
+    return (out_path, valid_bboxes_dataset)
+
+
+@pytest.fixture
+def valid_bboxes_path_and_ds_short(valid_bboxes_dataset, tmp_path):
+    """Return a (path, dataset) pair representing a bboxes dataset
+    with data for 5 frames.
+
+    The fixture is derived from the ``valid_bboxes_dataset`` fixture.
+    """
+    valid_bboxes_dataset = valid_bboxes_dataset.isel(time=slice(0, 5))
+    out_path = tmp_path / "ds_bboxes_short.csv"
+    save_bboxes.to_via_tracks_file(valid_bboxes_dataset, out_path)
+    return (out_path, valid_bboxes_dataset)
+
+
+@pytest.fixture
+def valid_bboxes_path_and_ds_with_localised_nans(
+    valid_bboxes_dataset, tmp_path
+):
+    """Return a factory of (path, dataset) pairs representing
+    valid bboxes datasets with NaN values at specific locations.
+    """
+    ds = valid_bboxes_dataset.copy(deep=True)
+
+    def _valid_bboxes_path_and_ds_with_localised_nans(
+        nan_location, filename="ds_bboxes_with_nans.csv"
+    ):
+        """Return a valid bboxes dataset and corresponding file with NaN
+        values at specific locations.
+
+        The ``nan_location`` parameter is a dictionary with keys
+        ``"time"`` and ``"individuals"`` specifying which coordinates
+        to set to NaN.
+        """
+        if nan_location["time"] == "start":
+            time_point = 0
+        elif nan_location["time"] == "middle":
+            time_point = ds.coords["time"][ds.coords["time"].shape[0] // 2]
+        elif nan_location["time"] == "end":
+            time_point = ds.coords["time"][-1]
+
+        ds.position.loc[
+            {
+                "individuals": nan_location["individuals"],
+                "time": time_point,
+            }
+        ] = np.nan
+
+        out_path = tmp_path / filename
+        save_bboxes.to_via_tracks_file(ds, out_path)
+        return (out_path, ds)
+
+    return _valid_bboxes_path_and_ds_with_localised_nans
+
+
+@pytest.fixture
+def valid_bboxes_path_and_ds_nan_start(
+    valid_bboxes_path_and_ds_with_localised_nans,
+):
+    """Return a (path, dataset) pair for a bboxes dataset with NaN
+    values for one individual at the first frame.
+
+    Only one individual is set to NaN because VIA-tracks CSV format
+    drops frames where all individuals have NaN positions.
+    """
+    return valid_bboxes_path_and_ds_with_localised_nans(
+        {
+            "time": "start",
+            "individuals": ["id_0"],
+        },
+        filename="ds_bboxes_with_nan_start.csv",
+    )
+
+
+@pytest.fixture
+def valid_bboxes_path_and_ds_nan_end(
+    valid_bboxes_path_and_ds_with_localised_nans,
+):
+    """Return a (path, dataset) pair for a bboxes dataset with NaN
+    values for one individual at the last frame.
+
+    Only one individual is set to NaN because VIA-tracks CSV format
+    drops frames where all individuals have NaN positions.
+    """
+    return valid_bboxes_path_and_ds_with_localised_nans(
+        {
+            "time": "end",
+            "individuals": ["id_0"],
+        },
+        filename="ds_bboxes_with_nan_end.csv",
+    )
 
 
 @pytest.fixture
