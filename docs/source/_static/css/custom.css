@@ -78,3 +78,21 @@ a[class^="sphx-glr-backref-module-movement"] {
   color: var(--pst-color-success);
   content: "\f004";  /* fa-heart (Font Awesome 6 Free Solid) */
 }
+
+.blog-post-author {
+  border-left: 3px solid var(--pst-color-primary);
+  color: var(--pst-color-text-muted);
+  font-size: 1.12rem;
+  line-height: 1.5;
+  margin-top: -0.2rem;
+  margin-bottom: 2rem;
+  padding-left: 0.8rem;
+}
+
+.blog-post-author a {
+  font-weight: 600;
+}
+
+.blog-post-author .line:nth-child(2) {
+  font-size: 1rem;
+}
