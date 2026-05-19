@@ -27,8 +27,6 @@ def compute_path_length(
 
     The path length is defined as the sum of the norms (magnitudes) of the
     displacement vectors between consecutive time points in the data.
-    To constrain the computation to a specific time window, pre-slice the
-    input with ``data.sel(time=slice(start, stop))``.
 
     Parameters
     ----------
@@ -142,7 +140,7 @@ def compute_path_straightness(
     The Euclidean distance :math:`D`, also known as the "straight-line" or
     "beeline" distance, is calculated using the first and last valid (non-NaN)
     spatial coordinates in the data. This ensures that missing data at the
-    edges of the time range do not nullify the result, provided there are
+    first or last time points do not nullify the result, provided there are
     valid observed positions in between.
 
     Note that the total path length (L), and therefore the straightness index,
@@ -189,7 +187,7 @@ def _slice_and_validate(
     data : xarray.DataArray
         Position data with ``time`` and ``space`` dimensions.
     metric_name : str
-        Used in the error message when the time range is too short.
+        Used in the error message when there are fewer than 2 time points.
 
     Returns
     -------
@@ -225,7 +223,7 @@ def _path_distance(data: xr.DataArray) -> xr.DataArray:
     Also known as the "straight-line" or "beeline" distance.
     Uses forward and backward filling along the time dimension to ensure
     the distance is calculated between the first and last observed locations,
-    preventing NaNs at the exact start/stop boundaries from nullifying the
+    preventing NaNs at the first or last time points from nullifying the
     entire calculation.
     """
     anchored_data = data.ffill(dim="time").bfill(dim="time")

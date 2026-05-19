@@ -100,30 +100,38 @@ time_points_value_error = pytest.raises(
 
 
 @pytest.mark.parametrize(
-    "start, stop, expected_exception",
+    "time_slice, expected_exception",
     [
         # full time ranges
-        (None, None, does_not_raise()),
-        (0, None, does_not_raise()),
-        (0, 9, does_not_raise()),
-        (0, 10, does_not_raise()),  # xarray.sel will truncate to 0, 9
-        (-1, 9, does_not_raise()),  # xarray.sel will truncate to 0, 9
+        pytest.param(slice(None, None), does_not_raise(), id="full-range"),
+        pytest.param(slice(0, None), does_not_raise(), id="from-zero"),
+        pytest.param(slice(0, 9), does_not_raise(), id="explicit-full-range"),
+        pytest.param(slice(0, 10), does_not_raise(), id="stop-beyond-data"),
+        pytest.param(slice(-1, 9), does_not_raise(), id="start-before-data"),
         # partial time ranges
-        (1, 8, does_not_raise()),
-        (1.5, 8.5, does_not_raise()),
-        (2, None, does_not_raise()),
-        # Empty time ranges
-        (9, 0, time_points_value_error),  # start > stop
-        ("text", 9, time_points_value_error),  # invalid start type
-        # Time range too short
-        (0, 0.5, time_points_value_error),
+        pytest.param(slice(1, 8), does_not_raise(), id="partial-range"),
+        pytest.param(
+            slice(1.5, 8.5), does_not_raise(), id="fractional-bounds"
+        ),
+        pytest.param(slice(2, None), does_not_raise(), id="from-two-to-end"),
+        # Empty or too-short slices
+        pytest.param(
+            slice(9, 0),
+            time_points_value_error,
+            id="start-greater-than-stop",
+        ),
+        pytest.param(
+            slice(0, 0.5),
+            time_points_value_error,
+            id="too-few-time-points",
+        ),
     ],
 )
 def test_path_length_across_time_ranges(
-    valid_poses_dataset, start, stop, expected_exception
+    valid_poses_dataset, time_slice, expected_exception
 ):
     """Test path length computation for a uniform linear motion case,
-    across different time ranges.
+    across different pre-sliced time ranges.
 
     The test dataset ``valid_poses_dataset``
     contains 2 individuals ("id_0" and "id_1"), moving
@@ -132,22 +140,13 @@ def test_path_length_across_time_ranges(
     we expect a path length of sqrt(2) * num_segments, where num_segments is
     the number of selected frames minus 1.
     """
-    position = valid_poses_dataset.position
+    position = valid_poses_dataset.position.sel(time=time_slice)
     with expected_exception:
-        path_length = compute_path_length(position, start=start, stop=stop)
+        path_length = compute_path_length(position)
         assert path_length.name == "path_length"
         assert path_length.long_name == "Path Length"
 
-        # Expected number of segments (displacements) in selected time range
-        num_segments = 9  # full time range: 10 frames - 1
-        start = max(0, start) if start is not None else 0
-        stop = min(9, stop) if stop is not None else 9
-        if start is not None:
-            num_segments -= np.ceil(max(0, start))
-        if stop is not None:
-            stop = min(9, stop)
-            num_segments -= 9 - np.floor(min(9, stop))
-
+        num_segments = position.sizes["time"] - 1
         expected_path_length = xr.DataArray(
             np.ones((3, 2)) * np.sqrt(2) * num_segments,
             dims=["keypoint", "individual"],
@@ -291,51 +290,46 @@ time_points_value_error_straightness = pytest.raises(
 
 
 @pytest.mark.parametrize(
-    "start, stop, expected_exception",
+    "time_slice, expected_exception",
     [
         pytest.param(
-            None,
-            None,
+            slice(None, None),
             does_not_raise(),
             id="full-range",
         ),
         pytest.param(
-            0,
-            9,
+            slice(0, 9),
             does_not_raise(),
             id="explicit-full-range",
         ),
         pytest.param(
-            1,
-            8,
+            slice(1, 8),
             does_not_raise(),
             id="partial-range",
         ),
         pytest.param(
-            9,
-            0,
+            slice(9, 0),
             time_points_value_error_straightness,
             id="start-greater-than-stop",
         ),
         pytest.param(
-            0,
-            0.5,
+            slice(0, 0.5),
             time_points_value_error_straightness,
             id="too-few-time-points",
         ),
     ],
 )
 def test_path_straightness_across_time_ranges(
-    valid_poses_dataset, start, stop, expected_exception
+    valid_poses_dataset, time_slice, expected_exception
 ):
     """Test straightness index for a uniform linear motion case.
 
     The ``valid_poses_dataset`` contains 2 individuals moving in
     straight lines, so the straightness index should always be 1.0.
     """
-    position = valid_poses_dataset.position
+    position = valid_poses_dataset.position.sel(time=time_slice)
     with expected_exception:
-        result = compute_path_straightness(position, start=start, stop=stop)
+        result = compute_path_straightness(position)
         assert result.name == "straightness_index"
         assert result.attrs["long_name"] == "Path Straightness Index"
         xr.testing.assert_allclose(
