@@ -451,7 +451,8 @@ def test_directional_change_across_time_ranges(
     valid_poses_dataset, start, stop, expected_exception
 ):
     """Test that DC raises with too few time points, and works
-    otherwise."""
+    otherwise.
+    """
     position = valid_poses_dataset.position
     with expected_exception:
         dc = compute_directional_change(position, start=start, stop=stop)
