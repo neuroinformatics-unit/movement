@@ -350,6 +350,38 @@ class TestValidPosesInputs:
             expected_ds.time.attrs["units"] = "seconds"
             xr.testing.assert_equal(ds, expected_ds)
 
+    @pytest.mark.parametrize(
+        "confidence_array, expected_context",
+        [
+            (
+                np.zeros((5, 3, 2)),
+                does_not_raise(),
+            ),
+            (
+                np.zeros((5, 2)),
+                does_not_raise(),
+            ),
+            (
+                np.zeros((5, 3)),
+                pytest.raises(ValueError),
+            ),
+        ],
+        ids=[
+            "Keypoint-level confidence",
+            "Individual-level confidence",
+            "Invalid confidence shape",
+        ],
+    )
+    def test_confidence_array(self, confidence_array, expected_context):
+        """Test confidence_array validation in ValidPosesInputs."""
+        position_array = np.zeros((5, 2, 3, 2))
+
+        with expected_context:
+            ValidPosesInputs(
+                position_array=position_array,
+                confidence_array=confidence_array,
+            )
+
 
 class TestValidBboxesInputs:
     """Test the ValidBboxesInputs class."""

@@ -121,7 +121,7 @@ class _BaseDatasetInputs(ABC):
         # confidence_array default: array of NaNs with appropriate shape
         if self.confidence_array is None:
             self.confidence_array = np.full(
-                self._confidence_expected_shape, np.nan, dtype="float32"
+                self._confidence_expected_shape[0], np.nan, dtype="float32"
             )
             logger.info(
                 "Confidence array was not provided."
@@ -143,11 +143,16 @@ class _BaseDatasetInputs(ABC):
     def _confidence_expected_shape(self):
         """Return expected shape for confidence_array."""
         # confidence shape == position_array shape without the space dim
-        return tuple(
+        keypoint_level = tuple(
             dim
             for i, dim in enumerate(self.position_array.shape)
             if i != self.DIM_NAMES.index("space")
         )
+        individual_level = (
+            keypoint_level[0],
+            keypoint_level[-1],
+        )
+        return [keypoint_level, individual_level]
 
     # --- Validators ---
     @position_array.validator
@@ -182,7 +187,12 @@ class _BaseDatasetInputs(ABC):
     def _validate_confidence_array(self, attribute, value):
         """Check confidence_array type and shape."""
         if value is not None:
-            expected_shape = self._confidence_expected_shape
+            expected_shapes = self._confidence_expected_shape
+            if value.shape == expected_shapes[0]:
+                expected_shape = expected_shapes[0]
+            else:
+                expected_shape = expected_shapes[1]
+
             self._validate_array_shape(
                 attribute, value, expected_shape=expected_shape
             )
