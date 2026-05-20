@@ -4,7 +4,11 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from movement.kinematics import compute_path_length, compute_path_straightness
+from movement.kinematics import (
+    compute_path_deviation,
+    compute_path_length,
+    compute_path_straightness,
+)
 
 # ─────────────────────────────────────────────
 # Fixtures
@@ -385,3 +389,106 @@ def test_path_straightness_known_values(
             result,
             xr.full_like(result, expected_value),
         )
+
+
+# ─────────────────────────────────────────────
+# Path deviation tests
+# ─────────────────────────────────────────────
+
+time_points_value_error_deviation = pytest.raises(
+    ValueError,
+    match="At least 2 time points are required to compute path deviation",
+)
+
+degenerate_chord_error = pytest.raises(
+    ValueError,
+    match="The chord length is zero",
+)
+
+
+@pytest.mark.parametrize(
+    "start, stop, expected_exception",
+    [
+        pytest.param(None, None, does_not_raise(), id="full-range"),
+        pytest.param(0, 9, does_not_raise(), id="explicit-full-range"),
+        pytest.param(1, 8, does_not_raise(), id="partial-range"),
+        pytest.param(
+            9,
+            0,
+            time_points_value_error_deviation,
+            id="start-greater-than-stop",
+        ),
+        pytest.param(
+            0, 0.5, time_points_value_error_deviation, id="too-few-time-points"
+        ),
+    ],
+)
+def test_path_deviation_time_ranges(
+    straight_paths, start, stop, expected_exception
+):
+    with expected_exception:
+        result = compute_path_deviation(straight_paths, start=start, stop=stop)
+        assert result.sizes.get("time") is not None
+        assert "space" not in result.dims
+
+
+def test_path_deviation_output_metadata(straight_paths):
+    result = compute_path_deviation(straight_paths)
+    assert result.name == "path_deviation"
+    assert result.attrs["long_name"] == "Path Deviation"
+
+
+def test_path_deviation_straight_path_is_zero(straight_paths):
+    result = compute_path_deviation(straight_paths)
+    xr.testing.assert_allclose(result, xr.zeros_like(result))
+
+
+def test_path_deviation_degenerate_chord_raises(stationary_paths):
+    with degenerate_chord_error:
+        compute_path_deviation(stationary_paths)
+
+
+@pytest.fixture
+def lateral_detour_paths(straight_paths):
+    """Return path data where each individual takes a 1-unit lateral detour.
+
+    id_0 moves along x=y (chord unit: (1/√2, 1/√2)).
+    Its perpendicular is (-1/√2, +1/√2).
+
+    id_1 moves along x=-y (chord unit: (1/√2, -1/√2)).
+    Its perpendicular is (1/√2, +1/√2).
+
+    At time=5, each individual is displaced exactly 1 unit perpendicular
+    to its own chord. Expected deviation at time=5 is 1.0 for both.
+    """
+    path = straight_paths.copy()
+    perp = 1.0 / np.sqrt(2)
+    # id_0: perpendicular to x=y is (-1/√2, +1/√2)
+    path.loc[{"time": 5, "space": "x", "individual": "id_0"}] -= perp
+    path.loc[{"time": 5, "space": "y", "individual": "id_0"}] += perp
+    # id_1: perpendicular to x=-y is (+1/√2, +1/√2)
+    path.loc[{"time": 5, "space": "x", "individual": "id_1"}] += perp
+    path.loc[{"time": 5, "space": "y", "individual": "id_1"}] += perp
+    return path
+
+
+def test_path_deviation_known_value(lateral_detour_paths):
+    """Deviation at the detour frame is 1.0 for both individuals;
+    all other frames are 0.0.
+    """
+    result = compute_path_deviation(lateral_detour_paths)
+    at_detour = result.sel(time=5)
+    xr.testing.assert_allclose(at_detour, xr.full_like(at_detour, 1.0))
+    off_detour = result.sel(time=[t for t in result.time.values if t != 5])
+    xr.testing.assert_allclose(off_detour, xr.zeros_like(off_detour))
+
+
+def test_path_deviation_preserves_non_space_dims(straight_paths):
+    result = compute_path_deviation(straight_paths)
+    expected_dims = set(straight_paths.dims) - {"space"}
+    assert set(result.dims) == expected_dims
+
+
+def test_path_deviation_partial_chord_is_zero(straight_paths):
+    result = compute_path_deviation(straight_paths, start=2, stop=7)
+    xr.testing.assert_allclose(result, xr.zeros_like(result))
