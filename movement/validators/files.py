@@ -113,9 +113,7 @@ def _file_is_readable(value: Path) -> None:
 
 
 def _file_is_writable(value: Path) -> None:
-    """Ensure the file does not exist and parent directory is writable."""
-    if value.exists():
-        raise logger.error(FileExistsError(f"File {value} already exists."))
+    """Ensure parent directory is writable."""
     if not os.access(value.parent, os.W_OK):
         raise logger.error(
             PermissionError(
