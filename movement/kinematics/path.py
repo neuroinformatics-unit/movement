@@ -1,9 +1,9 @@
 """Compute path-level metrics such as path length and straightness.
 
-By 'path' we refer to the spatial trajectory of an individual between two
-time points. While these metrics can be computed based on any set of
-keypoints, they are most meaningful when applied to a single keypoint
-representing the individual's overall position (e.g., centroid).
+By 'path' we refer to the spatial trajectory of an individual over the
+time span of the data. While these metrics can be computed based on any
+set of keypoints, they are most meaningful when applied to a single
+keypoint representing the individual's overall position (e.g., centroid).
 """
 
 import warnings
@@ -96,7 +96,7 @@ def compute_path_length(
     >>> length = compute_path_length(centroid, nan_policy="scale")
 
     """
-    data = _slice_and_validate(data, "path length")
+    data = _validate_time_points(data, "path length")
     return _path_length(data, nan_policy, nan_warn_threshold)
 
 
@@ -167,7 +167,7 @@ def compute_path_straightness(
     >>> si = compute_path_straightness(centroid.sel(time=slice(0, 100)))
 
     """
-    data = _slice_and_validate(data, "path straightness")
+    data = _validate_time_points(data, "path straightness")
     path_length = _path_length(data, nan_policy, nan_warn_threshold)
     # Compute D/L ratio, avoiding division by zero
     result = _path_distance(data) / path_length.where(path_length > 0)
@@ -176,7 +176,7 @@ def compute_path_straightness(
     return result
 
 
-def _slice_and_validate(
+def _validate_time_points(
     data: xr.DataArray,
     metric_name: str,
 ) -> xr.DataArray:
