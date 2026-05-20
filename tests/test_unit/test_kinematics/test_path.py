@@ -6,6 +6,7 @@ import pytest
 import xarray as xr
 
 from movement.kinematics import (
+    compute_directional_change,
     compute_path_length,
     compute_path_straightness,
     compute_turning_angle,
@@ -633,3 +634,89 @@ def test_turning_angle_stationary_keypoint_independent_masking():
     # Stationary keypoint (kp_1): should be all NaN
     angles_kp1 = angles.isel(keypoint=1)
     assert np.all(np.isnan(angles_kp1.values))
+
+
+# ─────────────────────────────────────────────
+# Directional change tests
+# ─────────────────────────────────────────────
+
+time_points_value_error_dc = pytest.raises(
+    ValueError,
+    match=(
+        "At least 2 time points are required to compute directional change"
+    ),
+)
+
+
+@pytest.mark.parametrize(
+    "fixture_name, expected_interior_value, expected_all_nan",
+    [
+        pytest.param("straight_paths", 0.0, False, id="straight-line"),
+        pytest.param("stationary_paths", None, True, id="stationary"),
+    ],
+)
+def test_directional_change_known_values(
+    request, fixture_name, expected_interior_value, expected_all_nan
+):
+    """Test directional change for trajectories with known geometry.
+
+    Straight-line motion produces zero turning angle, so DC is 0 at
+    interior time steps. Stationary paths produce NaN turning angles,
+    so DC is NaN everywhere.
+    """
+    position = request.getfixturevalue(fixture_name)
+    dc = compute_directional_change(position)
+    assert dc.name == "directional_change"
+    assert dc.attrs["long_name"] == "Directional Change"
+
+    if expected_all_nan:
+        assert dc.isnull().all()
+    else:
+        interior = dc.isel(time=slice(2, -1))
+        xr.testing.assert_allclose(
+            interior, xr.full_like(interior, expected_interior_value)
+        )
+        # Boundary time steps (t=0, t=1, t=-1) are always NaN
+        assert dc.isel(time=[0, 1, -1]).isnull().all()
+
+
+@pytest.mark.parametrize(
+    "time_slice, expected_exception",
+    [
+        pytest.param(
+            slice(None, None),
+            does_not_raise(),
+            id="full-range",
+        ),
+        pytest.param(
+            slice(0, 9),
+            does_not_raise(),
+            id="explicit-full-range",
+        ),
+        pytest.param(
+            slice(1, 8),
+            does_not_raise(),
+            id="partial-range",
+        ),
+        pytest.param(
+            slice(9, 0),
+            time_points_value_error_dc,
+            id="start-greater-than-stop",
+        ),
+        pytest.param(
+            slice(0, 0.5),
+            time_points_value_error_dc,
+            id="too-few-time-points",
+        ),
+    ],
+)
+def test_directional_change_across_time_ranges(
+    valid_poses_dataset, time_slice, expected_exception
+):
+    """Test that DC raises with too few time points, and works
+    otherwise."""
+    position = valid_poses_dataset.position.sel(time=time_slice)
+    with expected_exception:
+        dc = compute_directional_change(position)
+        assert dc.name == "directional_change"
+        assert dc.attrs["long_name"] == "Directional Change"

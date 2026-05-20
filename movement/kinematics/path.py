@@ -296,6 +296,104 @@ def compute_turning_angle(
     return turning
 
 
+def compute_directional_change(
+    data: xr.DataArray,
+    min_step_length: float = 0.0,
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    r"""Compute the directional change (DC) per time step.
+
+    The directional change at step :math:`i` is the absolute turning
+    angle divided by the temporal interval spanning the two adjacent
+    steps:
+
+    .. math::
+        \mathrm{DC}_i = \frac{|\theta_i|}{\Delta t_i}
+
+    where :math:`\theta_i` is the signed turning angle at step :math:`i`
+    and :math:`\Delta t_i = t_{i+1} - t_{i-1}`.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+    min_step_length : float, optional
+        The minimum step length used when computing turning angles.
+        Steps shorter than or equal to this value produce ``NaN``
+        turning angles, which propagate to ``NaN`` directional change
+        values. The default ``0.0`` only masks steps with exactly
+        zero length; near-zero steps from positional jitter may still
+        produce spurious turning angles. See
+        :func:`compute_turning_angle` for details.
+    nan_warn_threshold : float, optional
+        If any point track in the data has at least (:math:`\ge`)
+        this proportion of values missing, a warning will be emitted.
+        Defaults to 0.2 (20%).
+
+    Returns
+    -------
+    xarray.DataArray
+        Directional change values with the same dimensions as the
+        input, except ``space`` is removed. Values are in radians per
+        ``time`` unit (e.g. radians/second if ``time`` is in seconds).
+
+    Notes
+    -----
+    1. **Boundary behaviour:** The first two and last time steps of
+       the output are always ``NaN``. The first two are ``NaN``
+       because a turning angle requires three consecutive positions
+       (see :func:`compute_turning_angle`); the last is ``NaN``
+       because the temporal interval requires a subsequent time point
+       that does not exist.
+
+    2. **NaN propagation:** ``NaN`` turning angles (from stationary
+       or sub-threshold steps) propagate to ``NaN`` directional change
+       values. No additional masking is applied.
+
+    3. **Reference:** Kitamura, T. & Imafuku, M. (2015). Behavioural
+       mimicry in flight path of Batesian intraspecific polymorphic
+       butterfly *Papilio polytes*. *Proc. R. Soc. B* 282(1809).
+       https://doi.org/10.1098/rspb.2015.0483
+
+    See Also
+    --------
+    :func:`compute_turning_angle` :
+        The underlying function used to compute turning angles.
+
+    Examples
+    --------
+    >>> from movement.kinematics import compute_directional_change
+
+    Compute directional change from the centroid trajectory of a
+    poses dataset ``ds``:
+
+    >>> centroid = ds.position.mean(dim="keypoint")
+    >>> dc = compute_directional_change(centroid)
+
+    Compute over a specific time window:
+
+    >>> dc = compute_directional_change(centroid.sel(time=slice(0, 100)))
+
+    Filter out pose-estimation jitter by setting ``min_step_length``:
+
+    >>> dc = compute_directional_change(centroid, min_step_length=3)
+
+    """
+    data = _validate_time_points(data, "directional change")
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+
+    theta = compute_turning_angle(data, min_step_length=min_step_length)
+
+    time_coord = data["time"]
+    dt = time_coord.shift(time=-1) - time_coord.shift(time=1)
+
+    dc = abs(theta) / dt
+    dc.name = "directional_change"
+    dc.attrs["long_name"] = "Directional Change"
+    return dc
+
+
 def _validate_time_points(
     data: xr.DataArray,
     metric_name: str,
