@@ -230,6 +230,17 @@ html_theme_options = {
     "external_links": [],
 }
 
+# Show ABlog's "postcard" (date, author, category, etc.) in the sidebar of
+# blog post pages. The author/category/... entries link to their index pages.
+# Note: this replaces the default site nav sidebar on blog pages only.
+html_sidebars = {
+    "blog/**": ["ablog/postcard.html"],
+}
+
+# The PyData theme bundles FontAwesome, so let ABlog render its postcard icons
+# (calendar, user, ...) instead of plain-text "Author:"/"Location:" labels.
+fontawesome_included = True
+
 # Redirect the webpage to another URL
 # Sphinx will create the appropriate CNAME file in the build directory
 # The default is the URL of the GitHub pages
