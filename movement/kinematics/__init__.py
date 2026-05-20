@@ -17,6 +17,7 @@ from movement.kinematics.orientation import (
 )
 from movement.kinematics.kinetic_energy import compute_kinetic_energy
 from movement.kinematics.path import (
+    compute_directional_change,
     compute_path_length,
     compute_path_straightness,
 )
@@ -30,6 +31,7 @@ __all__ = [
     "compute_speed",
     "compute_path_length",
     "compute_path_straightness",
+    "compute_directional_change",
     "compute_time_derivative",
     "compute_pairwise_distances",
     "compute_forward_vector",
