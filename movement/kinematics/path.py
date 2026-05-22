@@ -1,4 +1,4 @@
-"""Compute path-level metrics such as path length and straightness.
+"""Compute path metrics: length, straightness, and directional change.
 
 By 'path' we refer to the spatial trajectory of an individual over the
 time span of the data. While these metrics can be computed based on any
