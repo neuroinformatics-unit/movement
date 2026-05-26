@@ -118,10 +118,11 @@ class _BaseDatasetInputs(ABC):
     # --- Lifecycle hooks ---
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
-        # confidence_array default: array of NaNs with appropriate shape
+        # confidence_array default: array of NaNs with shape matching
+        # position_array without the space dimension
         if self.confidence_array is None:
             self.confidence_array = np.full(
-                self._confidence_expected_shape[0], np.nan, dtype="float32"
+                self._confidence_expected_shapes[0], np.nan, dtype="float32"
             )
             logger.info(
                 "Confidence array was not provided."
@@ -140,7 +141,7 @@ class _BaseDatasetInputs(ABC):
 
     # --- Properties (derived attributes) ---
     @property
-    def _confidence_expected_shape(self):
+    def _confidence_expected_shapes(self):
         """Return list of expected shapes for confidence_array.
 
         Default is the shape of position_array without the space dimension, but
@@ -191,7 +192,7 @@ class _BaseDatasetInputs(ABC):
         """Check confidence_array type and shape."""
         if value is not None:
             self._validate_array_shape(
-                attribute, value, self._confidence_expected_shape
+                attribute, value, self._confidence_expected_shapes
             )
 
     @individual_names.validator
@@ -353,7 +354,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[Iterable[int]] = (2, 3)
 
     @property
-    def _confidence_expected_shape(self):
+    def _confidence_expected_shapes(self):
         """Return list of expected shapes for confidence_array.
 
         Overrides the base implementation to allow for two possible shapes:
