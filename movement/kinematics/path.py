@@ -396,10 +396,8 @@ def compute_directional_change(
 def _validate_time_points(
     data: xr.DataArray,
     metric_name: str,
-    start: float | None = None,
-    stop: float | None = None,
 ) -> xr.DataArray:
-    """Validate dims/coords, optionally slice, and require >= 2 time points.
+    """Validate dims/coords and require at least 2 time points.
 
     Parameters
     ----------
@@ -407,29 +405,20 @@ def _validate_time_points(
         Position data with ``time`` and ``space`` dimensions.
     metric_name : str
         Used in the error message when there are fewer than 2 time points.
-    start, stop : float, optional
-        Time slice bounds. ``None`` means "use the data's extent".
 
     Returns
     -------
     xarray.DataArray
-        The validated, optionally time-sliced data.
+        The validated data.
 
     """
     validate_dims_coords(data, {"time": [], "space": []})
-    if start is not None or stop is not None:
-        data = data.sel(time=slice(start, stop))
     n_time = data.sizes["time"]
     if n_time < 2:
-        hint = (
-            " Double-check the start and stop times."
-            if (start is not None or stop is not None)
-            else ""
-        )
         raise logger.error(
             ValueError(
                 "At least 2 time points are required to compute "
-                f"{metric_name}, but {n_time} were found.{hint}"
+                f"{metric_name}, but {n_time} were found."
             )
         )
     return data
@@ -437,8 +426,6 @@ def _validate_time_points(
 
 def compute_path_deviation(
     data: xr.DataArray,
-    start: float | None = None,
-    stop: float | None = None,
 ) -> xr.DataArray:
     r"""Compute the perpendicular deviation from the chord at each time point.
 
@@ -468,12 +455,6 @@ def compute_path_deviation(
     data : xarray.DataArray
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-    start : float, optional
-        The start time of the path. If None (default),
-        the minimum time coordinate in the data is used.
-    stop : float, optional
-        The end time of the path. If None (default),
-        the maximum time coordinate in the data is used.
 
     Returns
     -------
@@ -514,13 +495,11 @@ def compute_path_deviation(
     Compute the mean deviation over a specific time window:
 
     >>> mean_deviation = compute_path_deviation(
-    ...     centroid, start=10, stop=50
+    ...     centroid.sel(time=slice(10, 50))
     ... ).mean(dim="time")
 
     """
-    data = _validate_time_points(
-        data, "path deviation", start=start, stop=stop
-    )
+    data = _validate_time_points(data, "path deviation")
 
     anchored = data.ffill(dim="time").bfill(dim="time")
     A = anchored.isel(time=0)

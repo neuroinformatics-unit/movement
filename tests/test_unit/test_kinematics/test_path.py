@@ -696,27 +696,28 @@ degenerate_chord_error = pytest.raises(
 
 
 @pytest.mark.parametrize(
-    "start, stop, expected_exception",
+    "time_slice, expected_exception",
     [
-        pytest.param(None, None, does_not_raise(), id="full-range"),
-        pytest.param(0, 9, does_not_raise(), id="explicit-full-range"),
-        pytest.param(1, 8, does_not_raise(), id="partial-range"),
+        pytest.param(slice(None, None), does_not_raise(), id="full-range"),
+        pytest.param(slice(0, 9), does_not_raise(), id="explicit-full-range"),
+        pytest.param(slice(1, 8), does_not_raise(), id="partial-range"),
         pytest.param(
-            9,
-            0,
+            slice(9, 0),
             time_points_value_error_deviation,
             id="start-greater-than-stop",
         ),
         pytest.param(
-            0, 0.5, time_points_value_error_deviation, id="too-few-time-points"
+            slice(0, 0.5),
+            time_points_value_error_deviation,
+            id="too-few-time-points",
         ),
     ],
 )
 def test_path_deviation_time_ranges(
-    straight_paths, start, stop, expected_exception
+    straight_paths, time_slice, expected_exception
 ):
     with expected_exception:
-        result = compute_path_deviation(straight_paths, start=start, stop=stop)
+        result = compute_path_deviation(straight_paths.sel(time=time_slice))
         assert result.sizes.get("time") is not None
         assert "space" not in result.dims
 
@@ -779,5 +780,5 @@ def test_path_deviation_preserves_non_space_dims(straight_paths):
 
 
 def test_path_deviation_partial_chord_is_zero(straight_paths):
-    result = compute_path_deviation(straight_paths, start=2, stop=7)
+    result = compute_path_deviation(straight_paths.sel(time=slice(2, 7)))
     xr.testing.assert_allclose(result, xr.zeros_like(result))
