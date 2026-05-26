@@ -21,7 +21,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v3
         with:
-          client-id: ${{ secrets.NIU_BOT_CLIENT_ID }}
+          client-id: ${{ vars.NIU_BOT_CLIENT_ID }}
           private-key: ${{ secrets.NIU_BOT_PRIVATE_KEY }}
       - name: Contribute List
         uses: akhilmhdh/contributors-readme-action@v2.3.11
