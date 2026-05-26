@@ -134,6 +134,7 @@ ignore = [
   "tests/test_integration/",
   "docs/",
   "docs/source/",
+  "design/*.md",
 ]
 
 [tool.mypy]
