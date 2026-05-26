@@ -107,6 +107,36 @@ movement launch
 This is equivalent to running `napari -w movement` and should open the `napari`
 window with the `movement` widget docked on the right-hand side.
 
+:::{dropdown} Note for Linux users on wayland
+:color: warning
+:icon: alert
+
+On Linux systems with a wayland-based desktop environment, `movement launch`
+may fail with repeated error messages and a crash. This is a
+[known napari issue](https://github.com/napari/napari/issues/8808).
+
+If you are unsure whether you are affected by this,
+run `echo $XDG_SESSION_TYPE` and check if the output is `wayland`.
+
+To work around it, launch with the following environment variables:
+
+```sh
+QT_QPA_PLATFORM=xcb PYOPENGL_PLATFORM=glx movement launch
+```
+
+To avoid typing this every time, you can add the following lines to
+your shell configuration file (e.g. `~/.bashrc`):
+
+```sh
+export QT_QPA_PLATFORM=xcb
+export PYOPENGL_PLATFORM=glx
+```
+
+See napari's
+[troubleshooting guide](https://napari.org/stable/troubleshooting.html#running-napari-on-wayland-with-nvidia-cards)
+for more details.
+:::
+
 ## Update the package
 
 :::{dropdown} Always update using the same package manager used for installation
