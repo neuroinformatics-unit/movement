@@ -200,9 +200,25 @@ class TestBaseDatasetInputs:
                 (3, 2),
                 pytest.raises(
                     ValueError,
-                    match=re.escape("have shape (3, 2), but got (2, 3)"),
+                    match=re.escape("have shape [(3, 2)], but got (2, 3)"),
                 ),
             ),
+            ([(2, 3), (5, 2)], does_not_raise()),
+            (
+                [(3, 2), (5, 2)],
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "have shape [(3, 2), (5, 2)], but got (2, 3)"
+                    ),
+                ),
+            ),
+        ],
+        ids=[
+            "Shape matches expected shape (tuple)",
+            "Shape does not match expected shape (tuple)",
+            "Shape matches one of expected shapes (list of tuples)",
+            "Shape does not match any of expected shapes (list of tuples)",
         ],
     )
     def test_validate_array_shape(self, expected_shape, expected_exception):
@@ -397,7 +413,9 @@ class TestValidBboxesInputs:
                 np.zeros((5, 2, 1)),
                 pytest.raises(
                     ValueError,
-                    match=re.escape("have shape (5, 2, 3), but got (5, 2, 1)"),
+                    match=re.escape(
+                        "have shape [(5, 2, 3)], but got (5, 2, 1)"
+                    ),
                 ),
             ),
             (
@@ -454,14 +472,14 @@ class TestValidBboxesInputs:
                 np.zeros((5, 2)),
                 pytest.raises(
                     ValueError,
-                    match=re.escape("have shape (5, 1), but got (5, 2)"),
+                    match=re.escape("have shape [(5, 1)], but got (5, 2)"),
                 ),
             ),
             (
                 np.zeros((7, 1)),
                 pytest.raises(
                     ValueError,
-                    match=re.escape("have shape (5, 1), but got (7, 1)"),
+                    match=re.escape("have shape [(5, 1)], but got (7, 1)"),
                 ),
             ),
         ],
