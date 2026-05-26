@@ -8,6 +8,8 @@ from pathlib import Path
 from unittest.mock import mock_open, patch
 
 import h5py
+import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 from sleap_io.io.slp import read_labels, write_labels
@@ -209,6 +211,72 @@ def dlc_h5_file():
 def dlc_csv_file():
     """Return the path to a DeepLabCut .csv file."""
     return pytest.DATA_PATHS.get("DLC_single-wasp.predictions.csv")
+
+
+@pytest.fixture
+def dlc_csv_file_with_uniquebodyparts(tmp_path):
+    """Return the path to a multi-animal DLC .csv with uniquebodyparts.
+
+    Mimics a DLC project with 5 tracked individuals (bird1-5), each
+    with 3 multi-animal bodyparts (leftwing, rightwing, middle), plus
+    3 uniquebodyparts (boatBL, boatBR, boatTip) assigned to a "single"
+    pseudo-individual. The resulting DataFrame has a ragged multi-index:
+    not every individual has every bodypart.
+
+    Uses 10 data rows so that a silent reshape in ``from_dlc_style_df``
+    produces exactly 5 corrupted frames (10 * 18 * 3 = 5 * 36 * 3).
+    """
+    file_path = tmp_path / "dlc_uniquebodyparts.csv"
+    df = _build_dlc_df_with_uniquebodyparts(n_frames=10)
+    df.to_csv(file_path)
+    return file_path
+
+
+def _build_dlc_df_with_uniquebodyparts(
+    n_frames: int,
+) -> pd.DataFrame:
+    """Build a DLC-style DataFrame with uniquebodyparts."""
+    scorer = "fake_scorer"
+    individuals = ["bird1", "bird2", "bird3", "bird4", "bird5"]
+    multi_bodyparts = ["leftwing", "rightwing", "middle"]
+    unique_bodyparts = ["boatBL", "boatBR", "boatTip"]
+
+    tuples = [
+        (scorer, ind, bp, c)
+        for ind in individuals
+        for bp in multi_bodyparts
+        for c in ("x", "y", "likelihood")
+    ] + [
+        (scorer, "single", bp, c)
+        for bp in unique_bodyparts
+        for c in ("x", "y", "likelihood")
+    ]
+    columns = pd.MultiIndex.from_tuples(
+        tuples,
+        names=["scorer", "individuals", "bodyparts", "coords"],
+    )
+
+    frames = np.arange(n_frames, dtype=float)
+    data = np.full((n_frames, len(tuples)), np.nan)
+
+    # Multi-animal bodyparts: linear motion per individual
+    for i in range(len(individuals)):
+        for j in range(len(multi_bodyparts)):
+            col = (i * len(multi_bodyparts) + j) * 3
+            data[:, col] = 100 * (i + 1) + frames
+            data[:, col + 1] = 200 * (i + 1) + 50 * j + frames * 0.5
+            data[:, col + 2] = 0.99
+
+    # Unique bodyparts: fixed positions
+    fixed_xy = [(500, 500), (600, 500), (550, 450)]
+    base = len(individuals) * len(multi_bodyparts) * 3
+    for k, (fx, fy) in enumerate(fixed_xy):
+        col = base + k * 3
+        data[:, col] = fx
+        data[:, col + 1] = fy
+        data[:, col + 2] = 0.99
+
+    return pd.DataFrame(data, columns=columns, index=range(n_frames))
 
 
 @pytest.fixture
