@@ -55,14 +55,14 @@ class PolygonOfInterest(BaseRegionOfInterest[RegionLike]):
 
         Parameters
         ----------
-        exterior_boundary : tuple of (x, y) pairs
+        exterior_boundary
             The points (in sequence) that make up the boundary of the region.
             At least three points must be provided.
-        holes : sequence of sequences of (x, y) pairs, default None
+        holes
             A sequence of items, where each item will be interpreted as the
             ``exterior_boundary`` of an internal hole within the region. See
             the ``holes`` argument to ``shapely.Polygon`` for details.
-        name : str, optional
+        name
             Name of the RoI that is to be created. A default name will be
             inherited from the base class if not provided.
 

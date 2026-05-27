@@ -56,7 +56,7 @@ def test_nan_propagation_through_filters(sample_dataset, window, helpers):
     sample_dataset.update(
         {
             "position": savgol_filter(
-                sample_dataset.position, window, polyorder=2
+                sample_dataset.position, window, polyorder=2, mode="nearest"
             )
         }
     )

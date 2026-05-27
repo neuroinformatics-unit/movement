@@ -7,15 +7,15 @@ authors = [
 ]
 description = "A Python toolbox for analysing animal body movements across space and time"
 readme = "README.md"
-requires-python = ">=3.11.0"
+requires-python = ">=3.12.0"
 dynamic = ["version"]
 
-license = { text = "BSD-3-Clause" }
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
 
 dependencies = [
   "numpy>=2.0.0",
   "pandas",
-  "scipy<1.17.0",
   "h5py",
   "netCDF4<1.7.3",
   "tables>=3.10.1",
@@ -32,17 +32,19 @@ dependencies = [
   "loguru",
   "pynwb",
   "ndx-pose>=0.2.1",
+  "jsonschema",
+  "orjson",
+  "typer>=0.9.0"
 ]
 
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Operating System :: OS Independent",
-  "License :: OSI Approved :: BSD License",
   "Framework :: napari",
 ]
 
@@ -58,10 +60,13 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 
 [project.optional-dependencies]
 napari = ["napari[all]>=0.6.0"]
+
+[dependency-groups]
 dev = [
   "pytest",
   "pytest-cov",
   "pytest-mock",
+  "pytest-benchmark",
   "coverage",
   "tox",
   "mypy",
@@ -77,14 +82,30 @@ dev = [
   "pytest-qt",
   "scipy-stubs",
   "types-shapely",
+  "types-jsonschema",
   "movement[napari]",
+]
+docs = [
+  "movement[napari]",
+  "ablog>=0.11.13",
+  "linkify-it-py",
+  "myst-parser",
+  "nbsphinx",
+  "pydata-sphinx-theme",
+  "sphinx",
+  "sphinx-autodoc-typehints",
+  "sphinx-design",
+  "sphinx-gallery",
+  "sphinx-notfound-page",
+  "sphinx-sitemap",
+  "setuptools_scm"
 ]
 
 [project.scripts]
 movement = "movement.cli_entrypoint:main"
 
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools>=77", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
@@ -96,7 +117,11 @@ exclude = ["tests", "docs*"]
 
 
 [tool.pytest.ini_options]
-addopts = "--cov=movement"
+# This config applies to all pytest runs (CLI, VS Code, tox, CI)
+addopts = "--cov=movement -m 'not benchmark'" # exclude benchmarks by default
+markers = [
+    "benchmark: marks benchmarking tests (deselect with '-m \"not benchmark\"')",
+]
 
 [tool.setuptools_scm]
 
@@ -167,7 +192,7 @@ per-file-ignores = { "tests/*" = [
 docstring-code-format = true # Also format code in docstrings
 
 [tool.codespell]
-skip = '.git,.tox,*.svg'
+skip = '.git,.tox,*.svg,docs/source/community/people.md'
 check-hidden = true
 
 [tool.tox]
@@ -176,14 +201,14 @@ legacy_tox_ini = """
 requires =
     tox>=4
     tox-gh-actions
-envlist = py{311,312,313}
+envlist = py{312,313,314}
 isolated_build = True
 
 [gh-actions]
 python =
-    3.11: py311
     3.12: py312
     3.13: py313
+    3.14: py314
 
 [testenv]
 passenv =
@@ -193,7 +218,7 @@ passenv =
     XAUTHORITY
     NUMPY_EXPERIMENTAL_ARRAY_FUNCTION
     PYVISTA_OFF_SCREEN
-extras =
+dependency_groups =
     dev
 commands =
     pytest -v --color=yes --cov=movement --cov-report=xml

@@ -8,8 +8,11 @@
 
 import os
 import sys
+import types
+from typing import TypeAliasType
 
 import setuptools_scm
+from sphinx_autodoc_typehints import format_annotation
 
 # Used when building API docs, put the dependencies
 # of any class you are documenting here
@@ -83,10 +86,69 @@ templates_path = ["_templates"]
 # Automatically generate stub pages for API
 autosummary_generate = True
 autosummary_generate_overwrite = False
-autodoc_default_flags = ["members", "inherited-members"]
+autodoc_default_options = {
+    "special-members": "__call__",
+    "member-order": "groupwise",
+}
+
+
+def _get_canonical_type_alias_name(annotation):
+    """Get canonical public qualified name for a TypeAliasType.
+
+    For types defined in private modules (e.g. ``numpy._typing.ArrayLike``),
+    search ``sys.modules`` for a public re-export
+    (e.g. ``numpy.typing.ArrayLike``).
+    """
+    module = getattr(annotation, "__module__", "") or ""
+    name = getattr(annotation, "__name__", "") or ""
+    if not module or not name:
+        return ""
+    if not any(part.startswith("_") for part in module.split(".")):
+        return f"{module}.{name}"
+    top_pkg = module.split(".")[0]
+    for mod_name in sorted(sys.modules):
+        if not mod_name.startswith(top_pkg):
+            continue
+        mod = sys.modules[mod_name]
+        if not isinstance(mod, types.ModuleType):
+            continue
+        if any(part.startswith("_") for part in mod_name.split(".")):
+            continue
+        if getattr(mod, name, None) is annotation:
+            return f"{mod_name}.{name}"
+    return f"{module}.{name}"
+
+
+def _typehints_formatter(annotation, config):
+    """Handle formatting of PEP695 type aliases in sphinx-autodoc-typehints."""
+    if isinstance(annotation, TypeAliasType):
+        module = getattr(annotation, "__module__", "") or ""
+        name = getattr(annotation, "__name__", "") or ""
+        intersphinx_mapping = getattr(config, "intersphinx_mapping", {})
+        is_external = module and any(
+            module == pkg or module.startswith(f"{pkg}.")
+            for pkg in intersphinx_mapping
+        )
+        # Handle external PEP695 type aliases
+        if is_external and name:
+            canonical = _get_canonical_type_alias_name(annotation)
+            if canonical:
+                return f":py:obj:`~{canonical}`"
+        # Unwrap internal PEP695 type aliases to their underlying types
+        return format_annotation(annotation.__value__, config)
+    return None
+
+
+# sphinx-autodoc-typehints configuration
+always_use_bars_union = True
+typehints_formatter = _typehints_formatter
 
 # Prefix section labels with the document name
 autosectionlabel_prefix_document = True
+
+# Suppress config cache warning caused by `typehints_formatter`
+# as Sphinx cannot pickle callables
+suppress_warnings = ["config.cache"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -166,9 +228,25 @@ html_theme_options = {
     "footer_start": ["footer_start"],
     "footer_end": ["footer_end"],
     "external_links": [],
-    "announcement": "Learn more about movement at the <a href='https://neuroinformatics.dev/open-software-summer-school/index.html'>Neuroinformatics Unit Open Software Summer School</a> in London, August 2026!",
-
 }
+
+# Show ABlog's "postcard" (date, author, category, etc.) in the sidebar of blog
+# post pages, see https://ablog.readthedocs.io/en/latest/manual/templates-themes.html
+# Note: this replaces the default site nav sidebar on blog pages only.
+html_sidebars = {
+    "blog/index": [
+        "ablog/authors.html",
+        "ablog/archives.html",
+    ],
+    "blog/**": [
+        "ablog/postcard.html",
+        "ablog/recentposts.html",
+    ],
+}
+
+# The PyData theme bundles FontAwesome, so let ABlog render its postcard icons
+# (calendar, user, ...) instead of plain-text "Author:"/"Location:" labels.
+fontawesome_included = True
 
 # Redirect the webpage to another URL
 # Sphinx will create the appropriate CNAME file in the build directory
@@ -192,7 +270,7 @@ html_favicon = "_static/light-logo-niu.png"
 
 # Linkcheck configuration
 linkcheck_timeout = 60  # defaut is 30
-linkcheck_retries = 3   # default is 1
+linkcheck_retries = 3  # default is 1
 
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs (because they are generated dynamically)
@@ -204,17 +282,27 @@ linkcheck_anchors_ignore_for_url = [
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
     "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
-    "https://opensource.org/license/bsd-3-clause/",  # to avoid odd 403 error
-    "https://www.sainsburywellcome.org/",  # Occasional ConnectTimeoutError
-    "https://www.robots.ox.ac.uk/",  # occasional 404s
+    "https://opensource.org/license/bsd-3-clause/",  # 403 error
+    "https://www.sainsburywellcome.org/",  # ConnectTimeoutError
+    "https://www.robots.ox.ac.uk/",  # 404 error
     "https://silvalab.codeberg.page/BraiAn/",  # SSLError despite working link
     "https://www.g-node.org/",  # frequent timeouts
     "https://www.contributor-covenant.org/*",  # frequent timeouts
+    "https://docutils.sourceforge.io/*",  # 403 error
+    "https://www.iso.org/",  # 403 error
+    "https://www.ffmpeg.org/",  # 403 error
     # Checking zenodo redirects (from concept doi to record) takes a long time
     "https://zenodo.org/doi/*",
     "https://zenodo.org/records/*",
     "https://doi.org/10.5281/zenodo.*",
+    "https://abide.ics.ulisboa.pt/*",  # flaky
 ]
+# Add request headers for specific domains (e.g. to avoid rate-limiting)
+linkcheck_request_headers = {
+    "https://github.com": {
+        "Authorization": f"Bearer {os.environ.get('GITHUB_TOKEN', '')}",
+    },
+}
 
 
 myst_url_schemes = {
@@ -242,17 +330,23 @@ myst_url_schemes = {
     "anipose": "https://anipose.readthedocs.io/en/latest/",
     "TRex": "https://trex.run/docs/",
     "uv": "https://docs.astral.sh/uv/{{path}}#{{fragment}}",
+    "attrs": "https://www.attrs.org/en/stable/{{path}}#{{fragment}}",
+    "pytest-benchmark": "https://pytest-benchmark.readthedocs.io/en/latest/{{path}}#{{fragment}}",
+    "qt6": "https://doc.qt.io/qt-6/{{path}}#{{fragment}}",
 }
 
 intersphinx_mapping = {
     "xarray": ("https://docs.xarray.dev/en/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
-    "pandas": ("https://pandas.pydata.org/pandas-docs/stable/", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
     "python": ("https://docs.python.org/3", None),
     "loguru": ("https://loguru.readthedocs.io/en/stable/", None),
     "pynwb": ("https://pynwb.readthedocs.io/en/stable/", None),
     "matplotlib": ("https://matplotlib.org/stable/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "attrs": ("https://www.attrs.org/en/stable/", None),
+    "shapely": ("https://shapely.readthedocs.io/en/stable/", None),
+    "napari": ("https://napari.org/stable/", None),
 }
 
 # What to show on the 404 page
@@ -269,6 +363,6 @@ notfound_context = {
 """,
 }
 
-# needed for GH pages (vs readthedocs),
-# because we have no '/<language>/<version>/' in the URL
-notfound_urls_prefix = None
+# Static files live in /<version>/_static/, but GH pages expects a single
+# 404.html at root, so use latest version for all static asset URLs in 404 page
+notfound_urls_prefix = "/latest/"

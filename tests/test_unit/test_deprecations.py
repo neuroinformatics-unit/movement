@@ -1,56 +1,47 @@
-from unittest.mock import MagicMock
+"""Tests for deprecated API elements (functions, methods, classes)."""
+
+from contextlib import nullcontext
 
 import pytest
+import xarray as xr
 
-import movement.kinematics as kinematics
+from movement.io import load
 
 
 @pytest.mark.parametrize(
-    "deprecated_function, mocked_inputs, check_in_message",
+    "deprecated_callable, mocked_inputs, patch_context, check_in_message",
     [
         (
-            kinematics.compute_displacement,
-            {"data": MagicMock(dims=["time", "space"])},
-            ["compute_forward_displacement", "compute_backward_displacement"],
+            load.rename_legacy_dimensions,
+            {"ds": xr.Dataset()},
+            nullcontext(),
+            r"`rename_legacy_dimensions` is deprecated",
         ),
     ],
 )
-def test_deprecation(deprecated_function, mocked_inputs, check_in_message):
-    """Test that calling median_filter raises a DeprecationWarning.
-    And that it forwards to rolling_filter with statistic='median'.
+def test_deprecated_callable(
+    deprecated_callable, mocked_inputs, patch_context, check_in_message
+):
+    """Test that a deprecated callable emits a DeprecationWarning.
+
+    When deprecating a callable API element, add a parametrised case to
+    this test. See an older version of this file for concrete examples:
+    https://github.com/neuroinformatics-unit/movement/blob/v0.16.0/tests/test_unit/test_deprecations.py
+
+    Parameters
+    ----------
+    deprecated_callable : callable
+        The deprecated callable (function, bound method, or class).
+    mocked_inputs : dict
+        Keyword arguments to pass to the callable.
+    patch_context : contextlib.AbstractContextManager
+        A ``unittest.mock.patch`` context manager that prevents the
+        callable from doing real work, or
+        ``contextlib.nullcontext()`` if patching is not needed.
+    check_in_message : str
+        A string or regex that must appear in the warning message
+        (typically the name of the recommended replacement).
+
     """
-    with pytest.warns(DeprecationWarning) as record:
-        _ = deprecated_function(**mocked_inputs)
-
-    assert len(record) == 1
-    assert isinstance(record[0].message, DeprecationWarning)
-    assert f"{deprecated_function.__name__}` is deprecated" in str(
-        record[0].message
-    )
-
-    assert all(
-        message in str(record[0].message) for message in check_in_message
-    )
-
-
-# ---------------- Backwards compatibility tests ----------------
-
-
-@pytest.mark.parametrize(
-    "valid_dataset",
-    ["valid_poses_dataset", "valid_bboxes_dataset"],
-)
-def test_backwards_compatibility_displacement(valid_dataset, request):
-    """Test that compute_displacement produces the same output as
-    the negative of compute_backward_displacement.
-    """
-    position = request.getfixturevalue(valid_dataset).position
-
-    with pytest.warns(DeprecationWarning):
-        result = kinematics.compute_displacement(position)
-
-    expected_result = -kinematics.compute_backward_displacement(position)
-    assert result.equals(expected_result), (
-        "compute_displacement should produce the same output as "
-        "the negative of compute_backward_displacement"
-    )
+    with patch_context, pytest.deprecated_call(match=check_in_message):
+        deprecated_callable(**mocked_inputs)

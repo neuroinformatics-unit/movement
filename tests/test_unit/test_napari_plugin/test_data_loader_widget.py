@@ -524,8 +524,8 @@ def test_dimension_slider_with_nans(
     # Get data with nans at the expected locations
     nan_location = {
         "time": nan_time_location,
-        "individuals": nan_individuals,
-        "keypoints": nan_keypoints,
+        "individual": nan_individuals,
+        "keypoint": nan_keypoints,
     }
     file_path, ds = valid_poses_path_and_ds_with_localised_nans(nan_location)
 
@@ -549,8 +549,8 @@ def test_dimension_slider_with_nans(
     # Check the data contains nans where expected
     assert (
         ds.position.sel(
-            individuals=nan_location["individuals"],
-            keypoints=nan_location["keypoints"],
+            individual=nan_location["individual"],
+            keypoint=nan_location["keypoint"],
             time=expected_frame,
         )
         .isnull()
@@ -782,6 +782,30 @@ def test_deletion_all_layers(make_napari_viewer_proxy):
         viewer.layers.clear()
 
 
+@pytest.mark.parametrize(
+    "add_layer",
+    [
+        pytest.param(lambda v: v.add_shapes(), id="empty_shapes"),
+        pytest.param(lambda v: v.add_points(), id="empty_points"),
+    ],
+)
+def test_empty_layer_excluded_from_frame_slider_update(
+    make_napari_viewer_proxy, add_layer
+):
+    """Test that empty layers don't cause an error in frame slider update.
+
+    Empty Shapes and Points layers are excluded from the candidate layers
+    in _update_frame_slider_range, so max() is never called on an empty
+    sequence.
+    """
+    viewer = make_napari_viewer_proxy()
+    loader = DataLoader(viewer)
+    add_layer(viewer)
+
+    with does_not_raise():
+        loader._update_frame_slider_range()
+
+
 # ------------------- tests for layers style ----------------------------#
 @pytest.mark.parametrize(
     (
@@ -852,6 +876,16 @@ def test_add_points_and_tracks_layer_style(
     tracks_layer = viewer.layers[1]
     if source_software == "VIA-tracks":
         bboxes_layer = viewer.layers[2]
+
+    # Check that _factorized columns are excluded from Points layer properties
+    # (these are internal and should not appear in tooltips)
+    points_props_cols = list(points_layer.properties.keys())
+    assert not any(col.endswith("_factorized") for col in points_props_cols)
+
+    # Check that _factorized column is present in Tracks layer properties
+    # (needed for coloring)
+    tracks_props_cols = list(tracks_layer.properties.keys())
+    assert any(col.endswith("_factorized") for col in tracks_props_cols)
 
     # Check the text follows the expected property
     assert points_layer.text.string.feature == expected_text_property

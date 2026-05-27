@@ -340,7 +340,7 @@ class TestComputeSignedAngle:
         ["extra_dim_sizes"],
         [
             pytest.param((1,), id="[1D] Trailing singleton dimension"),
-            pytest.param((2, 3), id="[2D] Individuals-keypoints esque"),
+            pytest.param((2, 3), id="[2D] Individual-keypoint esque"),
             pytest.param(
                 (1, 2),
                 id="[2D] As if .sel had been used on an additional axis",

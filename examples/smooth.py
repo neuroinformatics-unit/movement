@@ -56,15 +56,15 @@ def plot_raw_and_smooth_timeseries_and_psd(
 ):
     # If no individual is specified, use the first one
     if individual is None:
-        individual = ds_raw.individuals[0]
+        individual = ds_raw.individual[0]
     # If no time range is specified, plot the entire time series
     if time_range is None:
         time_range = slice(0, ds_raw.time[-1])
 
     selection = {
         "time": time_range,
-        "individuals": individual,
-        "keypoints": keypoint,
+        "individual": individual,
+        "keypoint": keypoint,
         "space": space,
     }
 
@@ -283,11 +283,17 @@ plot_raw_and_smooth_timeseries_and_psd(
 # Let's try it on the mouse dataset, this time using a 0.2-second
 # window (i.e. 6 frames) and the default ``polyorder=2`` for smoothing.
 # As before, we first compute the corresponding number of observations
-# to be used as the ``window`` size.
+# to be used as the ``window`` size. We set ``mode='nearest'`` to avoid
+# the ``ValueError`` triggered by the default ``mode='interp'`` when
+# :func:`scipy.signal.savgol_filter` encounters NaNs near the signal edges.
 
 window = int(0.2 * ds_mouse.fps)
 ds_mouse_smooth.update(
-    {"position": savgol_filter(ds_mouse.position, window, print_report=True)}
+    {
+        "position": savgol_filter(
+            ds_mouse.position, window, mode="nearest", print_report=True
+        )
+    }
 )
 
 # %%
@@ -310,7 +316,11 @@ plot_raw_and_smooth_timeseries_and_psd(
 
 window = int(0.2 * ds_wasp.fps)
 ds_wasp_smooth.update(
-    {"position": savgol_filter(ds_wasp.position, window, print_report=True)}
+    {
+        "position": savgol_filter(
+            ds_wasp.position, window, mode="nearest", print_report=True
+        )
+    }
 )
 
 # %%
@@ -358,7 +368,11 @@ ds_mouse_smooth.update(
 # over a 0.4-second window (12 frames).
 window = int(0.4 * ds_mouse.fps)
 ds_mouse_smooth.update(
-    {"position": savgol_filter(ds_mouse_smooth.position, window)}
+    {
+        "position": savgol_filter(
+            ds_mouse_smooth.position, window, mode="nearest"
+        )
+    }
 )
 
 # %%

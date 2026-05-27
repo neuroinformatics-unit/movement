@@ -47,7 +47,6 @@ from typing import (
     Concatenate,
     Literal,
     ParamSpec,
-    TypeAlias,
     TypeVar,
     overload,
 )
@@ -59,20 +58,22 @@ from numpy.typing import ArrayLike
 ScalarOr1D = TypeVar("ScalarOr1D", float, int, bool, ArrayLike)
 Self = TypeVar("Self")
 P = ParamSpec("P")
-ClsMethod1DTo1D: TypeAlias = Callable[
-    Concatenate[Self, ArrayLike, P], ScalarOr1D
+type ClsMethod1DTo1D[_Self, **_P, _S: (float, int, bool, ArrayLike)] = (
+    Callable[Concatenate[_Self, ArrayLike, _P], _S]
+)
+type ClsMethodDaToDa[_Self, **_P] = Callable[
+    Concatenate[_Self, xr.DataArray, _P], xr.DataArray
 ]
-ClsMethodDaToDa: TypeAlias = Callable[
-    Concatenate[Self, xr.DataArray, P], xr.DataArray
+type Function1DTo1D[**_P, _S: (float, int, bool, ArrayLike)] = Callable[
+    Concatenate[ArrayLike, _P], _S
 ]
-Function1DTo1D: TypeAlias = Callable[Concatenate[ArrayLike, P], ScalarOr1D]
-FunctionDaToDa: TypeAlias = Callable[
-    Concatenate[xr.DataArray, P], xr.DataArray
+type FunctionDaToDa[**_P] = Callable[
+    Concatenate[xr.DataArray, _P], xr.DataArray
 ]
 
 
-def apply_along_da_axis(
-    f: Callable[[ArrayLike], ScalarOr1D],
+def apply_along_da_axis[S: (float, int, bool, ArrayLike)](
+    f: Callable[[ArrayLike], S],
     data: xr.DataArray,
     dimension: str,
     new_dimension_name: str | None = None,
@@ -85,14 +86,14 @@ def apply_along_da_axis(
 
     Parameters
     ----------
-    f : Callable
+    f
         Function that takes 1D inputs and returns either scalar or 1D outputs.
         This will be cast across the ``dimension`` of the ``data``.
-    data: xarray.DataArray
+    data
         Values to be cast over.
-    dimension : str
+    dimension
         Dimension of ``data`` to broadcast ``f`` across.
-    new_dimension_name : str, optional
+    new_dimension_name
         If ``f`` returns non-scalar values, the dimension in the output that
         these values are returned along is given the name
         ``new_dimension_name``. Defaults to ``"result"``.
@@ -165,21 +166,21 @@ def make_broadcastable(
 
     Parameters
     ----------
-    is_classmethod : bool
+    is_classmethod
         Whether the target of the decoration is a class method which takes
         the ``self`` argument, or a standalone function that receives no
         implicit arguments.
-    only_broadcastable_along : str, optional
+    only_broadcastable_along
         Whether the decorated function should only support broadcasting along
         this dimension. The returned function will not take the
         ``broadcast_dimension`` argument, and will use the dimension provided
         here as the value for this argument.
-    new_dimension_name : str, optional
+    new_dimension_name
         Passed to :func:`apply_along_da_axis`.
 
     Returns
     -------
-    Callable
+    collections.abc.Callable
         Decorator function that can be applied with the
         ``@make_broadcastable(...)`` syntax. See Notes for a description of
         the action of the returned decorator.
@@ -297,7 +298,7 @@ def space_broadcastable(
 
     Returns
     -------
-    Callable
+    collections.abc.Callable
         Callable with signature
         ``(self,) data, *args, broadcast_dimension = str, **kwargs``,
         that applies ``f`` along the ``broadcast_dimension`` of ``data``.
@@ -331,7 +332,7 @@ def broadcastable_method(
 
     Returns
     -------
-    Callable
+    collections.abc.Callable
         Callable with signature
         ``(self,) data, *args, broadcast_dimension = str, **kwargs``,
         that applies ``f`` along the ``broadcast_dimension`` of ``data``.

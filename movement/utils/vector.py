@@ -19,7 +19,7 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data array containing either ``space`` or ``space_pol``
         as a dimension.
 
@@ -64,7 +64,7 @@ def convert_to_unit(data: xr.DataArray) -> xr.DataArray:
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data array containing either ``space`` or ``space_pol``
         as a dimension.
 
@@ -101,7 +101,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data containing ``space`` as a dimension,
         with ``x`` and ``y`` in the dimension coordinate.
 
@@ -163,7 +163,7 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data containing ``space_pol`` as a dimension,
         with ``rho`` and ``phi`` in the dimension coordinate.
 
@@ -207,15 +207,15 @@ def compute_signed_angle_2d(
 
     Parameters
     ----------
-    u : xarray.DataArray
+    u
         An array of position vectors containing the ``space``
         dimension with only ``"x"`` and ``"y"`` coordinates.
-    v : xarray.DataArray | numpy.ndarray
+    v
         A 2D vector (or array of 2D vectors) against which to
         compare ``u``. May either be an xarray
         DataArray containing the ``"space"``  dimension or a numpy
         array containing one or more 2D vectors. (See Notes)
-    v_as_left_operand : bool, default False
+    v_as_left_operand
         If True, the signed angle between ``v`` and ``u`` is returned, instead
         of the signed angle between ``u`` and ``v``. This is a convenience
         wrapper for when one of the two vectors to be used does not have time
@@ -223,7 +223,7 @@ def compute_signed_angle_2d(
 
     Returns
     -------
-    xarray.DataArray :
+    xarray.DataArray
         An xarray DataArray containing signed angle between
         ``u`` and ``v`` for every time point. Matches the dimensions of
         ``u``, but without the ``space`` dimension.

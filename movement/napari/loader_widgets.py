@@ -21,7 +21,7 @@ from qtpy.QtWidgets import (
     QWidget,
 )
 
-from movement.io import load_bboxes, load_poses
+from movement.io.load import load_dataset, rename_legacy_dimensions
 from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.utils.logging import logger
@@ -233,12 +233,7 @@ class DataLoader(QWidget):
 
         Validation is handled by the loader functions.
         """
-        loader = (
-            load_poses
-            if self.source_software in SUPPORTED_POSES_FILES
-            else load_bboxes
-        )
-        ds = loader.from_file(self.file_path, self.source_software, self.fps)
+        ds = load_dataset(self.file_path, self.source_software, self.fps)
         return ds
 
     def _load_netcdf_file(self) -> xr.Dataset | None:
@@ -253,6 +248,8 @@ class DataLoader(QWidget):
         except Exception as e:
             show_error(f"Error opening netCDF file: {e}")
             return None
+
+        ds = rename_legacy_dimensions(ds)
 
         ds_type = ds.attrs.get("ds_type", None)
         if ds_type not in {"poses", "bboxes"}:
@@ -333,11 +330,17 @@ class DataLoader(QWidget):
             properties_df=self.properties,
         )
 
+        # Filter out columns ending in _factorized (used internally for
+        # Tracks/Shapes coloring but not needed in Points layer tooltips)
+        points_properties = self.properties.loc[
+            :, ~self.properties.columns.str.endswith("_factorized")
+        ]
+
         # Add data as a points layer with metadata
         # (max_frame_idx is used to set the frame slider range)
         self.points_layer = self.viewer.add_points(
             self.data[self.data_not_nan, 1:],
-            properties=self.properties.iloc[self.data_not_nan, :],
+            properties=points_properties.iloc[self.data_not_nan, :],
             metadata={"max_frame_idx": max(self.data[:, 1])},
             **points_style.as_kwargs(),
         )
@@ -395,12 +398,19 @@ class DataLoader(QWidget):
         with all NaN values, the frame slider range will not reflect
         the full range of frames.
         """
+
+        def _layer_has_data(layer):
+            if isinstance(layer, Shapes):
+                return len(layer.data) > 0
+            return layer.data.shape[0] > 0
+
         # Only update the frame slider range if there are layers
-        # that are Points, Tracks, Image or Shapes
+        # that are Points, Tracks, Image or Shapes with data
         list_layers = [
             ly
             for ly in self.viewer.layers
             if isinstance(ly, Points | Tracks | Image | Shapes)
+            and _layer_has_data(ly)
         ]
         if len(list_layers) > 0:
             # Get the maximum frame index from all candidate layers

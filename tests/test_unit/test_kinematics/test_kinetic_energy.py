@@ -12,27 +12,27 @@ def test_basic_shape_and_values(decompose):
     """Basic sanity check with simple data."""
     data = np.array(
         [[[[1, 0], [0, 1], [1, 1]]], [[[2, 0], [0, 2], [2, 2]]]]
-    )  # shape: (time, individuals, keypoints, space)
+    )  # shape: (time, individual, keypoint, space)
     position = xr.DataArray(
         data,
-        dims=["time", "individuals", "keypoints", "space"],
+        dims=["time", "individual", "keypoint", "space"],
         coords={
             "time": [0, 1],
-            "individuals": [0],
-            "keypoints": [0, 1, 2],
+            "individual": [0],
+            "keypoint": [0, 1, 2],
             "space": ["x", "y"],
         },
     )
     result = compute_kinetic_energy(position, decompose=decompose)
     if decompose:
-        assert set(result.dims) == {"time", "individuals", "energy"}
+        assert set(result.dims) == {"time", "individual", "energy"}
         assert list(result.coords["energy"].values) == [
             "translational",
             "internal",
         ]
         assert result.shape == (2, 1, 2)
     else:
-        assert set(result.dims) == {"time", "individuals"}
+        assert set(result.dims) == {"time", "individual"}
         assert result.shape == (2, 1)
     assert (result >= 0).all()
 
@@ -67,11 +67,11 @@ def spinning_dataset():
 
     return xr.DataArray(
         np.array(positions),
-        dims=["time", "individuals", "keypoints", "space"],
+        dims=["time", "individual", "keypoint", "space"],
         coords={
             "time": np.arange(time),
-            "individuals": ["id0"],
-            "keypoints": [f"k{i}" for i in range(keypoints)],
+            "individual": ["id0"],
+            "keypoint": [f"k{i}" for i in range(keypoints)],
             "space": ["x", "y"],
         },
     )
@@ -101,7 +101,7 @@ def test_weighted_kinetic_energy(valid_poses_dataset, masses):
     position = ds["position"]
     unweighted = compute_kinetic_energy(position)
     weighted = compute_kinetic_energy(position, masses=masses)
-    factor = sum(masses.values()) / position.sizes["keypoints"]
+    factor = sum(masses.values()) / position.sizes["keypoint"]
     xr.testing.assert_allclose(weighted, unweighted * factor)
 
 

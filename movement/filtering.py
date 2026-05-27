@@ -24,14 +24,14 @@ def filter_by_confidence(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data to be filtered.
-    confidence : xarray.DataArray
+    confidence
         The data array containing confidence scores to filter by.
-    threshold : float
+    threshold
         The confidence threshold below which datapoints are filtered.
         A default value of ``0.6`` is used. See notes for more information.
-    print_report : bool
+    print_report
         Whether to print a report on the number of NaNs in the dataset
         before and after filtering. Default is ``False``.
 
@@ -76,22 +76,21 @@ def interpolate_over_time(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data to be interpolated.
-    method : {"linear", "nearest", "zero", "slinear", "quadratic", "cubic", \
-        "polynomial", "barycentric", "krogh", "pchip", "spline", "akima"}
+    method
         String indicating which method to use for interpolation.
         Default is ``linear``.
-    max_gap : int, optional
+    max_gap
         Maximum size of gap, a continuous sequence of missing observations
         (represented as NaNs), to fill.
         The default value is ``None`` (no limit).
         Gap size is defined as the number of consecutive NaNs
         (see Notes for more information).
-    print_report : bool
+    print_report
         Whether to print a report on the number of NaNs in the dataset
         before and after interpolation. Default is ``False``.
-    **kwargs : Any
+    **kwargs
         Any ``**kwargs`` accepted by :meth:`xarray.DataArray.interpolate_na`,
         which in turn passes them verbatim to the underlying
         interpolation methods.
@@ -139,22 +138,22 @@ def rolling_filter(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data array.
-    window : int
+    window
         The size of the rolling window, representing the fixed number
         of observations used for each window.
-    statistic : str
+    statistic
         Which statistic to compute over the rolling window.
         Options are ``median``, ``mean``, ``max``, and ``min``.
         The default is ``median``.
-    min_periods : int
+    min_periods
         Minimum number of observations in the window required to have
         a value (otherwise result is NaN). The default, None, is
         equivalent to setting ``min_periods`` equal to the size of the window.
         This argument is directly passed to the ``min_periods`` parameter of
         :meth:`xarray.DataArray.rolling`.
-    print_report : bool
+    print_report
         Whether to print a report on the number of NaNs in the dataset
         before and after smoothing. Default is ``False``.
 
@@ -219,22 +218,23 @@ def savgol_filter(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data to be smoothed.
-    window : int
+    window
         The size of the smoothing window, representing the fixed number
         of observations used for each window.
-    polyorder : int
+    polyorder
         The order of the polynomial used to fit the samples. Must be
         less than ``window``. By default, a ``polyorder`` of
         2 is used.
-    print_report : bool
+    print_report
         Whether to print a report on the number of NaNs in the dataset
         before and after smoothing. Default is ``False``.
-    **kwargs : dict
+    **kwargs
         Additional keyword arguments are passed to
         :func:`scipy.signal.savgol_filter`.
-        Note that the ``axis`` keyword argument may not be overridden.
+        Note that the ``axis`` keyword argument may not be overridden,
+        as the filter is always applied over the ``time`` dimension.
 
 
     Returns
@@ -248,6 +248,7 @@ def savgol_filter(
     Uses the :func:`scipy.signal.savgol_filter` function to apply a
     Savitzky-Golay filter to the input data.
     See the SciPy documentation for more information on that function.
+
     Whenever one or more NaNs are present in a smoothing window of the
     input data, a NaN is returned to the output array. As a result, any
     stretch of NaNs present in the input data will be propagated
@@ -256,19 +257,36 @@ def savgol_filter(
     :func:`movement.filtering.rolling_filter`, there is no ``min_periods``
     option to control this behaviour.
 
+    The function raises a ``ValueError`` if NaNs are found within the signal's
+    edge windows. To avoid this, fill any edge NaNs before filtering, or switch
+    from the default ``mode='interp'`` to an alternative edge handling
+    mode (e.g., ``mode='nearest'`` or ``mode='mirror'``).
+
     """
     if "axis" in kwargs:
         raise logger.error(
             ValueError("The 'axis' argument may not be overridden.")
         )
+    time_axis = data.get_axis_num("time")
     data_smoothed = data.copy()
-    data_smoothed.values = signal.savgol_filter(
-        data,
-        window,
-        polyorder,
-        axis=0,
-        **kwargs,
-    )
+    try:
+        data_smoothed.values = signal.savgol_filter(
+            data,
+            window,
+            polyorder,
+            axis=time_axis,
+            **kwargs,
+        )
+    except ValueError as e:
+        if "array must not contain infs or NaNs" in str(e):
+            raise logger.error(
+                ValueError(
+                    "mode='interp' does not support NaNs in edge windows "
+                    "with SciPy >= 1.17; use mode='nearest'/'mirror' or "
+                    "fill edge NaNs before filtering."
+                )
+            ) from e
+        raise  # Re-raise any other ValueError unchanged
     if print_report:
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_smoothed, "output"))

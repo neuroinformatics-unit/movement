@@ -1,7 +1,7 @@
 """Wrappers for plotting occupancy data of select individuals."""
 
 from collections.abc import Hashable, Sequence
-from typing import Any, Literal, TypeAlias
+from typing import Any, Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,7 +9,7 @@ import xarray as xr
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure, SubFigure
 
-HistInfoKeys: TypeAlias = Literal["h", "xedges", "yedges"]
+type HistInfoKeys = Literal["h", "xedges", "yedges"]
 
 DEFAULT_HIST_ARGS = {"alpha": 1.0, "bins": 30, "cmap": "viridis"}
 
@@ -37,18 +37,18 @@ def plot_occupancy(
 
     Parameters
     ----------
-    da : xarray.DataArray
+    da
         Spatial data to create histogram for. NaN values are dropped.
-    individuals : Hashable, optional
+    individuals
         The name of the individual(s) to be aggregated and plotted. By default,
         all individuals are aggregated.
-    keypoints : Hashable | list[Hashable], optional
+    keypoints
         Name of a keypoint or list of such names. The centroid of all provided
         keypoints is computed, then plotted in the histogram.
-    ax : matplotlib.axes.Axes, optional
+    ax
         Axes object on which to draw the histogram. If not provided, a new
         figure and axes are created and returned.
-    kwargs : Any
+    kwargs
         Keyword arguments passed to :meth:`matplotlib.axes.Axes.hist2d`.
 
     Returns
@@ -80,7 +80,7 @@ def plot_occupancy(
     However, one can restrict the histogram to only counting the positions of
     (the centroid of) certain keypoints and/or individuals.
 
-    >>> print("Available individuals:", positions["individuals"])
+    >>> print("Available individuals:", positions["individual"])
     >>> plot_occupancy(
     ...     positions,
     ...     # plot the centroid of keypoints located on the head
@@ -115,26 +115,26 @@ def plot_occupancy(
     """
     # Collapse dimensions if necessary
     data = da.copy(deep=True)
-    if "keypoints" in da.dims:
+    if "keypoint" in da.dims:
         if keypoints is not None:
-            data = data.sel(keypoints=keypoints)
-        # A selection of just one keypoint automatically drops the keypoints
+            data = data.sel(keypoint=keypoints)
+        # A selection of just one keypoint automatically drops the keypoint
         # dimension, hence the need to re-check this here
-        if "keypoints" in data.dims:
-            data = data.mean(dim="keypoints", skipna=True)
-    if "individuals" in da.dims and individuals is not None:
-        data = data.sel(individuals=individuals)
+        if "keypoint" in data.dims:
+            data = data.mean(dim="keypoint", skipna=True)
+    if "individual" in da.dims and individuals is not None:
+        data = data.sel(individual=individuals)
 
     # We need to remove NaN values from each individual, but we can't do this
-    # right now because we still potentially have a (time, space, individuals)
+    # right now because we still potentially have a (time, space, individual)
     # array and so dropping NaNs along any axis may remove valid points for
     # other times / individuals.
-    # Since we only care about a count, we can just unravel the individuals
+    # Since we only care about a count, we can just unravel the individual
     # dimension and create a "long" array of points. For example, a (10, 2, 5)
-    # time-space-individuals DataArray becomes (50, 2).
-    if "individuals" in data.dims:
+    # time-space-individual DataArray becomes (50, 2).
+    if "individual" in data.dims:
         data = data.stack(
-            {"new": ("time", "individuals")}, create_index=False
+            {"new": ("time", "individual")}, create_index=False
         ).swap_dims({"new": "time"})
     # We should now have just the relevant time-space data,
     # so we can remove time-points with NaN values.

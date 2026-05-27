@@ -39,30 +39,30 @@ def occupancy_data() -> xr.DataArray:
         [[0.0, 4.0], [1.0, 3.0], [2.0, 2.0], [3.0, 1.0], [4.0, 0.0]]
     )
 
-    time_space_keypoints = np.repeat(
+    time_space_keypoint = np.repeat(
         time_space[:, :, np.newaxis], repeats=3, axis=2
     )
     # Set right = left + (1., 1.)
-    time_space_keypoints[:, :, 1] += (1.0, 1.0)
+    time_space_keypoint[:, :, 1] += (1.0, 1.0)
     # Set centre = mean(left, right)
-    time_space_keypoints[:, :, 2] = np.mean(
-        time_space_keypoints[:, :, :2], axis=2
+    time_space_keypoint[:, :, 2] = np.mean(
+        time_space_keypoint[:, :, :2], axis=2
     )
 
     # individuals 0-2 (inclusive) are copies
     data_vals = np.repeat(
-        time_space_keypoints[:, :, :, np.newaxis], repeats=4, axis=3
+        time_space_keypoint[:, :, :, np.newaxis], repeats=4, axis=3
     )
     # individual 3 is (1., 0) offset from the others
     for keypoint_index in range(data_vals.shape[2]):
         data_vals[:, :, keypoint_index, 3] += (1.0, 0.0)
     return xr.DataArray(
         data=data_vals,
-        dims=["time", "space", "keypoints", "individuals"],
+        dims=["time", "space", "keypoint", "individual"],
         coords={
             "space": ["x", "y"],
-            "keypoints": ["left", "right", "centre"],
-            "individuals": [0, 1, 2, 3],
+            "keypoint": ["left", "right", "centre"],
+            "individual": [0, 1, 2, 3],
         },
     )
 
@@ -117,12 +117,12 @@ def occupancy_data_with_nans(occupancy_data: xr.DataArray) -> xr.DataArray:
             {
                 "individuals": [0, 1, 2],
                 "bins": [list(range(6)), list(range(6))],
-                # data will have no keypoints dimension,
+                # data will have no keypoint dimension,
                 # so the argument below should be ignored
                 "keypoints": ["left", "right"],
             },
             3 * antidiagonal_matrix([1] * 5),
-            {"keypoints": "centre"},
+            {"keypoint": "centre"},
             id="Keypoints: Handle not a dimension",
         ),
         pytest.param(
@@ -170,12 +170,12 @@ def occupancy_data_with_nans(occupancy_data: xr.DataArray) -> xr.DataArray:
             {
                 "keypoints": ["left", "right"],
                 "bins": [list(range(6)), list(range(6))],
-                # data will have no individuals dimension,
+                # data will have no individual dimension,
                 # so the argument below should be ignored
                 "individuals": [0, 2],
             },
             antidiagonal_matrix([1] * 5),
-            {"individuals": 0},
+            {"individual": 0},
             id="Individuals: Handle not a dimension",
         ),
         pytest.param(

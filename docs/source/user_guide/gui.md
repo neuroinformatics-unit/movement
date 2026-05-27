@@ -5,14 +5,8 @@ The `movement` graphical user interface (GUI), powered by our custom plugin for
 [napari](napari:), makes it easy to view and explore `movement`
 motion tracks. Currently, you can use it to
 visualise 2D [movement datasets](target-poses-and-bboxes-dataset)
-as points, tracks, and rectangular bounding boxes (if defined) overlaid on video frames.
-
-:::{warning}
-The GUI is still in early stages of development but we are working on ironing
-out the [kinks](movement-github:issues?q=sort%3Aupdated-desc+is%3Aissue+state%3Aopen+label%3AGUI+label%3Abug).
-Please [get in touch](target-connect-with-us)
-if you find any bugs or have suggestions for improvements!
-:::
+as points, tracks, and rectangular bounding boxes (if defined) overlaid on
+video frames, as well as to define regions of interest (RoIs).
 
 The `napari` plugin is shipped with the `movement` package starting from
 version `0.1.0`.  To use it, you need to
@@ -61,7 +55,7 @@ plugin—and click `OK`. You can optionally select to remember this reader
 for all files with the same extension.
 
 
-![napari widget video reader](../_static/napari_plugin_video_reader.png)
+![napari video reader](../_static/napari_video_reader.png)
 
 
 `napari-video` will load the video as an image stack with a slider
@@ -70,7 +64,7 @@ You may also use the left and right arrow keys to navigate
 frame-by-frame.
 
 
-![napari widget video slider](../_static/napari_plugin_video_slider.png)
+![napari video slider](../_static/napari_video_slider.png)
 
 Clicking on the play button will start the video playback at a default
 rate of 10 frames per second. You can adjust the playback speed by right-clicking on the
@@ -155,10 +149,10 @@ Below is a small example showing how to save a GUI-compatible
 netCDF file with `movement`:
 
 ```python
-from movement.io import load_poses
+from movement.io import load_dataset
 from movement.filtering import rolling_filter
 
-ds_orig = load_poses.from_file(
+ds_orig = load_dataset(
     "path/to/my_data.h5", source_software="DeepLabCut", fps=30
 )
 
@@ -199,11 +193,11 @@ For a poses dataset, you will see a view similar to this:
 
 (target-widget-screenshot)=
 
-![napari widget with poses dataset loaded](../_static/napari_plugin_data_tracks.png)
+![napari with poses dataset loaded](../_static/napari_poses_layers.png)
 
 And for a bounding boxes dataset, you will see a view more like the one below:
 
-![napari widget with shapes loaded](../_static/napari_bboxes_layer.png)
+![napari with bboxes dataset loaded](../_static/napari_bboxes_layers.png)
 
 
 Note the additional bounding boxes layer that is loaded for bounding boxes datasets. For both poses and bounding boxes datasets, you can toggle the visibility of any of these layers by clicking on the eye icon.
@@ -230,7 +224,7 @@ and the time in seconds (calculated based on the frame number and
 the `fps` value).
 
 
-![napari points layer tooltip](../_static/napari_points_layer_tooltip.png)
+![napari points tooltip](../_static/napari_points_tooltip.png)
 
 
 
@@ -276,7 +270,7 @@ selected layer shows the trajectories of the keypoints from the current frame un
 end of the video.
 
 
-![napari tracks layer head length](../_static/napari_tracks_layer_head_length.png)
+![napari tracks sliders](../_static/napari_tracks_sliders.png)
 
 
 You can also use the [tracks layer](napari:howtos/layers/tracks.html) controls panel to
@@ -324,3 +318,186 @@ You can find all the [keyboard shortcuts](napari:guides/preferences.html#shortcu
 `napari` window, under `Preferences > Shortcuts`.
 
 :::
+
+(target-define-rois)=
+## Define regions of interest
+
+The `Define regions of interest` menu allows you to draw shapes on the
+viewer and use them as `movement` {mod}`RoIs<movement.roi>` for analysis.
+
+Each shape you draw represents a static region
+that remains fixed across all frames.
+
+:::{admonition} Terminology
+:class: note
+
+**Shape**
+: Any geometric object you draw on the `napari` canvas
+  (e.g. a polygon or a line). Shapes are grouped together in
+  `napari` [shapes layers](napari:howtos/layers/shapes.html).
+
+**Region**
+: A named `napari` shape that `movement` recognises as a
+: A named `napari` shape that `movement` recognises as an
+  {mod}`RoI<movement.roi>` for analysis.
+
+**Region layer**
+: A `napari` [shapes layers](napari:howtos/layers/shapes.html) managed
+  by `movement`, whose shapes are treated as **regions**.
+
+:::
+
+
+### Create a region layer
+
+To define a region for your data, start by creating a region layer,
+which will serve as a container. To do this:
+
+1. Ensure a [background layer](target-load-video) is loaded so that you
+   can see where you are drawing.
+2. Expand the `Define regions of interest` menu on the right-hand side
+   of the `napari` window.
+3. Click the `Add new layer` button.
+
+This will create a new region layer in the layer list and select it.
+The layer also appears in the dropdown next to the `Add new layer` button.
+The layer's default name is `regions`, but you can change it by double-clicking
+on it in the layer list (this is the case for any `napari` layer).
+
+![napari new region layer](../_static/napari_new_region_layer.png)
+
+### Draw and edit regions
+
+With the region layer selected, you can use the native `napari` shape tools
+in the layer controls panel to draw shapes on the canvas.
+Convenient keyboard shortcuts are available to select the shape drawing tools,
+for example:
+
+- `R`: rectangle tool
+- `E`: ellipse tool
+- `P`: polygon tool
+- `L`: line tool
+
+Tools are also provided for selecting, moving, transforming,
+and deleting shapes, as well as for editing their vertices.
+Hover over any tool button to see a tooltip describing what it does.
+You can also copy-paste shapes within a layer.
+See the [napari shapes layer guide](napari:howtos/layers/shapes.html) for
+details on the drawing tools and how to use them.
+
+Each shape you draw is automatically added to the widget's table of regions
+on the right-hand side and auto-assigned a unique name
+(e.g. `region`, `region_1`, `region_2`, etc.).
+
+![napari drawing regions](../_static/napari_drawing_regions.png)
+
+You can interact with the table in the following ways:
+
+- **Select**: clicking a row in the table selects the corresponding shape
+  on the canvas, and vice versa. This makes it easy to identify which
+  shape corresponds to which table entry.
+- **Rename**: double-click the name cell of a region to edit its name.
+  Press `Enter` to confirm the change or `Escape` to cancel.
+- **Delete**: select a shape on the canvas and press `Delete` (or
+  `Backspace`) to remove it. The corresponding row will be removed from
+  the table.
+
+:::{admonition} Changing shape appearance
+:class: tip
+
+You can change the edge colour, face colour, edge width, and opacity of
+shapes by selecting a shape (or multiple shapes)
+and using the `napari` layer controls panel.
+Once a shape's appearance has been adjusted, all subsequent shapes drawn in
+the same layer will inherit those properties by default.
+
+To display region names on the canvas, tick the `display text` checkbox
+in the layer controls panel. The text colour follows the shape's edge
+colour.
+:::
+
+### Save and load regions
+
+You can save a region layer to a [GeoJSON](https://geojson.org/) file
+and load it back later—or share it with collaborators. This also lets you
+import drawn regions into your Python code using the
+{func}`~movement.roi.load_rois` function.
+
+To save a region layer:
+
+1. Select a non-empty region layer you want to save,
+   via the dropdown or the layer list.
+2. Click `Save layer` and choose a destination file ending in a
+   `.geojson` (or `.json`) extension.
+   All regions in the layer are written to the chosen file.
+
+To load a region layer:
+
+1. Click `Load layer` and select a GeoJSON file previously saved with
+   the `movement` GUI (or any file produced by {func}`~movement.roi.save_rois`).
+2. A new region layer is created and automatically selected in the dropdown,
+   with its regions shown in the table.
+
+When regions are saved and reloaded, the underlying geometry is preserved
+but the exact `napari` shape type may change (e.g. a `rectangle` reloads
+as a `polygon`). Expand the dropdown below for details.
+
+::: {dropdown} Using saved regions in Python
+:color: info
+:icon: info
+
+Once you have saved a region layer to a GeoJSON file, you can load it
+in Python with {func}`~movement.roi.load_rois`:
+
+```python
+from movement.roi import load_rois
+
+rois = load_rois("path/to/regions.geojson")
+```
+
+This returns a list of {class}`~movement.roi.LineOfInterest` and/or
+{class}`~movement.roi.PolygonOfInterest` objects, depending on the
+shapes that were saved. The mapping between `napari` shape types and
+`movement` RoI classes is as follows:
+
+| drawn napari shape | movement RoI | reloaded napari shape |
+|---|---|---|
+| `line` | {class}`~movement.roi.LineOfInterest` | `path` |
+| `path` | {class}`~movement.roi.LineOfInterest` | `path` |
+| `polygon` | {class}`~movement.roi.PolygonOfInterest` | `polygon` |
+| `rectangle` | {class}`~movement.roi.PolygonOfInterest` | `polygon` |
+| `ellipse` | {class}`~movement.roi.PolygonOfInterest`\* | `polygon` |
+
+\*Ellipses have no native GeoJSON representation and are approximated
+as polygons. The approximation is accurate enough for most practical
+purposes, but we encourage you to inspect the reloaded shape to ensure
+it meets your needs. For more details on the shape-RoI conversion process,
+refer to the {mod}`movement.napari.convert_roi` module documentation.
+
+You can use the loaded RoI objects for analysis, for example:
+
+- Pass a list of polygon regions to
+  {func}`~movement.roi.compute_region_occupancy`.
+- Call methods such as
+  {meth}`~movement.roi.BaseRegionOfInterest.contains_point` or
+  {meth}`~movement.roi.BaseRegionOfInterest.compute_distance_to`
+  on individual RoIs.
+
+See the {mod}`movement.roi` API reference for the full list of
+available methods, and
+{ref}`this example in our gallery <sphx_glr_examples_boundary_angles.py>`
+for a complete walkthrough that loads GUI-drawn regions and uses them
+for analysis.
+:::
+
+### Working with multiple region layers
+
+You can use region layers to group related regions together.
+For example, you might use one layer for "nesting zones" and another for
+"foraging zones".
+
+To add another region layer, click the `Add new layer` button again.
+You can switch between region layers using the layers dropdown, or by
+selecting the layer directly in the `napari` layer list—both are kept in sync.
+The regions table updates to show only the shapes
+belonging to the selected layer.

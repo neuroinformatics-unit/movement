@@ -11,7 +11,7 @@ clean virtual environment, using tools such as
 :::{tab-item} conda
 Create and activate a new [conda environment](conda:user-guide/tasks/manage-environments.html):
 ```sh
-conda create -y -n movement-env -c conda-forge python=3.13
+conda create -y -n movement-env -c conda-forge python=3.14
 conda activate movement-env
 ```
 
@@ -22,7 +22,7 @@ We used `movement-env` as the environment name, but you can choose any name you 
 Create and activate a new [virtual environment](uv:pip/environments/) inside your project directory:
 
 ```sh
-uv venv --python=3.13
+uv venv --python=3.14
 
 source .venv/bin/activate  # On macOS and Linux
 .venv\Scripts\activate     # On Windows PowerShell
@@ -42,9 +42,9 @@ conda install -c conda-forge movement
 
 If you wish to use the GUI, which requires [napari](napari:), run instead:
 ```sh
-conda install -c conda-forge movement napari pyqt
+conda install -c conda-forge movement napari pyqt6
 ```
-You may exchange `pyqt` for `pyside6` if you prefer a different Qt backend.
+You may exchange `pyqt6` for `pyside6` if you prefer a different Qt backend.
 See [napari's installation guide](napari:tutorials/fundamentals/installation.html)
 for more details on available backends.
 

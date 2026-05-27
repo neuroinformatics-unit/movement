@@ -1,6 +1,7 @@
-from contextlib import nullcontext as does_not_raise
+from itertools import product
 
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 
@@ -57,7 +58,7 @@ class TestComputeKinematics:
         assert kinematic_array.name == kinematic_variable
         # Figure out which dimensions to expect in kinematic_array
         # and in the final xarray.DataArray
-        expected_dims = ["time", "individuals"]
+        expected_dims = ["time", "individual"]
         if kinematic_variable in [
             "forward_displacement",
             "backward_displacement",
@@ -67,17 +68,17 @@ class TestComputeKinematics:
             expected_dims.insert(1, "space")
         # Build expected data array from the expected numpy array
         expected_array = xr.DataArray(
-            # Stack along the "individuals" axis
+            # Stack along the "individual" axis
             np.stack(
                 self.expected_kinematics.get(kinematic_variable), axis=-1
             ),
             dims=expected_dims,
         )
-        if "keypoints" in position.coords:
+        if "keypoint" in position.coords:
             expected_array = expected_array.expand_dims(
-                {"keypoints": position.coords["keypoints"].size}
+                {"keypoint": position.coords["keypoint"].size}
             )
-            expected_dims.insert(-1, "keypoints")
+            expected_dims.insert(-1, "keypoint")
             expected_array = expected_array.transpose(*expected_dims)
         # Compare the values of the kinematic_array against the expected_array
         np.testing.assert_allclose(
@@ -133,8 +134,8 @@ class TestComputeKinematics:
         assert kinematic_array.name == kinematic_variable
         # compute n nans in kinematic array per individual
         n_nans_kinematics_per_indiv = [
-            helpers.count_nans(kinematic_array.isel(individuals=i))
-            for i in range(valid_dataset.sizes["individuals"])
+            helpers.count_nans(kinematic_array.isel(individual=i))
+            for i in range(valid_dataset.sizes["individual"])
         ]
         # assert n nans in kinematic array per individual matches expected
         assert (
@@ -178,162 +179,41 @@ def test_time_derivative_with_invalid_order(order, expected_exception):
         kinematics.compute_time_derivative(data, order=order)
 
 
-time_points_value_error = pytest.raises(
-    ValueError,
-    match="At least 2 time points are required to compute path length",
-)
+def test_forward_displacement_with_multiindex_coords():
+    """Test compute_forward_displacement with DataArray from pandas MultiIndex.
 
-
-@pytest.mark.parametrize(
-    "start, stop, expected_exception",
-    [
-        # full time ranges
-        (None, None, does_not_raise()),
-        (0, None, does_not_raise()),
-        (0, 9, does_not_raise()),
-        (0, 10, does_not_raise()),  # xarray.sel will truncate to 0, 9
-        (-1, 9, does_not_raise()),  # xarray.sel will truncate to 0, 9
-        # partial time ranges
-        (1, 8, does_not_raise()),
-        (1.5, 8.5, does_not_raise()),
-        (2, None, does_not_raise()),
-        # Empty time ranges
-        (9, 0, time_points_value_error),  # start > stop
-        ("text", 9, time_points_value_error),  # invalid start type
-        # Time range too short
-        (0, 0.5, time_points_value_error),
-    ],
-)
-def test_path_length_across_time_ranges(
-    valid_poses_dataset, start, stop, expected_exception
-):
-    """Test path length computation for a uniform linear motion case,
-    across different time ranges.
-
-    The test dataset ``valid_poses_dataset``
-    contains 2 individuals ("id_0" and "id_1"), moving
-    along x=y and x=-y lines, respectively, at a constant velocity.
-    At each frame they cover a distance of sqrt(2) in x-y space, so in total
-    we expect a path length of sqrt(2) * num_segments, where num_segments is
-    the number of selected frames minus 1.
+    This is a test for the fix of issue
+    [#794](https://github.com/neuroinformatics-unit/movement/issues/794).
+    When creating an xarray DataArray from a MultiIndex pandas DataFrame
+    using `.to_xarray()`, the resulting coordinates retain the
+    `_no_setting_name` flag from pandas MultiIndex levels.
+    This caused a RuntimeError when xarray's `.reindex()` tried to set
+    `.name` on these indices.
     """
-    position = valid_poses_dataset.position
-    with expected_exception:
-        path_length = kinematics.compute_path_length(
-            position, start=start, stop=stop
-        )
-        assert path_length.name == "path_length"
+    # Create DataFrame with MultiIndex (reproduction from issue #794)
+    frames = range(3)
+    space = ["x", "y"]
+    keypoints = ["centroid"]
+    individuals = ["bird001"]
 
-        # Expected number of segments (displacements) in selected time range
-        num_segments = 9  # full time range: 10 frames - 1
-        start = max(0, start) if start is not None else 0
-        stop = min(9, stop) if stop is not None else 9
-        if start is not None:
-            num_segments -= np.ceil(max(0, start))
-        if stop is not None:
-            stop = min(9, stop)
-            num_segments -= 9 - np.floor(min(9, stop))
+    df = pd.DataFrame(
+        list(product(frames, space, keypoints, individuals)),
+        columns=["time", "space", "keypoint", "individual"],
+    )
+    df["position"] = np.random.rand(len(df))
 
-        expected_path_length = xr.DataArray(
-            np.ones((3, 2)) * np.sqrt(2) * num_segments,
-            dims=["keypoints", "individuals"],
-            coords={
-                "keypoints": position.coords["keypoints"],
-                "individuals": position.coords["individuals"],
-            },
-        )
-        xr.testing.assert_allclose(path_length, expected_path_length)
+    # Convert to xarray DataArray via pandas MultiIndex
+    # This retains the _no_setting_name flag that caused the bug
+    position = (
+        df.loc[:, ["time", "space", "keypoint", "individual", "position"]]
+        .set_index(["time", "space", "keypoint", "individual"])["position"]
+        .to_xarray()
+    )
 
+    # This should not raise RuntimeError
+    result = kinematics.compute_forward_displacement(position)
 
-@pytest.mark.parametrize(
-    "nan_policy, expected_path_lengths_id_0, expected_exception",
-    [
-        (
-            "ffill",
-            np.array([np.sqrt(2) * 9, np.sqrt(2) * 8, np.nan]),
-            does_not_raise(),
-        ),
-        (
-            "scale",
-            np.array([np.sqrt(2) * 9, np.sqrt(2) * 9, np.nan]),
-            does_not_raise(),
-        ),
-        (
-            "invalid",  # invalid value for nan_policy
-            np.zeros(3),
-            pytest.raises(ValueError, match="Invalid value for nan_policy"),
-        ),
-    ],
-)
-def test_path_length_with_nan(
-    valid_poses_dataset_with_nan,
-    nan_policy,
-    expected_path_lengths_id_0,
-    expected_exception,
-):
-    """Test path length computation for a uniform linear motion case,
-    with varying number of missing values per individual and keypoint.
-    Because the underlying motion is uniform linear, the "scale" policy should
-    perfectly restore the path length for individual "id_0" to its true value.
-    The "ffill" policy should do likewise if frames are missing in the middle,
-    but will not "correct" for missing values at the edges.
-    """
-    position = valid_poses_dataset_with_nan.position
-    with (
-        pytest.warns(UserWarning, match="The result may be unreliable"),
-        expected_exception,
-    ):
-        path_length = kinematics.compute_path_length(
-            position, nan_policy=nan_policy
-        )
-        assert path_length.name == "path_length"
-        # Get path_length for individual "id_0" as a numpy array
-        path_length_id_0 = path_length.sel(individuals="id_0").values
-        # Check them against the expected values
-        np.testing.assert_allclose(
-            path_length_id_0, expected_path_lengths_id_0
-        )
-
-
-# Regex patterns to match the warning messages
-exclude_id_1_and_left = r"(?s)(?!.*id_1)(?!.*left)"
-include_threshold_100 = r".*The result may be unreliable.*right.*id_0.*10/10.*"
-include_threshold_20 = (
-    r".*The result may be unreliable.*centroid.*right.*id_0.*3/10.*10/10.*"
-)
-
-
-@pytest.mark.parametrize(
-    "nan_warn_threshold, expected_exception",
-    [
-        (
-            1,
-            pytest.warns(
-                UserWarning,
-                match=f"{exclude_id_1_and_left}{include_threshold_100}",
-            ),
-        ),
-        (
-            0.2,
-            pytest.warns(
-                UserWarning,
-                match=f"{exclude_id_1_and_left}{include_threshold_20}",
-            ),
-        ),
-        (-1, pytest.raises(ValueError, match="between 0 and 1")),
-    ],
-)
-def test_path_length_nan_warn_threshold(
-    valid_poses_dataset_with_nan, nan_warn_threshold, expected_exception
-):
-    """Test that a warning is raised with matching message containing
-    information on the individuals and keypoints whose number of missing
-    values exceeds the given threshold or that an error is raised
-    when the threshold is invalid.
-    """
-    position = valid_poses_dataset_with_nan.position
-    with expected_exception:
-        result = kinematics.compute_path_length(
-            position, nan_warn_threshold=nan_warn_threshold
-        )
-        assert result.name == "path_length"
+    # Verify correct output
+    assert result.name == "forward_displacement"
+    assert result.dims == position.dims
+    assert result.shape == position.shape

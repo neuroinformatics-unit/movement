@@ -16,7 +16,7 @@ from movement.io.nwb import (
 )
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
-from movement.validators.files import _validate_file_path
+from movement.validators.files import validate_file_path
 
 
 def _ds_to_dlc_style_df(
@@ -26,10 +26,10 @@ def _ds_to_dlc_style_df(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    columns : pandas.MultiIndex
+    columns
         DeepLabCut-style multi-index columns
 
     Returns
@@ -65,7 +65,7 @@ def _ds_to_dlc_style_df(
 
 def _auto_split_individuals(ds: xr.Dataset) -> bool:
     """Return True if there is only one individual in the dataset."""
-    n_individuals = ds.sizes["individuals"]
+    n_individuals = ds.sizes["individual"]
     return n_individuals == 1
 
 
@@ -74,10 +74,10 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
 
     Parameters
     ----------
-    filepath : pathlib.Path
+    filepath
         Path of the file to save the dataframe to. The file extension
         must be either .h5 (recommended) or .csv.
-    df : pandas.DataFrame
+    df
         Pandas Dataframe to save
 
     """
@@ -94,10 +94,10 @@ def to_dlc_style_df(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    split_individuals : bool, optional
+    split_individuals
         If True, return a dictionary of DataFrames per individual, with
         individual names as keys. If False (default), return a single
         DataFrame for all individuals (see Notes).
@@ -128,18 +128,18 @@ def to_dlc_style_df(
     """
     ValidPosesInputs.validate(ds)
     scorer = ["movement"]
-    bodyparts = ds.coords["keypoints"].data.tolist()
+    bodyparts = ds.coords["keypoint"].data.tolist()
     base_coords = ds.coords["space"].data.tolist()
     coords = (
         base_coords
         if "z" in ds.coords["space"]
         else base_coords + ["likelihood"]
     )
-    individuals = ds.coords["individuals"].data.tolist()
+    individuals = ds.coords["individual"].data.tolist()
     if split_individuals:
         df_dict = {}
         for individual in individuals:
-            individual_data = ds.sel(individuals=individual)
+            individual_data = ds.sel(individual=individual)
             index_levels = ["scorer", "bodyparts", "coords"]
             columns = pd.MultiIndex.from_product(
                 [scorer, bodyparts, coords], names=index_levels
@@ -170,13 +170,13 @@ def to_dlc_file(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    file_path : pathlib.Path or str
+    file_path
         Path to the file to save the poses to. The file extension
         must be either .h5 (recommended) or .csv.
-    split_individuals : bool or "auto", optional
+    split_individuals
         Whether to save individuals to separate files or to the same file
         (see Notes). Defaults to "auto".
 
@@ -202,8 +202,10 @@ def to_dlc_file(
     >>> ds = load_poses.from_sleap_file("/path/to/file_sleap.analysis.h5")
     >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
 
-    """  # noqa: D301
-    file = _validate_file_path(file_path, expected_suffix=[".csv", ".h5"])
+    """
+    valid_path = validate_file_path(
+        file_path, permission="w", suffixes={".csv", ".h5"}
+    )
 
     # Sets default behaviour for the function
     if split_individuals == "auto":
@@ -223,16 +225,16 @@ def to_dlc_file(
 
         for key, df in df_dict.items():
             # the key is the individual's name
-            filepath = f"{file.path.with_suffix('')}_{key}{file.path.suffix}"
+            filepath = f"{valid_path.with_suffix('')}_{key}{valid_path.suffix}"
             if isinstance(df, pd.DataFrame):
                 _save_dlc_df(Path(filepath), df)
-            logger.info(f"Saved poses for individual {key} to {file.path}.")
+            logger.info(f"Saved poses for individual {key} to {valid_path}.")
     else:
         # convert the dataset to a single dataframe for all individuals
         df_all = to_dlc_style_df(ds, split_individuals=False)
         if isinstance(df_all, pd.DataFrame):
-            _save_dlc_df(file.path, df_all)
-        logger.info(f"Saved poses dataset to {file.path}.")
+            _save_dlc_df(valid_path, df_all)
+        logger.info(f"Saved poses dataset to {valid_path}.")
 
 
 def to_lp_file(
@@ -243,10 +245,10 @@ def to_lp_file(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    file_path : pathlib.Path or str
+    file_path
         Path to the file to save the poses to. File extension must be .csv.
 
     Notes
@@ -264,9 +266,11 @@ def to_lp_file(
     to_dlc_file : Save dataset to a DeepLabCut-style .h5 or .csv file.
 
     """
-    file = _validate_file_path(file_path=file_path, expected_suffix=[".csv"])
+    valid_path = validate_file_path(
+        file_path, permission="w", suffixes={".csv"}
+    )
     ValidPosesInputs.validate(ds)
-    to_dlc_file(ds, file.path, split_individuals=True)
+    to_dlc_file(ds, valid_path, split_individuals=True)
 
 
 def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
@@ -274,10 +278,10 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    file_path : pathlib.Path or str
+    file_path
         Path to the file to save the poses to. File extension must be .h5.
 
     Notes
@@ -308,11 +312,11 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     ... )
 
     """
-    file = _validate_file_path(file_path=file_path, expected_suffix=[".h5"])
+    valid_path = validate_file_path(
+        file_path, permission="w", suffixes={".h5"}
+    )
     ValidPosesInputs.validate(ds)
-
     ds = _remove_unoccupied_tracks(ds)
-
     # Target shapes:
     # "track_occupancy"     n_frames * n_individuals
     # "tracks"              n_individuals * n_space * n_keypoints * n_frames
@@ -320,9 +324,9 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     # "point_scores"        n_individuals * n_keypoints * n_frames
     # "instance_scores"     n_individuals * n_frames
     # "tracking_scores"     n_individuals * n_frames
-    individual_names = ds.individuals.values.tolist()
+    individual_names = ds.individual.values.tolist()
     n_individuals = len(individual_names)
-    keypoint_names = ds.keypoints.values.tolist()
+    keypoint_names = ds.keypoint.values.tolist()
     # Compute frame indices from fps, if set
     fps = getattr(ds, "fps", None)
     if fps is not None:
@@ -359,7 +363,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
         video_ind=0,
         provenance="{}",
     )
-    with h5py.File(file.path, "w") as f:
+    with h5py.File(valid_path, "w") as f:
         for key, val in data_dict.items():
             if isinstance(val, np.ndarray):
                 f.create_dataset(
@@ -370,7 +374,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
                 )
             else:
                 f.create_dataset(key, data=val)
-    logger.info(f"Saved poses dataset to {file.path}.")
+    logger.info(f"Saved poses dataset to {valid_path}.")
 
 
 def to_nwb_file(
@@ -387,10 +391,10 @@ def to_nwb_file(
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         ``movement`` poses dataset containing the data to be converted to
         NWBFile(s).
-    config : NWBFileSaveConfig, optional
+    config
         Configuration object containing keyword arguments to customise the
         :class:`pynwb.file.NWBFile` (s) that will be created
         for each individual.
@@ -479,7 +483,7 @@ def to_nwb_file(
 
     """
     config = config or NWBFileSaveConfig()
-    individuals = ds.individuals.values.tolist()
+    individuals = ds.individual.values.tolist()
     if isinstance(individuals, str):
         individuals = [individuals]
     is_multi_ind = len(individuals) > 1
@@ -499,8 +503,8 @@ def to_nwb_file(
     pose_estimation_skeletons = {
         id: _ds_to_pose_and_skeletons(
             ds
-            if ds.sizes.get("individuals") is None
-            else ds.sel(individuals=id),
+            if ds.sizes.get("individual") is None
+            else ds.sel(individual=id),
             config,
             subjects[id],
             is_multi_ind,
@@ -521,7 +525,7 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
 
     Parameters
     ----------
-    ds : xarray.Dataset
+    ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
 
@@ -531,5 +535,5 @@ def _remove_unoccupied_tracks(ds: xr.Dataset):
         The input dataset without the unoccupied tracks.
 
     """
-    all_nan = ds.position.isnull().all(dim=["keypoints", "space", "time"])
+    all_nan = ds.position.isnull().all(dim=["keypoint", "space", "time"])
     return ds.where(~all_nan, drop=True)

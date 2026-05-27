@@ -1,17 +1,16 @@
 """Functions for computing condition arrays involving RoIs."""
 
 from collections import defaultdict
-from collections.abc import Sequence
 
 import numpy as np
 import xarray as xr
 
-from movement.roi.base import BaseRegionOfInterest
+from movement.roi.io import ROICollection
 
 
 def compute_region_occupancy(
     data,
-    regions: Sequence[BaseRegionOfInterest],
+    regions: ROICollection,
 ) -> xr.DataArray:
     """Return a condition array indicating if points were inside regions.
 
@@ -25,11 +24,11 @@ def compute_region_occupancy(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         Spatial data to check for inclusion within the ``regions``. Must be
         compatible with the ``position`` argument to :func:`contains_point()\
         <movement.roi.BaseRegionOfInterest.contains_point>`.
-    regions : Sequence[BaseRegionOfInterest]
+    regions
         Regions of Interest that the points in ``data`` will be checked
         against, to see if they lie inside.
 

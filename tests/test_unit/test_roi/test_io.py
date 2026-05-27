@@ -1,0 +1,90 @@
+"""Tests for IO of RoI collections."""
+
+import json
+
+from movement.roi import (
+    LineOfInterest,
+    PolygonOfInterest,
+    load_rois,
+    save_rois,
+)
+
+
+class TestROICollectionSerialization:
+    """Tests for saving and loading collections of RoIs."""
+
+    def test_save_rois_creates_feature_collection(
+        self, unit_square, segment_of_y_equals_x, tmp_path
+    ):
+        """Test that save_rois creates a valid FeatureCollection."""
+        file_path = tmp_path / "rois.geojson"
+        save_rois([unit_square, segment_of_y_equals_x], file_path)
+
+        assert file_path.exists()
+        with open(file_path) as f:
+            data = json.load(f)
+
+        assert data["type"] == "FeatureCollection"
+        assert len(data["features"]) == 2
+
+    def test_collection_round_trip(
+        self, unit_square, segment_of_y_equals_x, tmp_path
+    ):
+        """Test that collection round-trip preserves region types,
+        geometries, and names.
+
+        ``unit_square`` has an explicit name; ``segment_of_y_equals_x``
+        has none, so it falls back to the default ``"Un-named region"``.
+        Both cases are covered by the name assertions below.
+        """
+        original_rois = [unit_square, segment_of_y_equals_x]
+        file_path = tmp_path / "rois.geojson"
+        save_rois(original_rois, file_path)
+
+        loaded_rois = load_rois(file_path)
+
+        assert isinstance(loaded_rois[0], PolygonOfInterest)
+        assert isinstance(loaded_rois[1], LineOfInterest)
+        for original, loaded in zip(original_rois, loaded_rois, strict=True):
+            assert loaded.region.equals(original.region)
+            assert loaded.name == original.name
+        # Explicitly verify the default name is preserved for unnamed RoIs
+        assert loaded_rois[1].name == "Un-named region"
+
+    def test_save_empty_collection(self, tmp_path):
+        """Test that saving an empty collection works."""
+        file_path = tmp_path / "empty.geojson"
+        save_rois([], file_path)
+
+        loaded_rois = load_rois(file_path)
+        assert loaded_rois == []
+
+    def test_collection_with_mixed_roi_types(
+        self,
+        unit_square,
+        unit_square_with_hole,
+        segment_of_y_equals_x,
+        tmp_path,
+    ):
+        """Test collection with various RoI types."""
+        loop_line = LineOfInterest(
+            [(0, 0), (1, 0), (1, 1)], loop=True, name="triangle_loop"
+        )
+        original_rois = [
+            unit_square,
+            unit_square_with_hole,
+            segment_of_y_equals_x,
+            loop_line,
+        ]
+        file_path = tmp_path / "mixed.geojson"
+
+        save_rois(original_rois, file_path)
+        loaded_rois = load_rois(file_path)
+
+        assert [type(loaded) for loaded in loaded_rois] == [
+            PolygonOfInterest,
+            PolygonOfInterest,
+            LineOfInterest,
+            LineOfInterest,
+        ]
+        assert loaded_rois[-1].is_closed

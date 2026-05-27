@@ -17,9 +17,7 @@ from sleap_io.model.labels import LabeledFrame, Labels
 # ------------------ Generic file fixtures ----------------------
 @pytest.fixture
 def unreadable_file(tmp_path):
-    """Return a dictionary containing the file path and
-    expected permission for an unreadable .h5 file.
-    """
+    """Return the path to an unreadable .h5 file."""
     file_path = tmp_path / "unreadable.h5"
     file_mock = mock_open()
     file_mock.return_value.read.side_effect = PermissionError
@@ -27,17 +25,12 @@ def unreadable_file(tmp_path):
         patch("builtins.open", side_effect=file_mock),
         patch.object(Path, "exists", return_value=True),
     ):
-        yield {
-            "file_path": file_path,
-            "expected_permission": "r",
-        }
+        yield file_path
 
 
 @pytest.fixture
 def unwriteable_file(tmp_path):
-    """Return a dictionary containing the file path and
-    expected permission for an unwriteable .h5 file.
-    """
+    """Return the path to an unwriteable .h5 file."""
     unwriteable_dir = tmp_path / "no_write"
     unwriteable_dir.mkdir()
     original_access = os.access
@@ -51,74 +44,46 @@ def unwriteable_file(tmp_path):
 
     with patch("os.access", side_effect=mock_access):
         file_path = unwriteable_dir / "unwriteable.h5"
-        yield {
-            "file_path": file_path,
-            "expected_permission": "w",
-        }
+        yield file_path
 
 
 @pytest.fixture
 def wrong_extension_file(tmp_path):
-    """Return a dictionary containing the file path,
-    expected permission, and expected suffix for a file
-    with unsupported extension.
-    """
+    """Return the path to a file with unsupported extension."""
     file_path = tmp_path / "wrong_extension.txt"
     with open(file_path, "w") as f:
         f.write("")
-    return {
-        "file_path": file_path,
-        "expected_permission": "r",
-        "expected_suffix": ["h5", "csv"],
-    }
+    return file_path
 
 
 @pytest.fixture
 def nonexistent_file(tmp_path):
-    """Return a dictionary containing the file path and
-    expected permission for a nonexistent file.
-    """
+    """Return the path to a nonexistent file."""
     file_path = tmp_path / "nonexistent.h5"
-    return {
-        "file_path": file_path,
-        "expected_permission": "r",
-    }
+    return file_path
 
 
 @pytest.fixture
-def no_dataframe_h5_file(tmp_path):
-    """Return a dictionary containing the file path and
-    expected datasets for a .h5 file that lacks the
-    dataset "dataframe".
-    """
+def data_as_list_h5_file(tmp_path):
+    """Return the path to a .h5 file with "data_as_list" dataset."""
     file_path = tmp_path / "no_dataframe.h5"
     with h5py.File(file_path, "w") as f:
-        f.create_dataset("data_in_list", data=[1, 2, 3])
-    return {
-        "file_path": file_path,
-        "expected_datasets": ["dataframe"],
-    }
+        f.create_dataset("data_as_list", data=[1, 2, 3])
+    return file_path
 
 
 @pytest.fixture
 def fake_h5_file(tmp_path):
-    """Return a dictionary containing the file path,
-    expected permission, and expected datasets for
-    a file with .h5 extension that is not in HDF5 format.
-    """
+    """Return the path to a .h5 file that is not in HDF5 format."""
     file_path = tmp_path / "fake.h5"
     with open(file_path, "w") as f:
         f.write("")
-    return {
-        "file_path": file_path,
-        "expected_datasets": ["dataframe"],
-        "expected_permission": "w",
-    }
+    return file_path
 
 
 @pytest.fixture
 def invalid_single_individual_csv_file(tmp_path):
-    """Return the file path for a fake single-individual .csv file."""
+    """Return the path to a fake single-individual .csv file."""
     file_path = tmp_path / "fake_single_individual.csv"
     with open(file_path, "w") as f:
         f.write("scorer,columns\nsome,columns\ncoords,columns\n")
@@ -128,7 +93,7 @@ def invalid_single_individual_csv_file(tmp_path):
 
 @pytest.fixture
 def invalid_multi_individual_csv_file(tmp_path):
-    """Return the file path for a fake multi-individual .csv file."""
+    """Return the path to a fake multi-individual .csv file."""
     file_path = tmp_path / "fake_multi_individual.csv"
     with open(file_path, "w") as f:
         f.write(
@@ -140,39 +105,43 @@ def invalid_multi_individual_csv_file(tmp_path):
 
 @pytest.fixture
 def wrong_extension_new_file(tmp_path):
-    """Return the file path for a new file with unsupported extension."""
+    """Return the path to a new file with unsupported extension."""
     return tmp_path / "wrong_extension_new_file.txt"
 
 
 @pytest.fixture
 def directory(tmp_path):
-    """Return a dictionary containing the file path and
-    expected permission for a directory.
-    """
+    """Return the path to a directory."""
     file_path = tmp_path / "directory"
     file_path.mkdir()
-    return {
-        "file_path": file_path,
-        "expected_permission": "r",
-    }
+    return file_path
+
+
+@pytest.fixture
+def readable_csv_file(tmp_path):
+    """Return the path to a readable .csv file."""
+    file_path = tmp_path / "readable.csv"
+    with open(file_path, "w") as f:
+        f.write("header1,header2\n1,2\n3,4")
+    return file_path
 
 
 @pytest.fixture
 def new_h5_file(tmp_path):
-    """Return the file path for a new .h5 file."""
+    """Return the path to a new .h5 file."""
     return tmp_path / "new_file.h5"
 
 
 @pytest.fixture
 def new_csv_file(tmp_path):
-    """Return the file path for a new .csv file."""
+    """Return the path to a new .csv file."""
     return tmp_path / "new_file.csv"
 
 
 # ---------------- Anipose file fixtures ----------------------------
 @pytest.fixture
 def missing_keypoint_columns_anipose_csv_file(tmp_path):
-    """Return the file path for a single-individual anipose .csv file
+    """Return the path to a single-individual anipose .csv file
     missing the z-coordinate of keypoint kp0 "kp0_z".
     """
     file_path = tmp_path / "missing_keypoint_columns.csv"
@@ -202,7 +171,7 @@ def missing_keypoint_columns_anipose_csv_file(tmp_path):
 
 @pytest.fixture
 def spurious_column_anipose_csv_file(tmp_path):
-    """Return the file path for a single-individual anipose .csv file
+    """Return the path to a single-individual anipose .csv file
     with an unexpected column.
     """
     file_path = tmp_path / "spurious_column.csv"
@@ -229,6 +198,25 @@ def spurious_column_anipose_csv_file(tmp_path):
     return file_path
 
 
+# ---------------- DeepLabCut file fixtures ----------------------------
+@pytest.fixture
+def dlc_h5_file():
+    """Return the path to a DeepLabCut .h5 file."""
+    return pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+
+
+@pytest.fixture
+def dlc_csv_file():
+    """Return the path to a DeepLabCut .csv file."""
+    return pytest.DATA_PATHS.get("DLC_single-wasp.predictions.csv")
+
+
+@pytest.fixture
+def lp_csv_file():
+    """Return the path to a LightningPose .csv file."""
+    return pytest.DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
+
+
 # ---------------- SLEAP file fixtures ----------------------------
 @pytest.fixture(
     params=[
@@ -241,8 +229,22 @@ def spurious_column_anipose_csv_file(tmp_path):
     ]
 )
 def sleap_file(request):
-    """Return the file path for a SLEAP .h5 or .slp file."""
+    """Return the path to a SLEAP .h5 or .slp file."""
     return pytest.DATA_PATHS.get(request.param)
+
+
+@pytest.fixture
+def sleap_slp_file():
+    """Return the path to a SLEAP .slp file."""
+    return pytest.DATA_PATHS.get(
+        "SLEAP_three-mice_Aeon_proofread.predictions.slp"
+    )
+
+
+@pytest.fixture
+def sleap_analysis_file():
+    """Return the path to a SLEAP analysis .h5 file."""
+    return pytest.DATA_PATHS.get("SLEAP_three-mice_Aeon_proofread.analysis.h5")
 
 
 @pytest.fixture
@@ -309,16 +311,24 @@ via_tracks_csv_file_valid_header = (
 
 
 @pytest.fixture
-def invalid_via_tracks_csv_file(tmp_path, request):
-    """Return the file path for an invalid VIA tracks .csv file."""
+def via_tracks_csv():
+    """Return the path to a VIA tracks .csv file."""
+    return pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv")
 
-    def _invalid_via_tracks_csv_file(invalid_content):
-        file_path = tmp_path / "invalid_via_tracks.csv"
+
+@pytest.fixture
+def via_tracks_csv_factory(tmp_path, request):
+    """Return the file path for a VIA tracks .csv file with
+    content defined by the given fixture name.
+    """
+
+    def _via_tracks_csv_factory(content):
+        file_path = tmp_path / "test_via_tracks.csv"
         with open(file_path, "w") as f:
-            f.write(request.getfixturevalue(invalid_content))
+            f.write(request.getfixturevalue(content))
         return file_path
 
-    return _invalid_via_tracks_csv_file
+    return _via_tracks_csv_factory
 
 
 @pytest.fixture
@@ -502,13 +512,30 @@ def via_track_ids_not_unique_per_frame():
     )
 
 
+# ---------------- Anipose file fixtures ----------------------------
+@pytest.fixture
+def anipose_csv_file():
+    """Return the path to an Anipose .csv file."""
+    return pytest.DATA_PATHS.get(
+        "anipose_mouse-paw_anipose-paper.triangulation.csv"
+    )
+
+
+# ---------------- netCDF file fixtures ----------------------------
 @pytest.fixture(scope="session")
-def invalid_netcdf_file_missing_confidence(tmp_path_factory):
+def valid_netcdf_file():
+    """Return the path to a valid netCDF file."""
+    return pytest.DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
+
+
+@pytest.fixture(scope="session")
+def invalid_netcdf_file_missing_confidence(
+    tmp_path_factory, valid_netcdf_file
+):
     """Create an invalid 'poses' netCDF file missing the
     'confidence' variable.
     """
-    valid_file = pytest.DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
-    ds = xr.open_dataset(valid_file)
+    ds = xr.open_dataset(valid_netcdf_file)
     del ds["confidence"]
 
     temp_dir = tmp_path_factory.mktemp("invalid_netcdf")
@@ -530,10 +557,9 @@ def unopenable_netcdf_file(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
-def invalid_dstype_netcdf_file(tmp_path_factory):
+def invalid_dstype_netcdf_file(tmp_path_factory, valid_netcdf_file):
     """Create a valid netCDF file but with an invalid 'ds_type' attribute."""
-    valid_file = pytest.DATA_PATHS.get("MOVE_two-mice_octagon.analysis.nc")
-    ds = xr.open_dataset(valid_file)
+    ds = xr.open_dataset(valid_netcdf_file)
 
     ds.attrs["ds_type"] = "not_a_valid_type"
 
