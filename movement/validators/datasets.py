@@ -361,7 +361,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
         - point-wise: (n_frames, n_keypoints, n_individuals)
         - individual-wise: (n_frames, n_individuals)
         """
-        point_wise = super()._confidence_expected_shape[0]
+        point_wise = super()._confidence_expected_shapes[0]
         individual_wise = (
             self.position_array.shape[self.DIM_NAMES.index("time")],
             self.position_array.shape[self.DIM_NAMES.index("individual")],
