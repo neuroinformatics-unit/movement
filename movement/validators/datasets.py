@@ -118,10 +118,11 @@ class _BaseDatasetInputs(ABC):
     # --- Lifecycle hooks ---
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
-        # confidence_array default: array of NaNs with appropriate shape
+        # confidence_array default: array of NaNs with shape matching
+        # position_array without the space dimension
         if self.confidence_array is None:
             self.confidence_array = np.full(
-                self._confidence_expected_shape, np.nan, dtype="float32"
+                self._confidence_expected_shapes[0], np.nan, dtype="float32"
             )
             logger.info(
                 "Confidence array was not provided."
@@ -140,14 +141,22 @@ class _BaseDatasetInputs(ABC):
 
     # --- Properties (derived attributes) ---
     @property
-    def _confidence_expected_shape(self):
-        """Return expected shape for confidence_array."""
-        # confidence shape == position_array shape without the space dim
-        return tuple(
-            dim
-            for i, dim in enumerate(self.position_array.shape)
-            if i != self.DIM_NAMES.index("space")
-        )
+    def _confidence_expected_shapes(self):
+        """Return list of expected shapes for confidence_array.
+
+        Default is the shape of position_array without the space dimension, but
+        can be overridden by subclasses if they allow for different confidence
+        array shapes (e.g. point-wise and individual-wise confidence).
+        """
+        return [
+            tuple(
+                s
+                for d, s in zip(
+                    self.DIM_NAMES, self.position_array.shape, strict=True
+                )
+                if d != "space"
+            )
+        ]
 
     # --- Validators ---
     @position_array.validator
@@ -182,9 +191,8 @@ class _BaseDatasetInputs(ABC):
     def _validate_confidence_array(self, attribute, value):
         """Check confidence_array type and shape."""
         if value is not None:
-            expected_shape = self._confidence_expected_shape
             self._validate_array_shape(
-                attribute, value, expected_shape=expected_shape
+                attribute, value, self._confidence_expected_shapes
             )
 
     @individual_names.validator
@@ -202,10 +210,14 @@ class _BaseDatasetInputs(ABC):
     # --- Utility methods ---
     @staticmethod
     def _validate_array_shape(
-        attribute: attrs.Attribute, value: np.ndarray, expected_shape: tuple
+        attribute: attrs.Attribute,
+        value: np.ndarray,
+        expected_shape: tuple | list[tuple],
     ):
         """Raise ValueError if the value does not have the expected shape."""
-        if value.shape != expected_shape:
+        if isinstance(expected_shape, tuple):
+            expected_shape = [expected_shape]
+        if value.shape not in expected_shape:
             raise logger.error(
                 ValueError(
                     f"Expected '{attribute.name}' to have shape "
@@ -340,6 +352,21 @@ class ValidPosesInputs(_BaseDatasetInputs):
     )
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "confidence")
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[Iterable[int]] = (2, 3)
+
+    @property
+    def _confidence_expected_shapes(self):
+        """Return list of expected shapes for confidence_array.
+
+        Overrides the base implementation to allow for two possible shapes:
+        - point-wise: (n_frames, n_keypoints, n_individuals)
+        - individual-wise: (n_frames, n_individuals)
+        """
+        point_wise = super()._confidence_expected_shapes[0]
+        individual_wise = (
+            self.position_array.shape[self.DIM_NAMES.index("time")],
+            self.position_array.shape[self.DIM_NAMES.index("individual")],
+        )
+        return [point_wise, individual_wise]
 
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):

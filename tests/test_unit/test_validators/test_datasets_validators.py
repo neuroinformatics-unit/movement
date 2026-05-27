@@ -200,9 +200,25 @@ class TestBaseDatasetInputs:
                 (3, 2),
                 pytest.raises(
                     ValueError,
-                    match=re.escape("have shape (3, 2), but got (2, 3)"),
+                    match=re.escape("have shape [(3, 2)], but got (2, 3)"),
                 ),
             ),
+            ([(2, 3), (5, 2)], does_not_raise()),
+            (
+                [(3, 2), (5, 2)],
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "have shape [(3, 2), (5, 2)], but got (2, 3)"
+                    ),
+                ),
+            ),
+        ],
+        ids=[
+            "Shape matches expected shape (tuple)",
+            "Shape does not match expected shape (tuple)",
+            "Shape matches one of expected shapes (list of tuples)",
+            "Shape does not match any of expected shapes (list of tuples)",
         ],
     )
     def test_validate_array_shape(self, expected_shape, expected_exception):
@@ -350,6 +366,38 @@ class TestValidPosesInputs:
             expected_ds.time.attrs["units"] = "seconds"
             xr.testing.assert_equal(ds, expected_ds)
 
+    @pytest.mark.parametrize(
+        "confidence_array, expected_context",
+        [
+            (
+                np.zeros((5, 3, 2)),
+                does_not_raise(),
+            ),
+            (
+                np.zeros((5, 2)),
+                does_not_raise(),
+            ),
+            (
+                np.zeros((5, 3)),
+                pytest.raises(ValueError),
+            ),
+        ],
+        ids=[
+            "Keypoint-level confidence",
+            "Individual-level confidence",
+            "Invalid confidence shape",
+        ],
+    )
+    def test_confidence_array(self, confidence_array, expected_context):
+        """Test confidence_array validation in ValidPosesInputs."""
+        position_array = np.zeros((5, 2, 3, 2))
+
+        with expected_context:
+            ValidPosesInputs(
+                position_array=position_array,
+                confidence_array=confidence_array,
+            )
+
 
 class TestValidBboxesInputs:
     """Test the ValidBboxesInputs class."""
@@ -365,7 +413,9 @@ class TestValidBboxesInputs:
                 np.zeros((5, 2, 1)),
                 pytest.raises(
                     ValueError,
-                    match=re.escape("have shape (5, 2, 3), but got (5, 2, 1)"),
+                    match=re.escape(
+                        "have shape [(5, 2, 3)], but got (5, 2, 1)"
+                    ),
                 ),
             ),
             (
@@ -422,14 +472,14 @@ class TestValidBboxesInputs:
                 np.zeros((5, 2)),
                 pytest.raises(
                     ValueError,
-                    match=re.escape("have shape (5, 1), but got (5, 2)"),
+                    match=re.escape("have shape [(5, 1)], but got (5, 2)"),
                 ),
             ),
             (
                 np.zeros((7, 1)),
                 pytest.raises(
                     ValueError,
-                    match=re.escape("have shape (5, 1), but got (7, 1)"),
+                    match=re.escape("have shape [(5, 1)], but got (7, 1)"),
                 ),
             ),
         ],
