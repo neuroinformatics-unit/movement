@@ -63,3 +63,12 @@ repos:
       rev: v2.4.2
       hooks:
       - id: codespell
+    - repo: local
+      hooks:
+      - id: no-movement-url
+        name: block hardcoded movement URL in docs - use relative refs
+        language: pygrep
+        entry: "https://movement\\.neuroinformatics\\.dev"
+        files: ^docs/
+        exclude: ^docs/conf\.py
+        types: [text]
