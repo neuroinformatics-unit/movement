@@ -733,7 +733,9 @@ def test_path_deviation_straight_path_is_zero(straight_paths):
     xr.testing.assert_allclose(result, xr.zeros_like(result))
 
 
-@pytest.mark.parametrize("fixture_name", ["stationary_paths", "closed_loop_paths"])
+@pytest.mark.parametrize(
+    "fixture_name", ["stationary_paths", "closed_loop_paths"]
+)
 def test_path_deviation_degenerate_chord_raises(request, fixture_name):
     with degenerate_chord_error:
         compute_path_deviation(request.getfixturevalue(fixture_name))
@@ -741,7 +743,9 @@ def test_path_deviation_degenerate_chord_raises(request, fixture_name):
 
 @pytest.fixture
 def straight_paths_3d(straight_paths):
-    return straight_paths.pad(space=(0, 1)).assign_coords(space=["x", "y", "z"])
+    return straight_paths.pad(space=(0, 1)).assign_coords(
+        space=["x", "y", "z"]
+    )
 
 
 @pytest.fixture
@@ -766,8 +770,10 @@ def test_path_deviation_with_nan(straight_paths_with_nan):
 def test_path_deviation_partially_degenerate_warns(straight_paths):
     path = straight_paths.copy()
     # Make id_0 stationary
-    path.loc[{"individual": "id_0"}] = path.loc[{"individual": "id_0", "time": 0}]
-    
+    path.loc[{"individual": "id_0"}] = path.loc[
+        {"individual": "id_0", "time": 0}
+    ]
+
     with pytest.warns(
         UserWarning,
         match="Path deviation is undefined for tracks where the start and end",
