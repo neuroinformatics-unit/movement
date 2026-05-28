@@ -70,5 +70,4 @@ repos:
             language: pygrep
             entry: "https://movement\\.neuroinformatics\\.dev"
             files: ^docs/
-            exclude: ^docs/source/conf\.py
             types: [text]
