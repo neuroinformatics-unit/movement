@@ -427,12 +427,12 @@ def _validate_time_points(
 def compute_path_deviation(
     data: xr.DataArray,
 ) -> xr.DataArray:
-    r"""Compute the perpendicular deviation from the chord at each time point.
+    r"""Compute deviation from the straight-line path at each time point.
 
     For each time point :math:`t`, the path deviation is the perpendicular
     (unsigned) distance between the position :math:`P(t)` and the infinite
-    line passing through the chord endpoints :math:`A` (position at
-    ``start``) and :math:`B` (position at ``stop``).
+    straight line passing through the first and last valid positions in
+    the data, denoted :math:`A` and :math:`B` respectively.
 
     Formally, let :math:`\mathbf{u} = B - A` be the chord vector and
     :math:`\hat{\mathbf{u}} = \mathbf{u} / \|\mathbf{u}\|` its unit vector.
@@ -475,8 +475,8 @@ def compute_path_deviation(
 
     See Also
     --------
-    :func:`compute_path_straightness` : Ratio of chord length to path length.
     :func:`compute_path_length` : Total distance travelled along the path.
+    :func:`compute_path_straightness` : Ratio of chord length to path length.
 
     Examples
     --------
@@ -508,14 +508,23 @@ def compute_path_deviation(
     chord = B - A
     chord_length = compute_norm(chord)
 
-    if (chord_length == 0).all():
+    degenerate = chord_length == 0
+    if degenerate.all():
         raise logger.error(
             ValueError(
-                "The chord length is zero (start and end positions are "
-                "identical). Path deviation is undefined for a degenerate "
-                "chord. Consider using a different metric, such as "
-                "compute_path_length."
+                "Path deviation is undefined because the start and end "
+                "positions are identical for all tracks."
             )
+        )
+    if degenerate.any():
+        stacked = degenerate.stack(tracks=list(degenerate.dims))
+        bad_tracks = stacked.sel(tracks=stacked).coords["tracks"].values
+        warnings.warn(
+            "Path deviation is undefined for tracks where the start and end "
+            "positions are identical. The following tracks will return NaN: "
+            f"{bad_tracks}",
+            UserWarning,
+            stacklevel=2,
         )
 
     chord_unit = chord / chord_length

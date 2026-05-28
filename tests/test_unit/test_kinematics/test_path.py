@@ -691,7 +691,7 @@ time_points_value_error_deviation = pytest.raises(
 
 degenerate_chord_error = pytest.raises(
     ValueError,
-    match="The chord length is zero",
+    match="Path deviation is undefined because the start and end positions are identical for all tracks.",
 )
 
 
@@ -733,9 +733,48 @@ def test_path_deviation_straight_path_is_zero(straight_paths):
     xr.testing.assert_allclose(result, xr.zeros_like(result))
 
 
-def test_path_deviation_degenerate_chord_raises(stationary_paths):
+@pytest.mark.parametrize("fixture_name", ["stationary_paths", "closed_loop_paths"])
+def test_path_deviation_degenerate_chord_raises(request, fixture_name):
     with degenerate_chord_error:
-        compute_path_deviation(stationary_paths)
+        compute_path_deviation(request.getfixturevalue(fixture_name))
+
+
+@pytest.fixture
+def straight_paths_3d(straight_paths):
+    return straight_paths.pad(space=(0, 1)).assign_coords(space=["x", "y", "z"])
+
+
+@pytest.fixture
+def straight_paths_with_nan(straight_paths):
+    path = straight_paths.copy()
+    path.loc[{"time": 5}] = np.nan
+    return path
+
+
+def test_path_deviation_3d(straight_paths_3d):
+    result = compute_path_deviation(straight_paths_3d)
+    xr.testing.assert_allclose(result, xr.zeros_like(result))
+
+
+def test_path_deviation_with_nan(straight_paths_with_nan):
+    result = compute_path_deviation(straight_paths_with_nan)
+    assert np.isnan(result.sel(time=5).values).all()
+    off_nan = result.sel(time=[t for t in result.time.values if t != 5])
+    xr.testing.assert_allclose(off_nan, xr.zeros_like(off_nan))
+
+
+def test_path_deviation_partially_degenerate_warns(straight_paths):
+    path = straight_paths.copy()
+    # Make id_0 stationary
+    path.loc[{"individual": "id_0"}] = path.loc[{"individual": "id_0", "time": 0}]
+    
+    with pytest.warns(
+        UserWarning,
+        match="Path deviation is undefined for tracks where the start and end",
+    ):
+        result = compute_path_deviation(path)
+        assert np.isnan(result.sel(individual="id_0").values).all()
+        assert (result.sel(individual="id_1").values == 0).all()
 
 
 @pytest.fixture
