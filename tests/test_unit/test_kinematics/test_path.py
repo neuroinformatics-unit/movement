@@ -18,6 +18,20 @@ time_points_value_error = pytest.raises(
     match="At least 2 time points are required",
 )
 
+# Pre-sliced time-range cases shared by the straightness and directional
+# change tests, which validate via the same minimum-time-points check.
+time_range_cases = [
+    pytest.param(slice(None, None), does_not_raise(), id="full-range"),
+    pytest.param(slice(0, 9), does_not_raise(), id="explicit-full-range"),
+    pytest.param(slice(1, 8), does_not_raise(), id="partial-range"),
+    pytest.param(
+        slice(9, 0), time_points_value_error, id="start-greater-than-stop"
+    ),
+    pytest.param(
+        slice(0, 0.5), time_points_value_error, id="too-few-time-points"
+    ),
+]
+
 # ─────────────────────────────────────────────
 # Fixtures
 # ─────────────────────────────────────────────
@@ -291,36 +305,7 @@ def test_path_length_nan_warn_threshold(
 # ─────────────────────────────────────────────
 
 
-@pytest.mark.parametrize(
-    "time_slice, expected_exception",
-    [
-        pytest.param(
-            slice(None, None),
-            does_not_raise(),
-            id="full-range",
-        ),
-        pytest.param(
-            slice(0, 9),
-            does_not_raise(),
-            id="explicit-full-range",
-        ),
-        pytest.param(
-            slice(1, 8),
-            does_not_raise(),
-            id="partial-range",
-        ),
-        pytest.param(
-            slice(9, 0),
-            time_points_value_error,
-            id="start-greater-than-stop",
-        ),
-        pytest.param(
-            slice(0, 0.5),
-            time_points_value_error,
-            id="too-few-time-points",
-        ),
-    ],
-)
+@pytest.mark.parametrize("time_slice, expected_exception", time_range_cases)
 def test_path_straightness_across_time_ranges(
     valid_poses_dataset, time_slice, expected_exception
 ):
@@ -700,36 +685,7 @@ def test_directional_change_nonzero_value(
     assert dc.isel(time=slice(2, None)).notnull().all()
 
 
-@pytest.mark.parametrize(
-    "time_slice, expected_exception",
-    [
-        pytest.param(
-            slice(None, None),
-            does_not_raise(),
-            id="full-range",
-        ),
-        pytest.param(
-            slice(0, 9),
-            does_not_raise(),
-            id="explicit-full-range",
-        ),
-        pytest.param(
-            slice(1, 8),
-            does_not_raise(),
-            id="partial-range",
-        ),
-        pytest.param(
-            slice(9, 0),
-            time_points_value_error,
-            id="start-greater-than-stop",
-        ),
-        pytest.param(
-            slice(0, 0.5),
-            time_points_value_error,
-            id="too-few-time-points",
-        ),
-    ],
-)
+@pytest.mark.parametrize("time_slice, expected_exception", time_range_cases)
 def test_directional_change_across_time_ranges(
     valid_poses_dataset, time_slice, expected_exception
 ):
