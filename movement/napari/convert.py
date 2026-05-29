@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from movement.io import load_poses
+
 
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
     """Construct a properties DataFrame from a ``movement`` dataset."""
@@ -145,3 +147,52 @@ def ds_to_napari_layers(
     properties = _construct_properties_dataframe(ds_)
 
     return points_as_napari, bboxes_as_napari, properties
+
+
+def napari_layers_to_ds(
+    napari_layers: np.ndarray,
+    properties: pd.DataFrame,
+) -> xr.Dataset:
+    """Convert napari layer data back to a movement dataset.
+
+    Parameters
+    ----------
+    napari_layers
+        Napari Tracks array with columns ``track_id, time, y, x``.
+    properties
+        DataFrame containing at least ``individual``, ``time``,
+        ``confidence`` and optionally ``keypoint``.
+
+    Returns
+    -------
+    xr.Dataset
+        ``movement`` dataset containing pose or bounding box tracks,
+        confidence scores, and associated metadata.
+
+    """
+    if "keypoint" in properties.columns:
+        individual_names = properties["individual"].unique().tolist()
+        keypoint_names = properties["keypoint"].unique().tolist()
+
+        position = (
+            napari_layers[:, [3, 2]]  # 3:x, 2:y
+            .reshape(len(individual_names), len(keypoint_names), -1, 2)
+            .transpose(2, 3, 1, 0)
+        )
+        confidence = (
+            properties["confidence"]
+            .to_numpy()
+            .reshape(len(individual_names), len(keypoint_names), -1)
+            .transpose(2, 1, 0)
+        )
+
+        return load_poses.from_numpy(
+            position_array=position,
+            confidence_array=confidence,
+            individual_names=individual_names,
+            keypoint_names=keypoint_names,
+        )
+
+    raise NotImplementedError(
+        "Conversion from napari bbox layers is not implemented yet."
+    )
