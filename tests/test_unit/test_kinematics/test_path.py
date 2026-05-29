@@ -12,6 +12,12 @@ from movement.kinematics import (
     compute_turning_angle,
 )
 
+# Shared by all metrics that require at least 2 time points.
+time_points_value_error = pytest.raises(
+    ValueError,
+    match="At least 2 time points are required",
+)
+
 # ─────────────────────────────────────────────
 # Fixtures
 # ─────────────────────────────────────────────
@@ -98,11 +104,6 @@ def sharp_turn_paths(straight_paths):
 # ─────────────────────────────────────────────
 # Path length tests
 # ─────────────────────────────────────────────
-
-time_points_value_error = pytest.raises(
-    ValueError,
-    match="At least 2 time points are required to compute path length",
-)
 
 
 @pytest.mark.parametrize(
@@ -289,11 +290,6 @@ def test_path_length_nan_warn_threshold(
 # Path straightness tests
 # ─────────────────────────────────────────────
 
-time_points_value_error_straightness = pytest.raises(
-    ValueError,
-    match=("At least 2 time points are required to compute path straightness"),
-)
-
 
 @pytest.mark.parametrize(
     "time_slice, expected_exception",
@@ -315,12 +311,12 @@ time_points_value_error_straightness = pytest.raises(
         ),
         pytest.param(
             slice(9, 0),
-            time_points_value_error_straightness,
+            time_points_value_error,
             id="start-greater-than-stop",
         ),
         pytest.param(
             slice(0, 0.5),
-            time_points_value_error_straightness,
+            time_points_value_error,
             id="too-few-time-points",
         ),
     ],
@@ -640,28 +636,21 @@ def test_turning_angle_stationary_keypoint_independent_masking():
 # Directional change tests
 # ─────────────────────────────────────────────
 
-time_points_value_error_dc = pytest.raises(
-    ValueError,
-    match=(
-        "At least 2 time points are required to compute directional change"
-    ),
-)
-
 
 @pytest.mark.parametrize(
-    "fixture_name, expected_interior_value, expected_all_nan",
+    "fixture_name, expected_value, expected_all_nan",
     [
         pytest.param("straight_paths", 0.0, False, id="straight-line"),
         pytest.param("stationary_paths", None, True, id="stationary"),
     ],
 )
 def test_directional_change_known_values(
-    request, fixture_name, expected_interior_value, expected_all_nan
+    request, fixture_name, expected_value, expected_all_nan
 ):
     """Test directional change for trajectories with known geometry.
 
     Straight-line motion produces zero turning angle, so DC is 0 at
-    interior time steps. Stationary paths produce NaN turning angles,
+    every valid time step. Stationary paths produce NaN turning angles,
     so DC is NaN everywhere.
     """
     position = request.getfixturevalue(fixture_name)
@@ -672,12 +661,43 @@ def test_directional_change_known_values(
     if expected_all_nan:
         assert dc.isnull().all()
     else:
-        interior = dc.isel(time=slice(2, -1))
-        xr.testing.assert_allclose(
-            interior, xr.full_like(interior, expected_interior_value)
-        )
-        # Boundary time steps (t=0, t=1, t=-1) are always NaN
-        assert dc.isel(time=[0, 1, -1]).isnull().all()
+        valid = dc.isel(time=slice(2, None))
+        xr.testing.assert_allclose(valid, xr.full_like(valid, expected_value))
+        # Only the first two time steps are NaN.
+        assert dc.isel(time=[0, 1]).isnull().all()
+
+
+@pytest.mark.parametrize(
+    "in_degrees, expected_turn",
+    [
+        pytest.param(False, 3 * np.pi / 4, id="radians"),
+        pytest.param(True, 135.0, id="degrees"),
+    ],
+)
+def test_directional_change_nonzero_value(
+    sharp_turn_paths, in_degrees, expected_turn
+):
+    """Test DC against a known nonzero value on non-uniform time.
+
+    In ``sharp_turn_paths`` both individuals move in a straight line for
+    8 steps, then turn sharply on the final step, producing a turning
+    angle of ``3 * pi / 4`` (135 degrees) at the last time step.
+    Dividing by the turning interval ``t[-1] - t[-3]`` gives the
+    expected DC there. The non-uniform ``time`` coordinates ensure the
+    interval is aligned to the turning angle's support (positions
+    ``i-2..i``) rather than a centered difference around ``i``.
+    """
+    time = np.array([0, 1, 2, 4, 7, 11, 16, 22, 29, 37], dtype=float)
+    path = sharp_turn_paths.assign_coords(time=time)
+
+    dc = compute_directional_change(path, in_degrees=in_degrees)
+
+    expected_last = expected_turn / (time[-1] - time[-3])
+    last = dc.isel(time=-1)
+    xr.testing.assert_allclose(last, xr.full_like(last, expected_last))
+    # Only the first two time steps are NaN; the last step is now valid.
+    assert dc.isel(time=[0, 1]).isnull().all()
+    assert dc.isel(time=slice(2, None)).notnull().all()
 
 
 @pytest.mark.parametrize(
@@ -700,12 +720,12 @@ def test_directional_change_known_values(
         ),
         pytest.param(
             slice(9, 0),
-            time_points_value_error_dc,
+            time_points_value_error,
             id="start-greater-than-stop",
         ),
         pytest.param(
             slice(0, 0.5),
-            time_points_value_error_dc,
+            time_points_value_error,
             id="too-few-time-points",
         ),
     ],

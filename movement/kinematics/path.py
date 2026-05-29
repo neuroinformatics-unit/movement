@@ -298,26 +298,30 @@ def compute_turning_angle(
 
 def compute_directional_change(
     data: xr.DataArray,
+    in_degrees: bool = False,
     min_step_length: float = 0.0,
-    nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
     r"""Compute the directional change (DC) per time step.
 
     The directional change at step :math:`i` is the absolute turning
-    angle divided by the temporal interval spanning the two adjacent
-    steps:
+    angle divided by the temporal interval spanning the two steps that
+    define it [1]_:
 
     .. math::
         \mathrm{DC}_i = \frac{|\theta_i|}{\Delta t_i}
 
     where :math:`\theta_i` is the signed turning angle at step :math:`i`
-    and :math:`\Delta t_i = t_{i+1} - t_{i-1}`.
+    and :math:`\Delta t_i = t_i - t_{i-2}`.
 
     Parameters
     ----------
     data : xarray.DataArray
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
+    in_degrees : bool, optional
+        If ``True``, the turning angles (and hence the directional
+        change) are expressed in degrees rather than radians. Defaults
+        to ``False``.
     min_step_length : float, optional
         The minimum step length used when computing turning angles.
         Steps shorter than or equal to this value produce ``NaN``
@@ -326,34 +330,26 @@ def compute_directional_change(
         zero length; near-zero steps from positional jitter may still
         produce spurious turning angles. See
         :func:`compute_turning_angle` for details.
-    nan_warn_threshold : float, optional
-        If any point track in the data has at least (:math:`\ge`)
-        this proportion of values missing, a warning will be emitted.
-        Defaults to 0.2 (20%).
 
     Returns
     -------
     xarray.DataArray
         Directional change values with the same dimensions as the
         input, except ``space`` is removed. Values are in radians per
-        ``time`` unit (e.g. radians/second if ``time`` is in seconds).
+        ``time`` unit (e.g. radians/second if ``time`` is in seconds),
+        or degrees per ``time`` unit if ``in_degrees`` is ``True``.
 
     Notes
     -----
-    1. **Boundary behaviour:** The first two and last time steps of
-       the output are always ``NaN``. The first two are ``NaN``
-       because a turning angle requires three consecutive positions
-       (see :func:`compute_turning_angle`); the last is ``NaN``
-       because the temporal interval requires a subsequent time point
-       that does not exist.
+    **Boundary behaviour:** The first two time steps of the output are
+    always ``NaN``, because a turning angle requires three consecutive
+    positions (see :func:`compute_turning_angle`).
 
-    2. **NaN propagation:** ``NaN`` turning angles (from stationary
-       or sub-threshold steps) propagate to ``NaN`` directional change
-       values. No additional masking is applied.
-
-    3. **Reference:** Kitamura, T. & Imafuku, M. (2015). Behavioural
-       mimicry in flight path of Batesian intraspecific polymorphic
-       butterfly *Papilio polytes*. *Proc. R. Soc. B* 282(1809).
+    References
+    ----------
+    .. [1] Kitamura, T. & Imafuku, M. (2015). Behavioural mimicry in
+       flight path of Batesian intraspecific polymorphic butterfly
+       *Papilio polytes*. *Proc. R. Soc. B* 282(1809).
        https://doi.org/10.1098/rspb.2015.0483
 
     See Also
@@ -381,12 +377,15 @@ def compute_directional_change(
 
     """
     data = _validate_time_points(data, "directional change")
-    _warn_about_nan_proportion(data, nan_warn_threshold)
 
-    theta = compute_turning_angle(data, min_step_length=min_step_length)
+    theta = compute_turning_angle(
+        data, in_degrees=in_degrees, min_step_length=min_step_length
+    )
 
     time_coord = data["time"]
-    dt = time_coord.shift(time=-1) - time_coord.shift(time=1)
+    # Span the two steps that define theta_i (positions i-2..i), matching
+    # compute_turning_angle's support so DC is correct for non-uniform time.
+    dt = time_coord - time_coord.shift(time=2)
 
     dc = abs(theta) / dt
     dc.name = "directional_change"
