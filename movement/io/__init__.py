@@ -3,8 +3,10 @@ from .load import (
     load_dataset,
     load_multiview_dataset,
 )
+from .save import save_dataset
 
 __all__ = [
     "load_dataset",
     "load_multiview_dataset",
+    "save_dataset",
 ]
