@@ -13,12 +13,12 @@ from movement.kinematics.orientation import (
     compute_forward_vector,
     compute_forward_vector_angle,
     compute_head_direction_vector,
-    compute_turning_angle,
 )
 from movement.kinematics.kinetic_energy import compute_kinetic_energy
 from movement.kinematics.path import (
     compute_path_length,
     compute_path_straightness,
+    compute_turning_angle,
 )
 
 
