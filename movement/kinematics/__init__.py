@@ -3,24 +3,24 @@
 from movement.kinematics.distances import compute_pairwise_distances
 from movement.kinematics.kinematics import (
     compute_acceleration,
-    compute_forward_displacement,
     compute_backward_displacement,
+    compute_forward_displacement,
     compute_speed,
     compute_time_derivative,
     compute_velocity,
 )
+from movement.kinematics.kinetic_energy import compute_kinetic_energy
 from movement.kinematics.orientation import (
     compute_forward_vector,
     compute_forward_vector_angle,
     compute_head_direction_vector,
     compute_turning_angle,
 )
-from movement.kinematics.kinetic_energy import compute_kinetic_energy
 from movement.kinematics.path import (
     compute_path_length,
     compute_path_straightness,
+    compute_roaming_entropy,
 )
-
 
 __all__ = [
     "compute_forward_displacement",
@@ -30,6 +30,7 @@ __all__ = [
     "compute_speed",
     "compute_path_length",
     "compute_path_straightness",
+    "compute_roaming_entropy",
     "compute_time_derivative",
     "compute_pairwise_distances",
     "compute_forward_vector",

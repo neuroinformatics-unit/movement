@@ -4,7 +4,11 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from movement.kinematics import compute_path_length, compute_path_straightness
+from movement.kinematics import (
+    compute_path_length,
+    compute_path_straightness,
+    compute_roaming_entropy,
+)
 
 # ─────────────────────────────────────────────
 # Fixtures
@@ -379,3 +383,113 @@ def test_path_straightness_known_values(
             result,
             xr.full_like(result, expected_value),
         )
+
+
+# ─────────────────────────────────────────────
+# Roaming entropy tests
+# ─────────────────────────────────────────────
+
+
+@pytest.fixture
+def two_individual_paths():
+    """Return a (time, space, individual) position array with two individuals.
+
+    ``id_uniform`` visits the four corners of the unit square equally (two
+    visits per corner over 8 frames), so on a 2x2 grid it occupies all four
+    bins uniformly. ``id_confined`` stays within a single bin for the whole
+    trajectory. This makes the roaming entropy analytically known:
+    ``id_uniform`` reaches the maximum (ln 4, or 1.0 normalised), while
+    ``id_confined`` is 0.
+    """
+    corners = np.array(
+        [[0, 0], [1, 0], [0, 1], [1, 1], [0, 0], [1, 0], [0, 1], [1, 1]],
+        dtype=float,
+    )
+    confined = np.full((8, 2), 0.25)
+    # Stack to shape (time, space, individual)
+    position = np.stack([corners, confined], axis=-1)
+    return xr.DataArray(
+        position,
+        dims=["time", "space", "individual"],
+        coords={
+            "time": np.arange(8),
+            "space": ["x", "y"],
+            "individual": ["id_uniform", "id_confined"],
+        },
+    )
+
+
+def test_roaming_entropy_known_values(two_individual_paths):
+    """Roaming entropy matches analytically known values for a uniform and a
+    confined trajectory, both normalised and unnormalised.
+    """
+    normalised = compute_roaming_entropy(two_individual_paths, bins=2)
+    assert normalised.name == "roaming_entropy"
+    assert normalised.attrs["long_name"] == "Roaming Entropy"
+    # time and space are reduced; individual is preserved
+    assert set(normalised.dims) == {"individual"}
+    np.testing.assert_allclose(
+        normalised.sel(individual="id_uniform").item(), 1.0
+    )
+    np.testing.assert_allclose(
+        normalised.sel(individual="id_confined").item(), 0.0
+    )
+
+    unnormalised = compute_roaming_entropy(
+        two_individual_paths, bins=2, normalise=False
+    )
+    np.testing.assert_allclose(
+        unnormalised.sel(individual="id_uniform").item(), np.log(4)
+    )
+    np.testing.assert_allclose(
+        unnormalised.sel(individual="id_confined").item(), 0.0
+    )
+
+
+def test_roaming_entropy_accepts_tuple_bins(two_individual_paths):
+    """A ``(nx, ny)`` tuple of bins is accepted and gives the same result as
+    the equivalent integer for a square grid.
+    """
+    from_int = compute_roaming_entropy(two_individual_paths, bins=2)
+    from_tuple = compute_roaming_entropy(two_individual_paths, bins=(2, 2))
+    xr.testing.assert_allclose(from_int, from_tuple)
+
+
+def test_roaming_entropy_all_nan_track(two_individual_paths):
+    """A track with no valid positions yields NaN, without affecting others."""
+    data = two_individual_paths.copy()
+    data.loc[{"individual": "id_confined"}] = np.nan
+    result = compute_roaming_entropy(data, bins=2)
+    assert result.sel(individual="id_confined").isnull().item()
+    np.testing.assert_allclose(result.sel(individual="id_uniform").item(), 1.0)
+
+
+def test_roaming_entropy_all_nan_data(two_individual_paths):
+    """If no valid positions exist anywhere, all entropies are NaN."""
+    data = xr.full_like(two_individual_paths, np.nan)
+    result = compute_roaming_entropy(data, bins=2)
+    assert result.isnull().all()
+
+
+@pytest.mark.parametrize(
+    "bins, expected_match",
+    [
+        pytest.param(0, "bins must be a positive", id="zero"),
+        pytest.param(-3, "bins must be a positive", id="negative"),
+        pytest.param((2,), "bins must be a positive", id="tuple-wrong-length"),
+        pytest.param((2, 0), "bins must be a positive", id="tuple-zero"),
+    ],
+)
+def test_roaming_entropy_invalid_bins(
+    two_individual_paths, bins, expected_match
+):
+    """Invalid ``bins`` values raise a ValueError."""
+    with pytest.raises(ValueError, match=expected_match):
+        compute_roaming_entropy(two_individual_paths, bins=bins)
+
+
+def test_roaming_entropy_requires_space_coords(two_individual_paths):
+    """Data lacking the required 'x'/'y' space coordinates raises an error."""
+    data = two_individual_paths.sel(space=["x"])
+    with pytest.raises(ValueError, match="space"):
+        compute_roaming_entropy(data)
