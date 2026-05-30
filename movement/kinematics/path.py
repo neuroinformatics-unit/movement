@@ -9,6 +9,7 @@ keypoint representing the individual's overall position (e.g., centroid).
 import warnings
 from typing import Literal
 
+import numpy as np
 import xarray as xr
 
 from movement.kinematics.kinematics import compute_backward_displacement
@@ -174,6 +175,173 @@ def compute_path_straightness(
     result.name = "straightness_index"
     result.attrs["long_name"] = "Path Straightness Index"
     return result
+
+
+def compute_roaming_entropy(
+    data: xr.DataArray,
+    bins: int | tuple[int, int] = 30,
+    normalise: bool = True,
+) -> xr.DataArray:
+    r"""Compute the roaming entropy of a path.
+
+    Roaming entropy quantifies how broadly and uniformly an individual
+    explores the 2D space over the course of a trajectory. It is defined as
+    the Shannon entropy of the spatial occupancy distribution obtained by
+    binning the positions onto a regular 2D grid. Given a grid of :math:`N`
+    bins, where :math:`p_i` is the proportion of (non-NaN) time points spent
+    in bin :math:`i`, the roaming entropy :math:`H` is
+
+    .. math::
+        H = -\sum_{i=1}^{N} p_i \ln p_i,
+
+    with the convention :math:`0 \ln 0 = 0`. The value ranges from
+    :math:`0` (the individual stays within a single bin) to :math:`\ln N`
+    (the individual visits all bins equally). By default the result is
+    normalised to the range :math:`[0, 1]` by dividing by :math:`\ln N`.
+
+    The metric is invariant to the *order* in which bins are visited, so it
+    captures *where* the individual went rather than *how* it got there. As
+    such, it complements speed- and distance-based metrics such as
+    :func:`compute_path_length`.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information, with ``time`` and
+        ``space`` (containing the ``"x"`` and ``"y"`` coordinates) as
+        required dimensions.
+    bins : int or tuple of int, optional
+        The number of bins along the ``x`` and ``y`` axes used to build the
+        occupancy grid. If an integer is provided, the same number of bins is
+        used for both axes. If a tuple ``(nx, ny)`` is provided, ``nx`` and
+        ``ny`` bins are used along the ``x`` and ``y`` axes, respectively.
+        Defaults to 30. See Notes on the sensitivity of the metric to this
+        parameter.
+    normalise : bool, optional
+        If ``True`` (default), the entropy is divided by :math:`\ln N`
+        (where :math:`N` is the total number of bins), scaling the result to
+        the range :math:`[0, 1]`. If ``False``, the unnormalised entropy in
+        nats is returned, ranging in :math:`[0, \ln N]`.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed roaming entropy, with
+        dimensions matching those of the input data, except ``time`` and
+        ``space`` are removed (i.e. a scalar per individual and/or keypoint).
+        Tracks with no valid (non-NaN) positions yield NaN.
+
+    Notes
+    -----
+    The occupancy grid spans the full extent of the valid positions in
+    ``data``, i.e. its bounds are derived from the global minimum and maximum
+    of the ``x`` and ``y`` coordinates across all time points, individuals and
+    keypoints. Using a shared grid in this way makes the resulting entropies
+    directly comparable across individuals and keypoints within the same
+    dataset.
+
+    The roaming entropy is sensitive to the choice of ``bins``: a finer grid
+    (more bins) increases the maximum attainable entropy and the metric's
+    sensitivity to small movements, while a coarser grid emphasises broad-scale
+    exploration. When comparing values across datasets, ensure that the same
+    ``bins`` (and, ideally, a comparable spatial extent) are used.
+
+    References
+    ----------
+    .. [1] Freund, J., Brandmaier, A. M., Lewejohann, L., Kirste, I.,
+       Kritzler, M., Krüger, A., Sachser, N., Lindenberger, U., & Kempermann,
+       G. (2013). Emergence of individuality in genetically identical mice.
+       Science, 340(6133), 756-759. https://doi.org/10.1126/science.1235294
+
+    See Also
+    --------
+    :func:`compute_path_length` : A complementary, distance-based path metric.
+    movement.plots.plot_occupancy : Plot the 2D occupancy histogram.
+
+    Examples
+    --------
+    >>> from movement.kinematics import compute_roaming_entropy
+
+    Compute the (normalised) roaming entropy from the centroid trajectory of
+    a poses dataset ``ds``:
+
+    >>> centroid = ds.position.mean(dim="keypoint")
+    >>> entropy = compute_roaming_entropy(centroid)
+
+    Use a coarser grid and return the unnormalised entropy in nats:
+
+    >>> entropy = compute_roaming_entropy(centroid, bins=10, normalise=False)
+
+    """
+    validate_dims_coords(data, {"time": [], "space": ["x", "y"]})
+    data = data.sel(space=["x", "y"])
+    bins_xy = (bins, bins) if isinstance(bins, int) else tuple(bins)
+    if len(bins_xy) != 2 or any(int(b) < 1 for b in bins_xy):
+        raise logger.error(
+            ValueError(
+                "bins must be a positive integer or a tuple of two positive "
+                f"integers, but got {bins}."
+            )
+        )
+    # Derive a shared grid extent from the global span of valid positions, so
+    # that entropies are comparable across individuals and keypoints.
+    x_values = data.sel(space="x").values
+    y_values = data.sel(space="y").values
+    if np.all(np.isnan(x_values)) or np.all(np.isnan(y_values)):
+        # No valid positions anywhere: every track's entropy is undefined.
+        return xr.full_like(
+            data.isel(space=0, drop=True).isel(time=0, drop=True), np.nan
+        ).rename("roaming_entropy")
+    hist_range = [
+        [float(np.nanmin(x_values)), float(np.nanmax(x_values))],
+        [float(np.nanmin(y_values)), float(np.nanmax(y_values))],
+    ]
+    result = xr.apply_ufunc(
+        _roaming_entropy,
+        data,
+        input_core_dims=[["time", "space"]],
+        kwargs={
+            "bins": list(bins_xy),
+            "hist_range": hist_range,
+            "normalise": normalise,
+        },
+        vectorize=True,
+    )
+    result.name = "roaming_entropy"
+    result.attrs["long_name"] = "Roaming Entropy"
+    return result
+
+
+def _roaming_entropy(
+    track: np.ndarray,
+    bins: list[int],
+    hist_range: list[list[float]],
+    normalise: bool,
+) -> float:
+    """Compute the roaming entropy for a single ``(time, space)`` track.
+
+    See :func:`compute_roaming_entropy` for parameter details. Returns NaN if
+    the track contains no valid (non-NaN) positions.
+    """
+    x = track[:, 0]
+    y = track[:, 1]
+    valid = ~(np.isnan(x) | np.isnan(y))
+    if not valid.any():
+        return np.nan
+    counts, _, _ = np.histogram2d(
+        x[valid], y[valid], bins=bins, range=hist_range
+    )
+    counts = counts.ravel()
+    total = counts.sum()
+    if total == 0:
+        return np.nan
+    # Restrict to occupied bins (0 * ln 0 = 0 by convention).
+    proportions = counts[counts > 0] / total
+    entropy = float(-np.sum(proportions * np.log(proportions)))
+    if normalise:
+        n_bins = counts.size
+        entropy = entropy / np.log(n_bins) if n_bins > 1 else 0.0
+    return entropy
 
 
 def _validate_time_points(
