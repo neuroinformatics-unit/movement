@@ -691,7 +691,10 @@ time_points_value_error_deviation = pytest.raises(
 
 degenerate_chord_error = pytest.raises(
     ValueError,
-    match="Path deviation is undefined because the start and end positions are identical for all tracks.",
+    match=(
+        "Path deviation is undefined because the start and end positions "
+        "are identical for all tracks."
+    ),
 )
 
 
