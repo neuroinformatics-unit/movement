@@ -31,14 +31,14 @@ def compute_path_length(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-    nan_policy : Literal["ffill", "scale"], optional
+    nan_policy
         Policy to handle NaN (missing) values. Can be one of the ``"ffill"``
         or ``"scale"``. Defaults to ``"ffill"`` (forward fill).
         See Notes for more details on the two policies.
-    nan_warn_threshold : float, optional
+    nan_warn_threshold
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
         Defaults to 0.2 (20%).
@@ -76,7 +76,8 @@ def compute_path_length(
 
     See Also
     --------
-    :func:`compute_path_straightness`
+    compute_path_straightness : A related metric that quantifies
+        the straightness of a path.
 
     Examples
     --------
@@ -116,15 +117,15 @@ def compute_path_straightness(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-    nan_policy : Literal["ffill", "scale"], optional
+    nan_policy
         Policy to handle NaN (missing) values for the path length computation.
         Can be one of ``"ffill"`` or ``"scale"``. Defaults to ``"ffill"``
         (forward fill). See :func:`compute_path_length` for more details on
         the two policies.
-    nan_warn_threshold : float, optional
+    nan_warn_threshold
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
         Defaults to 0.2 (20%). Directly passed to :func:`compute_path_length`.
@@ -150,7 +151,7 @@ def compute_path_straightness(
 
     See Also
     --------
-    :func:`compute_path_length` : The underlying function used to
+    compute_path_length : The underlying function used to
         compute the path length :math:`L`.
 
     Examples
@@ -182,9 +183,9 @@ def compute_turning_angle(
     in_degrees: bool = False,
     min_step_length: float = 0.0,
 ) -> xr.DataArray:
-    r"""Compute the turning angles between consecutive steps in a trajectory.
+    r"""Compute the turning angles between consecutive steps in a path.
 
-    The turning angle at time ``t`` is  the :func:`signed angle\
+    The turning angle at time ``t`` is the :func:`signed angle\
     <movement.utils.vector.compute_signed_angle_2d>` between two
     consecutive :func:`backward displacement\
     <movement.kinematics.compute_backward_displacement>` vectors
@@ -211,7 +212,7 @@ def compute_turning_angle(
 
     Returns
     -------
-    xr.DataArray
+    xarray.DataArray
         Turning angles with the same shape as the input ``data``, but
         with the ``space`` dimension dropped.
 
