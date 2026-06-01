@@ -118,6 +118,44 @@ def test_to_dlc_style_df(ds, expected_exception):
             ]
 
 
+def test_to_dlc_style_df_with_individual_confidence():
+    """Test that datasets with individual-wise confidence scores can
+    be converted to a DLC-style DataFrame.
+    """
+    ds = load_poses.from_dlc_file(
+        DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+    )
+
+    # Convert keypoint-wise confidence to individual-wise confidence
+    ds["confidence"] = ds.confidence.isel(keypoint=0)
+
+    df = save_poses.to_dlc_style_df(
+        ds,
+        split_individuals=False,
+    )
+
+    assert isinstance(df, pd.DataFrame)
+
+
+def test_to_dlc_file_with_individual_confidence(tmp_path):
+    """Test that datasets with individual-wise confidence scores can
+    be exported to DLC format.
+    """
+    ds = load_poses.from_dlc_file(
+        DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+    )
+
+    ds["confidence"] = ds.confidence.isel(keypoint=0)
+
+    save_poses.to_dlc_file(
+        ds,
+        tmp_path / "test.h5",
+        split_individuals=False,
+    )
+
+    assert (tmp_path / "test.h5").is_file()
+
+
 def test_to_dlc_file_valid_dataset(
     output_file_params, valid_poses_dataset, request
 ):
@@ -273,6 +311,22 @@ def test_to_lp_file_invalid_dataset(
             request.getfixturevalue(invalid_poses_dataset),
             tmp_path / "test.csv",
         )
+
+
+def test_to_lp_file_with_individual_confidence(tmp_path):
+    """Test that datasets with individual-wise confidence scores can
+    be exported to LightningPose format.
+    """
+    ds = load_poses.from_dlc_file(
+        DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
+    )
+
+    ds["confidence"] = ds.confidence.isel(keypoint=0)
+
+    save_poses.to_lp_file(
+        ds,
+        tmp_path / "test.csv",
+    )
 
 
 def test_to_sleap_analysis_file_valid_dataset(
