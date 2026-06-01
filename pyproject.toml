@@ -93,7 +93,7 @@ docs = [
   "nbsphinx",
   "pydata-sphinx-theme",
   "sphinx",
-  "sphinx-autodoc-typehints",
+  "sphinx-autodoc-typehints>=3.10.4",
   "sphinx-design",
   "sphinx-gallery",
   "sphinx-notfound-page",
