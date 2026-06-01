@@ -391,290 +391,245 @@ def test_path_straightness_known_values(
 # ─────────────────────────────────────────────
 
 
-@pytest.fixture
-def valid_data_array_for_forward_vector():
-    """Return a position data array for an individual with 3 keypoints
-    (left ear, right ear and nose), tracked for 4 frames, in x-y space.
+@pytest.mark.parametrize(
+    "in_degrees, expected_units",
+    [(True, "degrees"), (False, "radians")],
+)
+def test_turning_angle_output_shape_and_attributes(
+    valid_poses_dataset, in_degrees, expected_units
+):
+    """Test that the function returns the correct shape,
+    dimensions, and attributes.
     """
-    time = [0, 1, 2, 3]
-    individual = ["id_0"]
-    keypoint = ["left_ear", "right_ear", "nose"]
-    space = ["x", "y"]
+    position = valid_poses_dataset.position
+    angles = compute_turning_angle(position, in_degrees=in_degrees)
 
-    ds = xr.DataArray(
-        [
-            [[[1, 0], [-1, 0], [0, -1]]],  # time 0
-            [[[0, 1], [0, -1], [1, 0]]],  # time 1
-            [[[-1, 0], [1, 0], [0, 1]]],  # time 2
-            [[[0, -1], [0, 1], [-1, 0]]],  # time 3
-        ],
-        dims=["time", "individual", "keypoint", "space"],
+    # Space dimension must be dropped, others preserved
+    assert angles.sizes["time"] == position.sizes["time"]
+    assert "space" not in angles.dims
+    assert "individual" in angles.dims
+
+    # Attributes
+    assert angles.name == "turning_angle"
+    assert angles.attrs.get("units") == expected_units
+
+
+@pytest.mark.parametrize(
+    "invalid_data, expected_error, expected_match_str,",
+    [
+        pytest.param(
+            xr.DataArray(
+                np.zeros((3, 2)),
+                dims=["frame", "space"],
+                coords={"space": ["x", "y"]},
+            ),
+            ValueError,
+            "Input data must contain ['time']",
+            id="missing_time_dim",
+        ),
+        pytest.param(
+            xr.DataArray(
+                np.zeros((3, 2)),
+                dims=["time", "axis"],
+                coords={"axis": ["x", "y"]},
+            ),
+            ValueError,
+            "Input data must contain ['space']",
+            id="missing_space_dim",
+        ),
+        pytest.param(
+            xr.DataArray(
+                np.zeros((3, 3)),
+                dims=["time", "space"],
+                coords={"space": ["x", "y", "z"]},
+            ),
+            ValueError,
+            "Dimension 'space' must only contain",
+            id="3d_space_coords",
+        ),
+    ],
+)
+def test_turning_angle_with_invalid_input(
+    invalid_data, expected_error, expected_match_str
+):
+    """Test that invalid inputs raise the expected error."""
+    with pytest.raises(expected_error, match=re.escape(expected_match_str)):
+        compute_turning_angle(invalid_data)
+
+
+@pytest.mark.parametrize(
+    "positions, expected_angle_deg",
+    [
+        pytest.param(
+            [[0.0, 0.0], [1.0, 0.0], [2.0, 0.0]],
+            0.0,
+            id="straight_line",
+        ),
+        pytest.param(
+            [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]],
+            90.0,
+            id="pos_turn_90",
+        ),
+        pytest.param(
+            [[0.0, 0.0], [1.0, 0.0], [1.0, -1.0]],
+            -90.0,
+            id="neg_turn_90",
+        ),
+        pytest.param(
+            [
+                [0.0, 0.0],
+                [
+                    np.cos(np.deg2rad(170)),
+                    np.sin(np.deg2rad(170)),
+                ],
+                [
+                    np.cos(np.deg2rad(170)) + np.cos(np.deg2rad(-170)),
+                    np.sin(np.deg2rad(170)) + np.sin(np.deg2rad(-170)),
+                ],
+            ],
+            20.0,
+            id="wrap_across_pi_boundary",
+        ),
+        pytest.param(
+            [[0.0, 0.0], [1.0, 0.0], [0.0, 0.0]],
+            180.0,
+            id="u_turn_180",
+        ),
+    ],
+)
+def test_turning_angle_known_values(positions, expected_angle_deg):
+    """Test mathematical correctness of
+    turning angles for specific trajectories.
+    """
+    pos_array = np.array(positions)
+    data = xr.DataArray(
+        pos_array,
+        dims=["time", "space"],
         coords={
-            "time": time,
-            "individual": individual,
-            "keypoint": keypoint,
-            "space": space,
+            "time": np.arange(len(pos_array)),
+            "space": ["x", "y"],
         },
     )
-    return ds
 
-
-class TestTurningAngle:
-    """Test the compute_turning_angle function."""
-
-    @pytest.mark.parametrize(
-        "in_degrees, expected_units",
-        [(True, "degrees"), (False, "radians")],
+    angles = compute_turning_angle(data, in_degrees=True)
+    assert angles.attrs.get("units") == "degrees"
+    assert np.isclose(
+        angles.isel(time=2).item(), expected_angle_deg, atol=1e-6
     )
-    def test_output_shape_and_attributes(
-        self, valid_data_array_for_forward_vector, in_degrees, expected_units
-    ):
-        """Test that the function returns the correct shape,
-        dimensions, and attributes.
-        """
-        angles = compute_turning_angle(
-            valid_data_array_for_forward_vector, in_degrees=in_degrees
-        )
 
-        # Space dimension must be dropped, others preserved
-        assert (
-            angles.sizes["time"]
-            == valid_data_array_for_forward_vector.sizes["time"]
-        )
-        assert "space" not in angles.dims
-        assert "individual" in angles.dims
 
-        # Attributes
-        assert angles.name == "turning_angle"
-        assert angles.attrs.get("units") == expected_units
-
-    @pytest.mark.parametrize(
-        "invalid_data, expected_error, expected_match_str,",
-        [
-            pytest.param(
-                xr.DataArray(
-                    np.zeros((3, 2)),
-                    dims=["frame", "space"],
-                    coords={"space": ["x", "y"]},
-                ),
-                ValueError,
-                "Input data must contain ['time']",
-                id="missing_time_dim",
-            ),
-            pytest.param(
-                xr.DataArray(
-                    np.zeros((3, 2)),
-                    dims=["time", "axis"],
-                    coords={"axis": ["x", "y"]},
-                ),
-                ValueError,
-                "Input data must contain ['space']",
-                id="missing_space_dim",
-            ),
-            pytest.param(
-                xr.DataArray(
-                    np.zeros((3, 3)),
-                    dims=["time", "space"],
-                    coords={"space": ["x", "y", "z"]},
-                ),
-                ValueError,
-                "Dimension 'space' must only contain",
-                id="3d_space_coords",
-            ),
-        ],
+@pytest.mark.parametrize(
+    "min_step, expect_nan",
+    [
+        pytest.param(0.0, False, id="default_threshold"),
+        pytest.param(1e-4, True, id="small_threshold"),
+        pytest.param(5, True, id="large_threshold"),
+    ],
+)
+def test_turning_angle_min_step_length_masking(min_step, expect_nan):
+    """Test that steps smaller than min_step_length
+    result in NaN turning angles.
+    """
+    positions = np.array(
+        [[0.0, 0.0], [1.0, 0.0], [1.0 + 1e-5, 1e-5], [2.0, 1e-5]]
     )
-    def test_compute_turning_angle_with_invalid_input(
-        self, invalid_data, expected_error, expected_match_str
-    ):
-        """Test that invalid inputs raise the expected error."""
-        with pytest.raises(
-            expected_error, match=re.escape(expected_match_str)
-        ):
-            compute_turning_angle(invalid_data)
-
-    @pytest.mark.parametrize(
-        "positions, expected_angle_deg",
-        [
-            pytest.param(
-                [[0.0, 0.0], [1.0, 0.0], [2.0, 0.0]],
-                0.0,
-                id="straight_line",
-            ),
-            pytest.param(
-                [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]],
-                90.0,
-                id="pos_turn_90",
-            ),
-            pytest.param(
-                [[0.0, 0.0], [1.0, 0.0], [1.0, -1.0]],
-                -90.0,
-                id="neg_turn_90",
-            ),
-            pytest.param(
-                [
-                    [0.0, 0.0],
-                    [
-                        np.cos(np.deg2rad(170)),
-                        np.sin(np.deg2rad(170)),
-                    ],
-                    [
-                        np.cos(np.deg2rad(170)) + np.cos(np.deg2rad(-170)),
-                        np.sin(np.deg2rad(170)) + np.sin(np.deg2rad(-170)),
-                    ],
-                ],
-                20.0,
-                id="wrap_across_pi_boundary",
-            ),
-            pytest.param(
-                [[0.0, 0.0], [1.0, 0.0], [0.0, 0.0]],
-                180.0,
-                id="u_turn_180",
-            ),
-        ],
+    data = xr.DataArray(
+        positions,
+        dims=["time", "space"],
+        coords={
+            "time": np.arange(len(positions)),
+            "space": ["x", "y"],
+        },
     )
-    def test_known_turning_angles(self, positions, expected_angle_deg):
-        """Test mathematical correctness of
-        turning angles for specific trajectories.
-        """
-        pos_array = np.array(positions)
-        data = xr.DataArray(
-            pos_array,
-            dims=["time", "space"],
-            coords={
-                "time": np.arange(len(pos_array)),
-                "space": ["x", "y"],
-            },
-        )
 
-        angles = compute_turning_angle(data, in_degrees=True)
-        assert angles.attrs.get("units") == "degrees"
-        assert np.isclose(
-            angles.isel(time=2).item(), expected_angle_deg, atol=1e-6
-        )
+    angles = compute_turning_angle(data, min_step_length=min_step)
 
-    @pytest.mark.parametrize(
-        "min_step, expect_nan",
-        [
-            pytest.param(0.0, False, id="default_threshold"),
-            pytest.param(1e-4, True, id="small_threshold"),
-            pytest.param(5, True, id="large_threshold"),
-        ],
+    assert np.isnan(angles.isel(time=2).item()) == expect_nan
+    assert np.isnan(angles.isel(time=3).item()) == expect_nan
+
+
+@pytest.mark.parametrize(
+    "positions",
+    [
+        pytest.param(
+            [[5.0, 5.0], [5.0, 5.0], [5.0, 5.0], [5.0, 5.0]],
+            id="stationary",
+        ),
+        pytest.param(
+            [[0.0, 0.0], [1.0, 0.0]],
+            id="only_two_timepoints",
+        ),
+    ],
+)
+def test_turning_angle_all_nan_output(positions):
+    """Test cases where all turning angles should be NaN."""
+    data = xr.DataArray(
+        np.array(positions),
+        dims=["time", "space"],
+        coords={
+            "time": np.arange(len(positions)),
+            "space": ["x", "y"],
+        },
     )
-    def test_min_step_length_masking(self, min_step, expect_nan):
-        """Test that steps smaller than min_step_length
-        result in NaN turning angles.
-        """
-        # Trajectory with a tiny "jitter" step in the middle
-        # t0 -> t1: length 1.0
-        # t1 -> t2: length ~1e-5
-        # t2 -> t3: length ~1.0
-        positions = np.array(
-            [[0.0, 0.0], [1.0, 0.0], [1.0 + 1e-5, 1e-5], [2.0, 1e-5]]
-        )
-        data = xr.DataArray(
-            positions,
-            dims=["time", "space"],
-            coords={
-                "time": np.arange(len(positions)),
-                "space": ["x", "y"],
-            },
-        )
+    angles = compute_turning_angle(data)
+    assert angles.isnull().all()
 
-        angles = compute_turning_angle(data, min_step_length=min_step)
 
-        # Verify that angles at t=2 and t=3 are NaN if the
-        # min_step_length threshold is exceeded
-        assert np.isnan(angles.isel(time=2).item()) == expect_nan
-        assert np.isnan(angles.isel(time=3).item()) == expect_nan
+def test_turning_angle_nan_propagation(valid_poses_dataset):
+    """Test that a NaN position correctly
+    invalidates adjacent turning angles.
+    """
+    position = valid_poses_dataset.position.astype(float)
 
-    @pytest.mark.parametrize(
-        "positions",
-        [
-            pytest.param(
-                [[5.0, 5.0], [5.0, 5.0], [5.0, 5.0], [5.0, 5.0]],
-                id="stationary",
-            ),
-            pytest.param(
-                [[0.0, 0.0], [1.0, 0.0]],
-                id="only_two_timepoints",
-            ),
-        ],
+    position.loc[{"time": 2, "individual": "id_0", "keypoint": "left"}] = (
+        np.nan
+    )  # type: ignore[index]
+
+    angles = compute_turning_angle(position)
+
+    # A NaN at t=2 must break the steps at t=2 and t=3
+    assert np.isnan(
+        angles.sel(time=2, individual="id_0", keypoint="left").item()
     )
-    def test_all_nan_output(self, positions):
-        """Test cases where all turning angles should be NaN."""
-        data = xr.DataArray(
-            np.array(positions),
-            dims=["time", "space"],
-            coords={
-                "time": np.arange(len(positions)),
-                "space": ["x", "y"],
-            },
-        )
-        angles = compute_turning_angle(data)
-        assert angles.isnull().all()
+    assert np.isnan(
+        angles.sel(time=3, individual="id_0", keypoint="left").item()
+    )
 
-    def test_nan_propagation(self, valid_data_array_for_forward_vector):
-        """Test that a NaN position correctly
-        invalidates adjacent turning angles.
-        """
-        # Convert to float so we can safely insert np.nan
-        data = valid_data_array_for_forward_vector.copy().astype(float)
 
-        # Explicit, guaranteed assignment using .loc
-        data.loc[
-            {
-                "time": 2,
-                "individual": "id_0",
-                "keypoint": "left_ear",
-            }
-        ] = np.nan  # type: ignore[index]
+def test_turning_angle_stationary_keypoint_independent_masking():
+    """Zero-step masking is per-keypoint:
+    moving kp has valid angles; stationary kp all NaN.
+    """
+    data = np.zeros((4, 2, 2))
 
-        angles = compute_turning_angle(data)
+    # kp_0: moves along x-axis (0, 1, 2, 3)
+    data[:, 0, 0] = [0, 1, 2, 3]
+    # kp_1: stays completely stationary at (5.0, 5.0)
+    data[:, 1, :] = 5.0
 
-        # A NaN at t=2 must break the steps at t=2 and t=3
-        assert np.isnan(
-            angles.sel(time=2, individual="id_0", keypoint="left_ear").item()
-        )
-        assert np.isnan(
-            angles.sel(time=3, individual="id_0", keypoint="left_ear").item()
-        )
+    ds = xr.DataArray(
+        data,
+        dims=["time", "keypoint", "space"],
+        coords={
+            "time": np.arange(4),
+            "keypoint": ["kp_0", "kp_1"],
+            "space": ["x", "y"],
+        },
+    )
 
-    def test_stationary_keypoint_independent_masking(self):
-        """Zero-step masking is per-keypoint:
-        moving kp has valid angles; stationary kp all NaN.
-        """
-        # Create a 4-timestep array with 2 keypoints
-        # Shape: (time, keypoint, space)
-        data = np.zeros((4, 2, 2))
+    angles = compute_turning_angle(ds)
 
-        # kp_0: moves along x-axis (0, 1, 2, 3)
-        data[:, 0, 0] = [0, 1, 2, 3]
-        # kp_1: stays completely stationary at (5.0, 5.0)
-        data[:, 1, :] = 5.0
+    # Moving keypoint (kp_0): NaN at t=0, t=1;
+    # valid (0.0) at t=2, t=3
+    angles_kp0 = angles.isel(keypoint=0)
+    assert np.isnan(angles_kp0.isel(time=0).item())
+    assert np.isnan(angles_kp0.isel(time=1).item())
+    assert np.allclose(
+        angles_kp0.isel(time=slice(2, None)).values,
+        0.0,
+        atol=1e-10,
+    )
 
-        ds = xr.DataArray(
-            data,
-            dims=["time", "keypoint", "space"],
-            coords={
-                "time": np.arange(4),
-                "keypoint": ["kp_0", "kp_1"],
-                "space": ["x", "y"],
-            },
-        )
-
-        angles = compute_turning_angle(ds)
-
-        # Moving keypoint (kp_0): NaN at t=0, t=1;
-        # valid (0.0) at t=2, t=3
-        angles_kp0 = angles.isel(keypoint=0)
-        assert np.isnan(angles_kp0.isel(time=0).item())
-        assert np.isnan(angles_kp0.isel(time=1).item())
-        assert np.allclose(
-            angles_kp0.isel(time=slice(2, None)).values,
-            0.0,
-            atol=1e-10,
-        )
-
-        # Stationary keypoint (kp_1): should be all NaN
-        angles_kp1 = angles.isel(keypoint=1)
-        assert np.all(np.isnan(angles_kp1.values))
+    # Stationary keypoint (kp_1): should be all NaN
+    angles_kp1 = angles.isel(keypoint=1)
+    assert np.all(np.isnan(angles_kp1.values))
