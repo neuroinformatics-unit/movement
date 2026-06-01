@@ -9,12 +9,13 @@ keypoint representing the individual's overall position (e.g., centroid).
 import warnings
 from typing import Literal
 
+import numpy as np
 import xarray as xr
 
 from movement.kinematics.kinematics import compute_backward_displacement
 from movement.utils.logging import logger
 from movement.utils.reports import report_nan_values
-from movement.utils.vector import compute_norm
+from movement.utils.vector import compute_norm, compute_signed_angle_2d
 from movement.validators.arrays import validate_dims_coords
 
 
@@ -30,14 +31,14 @@ def compute_path_length(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-    nan_policy : Literal["ffill", "scale"], optional
+    nan_policy
         Policy to handle NaN (missing) values. Can be one of the ``"ffill"``
         or ``"scale"``. Defaults to ``"ffill"`` (forward fill).
         See Notes for more details on the two policies.
-    nan_warn_threshold : float, optional
+    nan_warn_threshold
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
         Defaults to 0.2 (20%).
@@ -75,7 +76,8 @@ def compute_path_length(
 
     See Also
     --------
-    :func:`compute_path_straightness`
+    compute_path_straightness : A related metric that quantifies
+        the straightness of a path.
 
     Examples
     --------
@@ -115,15 +117,15 @@ def compute_path_straightness(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-    nan_policy : Literal["ffill", "scale"], optional
+    nan_policy
         Policy to handle NaN (missing) values for the path length computation.
         Can be one of ``"ffill"`` or ``"scale"``. Defaults to ``"ffill"``
         (forward fill). See :func:`compute_path_length` for more details on
         the two policies.
-    nan_warn_threshold : float, optional
+    nan_warn_threshold
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
         Defaults to 0.2 (20%). Directly passed to :func:`compute_path_length`.
@@ -149,7 +151,7 @@ def compute_path_straightness(
 
     See Also
     --------
-    :func:`compute_path_length` : The underlying function used to
+    compute_path_length : The underlying function used to
         compute the path length :math:`L`.
 
     Examples
@@ -174,6 +176,124 @@ def compute_path_straightness(
     result.name = "straightness_index"
     result.attrs["long_name"] = "Path Straightness Index"
     return result
+
+
+def compute_turning_angle(
+    data: xr.DataArray,
+    in_degrees: bool = False,
+    min_step_length: float = 0.0,
+) -> xr.DataArray:
+    r"""Compute the turning angles between consecutive steps in a path.
+
+    The turning angle at time ``t`` is the :func:`signed angle\
+    <movement.utils.vector.compute_signed_angle_2d>` between two
+    consecutive :func:`backward displacement\
+    <movement.kinematics.compute_backward_displacement>` vectors
+    at times ``t-1`` and ``t``.
+    The returned angles are in radians, spanning the range :math:`(-\pi, \pi]`,
+    unless ``in_degrees`` is set to ``True``.
+
+    Parameters
+    ----------
+    data
+        The input position data. Must contain ``time`` and ``space``
+        dimensions. The ``space`` dimension must contain exactly the
+        coordinates ``["x", "y"]`` (2D spatial data only).
+    in_degrees
+        If ``True``, return turning angles in degrees. Default is
+        ``False`` (radians).
+    min_step_length
+        The minimum step length to consider for computing the turning
+        angle. Any turning angle involving an incoming or outgoing step
+        shorter than or equal to this value is set to ``NaN``. The
+        default ``0.0`` only masks steps with exactly zero length,
+        which means steps with near-zero lengths may still produce
+        spurious angles. See Note 2 below.
+
+    Returns
+    -------
+    xarray.DataArray
+        Turning angles with the same shape as the input ``data``, but
+        with the ``space`` dimension dropped.
+
+    Notes
+    -----
+    1. **Time dimension length:** This function uses a ``shift``
+       operation to preserve the original ``time`` dimension length.
+       The first two time steps are always ``NaN``: the first because
+       no previous step exists, and the second because a turning angle
+       requires two steps (three positions). In other words, the turning angle
+       at time step ``t`` is computed as the angle between the steps
+       from ``t-2`` to ``t-1`` and from ``t-1`` to ``t``.
+    2. **Positional jitter and small steps:** Tracking data
+       often contains positional jitter, meaning a stationary animal
+       may appear to make microscopic movements. With default parameters
+       (``min_step_length=0.0``), these tiny, noisy movements will
+       produce spurious, meaningless turning angles. It is highly
+       recommended to set ``min_step_length`` to an appropriate threshold
+       based on the tracking resolution and the animal's size in the scene.
+       The value should be in the same units as the input position data
+       (e.g. pixels, mm, etc.). Pre-smoothing the trajectory
+       can also help reduce positional jitter.
+    3. **NaN propagation:** ``NaN`` positions in the input propagate
+       to ``NaN`` turning angles. A single missing position affects
+       up to two turning angles (the incoming and outgoing steps).
+       Use :func:`movement.filtering.interpolate_over_time` to fill
+       positional gaps before computing turning angles if continuity
+       is important.
+
+    See Also
+    --------
+    movement.kinematics.compute_backward_displacement :
+        The underlying function used to compute the displacement vectors.
+    movement.utils.vector.compute_signed_angle_2d :
+        The underlying function used to compute the signed angle
+        between two consecutive displacement vectors.
+
+    Examples
+    --------
+    >>> from movement.kinematics import compute_turning_angle
+
+    Compute turning angles from the centroid trajectory of a poses
+    dataset ``ds``:
+
+    >>> centroid = ds.position.mean(dim="keypoint")
+    >>> angles = compute_turning_angle(centroid)
+
+    Compute in degrees, with a minimum step length of 3 pixels to filter out
+    pose estimation jitter:
+
+    >>> angles = compute_turning_angle(
+    ...     centroid, in_degrees=True, min_step_length=3
+    ... )
+
+    """
+    validate_dims_coords(
+        data, {"time": [], "space": ["x", "y"]}, exact_coords=True
+    )
+
+    # Displacement arriving at each time step t.
+    disp = compute_backward_displacement(data)
+
+    # Turning angle at t = rotation needed to align step[t-1] onto step[t].
+    turning = compute_signed_angle_2d(disp.shift(time=1), disp)
+
+    # Mask turning angles involving steps smaller than min_step_length
+    step_lengths = compute_norm(disp)
+    invalid_steps = (step_lengths <= min_step_length) | (
+        step_lengths.shift(time=1) <= min_step_length
+    )
+    turning = xr.where(invalid_steps, np.nan, turning)
+
+    turning.attrs["units"] = "radians"
+
+    if in_degrees:
+        turning = np.rad2deg(turning)
+        turning.attrs["units"] = "degrees"
+
+    turning.name = "turning_angle"
+
+    return turning
 
 
 def _validate_time_points(
