@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../_static/documentation_options.js?v=7d2a1df9"></script>
+    <script src="../_static/documentation_options.js?v=d95299e0"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -146,7 +146,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev24</p>
+    <p class="title logo__title">movement v0.16.1.dev25</p>
   
 </a></div>
     
@@ -665,9 +665,9 @@
 <h1>compute_turning_angle<a class="headerlink" href="#compute-turning-angle" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.kinematics.compute_turning_angle">
-<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_turning_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_step_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/orientation.html#compute_turning_angle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_turning_angle" title="Link to this definition">#</a></dt>
-<dd><p>Compute the turning angles between consecutive steps in a trajectory.</p>
-<p>The turning angle at time <code class="docutils literal notranslate"><span class="pre">t</span></code> is  the <a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d" title="movement.utils.vector.compute_signed_angle_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">signed</span> <span class="pre">angle</span></code></a> between two
+<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_turning_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_degrees</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_step_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/path.html#compute_turning_angle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_turning_angle" title="Link to this definition">#</a></dt>
+<dd><p>Compute the turning angles between consecutive steps in a path.</p>
+<p>The turning angle at time <code class="docutils literal notranslate"><span class="pre">t</span></code> is the <a class="reference internal" href="movement.utils.vector.compute_signed_angle_2d.html#movement.utils.vector.compute_signed_angle_2d" title="movement.utils.vector.compute_signed_angle_2d"><code class="xref py py-func docutils literal notranslate"><span class="pre">signed</span> <span class="pre">angle</span></code></a> between two
 consecutive <a class="reference internal" href="movement.kinematics.compute_backward_displacement.html#movement.kinematics.compute_backward_displacement" title="movement.kinematics.compute_backward_displacement"><code class="xref py py-func docutils literal notranslate"><span class="pre">backward</span> <span class="pre">displacement</span></code></a> vectors
 at times <code class="docutils literal notranslate"><span class="pre">t-1</span></code> and <code class="docutils literal notranslate"><span class="pre">t</span></code>.
 The returned angles are in radians, spanning the range <span class="math notranslate nohighlight">\((-\pi, \pi]\)</span>,
