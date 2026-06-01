@@ -107,14 +107,21 @@ This is automatically updated via GitHub Actions and should not be modified.
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/ishan372or">
+                    <img src="https://avatars.githubusercontent.com/u/181570708?v=4" width="100;" alt="ishan372or"/>
+                    <br />
+                    <sub><b>ishan372or</b></sub>
+                </a>
+            </td>
+		</tr>
+		<tr>
+            <td align="center">
                 <a href="https://github.com/Edu92337">
                     <img src="https://avatars.githubusercontent.com/u/24757545?v=4" width="100;" alt="Edu92337"/>
                     <br />
                     <sub><b>Eduardo Augusto Almeida lira </b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/vigji">
                     <img src="https://avatars.githubusercontent.com/u/10400212?v=4" width="100;" alt="vigji"/>
@@ -148,13 +155,6 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <img src="https://avatars.githubusercontent.com/u/34198340?v=4" width="100;" alt="carlocastoldi"/>
                     <br />
                     <sub><b>carlocastoldi</b></sub>
-                </a>
-            </td>
-            <td align="center">
-                <a href="https://github.com/ishan372or">
-                    <img src="https://avatars.githubusercontent.com/u/181570708?v=4" width="100;" alt="ishan372or"/>
-                    <br />
-                    <sub><b>ishan372or</b></sub>
                 </a>
             </td>
 		</tr>
