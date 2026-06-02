@@ -680,6 +680,7 @@ def test_directional_change_across_time_ranges(
         assert dc.attrs["long_name"] == "Directional Change"
 
 
+
 # ─────────────────────────────────────────────
 # Path deviation tests
 # ─────────────────────────────────────────────
