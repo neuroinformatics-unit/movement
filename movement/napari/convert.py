@@ -183,6 +183,7 @@ def napari_layers_to_ds(
     The dataset type is inferred from the presence of ``keypoint`` in
     ``properties``. If present, a poses dataset is returned. Otherwise,
     a bounding boxes dataset is returned.
+
     """
     if "keypoint" in properties.columns:
         individual_names = properties["individual"].unique().tolist()
