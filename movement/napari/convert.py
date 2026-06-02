@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from movement.io import load_poses, load_bboxes
+from movement.io import load_bboxes, load_poses
 
 
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
@@ -168,6 +168,7 @@ def napari_layers_to_ds(
     xr.Dataset
         ``movement`` dataset containing pose or bounding box tracks,
         confidence scores, and associated metadata.
+
     """
     if "keypoint" in properties.columns:
         individual_names = properties["individual"].unique().tolist()
@@ -192,40 +193,38 @@ def napari_layers_to_ds(
             keypoint_names=keypoint_names,
         )
 
-    else: ##bboxes
+    else:  ##bboxes
         individual_names = properties["individual"].unique().tolist()
-        n_individuals = len(individual_names)     
-        n_frames = len(properties['time'].unique())
+        n_individuals = len(individual_names)
+        n_frames = len(properties["time"].unique())
 
-        xmin_ymin = napari_layers[:,0,:]
-        xmax_ymax = napari_layers[:,2,:]
+        xmin_ymin = napari_layers[:, 0, :]
+        xmax_ymax = napari_layers[:, 2, :]
 
         xmin = xmin_ymin[:, 3]
         ymin = xmin_ymin[:, 2]
         xmax = xmax_ymax[:, 3]
         ymax = xmax_ymax[:, 2]
 
-        position = np.column_stack( #center of box
+        position = np.column_stack(  # center of box
             [
                 (xmin + xmax) / 2,
                 (ymin + ymax) / 2,
             ]
         )
 
-        shape = np.column_stack( #width,length of box
+        shape = np.column_stack(  # width,length of box
             [
                 xmax - xmin,
                 ymax - ymin,
             ]
         )
 
-        position = position.reshape(
-            n_individuals, n_frames, 2
-        ).transpose(1, 2, 0)
+        position = position.reshape(n_individuals, n_frames, 2).transpose(
+            1, 2, 0
+        )
 
-        shape = shape.reshape(
-            n_individuals, n_frames, 2
-        ).transpose(1, 2, 0)
+        shape = shape.reshape(n_individuals, n_frames, 2).transpose(1, 2, 0)
 
         confidence = (
             properties["confidence"]
@@ -240,4 +239,3 @@ def napari_layers_to_ds(
             confidence_array=confidence,
             individual_names=individual_names,
         )
-
