@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from movement.io import load_poses
+from movement.io import load_poses, load_bboxes
 
 
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
@@ -193,6 +193,53 @@ def napari_layers_to_ds(
             keypoint_names=keypoint_names,
         )
 
-    raise NotImplementedError(
-        "Conversion from napari bbox layers is not implemented yet."
-    )
+    else: ##bboxes
+        n_individuals = len(
+                         properties["individual"].unique().tolist()
+                         )
+        n_frames = len(properties['time'].unique())
+
+        xmin_ymin = napari_layers[:,0,:]
+        xmax_ymax = napari_layers[:,2,:]
+
+        xmin = xmin_ymin[:, 3]
+        ymin = xmin_ymin[:, 2]
+        xmax = xmax_ymax[:, 3]
+        ymax = xmax_ymax[:, 2]
+
+        position = np.column_stack(
+            [
+                (xmin + xmax) / 2,
+                (ymin + ymax) / 2,
+            ]
+        )
+
+        shape = np.column_stack(
+            [
+                xmax - xmin,
+                ymax - ymin,
+            ]
+        )
+
+        position = position.reshape(
+            n_individuals, n_frames, 2
+        ).transpose(1, 2, 0)
+
+        shape = shape.reshape(
+            n_individuals, n_frames, 2
+        ).transpose(1, 2, 0)
+
+        confidence = (
+            properties["confidence"]
+            .to_numpy()
+            .reshape(n_individuals, n_frames)
+            .transpose(1, 0)
+        )
+
+        return load_bboxes.from_numpy(
+            position_array=position,
+            shape_array=shape,
+            confidence_array=confidence,
+            individual_names=individual_names,
+        )
+
