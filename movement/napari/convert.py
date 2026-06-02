@@ -168,7 +168,6 @@ def napari_layers_to_ds(
     xr.Dataset
         ``movement`` dataset containing pose or bounding box tracks,
         confidence scores, and associated metadata.
-
     """
     if "keypoint" in properties.columns:
         individual_names = properties["individual"].unique().tolist()
@@ -194,9 +193,8 @@ def napari_layers_to_ds(
         )
 
     else: ##bboxes
-        n_individuals = len(
-                         properties["individual"].unique().tolist()
-                         )
+        individual_names = properties["individual"].unique().tolist()
+        n_individuals = len(individual_names)     
         n_frames = len(properties['time'].unique())
 
         xmin_ymin = napari_layers[:,0,:]
@@ -207,14 +205,14 @@ def napari_layers_to_ds(
         xmax = xmax_ymax[:, 3]
         ymax = xmax_ymax[:, 2]
 
-        position = np.column_stack(
+        position = np.column_stack( #center of box
             [
                 (xmin + xmax) / 2,
                 (ymin + ymax) / 2,
             ]
         )
 
-        shape = np.column_stack(
+        shape = np.column_stack( #width,length of box
             [
                 xmax - xmin,
                 ymax - ymin,
