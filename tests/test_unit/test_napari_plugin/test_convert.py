@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 
-from movement.napari.convert import ds_to_napari_layers
+from movement.napari.convert import ds_to_napari_layers, napari_layers_to_ds
 
 
 def set_some_confidence_values_to_nan(ds, individuals, time):
@@ -262,3 +262,135 @@ def test_invalid_poses_to_napari_layers(ds_name, expected_exception, request):
     ds = request.getfixturevalue(ds_name)
     with pytest.raises(expected_exception):
         ds_to_napari_layers(ds)
+
+
+@pytest.mark.parametrize(
+    "ds_dataset", 
+    [
+        "dataset",
+        "dataset_with_nan",
+        "confidence_with_some_nan",
+        "confidence_with_all_nan",
+    ]
+)
+def test_valid_poses_napari_layer_to_dataset(ds_dataset, request): 
+    """
+    Test conversion from napari tracks array to movement pose dataset
+    If I convert a dataset to napari and then back to a xarray dataset, 
+    do I recover the original values? 
+    """
+    ds_name = f"valid_poses_{ds_dataset}"
+    ds = request.getfixturevalue(ds_name)
+    napari_tracks, _, properties = ds_to_napari_layers(ds)
+    reconstructed_ds = napari_layers_to_ds(napari_tracks, 
+                                           properties)
+    np.testing.assert_allclose( #are position values the same? 
+        reconstructed_ds.position.values,
+        ds.position.values,
+        equal_nan=True,
+    )
+    np.testing.assert_allclose( #are the confidence values the same? 
+        reconstructed_ds.confidence.values,
+        ds.confidence.values,
+        equal_nan=True, #reconstructed ds should have nans in the same position
+    )
+    np.testing.assert_array_equal( #are the individual labels the same? 
+        reconstructed_ds.individual.values,
+        ds.individual.values,
+    )
+    np.testing.assert_array_equal( #are the keypoint labels the same? 
+        reconstructed_ds.keypoint.values,
+        ds.keypoint.values,
+    )
+    
+    assert reconstructed_ds.position.shape == ds.position.shape
+    assert reconstructed_ds.confidence.shape == ds.confidence.shape
+
+@pytest.mark.parametrize(
+        "fps",
+        [
+            None, 
+            10.0, 
+            30.0,
+            100.0,
+        ]
+)
+def test_valid_poses_napari_layer_to_dataset_with_fps(valid_poses_dataset, fps):
+    """
+    Test reconstruction of time coordinates from napari layers to movement
+    xarrays, with different fps values
+    """
+    napari_tracks, _, properties = ds_to_napari_layers(valid_poses_dataset)
+    reconstructed_ds = napari_layers_to_ds(
+        napari_tracks,
+        properties,
+        fps=fps,
+    )
+
+    expected_time = (
+        np.arange(valid_poses_dataset.sizes["time"])
+        if fps is None
+        else np.arange(valid_poses_dataset.sizes["time"]) / fps
+    )
+
+    np.testing.assert_allclose(
+        reconstructed_ds.time.values,
+        expected_time,
+    )
+
+@pytest.mark.parametrize(
+    "ds_dataset",
+    [
+        "dataset",
+        "dataset_with_nan",
+        "confidence_with_some_nan",
+        "confidence_with_all_nan",
+    ],
+)
+def test_valid_bboxes_napari_layer_to_datset(ds_dataset, request):
+    """
+    Test reconstruction from napari shapes array to movement bboxes dataset.
+    """
+    ds_name = f"valid_bboxes_{ds_dataset}"
+    ds = request.getfixturevalue(ds_name)
+    _, napari_bboxes, properties = ds_to_napari_layers(ds)
+    reconstructed_ds = napari_layers_to_ds(napari_bboxes, properties)
+
+    ds_name = f"valid_bboxes_{ds_dataset}"
+    ds = request.getfixturevalue(ds_name)
+
+    print(f"\nTesting fixture: {ds_name}")
+    print("Position NaNs:", np.isnan(ds.position.values).sum())
+    print("Shape NaNs:", np.isnan(ds.shape.values).sum())
+    print("Position NaN mask:")
+    print(np.isnan(ds.position.values))
+    print("Shape NaN mask:")
+    print(np.isnan(ds.shape.values))
+
+    np.testing.assert_allclose( #are the position (centroid) values the same? 
+        reconstructed_ds.position.values,
+        ds.position.values,
+        equal_nan=True, #reconstructed ds should have nans in the same position
+    )
+
+    np.testing.assert_allclose( #are the shape (width,length) values the same? 
+        reconstructed_ds.shape.values,
+        ds.shape.values,
+        equal_nan=True,
+    )
+    np.testing.assert_allclose(
+        reconstructed_ds.confidence.values, #are the confidence values the same? 
+        ds.confidence.values,
+        equal_nan=True, 
+    )
+    np.testing.assert_array_equal( #are the individual values the same? 
+        reconstructed_ds.individual.values,
+        ds.individual.values,
+    )
+    np.testing.assert_array_equal(
+        reconstructed_ds.time.values, #are the time values the same? 
+        ds.time.values,
+    )
+
+
+
