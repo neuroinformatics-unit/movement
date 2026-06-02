@@ -152,7 +152,7 @@ def ds_to_napari_layers(
 def napari_layers_to_ds(
     napari_layers: np.ndarray,
     properties: pd.DataFrame,
-    fps: float | None = None
+    fps: float | None = None,
 ) -> xr.Dataset:
     """Convert napari layer data back to a movement dataset.
 
@@ -169,8 +169,8 @@ def napari_layers_to_ds(
         DataFrame containing metadata associated with the napari layer.
         It contains ``individual``, ``time``, ``confidence`` and
         optionally ``keypoint``.
-    
-    fps 
+
+    fps
 
 
     Returns
@@ -180,10 +180,11 @@ def napari_layers_to_ds(
         confidence scores, and associated metadata.
 
     Notes
-    -------
-    The dataset type is inferred from the presence of ``keypoint`` in 
-    ``properties``. If present, a pose dataset is returned. Else, bbox 
-    dataset.  
+    -----
+    The dataset type is inferred from the presence of ``keypoint`` in
+    ``properties``. If present, a pose dataset is returned. Else, bbox
+    dataset.
+
     """
     if "keypoint" in properties.columns:
         individual_names = properties["individual"].unique().tolist()
@@ -206,7 +207,7 @@ def napari_layers_to_ds(
             confidence_array=confidence,
             individual_names=individual_names,
             keypoint_names=keypoint_names,
-            fps = fps,
+            fps=fps,
         )
 
     else:  ##bboxes
@@ -254,5 +255,5 @@ def napari_layers_to_ds(
             shape_array=shape,
             confidence_array=confidence,
             individual_names=individual_names,
-            fps = fps,
+            fps=fps,
         )
