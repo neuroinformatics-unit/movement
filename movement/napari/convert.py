@@ -206,7 +206,7 @@ def napari_layers_to_ds(
             confidence_array=confidence,
             individual_names=individual_names,
             keypoint_names=keypoint_names,
-            fps = fps
+            fps = fps,
         )
 
     else:  ##bboxes
@@ -254,5 +254,5 @@ def napari_layers_to_ds(
             shape_array=shape,
             confidence_array=confidence,
             individual_names=individual_names,
-            fps = fps
+            fps = fps,
         )
