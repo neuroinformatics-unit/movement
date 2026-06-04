@@ -17,7 +17,7 @@ The following features are being considered for the first stable version `v1.0`.
 - __Define and transform coordinate systems__. Coordinates can be relative to the camera, environment, or the animal itself (egocentric).
 - __Provide common metrics for specialised applications__. These applications could include gait analysis, pupillometry, spatial
 navigation, social interactions, etc.
-- __Integrate with behaviour classification tools__. We aim to exchange data with tools for behavioural classification/segmentation: exporting derived kinematic features for them to consume, and importing the behavioural state labels they produce.
+- __Integrate with behaviour classification tools__. We aim to seamlessly exchange data with behavioural classification/segmentation tools: exporting derived kinematic features for them to consume, and importing the behavioural state labels they produce.
 - __Integrate with neurophysiological data analysis tools__. We eventually aim to facilitate combined analysis of motion and neural data.
 
 ## Focus areas for 2026
