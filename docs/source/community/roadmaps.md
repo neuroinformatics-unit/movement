@@ -9,7 +9,7 @@ The roadmaps are **not meant to limit** `movement` features, as we are open to s
 The following features are being considered for the first stable version `v1.0`.
 
 - __Import/Export motion tracks from/to diverse formats__. We aim to interoperate with leading tools for tracking animals, irrespective of whether they represent each animal's position as a single keypoint, a set of keypoints (a pose), a bounding box, or a segmentation mask.
-- __Standardise the representation of motion tracks__. We represent data in [xarray data structures](xarray:user-guide/data-structures.html) that are cohesive across these formats, so that downstream tools can operate on any motion track regardless of its origin.
+- __Standardise the representation of motion tracks__. We represent data in [xarray data structures](xarray:user-guide/data-structures.html) that are consistent across these formats, so that downstream tools can operate on any motion track regardless of its origin.
 - __Interactively visualise motion tracks__. We are using [napari](napari:) as a visualisation and GUI framework.
 - __Clean motion tracks__, including, but not limited to, handling of missing values, filtering, smoothing, and resampling.
 - __Derive kinematic variables__ like velocity, acceleration, head direction, etc., focusing on those prevalent in neuroscience and ethology.
