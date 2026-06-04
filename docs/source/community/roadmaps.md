@@ -8,15 +8,16 @@ The roadmaps are **not meant to limit** `movement` features, as we are open to s
 ## Long-term vision
 The following features are being considered for the first stable version `v1.0`.
 
-- __Import/Export motion tracks from/to diverse formats__. We aim to interoperate with leading tools for animal tracking and behaviour classification, and to enable conversions between their formats.
-- __Standardise the representation of motion tracks__. We represent tracks as [xarray data structures](xarray:user-guide/data-structures.html) to allow for labelled dimensions and performant processing.
-- __Interactively visualise motion tracks__. We are experimenting with [napari](napari:) as a visualisation and GUI framework.
+- __Import/Export motion tracks from/to diverse formats__. We aim to interoperate with leading tools for tracking animals, irrespective of whether they represent each animal's position as a single keypoint, a set of keypoints (a pose), a bounding box, or a segmentation mask.
+- __Standardise the representation of motion tracks__. We represent data in [xarray data structures](xarray:user-guide/data-structures.html) that are cohesive across these formats, so that downstream tools can operate on any motion track regardless of its origin.
+- __Interactively visualise motion tracks__. We are using [napari](napari:) as a visualisation and GUI framework.
 - __Clean motion tracks__, including, but not limited to, handling of missing values, filtering, smoothing, and resampling.
-- __Derive kinematic variables__ like velocity, acceleration, joint angles, etc., focusing on those prevalent in neuroscience and ethology.
+- __Derive kinematic variables__ like velocity, acceleration, head direction, etc., focusing on those prevalent in neuroscience and ethology.
 - __Integrate spatial data about the animal's environment__ for combined analysis with motion tracks. This covers regions of interest (RoIs) such as the arena in which the animal is moving and the location of objects within it.
 - __Define and transform coordinate systems__. Coordinates can be relative to the camera, environment, or the animal itself (egocentric).
 - __Provide common metrics for specialised applications__. These applications could include gait analysis, pupillometry, spatial
 navigation, social interactions, etc.
+- __Integrate with behaviour classification tools__. We aim to exchange data with tools for behavioural classification/segmentation: exporting `movement`-derived kinematic features for them to consume, and importing the behavioural state labels they produce.
 - __Integrate with neurophysiological data analysis tools__. We eventually aim to facilitate combined analysis of motion and neural data.
 
 ## Focus areas for 2026
