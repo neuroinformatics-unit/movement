@@ -148,9 +148,8 @@ def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
     """
     nan_selection = {"individual": "id_0", "time": [3, 7, 8]}
 
-
-for var in valid_bboxes_dataset.data_vars:
-    valid_bboxes_dataset[var].loc[nan_selection] = np.nan
+    for var in valid_bboxes_dataset.data_vars:
+        valid_bboxes_dataset[var].loc[nan_selection] = np.nan
     return valid_bboxes_dataset
 
 
