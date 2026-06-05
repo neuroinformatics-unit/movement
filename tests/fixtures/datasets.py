@@ -147,9 +147,8 @@ def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
     Here, individual ``id_0`` is missing at frames 3, 7 and 8.
     """
     nan_selection = {"individual": "id_0", "time": [3, 7, 8]}
-    valid_bboxes_dataset.position.loc[nan_selection] = np.nan
-    valid_bboxes_dataset.shape.loc[nan_selection] = np.nan
-    valid_bboxes_dataset.confidence.loc[nan_selection] = np.nan
+for var in valid_bboxes_dataset.data_vars:
+    valid_bboxes_dataset[var].loc[nan_selection] = np.nan
     return valid_bboxes_dataset
 
 
