@@ -1,0 +1,9 @@
+report\_nan\_values
+===================
+
+.. currentmodule:: movement.utils.reports
+
+.. autofunction:: report_nan_values
+
+.. minigallery:: movement.utils.reports.report_nan_values
+   :add-heading: Examples using ``report_nan_values``

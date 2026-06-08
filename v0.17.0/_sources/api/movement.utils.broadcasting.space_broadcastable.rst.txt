@@ -1,0 +1,9 @@
+space\_broadcastable
+====================
+
+.. currentmodule:: movement.utils.broadcasting
+
+.. autofunction:: space_broadcastable
+
+.. minigallery:: movement.utils.broadcasting.space_broadcastable
+   :add-heading: Examples using ``space_broadcastable``

@@ -1,0 +1,23 @@
+ValidROICollectionGeoJSON
+=========================
+
+.. currentmodule:: movement.validators.files
+
+.. autoclass:: ValidROICollectionGeoJSON
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   
+
+.. minigallery:: movement.validators.files.ValidROICollectionGeoJSON
+   :add-heading: Examples using ``ValidROICollectionGeoJSON``

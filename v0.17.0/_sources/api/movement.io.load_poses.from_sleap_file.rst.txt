@@ -1,0 +1,9 @@
+from\_sleap\_file
+=================
+
+.. currentmodule:: movement.io.load_poses
+
+.. autofunction:: from_sleap_file
+
+.. minigallery:: movement.io.load_poses.from_sleap_file
+   :add-heading: Examples using ``from_sleap_file``

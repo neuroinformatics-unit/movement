@@ -1,0 +1,9 @@
+﻿plot\_occupancy
+===============
+
+.. currentmodule:: movement.plots
+
+.. autofunction:: plot_occupancy
+
+.. minigallery:: movement.plots.plot_occupancy
+   :add-heading: Examples using ``plot_occupancy``

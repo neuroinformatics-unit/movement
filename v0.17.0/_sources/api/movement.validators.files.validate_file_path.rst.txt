@@ -1,0 +1,9 @@
+validate\_file\_path
+====================
+
+.. currentmodule:: movement.validators.files
+
+.. autofunction:: validate_file_path
+
+.. minigallery:: movement.validators.files.validate_file_path
+   :add-heading: Examples using ``validate_file_path``

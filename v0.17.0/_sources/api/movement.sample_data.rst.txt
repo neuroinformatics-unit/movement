@@ -1,0 +1,25 @@
+﻿movement.sample\_data
+=====================
+
+.. rubric:: Description
+
+.. automodule:: movement.sample_data
+
+.. currentmodule:: movement.sample_data
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+    :toctree: .
+    :nosignatures:
+    
+    fetch_dataset
+    
+    fetch_dataset_paths
+    
+    list_datasets
+    
+

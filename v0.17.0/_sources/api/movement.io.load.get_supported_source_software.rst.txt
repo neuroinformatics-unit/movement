@@ -1,0 +1,9 @@
+get\_supported\_source\_software
+================================
+
+.. currentmodule:: movement.io.load
+
+.. autofunction:: get_supported_source_software
+
+.. minigallery:: movement.io.load.get_supported_source_software
+   :add-heading: Examples using ``get_supported_source_software``

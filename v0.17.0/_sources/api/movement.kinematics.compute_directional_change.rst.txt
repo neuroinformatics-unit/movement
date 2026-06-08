@@ -1,0 +1,9 @@
+﻿compute\_directional\_change
+============================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_directional_change
+
+.. minigallery:: movement.kinematics.compute_directional_change
+   :add-heading: Examples using ``compute_directional_change``

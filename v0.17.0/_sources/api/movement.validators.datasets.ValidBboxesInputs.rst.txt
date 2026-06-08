@@ -1,0 +1,41 @@
+ValidBboxesInputs
+=================
+
+.. currentmodule:: movement.validators.datasets
+
+.. autoclass:: ValidBboxesInputs
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+      ~ValidBboxesInputs.to_dataset
+   
+   
+      ~ValidBboxesInputs.validate
+   
+   
+   
+
+.. minigallery:: movement.validators.datasets.ValidBboxesInputs
+   :add-heading: Examples using ``ValidBboxesInputs``

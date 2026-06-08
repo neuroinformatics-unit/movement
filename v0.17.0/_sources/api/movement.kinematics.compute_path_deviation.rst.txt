@@ -1,0 +1,9 @@
+﻿compute\_path\_deviation
+========================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_path_deviation
+
+.. minigallery:: movement.kinematics.compute_path_deviation
+   :add-heading: Examples using ``compute_path_deviation``

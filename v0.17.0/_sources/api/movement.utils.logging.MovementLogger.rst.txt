@@ -1,0 +1,47 @@
+MovementLogger
+==============
+
+.. currentmodule:: movement.utils.logging
+
+.. autoclass:: MovementLogger
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+      ~MovementLogger.configure
+   
+   
+      ~MovementLogger.error
+   
+   
+      ~MovementLogger.exception
+   
+   
+   
+
+.. minigallery:: movement.utils.logging.MovementLogger
+   :add-heading: Examples using ``MovementLogger``

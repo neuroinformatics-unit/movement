@@ -1,0 +1,9 @@
+compute\_homography\_transform
+==============================
+
+.. currentmodule:: movement.transforms
+
+.. autofunction:: compute_homography_transform
+
+.. minigallery:: movement.transforms.compute_homography_transform
+   :add-heading: Examples using ``compute_homography_transform``

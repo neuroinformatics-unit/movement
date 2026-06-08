@@ -1,0 +1,9 @@
+validate\_dims\_coords
+======================
+
+.. currentmodule:: movement.validators.arrays
+
+.. autofunction:: validate_dims_coords
+
+.. minigallery:: movement.validators.arrays.validate_dims_coords
+   :add-heading: Examples using ``validate_dims_coords``

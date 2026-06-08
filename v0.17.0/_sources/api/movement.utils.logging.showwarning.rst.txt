@@ -1,0 +1,9 @@
+showwarning
+===========
+
+.. currentmodule:: movement.utils.logging
+
+.. autofunction:: showwarning
+
+.. minigallery:: movement.utils.logging.showwarning
+   :add-heading: Examples using ``showwarning``

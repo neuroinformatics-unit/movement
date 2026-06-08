@@ -1,0 +1,9 @@
+﻿load\_rois
+==========
+
+.. currentmodule:: movement.roi
+
+.. autofunction:: load_rois
+
+.. minigallery:: movement.roi.load_rois
+   :add-heading: Examples using ``load_rois``

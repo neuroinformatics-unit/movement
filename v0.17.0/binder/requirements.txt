@@ -1,0 +1,3 @@
+.   # movement itself
+networkx
+sphinx-gallery

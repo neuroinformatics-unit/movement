@@ -1,0 +1,9 @@
+fetch\_dataset
+==============
+
+.. currentmodule:: movement.sample_data
+
+.. autofunction:: fetch_dataset
+
+.. minigallery:: movement.sample_data.fetch_dataset
+   :add-heading: Examples using ``fetch_dataset``

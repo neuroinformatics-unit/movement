@@ -1,0 +1,9 @@
+to\_nwb\_file
+=============
+
+.. currentmodule:: movement.io.save_poses
+
+.. autofunction:: to_nwb_file
+
+.. minigallery:: movement.io.save_poses.to_nwb_file
+   :add-heading: Examples using ``to_nwb_file``

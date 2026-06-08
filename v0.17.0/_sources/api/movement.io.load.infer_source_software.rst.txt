@@ -1,0 +1,9 @@
+infer\_source\_software
+=======================
+
+.. currentmodule:: movement.io.load
+
+.. autofunction:: infer_source_software
+
+.. minigallery:: movement.io.load.infer_source_software
+   :add-heading: Examples using ``infer_source_software``

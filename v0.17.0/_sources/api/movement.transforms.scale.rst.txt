@@ -1,0 +1,9 @@
+scale
+=====
+
+.. currentmodule:: movement.transforms
+
+.. autofunction:: scale
+
+.. minigallery:: movement.transforms.scale
+   :add-heading: Examples using ``scale``

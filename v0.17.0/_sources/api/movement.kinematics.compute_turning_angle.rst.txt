@@ -1,0 +1,9 @@
+﻿compute\_turning\_angle
+=======================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_turning_angle
+
+.. minigallery:: movement.kinematics.compute_turning_angle
+   :add-heading: Examples using ``compute_turning_angle``

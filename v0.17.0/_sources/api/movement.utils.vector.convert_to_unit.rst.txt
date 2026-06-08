@@ -1,0 +1,9 @@
+convert\_to\_unit
+=================
+
+.. currentmodule:: movement.utils.vector
+
+.. autofunction:: convert_to_unit
+
+.. minigallery:: movement.utils.vector.convert_to_unit
+   :add-heading: Examples using ``convert_to_unit``
