@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>napari_shapes_layer_to_rois &#8212; movement</title>
+    <title>compute_path_deviation &#8212; movement</title>
   
   
   
@@ -50,7 +50,9 @@
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.napari.convert_roi.napari_shapes_layer_to_rois';</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.kinematics.compute_path_deviation';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
@@ -60,12 +62,12 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <script src="../_static/js/contributors.js?v=e7143984"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.napari.convert_roi.napari_shapes_layer_to_rois.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.kinematics.compute_path_deviation.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="rois_to_napari_shapes" href="movement.napari.convert_roi.rois_to_napari_shapes.html" />
-    <link rel="prev" title="movement.napari.convert_roi" href="movement.napari.convert_roi.html" /> 
+    <link rel="next" title="compute_path_length" href="movement.kinematics.compute_path_length.html" />
+    <link rel="prev" title="compute_pairwise_distances" href="movement.kinematics.compute_pairwise_distances.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -489,7 +491,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">to_sleap_analysis_file</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="movement.kinematics.html">movement.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.kinematics.html">movement.kinematics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_acceleration.html">compute_acceleration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_backward_displacement.html">compute_backward_displacement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_directional_change.html">compute_directional_change</a></li>
@@ -499,7 +501,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_head_direction_vector.html">compute_head_direction_vector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_kinetic_energy.html">compute_kinetic_energy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_pairwise_distances.html">compute_pairwise_distances</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_deviation.html">compute_path_deviation</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">compute_path_deviation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_length.html">compute_path_length</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_straightness.html">compute_path_straightness</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_speed.html">compute_speed</a></li>
@@ -512,8 +514,8 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_layers.html">ds_to_napari_layers</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.napari.convert_roi.html">movement.napari.convert_roi</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">napari_shapes_layer_to_rois</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.convert_roi.html">movement.napari.convert_roi</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert_roi.napari_shapes_layer_to_rois.html">napari_shapes_layer_to_rois</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.convert_roi.rois_to_napari_shapes.html">rois_to_napari_shapes</a></li>
 </ul>
 </details></li>
@@ -643,9 +645,9 @@
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="movement.napari.convert_roi.html" class="nav-link">movement.napari.convert_roi</a></li>
+    <li class="breadcrumb-item"><a href="movement.kinematics.html" class="nav-link">movement.kinematics</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">napari_shapes_layer_to_rois</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compute_path_deviation</span></li>
   </ul>
 </nav>
 </div>
@@ -661,62 +663,79 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="napari-shapes-layer-to-rois">
-<h1>napari_shapes_layer_to_rois<a class="headerlink" href="#napari-shapes-layer-to-rois" title="Link to this heading">#</a></h1>
+                   <section id="compute-path-deviation">
+<h1>compute_path_deviation<a class="headerlink" href="#compute-path-deviation" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="movement.napari.convert_roi.napari_shapes_layer_to_rois">
-<span class="sig-prename descclassname"><span class="pre">movement.napari.convert_roi.</span></span><span class="sig-name descname"><span class="pre">napari_shapes_layer_to_rois</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/convert_roi.html#napari_shapes_layer_to_rois"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.convert_roi.napari_shapes_layer_to_rois" title="Link to this definition">#</a></dt>
-<dd><p>Convert all shapes in a <code class="docutils literal notranslate"><span class="pre">napari</span></code> Shapes layer to <code class="docutils literal notranslate"><span class="pre">movement</span></code> RoIs.</p>
+<dt class="sig sig-object py" id="movement.kinematics.compute_path_deviation">
+<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_path_deviation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/path.html#compute_path_deviation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_path_deviation" title="Link to this definition">#</a></dt>
+<dd><p>Compute deviation from the straight-line path at each time point.</p>
+<p>For each time point <span class="math notranslate nohighlight">\(t\)</span>, the path deviation is the perpendicular
+(unsigned) distance between the position <span class="math notranslate nohighlight">\(P(t)\)</span> and the infinite
+straight line passing through the first and last valid positions in
+the data, denoted <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(B\)</span> respectively. Zero means the
+position lies exactly on the straight line; larger values indicate greater
+lateral excursion.</p>
+<p>Formally, let <span class="math notranslate nohighlight">\(\mathbf{u} = B - A\)</span> be the chord vector and
+<span class="math notranslate nohighlight">\(\hat{\mathbf{u}} = \mathbf{u} / \|\mathbf{u}\|\)</span> its unit vector.
+The deviation at time <span class="math notranslate nohighlight">\(t\)</span> is:</p>
+<div class="math notranslate nohighlight">
+\[d(t) = \left\|
+    (P(t) - A) -
+    \left[(P(t) - A) \cdot \hat{\mathbf{u}}\right] \hat{\mathbf{u}}
+\right\|\]</div>
+<p>This is the norm of the component of <span class="math notranslate nohighlight">\(P(t) - A\)</span> that is
+perpendicular to the chord, and is equivalent to the distance from
+<span class="math notranslate nohighlight">\(P(t)\)</span> to the infinite line through <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(B\)</span>.
+The formulation is dimension-agnostic (works for 2D and 3D data).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>layer</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://napari.org/stable/api/napari.layers.Shapes.html#napari.layers.Shapes" title="(in napari v0.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Shapes</span></code></a></span>) – The <code class="docutils literal notranslate"><span class="pre">napari</span></code> Shapes layer to be converted. Names are read from
-<code class="docutils literal notranslate"><span class="pre">layer.properties[&quot;name&quot;]</span></code> when available. Missing or blank names
-receive the default name defined by
-<a class="reference internal" href="movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest" title="movement.roi.BaseRegionOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRegionOfInterest</span></code></a>.</p>
+<dd class="field-odd"><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input data containing position information, with <code class="docutils literal notranslate"><span class="pre">time</span></code>
+and <code class="docutils literal notranslate"><span class="pre">space</span></code> (in Cartesian coordinates) as required dimensions.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>One region of interest (RoI) per shape in the layer, in the same order.</p>
+<dd class="field-even"><p>An xarray DataArray containing the perpendicular deviation from
+the chord at each time point, with dimensions matching those of
+the input data, except <code class="docutils literal notranslate"><span class="pre">space</span></code> is removed. Values are in the
+same spatial units as the input.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference internal" href="movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest" title="movement.roi.base.BaseRegionOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRegionOfInterest</span></code></a>]</span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If any shape has more than 2 coordinate columns, or has an
-    unrecognised shape type.</p>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If fewer than 2 time points exist in the data, or if
+    the chord length is zero (i.e. <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">==</span> <span class="pre">B</span></code>) for <em>all</em> tracks.
+    If the chord length is zero for <em>some</em> (but not all) tracks, a
+    warning is issued and those tracks will have <code class="docutils literal notranslate"><span class="pre">NaN</span></code> deviation.</p>
 </dd>
 </dl>
-<p class="rubric">Notes</p>
-<p>The mapping from <code class="docutils literal notranslate"><span class="pre">napari</span></code> shape types to <code class="docutils literal notranslate"><span class="pre">movement</span></code> RoI classes is:</p>
-<div class="pst-scrollable-table-container"><table class="table">
-<thead>
-<tr class="row-odd"><th class="head"><p>napari shape type</p></th>
-<th class="head"><p>movement RoI class</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;line&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;path&quot;</span></code></p></td>
-<td><p><a class="reference internal" href="movement.roi.LineOfInterest.html#movement.roi.LineOfInterest" title="movement.roi.LineOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">LineOfInterest</span></code></a></p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;polygon&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;rectangle&quot;</span></code></p></td>
-<td><p><a class="reference internal" href="movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a></p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;ellipse&quot;</span></code></p></td>
-<td><p><a class="reference internal" href="movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest" title="movement.roi.PolygonOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolygonOfInterest</span></code></a> (approximation)</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>Ellipses are approximated as polygons because neither <code class="docutils literal notranslate"><span class="pre">movement</span></code> nor
-its underlying geometry library (<code class="docutils literal notranslate"><span class="pre">shapely</span></code>) has a native ellipse type.
-The approximation uses <a class="reference external" href="https://shapely.readthedocs.io/en/stable/reference/shapely.Point.html#shapely.Point.buffer" title="(in Shapely)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">shapely.Point.buffer()</span></code></a> scaled and rotated
-to match the ellipse geometry. This approach was inspired by
-<a class="reference external" href="https://gis.stackexchange.com/questions/243459/drawing-ellipse-with-shapely">https://gis.stackexchange.com/questions/243459/drawing-ellipse-with-shapely</a></p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="movement.napari.convert_roi.rois_to_napari_shapes.html#movement.napari.convert_roi.rois_to_napari_shapes" title="movement.napari.convert_roi.rois_to_napari_shapes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rois_to_napari_shapes</span></code></a></dt><dd><p>The inverse of this function.</p>
+<dt><a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_length</span></code></a></dt><dd><p>Total distance travelled along the path.</p>
+</dd>
+<dt><a class="reference internal" href="movement.kinematics.compute_path_straightness.html#movement.kinematics.compute_path_straightness" title="movement.kinematics.compute_path_straightness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_straightness</span></code></a></dt><dd><p>Ratio of chord length to path length.</p>
 </dd>
 </dl>
+</div>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_path_deviation</span>
+</pre></div>
+</div>
+<p>Compute per-frame path deviation from the centroid trajectory of a
+poses dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">centroid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">deviation</span> <span class="o">=</span> <span class="n">compute_path_deviation</span><span class="p">(</span><span class="n">centroid</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Compute the maximum lateral excursion over the trajectory:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">max_deviation</span> <span class="o">=</span> <span class="n">deviation</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Compute the mean deviation over a specific time window:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">mean_deviation</span> <span class="o">=</span> <span class="n">compute_path_deviation</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">centroid</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
+<span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+</pre></div>
 </div>
 </dd></dl>
 
@@ -736,20 +755,20 @@ to match the ellipse geometry. This approach was inspired by
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.napari.convert_roi.html"
+       href="movement.kinematics.compute_pairwise_distances.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">movement.napari.convert_roi</p>
+        <p class="prev-next-title">compute_pairwise_distances</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.napari.convert_roi.rois_to_napari_shapes.html"
+       href="movement.kinematics.compute_path_length.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">rois_to_napari_shapes</p>
+        <p class="prev-next-title">compute_path_length</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -772,14 +791,14 @@ to match the ellipse geometry. This approach was inspired by
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.napari.convert_roi.napari_shapes_layer_to_rois"><code class="docutils literal notranslate"><span class="pre">napari_shapes_layer_to_rois()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.kinematics.compute_path_deviation"><code class="docutils literal notranslate"><span class="pre">compute_path_deviation()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/api/movement.napari.convert_roi.napari_shapes_layer_to_rois.rst.txt">
+    <a href="../_sources/api/movement.kinematics.compute_path_deviation.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

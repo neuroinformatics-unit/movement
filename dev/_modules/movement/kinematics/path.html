@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../../../_static/documentation_options.js?v=a2c83451"></script>
+    <script src="../../../_static/documentation_options.js?v=06b0b048"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev28</p>
+    <p class="title logo__title">movement v0.16.1.dev29</p>
   
 </a></div>
     
@@ -805,14 +805,14 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">    data</span>
 <span class="sd">        The input data containing position information, with ``time``</span>
 <span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
-<span class="sd">    in_degrees : bool, optional</span>
+<span class="sd">    in_degrees</span>
 <span class="sd">        If ``True``, the turning angles (and hence the directional</span>
 <span class="sd">        change) are expressed in degrees rather than radians. Defaults</span>
 <span class="sd">        to ``False``.</span>
-<span class="sd">    min_step_length : float, optional</span>
+<span class="sd">    min_step_length</span>
 <span class="sd">        The minimum step length used when computing turning angles.</span>
 <span class="sd">        Steps shorter than or equal to this value produce ``NaN``</span>
 <span class="sd">        turning angles, which propagate to ``NaN`` directional change</span>
@@ -844,7 +844,7 @@
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    :func:`compute_turning_angle` :</span>
+<span class="sd">    compute_turning_angle :</span>
 <span class="sd">        The underlying function used to compute turning angles.</span>
 
 <span class="sd">    Examples</span>
@@ -881,6 +881,126 @@
     <span class="n">dc</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;directional_change&quot;</span>
     <span class="n">dc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Directional Change&quot;</span>
     <span class="k">return</span> <span class="n">dc</span></div>
+
+
+
+<div class="viewcode-block" id="compute_path_deviation">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_path_deviation.html#movement.kinematics.compute_path_deviation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_path_deviation</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute deviation from the straight-line path at each time point.</span>
+
+<span class="sd">    For each time point :math:`t`, the path deviation is the perpendicular</span>
+<span class="sd">    (unsigned) distance between the position :math:`P(t)` and the infinite</span>
+<span class="sd">    straight line passing through the first and last valid positions in</span>
+<span class="sd">    the data, denoted :math:`A` and :math:`B` respectively. Zero means the</span>
+<span class="sd">    position lies exactly on the straight line; larger values indicate greater</span>
+<span class="sd">    lateral excursion.</span>
+
+<span class="sd">    Formally, let :math:`\mathbf{u} = B - A` be the chord vector and</span>
+<span class="sd">    :math:`\hat{\mathbf{u}} = \mathbf{u} / \|\mathbf{u}\|` its unit vector.</span>
+<span class="sd">    The deviation at time :math:`t` is:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        d(t) = \left\|</span>
+<span class="sd">            (P(t) - A) -</span>
+<span class="sd">            \left[(P(t) - A) \cdot \hat{\mathbf{u}}\right] \hat{\mathbf{u}}</span>
+<span class="sd">        \right\|</span>
+
+<span class="sd">    This is the norm of the component of :math:`P(t) - A` that is</span>
+<span class="sd">    perpendicular to the chord, and is equivalent to the distance from</span>
+<span class="sd">    :math:`P(t)` to the infinite line through :math:`A` and :math:`B`.</span>
+<span class="sd">    The formulation is dimension-agnostic (works for 2D and 3D data).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data</span>
+<span class="sd">        The input data containing position information, with ``time``</span>
+<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        An xarray DataArray containing the perpendicular deviation from</span>
+<span class="sd">        the chord at each time point, with dimensions matching those of</span>
+<span class="sd">        the input data, except ``space`` is removed. Values are in the</span>
+<span class="sd">        same spatial units as the input.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If fewer than 2 time points exist in the data, or if</span>
+<span class="sd">        the chord length is zero (i.e. ``A == B``) for *all* tracks.</span>
+<span class="sd">        If the chord length is zero for *some* (but not all) tracks, a</span>
+<span class="sd">        warning is issued and those tracks will have ``NaN`` deviation.</span>
+
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    compute_path_length : Total distance travelled along the path.</span>
+<span class="sd">    compute_path_straightness : Ratio of chord length to path length.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from movement.kinematics import compute_path_deviation</span>
+
+<span class="sd">    Compute per-frame path deviation from the centroid trajectory of a</span>
+<span class="sd">    poses dataset ``ds``:</span>
+
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoint&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; deviation = compute_path_deviation(centroid)</span>
+
+<span class="sd">    Compute the maximum lateral excursion over the trajectory:</span>
+
+<span class="sd">    &gt;&gt;&gt; max_deviation = deviation.max(dim=&quot;time&quot;)</span>
+
+<span class="sd">    Compute the mean deviation over a specific time window:</span>
+
+<span class="sd">    &gt;&gt;&gt; mean_deviation = compute_path_deviation(</span>
+<span class="sd">    ...     centroid.sel(time=slice(10, 50))</span>
+<span class="sd">    ... ).mean(dim=&quot;time&quot;)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;path deviation&quot;</span><span class="p">)</span>
+
+    <span class="n">anchored</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">bfill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">anchored</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">anchored</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">chord</span> <span class="o">=</span> <span class="n">B</span> <span class="o">-</span> <span class="n">A</span>
+    <span class="n">chord_length</span> <span class="o">=</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">chord</span><span class="p">)</span>
+
+    <span class="n">degenerate</span> <span class="o">=</span> <span class="n">chord_length</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">degenerate</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Path deviation is undefined because the start and end &quot;</span>
+                <span class="s2">&quot;positions are identical for all tracks.&quot;</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">degenerate</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="n">stacked</span> <span class="o">=</span> <span class="n">degenerate</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">degenerate</span><span class="o">.</span><span class="n">dims</span><span class="p">))</span>
+        <span class="n">bad_tracks</span> <span class="o">=</span> <span class="n">stacked</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">stacked</span><span class="p">)</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;tracks&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Path deviation is undefined for tracks where the start and end &quot;</span>
+            <span class="s2">&quot;positions are identical. The following tracks will return NaN: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bad_tracks</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">chord_unit</span> <span class="o">=</span> <span class="n">chord</span> <span class="o">/</span> <span class="n">chord_length</span>
+    <span class="n">p_minus_a</span> <span class="o">=</span> <span class="n">data</span> <span class="o">-</span> <span class="n">A</span>
+    <span class="n">scalar_proj</span> <span class="o">=</span> <span class="p">(</span><span class="n">p_minus_a</span> <span class="o">*</span> <span class="n">chord_unit</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span>
+    <span class="n">vector_proj</span> <span class="o">=</span> <span class="n">scalar_proj</span> <span class="o">*</span> <span class="n">chord_unit</span>
+    <span class="n">rejection</span> <span class="o">=</span> <span class="n">p_minus_a</span> <span class="o">-</span> <span class="n">vector_proj</span>
+
+    <span class="n">deviation</span> <span class="o">=</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">rejection</span><span class="p">)</span>
+    <span class="n">deviation</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;path_deviation&quot;</span>
+    <span class="n">deviation</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Path Deviation&quot;</span>
+    <span class="k">return</span> <span class="n">deviation</span></div>
 
 
 

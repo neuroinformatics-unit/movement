@@ -34,6 +34,8 @@ movement.kinematics
     
     compute_pairwise_distances
     
+    compute_path_deviation
+    
     compute_path_length
     
     compute_path_straightness
