@@ -238,7 +238,8 @@ linkcheck_ignore = [
     # Checking zenodo redirects (from concept doi to record) takes a long time
     "https://zenodo.org/doi/*",
     "https://zenodo.org/records/*",
-    "https://doi.org/10.5281/zenodo.*",
+    # DOI resolvers often rate-limit or return 403/429 in CI
+    "https://doi.org/*",
     "https://abide.ics.ulisboa.pt/*",  # flaky
 ]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
