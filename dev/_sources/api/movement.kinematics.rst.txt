@@ -20,6 +20,8 @@ movement.kinematics
     
     compute_backward_displacement
     
+    compute_directional_change
+    
     compute_forward_displacement
     
     compute_forward_vector

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
 
-    <script src="../../../_static/documentation_options.js?v=4ad29793"></script>
+    <script src="../../../_static/documentation_options.js?v=a2c83451"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev27</p>
+    <p class="title logo__title">movement v0.16.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.kinematics.path</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Compute path-level metrics such as path length and straightness.</span>
+<span></span><span class="sd">&quot;&quot;&quot;Compute metrics related to the length, straightness and complexity of paths.</span>
 
 <span class="sd">By &#39;path&#39; we refer to the spatial trajectory of an individual over the</span>
 <span class="sd">time span of the data. While these metrics can be computed based on any</span>
@@ -781,6 +781,106 @@
     <span class="n">turning</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;turning_angle&quot;</span>
 
     <span class="k">return</span> <span class="n">turning</span></div>
+
+
+
+<div class="viewcode-block" id="compute_directional_change">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_directional_change.html#movement.kinematics.compute_directional_change">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_directional_change</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">in_degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">min_step_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the directional change (DC) per time step.</span>
+
+<span class="sd">    The directional change at step :math:`i` is the absolute turning</span>
+<span class="sd">    angle divided by the temporal interval spanning the two steps that</span>
+<span class="sd">    define it [1]_:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \mathrm{DC}_i = \frac{|\theta_i|}{\Delta t_i}</span>
+
+<span class="sd">    where :math:`\theta_i` is the signed turning angle at step :math:`i`</span>
+<span class="sd">    and :math:`\Delta t_i = t_i - t_{i-2}`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data containing position information, with ``time``</span>
+<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
+<span class="sd">    in_degrees : bool, optional</span>
+<span class="sd">        If ``True``, the turning angles (and hence the directional</span>
+<span class="sd">        change) are expressed in degrees rather than radians. Defaults</span>
+<span class="sd">        to ``False``.</span>
+<span class="sd">    min_step_length : float, optional</span>
+<span class="sd">        The minimum step length used when computing turning angles.</span>
+<span class="sd">        Steps shorter than or equal to this value produce ``NaN``</span>
+<span class="sd">        turning angles, which propagate to ``NaN`` directional change</span>
+<span class="sd">        values. The default ``0.0`` only masks steps with exactly</span>
+<span class="sd">        zero length; near-zero steps from positional jitter may still</span>
+<span class="sd">        produce spurious turning angles. See</span>
+<span class="sd">        :func:`compute_turning_angle` for details.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        Directional change values with the same dimensions as the</span>
+<span class="sd">        input, except ``space`` is removed. Values are in radians per</span>
+<span class="sd">        ``time`` unit (e.g. radians/second if ``time`` is in seconds),</span>
+<span class="sd">        or degrees per ``time`` unit if ``in_degrees`` is ``True``.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    **Boundary behaviour:** The first two time steps of the output are</span>
+<span class="sd">    always ``NaN``, because a turning angle requires three consecutive</span>
+<span class="sd">    positions (see :func:`compute_turning_angle`).</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Kitamura, T. &amp; Imafuku, M. (2015). Behavioural mimicry in</span>
+<span class="sd">       flight path of Batesian intraspecific polymorphic butterfly</span>
+<span class="sd">       *Papilio polytes*. *Proc. R. Soc. B* 282(1809).</span>
+<span class="sd">       https://doi.org/10.1098/rspb.2015.0483</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :func:`compute_turning_angle` :</span>
+<span class="sd">        The underlying function used to compute turning angles.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from movement.kinematics import compute_directional_change</span>
+
+<span class="sd">    Compute directional change from the centroid trajectory of a</span>
+<span class="sd">    poses dataset ``ds``:</span>
+
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoint&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; dc = compute_directional_change(centroid)</span>
+
+<span class="sd">    Compute over a specific time window:</span>
+
+<span class="sd">    &gt;&gt;&gt; dc = compute_directional_change(centroid.sel(time=slice(0, 100)))</span>
+
+<span class="sd">    Filter out pose-estimation jitter by setting ``min_step_length``:</span>
+
+<span class="sd">    &gt;&gt;&gt; dc = compute_directional_change(centroid, min_step_length=3)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;directional change&quot;</span><span class="p">)</span>
+
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">compute_turning_angle</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">in_degrees</span><span class="o">=</span><span class="n">in_degrees</span><span class="p">,</span> <span class="n">min_step_length</span><span class="o">=</span><span class="n">min_step_length</span>
+    <span class="p">)</span>
+
+    <span class="n">time_coord</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
+    <span class="c1"># Span the two steps that define theta_i (positions i-2..i), matching</span>
+    <span class="c1"># compute_turning_angle&#39;s support so DC is correct for non-uniform time.</span>
+    <span class="n">dt</span> <span class="o">=</span> <span class="n">time_coord</span> <span class="o">-</span> <span class="n">time_coord</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">dc</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span>
+    <span class="n">dc</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;directional_change&quot;</span>
+    <span class="n">dc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Directional Change&quot;</span>
+    <span class="k">return</span> <span class="n">dc</span></div>
 
 
 
