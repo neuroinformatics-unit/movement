@@ -680,7 +680,6 @@ def test_directional_change_across_time_ranges(
         assert dc.attrs["long_name"] == "Directional Change"
 
 
-
 # ─────────────────────────────────────────────
 # Path deviation tests
 # ─────────────────────────────────────────────
@@ -747,8 +746,10 @@ def test_path_deviation_degenerate_chord_raises(request, fixture_name):
 
 @pytest.fixture
 def straight_paths_3d(straight_paths):
-    return straight_paths.pad(space=(0, 1)).assign_coords(
-        space=["x", "y", "z"]
+    return (
+        straight_paths.pad(space=(0, 1))
+        .fillna(0)
+        .assign_coords(space=["x", "y", "z"])
     )
 
 
@@ -784,7 +785,8 @@ def test_path_deviation_partially_degenerate_warns(straight_paths):
     ):
         result = compute_path_deviation(path)
         assert np.isnan(result.sel(individual="id_0").values).all()
-        assert (result.sel(individual="id_1").values == 0).all()
+        id_1 = result.sel(individual="id_1")
+        xr.testing.assert_allclose(id_1, xr.zeros_like(id_1))
 
 
 @pytest.fixture
