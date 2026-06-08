@@ -19,7 +19,7 @@ Your job is to organise these into meaningful sections.
 4. **Write section descriptions** for highlights. Include:
    - A shoutout to the main contributor(s) of the feature — especially if they are new or external contributors.
    - A brief explanation of the change and why it matters. When describing new functions or APIs, follow the docstrings closely — use their wording for what the function does and base code examples on the docstring examples (if any exist).
-   - Where possible, link to relevant docs pages using the pattern `[`movement.module.function()`](https://movement.neuroinformatics.dev/latest/api/movement.module.function.html)`. For new gallery examples, link to the rendered page.
+   - Where possible, link to relevant docs pages using the pattern `[`movement.module.function()`](https://movement.neuroinformatics.dev/latest/api/movement.module.function.html)`. The URL path must use the function's full module path as it appears in the docs (e.g. `movement.io.load.load_dataset`, not `movement.io.load_dataset`). When in doubt, check the actual docs URL. For new gallery examples, link to the rendered page.
    - Code snippets showing the new API/syntax.
    - For deprecations: list deprecated functions in a `> [!WARNING]` block, and provide before/after migration examples.
    - For breaking changes: show old vs new syntax.
@@ -31,6 +31,7 @@ Your job is to organise these into meaningful sections.
    - `release_zulip_v<VERSION>.md` — a shorter Zulip announcement covering only the highlights. Differences from the GitHub variant:
      - Starts with `## Release [v<VERSION>](https://github.com/neuroinformatics-unit/movement/releases/tag/v<VERSION>) is out`
      - Uses Zulip emoji syntax (`:high_voltage:` instead of ⚡️)
+     - **No blockquote admonitions.** Zulip has no native admonitions (`> [!WARNING]` etc. won't render). Use inline emoji + bold text instead, e.g. `:warning: **This is a breaking change.**` Keep blockquotes only for actual quoted content. Use `:warning:` for warnings, `:pushpin:` for notes, `:rotating_light:` for critical alerts.
      - Omits the PR bullet points from each highlight section (keeps only the descriptive text and code snippets)
      - Omits non-highlight sections (bug fixes, docs, housekeeping, etc.)
      - Omits the New Contributors / Full Changelog sections
@@ -76,7 +77,9 @@ To update movement to the latest version, see the [update guide](https://movemen
 Other sections you might use depending on the release:
 - `🛠️ Refactoring` — for significant internal restructuring
 - `✨ New features` — when there are multiple new features beyond the highlight
-- `⚠️ Breaking changes` — when API changes require user action
+- `🔌 Interoperability` — for changes that expand format support or help downstream tools integrate
+- `🗑️ Removed functions` — when deprecated functions are removed (with links to replacements)
+- `⚠️ Breaking changes` — when API changes require user action. Be careful not to over-categorise: additive changes (new functions, expanded validation, new warnings) are not breaking even if they touch core APIs.
 
 ## Categorisation guidelines
 
