@@ -315,14 +315,14 @@ def compute_directional_change(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-    in_degrees : bool, optional
+    in_degrees
         If ``True``, the turning angles (and hence the directional
         change) are expressed in degrees rather than radians. Defaults
         to ``False``.
-    min_step_length : float, optional
+    min_step_length
         The minimum step length used when computing turning angles.
         Steps shorter than or equal to this value produce ``NaN``
         turning angles, which propagate to ``NaN`` directional change
@@ -354,7 +354,7 @@ def compute_directional_change(
 
     See Also
     --------
-    :func:`compute_turning_angle` :
+    compute_turning_angle :
         The underlying function used to compute turning angles.
 
     Examples
@@ -432,7 +432,9 @@ def compute_path_deviation(
     For each time point :math:`t`, the path deviation is the perpendicular
     (unsigned) distance between the position :math:`P(t)` and the infinite
     straight line passing through the first and last valid positions in
-    the data, denoted :math:`A` and :math:`B` respectively.
+    the data, denoted :math:`A` and :math:`B` respectively. Zero means the
+    position lies exactly on the straight line; larger values indicate greater
+    lateral excursion.
 
     Formally, let :math:`\mathbf{u} = B - A` be the chord vector and
     :math:`\hat{\mathbf{u}} = \mathbf{u} / \|\mathbf{u}\|` its unit vector.
@@ -452,7 +454,7 @@ def compute_path_deviation(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
 
@@ -462,21 +464,21 @@ def compute_path_deviation(
         An xarray DataArray containing the perpendicular deviation from
         the chord at each time point, with dimensions matching those of
         the input data, except ``space`` is removed. Values are in the
-        same spatial units as the input. Zero means the position lies
-        exactly on the chord line; larger values indicate greater lateral
-        excursion.
+        same spatial units as the input.
 
     Raises
     ------
     ValueError
-        If fewer than 2 time points exist in the sliced data, or if
-        the chord length is zero (i.e. ``A == B``), which means the start
-        and end positions are identical and the chord is degenerate.
+        If fewer than 2 time points exist in the data, or if
+        the chord length is zero (i.e. ``A == B``) for *all* tracks.
+        If the chord length is zero for *some* (but not all) tracks, a
+        warning is issued and those tracks will have ``NaN`` deviation.
+
 
     See Also
     --------
-    :func:`compute_path_length` : Total distance travelled along the path.
-    :func:`compute_path_straightness` : Ratio of chord length to path length.
+    compute_path_length : Total distance travelled along the path.
+    compute_path_straightness : Ratio of chord length to path length.
 
     Examples
     --------
