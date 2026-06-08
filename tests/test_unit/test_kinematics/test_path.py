@@ -124,6 +124,35 @@ def sharp_turn_paths(straight_paths):
 
 
 # ─────────────────────────────────────────────
+# Cross-metric time-range tests
+# ─────────────────────────────────────────────
+
+
+@pytest.mark.parametrize("time_slice, expected_exception", time_range_cases)
+@pytest.mark.parametrize(
+    "compute_fn",
+    [
+        pytest.param(compute_path_straightness, id="straightness"),
+        pytest.param(compute_directional_change, id="directional-change"),
+        pytest.param(compute_path_deviation, id="deviation"),
+    ],
+)
+def test_path_metrics_across_time_ranges(
+    straight_paths,
+    time_slice,
+    expected_exception,
+    compute_fn,
+):
+    """Test that path metrics accept valid time ranges and raise
+    on too-few time points. Path length is tested separately because
+    its time-range test also validates computed values.
+    """
+    position = straight_paths.sel(time=time_slice)
+    with expected_exception:
+        compute_fn(position)
+
+
+# ─────────────────────────────────────────────
 # Path length tests
 # ─────────────────────────────────────────────
 
@@ -284,26 +313,6 @@ def test_path_length_nan_warn_threshold(
 # ─────────────────────────────────────────────
 # Path straightness tests
 # ─────────────────────────────────────────────
-
-
-@pytest.mark.parametrize("time_slice, expected_exception", time_range_cases)
-def test_path_straightness_across_time_ranges(
-    valid_poses_dataset, time_slice, expected_exception
-):
-    """Test straightness index for a uniform linear motion case.
-
-    The ``valid_poses_dataset`` contains 2 individuals moving in
-    straight lines, so the straightness index should always be 1.0.
-    """
-    position = valid_poses_dataset.position.sel(time=time_slice)
-    with expected_exception:
-        result = compute_path_straightness(position)
-        assert result.name == "straightness_index"
-        assert result.attrs["long_name"] == "Path Straightness Index"
-        xr.testing.assert_allclose(
-            result,
-            xr.ones_like(result),
-        )
 
 
 @pytest.mark.parametrize(
@@ -666,28 +675,9 @@ def test_directional_change_nonuniform_time(
     assert dc.isel(time=slice(2, None)).notnull().all()
 
 
-@pytest.mark.parametrize("time_slice, expected_exception", time_range_cases)
-def test_directional_change_across_time_ranges(
-    valid_poses_dataset, time_slice, expected_exception
-):
-    """Test that DC raises with too few time points, and works
-    otherwise.
-    """
-    position = valid_poses_dataset.position.sel(time=time_slice)
-    with expected_exception:
-        dc = compute_directional_change(position)
-        assert dc.name == "directional_change"
-        assert dc.attrs["long_name"] == "Directional Change"
-
-
 # ─────────────────────────────────────────────
 # Path deviation tests
 # ─────────────────────────────────────────────
-
-time_points_value_error_deviation = pytest.raises(
-    ValueError,
-    match="At least 2 time points are required to compute path deviation",
-)
 
 degenerate_chord_error = pytest.raises(
     ValueError,
@@ -696,33 +686,6 @@ degenerate_chord_error = pytest.raises(
         "are identical for all tracks."
     ),
 )
-
-
-@pytest.mark.parametrize(
-    "time_slice, expected_exception",
-    [
-        pytest.param(slice(None, None), does_not_raise(), id="full-range"),
-        pytest.param(slice(0, 9), does_not_raise(), id="explicit-full-range"),
-        pytest.param(slice(1, 8), does_not_raise(), id="partial-range"),
-        pytest.param(
-            slice(9, 0),
-            time_points_value_error_deviation,
-            id="start-greater-than-stop",
-        ),
-        pytest.param(
-            slice(0, 0.5),
-            time_points_value_error_deviation,
-            id="too-few-time-points",
-        ),
-    ],
-)
-def test_path_deviation_time_ranges(
-    straight_paths, time_slice, expected_exception
-):
-    with expected_exception:
-        result = compute_path_deviation(straight_paths.sel(time=time_slice))
-        assert result.sizes.get("time") is not None
-        assert "space" not in result.dims
 
 
 def test_path_deviation_output_metadata(straight_paths):
