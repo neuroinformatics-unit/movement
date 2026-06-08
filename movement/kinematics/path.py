@@ -1,4 +1,4 @@
-"""Compute path metrics: length, straightness, and directional change.
+"""Compute metrics related to the length, straightness and complexity of paths.
 
 By 'path' we refer to the spatial trajectory of an individual over the
 time span of the data. While these metrics can be computed based on any
