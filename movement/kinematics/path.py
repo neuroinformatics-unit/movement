@@ -1,4 +1,4 @@
-"""Compute path-level metrics such as path length and straightness.
+"""Compute metrics related to the length, straightness and complexity of paths.
 
 By 'path' we refer to the spatial trajectory of an individual over the
 time span of the data. While these metrics can be computed based on any
@@ -294,6 +294,103 @@ def compute_turning_angle(
     turning.name = "turning_angle"
 
     return turning
+
+
+def compute_directional_change(
+    data: xr.DataArray,
+    in_degrees: bool = False,
+    min_step_length: float = 0.0,
+) -> xr.DataArray:
+    r"""Compute the directional change (DC) per time step.
+
+    The directional change at step :math:`i` is the absolute turning
+    angle divided by the temporal interval spanning the two steps that
+    define it [1]_:
+
+    .. math::
+        \mathrm{DC}_i = \frac{|\theta_i|}{\Delta t_i}
+
+    where :math:`\theta_i` is the signed turning angle at step :math:`i`
+    and :math:`\Delta t_i = t_i - t_{i-2}`.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+    in_degrees : bool, optional
+        If ``True``, the turning angles (and hence the directional
+        change) are expressed in degrees rather than radians. Defaults
+        to ``False``.
+    min_step_length : float, optional
+        The minimum step length used when computing turning angles.
+        Steps shorter than or equal to this value produce ``NaN``
+        turning angles, which propagate to ``NaN`` directional change
+        values. The default ``0.0`` only masks steps with exactly
+        zero length; near-zero steps from positional jitter may still
+        produce spurious turning angles. See
+        :func:`compute_turning_angle` for details.
+
+    Returns
+    -------
+    xarray.DataArray
+        Directional change values with the same dimensions as the
+        input, except ``space`` is removed. Values are in radians per
+        ``time`` unit (e.g. radians/second if ``time`` is in seconds),
+        or degrees per ``time`` unit if ``in_degrees`` is ``True``.
+
+    Notes
+    -----
+    **Boundary behaviour:** The first two time steps of the output are
+    always ``NaN``, because a turning angle requires three consecutive
+    positions (see :func:`compute_turning_angle`).
+
+    References
+    ----------
+    .. [1] Kitamura, T. & Imafuku, M. (2015). Behavioural mimicry in
+       flight path of Batesian intraspecific polymorphic butterfly
+       *Papilio polytes*. *Proc. R. Soc. B* 282(1809).
+       https://doi.org/10.1098/rspb.2015.0483
+
+    See Also
+    --------
+    :func:`compute_turning_angle` :
+        The underlying function used to compute turning angles.
+
+    Examples
+    --------
+    >>> from movement.kinematics import compute_directional_change
+
+    Compute directional change from the centroid trajectory of a
+    poses dataset ``ds``:
+
+    >>> centroid = ds.position.mean(dim="keypoint")
+    >>> dc = compute_directional_change(centroid)
+
+    Compute over a specific time window:
+
+    >>> dc = compute_directional_change(centroid.sel(time=slice(0, 100)))
+
+    Filter out pose-estimation jitter by setting ``min_step_length``:
+
+    >>> dc = compute_directional_change(centroid, min_step_length=3)
+
+    """
+    data = _validate_time_points(data, "directional change")
+
+    theta = compute_turning_angle(
+        data, in_degrees=in_degrees, min_step_length=min_step_length
+    )
+
+    time_coord = data["time"]
+    # Span the two steps that define theta_i (positions i-2..i), matching
+    # compute_turning_angle's support so DC is correct for non-uniform time.
+    dt = time_coord - time_coord.shift(time=2)
+
+    dc = abs(theta) / dt
+    dc.name = "directional_change"
+    dc.attrs["long_name"] = "Directional Change"
+    return dc
 
 
 def _validate_time_points(
