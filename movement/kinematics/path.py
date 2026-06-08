@@ -315,14 +315,14 @@ def compute_directional_change(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-    in_degrees : bool, optional
+    in_degrees
         If ``True``, the turning angles (and hence the directional
         change) are expressed in degrees rather than radians. Defaults
         to ``False``.
-    min_step_length : float, optional
+    min_step_length
         The minimum step length used when computing turning angles.
         Steps shorter than or equal to this value produce ``NaN``
         turning angles, which propagate to ``NaN`` directional change
@@ -354,7 +354,7 @@ def compute_directional_change(
 
     See Also
     --------
-    :func:`compute_turning_angle` :
+    compute_turning_angle :
         The underlying function used to compute turning angles.
 
     Examples
@@ -391,6 +391,123 @@ def compute_directional_change(
     dc.name = "directional_change"
     dc.attrs["long_name"] = "Directional Change"
     return dc
+
+
+def compute_path_deviation(
+    data: xr.DataArray,
+) -> xr.DataArray:
+    r"""Compute deviation from the straight-line path at each time point.
+
+    For each time point :math:`t`, the path deviation is the perpendicular
+    (unsigned) distance between the position :math:`P(t)` and the infinite
+    straight line passing through the first and last valid positions in
+    the data, denoted :math:`A` and :math:`B` respectively. Zero means the
+    position lies exactly on the straight line; larger values indicate greater
+    lateral excursion.
+
+    Formally, let :math:`\mathbf{u} = B - A` be the chord vector and
+    :math:`\hat{\mathbf{u}} = \mathbf{u} / \|\mathbf{u}\|` its unit vector.
+    The deviation at time :math:`t` is:
+
+    .. math::
+
+        d(t) = \left\|
+            (P(t) - A) -
+            \left[(P(t) - A) \cdot \hat{\mathbf{u}}\right] \hat{\mathbf{u}}
+        \right\|
+
+    This is the norm of the component of :math:`P(t) - A` that is
+    perpendicular to the chord, and is equivalent to the distance from
+    :math:`P(t)` to the infinite line through :math:`A` and :math:`B`.
+    The formulation is dimension-agnostic (works for 2D and 3D data).
+
+    Parameters
+    ----------
+    data
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the perpendicular deviation from
+        the chord at each time point, with dimensions matching those of
+        the input data, except ``space`` is removed. Values are in the
+        same spatial units as the input.
+
+    Raises
+    ------
+    ValueError
+        If fewer than 2 time points exist in the data, or if
+        the chord length is zero (i.e. ``A == B``) for *all* tracks.
+        If the chord length is zero for *some* (but not all) tracks, a
+        warning is issued and those tracks will have ``NaN`` deviation.
+
+
+    See Also
+    --------
+    compute_path_length : Total distance travelled along the path.
+    compute_path_straightness : Ratio of chord length to path length.
+
+    Examples
+    --------
+    >>> from movement.kinematics import compute_path_deviation
+
+    Compute per-frame path deviation from the centroid trajectory of a
+    poses dataset ``ds``:
+
+    >>> centroid = ds.position.mean(dim="keypoint")
+    >>> deviation = compute_path_deviation(centroid)
+
+    Compute the maximum lateral excursion over the trajectory:
+
+    >>> max_deviation = deviation.max(dim="time")
+
+    Compute the mean deviation over a specific time window:
+
+    >>> mean_deviation = compute_path_deviation(
+    ...     centroid.sel(time=slice(10, 50))
+    ... ).mean(dim="time")
+
+    """
+    data = _validate_time_points(data, "path deviation")
+
+    anchored = data.ffill(dim="time").bfill(dim="time")
+    A = anchored.isel(time=0)
+    B = anchored.isel(time=-1)
+
+    chord = B - A
+    chord_length = compute_norm(chord)
+
+    degenerate = chord_length == 0
+    if degenerate.all():
+        raise logger.error(
+            ValueError(
+                "Path deviation is undefined because the start and end "
+                "positions are identical for all tracks."
+            )
+        )
+    if degenerate.any():
+        stacked = degenerate.stack(tracks=list(degenerate.dims))
+        bad_tracks = stacked.sel(tracks=stacked).coords["tracks"].values
+        warnings.warn(
+            "Path deviation is undefined for tracks where the start and end "
+            "positions are identical. The following tracks will return NaN: "
+            f"{bad_tracks}",
+            UserWarning,
+            stacklevel=2,
+        )
+
+    chord_unit = chord / chord_length
+    p_minus_a = data - A
+    scalar_proj = (p_minus_a * chord_unit).sum(dim="space")
+    vector_proj = scalar_proj * chord_unit
+    rejection = p_minus_a - vector_proj
+
+    deviation = compute_norm(rejection)
+    deviation.name = "path_deviation"
+    deviation.attrs["long_name"] = "Path Deviation"
+    return deviation
 
 
 def _validate_time_points(
