@@ -393,37 +393,6 @@ def compute_directional_change(
     return dc
 
 
-def _validate_time_points(
-    data: xr.DataArray,
-    metric_name: str,
-) -> xr.DataArray:
-    """Validate dims/coords and require at least 2 time points.
-
-    Parameters
-    ----------
-    data : xarray.DataArray
-        Position data with ``time`` and ``space`` dimensions.
-    metric_name : str
-        Used in the error message when there are fewer than 2 time points.
-
-    Returns
-    -------
-    xarray.DataArray
-        The validated data.
-
-    """
-    validate_dims_coords(data, {"time": [], "space": []})
-    n_time = data.sizes["time"]
-    if n_time < 2:
-        raise logger.error(
-            ValueError(
-                "At least 2 time points are required to compute "
-                f"{metric_name}, but {n_time} were found."
-            )
-        )
-    return data
-
-
 def compute_path_deviation(
     data: xr.DataArray,
 ) -> xr.DataArray:
@@ -539,6 +508,37 @@ def compute_path_deviation(
     deviation.name = "path_deviation"
     deviation.attrs["long_name"] = "Path Deviation"
     return deviation
+
+
+def _validate_time_points(
+    data: xr.DataArray,
+    metric_name: str,
+) -> xr.DataArray:
+    """Validate dims/coords and require at least 2 time points.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        Position data with ``time`` and ``space`` dimensions.
+    metric_name : str
+        Used in the error message when there are fewer than 2 time points.
+
+    Returns
+    -------
+    xarray.DataArray
+        The validated data.
+
+    """
+    validate_dims_coords(data, {"time": [], "space": []})
+    n_time = data.sizes["time"]
+    if n_time < 2:
+        raise logger.error(
+            ValueError(
+                "At least 2 time points are required to compute "
+                f"{metric_name}, but {n_time} were found."
+            )
+        )
+    return data
 
 
 def _segment_lengths(data: xr.DataArray) -> xr.DataArray:
