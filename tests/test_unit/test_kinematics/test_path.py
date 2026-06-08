@@ -18,12 +18,19 @@ time_points_value_error = pytest.raises(
     match="At least 2 time points are required",
 )
 
-# Pre-sliced time-range cases shared by the straightness and directional
-# change tests, which validate via the same minimum-time-points check.
+# Pre-sliced time-range cases shared by multiple unit tests
 time_range_cases = [
+    # full time ranges
     pytest.param(slice(None, None), does_not_raise(), id="full-range"),
+    pytest.param(slice(0, None), does_not_raise(), id="from-zero"),
     pytest.param(slice(0, 9), does_not_raise(), id="explicit-full-range"),
+    pytest.param(slice(0, 10), does_not_raise(), id="stop-beyond-data"),
+    pytest.param(slice(-1, 9), does_not_raise(), id="start-before-data"),
+    # partial time ranges
     pytest.param(slice(1, 8), does_not_raise(), id="partial-range"),
+    pytest.param(slice(1.5, 8.5), does_not_raise(), id="fractional-bounds"),
+    pytest.param(slice(2, None), does_not_raise(), id="from-two-to-end"),
+    # Empty or too-short slices
     pytest.param(
         slice(9, 0), time_points_value_error, id="start-greater-than-stop"
     ),
@@ -120,34 +127,7 @@ def sharp_turn_paths(straight_paths):
 # ─────────────────────────────────────────────
 
 
-@pytest.mark.parametrize(
-    "time_slice, expected_exception",
-    [
-        # full time ranges
-        pytest.param(slice(None, None), does_not_raise(), id="full-range"),
-        pytest.param(slice(0, None), does_not_raise(), id="from-zero"),
-        pytest.param(slice(0, 9), does_not_raise(), id="explicit-full-range"),
-        pytest.param(slice(0, 10), does_not_raise(), id="stop-beyond-data"),
-        pytest.param(slice(-1, 9), does_not_raise(), id="start-before-data"),
-        # partial time ranges
-        pytest.param(slice(1, 8), does_not_raise(), id="partial-range"),
-        pytest.param(
-            slice(1.5, 8.5), does_not_raise(), id="fractional-bounds"
-        ),
-        pytest.param(slice(2, None), does_not_raise(), id="from-two-to-end"),
-        # Empty or too-short slices
-        pytest.param(
-            slice(9, 0),
-            time_points_value_error,
-            id="start-greater-than-stop",
-        ),
-        pytest.param(
-            slice(0, 0.5),
-            time_points_value_error,
-            id="too-few-time-points",
-        ),
-    ],
-)
+@pytest.mark.parametrize("time_slice, expected_exception", time_range_cases)
 def test_path_length_across_time_ranges(
     valid_poses_dataset, time_slice, expected_exception
 ):
