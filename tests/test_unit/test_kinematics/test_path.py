@@ -639,7 +639,7 @@ def test_directional_change_known_values(
         pytest.param(True, 135.0, id="degrees"),
     ],
 )
-def test_directional_change_nonzero_value(
+def test_directional_change_nonuniform_time(
     sharp_turn_paths, in_degrees, expected_turn
 ):
     """Test DC against a known nonzero value on non-uniform time.
