@@ -3,8 +3,8 @@
 import numpy as np
 import pandas as pd
 import pytest
-from pandas.testing import assert_frame_equal
 import xarray as xr
+from pandas.testing import assert_frame_equal
 
 from movement.napari.convert import ds_to_napari_layers, napari_layers_to_ds
 
@@ -265,42 +265,41 @@ def test_invalid_poses_to_napari_layers(ds_name, expected_exception, request):
         ds_to_napari_layers(ds)
 
 
-
 @pytest.mark.parametrize(
-    "ds_dataset", 
+    "ds_dataset",
     [
         "dataset",
         "dataset_with_nan",
         "confidence_with_some_nan",
         "confidence_with_all_nan",
-    ]
+    ],
 )
-def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request): 
-    """
-    Test conversion from napari tracks array to movement pose dataset
-    If I convert a dataset to napari and then back to a xarray dataset, 
+def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
+    """Test conversion from napari tracks array to movement pose dataset
+    If I convert a dataset to napari and then back to a xarray dataset,
     do I recover the original values? This is a round-trip test.
     """
     ds_name = f"valid_poses_{ds_dataset}"
     ds = request.getfixturevalue(ds_name)
     napari_tracks, _, properties = ds_to_napari_layers(ds)
-    reconstructed_ds = napari_layers_to_ds(napari_tracks, 
-                                           properties)
-    
+    reconstructed_ds = napari_layers_to_ds(napari_tracks, properties)
+
     xr.testing.assert_equal(reconstructed_ds, ds)
 
+
 @pytest.mark.parametrize(
-        "fps",
-        [
-            None, 
-            10.0, 
-            30.0,
-            100.0,
-        ]
+    "fps",
+    [
+        None,
+        10.0,
+        30.0,
+        100.0,
+    ],
 )
-def test_valid_poses_napari_layer_to_dataset_with_fps(valid_poses_dataset, fps):
-    """
-    Test reconstruction of time coordinates from napari layers to movement
+def test_valid_poses_napari_layer_to_dataset_with_fps(
+    valid_poses_dataset, fps
+):
+    """Test reconstruction of time coordinates from napari layers to movement
     xarrays, with different fps values
     """
     napari_tracks, _, properties = ds_to_napari_layers(valid_poses_dataset)
@@ -321,6 +320,7 @@ def test_valid_poses_napari_layer_to_dataset_with_fps(valid_poses_dataset, fps):
         expected_time,
     )
 
+
 @pytest.mark.parametrize(
     "array_type",
     [
@@ -339,16 +339,25 @@ def test_valid_poses_napari_layers_to_dataset(
     n_individuals = 1 if array_type == "single_individual" else 2
 
     assert reconstructed_ds.ds_type == "poses"
-    assert reconstructed_ds.position.shape == (10, 2, 3, n_individuals) #time, space, keypoint, individual
-    assert reconstructed_ds.confidence.shape == (10, 3, n_individuals) #time, keypoint, individual
+    assert reconstructed_ds.position.shape == (
+        10,
+        2,
+        3,
+        n_individuals,
+    )  # time, space, keypoint, individual
+    assert reconstructed_ds.confidence.shape == (
+        10,
+        3,
+        n_individuals,
+    )  # time, keypoint, individual
 
-    assert reconstructed_ds.position.dims==(
+    assert reconstructed_ds.position.dims == (
         "time",
         "space",
         "keypoint",
         "individual",
     )
-    assert reconstructed_ds.confidence.dims==(
+    assert reconstructed_ds.confidence.dims == (
         "time",
         "keypoint",
         "individual",
@@ -356,7 +365,7 @@ def test_valid_poses_napari_layers_to_dataset(
 
 
 def test_edited_pose_napari_layers(
-        valid_poses_napari_layers,
+    valid_poses_napari_layers,
 ):
     """Test conversion from napari layers to ds after editing the keypoint x,y coord
     for a given set of frames
@@ -365,13 +374,13 @@ def test_edited_pose_napari_layers(
         "multiple_individuals"
     )
     expected_ds = napari_layers_to_ds(
-        napari_tracks, 
+        napari_tracks,
         properties,
     ).copy(deep=True)
 
-    frame = 5 #we are going to edit x,y on this frame
-    napari_tracks[frame,2] = 100 #y
-    napari_tracks[frame,3] = 200 #x
+    frame = 5  # we are going to edit x,y on this frame
+    napari_tracks[frame, 2] = 100  # y
+    napari_tracks[frame, 3] = 200  # x
 
     reconstructed_ds = napari_layers_to_ds(
         napari_tracks,
@@ -382,11 +391,12 @@ def test_edited_pose_napari_layers(
         {
             "time": frame,
             "keypoint": "centroid",
-            "individual": "id_0", 
+            "individual": "id_0",
         }
-    ] = [200,100]
+    ] = [200, 100]
 
     xr.testing.assert_equal(reconstructed_ds, expected_ds)
+
 
 def test_removed_pose_napari_layers(
     valid_poses_napari_layers,
@@ -397,11 +407,11 @@ def test_removed_pose_napari_layers(
     )
 
     expected_ds = napari_layers_to_ds(
-        napari_tracks, 
+        napari_tracks,
         properties,
     ).copy(deep=True)
 
-    frame = 5 
+    frame = 5
 
     # simulate deleting a prediction in napari
     napari_tracks[frame, 2] = np.nan  # y
@@ -434,11 +444,11 @@ def test_removed_pose_napari_layers(
         expected_ds,
     )
 
+
 def test_id_swap_pose_napari_layers(
-        valid_poses_napari_layers,
+    valid_poses_napari_layers,
 ):
-    """Test conversion from napari layers to ds after swapping ids for some given frames
-    """
+    """Test conversion from napari layers to ds after swapping ids for some given frames"""
     napari_tracks, properties = valid_poses_napari_layers(
         "multiple_individuals"
     )
@@ -451,13 +461,13 @@ def test_id_swap_pose_napari_layers(
     frame = 5  # swap IDs in frame 5
 
     idx_0 = properties.index[
-        (properties["individual"]=="id_0") & (properties["time"]==frame)
+        (properties["individual"] == "id_0") & (properties["time"] == frame)
     ]
     idx_1 = properties.index[
-        (properties["individual"]=="id_1") & (properties["time"]==frame)
+        (properties["individual"] == "id_1") & (properties["time"] == frame)
     ]
 
-    xy = [3,2] #column x,y in napari layers 
+    xy = [3, 2]  # column x,y in napari layers
     tracks_id_0 = napari_tracks[np.ix_(idx_0, xy)].copy()
     tracks_id_1 = napari_tracks[np.ix_(idx_1, xy)].copy()
     napari_tracks[np.ix_(idx_0, xy)] = tracks_id_1
@@ -467,14 +477,18 @@ def test_id_swap_pose_napari_layers(
 
     xr.testing.assert_equal(
         reconstructed_ds.position.sel(time=frame, individual="id_0"),
-        expected_ds.position.sel(time=frame, individual="id_1").assign_coords(individual="id_0"),
+        expected_ds.position.sel(time=frame, individual="id_1").assign_coords(
+            individual="id_0"
+        ),
     )
     xr.testing.assert_equal(
         reconstructed_ds.position.sel(time=frame, individual="id_1"),
-        expected_ds.position.sel(time=frame, individual="id_0").assign_coords(individual="id_1"),
+        expected_ds.position.sel(time=frame, individual="id_0").assign_coords(
+            individual="id_1"
+        ),
     )
 
-    #are other frames unaffected? 
+    # are other frames unaffected?
     other_frames = [f for f in expected_ds.time.values if f != frame]
     xr.testing.assert_equal(
         reconstructed_ds.position.sel(time=other_frames),
@@ -484,7 +498,7 @@ def test_id_swap_pose_napari_layers(
     assert reconstructed_ds.sizes == expected_ds.sizes
     assert set(reconstructed_ds.coords) == set(expected_ds.coords)
 
-    
+
 @pytest.mark.parametrize(
     "ds_dataset",
     [
@@ -495,9 +509,8 @@ def test_id_swap_pose_napari_layers(
     ],
 )
 def test_valid_bboxes_napari_layer_to_datset(ds_dataset, request):
-    """
-    Test reconstruction from napari shapes array to movement bboxes dataset.
-    This is a round-trip test. 
+    """Test reconstruction from napari shapes array to movement bboxes dataset.
+    This is a round-trip test.
     """
     ds_name = f"valid_bboxes_{ds_dataset}"
     ds = request.getfixturevalue(ds_name)
@@ -505,6 +518,3 @@ def test_valid_bboxes_napari_layer_to_datset(ds_dataset, request):
     reconstructed_ds = napari_layers_to_ds(napari_bboxes, properties)
 
     xr.testing.assert_equal(reconstructed_ds, ds)
-
-
-
