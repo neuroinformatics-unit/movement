@@ -53,8 +53,9 @@ class LineOfInterest(BaseRegionOfInterest[LineLike]):
             additional line segment to the first, creating a closed loop.
             (See Notes).
         name
-            Name of the LoI that is to be created. If not provided, a default
-            name will be inherited from the base class.
+            Name of the LoI that is to be created. A default name will be
+            inherited from the base class if not provided, and
+            defaults are inherited from.
 
         Notes
         -----
