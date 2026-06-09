@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
+import xarray as xr
 
 from movement.napari.convert import ds_to_napari_layers, napari_layers_to_ds
 
@@ -264,6 +265,7 @@ def test_invalid_poses_to_napari_layers(ds_name, expected_exception, request):
         ds_to_napari_layers(ds)
 
 
+
 @pytest.mark.parametrize(
     "ds_dataset", 
     [
@@ -273,38 +275,19 @@ def test_invalid_poses_to_napari_layers(ds_name, expected_exception, request):
         "confidence_with_all_nan",
     ]
 )
-def test_valid_poses_napari_layer_to_dataset(ds_dataset, request): 
+def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request): 
     """
     Test conversion from napari tracks array to movement pose dataset
     If I convert a dataset to napari and then back to a xarray dataset, 
-    do I recover the original values? 
+    do I recover the original values? This is a round-trip test.
     """
     ds_name = f"valid_poses_{ds_dataset}"
     ds = request.getfixturevalue(ds_name)
     napari_tracks, _, properties = ds_to_napari_layers(ds)
     reconstructed_ds = napari_layers_to_ds(napari_tracks, 
                                            properties)
-    np.testing.assert_allclose( #are position values the same? 
-        reconstructed_ds.position.values,
-        ds.position.values,
-        equal_nan=True,
-    )
-    np.testing.assert_allclose( #are the confidence values the same? 
-        reconstructed_ds.confidence.values,
-        ds.confidence.values,
-        equal_nan=True, #reconstructed ds should have nans in the same position
-    )
-    np.testing.assert_array_equal( #are the individual labels the same? 
-        reconstructed_ds.individual.values,
-        ds.individual.values,
-    )
-    np.testing.assert_array_equal( #are the keypoint labels the same? 
-        reconstructed_ds.keypoint.values,
-        ds.keypoint.values,
-    )
     
-    assert reconstructed_ds.position.shape == ds.position.shape
-    assert reconstructed_ds.confidence.shape == ds.confidence.shape
+    xr.testing.assert_equal(reconstructed_ds, ds)
 
 @pytest.mark.parametrize(
         "fps",
@@ -339,6 +322,170 @@ def test_valid_poses_napari_layer_to_dataset_with_fps(valid_poses_dataset, fps):
     )
 
 @pytest.mark.parametrize(
+    "array_type",
+    [
+        "multiple_individuals",
+        "single_individual",
+    ],
+)
+def test_valid_poses_napari_layers_to_dataset(
+    valid_poses_napari_layers,
+    array_type,
+):
+    """Test conversion from napari tracks data to movement pose dataset."""
+    napari_tracks, properties = valid_poses_napari_layers(array_type)
+
+    reconstructed_ds = napari_layers_to_ds(napari_tracks, properties)
+    n_individuals = 1 if array_type == "single_individual" else 2
+
+    assert reconstructed_ds.ds_type == "poses"
+    assert reconstructed_ds.position.shape == (10, 2, 3, n_individuals) #time, space, keypoint, individual
+    assert reconstructed_ds.confidence.shape == (10, 3, n_individuals) #time, keypoint, individual
+
+    assert reconstructed_ds.position.dims==(
+        "time",
+        "space",
+        "keypoint",
+        "individual",
+    )
+    assert reconstructed_ds.confidence.dims==(
+        "time",
+        "keypoint",
+        "individual",
+    )
+
+
+def test_edited_pose_napari_layers(
+        valid_poses_napari_layers,
+):
+    """Test conversion from napari layers to ds after editing the keypoint x,y coord
+    for a given set of frames
+    """
+    napari_tracks, properties = valid_poses_napari_layers(
+        "multiple_individuals"
+    )
+    expected_ds = napari_layers_to_ds(
+        napari_tracks, 
+        properties,
+    ).copy(deep=True)
+
+    frame = 5 #we are going to edit x,y on this frame
+    napari_tracks[frame,2] = 100 #y
+    napari_tracks[frame,3] = 200 #x
+
+    reconstructed_ds = napari_layers_to_ds(
+        napari_tracks,
+        properties,
+    )
+
+    expected_ds.position.loc[
+        {
+            "time": frame,
+            "keypoint": "centroid",
+            "individual": "id_0", 
+        }
+    ] = [200,100]
+
+    xr.testing.assert_equal(reconstructed_ds, expected_ds)
+
+def test_removed_pose_napari_layers(
+    valid_poses_napari_layers,
+):
+    """Test conversion from napari layers to ds after removing predictions."""
+    napari_tracks, properties = valid_poses_napari_layers(
+        "multiple_individuals"
+    )
+
+    expected_ds = napari_layers_to_ds(
+        napari_tracks, 
+        properties,
+    ).copy(deep=True)
+
+    frame = 5 
+
+    # simulate deleting a prediction in napari
+    napari_tracks[frame, 2] = np.nan  # y
+    napari_tracks[frame, 3] = np.nan  # x
+    properties.loc[frame, "confidence"] = np.nan
+
+    reconstructed_ds = napari_layers_to_ds(
+        napari_tracks,
+        properties,
+    )
+
+    expected_ds.position.loc[
+        {
+            "time": frame,
+            "keypoint": "centroid",
+            "individual": "id_0",
+        }
+    ] = [np.nan, np.nan]
+
+    expected_ds.confidence.loc[
+        {
+            "time": frame,
+            "keypoint": "centroid",
+            "individual": "id_0",
+        }
+    ] = np.nan
+
+    xr.testing.assert_equal(
+        reconstructed_ds,
+        expected_ds,
+    )
+
+def test_id_swap_pose_napari_layers(
+        valid_poses_napari_layers,
+):
+    """Test conversion from napari layers to ds after swapping ids for some given frames
+    """
+    napari_tracks, properties = valid_poses_napari_layers(
+        "multiple_individuals"
+    )
+
+    expected_ds = napari_layers_to_ds(
+        napari_tracks,
+        properties,
+    ).copy(deep=True)
+
+    frame = 5  # swap IDs in frame 5
+
+    idx_0 = properties.index[
+        (properties["individual"]=="id_0") & (properties["time"]==frame)
+    ]
+    idx_1 = properties.index[
+        (properties["individual"]=="id_1") & (properties["time"]==frame)
+    ]
+
+    xy = [3,2] #column x,y in napari layers 
+    tracks_id_0 = napari_tracks[np.ix_(idx_0, xy)].copy()
+    tracks_id_1 = napari_tracks[np.ix_(idx_1, xy)].copy()
+    napari_tracks[np.ix_(idx_0, xy)] = tracks_id_1
+    napari_tracks[np.ix_(idx_1, xy)] = tracks_id_0
+
+    reconstructed_ds = napari_layers_to_ds(napari_tracks, properties)
+
+    xr.testing.assert_equal(
+        reconstructed_ds.position.sel(time=frame, individual="id_0"),
+        expected_ds.position.sel(time=frame, individual="id_1").assign_coords(individual="id_0"),
+    )
+    xr.testing.assert_equal(
+        reconstructed_ds.position.sel(time=frame, individual="id_1"),
+        expected_ds.position.sel(time=frame, individual="id_0").assign_coords(individual="id_1"),
+    )
+
+    #are other frames unaffected? 
+    other_frames = [f for f in expected_ds.time.values if f != frame]
+    xr.testing.assert_equal(
+        reconstructed_ds.position.sel(time=other_frames),
+        expected_ds.position.sel(time=other_frames),
+    )
+
+    assert reconstructed_ds.sizes == expected_ds.sizes
+    assert set(reconstructed_ds.coords) == set(expected_ds.coords)
+
+    
+@pytest.mark.parametrize(
     "ds_dataset",
     [
         "dataset",
@@ -350,47 +497,14 @@ def test_valid_poses_napari_layer_to_dataset_with_fps(valid_poses_dataset, fps):
 def test_valid_bboxes_napari_layer_to_datset(ds_dataset, request):
     """
     Test reconstruction from napari shapes array to movement bboxes dataset.
+    This is a round-trip test. 
     """
     ds_name = f"valid_bboxes_{ds_dataset}"
     ds = request.getfixturevalue(ds_name)
     _, napari_bboxes, properties = ds_to_napari_layers(ds)
     reconstructed_ds = napari_layers_to_ds(napari_bboxes, properties)
 
-    ds_name = f"valid_bboxes_{ds_dataset}"
-    ds = request.getfixturevalue(ds_name)
-
-    print(f"\nTesting fixture: {ds_name}")
-    print("Position NaNs:", np.isnan(ds.position.values).sum())
-    print("Shape NaNs:", np.isnan(ds.shape.values).sum())
-    print("Position NaN mask:")
-    print(np.isnan(ds.position.values))
-    print("Shape NaN mask:")
-    print(np.isnan(ds.shape.values))
-
-    np.testing.assert_allclose( #are the position (centroid) values the same? 
-        reconstructed_ds.position.values,
-        ds.position.values,
-        equal_nan=True, #reconstructed ds should have nans in the same position
-    )
-
-    np.testing.assert_allclose( #are the shape (width,length) values the same? 
-        reconstructed_ds.shape.values,
-        ds.shape.values,
-        equal_nan=True,
-    )
-    np.testing.assert_allclose(
-        reconstructed_ds.confidence.values, #are the confidence values the same? 
-        ds.confidence.values,
-        equal_nan=True, 
-    )
-    np.testing.assert_array_equal( #are the individual values the same? 
-        reconstructed_ds.individual.values,
-        ds.individual.values,
-    )
-    np.testing.assert_array_equal(
-        reconstructed_ds.time.values, #are the time values the same? 
-        ds.time.values,
-    )
+    xr.testing.assert_equal(reconstructed_ds, ds)
 
 
 
