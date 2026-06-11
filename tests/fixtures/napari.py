@@ -205,6 +205,13 @@ def valid_poses_napari_layers():
     - ``multiple_individuals``: 2 individuals, 3 keypoints
     - ``single_individual``: 1 individual, 3 keypoints
 
+    The simulated trajectories follow simple linear motion: individual 0 moves
+    along ``x = y`` and individual 1 moves along ``x = y ``.
+
+    Three keypoints are defined for each individual: ``centroid``, ``right`` and 
+    ``left``. The ``left`` keypoint is offset by +1 in ``y`` relative to the 
+    centroid. While the ``right`` keypoint is offset by +1 in ``x``. 
+
     The napari tracks array has shape ``(N, 4)`` with columns:
     ``track_id, frame, y, x``.
     """
