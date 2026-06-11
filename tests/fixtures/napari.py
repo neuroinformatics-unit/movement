@@ -202,22 +202,23 @@ def valid_poses_napari_layers():
     """Return valid pose napari layers.
 
     Depending on the ``array_type`` the returned napari layer can represent:
+
     - ``multiple_individuals``: 2 individuals, 3 keypoints
     - ``single_individual``: 1 individual, 3 keypoints
 
     The simulated trajectories follow simple linear motion: individual 0 moves
-    along ``x = y`` and individual 1 moves along ``x = -y ``.
+    along ``x = y`` and individual 1 moves along ``x = -y``.
 
-    Three keypoints are defined for each individual: ``centroid``, ``right`` and
-    ``left``. The ``left`` keypoint is offset by +1 in ``y`` relative to the
-    centroid. While the ``right`` keypoint is offset by +1 in ``x``.
+    Three keypoints are defined for each individual: ``centroid``, ``left``,
+    and ``right``. Relative to the centroid, ``left`` is shifted by ``+1`` in
+    ``y`` and ``right`` by ``+1`` in ``x``.
 
     The napari tracks array has shape ``(N, 4)`` with columns:
     ``track_id, frame, y, x``.
     """
 
     def _valid_poses_napari_layers(array_type):
-        n_frames, n_keypoints, n_individuals = (10, 3, 2)
+        n_frames, n_individuals = (10, 2)
         keypoint_names = ["centroid", "left", "right"]
 
         if array_type == "single_individual":

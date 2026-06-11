@@ -299,8 +299,10 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
 def test_valid_poses_napari_layer_to_dataset_with_fps(
     valid_poses_dataset, fps
 ):
-    """Test reconstruction of time coordinates from napari layers to movement
-    xarrays, with different fps values
+    """Test reconstruction of time coordinates.
+
+    Test conversion from from napari layers to movement
+    xarrays, with different fps values.
     """
     napari_tracks, _, properties = ds_to_napari_layers(valid_poses_dataset)
     reconstructed_ds = napari_layers_to_ds(
@@ -367,8 +369,10 @@ def test_valid_poses_napari_layers_to_dataset(
 def test_edited_pose_napari_layers(
     valid_poses_napari_layers,
 ):
-    """Test conversion from napari layers to ds after editing the keypoint x,y coord
-    for a given set of frames
+    """Test conversion after editing keypoint coordinates.
+
+    Test conversion from napari layers to a dataset after editing the
+    keypoint x/y coordinate for a given set of frames.
     """
     napari_tracks, properties = valid_poses_napari_layers(
         "multiple_individuals"
@@ -448,7 +452,11 @@ def test_removed_pose_napari_layers(
 def test_id_swap_pose_napari_layers(
     valid_poses_napari_layers,
 ):
-    """Test conversion from napari layers to ds after swapping ids for some given frames"""
+    """Test conversion after swapping IDs.
+
+    Test conversion from napari layers to a dataset after swapping
+    identities for a given set of frames.
+    """
     napari_tracks, properties = valid_poses_napari_layers(
         "multiple_individuals"
     )
