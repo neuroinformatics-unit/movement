@@ -190,3 +190,90 @@ def sample_properties_with_factorized():
         return properties_df
 
     return _sample_properties_with_factorized
+
+# -------------------- Valid bboxes napari layers --------------------
+
+# -------------------- Valid poses napari layers --------------------
+
+@pytest.fixture
+def valid_poses_napari_layers():
+    """Return valid pose napari layers.
+
+    Depending on the ``array_type`` the returned napari layer can represent:
+    - ``multiple_individuals``: 2 individuals, 3 keypoints
+    - ``single_individual``: 1 individual, 3 keypoints
+
+    The napari tracks array has shape ``(N, 4)`` with columns:
+    ``track_id, frame, y, x``.
+    """
+
+    def _valid_poses_napari_layers(array_type):
+        n_frames, n_keypoints, n_individuals = (10, 3, 2)
+        keypoint_names = ["centroid", "left", "right"]
+
+        if array_type == "single_individual":
+            n_individuals = 1
+
+        frames = np.arange(n_frames)
+
+        napari_layers = []
+        properties = []
+
+        for individual_idx in range(n_individuals):
+            for keypoint_idx, keypoint in enumerate(keypoint_names):
+                for frame in frames:
+                    # centroid trajectory
+                    x = frame
+
+                    if individual_idx == 0:
+                        y = frame
+                    else:
+                        y = -frame
+
+                    # keypoint offsets relative to centroid
+                    if keypoint_idx == 1:  # left
+                        y += 1
+                    elif keypoint_idx == 2:  # right
+                        x += 1
+
+                    confidence = 0.9
+
+                    # low-confidence centroid frames
+                    if (
+                        keypoint_idx == 0
+                        and individual_idx == 0
+                        and frame in [2, 3, 4]
+                    ):
+                        confidence = 0.1
+
+                    elif (
+                        keypoint_idx == 0
+                        and individual_idx == 1
+                        and frame in [2, 3]
+                    ):
+                        confidence = 0.1
+
+                    napari_layers.append(
+                        [
+                            individual_idx,  # track_id
+                            frame,           # frame
+                            y,               # y
+                            x,               # x
+                        ]
+                    )
+
+                    properties.append(
+                        {
+                            "individual": f"id_{individual_idx}",
+                            "keypoint": keypoint,
+                            "time": frame,
+                            "confidence": confidence,
+                        }
+                    )
+
+        return (
+            np.asarray(napari_layers, dtype=np.float32),
+            pd.DataFrame(properties),
+        )
+
+    return _valid_poses_napari_layers
