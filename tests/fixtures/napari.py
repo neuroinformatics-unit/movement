@@ -233,7 +233,7 @@ def valid_poses_napari_layers():
                 for frame in frames:
                     # centroid trajectory
                     x = frame
-                    y = frame if individual_idx == 0 else -frame 
+                    y = frame if individual_idx == 0 else -frame
 
                     # keypoint offsets relative to centroid
                     if keypoint_idx == 1:  # left
