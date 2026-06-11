@@ -206,7 +206,7 @@ def valid_poses_napari_layers():
     - ``single_individual``: 1 individual, 3 keypoints
 
     The simulated trajectories follow simple linear motion: individual 0 moves
-    along ``x = y`` and individual 1 moves along ``x = y ``.
+    along ``x = y`` and individual 1 moves along ``x = -y ``.
 
     Three keypoints are defined for each individual: ``centroid``, ``right`` and
     ``left``. The ``left`` keypoint is offset by +1 in ``y`` relative to the
