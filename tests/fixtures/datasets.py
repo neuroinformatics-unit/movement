@@ -387,5 +387,3 @@ def missing_var_poses_dataset(valid_poses_dataset):
 def missing_dim_poses_dataset(valid_poses_dataset):
     """Return a poses dataset missing the required time dimension."""
     return valid_poses_dataset.rename({"time": "tame"})
-
-

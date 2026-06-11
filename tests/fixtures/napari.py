@@ -191,9 +191,11 @@ def sample_properties_with_factorized():
 
     return _sample_properties_with_factorized
 
+
 # -------------------- Valid bboxes napari layers --------------------
 
 # -------------------- Valid poses napari layers --------------------
+
 
 @pytest.fixture
 def valid_poses_napari_layers():
@@ -243,10 +245,7 @@ def valid_poses_napari_layers():
                         keypoint_idx == 0
                         and individual_idx == 0
                         and frame in [2, 3, 4]
-                    ):
-                        confidence = 0.1
-
-                    elif (
+                    ) or (
                         keypoint_idx == 0
                         and individual_idx == 1
                         and frame in [2, 3]
@@ -256,9 +255,9 @@ def valid_poses_napari_layers():
                     napari_layers.append(
                         [
                             individual_idx,  # track_id
-                            frame,           # frame
-                            y,               # y
-                            x,               # x
+                            frame,  # frame
+                            y,  # y
+                            x,  # x
                         ]
                     )
 
