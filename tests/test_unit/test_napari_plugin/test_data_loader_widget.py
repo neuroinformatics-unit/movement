@@ -568,6 +568,63 @@ def test_dimension_slider_with_nans(
 
 
 @pytest.mark.parametrize(
+    "nan_time_location",
+    ["start", "middle", "end"],
+)
+def test_dimension_slider_with_nans_bboxes(
+    valid_bboxes_path_and_ds_with_localised_nans,
+    nan_time_location,
+    make_napari_viewer_proxy,
+):
+    """Test that the dimension slider is set to the total number of frames
+    when bboxes data layers with NaNs are loaded.
+
+    Only one individual is set to NaN at a given time, because the
+    VIA-tracks CSV format drops frames where all individuals have NaN
+    positions, making the round-trip lossy for all-NaN frames.
+    """
+    nan_location = {
+        "time": nan_time_location,
+        "individuals": ["id_0"],
+    }
+    file_path, ds = valid_bboxes_path_and_ds_with_localised_nans(nan_location)
+
+    # Define the expected frame index with the NaN value
+    if nan_location["time"] == "start":
+        expected_frame = ds.coords["time"][0]
+    elif nan_location["time"] == "middle":
+        expected_frame = ds.coords["time"][ds.coords["time"].shape[0] // 2]
+    elif nan_location["time"] == "end":
+        expected_frame = ds.coords["time"][-1]
+
+    # Load the data loader widget
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    # Read sample data with a NaN at the specified location
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+    data_loader_widget.source_software_combo.setCurrentText("VIA-tracks")
+
+    # Check the data contains nans where expected
+    assert (
+        ds.position.sel(
+            individuals=nan_location["individuals"],
+            time=expected_frame,
+        )
+        .isnull()
+        .all()
+    )
+
+    # Call the _on_load_clicked method
+    data_loader_widget._on_load_clicked()
+
+    # Check the frame slider is set to the full range of frames
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=ds.position.shape[0] - 1, step=1.0
+    )
+
+
+@pytest.mark.parametrize(
     "list_input_data_files",
     [
         ["valid_poses_path_and_ds", "valid_poses_path_and_ds_short"],
@@ -611,6 +668,53 @@ def test_dimension_slider_multiple_files(
     # Check the maximum number of frames is the number of frames
     # in the longest dataset
     _, ds_long = request.getfixturevalue("valid_poses_path_and_ds")
+    assert max_frames == ds_long.sizes["time"]
+
+
+@pytest.mark.parametrize(
+    "list_input_data_files",
+    [
+        ["valid_bboxes_path_and_ds", "valid_bboxes_path_and_ds_short"],
+        ["valid_bboxes_path_and_ds_short", "valid_bboxes_path_and_ds"],
+    ],
+    ids=["long_first", "short_first"],
+)
+def test_dimension_slider_multiple_files_bboxes(
+    list_input_data_files, make_napari_viewer_proxy, request
+):
+    """Test that the dimension slider is set to the maximum number of frames
+    when multiple bboxes data layers are loaded.
+    """
+    # Get the datasets to load (paths and ds)
+    list_paths, list_datasets = [
+        [
+            request.getfixturevalue(file_name)[j]
+            for file_name in list_input_data_files
+        ]
+        for j in range(len(list_input_data_files))
+    ]
+
+    # Get the maximum number of frames from all datasets
+    max_frames = max(ds.sizes["time"] for ds in list_datasets)
+
+    # Load the data loader widget
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    # Load each dataset in order
+    for file_path in list_paths:
+        data_loader_widget.file_path_edit.setText(file_path.as_posix())
+        data_loader_widget.source_software_combo.setCurrentText("VIA-tracks")
+        data_loader_widget._on_load_clicked()
+
+    # Check the frame slider is as expected
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=max_frames - 1, step=1.0
+    )
+
+    # Check the maximum number of frames is the number of frames
+    # in the longest dataset
+    _, ds_long = request.getfixturevalue("valid_bboxes_path_and_ds")
     assert max_frames == ds_long.sizes["time"]
 
 
