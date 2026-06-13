@@ -1,3 +1,8 @@
+"""Exploring how to export edited keypoints as movement dataset.
+
+Keypoints are only dragged, not added or deleted.
+
+"""
 # %%
 import napari
 import numpy as np
@@ -114,7 +119,7 @@ print(loader.points_layer.data[row_idx, :])
 #     valid_frames, ---?
 # )
 
-# Get coordinates from original input
+# Get coordinates from **original** input
 time_coords = np.sort(loader.properties["time"].unique())
 space_coords = ["x", "y"]
 kpt_coords = loader.properties["keypoint"].unique().tolist()
@@ -125,7 +130,7 @@ n_frames = time_coords.shape[0]
 # This should match:
 # n_frames = int(loader.properties["time"].max() * loader.fps) + 1
 
-# Get properties dataframe
+# Get **live** properties dataframe
 properties_df = pd.DataFrame.from_dict(loader.points_layer.properties)
 
 
@@ -142,7 +147,9 @@ position_df = pd.DataFrame(
 # add time
 position_df["time"] = position_df["frame"] / loader.fps
 
-# add kpt and individuals (should match per row the properties ds)
+# add kpt and individuals 
+# (should match per row the *live* properties df)
+# pandas doesn't assign positionally — it aligns by index label. 
 position_df["keypoint"] = properties_df["keypoint"]
 position_df["individual"] = properties_df["individual"]
 
@@ -169,9 +176,72 @@ position_da = (
 )
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%
-# Compute confidence data array
-# TODO: edited points should probably have NAN confidence
+# Identify edited points to set their confidence to NaN
 
+# Build dataframe with original data and properties as passed to 
+# the points layer
+original_df = pd.DataFrame(
+    loader.data[loader.data_not_nan, 1:],  # drop track_id col
+    columns=["frame", "y", "x"],
+)
+original_props = loader.properties.iloc[loader.data_not_nan].reset_index(
+    drop=True  # we need to reset index to match original_df
+)
+# OJO: here pandas aligns by index label!
+original_df["keypoint"] = original_props["keypoint"]
+original_df["individual"] = original_props["individual"]
+
+
+# Build dataframe with "Live" data from the points layer
+live_df = pd.DataFrame(
+    loader.points_layer.data,
+    columns=["frame", "y", "x"],
+)
+# OJO: here pandas aligns by index label!
+live_df["keypoint"] = properties_df["keypoint"]
+live_df["individual"] = properties_df["individual"]
+
+# Pair up rows; left merge keeps live_df rows in their original order
+key_cols = ["frame", "individual", "keypoint"]
+merged = live_df.merge(
+    original_df,
+    on=key_cols,
+    how="left",
+    suffixes=("_live", "_orig"),
+)
+
+# We assume tuples of values (time, indiv, kpt) are unique
+assert len(merged) == len(properties_df)  
+
+# %%
+# Get masks for edited and added points
+# Edited: present in both _live and _orig, but coordinates moved
+# Added: no matching original row (y_orig/x_orig are NaN)
+added_mask = merged["y_orig"].isna().to_numpy()
+moved_mask = ~np.all(
+    np.isclose(
+        merged[["y_live", "x_live"]].to_numpy(),
+        merged[["y_orig", "x_orig"]].to_numpy(),
+    ),
+    axis=1,
+)
+edited_mask = added_mask | moved_mask
+print(f"{added_mask.sum()} added, {(moved_mask & ~added_mask).sum()} moved")
+
+# %%
+# Set confidence to NaN for edited/added points
+properties_df = properties_df.copy()
+properties_df.loc[edited_mask, "confidence"] = np.nan
+
+# when a point is added, napari copies the properties
+# of the last selected point and assigned them to it
+# For future proofing, let's derive the time coord from
+# the frames like for the position data
+properties_df['time'] = position_df["frame"] / loader.fps
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Compute confidence data array
+# 
 # Notes:
 # - .to_xarray(): pivots the three index levels into dims and
 #  places each confidence value at its matching cell
@@ -214,7 +284,8 @@ xr.testing.assert_equal(ds.position, ds_input.position)
 # %%%%%%%%%%%%%%%%%%
 # Check confidence
 
-# Where output confidence is NaN, input confidence is NaN or 0
+# Where output confidence is NaN, input confidence is NaN or 0, or
+# the value from the edited point
 conf_nan_out = ds.confidence.isnull()
 print(np.unique(ds_input.confidence.where(conf_nan_out).values))
 
