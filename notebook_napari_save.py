@@ -295,24 +295,72 @@ np.testing.assert_equal(
     ds.confidence.where(~conf_nan_out).values,
 )
 
-# %%
-# The mask that drops nans is from position
-# A row is removed whenever x or y is NaN.
-# In this SLEAP file there are frames where the position
-# is missing but SLEAP still recorded a confidence/score
-# (6,290 of them). Those whole rows never make it into
-# the Points layer, so their confidence is gone — and your to_xarray().reindex() correctly fills those cells back as NaN.
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# Claude
 
-# %%
-# - In this SLEAP file there are frames where the position is missing but
-#   SLEAP still recorded a confidence/score (sets it to 0?).
-# - In the properties dataframe, we drop values that have POSITION = NAN
-# - I think confidence should be set to nan
+# The explicit value_vars=["x", "y"] matters now: points_df has a confidence column, and without it melt would treat confidence as a third "space" value.
+# Order of operations with the edit-detection cell: keep the edited_mask cell before this one, operating on properties_df as it does now. The confidence values (including the NaNs you set for edited/added points) are copied into points_df row-by-row before the dedup, so everything stays aligned. The dedup must not run before edited_mask is computed, since that mask is positional against the un-deduplicated rows.
+# keep="last" relies on napari appending added points after the original ones, which holds for Points.add. If a duplicate ever arose some other way (it shouldn't), "last" would be arbitrary — that's why the print of dropped rows is worth keeping, so a nonzero count is visible when you didn't add anything.
 
-nan_position = ds.position.isnull().any(
-    "space"
-)  # position missing (x or y NaN)
-nan_conf = ds.confidence.isnull()
-print((nan_position & ~nan_conf).sum())  # missing position, present confidence
+# %%%%%%%%%%%%%%%%%%%%%%%%%
+# Build a point-level dataframe: one row per live point,
+# with identity keys, coordinates and confidence together
 
-# %%
+points_df = pd.DataFrame(
+    loader.points_layer.data,
+    columns=["frame", "y", "x"],
+)
+points_df["time"] = points_df["frame"] / loader.fps
+
+# properties rows are kept in sync with data rows by napari
+points_df["keypoint"] = properties_df["keypoint"].to_numpy()
+points_df["individual"] = properties_df["individual"].to_numpy()
+points_df["confidence"] = properties_df["confidence"].to_numpy()
+
+# A point added on a frame where that (keypoint, individual) already
+# has a point creates a duplicate key, which to_xarray() can't handle.
+# So we need to remove duplicates here.
+# napari appends new points at the end, so keep="last" makes the
+# user-added point override the original.
+n_before = len(points_df)
+points_df = points_df.drop_duplicates(
+    subset=["time", "keypoint", "individual"],
+    keep="last",
+)
+print(f"dropped {n_before - len(points_df)} overridden point(s)")
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%
+# Position data array
+position_df = points_df.melt(
+    id_vars=["time", "frame", "keypoint", "individual"],
+    value_vars=["x", "y"],
+    var_name="space",
+    value_name="position",
+)
+position_da = (
+    position_df.set_index(["time", "space", "keypoint", "individual"])[
+        "position"
+    ]
+    .astype(np.float32)
+    .to_xarray()
+    .reindex(
+        time=time_coords,
+        space=space_coords,
+        keypoint=kpt_coords,
+        individual=indiv_coords,
+    )
+)
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%
+# Confidence data array — built from the same deduplicated keys,
+# with time derived from the frame column (the `time` property of
+# an added point is a stale copy of napari's current_properties)
+confidence_da = (
+    points_df.set_index(["time", "keypoint", "individual"])["confidence"]
+    .to_xarray()
+    .reindex(
+        time=time_coords,
+        keypoint=kpt_coords,
+        individual=indiv_coords,
+    )
+)
