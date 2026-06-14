@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from movement.io import load_bboxes, load_poses
+from movement.io import load_poses
 
 
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
@@ -153,6 +153,7 @@ def napari_layers_to_ds(
     napari_layers: np.ndarray,
     properties: pd.DataFrame,
     fps: float | None = None,
+    valid_point_mask: np.ndarray | None = None,
 ) -> xr.Dataset:
     """Convert napari layer data back to a ``movement`` dataset.
 
@@ -171,6 +172,9 @@ def napari_layers_to_ds(
     fps
         Frames per second of the video. Defaults to None, in which case
         the ``time`` coordinates will be in frame numbers.
+    valid_point_mask
+        Boolean mask indicating which rows in ``napari_layers`` are valid.
+        Defaults to None, in which case all rows are assumed to be valid.
 
     Returns
     -------
@@ -184,22 +188,45 @@ def napari_layers_to_ds(
     ``properties``. If present, a poses dataset is returned. Otherwise,
     a bounding boxes dataset is returned.
 
+    ``ds_to_napari_layers`` returns a Tracks array of shape (N, 4) with
+    columns (track_id, frame, y, x). When loading into napari,
+    ``loader_widgets`` derives a Points layer from this by dropping the
+    ``track_id`` column, giving a (N, 3) array of (frame, y, x). The
+    Points layer is preferred for editing purposes, as it allows the user
+    to directly manipulate individual keypoint positions. This function
+    therefore expects the Points layer data as input, and uses it to
+    reconstruct the original dataset.
+
+    ``ds_to_napari_layers`` preserves NaN values in the output arrays,
+    but napari cannot handle NaN coordinates, so ``loader_widgets`` filters
+    them out before passing data to the napari layers. As a result, when
+    reconstructing a dataset via ``napari_layers_to_ds``, the input arrays
+    may be shorter than the original. Pass ``valid_point_mask`` to indicate
+    which rows were kept, so the full array (including NaN slots) can be
+    correctly reconstructed.
+
     """
     if "keypoint" in properties.columns:
         individual_names = properties["individual"].unique().tolist()
         keypoint_names = properties["keypoint"].unique().tolist()
 
-        pose_position = (
-            napari_layers[:, [2, 1]]  # 2:x, 1:y
-            .reshape(len(individual_names), len(keypoint_names), -1, 2)
-            .transpose(2, 3, 1, 0)
-        )
-        pose_confidence = (
-            properties["confidence"]
-            .to_numpy()
-            .reshape(len(individual_names), len(keypoint_names), -1)
-            .transpose(2, 1, 0)
-        )
+        if valid_point_mask is None:
+            valid_point_mask = np.full(len(napari_layers), True)
+
+        position_with_nans = np.full((len(valid_point_mask), 2), np.nan)
+        confidence_with_nans = np.full(len(valid_point_mask), np.nan)
+
+        position_with_nans[valid_point_mask] = napari_layers[:, [2, 1]]
+        confidence_with_nans[valid_point_mask] = properties[
+            "confidence"
+        ].to_numpy()
+
+        pose_position = position_with_nans.reshape(
+            len(individual_names), len(keypoint_names), -1, 2
+        ).transpose(2, 3, 1, 0)
+        pose_confidence = confidence_with_nans.reshape(
+            len(individual_names), len(keypoint_names), -1
+        ).transpose(2, 1, 0)
 
         return load_poses.from_numpy(
             position_array=pose_position,
@@ -210,51 +237,7 @@ def napari_layers_to_ds(
         )
 
     else:  ##bboxes
-        individual_names = properties["individual"].unique().tolist()
-        n_individuals = len(individual_names)
-        n_frames = len(properties["time"].unique())
-
-        xmin_ymin = napari_layers[:, 0, :]
-        xmax_ymax = napari_layers[:, 2, :]
-
-        xmin = xmin_ymin[:, 3]
-        ymin = xmin_ymin[:, 2]
-        xmax = xmax_ymax[:, 3]
-        ymax = xmax_ymax[:, 2]
-
-        bbox_position = np.column_stack(  # center of box
-            [
-                (xmin + xmax) / 2,
-                (ymin + ymax) / 2,
-            ]
-        )
-
-        bbox_shape = np.column_stack(  # width,length of box
-            [
-                xmax - xmin,
-                ymax - ymin,
-            ]
-        )
-
-        bbox_position = bbox_position.reshape(
-            n_individuals, n_frames, 2
-        ).transpose(1, 2, 0)
-
-        bbox_shape = bbox_shape.reshape(n_individuals, n_frames, 2).transpose(
-            1, 2, 0
-        )
-
-        bbox_confidence = (
-            properties["confidence"]
-            .to_numpy()
-            .reshape(n_individuals, n_frames)
-            .transpose(1, 0)
-        )
-
-        return load_bboxes.from_numpy(
-            position_array=bbox_position,
-            shape_array=bbox_shape,
-            confidence_array=bbox_confidence,
-            individual_names=individual_names,
-            fps=fps,
+        raise NotImplementedError(
+            "Reconstruction of bounding box datasets from napari layers "
+            "is not yet implemented."
         )
