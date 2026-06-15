@@ -1,8 +1,9 @@
-"""Exploring how to export edited keypoints as movement dataset.
+"""Exploring how to export napari edited keypoints as movement dataset.
 
 Keypoints are only dragged, not added or deleted.
 
 """
+
 # %%
 import napari
 import numpy as np
@@ -36,12 +37,11 @@ print(report_nan_values(ds_input.position))
 # id_0        4494/18485 (24.31%)  513/18485 (2.78%)  533/18485 (2.88%)  490/18485 (2.65%)  704/18485 (3.81%)  2496/18485 (13.5%)
 
 # %%
-# NOTE: In the input the values where position is NaN
+# NOTE: In the input some values where position is NaN
 # have confidence 0; seems like SLEAP does this with
 # confidence points below a threshold?
 nan_position = ds_input.position.isnull().any("space")
-print(np.nanmax(ds_input.confidence.where(nan_position).values))
-
+print(np.unique(ds_input.confidence.where(nan_position).values))
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Instantiate napari viewer and loader widget
@@ -147,9 +147,9 @@ position_df = pd.DataFrame(
 # add time
 position_df["time"] = position_df["frame"] / loader.fps
 
-# add kpt and individuals 
+# add kpt and individuals
 # (should match per row the *live* properties df)
-# pandas doesn't assign positionally — it aligns by index label. 
+# pandas doesn't assign positionally, it aligns by index label.
 position_df["keypoint"] = properties_df["keypoint"]
 position_df["individual"] = properties_df["individual"]
 
@@ -178,7 +178,7 @@ position_da = (
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Identify edited points to set their confidence to NaN
 
-# Build dataframe with original data and properties as passed to 
+# Build dataframe with original data and properties as passed to
 # the points layer
 original_df = pd.DataFrame(
     loader.data[loader.data_not_nan, 1:],  # drop track_id col
@@ -211,7 +211,7 @@ merged = live_df.merge(
 )
 
 # We assume tuples of values (time, indiv, kpt) are unique
-assert len(merged) == len(properties_df)  
+assert len(merged) == len(properties_df)
 
 # %%
 # Get masks for edited and added points
@@ -233,15 +233,17 @@ print(f"{added_mask.sum()} added, {(moved_mask & ~added_mask).sum()} moved")
 properties_df = properties_df.copy()
 properties_df.loc[edited_mask, "confidence"] = np.nan
 
-# when a point is added, napari copies the properties
-# of the last selected point and assigned them to it
-# For future proofing, let's derive the time coord from
+# When a point is added, napari assigns it the properties
+# of the last selected point in the properties dataframe.
+# So when we add a point, the "time" property will be copied from
+# the last selected point. Although we are not dealing with adding
+# points yet, for future proofing, let's derive the time coord from
 # the frames like for the position data
-properties_df['time'] = position_df["frame"] / loader.fps
+properties_df["time"] = position_df["frame"] / loader.fps
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Compute confidence data array
-# 
+#
 # Notes:
 # - .to_xarray(): pivots the three index levels into dims and
 #  places each confidence value at its matching cell
@@ -284,7 +286,7 @@ xr.testing.assert_equal(ds.position, ds_input.position)
 # %%%%%%%%%%%%%%%%%%
 # Check confidence
 
-# Where output confidence is NaN, input confidence is NaN or 0, or
+# Where output confidence is NaN, input confidence is NaN or 0, OR
 # the value from the edited point
 conf_nan_out = ds.confidence.isnull()
 print(np.unique(ds_input.confidence.where(conf_nan_out).values))
@@ -298,9 +300,14 @@ np.testing.assert_equal(
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # Claude
 
-# The explicit value_vars=["x", "y"] matters now: points_df has a confidence column, and without it melt would treat confidence as a third "space" value.
-# Order of operations with the edit-detection cell: keep the edited_mask cell before this one, operating on properties_df as it does now. The confidence values (including the NaNs you set for edited/added points) are copied into points_df row-by-row before the dedup, so everything stays aligned. The dedup must not run before edited_mask is computed, since that mask is positional against the un-deduplicated rows.
-# keep="last" relies on napari appending added points after the original ones, which holds for Points.add. If a duplicate ever arose some other way (it shouldn't), "last" would be arbitrary — that's why the print of dropped rows is worth keeping, so a nonzero count is visible when you didn't add anything.
+# NOTE: Order of operations with the edit-detection cell: keep the edited_mask
+# cell before this one, operating on properties_df as it does now. The
+# confidence values (including the NaNs you set for edited/added points) are
+# copied into
+# points_df row-by-row before the dedup, so everything stays aligned. The
+# dedup must not run before edited_mask is computed, since that mask is
+# positional against the un-deduplicated rows.
+
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%
 # Build a point-level dataframe: one row per live point,
@@ -322,15 +329,24 @@ points_df["confidence"] = properties_df["confidence"].to_numpy()
 # So we need to remove duplicates here.
 # napari appends new points at the end, so keep="last" makes the
 # user-added point override the original.
-n_before = len(points_df)
+n_points_w_duplicates = len(points_df)
 points_df = points_df.drop_duplicates(
     subset=["time", "keypoint", "individual"],
     keep="last",
 )
-print(f"dropped {n_before - len(points_df)} overridden point(s)")
+print(f"dropped {n_points_w_duplicates - len(points_df)} overridden point(s)")
+
+# keep="last" relies on napari appending added points after the original ones,
+# which holds for Points.add. If a duplicate ever arose some other way
+# (it shouldn't), "last" would be arbitrary — that's why the print of dropped
+# rows is worth keeping, so a nonzero count is visible when you didn't add
+# anything.
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%
 # Position data array
+
+# The explicit value_vars=["x", "y"] matters now: points_df has a confidence
+# column, and without it melt would treat confidence as a third "space" value.
 position_df = points_df.melt(
     id_vars=["time", "frame", "keypoint", "individual"],
     value_vars=["x", "y"],
