@@ -256,6 +256,15 @@ def valid_poses_napari_layers():
                     ):
                         confidence = 0.1
 
+                    if (
+                        keypoint == "left"
+                        and individual_idx == 0
+                        and frame == 6
+                    ):
+                        x = np.nan
+                        y = np.nan
+                        confidence = np.nan
+                        # we add a single nan on ind 0, kp "left" and frame 6
                     napari_layers.append(
                         [
                             individual_idx,  # track_id
@@ -280,3 +289,22 @@ def valid_poses_napari_layers():
         )
 
     return _valid_poses_napari_layers
+
+
+@pytest.fixture
+def valid_points_napari_layers(valid_poses_napari_layers):
+    """Return pose Points layer data after filtering NaN coordinates.
+    This reproduces the filtering performed by the napari loader widget
+    before creating the Points layer.
+    """
+
+    def _valid_points_napari_layers(array_type):
+        tracks_data, properties = valid_poses_napari_layers(array_type)
+        valid_point_mask = ~np.any(np.isnan(tracks_data), axis=1)
+        points_data = tracks_data[valid_point_mask, 1:]
+        points_properties = properties.iloc[valid_point_mask].reset_index(
+            drop=True
+        )
+        return points_data, points_properties
+
+    return _valid_points_napari_layers
