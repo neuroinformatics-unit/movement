@@ -201,6 +201,10 @@ def sample_properties_with_factorized():
 def valid_poses_napari_layers():
     """Return valid pose napari layers.
 
+    This fixture mirrors ``valid_poses_dataset`` and represents the same
+    synthetic tracking data after conversion to napari Tracks-layer format.
+    Additionally, this fixture introduces nans.
+
     Depending on the ``array_type`` the returned napari layer can represent:
 
     - ``multiple_individuals``: 2 individuals, 3 keypoints
@@ -294,8 +298,12 @@ def valid_poses_napari_layers():
 @pytest.fixture
 def valid_points_napari_layers(valid_poses_napari_layers):
     """Return pose Points layer data after filtering NaN coordinates.
-    This reproduces the filtering performed by the napari loader widget
-    before creating the Points layer.
+
+    This fixture is derived from ``valid_poses_napari_layers`` and
+    reproduces the filtering performed by the napari loader widget when
+    creating a Points layer: rows containing NaN coordinates are removed,
+    and the remaining data are returned as ``(frame, y, x)`` coordinates
+    together with their corresponding properties.
     """
 
     def _valid_points_napari_layers(array_type):
