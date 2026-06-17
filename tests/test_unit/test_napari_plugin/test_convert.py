@@ -305,148 +305,135 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
     xr.testing.assert_equal(reconstructed_ds, ds)
 
 
-def test_edited_pose_napari_layers(
-    valid_poses_napari_layers,
-    valid_points_napari_layers,
+@pytest.mark.parametrize(
+    "nan_location",
+    [
+        None,
+        # no NaNs
+        {
+            "time": "start",
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
+        },  # all individuals are nan at the start
+        {
+            "time": "end",
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
+        },  # all individuals are nan at the end
+        {
+            "time": "middle",
+            "individual": ["id_0"],
+            "keypoint": ["centroid"],
+        },  # a single keypoint of an individual is nan mid-sequence
+    ],
+)
+def test_napari_layers_to_ds(
+    nan_location,
+    valid_poses_path_and_ds,
+    valid_poses_path_and_ds_with_localised_nans,
+    loaded_data_loader,
 ):
-    """Test conversion after editing keypoint coordinates.
+    # Get sample data filepath and dataset
+    if nan_location is None:
+        filepath, ds_expected = valid_poses_path_and_ds
+    else:
+        filepath, ds_expected = valid_poses_path_and_ds_with_localised_nans(
+            nan_location
+        )
 
-    The live napari Points layer does not contain NaN values.
-    The full unfiltered properties table is used to restore the original
-    dataset structure.
-    """
-    _, properties_unfiltered = valid_poses_napari_layers(
-        "multiple_individuals"
+    # Get loader widget with sample data loaded
+    loader = loaded_data_loader(filepath, ds_expected)
+
+    # Convert data in napari point layer to a movement dataset
+    ds = napari_layers_to_ds(
+        points_as_napari=loader.points_layer.data,
+        properties=loader.points_layer.properties,  # dict
+        properties_with_nans=loader.properties,
+        attrs=ds_expected.attrs,
     )
-    napari_points, properties = valid_points_napari_layers(
-        "multiple_individuals"
+
+    # Assert that the input dataset and the converted one are equal
+    xr.testing.assert_equal(ds, ds_expected)
+
+
+def test_edited_pose_napari_layers(
+    valid_poses_path_and_ds,
+    loaded_data_loader,
+):
+    """Test conversion after editing keypoint coordinates."""
+    # TODO: Decide whether editing a point should also set confidence to NaN?
+    filepath, ds_expected = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_expected)
+    points = loader.points_layer.data.copy()
+    properties = loader.points_layer.properties
+
+    frame = 5
+    keypoint = "centroid"
+    individual = "id_0"
+    edit_mask = (
+        (properties["time"] == frame)
+        & (properties["keypoint"] == keypoint)
+        & (properties["individual"] == individual)
     )
-
-    expected_ds = napari_layers_to_ds(
-        napari_points,
-        properties,
-    ).copy(deep=True)
-
-    frame = 5  # we are going to edit x,y on this frame
-    napari_points[frame, 2] = 100  # y
-    napari_points[frame, 3] = 200  # x
-
+    points[edit_mask, 1] = 100  # y
+    points[edit_mask, 2] = 200  # x
     reconstructed_ds = napari_layers_to_ds(
-        napari_points,
-        properties,
+        points_as_napari=points,
+        properties=properties,
+        properties_with_nans=loader.properties,
+        attrs=ds_expected.attrs,
     )
-
+    expected_ds = ds_expected.copy(deep=True)
     expected_ds.position.loc[
         {
             "time": frame,
-            "keypoint": "centroid",
-            "individual": "id_0",
+            "space": ["x", "y"],
+            "keypoint": keypoint,
+            "individual": individual,
         }
     ] = [200, 100]
-
     xr.testing.assert_equal(reconstructed_ds, expected_ds)
 
 
 def test_removed_pose_napari_layers(
-    valid_poses_napari_layers,
+    valid_poses_path_and_ds,
+    loaded_data_loader,
 ):
-    """Test conversion from napari layers to ds after removing predictions."""
-    napari_tracks, properties = valid_poses_napari_layers(
-        "multiple_individuals"
-    )
-
-    expected_ds = napari_layers_to_ds(
-        napari_tracks,
-        properties,
-    ).copy(deep=True)
+    """Test conversion after removing keypoint coordinates."""
+    # TODO: Decide whether removing a point should also set confidence to NaN?
+    filepath, ds_expected = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_expected)
+    points = loader.points_layer.data.copy()
+    properties = loader.points_layer.properties
 
     frame = 5
+    keypoint = "centroid"
+    individual = "id_0"
 
-    # simulate deleting a prediction in napari
-    napari_tracks[frame, 2] = np.nan  # y
-    napari_tracks[frame, 3] = np.nan  # x
-    properties.loc[frame, "confidence"] = np.nan
-
-    reconstructed_ds = napari_layers_to_ds(
-        napari_tracks,
-        properties,
+    remove_mask = (
+        (properties["time"] == frame)
+        & (properties["keypoint"] == keypoint)
+        & (properties["individual"] == individual)
     )
 
+    points[remove_mask, 1] = np.nan  # y
+    points[remove_mask, 2] = np.nan  # x
+
+    reconstructed_ds = napari_layers_to_ds(
+        points_as_napari=points,
+        properties=properties,
+        properties_with_nans=loader.properties,
+        attrs=ds_expected.attrs,
+    )
+
+    expected_ds = ds_expected.copy(deep=True)
     expected_ds.position.loc[
         {
             "time": frame,
-            "keypoint": "centroid",
-            "individual": "id_0",
+            "space": ["x", "y"],
+            "keypoint": keypoint,
+            "individual": individual,
         }
     ] = [np.nan, np.nan]
 
-    expected_ds.confidence.loc[
-        {
-            "time": frame,
-            "keypoint": "centroid",
-            "individual": "id_0",
-        }
-    ] = np.nan
-
-    xr.testing.assert_equal(
-        reconstructed_ds,
-        expected_ds,
-    )
-
-
-def test_id_swap_pose_napari_layers(
-    valid_poses_napari_layers,
-):
-    """Test conversion after swapping IDs.
-
-    Test conversion from napari layers to a dataset after swapping
-    identities for a given set of frames.
-    """
-    napari_tracks, properties = valid_poses_napari_layers(
-        "multiple_individuals"
-    )
-
-    expected_ds = napari_layers_to_ds(
-        napari_tracks,
-        properties,
-    ).copy(deep=True)
-
-    frame = 5  # swap IDs in frame 5
-
-    idx_0 = properties.index[
-        (properties["individual"] == "id_0") & (properties["time"] == frame)
-    ]
-    idx_1 = properties.index[
-        (properties["individual"] == "id_1") & (properties["time"] == frame)
-    ]
-
-    xy = [3, 2]  # column x,y in napari layers
-    tracks_id_0 = napari_tracks[np.ix_(idx_0, xy)].copy()
-    tracks_id_1 = napari_tracks[np.ix_(idx_1, xy)].copy()
-    napari_tracks[np.ix_(idx_0, xy)] = tracks_id_1
-    napari_tracks[np.ix_(idx_1, xy)] = tracks_id_0
-
-    reconstructed_ds = napari_layers_to_ds(napari_tracks, properties)
-
-    xr.testing.assert_equal(
-        reconstructed_ds.position.sel(time=frame, individual="id_0"),
-        expected_ds.position.sel(time=frame, individual="id_1").assign_coords(
-            individual="id_0"
-        ),
-    )
-    xr.testing.assert_equal(
-        reconstructed_ds.position.sel(time=frame, individual="id_1"),
-        expected_ds.position.sel(time=frame, individual="id_0").assign_coords(
-            individual="id_1"
-        ),
-    )
-
-    # are other frames unaffected?
-    other_frames = [f for f in expected_ds.time.values if f != frame]
-    xr.testing.assert_equal(
-        reconstructed_ds.position.sel(time=other_frames),
-        expected_ds.position.sel(time=other_frames),
-    )
-
-    assert reconstructed_ds.sizes == expected_ds.sizes
-    assert set(reconstructed_ds.coords) == set(expected_ds.coords)
+    xr.testing.assert_equal(reconstructed_ds, expected_ds)

@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 from movement.io import save_poses
+from movement.napari.loader_widgets import DataLoader
 
 
 @pytest.fixture
@@ -192,127 +193,19 @@ def sample_properties_with_factorized():
     return _sample_properties_with_factorized
 
 
-# -------------------- Valid bboxes napari layers --------------------
-
-# -------------------- Valid poses napari layers --------------------
-
-
 @pytest.fixture
-def valid_poses_napari_layers():
-    """Return valid pose napari layers.
+def loaded_data_loader(make_napari_viewer_proxy):
+    """Return a factory that builds and loads a DataLoader."""
 
-    This fixture mirrors ``valid_poses_dataset`` and represents the same
-    synthetic tracking data after conversion to napari Tracks-layer format.
-    Additionally, this fixture introduces nans.
-
-    Depending on the ``array_type`` the returned napari layer can represent:
-
-    - ``multiple_individuals``: 2 individuals, 3 keypoints
-    - ``single_individual``: 1 individual, 3 keypoints
-
-    The simulated trajectories follow simple linear motion: individual 0 moves
-    along ``x = y`` and individual 1 moves along ``x = -y``.
-
-    Three keypoints are defined for each individual: ``centroid``, ``left``,
-    and ``right``. Relative to the centroid, ``left`` is shifted by ``+1`` in
-    ``y`` and ``right`` by ``+1`` in ``x``.
-
-    The napari tracks array has shape ``(N, 4)`` with columns:
-    ``track_id, frame, y, x``.
-    """
-
-    def _valid_poses_napari_layers(array_type):
-        n_frames, n_individuals = (10, 2)
-        keypoint_names = ["centroid", "left", "right"]
-
-        if array_type == "single_individual":
-            n_individuals = 1
-
-        frames = np.arange(n_frames)
-
-        napari_layers = []
-        properties = []
-
-        for individual_idx in range(n_individuals):
-            for keypoint_idx, keypoint in enumerate(keypoint_names):
-                for frame in frames:
-                    # centroid trajectory
-                    x = frame
-                    y = frame if individual_idx == 0 else -frame
-
-                    # keypoint offsets relative to centroid
-                    if keypoint_idx == 1:  # left
-                        y += 1
-                    elif keypoint_idx == 2:  # right
-                        x += 1
-
-                    confidence = 0.9
-
-                    # low-confidence centroid frames
-                    if (
-                        keypoint_idx == 0
-                        and individual_idx == 0
-                        and frame in [2, 3, 4]
-                    ) or (
-                        keypoint_idx == 0
-                        and individual_idx == 1
-                        and frame in [2, 3]
-                    ):
-                        confidence = 0.1
-
-                    if (
-                        keypoint == "left"
-                        and individual_idx == 0
-                        and frame == 6
-                    ):
-                        x = np.nan
-                        y = np.nan
-                        confidence = np.nan
-                        # we add a single nan on ind 0, kp "left" and frame 6
-                    napari_layers.append(
-                        [
-                            individual_idx,  # track_id
-                            frame,  # frame
-                            y,  # y
-                            x,  # x
-                        ]
-                    )
-
-                    properties.append(
-                        {
-                            "individual": f"id_{individual_idx}",
-                            "keypoint": keypoint,
-                            "time": frame,
-                            "confidence": confidence,
-                        }
-                    )
-
-        return (
-            np.asarray(napari_layers, dtype=np.float32),
-            pd.DataFrame(properties),
+    def _loaded_data_loader(filepath, ds):
+        loader = DataLoader(make_napari_viewer_proxy())
+        loader.file_path_edit.setText(str(filepath))
+        loader.source_software_combo.setCurrentText(
+            ds.attrs["source_software"]
         )
+        if "fps" in ds.attrs:
+            loader.fps_spinbox.setValue(ds.attrs["fps"])
+        loader._on_load_clicked()
+        return loader
 
-    return _valid_poses_napari_layers
-
-
-@pytest.fixture
-def valid_points_napari_layers(valid_poses_napari_layers):
-    """Return pose Points layer data after filtering NaN coordinates.
-
-    This fixture is derived from ``valid_poses_napari_layers`` and
-    reproduces the filtering performed by the napari loader widget when
-    creating a Points layer: rows containing NaN coordinates are removed,
-    and the remaining data are returned as ``(frame, y, x)`` coordinates
-    together with their corresponding properties.
-    """
-
-    def _valid_points_napari_layers(array_type):
-        tracks_data, properties = valid_poses_napari_layers(array_type)
-        valid_point_mask = ~np.any(np.isnan(tracks_data), axis=1)
-        points_data = tracks_data[valid_point_mask, 1:]
-        points_properties = properties.iloc[valid_point_mask].reset_index(
-            drop=True
-        )
-        return points_data, points_properties
-
-    return _valid_points_napari_layers
+    return _loaded_data_loader
