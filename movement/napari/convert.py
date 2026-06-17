@@ -151,7 +151,7 @@ def napari_layers_to_ds(
     napari_layers: np.ndarray,
     properties: pd.DataFrame,
     properties_unfiltered: pd.DataFrame,
-    fps: float | None = None,
+    attrs: dict | None = None,
 ) -> xr.Dataset:
     """Convert napari layer data back to a ``movement`` dataset.
 
@@ -165,9 +165,12 @@ def napari_layers_to_ds(
         Live DataFrame with properties synced to ``napari_layers``
         (individual, keypoint, time, confidence). One row per point.
     properties_unfiltered:
-        Properties DataFrame corresponding to ``napari_layers_with_nan``.
-    fps
-        Frames per second. If None, time coordinates are frame numbers.
+        Properties DataFrame corresponding to the unfiltered napari
+        layer data, including NaN coordinates (``napari_layers_with_nan``).
+    attrs
+        Original dataset attributes (e.g. ``source_software``, ``fps``,
+        ``time_unit``, ``source_file``) stored in the napari layer
+        metadata and restored during dataset reconstruction.
 
     Returns
     -------
@@ -195,11 +198,12 @@ def napari_layers_to_ds(
     them out before passing data to the napari layers. As a result, when
     reconstructing a dataset via ``napari_layers_to_ds``, the input arrays
     may be shorter than the original.
-    This function reconstructs the full dataset by restoring NaN frames via
-    pandas ``reindex``, using the unfiltered coordinates from
-    ``properties_with_nan``
+    This function reconstructs the full dataset by restoring missing points
+    using the full coordinate structure from ``properties_unfiltered``
 
     """
+    fps = attrs.get("fps") if attrs is not None else None
+
     if "keypoint" in properties.columns:
         time_coords = np.sort(properties_unfiltered["time"].unique())
         space_coords = ["x", "y"]
@@ -262,10 +266,7 @@ def napari_layers_to_ds(
                 "keypoint": keypoint_coords,
                 "individual": individual_coords,
             },
-            attrs={
-                "fps": fps,
-                "ds_type": "poses",
-            },
+            attrs=attrs if attrs is not None else {},
         )
 
     raise NotImplementedError(
