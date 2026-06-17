@@ -307,26 +307,32 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
 
 def test_edited_pose_napari_layers(
     valid_poses_napari_layers,
+    valid_points_napari_layers,
 ):
     """Test conversion after editing keypoint coordinates.
 
-    Test conversion from napari layers to a dataset after editing the
-    keypoint x/y coordinate for a given set of frames.
+    The live napari Points layer does not contain NaN values.
+    The full unfiltered properties table is used to restore the original
+    dataset structure.
     """
-    napari_tracks, properties = valid_poses_napari_layers(
+    _, properties_unfiltered = valid_poses_napari_layers(
         "multiple_individuals"
     )
+    napari_points, properties = valid_points_napari_layers(
+        "multiple_individuals"
+    )
+
     expected_ds = napari_layers_to_ds(
-        napari_tracks,
+        napari_points,
         properties,
     ).copy(deep=True)
 
     frame = 5  # we are going to edit x,y on this frame
-    napari_tracks[frame, 2] = 100  # y
-    napari_tracks[frame, 3] = 200  # x
+    napari_points[frame, 2] = 100  # y
+    napari_points[frame, 3] = 200  # x
 
     reconstructed_ds = napari_layers_to_ds(
-        napari_tracks,
+        napari_points,
         properties,
     )
 
