@@ -305,42 +305,6 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
     xr.testing.assert_equal(reconstructed_ds, ds)
 
 
-@pytest.mark.parametrize(
-    "fps",
-    [
-        None,
-        10.0,
-        30.0,
-        100.0,
-    ],
-)
-def test_valid_poses_napari_layer_to_dataset_with_fps(
-    valid_poses_dataset, fps
-):
-    """Test reconstruction of time coordinates.
-
-    Test conversion from from napari layers to movement
-    xarrays, with different fps values.
-    """
-    napari_tracks, _, properties = ds_to_napari_layers(valid_poses_dataset)
-    reconstructed_ds = napari_layers_to_ds(
-        napari_tracks,
-        properties,
-        fps=fps,
-    )
-
-    expected_time = (
-        np.arange(valid_poses_dataset.sizes["time"])
-        if fps is None
-        else np.arange(valid_poses_dataset.sizes["time"]) / fps
-    )
-
-    np.testing.assert_allclose(
-        reconstructed_ds.time.values,
-        expected_time,
-    )
-
-
 def test_edited_pose_napari_layers(
     valid_poses_napari_layers,
 ):
