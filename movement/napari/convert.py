@@ -230,7 +230,6 @@ def napari_layers_to_ds(
             position_df.set_index(["time", "space", "keypoint", "individual"])[
                 "position"
             ]
-            .astype(np.float32)
             .to_xarray()
             .reindex(
                 time=time_coords,
@@ -245,7 +244,6 @@ def napari_layers_to_ds(
             properties_unfiltered.set_index(
                 ["time", "keypoint", "individual"]
             )["confidence"]
-            .astype(np.float32)
             .to_xarray()
             .reindex(
                 time=time_coords,
