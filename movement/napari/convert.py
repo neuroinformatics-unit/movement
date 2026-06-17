@@ -148,25 +148,25 @@ def ds_to_napari_layers(
 
 
 def napari_layers_to_ds(
-    napari_layers: np.ndarray,
-    properties: pd.DataFrame,
-    properties_unfiltered: pd.DataFrame,
+    points_as_napari: np.ndarray,
+    properties: dict,
+    properties_with_nans: pd.DataFrame,
     attrs: dict | None = None,
 ) -> xr.Dataset:
     """Convert napari layer data back to a ``movement`` dataset.
 
     Parameters
     ----------
-    napari_layers
+    points_as_napari
         Live napari Points layer data, shape (N, 3): (frame_idx, y, x).
         NaN rows are excluded (napari cannot handle NaN coordinates),
         so this may be shorter than the full timeline.
     properties
-        Live DataFrame with properties synced to ``napari_layers``
+        Dictionary with properties synced to ``napari_layers``
         (individual, keypoint, time, confidence). One row per point.
-    properties_unfiltered:
-        Properties DataFrame corresponding to the unfiltered napari
-        layer data, including NaN coordinates (``napari_layers_with_nan``).
+    properties_with_nans:
+        Properties DataFrame corresponding to the original input passed to
+        the napari points layer, including NaN position data.
     attrs
         Original dataset attributes (e.g. ``source_software``, ``fps``,
         ``time_unit``, ``source_file``) stored in the napari layer
@@ -202,23 +202,27 @@ def napari_layers_to_ds(
     using the full coordinate structure from ``properties_unfiltered``
 
     """
+    properties_df = pd.DataFrame.from_dict(properties)
     fps = attrs.get("fps") if attrs is not None else None
 
-    if "keypoint" in properties.columns:
-        time_coords = np.sort(properties_unfiltered["time"].unique())
+    if "keypoint" in properties_df.columns:
+        # Get full coordinates from the original properties with nan
+        time_coords = np.sort(properties_with_nans["time"].unique())
         space_coords = ["x", "y"]
-        keypoint_coords = properties_unfiltered["keypoint"].unique().tolist()
+        keypoint_coords = properties_with_nans["keypoint"].unique().tolist()
         individual_coords = (
-            properties_unfiltered["individual"].unique().tolist()
+            properties_with_nans["individual"].unique().tolist()
         )
-
-        position_df = pd.DataFrame(napari_layers, columns=["frame", "y", "x"])
+        # Build position dataframe from napari's live point layer data
+        position_df = pd.DataFrame(
+            points_as_napari, columns=["frame", "y", "x"]
+        )
         position_df["time"] = (
             position_df["frame"] / fps if fps else position_df["frame"]
         )
 
-        position_df["keypoint"] = properties["keypoint"].to_numpy()
-        position_df["individual"] = properties["individual"].to_numpy()
+        position_df["keypoint"] = properties_df["keypoint"].to_numpy()
+        position_df["individual"] = properties_df["individual"].to_numpy()
 
         position_df = position_df.melt(
             id_vars=["time", "frame", "keypoint", "individual"],
@@ -237,20 +241,18 @@ def napari_layers_to_ds(
                 keypoint=keypoint_coords,
                 individual=individual_coords,
             )
-            .transpose("time", "space", "keypoint", "individual")
         )
 
         confidence_da = (
-            properties_unfiltered.set_index(
-                ["time", "keypoint", "individual"]
-            )["confidence"]
+            properties_with_nans.set_index(["time", "keypoint", "individual"])[
+                "confidence"
+            ]
             .to_xarray()
             .reindex(
                 time=time_coords,
                 keypoint=keypoint_coords,
                 individual=individual_coords,
             )
-            .transpose("time", "keypoint", "individual")
         )
 
         return xr.Dataset(
