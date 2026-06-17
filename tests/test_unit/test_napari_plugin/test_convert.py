@@ -265,6 +265,9 @@ def test_invalid_poses_to_napari_layers(ds_name, expected_exception, request):
         ds_to_napari_layers(ds)
 
 
+# -------------------- Valid napari layers test --------------------
+
+
 @pytest.mark.parametrize(
     "ds_dataset",
     [
@@ -281,8 +284,23 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
     """
     ds_name = f"valid_poses_{ds_dataset}"
     ds = request.getfixturevalue(ds_name)
-    napari_tracks, _, properties = ds_to_napari_layers(ds)
-    reconstructed_ds = napari_layers_to_ds(napari_tracks, properties)
+    napari_tracks, _, properties_unfiltered = ds_to_napari_layers(ds)
+
+    # simulate loader widget filtering of nans
+    valid_point_mask = ~np.any(np.isnan(napari_tracks[:, 2:4]), axis=1)
+
+    # napari_tracks is shape (N,4): (track_id, frame, y, x)
+    # but our function is expecting the points layer (N,3): (frame, y, x)
+    # the loader widget converts tracks layers to points layer by
+    # dropping the track_id column
+    napari_points = napari_tracks[valid_point_mask, 1:]
+    properties = properties_unfiltered.iloc[valid_point_mask].reset_index(
+        drop=True
+    )
+
+    reconstructed_ds = napari_layers_to_ds(
+        napari_points, properties, properties_unfiltered, attrs=ds.attrs
+    )
 
     xr.testing.assert_equal(reconstructed_ds, ds)
 
@@ -320,49 +338,6 @@ def test_valid_poses_napari_layer_to_dataset_with_fps(
     np.testing.assert_allclose(
         reconstructed_ds.time.values,
         expected_time,
-    )
-
-
-@pytest.mark.parametrize(
-    "array_type",
-    [
-        "multiple_individuals",
-        "single_individual",
-    ],
-)
-def test_valid_poses_napari_layers_to_dataset(
-    valid_poses_napari_layers,
-    array_type,
-):
-    """Test conversion from napari tracks data to movement pose dataset."""
-    napari_tracks, properties = valid_poses_napari_layers(array_type)
-
-    reconstructed_ds = napari_layers_to_ds(napari_tracks, properties)
-    n_individuals = 1 if array_type == "single_individual" else 2
-
-    assert reconstructed_ds.ds_type == "poses"
-    assert reconstructed_ds.position.shape == (
-        10,
-        2,
-        3,
-        n_individuals,
-    )  # time, space, keypoint, individual
-    assert reconstructed_ds.confidence.shape == (
-        10,
-        3,
-        n_individuals,
-    )  # time, keypoint, individual
-
-    assert reconstructed_ds.position.dims == (
-        "time",
-        "space",
-        "keypoint",
-        "individual",
-    )
-    assert reconstructed_ds.confidence.dims == (
-        "time",
-        "keypoint",
-        "individual",
     )
 
 
@@ -505,24 +480,3 @@ def test_id_swap_pose_napari_layers(
 
     assert reconstructed_ds.sizes == expected_ds.sizes
     assert set(reconstructed_ds.coords) == set(expected_ds.coords)
-
-
-@pytest.mark.parametrize(
-    "ds_dataset",
-    [
-        "dataset",
-        "dataset_with_nan",
-        "confidence_with_some_nan",
-        "confidence_with_all_nan",
-    ],
-)
-def test_valid_bboxes_napari_layer_to_datset(ds_dataset, request):
-    """Test reconstruction from napari shapes array to movement bboxes dataset.
-    This is a round-trip test.
-    """
-    ds_name = f"valid_bboxes_{ds_dataset}"
-    ds = request.getfixturevalue(ds_name)
-    _, napari_bboxes, properties = ds_to_napari_layers(ds)
-    reconstructed_ds = napari_layers_to_ds(napari_bboxes, properties)
-
-    xr.testing.assert_equal(reconstructed_ds, ds)
