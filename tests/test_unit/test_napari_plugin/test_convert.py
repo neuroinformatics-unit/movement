@@ -437,3 +437,76 @@ def test_removed_pose_napari_layers(
     ] = [np.nan, np.nan]
 
     xr.testing.assert_equal(reconstructed_ds, expected_ds)
+
+
+def test_id_swap_napari_layers(
+    valid_poses_path_and_ds,
+    loaded_data_loader,
+):
+    """Test conversion after swapping IDs at a given frame."""
+    # TODO: Decide whether swapping a point should also set confidence to NaN?
+    filepath, ds_expected = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_expected)
+    points = loader.points_layer.data.copy()
+    properties = pd.DataFrame(loader.points_layer.properties)
+
+    frame = 5
+    swap_map = {"id_0": "id_1", "id_1": "id_0"}
+
+    # swap
+    properties.loc[properties["time"] == frame, "individual"] = properties.loc[
+        properties["time"] == 5, "individual"
+    ].map(swap_map)
+
+    reconstructed_ds = napari_layers_to_ds(
+        points_as_napari=points,
+        properties=properties,
+        properties_with_nans=loader.properties,
+        attrs=ds_expected.attrs,
+    )
+
+    expected_ds = ds_expected.copy(deep=True)
+    expected_ds.position.loc[{"time": frame, "individual": "id_0"}] = (
+        ds_expected.position.loc[{"time": frame, "individual": "id_1"}]
+    )
+    expected_ds.position.loc[{"time": frame, "individual": "id_1"}] = (
+        ds_expected.position.loc[{"time": frame, "individual": "id_0"}]
+    )
+
+    xr.testing.assert_equal(reconstructed_ds, expected_ds)
+
+
+def test_kp_swap_napari_layers(
+    valid_poses_path_and_ds,
+    loaded_data_loader,
+):
+    """Test conversion after swapping keypoints at a given frame."""
+    # TODO: Decide whether swapping a point should also set confidence to NaN?
+    filepath, ds_expected = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_expected)
+    points = loader.points_layer.data.copy()
+    properties = pd.DataFrame(loader.points_layer.properties)
+
+    frame = 5
+    swap_map = {"centroid": "left", "left": "centroid"}
+
+    properties.loc[properties["time"] == frame, "keypoint"] = properties.loc[
+        properties["time"] == 5, "keypoint"
+    ].map(swap_map)
+
+    reconstructed_ds = napari_layers_to_ds(
+        points_as_napari=points,
+        properties=properties,
+        properties_with_nans=loader.properties,
+        attrs=ds_expected.attrs,
+    )
+
+    expected_ds = ds_expected.copy(deep=True)
+    expected_ds.position.loc[{"time": frame, "keypoint": "centroid"}] = (
+        ds_expected.position.loc[{"time": frame, "keypoint": "left"}]
+    )
+    expected_ds.position.loc[{"time": frame, "keypoint": "left"}] = (
+        ds_expected.position.loc[{"time": frame, "keypoint": "centroid"}]
+    )
+
+    xr.testing.assert_equal(reconstructed_ds, expected_ds)
