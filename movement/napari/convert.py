@@ -190,7 +190,7 @@ def napari_layers_to_ds(
 
     See Also
     --------
-    napari_layers_to_ds :
+    ds_to_napari_layers :
         The function carrying out the inverse conversion.
 
     Notes
