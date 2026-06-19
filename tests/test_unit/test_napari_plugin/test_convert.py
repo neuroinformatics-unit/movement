@@ -520,3 +520,16 @@ def test_kp_swap_napari_layers(
     )
 
     xr.testing.assert_equal(reconstructed_ds, expected_ds)
+
+
+def test_napari_layers_to_ds_bboxes_not_implemented():
+    """Test bbox reconstruction raises NotImplementedError."""
+    with pytest.raises(
+        NotImplementedError,
+        match="Reconstruction of bounding box datasets",
+    ):
+        napari_layers_to_ds(
+            points_as_napari=np.empty((0, 3)),
+            properties={"individual": np.array([])},
+            properties_with_nans=pd.DataFrame(),
+        )
