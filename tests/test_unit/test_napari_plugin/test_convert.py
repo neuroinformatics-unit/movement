@@ -455,8 +455,13 @@ def test_id_swap_napari_layers(
 
     # swap
     properties.loc[properties["time"] == frame, "individual"] = properties.loc[
-        properties["time"] == 5, "individual"
+        properties["time"] == frame, "individual"
     ].map(swap_map)
+
+    # convert back before calling the function
+    properties = {
+        col: properties[col].to_numpy() for col in properties.columns
+    }
 
     reconstructed_ds = napari_layers_to_ds(
         points_as_napari=points,
@@ -491,8 +496,13 @@ def test_kp_swap_napari_layers(
     swap_map = {"centroid": "left", "left": "centroid"}
 
     properties.loc[properties["time"] == frame, "keypoint"] = properties.loc[
-        properties["time"] == 5, "keypoint"
+        properties["time"] == frame, "keypoint"
     ].map(swap_map)
+
+    # convert back before calling the function
+    properties = {
+        col: properties[col].to_numpy() for col in properties.columns
+    }
 
     reconstructed_ds = napari_layers_to_ds(
         points_as_napari=points,

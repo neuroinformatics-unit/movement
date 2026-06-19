@@ -65,6 +65,11 @@ def ds_to_napari_layers(
         DataFrame with properties (individual, keypoint, time, confidence)
         for use with napari layers.
 
+    See Also
+    --------
+    napari_layers_to_ds :
+        The function carrying out the inverse conversion.
+
     Notes
     -----
     A corresponding napari Points array can be derived from the Tracks array
@@ -174,15 +179,25 @@ def napari_layers_to_ds(
 
     Returns
     -------
-    ds : xarray.Dataset
+    xarray.Dataset
         ``movement`` dataset containing pose or bounding box tracks,
         confidence scores, and associated metadata.
+
+    Raises
+    ------
+    NotImplementedError
+        If the napari Points layer data does not represent a pose dataset.
+
+    See Also
+    --------
+    napari_layers_to_ds :
+        The function carrying out the inverse conversion.
 
     Notes
     -----
     The dataset type is inferred from the presence of ``keypoint`` in
-    ``properties``. If present, a poses dataset is returned. Otherwise,
-    a bounding boxes dataset is returned.
+    ``properties``. If present, a poses dataset is returned. Currently,
+    bounding box datasets are not supported.
 
     ``ds_to_napari_layers`` returns a Tracks array of shape (N, 4) with
     columns (track_id, frame, y, x). When loading into napari,
@@ -195,11 +210,11 @@ def napari_layers_to_ds(
 
     ``ds_to_napari_layers`` preserves NaN values in the output arrays,
     but napari cannot handle NaN coordinates, so ``loader_widgets`` filters
-    them out before passing data to the napari layers. As a result, when
+    them out upon creation of the napari layers. As a result, when
     reconstructing a dataset via ``napari_layers_to_ds``, the input arrays
-    may be shorter than the original.
+    will have no NaN (i.e. missing) coordinates.
     This function reconstructs the full dataset by restoring missing points
-    using the full coordinate structure from ``properties_unfiltered``
+    using the full coordinate structure from ``properties_with_nans``
 
     """
     properties_df = pd.DataFrame.from_dict(properties)
