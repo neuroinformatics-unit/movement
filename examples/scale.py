@@ -61,7 +61,7 @@ print(ds)
 # %%
 # We can see that out of the 50 tracked keypoints, the majority track
 # positions along the mouse's body (head, back, tail, and limbs).
-print(ds.keypoints.values)
+print(ds.keypoint.values)
 
 # %%
 # However, there are also a number of keypoints which track physical
@@ -80,13 +80,13 @@ landmark_keypoints = [
 
 # Select all keypoints excluding the landmarks, and the single individual.
 ds_mouse = ds.sel(
-    keypoints=~ds.keypoints.isin(landmark_keypoints),
-    individuals="individual_0",
+    keypoint=~ds.keypoint.isin(landmark_keypoints),
+    individual="individual_0",
 )
 
 print(ds_mouse)
 print("----------------------------------")
-print(f"Keypoints:\n{ds_mouse.keypoints.values}")
+print(f"Keypoints:\n{ds_mouse.keypoint.values}")
 
 # %%
 # Next we remove low-confidence predictions, interpolate over gaps,
@@ -120,7 +120,7 @@ def plot_skeleton(position_data, skeleton, frame, ax, s=3):
     Parameters
     ----------
     position_data : xarray.DataArray
-        Position data with dimensions ``time``, ``keypoints``, and ``space``.
+        Position data with dimensions ``time``, ``keypoint``, and ``space``.
     skeleton : list of tuple
         List of (joint_1, joint_2) pairs defining skeletal connections,
         where each element is a keypoint name present in ``position_data``.
@@ -136,13 +136,13 @@ def plot_skeleton(position_data, skeleton, frame, ax, s=3):
 
     # Draw skeleton connections
     for joint_1, joint_2 in skeleton:
-        x1, y1 = pos_frame.sel(keypoints=joint_1)
-        x2, y2 = pos_frame.sel(keypoints=joint_2)
+        x1, y1 = pos_frame.sel(keypoint=joint_1)
+        x2, y2 = pos_frame.sel(keypoint=joint_2)
         ax.plot([x1, x2], [y1, y2], color="b", linewidth=1.5)
 
     # Draw keypoints
-    for bodypart in pos_frame.keypoints:
-        x, y = pos_frame.sel(keypoints=bodypart)
+    for bodypart in pos_frame.keypoint:
+        x, y = pos_frame.sel(keypoint=bodypart)
         ax.scatter(x, y, c="g", s=s)
 
 
@@ -217,22 +217,25 @@ plt.show()
 # Measure a known distance from video footage
 # -------------------------------------------
 # .. attention::
-#   The following steps require ``napari`` to be installed. If you haven't
-#   already, install ``movement`` with the optional GUI dependencies by
-#   following the :ref:`installation instructions<target-installation>`.
+#    The following steps require running this example locally (not on
+#    Binder), with ``napari`` installed. If you haven't already, install
+#    ``movement`` with the optional ``napari`` dependencies by following the
+#    :ref:`installation instructions<target-installation>`.
 #
-# First, open the video file in napari:
+# First, open the video file (or a single video frame) in ``napari`` by running
+# the following code in a Jupyter notebook:
 #
 # .. code-block:: python
 #
 #    import napari
 #    viewer = napari.Viewer()
-#    viewer.open(ds_mouse.video_path)
+#    viewer.open(ds_mouse.video_path)  # can also use ds_mouse.frame_path
 #
 # .. note::
-#    You can also load a single frame image instead of the full video.
+#    Alternatively, you can type ``napari`` in a terminal, wait for the
+#    viewer to open, and drag-and-drop the video/frame file into the viewer.
 #
-# Next, measure a known distance in the napari viewer:
+# Next, measure a known distance in the ``napari`` viewer:
 #
 # 1. Add a new shapes layer by clicking 'New shapes layer' in the layer list.
 # 2. Select the 'Add lines' tool (shortcut: L) from the layer controls.
@@ -250,7 +253,7 @@ plt.show()
 # .. image:: /_static/napari_scale_measure.png
 #    :width: 600
 #
-# 5. Close the napari viewer.
+# 5. Close the ``napari`` viewer.
 
 # %%
 # We can then retrieve the measured distance and line coordinates from the
@@ -392,7 +395,7 @@ plt.show()
 frame_x = ds_mouse.position.sel(space="x").isel(time=example_frame)
 frame_y = ds_mouse.position.sel(space="y").isel(time=example_frame)
 
-mouse_length = frame_x.sel(keypoints="Nose") - frame_x.sel(keypoints="Tail12")
+mouse_length = frame_x.sel(keypoint="Nose") - frame_x.sel(keypoint="Tail12")
 mouse_height = frame_y.max() - frame_y.min()
 
 print(f"Mouse length: {mouse_length.values:.1f} cm")
@@ -412,11 +415,11 @@ toe_keypoint_names = [
 ]
 
 # Construct a new data array with only the toe keypoints
-ds_limbs = ds_mouse.position.sel(keypoints=toe_keypoint_names)
+ds_limbs = ds_mouse.position.sel(keypoint=toe_keypoint_names)
 
 ds_limbs.plot.line(
     x="time",
-    hue="keypoints",
+    hue="keypoint",
     row="space",
     size=2.5,
     aspect=2,
@@ -442,12 +445,12 @@ plt.show()
 
 forepaw_dist = compute_pairwise_distances(
     ds_mouse.position,
-    dim="keypoints",
+    dim="keypoint",
     pairs={"ForepawToeL": "ForepawToeR"},
 )
 hindpaw_dist = compute_pairwise_distances(
     ds_mouse.position,
-    dim="keypoints",
+    dim="keypoint",
     pairs={"HindpawToeL": "HindpawToeR"},
 )
 
@@ -460,7 +463,7 @@ hindpaw_dist = compute_pairwise_distances(
 belt_transition = 47  # cm
 
 # Compute a proxy for body centre in x
-avg_body_x = ds_mouse.position.sel(space="x").mean(dim="keypoints")
+avg_body_x = ds_mouse.position.sel(space="x").mean(dim="keypoint")
 
 fig, ax = plt.subplots()
 ax.plot(avg_body_x, forepaw_dist, color="tab:blue", label="Forepaws")

@@ -8,6 +8,7 @@ from qtpy.QtCore import QItemSelection, QModelIndex, Qt
 from qtpy.QtWidgets import (
     QComboBox,
     QGroupBox,
+    QMessageBox,
     QTableView,
 )
 
@@ -65,6 +66,15 @@ def regions_widget_with_layer(regions_widget, two_polygons):
     return regions_widget, layer
 
 
+@pytest.fixture
+def regions_widget_with_duplicate_names(regions_widget, two_polygons):
+    """Return a RegionsWidget and a shapes layer with duplicate names."""
+    viewer = regions_widget.viewer
+    layer = add_regions_layer(viewer, two_polygons, shape_type="polygon")
+    layer.properties = {"name": ["arena", "arena"]}
+    return regions_widget, layer
+
+
 # ------------------- Tests for widget instantiation -------------------------#
 def test_widget_has_expected_attributes(make_napari_viewer_proxy):
     """Test that the Regions widget is properly instantiated."""
@@ -81,7 +91,32 @@ def test_widget_has_expected_ui_elements(regions_widget):
     assert len(group_boxes) == 2
     assert regions_widget.findChild(QComboBox) is not None
     assert regions_widget.add_layer_button is not None
+    assert regions_widget.save_layer_button is not None
+    assert regions_widget.load_layer_button is not None
     assert regions_widget.findChild(QTableView) is not None
+
+
+@pytest.mark.parametrize(
+    "button_attr, expected_tooltip",
+    [
+        pytest.param(
+            "save_layer_button",
+            "Save all regions in this layer to a GeoJSON file.",
+            id="save_button",
+        ),
+        pytest.param(
+            "load_layer_button",
+            "Load regions from a GeoJSON file into a new region layer.",
+            id="load_button",
+        ),
+    ],
+)
+def test_save_load_button_tooltips(
+    regions_widget, button_attr, expected_tooltip
+):
+    """Test that Save and Load buttons have informative tooltips."""
+    button = getattr(regions_widget, button_attr)
+    assert button.toolTip() == expected_tooltip
 
 
 def test_color_assignment_is_sequential_and_stable(make_napari_viewer_proxy):
@@ -154,6 +189,31 @@ def test_add_layer_button_connected_to_handler(
     )
     widget = RegionsWidget(make_napari_viewer_proxy())
     widget.add_layer_button.click()
+    mock_method.assert_called_once()
+
+
+def test_save_layer_button_connected_to_handler(
+    make_napari_viewer_proxy, mocker
+):
+    """Test that clicking Save layer button calls the handler."""
+    mock_method = mocker.patch(
+        "movement.napari.regions_widget.RegionsWidget._save_region_layer"
+    )
+    widget = RegionsWidget(make_napari_viewer_proxy())
+    widget.save_layer_button.setEnabled(True)
+    widget.save_layer_button.click()
+    mock_method.assert_called_once()
+
+
+def test_load_layer_button_connected_to_handler(
+    make_napari_viewer_proxy, mocker
+):
+    """Test that clicking Load layer button calls the handler."""
+    mock_method = mocker.patch(
+        "movement.napari.regions_widget.RegionsWidget._load_region_layer"
+    )
+    widget = RegionsWidget(make_napari_viewer_proxy())
+    widget.load_layer_button.click()
     mock_method.assert_called_once()
 
 
@@ -249,6 +309,196 @@ def test_add_new_layer(regions_widget):
     assert layer.name.startswith("regions")
     assert layer.metadata.get(REGIONS_LAYER_KEY) is True
     assert regions_widget.layer_dropdown.currentText() == layer.name
+
+
+@pytest.mark.parametrize(
+    "dialog_method, mocked_fn, widget_method",
+    [
+        pytest.param(
+            "QFileDialog.getOpenFileName",
+            "load_rois",
+            "_load_region_layer",
+            id="load_cancel",
+        ),
+        pytest.param(
+            "QFileDialog.getSaveFileName",
+            "save_rois",
+            "_save_region_layer",
+            id="save_cancel",
+        ),
+    ],
+)
+def test_load_save_region_layer_cancel(
+    regions_widget_with_layer, mocker, dialog_method, mocked_fn, widget_method
+):
+    """Test that cancelling the file dialog skips the operation."""
+    mocker.patch(
+        f"movement.napari.regions_widget.{dialog_method}",
+        return_value=("", None),
+    )
+    mock_fn = mocker.patch(f"movement.napari.regions_widget.{mocked_fn}")
+    widget, _ = regions_widget_with_layer
+    getattr(widget, widget_method)()
+    mock_fn.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "rois_or_error, expected_n_layers, expected_layer_name",
+    [
+        pytest.param(
+            [],
+            1,
+            "my_regions",
+            id="valid_file_creates_layer",
+        ),
+        pytest.param(
+            ValueError("invalid GeoJSON"),
+            0,
+            None,
+            id="invalid_file_logs_error",
+        ),
+    ],
+)
+def test_load_region_layer(
+    regions_widget,
+    mocker,
+    caplog,
+    rois_or_error,
+    expected_n_layers,
+    expected_layer_name,
+):
+    """Test _load_region_layer with a valid file and with an invalid file."""
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getOpenFileName",
+        return_value=("/fake/my_regions.geojson", None),
+    )
+    if isinstance(rois_or_error, Exception):
+        mocker.patch(
+            "movement.napari.regions_widget.load_rois",
+            side_effect=rois_or_error,
+        )
+    else:
+        mocker.patch(
+            "movement.napari.regions_widget.load_rois",
+            return_value=rois_or_error,
+        )
+
+    mock_show_error = mocker.patch("movement.napari.regions_widget.show_error")
+    regions_widget._load_region_layer()
+
+    assert len(regions_widget.viewer.layers) == expected_n_layers
+    if expected_layer_name is not None:
+        layer = regions_widget.viewer.layers[0]
+        assert layer.name == expected_layer_name
+        assert layer.metadata.get(REGIONS_LAYER_KEY) is True
+        assert (
+            regions_widget.layer_dropdown.currentText() == expected_layer_name
+        )
+        assert any("Loaded" in msg for msg in caplog.messages)
+        mock_show_error.assert_not_called()
+    else:
+        mock_show_error.assert_called_once()
+
+
+@pytest.mark.parametrize(
+    "save_side_effect, expect_error",
+    [
+        pytest.param(None, False, id="valid_save"),
+        pytest.param(OSError("permission denied"), True, id="save_error"),
+    ],
+)
+def test_save_region_layer(
+    regions_widget_with_layer,
+    mocker,
+    caplog,
+    save_side_effect,
+    expect_error,
+):
+    """Test _save_region_layer: logs success info or shows error on failure."""
+    widget, _ = regions_widget_with_layer
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getSaveFileName",
+        return_value=("/fake/my_regions.geojson", None),
+    )
+    mock_save = mocker.patch(
+        "movement.napari.regions_widget.save_rois",
+        side_effect=save_side_effect,
+    )
+    mock_show_error = mocker.patch("movement.napari.regions_widget.show_error")
+
+    widget._save_region_layer()
+
+    if expect_error:
+        mock_save.assert_called_once()
+        mock_show_error.assert_called_once()
+    else:
+        assert any("Saved" in msg for msg in caplog.messages)
+        mock_save.assert_called_once()
+        mock_show_error.assert_not_called()
+        rois_arg, path_arg = mock_save.call_args.args
+        assert len(rois_arg) == 2  # regions_widget_with_layer has 2 shapes
+        assert path_arg == "/fake/my_regions.geojson"
+
+
+@pytest.mark.parametrize(
+    "fixture_name, user_response, expect_warning, expect_save",
+    [
+        pytest.param(
+            "regions_widget_with_duplicate_names",
+            QMessageBox.Save,
+            True,
+            True,
+            id="duplicates_user_confirms",
+        ),
+        pytest.param(
+            "regions_widget_with_duplicate_names",
+            QMessageBox.Cancel,
+            True,
+            False,
+            id="duplicates_user_cancels",
+        ),
+        pytest.param(
+            "regions_widget_with_layer",
+            None,
+            False,
+            True,
+            id="unique_names_no_warning",
+        ),
+    ],
+)
+def test_save_region_layer_duplicate_name_warning(
+    fixture_name,
+    user_response,
+    expect_warning,
+    expect_save,
+    request,
+    mocker,
+):
+    """Test the duplicate-name warning when saving a region layer."""
+    widget, _ = request.getfixturevalue(fixture_name)
+    mock_warning = mocker.patch(
+        "movement.napari.regions_widget.QMessageBox.warning",
+        return_value=user_response,
+    )
+    mocker.patch(
+        "movement.napari.regions_widget.QFileDialog.getSaveFileName",
+        return_value=("/fake/my_regions.geojson", None),
+    )
+    mock_save = mocker.patch(
+        "movement.napari.regions_widget.save_rois",
+    )
+
+    widget._save_region_layer()
+
+    if expect_warning:
+        mock_warning.assert_called_once()
+    else:
+        mock_warning.assert_not_called()
+
+    if expect_save:
+        mock_save.assert_called_once()
+    else:
+        mock_save.assert_not_called()
 
 
 def test_add_multiple_layers_increments_name(regions_widget):
@@ -749,12 +999,13 @@ def test_table_allows_name_editing(regions_widget_with_layer):
 
 # ------------------- Tests for tooltips -------------------------------------#
 @pytest.mark.parametrize(
-    "add_shapes_kwargs, expected_text",
+    "add_shapes_kwargs, expected_tooltip_text, expected_save_enabled",
     [
-        pytest.param(None, "No region layers", id="no_layers"),
+        pytest.param(None, "No region layers", False, id="no_layers"),
         pytest.param(
             {"name": "regions"},
             "No regions in this layer",
+            False,
             id="empty_layer",
         ),
         pytest.param(
@@ -763,19 +1014,35 @@ def test_table_allows_name_editing(regions_widget_with_layer):
                 "data": [[[0, 0], [0, 10], [10, 10], [10, 0]]],
             },
             "Click a row",
+            True,
             id="with_shapes",
         ),
     ],
 )
-def test_table_tooltip_reflects_state(
-    make_napari_viewer_proxy, add_shapes_kwargs, expected_text
+def test_table_tooltip_and_save_button_reflect_state(
+    make_napari_viewer_proxy,
+    add_shapes_kwargs,
+    expected_tooltip_text,
+    expected_save_enabled,
 ):
-    """Test table tooltip text reflects current widget state."""
+    """Test table tooltip text and Save button enabled state.
+
+    The table tooltip and the save button should update based on the presence
+    and content of region layers:
+
+    - When no region layers exist, tooltip should indicate this and
+      Save should be disabled.
+    - When a region layer exists but is empty, tooltip should indicate
+      this and Save should be disabled.
+    - When a region layer with shapes exists, tooltip should prompt user with
+      possible table interactions, and Save should be enabled.
+    """
     viewer = make_napari_viewer_proxy()
     if add_shapes_kwargs is not None:
         add_regions_layer(viewer, **add_shapes_kwargs)
     widget = RegionsWidget(viewer)
-    assert expected_text in widget.region_table_view.toolTip()
+    assert expected_tooltip_text in widget.region_table_view.toolTip()
+    assert widget.save_layer_button.isEnabled() == expected_save_enabled
 
 
 # ------------------- Tests for edge cases -----------------------------------#

@@ -87,6 +87,10 @@ autodoc_default_options = {
     "special-members": "__call__",
     "member-order": "groupwise",
 }
+
+# sphinx-autodoc-typehints configuration
+always_use_bars_union = True
+
 # Prefix section labels with the document name
 autosectionlabel_prefix_document = True
 
@@ -170,6 +174,24 @@ html_theme_options = {
     "external_links": [],
 }
 
+# Show ABlog's "postcard" (date, author, category, etc.) in the sidebar of blog
+# post pages, see https://ablog.readthedocs.io/en/latest/manual/templates-themes.html
+# Note: this replaces the default site nav sidebar on blog pages only.
+html_sidebars = {
+    "blog/index": [
+        "ablog/authors.html",
+        "ablog/archives.html",
+    ],
+    "blog/**": [
+        "ablog/postcard.html",
+        "ablog/recentposts.html",
+    ],
+}
+
+# The PyData theme bundles FontAwesome, so let ABlog render its postcard icons
+# (calendar, user, ...) instead of plain-text "Author:"/"Location:" labels.
+fontawesome_included = True
+
 # Redirect the webpage to another URL
 # Sphinx will create the appropriate CNAME file in the build directory
 # The default is the URL of the GitHub pages
@@ -216,7 +238,8 @@ linkcheck_ignore = [
     # Checking zenodo redirects (from concept doi to record) takes a long time
     "https://zenodo.org/doi/*",
     "https://zenodo.org/records/*",
-    "https://doi.org/10.5281/zenodo.*",
+    # DOI resolvers often rate-limit or return 403/429 in CI
+    "https://doi.org/*",
     "https://abide.ics.ulisboa.pt/*",  # flaky
 ]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
@@ -268,6 +291,7 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "attrs": ("https://www.attrs.org/en/stable/", None),
     "shapely": ("https://shapely.readthedocs.io/en/stable/", None),
+    "napari": ("https://napari.org/stable/", None),
 }
 
 # What to show on the 404 page

@@ -136,13 +136,13 @@ class TestBaseDatasetInputs:
         [
             (("time", "space"), np.zeros((5, 2)), np.full(5, np.nan), None),
             (
-                ("time", "space", "individuals"),
+                ("time", "space", "individual"),
                 np.zeros((5, 2, 1)),
                 np.full((5, 1), np.nan),
                 ["id_0"],
             ),
             (
-                ("time", "space", "individuals"),
+                ("time", "space", "individual"),
                 np.zeros((5, 2, 3)),
                 np.full((5, 3), np.nan),
                 ["id_0", "id_1", "id_2"],
@@ -175,7 +175,7 @@ class TestBaseDatasetInputs:
             (np.zeros((5, 3)), "have 2 spatial dimensions, but got 3"),
         ],
         ids=[
-            "Unexpected additional individuals dimension",
+            "Unexpected additional individual dimension",
             "Expect 2D positions but got 3D positions",
         ],
     )
@@ -200,9 +200,25 @@ class TestBaseDatasetInputs:
                 (3, 2),
                 pytest.raises(
                     ValueError,
-                    match=re.escape("have shape (3, 2), but got (2, 3)"),
+                    match=re.escape("have shape [(3, 2)], but got (2, 3)"),
                 ),
             ),
+            ([(2, 3), (5, 2)], does_not_raise()),
+            (
+                [(3, 2), (5, 2)],
+                pytest.raises(
+                    ValueError,
+                    match=re.escape(
+                        "have shape [(3, 2), (5, 2)], but got (2, 3)"
+                    ),
+                ),
+            ),
+        ],
+        ids=[
+            "Shape matches expected shape (tuple)",
+            "Shape does not match expected shape (tuple)",
+            "Shape matches one of expected shapes (list of tuples)",
+            "Shape does not match any of expected shapes (list of tuples)",
         ],
     )
     def test_validate_array_shape(self, expected_shape, expected_exception):
@@ -336,8 +352,8 @@ class TestValidPosesInputs:
         ds = ValidPosesInputs(
             position_array=valid_poses_dataset.position.values,
             confidence_array=valid_poses_dataset.confidence.values,
-            individual_names=valid_poses_dataset.individuals.values,
-            keypoint_names=valid_poses_dataset.keypoints.values,
+            individual_names=valid_poses_dataset.individual.values,
+            keypoint_names=valid_poses_dataset.keypoint.values,
             fps=fps,
             source_software=valid_poses_dataset.attrs["source_software"],
         ).to_dataset()
@@ -349,6 +365,38 @@ class TestValidPosesInputs:
             )
             expected_ds.time.attrs["units"] = "seconds"
             xr.testing.assert_equal(ds, expected_ds)
+
+    @pytest.mark.parametrize(
+        "confidence_array, expected_context",
+        [
+            (
+                np.zeros((5, 3, 2)),
+                does_not_raise(),
+            ),
+            (
+                np.zeros((5, 2)),
+                does_not_raise(),
+            ),
+            (
+                np.zeros((5, 3)),
+                pytest.raises(ValueError),
+            ),
+        ],
+        ids=[
+            "Keypoint-level confidence",
+            "Individual-level confidence",
+            "Invalid confidence shape",
+        ],
+    )
+    def test_confidence_array(self, confidence_array, expected_context):
+        """Test confidence_array validation in ValidPosesInputs."""
+        position_array = np.zeros((5, 2, 3, 2))
+
+        with expected_context:
+            ValidPosesInputs(
+                position_array=position_array,
+                confidence_array=confidence_array,
+            )
 
 
 class TestValidBboxesInputs:
@@ -365,7 +413,9 @@ class TestValidBboxesInputs:
                 np.zeros((5, 2, 1)),
                 pytest.raises(
                     ValueError,
-                    match=re.escape("have shape (5, 2, 3), but got (5, 2, 1)"),
+                    match=re.escape(
+                        "have shape [(5, 2, 3)], but got (5, 2, 1)"
+                    ),
                 ),
             ),
             (
@@ -385,14 +435,14 @@ class TestValidBboxesInputs:
         ],
         ids=[
             "Valid shape_array",
-            "Mismatch with position_array individuals dimension",
+            "Mismatch with position_array individual dimension",
             "Missing one dimension",
             "Expect 2D (width, height) shape but got 3D",
         ],
     )
     def test_shape_array(self, shape_array, expected_context):
         """Test shape_array validation."""
-        position_array = np.zeros((5, 2, 3))  # time, space, individuals
+        position_array = np.zeros((5, 2, 3))  # time, space, individual
         with expected_context:
             ValidBboxesInputs(
                 position_array=position_array,
@@ -422,14 +472,14 @@ class TestValidBboxesInputs:
                 np.zeros((5, 2)),
                 pytest.raises(
                     ValueError,
-                    match=re.escape("have shape (5, 1), but got (5, 2)"),
+                    match=re.escape("have shape [(5, 1)], but got (5, 2)"),
                 ),
             ),
             (
                 np.zeros((7, 1)),
                 pytest.raises(
                     ValueError,
-                    match=re.escape("have shape (5, 1), but got (7, 1)"),
+                    match=re.escape("have shape [(5, 1)], but got (7, 1)"),
                 ),
             ),
         ],
@@ -444,7 +494,7 @@ class TestValidBboxesInputs:
     )
     def test_frame_array(self, frame_array, expected_context):
         """Test frame_array validation."""
-        position_array = np.zeros((5, 2, 3))  # time, space, individuals
+        position_array = np.zeros((5, 2, 3))  # time, space, individual
         shape_array = np.zeros((5, 2, 3))
         with expected_context as expected_frame_array:
             data = ValidBboxesInputs(
@@ -463,7 +513,7 @@ class TestValidBboxesInputs:
             position_array=valid_bboxes_dataset.position.values,
             shape_array=valid_bboxes_dataset.shape.values,
             confidence_array=valid_bboxes_dataset.confidence.values,
-            individual_names=valid_bboxes_dataset.individuals.values,
+            individual_names=valid_bboxes_dataset.individual.values,
             fps=fps,
             source_software=valid_bboxes_dataset.attrs["source_software"],
         ).to_dataset()

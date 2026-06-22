@@ -1,6 +1,7 @@
 from contextlib import nullcontext as does_not_raise
 from typing import ClassVar
 
+import numpy as np
 import pytest
 import xarray as xr
 from attrs import define, field, validators
@@ -8,6 +9,17 @@ from pytest import DATA_PATHS
 from requests_cache import Path
 
 from movement.io import load
+
+AUTO_SOURCE_SOFTWARE_CASES = [
+    ("dlc_csv_file", "DeepLabCut/LightningPose"),
+    ("lp_csv_file", "DeepLabCut/LightningPose"),
+    ("dlc_h5_file", "DeepLabCut"),
+    ("sleap_slp_file", "SLEAP"),
+    ("sleap_analysis_file", "SLEAP"),
+    ("anipose_csv_file", "Anipose"),
+    ("via_tracks_csv", "VIA-tracks"),
+    ("nwbfile_object", "NWB"),
+]
 
 
 @define
@@ -55,7 +67,7 @@ def test_register_loader_decorator(file_validators, expected_file_type):
 )
 @pytest.mark.parametrize("fps", [None, 30, 60.0])
 def test_load_dataset_delegates_correctly(
-    source_software, loader_fn, fps, caplog, mocker
+    source_software, loader_fn, fps, mocker
 ):
     """Test load_dataset delegates to the correct loader function
     according to the source_software.
@@ -68,13 +80,15 @@ def test_load_dataset_delegates_correctly(
         mocker.patch.dict(
             load._LOADER_REGISTRY, {source_software: mock_loader}
         )
-        load.load_dataset("some_file", source_software, fps)
+        if source_software == "NWB" and fps is not None:
+            with pytest.warns(UserWarning, match="fps argument is ignored"):
+                load.load_dataset("some_file", source_software, fps)
+        else:
+            load.load_dataset("some_file", source_software, fps)
         expected_call_args = (
             ("some_file", fps) if source_software != "NWB" else ("some_file",)
         )
         mock_loader.assert_called_with(*expected_call_args)
-        if source_software == "NWB" and fps is not None:
-            assert "fps argument is ignored" in caplog.messages[0]
 
 
 @pytest.mark.parametrize(
@@ -144,6 +158,32 @@ def test_load_multiview_dataset(dataset_name, source_software):
     assert multi_view_ds.view.values.tolist() == view_names
 
 
+@pytest.mark.parametrize(
+    "modify_second_view, should_raise",
+    [
+        (lambda ds: ds, False),
+        (lambda ds: ds.isel(time=slice(0, -1)), True),
+        (lambda ds: ds.assign_coords(time=ds["time"].values + 1.0), True),
+    ],
+    ids=["identical", "trimmed", "shifted"],
+)
+def test_load_multiview_dataset_strict_alignment(
+    modify_second_view, should_raise, dlc_h5_file, mocker
+):
+    """Mismatched ``time`` coordinates across views must raise via
+    xarray's ``join='exact'`` alignment.
+    """
+    real_ds = load.load_dataset(dlc_h5_file, source_software="DeepLabCut")
+    mocker.patch(
+        "movement.io.load.load_dataset",
+        side_effect=[real_ds, modify_second_view(real_ds)],
+    )
+    file_dict = {"view_0": dlc_h5_file, "view_1": dlc_h5_file}
+    expected = pytest.raises(ValueError) if should_raise else does_not_raise()
+    with expected:
+        load.load_multiview_dataset(file_dict, source_software="DeepLabCut")
+
+
 def test_get_validator_kwargs():
     """Test _get_validator_kwargs correctly extracts kwargs
     for file validators.
@@ -161,3 +201,110 @@ def test_build_suffix_map():
     """
     suffix_map = load._build_suffix_map([StubValidFile])
     assert suffix_map == {".stub": StubValidFile}
+
+
+def test_get_supported_source_software():
+    """Test that get_supported_source_software returns a non-empty
+    mapping whose keys match the loader registry and whose values
+    are sets of file-suffix strings.
+    """
+    supported = load.get_supported_source_software()
+    assert isinstance(supported, dict)
+    assert set(supported) == set(load._LOADER_REGISTRY)
+    for sw, suffixes in supported.items():
+        for validator_cls in load._LOADER_VALIDATORS_REGISTRY.get(sw, []):
+            assert validator_cls.suffixes.issubset(suffixes)
+
+
+@pytest.mark.parametrize(
+    "file_fixture, expected_source_software", AUTO_SOURCE_SOFTWARE_CASES
+)
+def test_infer_source_software(
+    file_fixture, expected_source_software, request, caplog
+):
+    """Test auto-detection of source_software works as expected
+    and does not log validation errors when a match is found.
+    """
+    file_path = request.getfixturevalue(file_fixture)
+    if file_fixture.startswith("nwb"):
+        file_path = file_path()  # NWB fixture is a callable
+    with caplog.at_level("ERROR"):
+        inferred = load.infer_source_software(file_path)
+    assert inferred == expected_source_software
+    assert not caplog.records
+
+
+def test_infer_source_software_raises_for_unsupported_format(
+    valid_netcdf_file,
+):
+    """Test inference fails for a file format not supported by load_dataset.
+
+    Here we use a valid netCDF file, which is not one of our supported
+    third-party formats, and hence doesn't have a corresponding file validator.
+    """
+    with pytest.raises(ValueError, match="Could not infer source_software"):
+        load.infer_source_software(valid_netcdf_file)
+
+
+@pytest.mark.parametrize(
+    "file_fixture, expected_source_software", AUTO_SOURCE_SOFTWARE_CASES
+)
+def test_load_dataset_auto_detects(
+    file_fixture, expected_source_software, request
+):
+    """Test that load_dataset works with source_software='auto'.
+
+    The resulting dataset should be identical to the one loaded with the
+    explicitly specified expected_source_software.
+    """
+    file_path = request.getfixturevalue(file_fixture)
+    if file_fixture.startswith("nwb"):
+        file_path = file_path()  # NWB fixture is a callable
+
+    auto_ds = load.load_dataset(file_path, source_software="auto")
+    explicit_ds = load.load_dataset(
+        file_path, source_software=expected_source_software
+    )
+
+    xr.testing.assert_identical(auto_ds, explicit_ds)
+
+
+@pytest.mark.parametrize(
+    "legacy_dims, new_dims, expect_log",
+    [
+        pytest.param(
+            ("time", "space", "keypoints", "individuals"),
+            ("time", "space", "keypoint", "individual"),
+            True,
+            id="both plural dims renamed",
+        ),
+        pytest.param(
+            ("time", "space", "individuals"),
+            ("time", "space", "individual"),
+            True,
+            id="only individuals renamed",
+        ),
+        pytest.param(
+            ("time", "space", "keypoint", "individual"),
+            ("time", "space", "keypoint", "individual"),
+            False,
+            id="already singular",
+        ),
+    ],
+)
+@pytest.mark.filterwarnings("ignore:.*is deprecated:DeprecationWarning")
+def test_rename_legacy_dimensions(legacy_dims, new_dims, expect_log, caplog):
+    """Test that rename_legacy_dimensions renames plural dims to singular."""
+    ds = xr.Dataset(
+        {
+            "position": xr.DataArray(
+                np.zeros([3] * len(legacy_dims)), dims=legacy_dims
+            )
+        },
+    )
+    result = load.rename_legacy_dimensions(ds)
+    assert tuple(result.dims) == new_dims
+    if expect_log:
+        assert "Renamed deprecated plural dimension names" in caplog.text
+    else:
+        assert caplog.text == ""

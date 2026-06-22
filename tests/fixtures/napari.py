@@ -72,8 +72,8 @@ def valid_poses_path_and_ds_with_localised_nans(valid_poses_dataset, tmp_path):
         # Set the selected values to NaN
         ds.position.loc[
             {
-                "individuals": nan_location["individuals"],
-                "keypoints": nan_location["keypoints"],
+                "individual": nan_location["individual"],
+                "keypoint": nan_location["keypoint"],
                 "time": time_point,
             }
         ] = np.nan
@@ -100,8 +100,8 @@ def valid_poses_path_and_ds_nan_start(
     out_path, ds = valid_poses_path_and_ds_with_localised_nans(
         {
             "time": "start",
-            "individuals": ["id_0", "id_1"],
-            "keypoints": ["centroid", "left", "right"],
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
         },
         filename="ds_with_nan_start.csv",
     )
@@ -121,8 +121,8 @@ def valid_poses_path_and_ds_nan_end(
     out_path, ds = valid_poses_path_and_ds_with_localised_nans(
         {
             "time": "end",
-            "individuals": ["id_0", "id_1"],
-            "keypoints": ["centroid", "left", "right"],
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
         },
         filename="ds_with_nan_end.csv",
     )

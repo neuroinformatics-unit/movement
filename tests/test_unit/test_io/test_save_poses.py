@@ -181,7 +181,7 @@ def test_to_dlc_style_df_split_individuals(
     """
     df = save_poses.to_dlc_style_df(valid_poses_dataset, split_individuals)
     # Get the names of the individuals in the dataset
-    ind_names = valid_poses_dataset.individuals.values
+    ind_names = valid_poses_dataset.individual.values
     if split_individuals is False:
         # this should produce a single df in multi-animal DLC format
         assert isinstance(df, pd.DataFrame)
@@ -231,7 +231,7 @@ def test_to_dlc_file_split_individuals(
             valid_poses_dataset, new_h5_file, split_individuals
         )
         # Get the names of the individuals in the dataset
-        ind_names = valid_poses_dataset.individuals.values
+        ind_names = valid_poses_dataset.individual.values
         # "auto" becomes False, default valid dataset is multi-individual
         if split_individuals in [False, "auto"]:
             # this should save only one file
@@ -423,7 +423,7 @@ nwb_file_expectations_ind = {
 @pytest.mark.parametrize(
     "selection_fn",
     [
-        lambda ds: ds.sel(individuals="id_0"),
+        lambda ds: ds.sel(individual="id_0"),
         lambda ds: ds,
     ],
     ids=["single_ind", "multi_ind"],
@@ -444,7 +444,7 @@ def test_to_nwb_file_with_single_or_multi_ind_ds(
     config = request.getfixturevalue(config) if config else config
     test_id = request.node.callspec.id
     nwb_files = save_poses.to_nwb_file(ds, config)
-    if ds.individuals.size == 1:
+    if ds.individual.size == 1:
         nwb_files = [nwb_files]
     actual_nwbfile_kwargs = []
     actual_processing_module_kwargs = []
@@ -566,7 +566,7 @@ nwb_file_expectations_keypoint = {
 @pytest.mark.parametrize(
     "selection_fn",
     [
-        lambda ds: ds.sel(keypoints=["centroid"]),
+        lambda ds: ds.sel(keypoint=["centroid"]),
         lambda ds: ds,
     ],
     ids=["single_keypoint", "multi_keypoint"],
@@ -584,7 +584,7 @@ def test_to_nwb_file_with_single_or_multi_keypoint_ds(
     attributes.
     """
     # Use single-individual dataset for simplicity
-    ds = selection_fn(valid_poses_dataset).isel(individuals=0)
+    ds = selection_fn(valid_poses_dataset).isel(individual=0)
     test_id = request.node.callspec.id
     config = request.getfixturevalue(config) if config else config
     nwb_file = save_poses.to_nwb_file(ds, config)
@@ -610,6 +610,6 @@ def test_remove_unoccupied_tracks(valid_poses_dataset):
     """
     new_individuals = [f"id_{i}" for i in range(3)]
     # Add new individual with NaN data
-    ds = valid_poses_dataset.reindex(individuals=new_individuals)
+    ds = valid_poses_dataset.reindex(individual=new_individuals)
     ds = save_poses._remove_unoccupied_tracks(ds)
     xr.testing.assert_equal(ds, valid_poses_dataset)

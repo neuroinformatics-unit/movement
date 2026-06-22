@@ -140,11 +140,16 @@ def valid_bboxes_dataset_in_seconds(valid_bboxes_dataset):
 
 @pytest.fixture
 def valid_bboxes_dataset_with_nan(valid_bboxes_dataset):
-    """Return a valid bboxes dataset with NaN values in the position array."""
-    # Set 3 NaN values in the position array for id_0
-    valid_bboxes_dataset.position.loc[
-        {"individuals": "id_0", "time": [3, 7, 8]}
-    ] = np.nan
+    """Return a valid bboxes dataset with NaN values for some detections.
+    A missing detection is represented by NaN in the ``position``, ``shape``
+    and ``confidence`` arrays simultaneously, mirroring how real bounding box
+    data (e.g. from VIA-tracks) encodes frames where an individual is absent.
+    Here, individual ``id_0`` is missing at frames 3, 7 and 8.
+    """
+    nan_selection = {"individual": "id_0", "time": [3, 7, 8]}
+
+    for var in valid_bboxes_dataset.data_vars:
+        valid_bboxes_dataset[var].loc[nan_selection] = np.nan
     return valid_bboxes_dataset
 
 
@@ -295,13 +300,13 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
     - Individual "id_1" has no missing values.
     """
     valid_poses_dataset.position.loc[
-        {"individuals": "id_0", "keypoints": "centroid", "time": [3, 7, 8]}
+        {"individual": "id_0", "keypoint": "centroid", "time": [3, 7, 8]}
     ] = np.nan
     valid_poses_dataset.position.loc[
-        {"individuals": "id_0", "keypoints": "left", "time": 0}
+        {"individual": "id_0", "keypoint": "left", "time": 0}
     ] = np.nan
     valid_poses_dataset.position.loc[
-        {"individuals": "id_0", "keypoints": "right"}
+        {"individual": "id_0", "keypoint": "right"}
     ] = np.nan
     return valid_poses_dataset
 

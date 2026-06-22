@@ -83,10 +83,10 @@ class _BaseDatasetInputs(ABC):
         converter=converters.optional(_convert_to_list_of_str),
     )
     """List of unique names for the individuals in the video. The length of
-    this list should match the size of the 'individuals' dimension in the
+    this list should match the size of the 'individual' dimension in the
     ``position_array``. If None (default), the names will be in the format of
     ``id_<N>``, where <N> is an integer from 0 to the size of the
-    'individuals' dimension minus 1."""
+    'individual' dimension minus 1."""
 
     fps: float | None = field(
         default=None,
@@ -118,19 +118,20 @@ class _BaseDatasetInputs(ABC):
     # --- Lifecycle hooks ---
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
-        # confidence_array default: array of NaNs with appropriate shape
+        # confidence_array default: array of NaNs with shape matching
+        # position_array without the space dimension
         if self.confidence_array is None:
             self.confidence_array = np.full(
-                self._confidence_expected_shape, np.nan, dtype="float32"
+                self._confidence_expected_shapes[0], np.nan, dtype="float32"
             )
             logger.info(
                 "Confidence array was not provided."
                 "Setting to an array of NaNs."
             )
         # individual_names default: id_0, id_1, ...
-        if self.individual_names is None and "individuals" in self.DIM_NAMES:
+        if self.individual_names is None and "individual" in self.DIM_NAMES:
             n_inds = self.position_array.shape[
-                self.DIM_NAMES.index("individuals")
+                self.DIM_NAMES.index("individual")
             ]
             self.individual_names = [f"id_{i}" for i in range(n_inds)]
             logger.info(
@@ -140,14 +141,22 @@ class _BaseDatasetInputs(ABC):
 
     # --- Properties (derived attributes) ---
     @property
-    def _confidence_expected_shape(self):
-        """Return expected shape for confidence_array."""
-        # confidence shape == position_array shape without the space dim
-        return tuple(
-            dim
-            for i, dim in enumerate(self.position_array.shape)
-            if i != self.DIM_NAMES.index("space")
-        )
+    def _confidence_expected_shapes(self):
+        """Return list of expected shapes for confidence_array.
+
+        Default is the shape of position_array without the space dimension, but
+        can be overridden by subclasses if they allow for different confidence
+        array shapes (e.g. point-wise and individual-wise confidence).
+        """
+        return [
+            tuple(
+                s
+                for d, s in zip(
+                    self.DIM_NAMES, self.position_array.shape, strict=True
+                )
+                if d != "space"
+            )
+        ]
 
     # --- Validators ---
     @position_array.validator
@@ -182,30 +191,33 @@ class _BaseDatasetInputs(ABC):
     def _validate_confidence_array(self, attribute, value):
         """Check confidence_array type and shape."""
         if value is not None:
-            expected_shape = self._confidence_expected_shape
             self._validate_array_shape(
-                attribute, value, expected_shape=expected_shape
+                attribute, value, self._confidence_expected_shapes
             )
 
     @individual_names.validator
     def _validate_individual_names(self, attribute, value):
         """Validate individual_names length and uniqueness."""
         if value is not None:
-            individuals_dim_index = self.DIM_NAMES.index("individuals")
+            individual_dim_index = self.DIM_NAMES.index("individual")
             self._validate_list_length(
                 attribute,
                 value,
-                self.position_array.shape[individuals_dim_index],
+                self.position_array.shape[individual_dim_index],
             )
             self._validate_list_uniqueness(attribute, value)
 
     # --- Utility methods ---
     @staticmethod
     def _validate_array_shape(
-        attribute: attrs.Attribute, value: np.ndarray, expected_shape: tuple
+        attribute: attrs.Attribute,
+        value: np.ndarray,
+        expected_shape: tuple | list[tuple],
     ):
         """Raise ValueError if the value does not have the expected shape."""
-        if value.shape != expected_shape:
+        if isinstance(expected_shape, tuple):
+            expected_shape = [expected_shape]
+        if value.shape not in expected_shape:
             raise logger.error(
                 ValueError(
                     f"Expected '{attribute.name}' to have shape "
@@ -335,18 +347,33 @@ class ValidPosesInputs(_BaseDatasetInputs):
     DIM_NAMES: ClassVar[tuple[str, ...]] = (
         "time",
         "space",
-        "keypoints",
-        "individuals",
+        "keypoint",
+        "individual",
     )
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "confidence")
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[Iterable[int]] = (2, 3)
 
+    @property
+    def _confidence_expected_shapes(self):
+        """Return list of expected shapes for confidence_array.
+
+        Overrides the base implementation to allow for two possible shapes:
+        - point-wise: (n_frames, n_keypoints, n_individuals)
+        - individual-wise: (n_frames, n_individuals)
+        """
+        point_wise = super()._confidence_expected_shapes[0]
+        individual_wise = (
+            self.position_array.shape[self.DIM_NAMES.index("time")],
+            self.position_array.shape[self.DIM_NAMES.index("individual")],
+        )
+        return [point_wise, individual_wise]
+
     @keypoint_names.validator
     def _validate_keypoint_names(self, attribute, value):
         """Validate keypoint_names length and uniqueness."""
-        keypoints_dim_index = self.DIM_NAMES.index("keypoints")
+        keypoint_dim_index = self.DIM_NAMES.index("keypoint")
         self._validate_list_length(
-            attribute, value, self.position_array.shape[keypoints_dim_index]
+            attribute, value, self.position_array.shape[keypoint_dim_index]
         )
         self._validate_list_uniqueness(attribute, value)
 
@@ -354,11 +381,11 @@ class ValidPosesInputs(_BaseDatasetInputs):
         """Assign default values to optional attributes (if None)."""
         super().__attrs_post_init__()
         position_array_shape = self.position_array.shape
-        keypoints_dim_index = self.DIM_NAMES.index("keypoints")
+        keypoint_dim_index = self.DIM_NAMES.index("keypoint")
         if self.keypoint_names is None:
             self.keypoint_names = [
                 f"keypoint_{i}"
-                for i in range(position_array_shape[keypoints_dim_index])
+                for i in range(position_array_shape[keypoint_dim_index])
             ]
             logger.info(
                 "Keypoint names were not provided. "
@@ -464,7 +491,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
     assigned based on the first dimension of the position_array, starting from
     0."""
 
-    DIM_NAMES: ClassVar[tuple[str, ...]] = ("time", "space", "individuals")
+    DIM_NAMES: ClassVar[tuple[str, ...]] = ("time", "space", "individual")
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "shape", "confidence")
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[int] = 2
 
@@ -541,7 +568,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
             dataset_attrs["fps"] = self.fps
         dataset_attrs["time_unit"] = time_unit
         # Convert data to an xarray.Dataset
-        # with dimensions ('time', 'space', 'individuals')
+        # with dimensions ('time', 'space', 'individual')
         DIM_NAMES = self.DIM_NAMES
         n_space = self.position_array.shape[1]
         return xr.Dataset(

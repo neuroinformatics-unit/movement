@@ -16,7 +16,7 @@ source .venv/bin/activate  # On macOS and Linux
 .venv\Scripts\activate     # On Windows PowerShell
 
 # Install in editable mode with dev dependencies
-uv pip install -e ".[dev]"
+uv pip install -e . --group dev
 
 # Install pre-commit hooks
 pre-commit install
@@ -61,7 +61,7 @@ mypy movement
 ### Documentation
 ```bash
 # Install documentation dependencies
-pip install -e ".[docs]"
+uv pip install -e . --group docs
 
 # Build documentation (from docs/ directory)
 cd docs
@@ -84,19 +84,19 @@ open build/html/index.html  # macOS
 The entire package is built around **xarray Datasets** as the central data structure. Understanding this is crucial for working with the codebase.
 
 **Poses Dataset:**
-- Dimensions: `(time, space, keypoints, individuals)`
+- Dimensions: `(time, space, keypoint, individual)`
 - Variables:
   - `position`: shape `(n_frames, n_space, n_keypoints, n_individuals)`
   - `confidence`: shape `(n_frames, n_keypoints, n_individuals)`
 - Coordinates:
   - `time`: seconds (if fps provided) or frame numbers
   - `space`: `["x", "y"]` or `["x", "y", "z"]`
-  - `keypoints`: list of keypoint names
-  - `individuals`: list of individual names
+  - `keypoint`: list of keypoint names
+  - `individual`: list of individual names
 - Attributes: `source_software`, `fps`, `time_unit`, `ds_type="poses"`, `log`
 
 **Bboxes Dataset:**
-- Dimensions: `(time, space, individuals)`
+- Dimensions: `(time, space, individual)`
 - Variables:
   - `position`: centroid positions
   - `shape`: bounding box dimensions

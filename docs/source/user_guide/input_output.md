@@ -23,6 +23,10 @@ You are also welcome to try `movement` by loading some [sample data](target-samp
 which are represented as [movement datasets](target-poses-and-bboxes-dataset)
 and can be loaded from and saved to various third-party formats.
 
+:::{tip}
+To programmatically query the supported source software names and their file suffixes, use {func}`~movement.io.load.get_supported_source_software`.
+:::
+
 | Source Software                                                             | Abbreviation | Source Format                                                                                                             | Dataset Type         | Supported Operations |
 | --------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------- | -------------------- | -------------------- |
 | [DeepLabCut](dlc:)                                                          | DLC          | DLC-style .h5 or .csv file, or corresponding pandas DataFrame                                                             | Pose                 | Load & Save          |
@@ -52,18 +56,37 @@ To import {func}`load_dataset()<movement.io.load.load_dataset>`:
 from movement.io import load_dataset
 ```
 
-To load data from any supported format, specify the `file` path, the `source_software` that produced the file, and optionally the `fps` of the video from which the data were obtained.
+By default, `movement` infers `source_software` from the file format via
+{func}`~movement.io.load.infer_source_software`.
 
-For example, to load pose tracks from a DeepLabCut .h5 file:
 ```python
 ds = load_dataset(
     "/path/to/file.h5",
-    source_software="DeepLabCut",
-    fps=30, # Optional; time coords will be in seconds if provided, otherwise in frames
+    source_software="auto",  # default
+    fps=30,
 )
 ```
 
-This reads the file and returns a [movement dataset](target-poses-and-bboxes-dataset) containing the tracked trajectories and associated confidence values.
+This reads the file and returns a [movement dataset](target-poses-and-bboxes-dataset)
+containing the tracked trajectories, the associated confidence values and
+some metadata attributes. Providing an `fps` (frames per second) value ensures
+that time coordinates are in seconds rather than in frame numbers.
+
+When a file format could have plausibly come from multiple software packages
+(e.g. DeepLabCut-style `.csv` files, which are also used by LightningPose),
+`movement` records the ambiguity in the loaded dataset's attributes
+(e.g. `ds.attrs["source_software"] = "DeepLabCut/LightningPose"`).
+
+If you know the source software or want to ensure a specific loader
+is used, you can set `source_software` explicitly:
+
+```python
+ds = load_dataset(
+    "/path/to/file.csv",
+    source_software="DeepLabCut",
+    fps=30,
+)
+```
 
 #### Passing additional options
 
@@ -75,7 +98,7 @@ For example, to specify the tracked individual's name when loading pose tracks f
 ds = load_dataset(
     "/path/to/file.csv",
     source_software="Anipose",
-    individual_name="id_0"
+    individual_name="id_0",
 )
 ```
 
@@ -367,11 +390,11 @@ with open(filepath, mode="w", newline="") as file:
     writer.writerow(["frame_idx", "bbox_ID", "x", "y", "width", "height", "confidence"])
 
     # write the data
-    for individual in ds.individuals.data:
+    for individual in ds.individual.data:
         for frame in ds.time.data:
-            x, y = ds.position.sel(time=frame, individuals=individual).data
-            width, height = ds.shape.sel(time=frame, individuals=individual).data
-            confidence = ds.confidence.sel(time=frame, individuals=individual).data
+            x, y = ds.position.sel(time=frame, individual=individual).data
+            width, height = ds.shape.sel(time=frame, individual=individual).data
+            confidence = ds.confidence.sel(time=frame, individual=individual).data
             writer.writerow([frame, individual, x, y, width, height, confidence])
 
 ```
@@ -407,6 +430,19 @@ import xarray as xr
 
 ds = xr.open_dataset("my_data.nc")
 ```
+
+:::{note}
+Datasets created with `movement` versions prior to 0.17.0 used plural dimension names
+ (`"keypoints"`, `"individuals"`). If you load a file saved from such a dataset, rename these
+dimensions to (`"keypoint"`, `"individual"`) with {func}`~movement.io.load.rename_legacy_dimensions`
+before further processing:
+
+```python
+from movement.io.load import rename_legacy_dimensions
+
+ds = rename_legacy_dimensions(ds)
+```
+:::
 
 Similarly, an {class}`xarray.DataArray` object (e.g. the `position` variable
 of a `movement` dataset) can be saved to disk using the
