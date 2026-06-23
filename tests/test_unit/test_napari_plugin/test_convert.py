@@ -487,3 +487,89 @@ def test_edited_pose_napari_layers(
         }
     ] = np.nan
     xr.testing.assert_equal(ds, expected_ds)
+
+
+@pytest.mark.parametrize(
+    "nan_location",
+    [
+        None,
+        {
+            "time": "start",
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
+        },
+        {
+            "time": "end",
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
+        },
+        {
+            "time": "middle",
+            "individual": ["id_0"],
+            "keypoint": ["centroid"],
+        },
+    ],
+)
+def test_removed_pose_napari_layers(
+    nan_location,
+    valid_poses_path_and_ds,
+    valid_poses_path_and_ds_with_localised_nans,
+    loaded_data_loader,
+):
+    """Test :func:`napari_layers_to_ds` correctly converts a layer with
+    removed predictions back to a ``movement`` dataset.
+
+    Simulates a user removing the prediction for ``centroid`` of ``id_0``
+    at frame 2 by setting its x, y coordinates and confidence score to NaN.
+    Verifies that :func:`napari_layers_to_ds` reconstructs a dataset that
+    reflects the removal. The test is parametrized over datasets with and
+    without NaN position values to ensure robustness.
+    """
+    if nan_location is None:
+        filepath, ds_expected = valid_poses_path_and_ds
+    else:
+        filepath, ds_expected = valid_poses_path_and_ds_with_localised_nans(
+            nan_location
+        )
+    loader = loaded_data_loader(filepath, ds_expected)
+
+    frame = 2  # safe: not NaN in any parametrize case
+    keypoint = "centroid"
+    individual = "id_0"
+    remove_mask = (
+        (loader.points_layer.properties["time"] == frame)
+        & (loader.points_layer.properties["keypoint"] == keypoint)
+        & (loader.points_layer.properties["individual"] == individual)
+    )
+    conf_mask = (
+        (loader.properties["time"] == frame)
+        & (loader.properties["keypoint"] == keypoint)
+        & (loader.properties["individual"] == individual)
+    )
+    loader.points_layer.data[remove_mask, 1] = np.nan  # y
+    loader.points_layer.data[remove_mask, 2] = np.nan  # x
+    loader.properties.loc[conf_mask, "confidence"] = np.nan
+
+    ds = napari_layers_to_ds(
+        points_as_napari=loader.points_layer.data,
+        properties=loader.points_layer.properties,
+        properties_with_nans=loader.properties,
+        attrs=ds_expected.attrs,
+    )
+    expected_ds = ds_expected.copy(deep=True)
+    expected_ds.position.loc[
+        {
+            "time": frame,
+            "space": ["x", "y"],
+            "keypoint": keypoint,
+            "individual": individual,
+        }
+    ] = [np.nan, np.nan]
+    expected_ds["confidence"].loc[
+        {
+            "time": frame,
+            "keypoint": keypoint,
+            "individual": individual,
+        }
+    ] = np.nan
+    xr.testing.assert_equal(ds, expected_ds)
