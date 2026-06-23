@@ -414,7 +414,7 @@ def test_get_image_filename_template(
 
 
 @pytest.mark.parametrize(
-    "valid_dataset_str,",
+    "valid_dataset_str",
     [
         ("valid_bboxes_dataset"),
         ("valid_bboxes_dataset_in_seconds"),

@@ -3,9 +3,10 @@
 import numpy as np
 import pandas as pd
 import pytest
+import xarray as xr
 from pandas.testing import assert_frame_equal
 
-from movement.napari.convert import ds_to_napari_layers
+from movement.napari.convert import ds_to_napari_layers, napari_layers_to_ds
 
 
 def set_some_confidence_values_to_nan(ds, individuals, time):
@@ -262,3 +263,107 @@ def test_invalid_poses_to_napari_layers(ds_name, expected_exception, request):
     ds = request.getfixturevalue(ds_name)
     with pytest.raises(expected_exception):
         ds_to_napari_layers(ds)
+
+
+# -------------------- Valid napari layers test --------------------
+
+
+@pytest.mark.parametrize(
+    "ds_dataset",
+    [
+        "dataset",
+        "dataset_with_nan",
+        "confidence_with_some_nan",
+        "confidence_with_all_nan",
+    ],
+)
+def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
+    """Test conversion from napari tracks array to movement pose dataset
+    If I convert a dataset to napari and then back to a xarray dataset,
+    do I recover the original values? This is a round-trip test.
+    """
+    ds_name = f"valid_poses_{ds_dataset}"
+    ds = request.getfixturevalue(ds_name)
+    napari_tracks, _, properties_with_nan = ds_to_napari_layers(ds)
+
+    # simulate loader widget filtering of nans
+    valid_point_mask = ~np.any(np.isnan(napari_tracks[:, 2:4]), axis=1)
+
+    # napari_tracks is shape (N,4): (track_id, frame, y, x)
+    # but our function is expecting the points layer (N,3): (frame, y, x)
+    # the loader widget converts tracks layers to points layer by
+    # dropping the track_id column
+    napari_points = napari_tracks[valid_point_mask, 1:]
+    properties = properties_with_nan.iloc[valid_point_mask].reset_index(
+        drop=True
+    )
+
+    reconstructed_ds = napari_layers_to_ds(
+        napari_points, properties, properties_with_nan, attrs=ds.attrs
+    )
+
+    xr.testing.assert_equal(reconstructed_ds, ds)
+
+
+@pytest.mark.parametrize(
+    "nan_location",
+    [
+        None,
+        # no NaNs
+        {
+            "time": "start",
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
+        },  # all individuals are nan at the start
+        {
+            "time": "end",
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
+        },  # all individuals are nan at the end
+        {
+            "time": "middle",
+            "individual": ["id_0"],
+            "keypoint": ["centroid"],
+        },  # a single keypoint of an individual is nan mid-sequence
+    ],
+)
+def test_napari_layers_to_ds(
+    nan_location,
+    valid_poses_path_and_ds,
+    valid_poses_path_and_ds_with_localised_nans,
+    loaded_data_loader,
+):
+    # Get sample data filepath and dataset
+    if nan_location is None:
+        filepath, ds_expected = valid_poses_path_and_ds
+    else:
+        filepath, ds_expected = valid_poses_path_and_ds_with_localised_nans(
+            nan_location
+        )
+
+    # Get loader widget with sample data loaded
+    loader = loaded_data_loader(filepath, ds_expected)
+
+    # Convert data in napari point layer to a movement dataset
+    ds = napari_layers_to_ds(
+        points_as_napari=loader.points_layer.data,
+        properties=loader.points_layer.properties,  # dict
+        properties_with_nans=loader.properties,
+        attrs=ds_expected.attrs,
+    )
+
+    # Assert that the input dataset and the converted one are equal
+    xr.testing.assert_equal(ds, ds_expected)
+
+
+def test_napari_layers_to_ds_bboxes_not_implemented():
+    """Test bbox reconstruction raises NotImplementedError."""
+    with pytest.raises(
+        NotImplementedError,
+        match="Reconstruction of bounding box datasets",
+    ):
+        napari_layers_to_ds(
+            points_as_napari=np.empty((0, 3)),
+            properties={"individual": np.array([])},
+            properties_with_nans=pd.DataFrame(),
+        )

@@ -241,6 +241,7 @@ linkcheck_ignore = [
     # DOI resolvers often rate-limit or return 403/429 in CI
     "https://doi.org/*",
     "https://abide.ics.ulisboa.pt/*",  # flaky
+    "https://docs.unidata.ucar.edu/nug/current/",
 ]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {
