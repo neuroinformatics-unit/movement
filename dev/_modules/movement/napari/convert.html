@@ -26,8 +26,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=0790524f97105ba85085" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=2a6fe4dd" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
@@ -38,12 +38,12 @@
     <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=0790524f97105ba85085"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=06b0b048"></script>
+    <script src="../../../_static/documentation_options.js?v=214640fb"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -51,7 +51,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/napari/convert';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.18.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.16.1.dev29</p>
+    <p class="title logo__title">movement v0.17.1.dev1</p>
   
 </a></div>
     
@@ -546,6 +546,11 @@
 <span class="sd">        DataFrame with properties (individual, keypoint, time, confidence)</span>
 <span class="sd">        for use with napari layers.</span>
 
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    napari_layers_to_ds :</span>
+<span class="sd">        The function carrying out the inverse conversion.</span>
+
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    A corresponding napari Points array can be derived from the Tracks array</span>
@@ -627,6 +632,158 @@
 
     <span class="k">return</span> <span class="n">points_as_napari</span><span class="p">,</span> <span class="n">bboxes_as_napari</span><span class="p">,</span> <span class="n">properties</span></div>
 
+
+
+<div class="viewcode-block" id="napari_layers_to_ds">
+<a class="viewcode-back" href="../../../api/movement.napari.convert.napari_layers_to_ds.html#movement.napari.convert.napari_layers_to_ds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">napari_layers_to_ds</span><span class="p">(</span>
+    <span class="n">points_as_napari</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">properties</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">properties_with_nans</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">attrs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert napari Points layer data to a ``movement`` dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    points_as_napari</span>
+<span class="sd">        Live napari Points layer data, shape (N, 3):</span>
+<span class="sd">        (``frame_idx``, ``y``, ``x``).</span>
+<span class="sd">        NaN rows are excluded (napari cannot handle NaN coordinates),</span>
+<span class="sd">        so this may be shorter than the full timeline.</span>
+<span class="sd">    properties</span>
+<span class="sd">        Live napari Point properties data. It is in-sync with the</span>
+<span class="sd">        Points layer data. It is a dictionary with keys</span>
+<span class="sd">        ``individual``, ``keypoint``, ``time`` and ``confidence``,</span>
+<span class="sd">        each mapping to a list of values, and each value</span>
+<span class="sd">        corresponding to a point.</span>
+<span class="sd">    properties_with_nans:</span>
+<span class="sd">        Properties DataFrame derived from the original loaded dataset</span>
+<span class="sd">        including any NaN position data.</span>
+<span class="sd">    attrs</span>
+<span class="sd">        Attributes of the original loaded dataset (e.g.</span>
+<span class="sd">        ``source_software``, ``fps``, ``time_unit`` and</span>
+<span class="sd">        ``source_file``).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        ``movement`` dataset derived from the napari Points layer,</span>
+<span class="sd">        containing pose tracks, confidence scores, and associated metadata.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    NotImplementedError</span>
+<span class="sd">        If the napari Points layer data does not represent a pose dataset.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    ds_to_napari_layers :</span>
+<span class="sd">        The function carrying out the inverse conversion.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The dataset type is inferred from the presence of ``keypoint`` in</span>
+<span class="sd">    ``properties``. If present, a poses dataset is returned. Currently,</span>
+<span class="sd">    bounding box datasets are not supported.</span>
+
+<span class="sd">    :func:`ds_to_napari_layers` returns a Tracks array of shape (N, 4) with</span>
+<span class="sd">    columns (``track_id``, ``frame``, ``y``, ``x``). When loading into</span>
+<span class="sd">    napari, the ``DataLoader`` widget derives a Points layer from this</span>
+<span class="sd">    Tracks array by dropping the ``track_id`` column, giving a (N, 3)</span>
+<span class="sd">    array of (``frame``, ``y``, ``x``). The Points layer is considered</span>
+<span class="sd">    the &quot;source of truth&quot;, as it immediately reflects any manipulation</span>
+<span class="sd">    of the data done in the napari UI. The function</span>
+<span class="sd">    :func:`napari_layers_to_ds` therefore relies on the Points layer data</span>
+<span class="sd">    as one of its inputs, and uses it to reconstruct the corresponding</span>
+<span class="sd">    dataset.</span>
+
+<span class="sd">    :func:`ds_to_napari_layers` preserves NaN values in the output arrays,</span>
+<span class="sd">    but napari cannot handle NaN coordinates, so the ``DataLoader`` widget</span>
+<span class="sd">    filters them out upon creation of the napari layers. As a result, when</span>
+<span class="sd">    reconstructing a dataset via :func:`napari_layers_to_ds`, the input arrays</span>
+<span class="sd">    will have no NaN (i.e. missing) coordinates.</span>
+<span class="sd">    This function reconstructs the full dataset by restoring missing points</span>
+<span class="sd">    using the full coordinate structure from ``properties_with_nans``</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">properties_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">properties</span><span class="p">)</span>
+    <span class="n">fps</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fps&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="s2">&quot;keypoint&quot;</span> <span class="ow">in</span> <span class="n">properties_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="c1"># Get full coordinates from the original properties with nan</span>
+        <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="n">space_coords</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]</span>
+        <span class="n">keypoint_coords</span> <span class="o">=</span> <span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">individual_coords</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">properties_with_nans</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="c1"># Build position dataframe from napari&#39;s live point layer data</span>
+        <span class="n">position_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">points_as_napari</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="c1"># Use the frame coordinate from the live napari layer as the</span>
+        <span class="c1"># source of truth for time. This avoids relying on</span>
+        <span class="c1"># properties_df[&quot;time&quot;], which may become stale when users add</span>
+        <span class="c1"># points in napari because new points inherit the properties of</span>
+        <span class="c1"># the last selected point.</span>
+        <span class="n">position_df</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">position_df</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">fps</span> <span class="k">if</span> <span class="n">fps</span> <span class="k">else</span> <span class="n">position_df</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="n">position_df</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties_df</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">position_df</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties_df</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+        <span class="n">position_df</span> <span class="o">=</span> <span class="n">position_df</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span>
+            <span class="n">id_vars</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;frame&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">],</span>
+            <span class="n">value_vars</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span>
+            <span class="n">var_name</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span>
+            <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;position&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">position_da</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">position_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">])[</span>
+                <span class="s2">&quot;position&quot;</span>
+            <span class="p">]</span>
+            <span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
+                <span class="n">time</span><span class="o">=</span><span class="n">time_coords</span><span class="p">,</span>
+                <span class="n">space</span><span class="o">=</span><span class="n">space_coords</span><span class="p">,</span>
+                <span class="n">keypoint</span><span class="o">=</span><span class="n">keypoint_coords</span><span class="p">,</span>
+                <span class="n">individual</span><span class="o">=</span><span class="n">individual_coords</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">confidence_da</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">properties_with_nans</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">])[</span>
+                <span class="s2">&quot;confidence&quot;</span>
+            <span class="p">]</span>
+            <span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
+                <span class="n">time</span><span class="o">=</span><span class="n">time_coords</span><span class="p">,</span>
+                <span class="n">keypoint</span><span class="o">=</span><span class="n">keypoint_coords</span><span class="p">,</span>
+                <span class="n">individual</span><span class="o">=</span><span class="n">individual_coords</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
+            <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">position_da</span><span class="p">,</span>
+                <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">confidence_da</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">time_coords</span><span class="p">,</span>
+                <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="n">space_coords</span><span class="p">,</span>
+                <span class="s2">&quot;keypoint&quot;</span><span class="p">:</span> <span class="n">keypoint_coords</span><span class="p">,</span>
+                <span class="s2">&quot;individual&quot;</span><span class="p">:</span> <span class="n">individual_coords</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span> <span class="k">if</span> <span class="n">attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{},</span>
+        <span class="p">)</span>
+
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+        <span class="s2">&quot;Reconstruction of bounding box datasets from napari layers &quot;</span>
+        <span class="s2">&quot;is not yet implemented.&quot;</span>
+    <span class="p">)</span></div>
+
 </pre></div>
 <div class="section ablog__blog_comments">
    
@@ -659,8 +816,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=0790524f97105ba85085"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=0790524f97105ba85085"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -674,7 +831,7 @@
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.18.0.
+    0.19.0.
     </p></div>
       
     </div>

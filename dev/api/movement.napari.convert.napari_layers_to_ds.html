@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>compute_kinetic_energy &#8212; movement</title>
+    <title>napari_layers_to_ds &#8212; movement</title>
   
   
   
@@ -50,9 +50,7 @@
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.kinematics.compute_kinetic_energy';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.napari.convert.napari_layers_to_ds';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
@@ -62,12 +60,12 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <script src="../_static/js/contributors.js?v=e7143984"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.kinematics.compute_kinetic_energy.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.napari.convert.napari_layers_to_ds.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="compute_pairwise_distances" href="movement.kinematics.compute_pairwise_distances.html" />
-    <link rel="prev" title="compute_head_direction_vector" href="movement.kinematics.compute_head_direction_vector.html" /> 
+    <link rel="next" title="movement.napari.convert_roi" href="movement.napari.convert_roi.html" />
+    <link rel="prev" title="ds_to_napari_layers" href="movement.napari.convert.ds_to_napari_layers.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -491,7 +489,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">to_sleap_analysis_file</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.kinematics.html">movement.kinematics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.kinematics.html">movement.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_acceleration.html">compute_acceleration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_backward_displacement.html">compute_backward_displacement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_directional_change.html">compute_directional_change</a></li>
@@ -499,7 +497,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_forward_vector.html">compute_forward_vector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_forward_vector_angle.html">compute_forward_vector_angle</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_head_direction_vector.html">compute_head_direction_vector</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">compute_kinetic_energy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_kinetic_energy.html">compute_kinetic_energy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_pairwise_distances.html">compute_pairwise_distances</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_deviation.html">compute_path_deviation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_length.html">compute_path_length</a></li>
@@ -510,9 +508,9 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_velocity.html">compute_velocity</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.convert.html">movement.napari.convert</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.napari.convert.html">movement.napari.convert</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.ds_to_napari_layers.html">ds_to_napari_layers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.napari.convert.napari_layers_to_ds.html">napari_layers_to_ds</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">napari_layers_to_ds</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.convert_roi.html">movement.napari.convert_roi</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -646,9 +644,9 @@
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="movement.kinematics.html" class="nav-link">movement.kinematics</a></li>
+    <li class="breadcrumb-item"><a href="movement.napari.convert.html" class="nav-link">movement.napari.convert</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compute_kinetic_energy</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">napari_layers_to_ds</span></li>
   </ul>
 </nav>
 </div>
@@ -664,129 +662,70 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="compute-kinetic-energy">
-<h1>compute_kinetic_energy<a class="headerlink" href="#compute-kinetic-energy" title="Link to this heading">#</a></h1>
+                   <section id="napari-layers-to-ds">
+<h1>napari_layers_to_ds<a class="headerlink" href="#napari-layers-to-ds" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="movement.kinematics.compute_kinetic_energy">
-<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_kinetic_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">position</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keypoints</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">masses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decompose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/kinetic_energy.html#compute_kinetic_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_kinetic_energy" title="Link to this definition">#</a></dt>
-<dd><p>Compute kinetic energy per individual.</p>
-<p>We consider each individual’s set of keypoints (pose) as a classical
-system of particles in physics (see Notes).</p>
+<dt class="sig sig-object py" id="movement.napari.convert.napari_layers_to_ds">
+<span class="sig-prename descclassname"><span class="pre">movement.napari.convert.</span></span><span class="sig-name descname"><span class="pre">napari_layers_to_ds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">points_as_napari</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties_with_nans</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attrs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/convert.html#napari_layers_to_ds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.convert.napari_layers_to_ds" title="Link to this definition">#</a></dt>
+<dd><p>Convert napari Points layer data to a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>position</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input data containing position information, with <code class="docutils literal notranslate"><span class="pre">time</span></code>,
-<code class="docutils literal notranslate"><span class="pre">space</span></code> and <code class="docutils literal notranslate"><span class="pre">keypoint</span></code> as required dimensions.</p></li>
-<li><p><strong>keypoints</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – A list of keypoint names to include in the computation.
-By default, all are used.</p></li>
-<li><p><strong>masses</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – A dictionary mapping keypoint names to masses, e.g.
-{“snout”: 1.2, “tail”: 0.8}.
-By default, unit mass is assumed for all keypoints.</p></li>
-<li><p><strong>decompose</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – If True, the kinetic energy is decomposed into “translational” and
-“internal” components (see Notes). This requires at least two keypoints
-per individual, but more would be desirable for a meaningful
-decomposition. The default is False, meaning the total kinetic energy
-is returned.</p></li>
+<li><p><strong>points_as_napari</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a></span>) – Live napari Points layer data, shape (N, 3):
+(<code class="docutils literal notranslate"><span class="pre">frame_idx</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code>).
+NaN rows are excluded (napari cannot handle NaN coordinates),
+so this may be shorter than the full timeline.</p></li>
+<li><p><strong>properties</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span>) – Live napari Point properties data. It is in-sync with the
+Points layer data. It is a dictionary with keys
+<code class="docutils literal notranslate"><span class="pre">individual</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoint</span></code>, <code class="docutils literal notranslate"><span class="pre">time</span></code> and <code class="docutils literal notranslate"><span class="pre">confidence</span></code>,
+each mapping to a list of values, and each value
+corresponding to a point.</p></li>
+<li><p><strong>properties_with_nans</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span>) – Properties DataFrame derived from the original loaded dataset
+including any NaN position data.</p></li>
+<li><p><strong>attrs</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Attributes of the original loaded dataset (e.g.
+<code class="docutils literal notranslate"><span class="pre">source_software</span></code>, <code class="docutils literal notranslate"><span class="pre">fps</span></code>, <code class="docutils literal notranslate"><span class="pre">time_unit</span></code> and
+<code class="docutils literal notranslate"><span class="pre">source_file</span></code>).</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A data array containing the kinetic energy per individual, for every
-time point. Note that the output array lacks <code class="docutils literal notranslate"><span class="pre">space</span></code> and
-<code class="docutils literal notranslate"><span class="pre">keypoint</span></code> dimensions.
-If <code class="docutils literal notranslate"><span class="pre">decompose=True</span></code> an extra <code class="docutils literal notranslate"><span class="pre">energy</span></code> dimension is added,
-with coordinates <code class="docutils literal notranslate"><span class="pre">translational</span></code> and <code class="docutils literal notranslate"><span class="pre">internal</span></code>.</p>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset derived from the napari Points layer,
+containing pose tracks, confidence scores, and associated metadata.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a></span></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#NotImplementedError" title="(in Python v3.14)"><strong>NotImplementedError</strong></a> – If the napari Points layer data does not represent a pose dataset.</p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.napari.convert.ds_to_napari_layers.html#movement.napari.convert.ds_to_napari_layers" title="movement.napari.convert.ds_to_napari_layers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ds_to_napari_layers</span></code></a></dt><dd><p>The function carrying out the inverse conversion.</p>
+</dd>
+</dl>
+</div>
 <p class="rubric">Notes</p>
-<p>Considering a given individual at time point <span class="math notranslate nohighlight">\(t\)</span> as a system of
-keypoint particles, its total kinetic energy <span class="math notranslate nohighlight">\(T_{total}\)</span> is given by:</p>
-<div class="math notranslate nohighlight">
-\[T_{total} = \sum_{i} \frac{1}{2} m_i \| \mathbf{v}_i(t) \|^2\]</div>
-<p>where <span class="math notranslate nohighlight">\(m_i\)</span> is the mass of the <span class="math notranslate nohighlight">\(i\)</span>-th keypoint and
-<span class="math notranslate nohighlight">\(\mathbf{v}_i(t)\)</span> is its velocity at time <span class="math notranslate nohighlight">\(t\)</span>.</p>
-<p>From Samuel König’s second theorem, we can decompose <span class="math notranslate nohighlight">\(T_{total}\)</span>
-into:</p>
-<ul class="simple">
-<li><p>Translational kinetic energy: the kinetic energy of the individual’s
-total mass <span class="math notranslate nohighlight">\(M\)</span> moving with the centre of mass velocity;</p></li>
-<li><p>Internal kinetic energy: the kinetic energy of the keypoints moving
-relative to the individual’s centre of mass.</p></li>
-</ul>
-<p>We compute translational kinetic energy <span class="math notranslate nohighlight">\(T_{trans}\)</span> as follows:</p>
-<div class="math notranslate nohighlight">
-\[T_{trans} = \frac{1}{2} M \| \mathbf{v}_{cm}(t) \|^2\]</div>
-<p>where <span class="math notranslate nohighlight">\(M = \sum_{i} m_i\)</span> is the total mass of the individual
-and <span class="math notranslate nohighlight">\(\mathbf{v}_{cm}(t) = \frac{1}{M} \sum_{i} m_i \mathbf{v}_i(t)\)</span>
-is the velocity of the centre of mass at time <span class="math notranslate nohighlight">\(t\)</span>
-(computed as the weighted mean of keypoint velocities).</p>
-<p>Internal kinetic energy <span class="math notranslate nohighlight">\(T_{int}\)</span> is derived as the difference
-between the total and translational components:</p>
-<div class="math notranslate nohighlight">
-\[T_{int} = T_{total} - T_{trans}\]</div>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_kinetic_energy</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-</pre></div>
-</div>
-<p>Compute total kinetic energy:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
-<span class="gp">... </span>    <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
-<span class="gp">... </span>        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-<span class="gp">... </span>        <span class="s2">&quot;individual&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;id0&quot;</span><span class="p">,</span> <span class="s2">&quot;id1&quot;</span><span class="p">],</span>
-<span class="gp">... </span>        <span class="s2">&quot;keypoint&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;snout&quot;</span><span class="p">,</span> <span class="s2">&quot;spine&quot;</span><span class="p">,</span> <span class="s2">&quot;tail_base&quot;</span><span class="p">,</span> <span class="s2">&quot;tail_tip&quot;</span><span class="p">],</span>
-<span class="gp">... </span>        <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="p">},</span>
-<span class="gp">... </span>    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">],</span>
-<span class="gp">... </span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kinetic_energy_total</span> <span class="o">=</span> <span class="n">compute_kinetic_energy</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kinetic_energy_total</span>
-<span class="go">&lt;xarray.DataArray (time: 3, individual: 2)&gt; Size: 48B</span>
-<span class="go">0.6579 0.7394 0.1304 0.05152 0.2436 0.5719</span>
-<span class="go">Coordinates:</span>
-<span class="go">* time        (time) int64 24B 0 1 2</span>
-<span class="go">* individual  (individual) &lt;U3 24B &#39;id0&#39; &#39;id1&#39;</span>
-</pre></div>
-</div>
-<p>Compute kinetic energy decomposed into translational
-and internal components:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kinetic_energy</span> <span class="o">=</span> <span class="n">compute_kinetic_energy</span><span class="p">(</span><span class="n">position</span><span class="p">,</span> <span class="n">decompose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kinetic_energy</span>
-<span class="go">&lt;xarray.DataArray (time: 3, individual: 2, energy: 2)&gt; Size: 96B</span>
-<span class="go">0.0172 1.318 0.02069 0.6498 0.02933 ... 0.1716 0.07829 0.7942 0.06901 0.857</span>
-<span class="go">Coordinates:</span>
-<span class="go">* time        (time) int64 24B 0 1 2</span>
-<span class="go">* individual  (individual) &lt;U3 24B &#39;id0&#39; &#39;id1&#39;</span>
-<span class="go">* energy       (energy) &lt;U13 104B &#39;translational&#39; &#39;internal&#39;</span>
-</pre></div>
-</div>
-<p>Select the ‘internal’ component:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kinetic_energy_internal</span> <span class="o">=</span> <span class="n">kinetic_energy</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="s2">&quot;internal&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Use unequal keypoint masses and exclude an unreliable keypoint
-(e.g. “tail_tip”):</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">masses</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;snout&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s2">&quot;spine&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">&quot;tail_base&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kinetic_energy</span> <span class="o">=</span> <span class="n">compute_kinetic_energy</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">position</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">keypoints</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;snout&quot;</span><span class="p">,</span> <span class="s2">&quot;spine&quot;</span><span class="p">,</span> <span class="s2">&quot;tail_base&quot;</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="n">masses</span><span class="o">=</span><span class="n">masses</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">decompose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="gp">... </span><span class="p">)</span>
-</pre></div>
-</div>
+<p>The dataset type is inferred from the presence of <code class="docutils literal notranslate"><span class="pre">keypoint</span></code> in
+<code class="docutils literal notranslate"><span class="pre">properties</span></code>. If present, a poses dataset is returned. Currently,
+bounding box datasets are not supported.</p>
+<p><a class="reference internal" href="movement.napari.convert.ds_to_napari_layers.html#movement.napari.convert.ds_to_napari_layers" title="movement.napari.convert.ds_to_napari_layers"><code class="xref py py-func docutils literal notranslate"><span class="pre">ds_to_napari_layers()</span></code></a> returns a Tracks array of shape (N, 4) with
+columns (<code class="docutils literal notranslate"><span class="pre">track_id</span></code>, <code class="docutils literal notranslate"><span class="pre">frame</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code>). When loading into
+napari, the <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> widget derives a Points layer from this
+Tracks array by dropping the <code class="docutils literal notranslate"><span class="pre">track_id</span></code> column, giving a (N, 3)
+array of (<code class="docutils literal notranslate"><span class="pre">frame</span></code>, <code class="docutils literal notranslate"><span class="pre">y</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code>). The Points layer is considered
+the “source of truth”, as it immediately reflects any manipulation
+of the data done in the napari UI. The function
+<a class="reference internal" href="#movement.napari.convert.napari_layers_to_ds" title="movement.napari.convert.napari_layers_to_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">napari_layers_to_ds()</span></code></a> therefore relies on the Points layer data
+as one of its inputs, and uses it to reconstruct the corresponding
+dataset.</p>
+<p><a class="reference internal" href="movement.napari.convert.ds_to_napari_layers.html#movement.napari.convert.ds_to_napari_layers" title="movement.napari.convert.ds_to_napari_layers"><code class="xref py py-func docutils literal notranslate"><span class="pre">ds_to_napari_layers()</span></code></a> preserves NaN values in the output arrays,
+but napari cannot handle NaN coordinates, so the <code class="docutils literal notranslate"><span class="pre">DataLoader</span></code> widget
+filters them out upon creation of the napari layers. As a result, when
+reconstructing a dataset via <a class="reference internal" href="#movement.napari.convert.napari_layers_to_ds" title="movement.napari.convert.napari_layers_to_ds"><code class="xref py py-func docutils literal notranslate"><span class="pre">napari_layers_to_ds()</span></code></a>, the input arrays
+will have no NaN (i.e. missing) coordinates.
+This function reconstructs the full dataset by restoring missing points
+using the full coordinate structure from <code class="docutils literal notranslate"><span class="pre">properties_with_nans</span></code></p>
 </dd></dl>
 
 </section>
@@ -805,20 +744,20 @@ and internal components:</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.kinematics.compute_head_direction_vector.html"
+       href="movement.napari.convert.ds_to_napari_layers.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">compute_head_direction_vector</p>
+        <p class="prev-next-title">ds_to_napari_layers</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.kinematics.compute_pairwise_distances.html"
+       href="movement.napari.convert_roi.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">compute_pairwise_distances</p>
+        <p class="prev-next-title">movement.napari.convert_roi</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -841,14 +780,14 @@ and internal components:</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.kinematics.compute_kinetic_energy"><code class="docutils literal notranslate"><span class="pre">compute_kinetic_energy()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.napari.convert.napari_layers_to_ds"><code class="docutils literal notranslate"><span class="pre">napari_layers_to_ds()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/api/movement.kinematics.compute_kinetic_energy.rst.txt">
+    <a href="../_sources/api/movement.napari.convert.napari_layers_to_ds.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

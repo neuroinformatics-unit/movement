@@ -18,4 +18,6 @@
     
     ds_to_napari_layers
     
+    napari_layers_to_ds
+    
 
