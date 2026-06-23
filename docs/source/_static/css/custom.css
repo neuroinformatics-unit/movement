@@ -78,12 +78,11 @@ a[class^="sphx-glr-backref-module-movement"] {
   color: var(--pst-color-success);
   content: "\f004";  /* fa-heart (Font Awesome 6 Free Solid) */
 }
+
 /* Contributor avatar grid */
 .contributors-table .sd-card,
 .contributors-table .sd-card-body {
   background: var(--pst-color-on-background) !important;
-  border: none !important;
-  box-shadow: none !important;
   text-align: center;
 }
 .contributors-table .sd-card {
