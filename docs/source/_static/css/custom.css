@@ -88,11 +88,6 @@ a[class^="sphx-glr-backref-module-movement"] {
 .contributors-table .sd-card {
   border-radius: 8px;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.contributors-table .sd-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 .contributors-table .sd-card-img-top {
   width: 80px;
