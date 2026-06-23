@@ -30,9 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
         cardTitle.textContent = name ? name.textContent : img.alt;
         cardBody.appendChild(cardTitle);
 
-        // Image at the bottom of the card
+        // Image at the top of the card
         const cardImg = document.createElement('img');
-        cardImg.className = 'sd-card-img-bottom';
+        cardImg.className = 'sd-card-img-top';
         cardImg.src = img.src;
         cardImg.alt = img.alt;
 
@@ -44,8 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
         linkSpan.textContent = link.href;
         stretchedLink.appendChild(linkSpan);
 
-        card.appendChild(cardBody);
         card.appendChild(cardImg);
+        card.appendChild(cardBody);
         card.appendChild(stretchedLink);
         col.appendChild(card);
         gridRow.appendChild(col);
