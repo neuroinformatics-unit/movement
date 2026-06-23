@@ -195,16 +195,16 @@ def sample_properties_with_factorized():
 
 @pytest.fixture
 def loaded_data_loader(make_napari_viewer_proxy):
-    """Return a factory that builds and loads a DataLoader."""
+    """Return a factory of DataLoader widgets with loaded data."""
 
     def _loaded_data_loader(filepath, ds):
+        """Return a DataLoader widget with the input data loaded."""
         loader = DataLoader(make_napari_viewer_proxy())
         loader.file_path_edit.setText(str(filepath))
         loader.source_software_combo.setCurrentText(
             ds.attrs["source_software"]
         )
-        if "fps" in ds.attrs:
-            loader.fps_spinbox.setValue(ds.attrs["fps"])
+        loader.fps_spinbox.setValue(ds.attrs.get("fps", 1.0))
         loader._on_load_clicked()
         return loader
 

@@ -158,30 +158,34 @@ def napari_layers_to_ds(
     properties_with_nans: pd.DataFrame,
     attrs: dict | None = None,
 ) -> xr.Dataset:
-    """Convert napari layer data back to a ``movement`` dataset.
+    """Convert napari Points layer data to a ``movement`` dataset.
 
     Parameters
     ----------
     points_as_napari
-        Live napari Points layer data, shape (N, 3): (frame_idx, y, x).
+        Live napari Points layer data, shape (N, 3):
+        (``frame_idx``, ``y``, ``x``).
         NaN rows are excluded (napari cannot handle NaN coordinates),
         so this may be shorter than the full timeline.
     properties
-        Dictionary with properties synced to ``napari_layers``
-        (individual, keypoint, time, confidence). One row per point.
+        Live napari Point properties data. It is in-sync with the
+        Points layer data. It is a dictionary with keys
+        ``individual``, ``keypoint``, ``time`` and ``confidence``,
+        each mapping to a list of values, and each value
+        corresponding to a point.
     properties_with_nans:
-        Properties DataFrame corresponding to the original input passed to
-        the napari points layer, including NaN position data.
+        Properties DataFrame derived from the original loaded dataset
+        including any NaN position data.
     attrs
-        Original dataset attributes (e.g. ``source_software``, ``fps``,
-        ``time_unit``, ``source_file``) stored in the napari layer
-        metadata and restored during dataset reconstruction.
+        Attributes of the original loaded dataset (e.g.
+        ``source_software``, ``fps``, ``time_unit`` and
+        ``source_file``).
 
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing pose or bounding box tracks,
-        confidence scores, and associated metadata.
+        ``movement`` dataset derived from the napari Points layer,
+        containing pose tracks, confidence scores, and associated metadata.
 
     Raises
     ------
@@ -199,19 +203,21 @@ def napari_layers_to_ds(
     ``properties``. If present, a poses dataset is returned. Currently,
     bounding box datasets are not supported.
 
-    ``ds_to_napari_layers`` returns a Tracks array of shape (N, 4) with
-    columns (track_id, frame, y, x). When loading into napari,
-    ``loader_widgets`` derives a Points layer from this by dropping the
-    ``track_id`` column, giving a (N, 3) array of (frame, y, x). The
-    Points layer is preferred for editing purposes, as it allows the user
-    to directly manipulate individual keypoint positions. This function
-    therefore expects the Points layer data as input, and uses it to
-    reconstruct the original dataset.
+    :func:`ds_to_napari_layers` returns a Tracks array of shape (N, 4) with
+    columns (``track_id``, ``frame``, ``y``, ``x``). When loading into
+    napari, the ``DataLoader`` widget derives a Points layer from this
+    Tracks array by dropping the ``track_id`` column, giving a (N, 3)
+    array of (``frame``, ``y``, ``x``). The Points layer is considered
+    the "source of truth", as it immediately reflects any manipulation
+    of the data done in the napari UI. The function
+    :func:`napari_layers_to_ds` therefore relies on the Points layer data
+    as one of its inputs, and uses it to reconstruct the corresponding
+    dataset.
 
-    ``ds_to_napari_layers`` preserves NaN values in the output arrays,
-    but napari cannot handle NaN coordinates, so ``loader_widgets`` filters
-    them out upon creation of the napari layers. As a result, when
-    reconstructing a dataset via ``napari_layers_to_ds``, the input arrays
+    :func:`ds_to_napari_layers` preserves NaN values in the output arrays,
+    but napari cannot handle NaN coordinates, so the ``DataLoader`` widget
+    filters them out upon creation of the napari layers. As a result, when
+    reconstructing a dataset via :func:`napari_layers_to_ds`, the input arrays
     will have no NaN (i.e. missing) coordinates.
     This function reconstructs the full dataset by restoring missing points
     using the full coordinate structure from ``properties_with_nans``
@@ -232,6 +238,11 @@ def napari_layers_to_ds(
         position_df = pd.DataFrame(
             points_as_napari, columns=["frame", "y", "x"]
         )
+        # Use the frame coordinate from the live napari layer as the
+        # source of truth for time. This avoids relying on
+        # properties_df["time"], which may become stale when users add
+        # points in napari because new points inherit the properties of
+        # the last selected point.
         position_df["time"] = (
             position_df["frame"] / fps if fps else position_df["frame"]
         )

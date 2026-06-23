@@ -284,7 +284,7 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
     """
     ds_name = f"valid_poses_{ds_dataset}"
     ds = request.getfixturevalue(ds_name)
-    napari_tracks, _, properties_unfiltered = ds_to_napari_layers(ds)
+    napari_tracks, _, properties_with_nan = ds_to_napari_layers(ds)
 
     # simulate loader widget filtering of nans
     valid_point_mask = ~np.any(np.isnan(napari_tracks[:, 2:4]), axis=1)
@@ -294,12 +294,12 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
     # the loader widget converts tracks layers to points layer by
     # dropping the track_id column
     napari_points = napari_tracks[valid_point_mask, 1:]
-    properties = properties_unfiltered.iloc[valid_point_mask].reset_index(
+    properties = properties_with_nan.iloc[valid_point_mask].reset_index(
         drop=True
     )
 
     reconstructed_ds = napari_layers_to_ds(
-        napari_points, properties, properties_unfiltered, attrs=ds.attrs
+        napari_points, properties, properties_with_nan, attrs=ds.attrs
     )
 
     xr.testing.assert_equal(reconstructed_ds, ds)
