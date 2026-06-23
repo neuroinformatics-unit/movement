@@ -65,6 +65,11 @@ def ds_to_napari_layers(
         DataFrame with properties (individual, keypoint, time, confidence)
         for use with napari layers.
 
+    See Also
+    --------
+    napari_layers_to_ds :
+        The function carrying out the inverse conversion.
+
     Notes
     -----
     A corresponding napari Points array can be derived from the Tracks array
@@ -145,3 +150,152 @@ def ds_to_napari_layers(
     properties = _construct_properties_dataframe(ds_)
 
     return points_as_napari, bboxes_as_napari, properties
+
+
+def napari_layers_to_ds(
+    points_as_napari: np.ndarray,
+    properties: dict,
+    properties_with_nans: pd.DataFrame,
+    attrs: dict | None = None,
+) -> xr.Dataset:
+    """Convert napari Points layer data to a ``movement`` dataset.
+
+    Parameters
+    ----------
+    points_as_napari
+        Live napari Points layer data, shape (N, 3):
+        (``frame_idx``, ``y``, ``x``).
+        NaN rows are excluded (napari cannot handle NaN coordinates),
+        so this may be shorter than the full timeline.
+    properties
+        Live napari Point properties data. It is in-sync with the
+        Points layer data. It is a dictionary with keys
+        ``individual``, ``keypoint``, ``time`` and ``confidence``,
+        each mapping to a list of values, and each value
+        corresponding to a point.
+    properties_with_nans:
+        Properties DataFrame derived from the original loaded dataset
+        including any NaN position data.
+    attrs
+        Attributes of the original loaded dataset (e.g.
+        ``source_software``, ``fps``, ``time_unit`` and
+        ``source_file``).
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset derived from the napari Points layer,
+        containing pose tracks, confidence scores, and associated metadata.
+
+    Raises
+    ------
+    NotImplementedError
+        If the napari Points layer data does not represent a pose dataset.
+
+    See Also
+    --------
+    ds_to_napari_layers :
+        The function carrying out the inverse conversion.
+
+    Notes
+    -----
+    The dataset type is inferred from the presence of ``keypoint`` in
+    ``properties``. If present, a poses dataset is returned. Currently,
+    bounding box datasets are not supported.
+
+    :func:`ds_to_napari_layers` returns a Tracks array of shape (N, 4) with
+    columns (``track_id``, ``frame``, ``y``, ``x``). When loading into
+    napari, the ``DataLoader`` widget derives a Points layer from this
+    Tracks array by dropping the ``track_id`` column, giving a (N, 3)
+    array of (``frame``, ``y``, ``x``). The Points layer is considered
+    the "source of truth", as it immediately reflects any manipulation
+    of the data done in the napari UI. The function
+    :func:`napari_layers_to_ds` therefore relies on the Points layer data
+    as one of its inputs, and uses it to reconstruct the corresponding
+    dataset.
+
+    :func:`ds_to_napari_layers` preserves NaN values in the output arrays,
+    but napari cannot handle NaN coordinates, so the ``DataLoader`` widget
+    filters them out upon creation of the napari layers. As a result, when
+    reconstructing a dataset via :func:`napari_layers_to_ds`, the input arrays
+    will have no NaN (i.e. missing) coordinates.
+    This function reconstructs the full dataset by restoring missing points
+    using the full coordinate structure from ``properties_with_nans``
+
+    """
+    properties_df = pd.DataFrame.from_dict(properties)
+    fps = attrs.get("fps") if attrs is not None else None
+
+    if "keypoint" in properties_df.columns:
+        # Get full coordinates from the original properties with nan
+        time_coords = np.sort(properties_with_nans["time"].unique())
+        space_coords = ["x", "y"]
+        keypoint_coords = properties_with_nans["keypoint"].unique().tolist()
+        individual_coords = (
+            properties_with_nans["individual"].unique().tolist()
+        )
+        # Build position dataframe from napari's live point layer data
+        position_df = pd.DataFrame(
+            points_as_napari, columns=["frame", "y", "x"]
+        )
+        # Use the frame coordinate from the live napari layer as the
+        # source of truth for time. This avoids relying on
+        # properties_df["time"], which may become stale when users add
+        # points in napari because new points inherit the properties of
+        # the last selected point.
+        position_df["time"] = (
+            position_df["frame"] / fps if fps else position_df["frame"]
+        )
+
+        position_df["keypoint"] = properties_df["keypoint"].to_numpy()
+        position_df["individual"] = properties_df["individual"].to_numpy()
+
+        position_df = position_df.melt(
+            id_vars=["time", "frame", "keypoint", "individual"],
+            value_vars=["x", "y"],
+            var_name="space",
+            value_name="position",
+        )
+        position_da = (
+            position_df.set_index(["time", "space", "keypoint", "individual"])[
+                "position"
+            ]
+            .to_xarray()
+            .reindex(
+                time=time_coords,
+                space=space_coords,
+                keypoint=keypoint_coords,
+                individual=individual_coords,
+            )
+        )
+
+        confidence_da = (
+            properties_with_nans.set_index(["time", "keypoint", "individual"])[
+                "confidence"
+            ]
+            .to_xarray()
+            .reindex(
+                time=time_coords,
+                keypoint=keypoint_coords,
+                individual=individual_coords,
+            )
+        )
+
+        return xr.Dataset(
+            data_vars={
+                "position": position_da,
+                "confidence": confidence_da,
+            },
+            coords={
+                "time": time_coords,
+                "space": space_coords,
+                "keypoint": keypoint_coords,
+                "individual": individual_coords,
+            },
+            attrs=attrs if attrs is not None else {},
+        )
+
+    raise NotImplementedError(
+        "Reconstruction of bounding box datasets from napari layers "
+        "is not yet implemented."
+    )
