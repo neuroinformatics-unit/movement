@@ -176,6 +176,8 @@ def rolling_filter(
     is sufficient to compute the result.
 
     """
+    if window == 1:
+        return data
     half_window = window // 2
     data_windows = data.pad(  # Pad the edges to avoid NaNs
         time=half_window, mode="reflect"
