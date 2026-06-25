@@ -421,15 +421,9 @@ def test_edited_pose_napari_layers(
         & (loader.points_layer.properties["keypoint"] == keypoint)
         & (loader.points_layer.properties["individual"] == individual)
     )
-    conf_mask = (
-        (loader.properties["time"] == frame)
-        & (loader.properties["keypoint"] == keypoint)
-        & (loader.properties["individual"] == individual)
-    )
     # we need two masks because they are applied to different sized-objects
     loader.points_layer.data[edit_mask, 1] = 100  # y
     loader.points_layer.data[edit_mask, 2] = 200  # x
-    loader.properties.loc[conf_mask, "confidence"] = 1.0
 
     ds = napari_layers_to_ds(
         points_as_napari=loader.points_layer.data,
