@@ -1,10 +1,44 @@
+import re
 from contextlib import nullcontext as does_not_raise
 
 import numpy as np
 import pytest
 import xarray as xr
 
-from movement.kinematics import compute_path_length, compute_path_straightness
+from movement.kinematics import (
+    compute_directional_change,
+    compute_path_deviation,
+    compute_path_length,
+    compute_path_straightness,
+    compute_turning_angle,
+)
+
+# Shared by all metrics that require at least 2 time points.
+time_points_value_error = pytest.raises(
+    ValueError,
+    match="At least 2 time points are required",
+)
+
+# Pre-sliced time-range cases shared by multiple unit tests
+time_range_cases = [
+    # full time ranges
+    pytest.param(slice(None, None), does_not_raise(), id="full-range"),
+    pytest.param(slice(0, None), does_not_raise(), id="from-zero"),
+    pytest.param(slice(0, 9), does_not_raise(), id="explicit-full-range"),
+    pytest.param(slice(0, 10), does_not_raise(), id="stop-beyond-data"),
+    pytest.param(slice(-1, 9), does_not_raise(), id="start-before-data"),
+    # partial time ranges
+    pytest.param(slice(1, 8), does_not_raise(), id="partial-range"),
+    pytest.param(slice(1.5, 8.5), does_not_raise(), id="fractional-bounds"),
+    pytest.param(slice(2, None), does_not_raise(), id="from-two-to-end"),
+    # Empty or too-short slices
+    pytest.param(
+        slice(9, 0), time_points_value_error, id="start-greater-than-stop"
+    ),
+    pytest.param(
+        slice(0, 0.5), time_points_value_error, id="too-few-time-points"
+    ),
+]
 
 # ─────────────────────────────────────────────
 # Fixtures
@@ -89,44 +123,83 @@ def sharp_turn_paths(straight_paths):
     return path
 
 
+@pytest.fixture
+def straight_paths_3d(straight_paths):
+    """Return straight paths extended to 3D with z=0."""
+    return (
+        straight_paths.pad(space=(0, 1))
+        .fillna(0)
+        .assign_coords(space=["x", "y", "z"])
+    )
+
+
+@pytest.fixture
+def straight_paths_with_nan(straight_paths):
+    """Return straight paths with NaN injected at time=5."""
+    path = straight_paths.copy()
+    path.loc[{"time": 5}] = np.nan
+    return path
+
+
+@pytest.fixture
+def lateral_detour_paths(straight_paths):
+    """Return path data where each individual takes a 1-unit lateral detour.
+
+    id_0 moves along x=y (chord unit: (1/sqrt(2), 1/sqrt(2))).
+    Its perpendicular is (-1/sqrt(2), +1/sqrt(2)).
+
+    id_1 moves along x=-y (chord unit: (1/sqrt(2), -1/sqrt(2))).
+    Its perpendicular is (1/sqrt(2), +1/sqrt(2)).
+
+    At time=5, each individual is displaced exactly 1 unit perpendicular
+    to its own chord. Expected deviation at time=5 is 1.0 for both.
+    """
+    path = straight_paths.copy()
+    perp = 1.0 / np.sqrt(2)
+    # id_0: perpendicular to x=y is (-1/sqrt(2), +1/sqrt(2))
+    path.loc[{"time": 5, "space": "x", "individual": "id_0"}] -= perp
+    path.loc[{"time": 5, "space": "y", "individual": "id_0"}] += perp
+    # id_1: perpendicular to x=-y is (+1/sqrt(2), +1/sqrt(2))
+    path.loc[{"time": 5, "space": "x", "individual": "id_1"}] += perp
+    path.loc[{"time": 5, "space": "y", "individual": "id_1"}] += perp
+    return path
+
+
+# ─────────────────────────────────────────────
+# Cross-metric time-range tests
+# ─────────────────────────────────────────────
+
+
+@pytest.mark.parametrize("time_slice, expected_exception", time_range_cases)
+@pytest.mark.parametrize(
+    "compute_fn",
+    [
+        pytest.param(compute_path_straightness, id="straightness"),
+        pytest.param(compute_directional_change, id="directional-change"),
+        pytest.param(compute_path_deviation, id="deviation"),
+    ],
+)
+def test_path_metrics_across_time_ranges(
+    straight_paths,
+    time_slice,
+    expected_exception,
+    compute_fn,
+):
+    """Test that path metrics accept valid time ranges and raise
+    on too-few time points. Path length is tested separately because
+    its time-range test also validates computed values.
+    """
+    position = straight_paths.sel(time=time_slice)
+    with expected_exception:
+        compute_fn(position)
+
+
 # ─────────────────────────────────────────────
 # Path length tests
 # ─────────────────────────────────────────────
 
-time_points_value_error = pytest.raises(
-    ValueError,
-    match="At least 2 time points are required to compute path length",
-)
 
-
-@pytest.mark.parametrize(
-    "time_slice, expected_exception",
-    [
-        # full time ranges
-        pytest.param(slice(None, None), does_not_raise(), id="full-range"),
-        pytest.param(slice(0, None), does_not_raise(), id="from-zero"),
-        pytest.param(slice(0, 9), does_not_raise(), id="explicit-full-range"),
-        pytest.param(slice(0, 10), does_not_raise(), id="stop-beyond-data"),
-        pytest.param(slice(-1, 9), does_not_raise(), id="start-before-data"),
-        # partial time ranges
-        pytest.param(slice(1, 8), does_not_raise(), id="partial-range"),
-        pytest.param(
-            slice(1.5, 8.5), does_not_raise(), id="fractional-bounds"
-        ),
-        pytest.param(slice(2, None), does_not_raise(), id="from-two-to-end"),
-        # Empty or too-short slices
-        pytest.param(
-            slice(9, 0),
-            time_points_value_error,
-            id="start-greater-than-stop",
-        ),
-        pytest.param(
-            slice(0, 0.5),
-            time_points_value_error,
-            id="too-few-time-points",
-        ),
-    ],
-)
+@pytest.mark.parametrize("time_slice, expected_exception", time_range_cases)
 def test_path_length_across_time_ranges(
     valid_poses_dataset, time_slice, expected_exception
 ):
@@ -283,60 +356,6 @@ def test_path_length_nan_warn_threshold(
 # Path straightness tests
 # ─────────────────────────────────────────────
 
-time_points_value_error_straightness = pytest.raises(
-    ValueError,
-    match=("At least 2 time points are required to compute path straightness"),
-)
-
-
-@pytest.mark.parametrize(
-    "time_slice, expected_exception",
-    [
-        pytest.param(
-            slice(None, None),
-            does_not_raise(),
-            id="full-range",
-        ),
-        pytest.param(
-            slice(0, 9),
-            does_not_raise(),
-            id="explicit-full-range",
-        ),
-        pytest.param(
-            slice(1, 8),
-            does_not_raise(),
-            id="partial-range",
-        ),
-        pytest.param(
-            slice(9, 0),
-            time_points_value_error_straightness,
-            id="start-greater-than-stop",
-        ),
-        pytest.param(
-            slice(0, 0.5),
-            time_points_value_error_straightness,
-            id="too-few-time-points",
-        ),
-    ],
-)
-def test_path_straightness_across_time_ranges(
-    valid_poses_dataset, time_slice, expected_exception
-):
-    """Test straightness index for a uniform linear motion case.
-
-    The ``valid_poses_dataset`` contains 2 individuals moving in
-    straight lines, so the straightness index should always be 1.0.
-    """
-    position = valid_poses_dataset.position.sel(time=time_slice)
-    with expected_exception:
-        result = compute_path_straightness(position)
-        assert result.name == "straightness_index"
-        assert result.attrs["long_name"] == "Path Straightness Index"
-        xr.testing.assert_allclose(
-            result,
-            xr.ones_like(result),
-        )
-
 
 @pytest.mark.parametrize(
     "fixture_name, expected_value",
@@ -379,3 +398,406 @@ def test_path_straightness_known_values(
             result,
             xr.full_like(result, expected_value),
         )
+
+
+# ─────────────────────────────────────────────
+# Turning angle tests
+# ─────────────────────────────────────────────
+
+
+@pytest.mark.parametrize(
+    "in_degrees, expected_units",
+    [(True, "degrees"), (False, "radians")],
+)
+def test_turning_angle_output_shape_and_attributes(
+    valid_poses_dataset, in_degrees, expected_units
+):
+    """Test that the function returns the correct shape,
+    dimensions, and attributes.
+    """
+    position = valid_poses_dataset.position
+    angles = compute_turning_angle(position, in_degrees=in_degrees)
+
+    # Space dimension must be dropped, others preserved
+    assert angles.sizes["time"] == position.sizes["time"]
+    assert "space" not in angles.dims
+    assert "individual" in angles.dims
+
+    # Attributes
+    assert angles.name == "turning_angle"
+    assert angles.attrs.get("units") == expected_units
+
+
+@pytest.mark.parametrize(
+    "invalid_data, expected_error, expected_match_str,",
+    [
+        pytest.param(
+            xr.DataArray(
+                np.zeros((3, 2)),
+                dims=["frame", "space"],
+                coords={"space": ["x", "y"]},
+            ),
+            ValueError,
+            "Input data must contain ['time']",
+            id="missing_time_dim",
+        ),
+        pytest.param(
+            xr.DataArray(
+                np.zeros((3, 2)),
+                dims=["time", "axis"],
+                coords={"axis": ["x", "y"]},
+            ),
+            ValueError,
+            "Input data must contain ['space']",
+            id="missing_space_dim",
+        ),
+        pytest.param(
+            xr.DataArray(
+                np.zeros((3, 3)),
+                dims=["time", "space"],
+                coords={"space": ["x", "y", "z"]},
+            ),
+            ValueError,
+            "Dimension 'space' must only contain",
+            id="3d_space_coords",
+        ),
+    ],
+)
+def test_turning_angle_with_invalid_input(
+    invalid_data, expected_error, expected_match_str
+):
+    """Test that invalid inputs raise the expected error."""
+    with pytest.raises(expected_error, match=re.escape(expected_match_str)):
+        compute_turning_angle(invalid_data)
+
+
+@pytest.mark.parametrize(
+    "positions, expected_angle_deg",
+    [
+        pytest.param(
+            [[0.0, 0.0], [1.0, 0.0], [2.0, 0.0]],
+            0.0,
+            id="straight_line",
+        ),
+        pytest.param(
+            [[0.0, 0.0], [1.0, 0.0], [1.0, 1.0]],
+            90.0,
+            id="pos_turn_90",
+        ),
+        pytest.param(
+            [[0.0, 0.0], [1.0, 0.0], [1.0, -1.0]],
+            -90.0,
+            id="neg_turn_90",
+        ),
+        pytest.param(
+            [
+                [0.0, 0.0],
+                [
+                    np.cos(np.deg2rad(170)),
+                    np.sin(np.deg2rad(170)),
+                ],
+                [
+                    np.cos(np.deg2rad(170)) + np.cos(np.deg2rad(-170)),
+                    np.sin(np.deg2rad(170)) + np.sin(np.deg2rad(-170)),
+                ],
+            ],
+            20.0,
+            id="wrap_across_pi_boundary",
+        ),
+        pytest.param(
+            [[0.0, 0.0], [1.0, 0.0], [0.0, 0.0]],
+            180.0,
+            id="u_turn_180",
+        ),
+    ],
+)
+def test_turning_angle_known_values(positions, expected_angle_deg):
+    """Test mathematical correctness of
+    turning angles for specific trajectories.
+    """
+    pos_array = np.array(positions)
+    data = xr.DataArray(
+        pos_array,
+        dims=["time", "space"],
+        coords={
+            "time": np.arange(len(pos_array)),
+            "space": ["x", "y"],
+        },
+    )
+
+    angles = compute_turning_angle(data, in_degrees=True)
+    assert angles.attrs.get("units") == "degrees"
+    assert np.isclose(
+        angles.isel(time=2).item(), expected_angle_deg, atol=1e-6
+    )
+
+
+@pytest.mark.parametrize(
+    "min_step, expect_nan",
+    [
+        pytest.param(0.0, False, id="default_threshold"),
+        pytest.param(1e-4, True, id="small_threshold"),
+        pytest.param(5, True, id="large_threshold"),
+    ],
+)
+def test_turning_angle_min_step_length_masking(min_step, expect_nan):
+    """Test that steps smaller than min_step_length
+    result in NaN turning angles.
+    """
+    positions = np.array(
+        [[0.0, 0.0], [1.0, 0.0], [1.0 + 1e-5, 1e-5], [2.0, 1e-5]]
+    )
+    data = xr.DataArray(
+        positions,
+        dims=["time", "space"],
+        coords={
+            "time": np.arange(len(positions)),
+            "space": ["x", "y"],
+        },
+    )
+
+    angles = compute_turning_angle(data, min_step_length=min_step)
+
+    assert np.isnan(angles.isel(time=2).item()) == expect_nan
+    assert np.isnan(angles.isel(time=3).item()) == expect_nan
+
+
+@pytest.mark.parametrize(
+    "positions",
+    [
+        pytest.param(
+            [[5.0, 5.0], [5.0, 5.0], [5.0, 5.0], [5.0, 5.0]],
+            id="stationary",
+        ),
+        pytest.param(
+            [[0.0, 0.0], [1.0, 0.0]],
+            id="only_two_timepoints",
+        ),
+    ],
+)
+def test_turning_angle_all_nan_output(positions):
+    """Test cases where all turning angles should be NaN."""
+    data = xr.DataArray(
+        np.array(positions),
+        dims=["time", "space"],
+        coords={
+            "time": np.arange(len(positions)),
+            "space": ["x", "y"],
+        },
+    )
+    angles = compute_turning_angle(data)
+    assert angles.isnull().all()
+
+
+def test_turning_angle_nan_propagation(valid_poses_dataset):
+    """Test that a NaN position correctly
+    invalidates adjacent turning angles.
+    """
+    position = valid_poses_dataset.position.astype(float)
+
+    position.loc[{"time": 2, "individual": "id_0", "keypoint": "left"}] = (
+        np.nan
+    )  # type: ignore[index]
+
+    angles = compute_turning_angle(position)
+
+    # A NaN at t=2 must break the steps at t=2 and t=3
+    assert np.isnan(
+        angles.sel(time=2, individual="id_0", keypoint="left").item()
+    )
+    assert np.isnan(
+        angles.sel(time=3, individual="id_0", keypoint="left").item()
+    )
+
+
+def test_turning_angle_stationary_keypoint_independent_masking():
+    """Zero-step masking is per-keypoint:
+    moving kp has valid angles; stationary kp all NaN.
+    """
+    data = np.zeros((4, 2, 2))
+
+    # kp_0: moves along x-axis (0, 1, 2, 3)
+    data[:, 0, 0] = [0, 1, 2, 3]
+    # kp_1: stays completely stationary at (5.0, 5.0)
+    data[:, 1, :] = 5.0
+
+    ds = xr.DataArray(
+        data,
+        dims=["time", "keypoint", "space"],
+        coords={
+            "time": np.arange(4),
+            "keypoint": ["kp_0", "kp_1"],
+            "space": ["x", "y"],
+        },
+    )
+
+    angles = compute_turning_angle(ds)
+
+    # Moving keypoint (kp_0): NaN at t=0, t=1;
+    # valid (0.0) at t=2, t=3
+    angles_kp0 = angles.isel(keypoint=0)
+    assert np.isnan(angles_kp0.isel(time=0).item())
+    assert np.isnan(angles_kp0.isel(time=1).item())
+    assert np.allclose(
+        angles_kp0.isel(time=slice(2, None)).values,
+        0.0,
+        atol=1e-10,
+    )
+
+    # Stationary keypoint (kp_1): should be all NaN
+    angles_kp1 = angles.isel(keypoint=1)
+    assert np.all(np.isnan(angles_kp1.values))
+
+
+# ─────────────────────────────────────────────
+# Directional change tests
+# ─────────────────────────────────────────────
+
+
+@pytest.mark.parametrize(
+    "fixture_name, expected_value, expected_all_nan",
+    [
+        pytest.param("straight_paths", 0.0, False, id="straight-line"),
+        pytest.param("stationary_paths", None, True, id="stationary"),
+    ],
+)
+def test_directional_change_known_values(
+    request, fixture_name, expected_value, expected_all_nan
+):
+    """Test directional change for trajectories with known geometry.
+
+    Straight-line motion produces zero turning angle, so DC is 0 at
+    every valid time step. Stationary paths produce NaN turning angles,
+    so DC is NaN everywhere.
+    """
+    position = request.getfixturevalue(fixture_name)
+    dc = compute_directional_change(position)
+    assert dc.name == "directional_change"
+    assert dc.attrs["long_name"] == "Directional Change"
+
+    if expected_all_nan:
+        assert dc.isnull().all()
+    else:
+        valid = dc.isel(time=slice(2, None))
+        xr.testing.assert_allclose(valid, xr.full_like(valid, expected_value))
+        # Only the first two time steps are NaN.
+        assert dc.isel(time=[0, 1]).isnull().all()
+
+
+@pytest.mark.parametrize(
+    "in_degrees, expected_turn",
+    [
+        pytest.param(False, 3 * np.pi / 4, id="radians"),
+        pytest.param(True, 135.0, id="degrees"),
+    ],
+)
+def test_directional_change_nonuniform_time(
+    sharp_turn_paths, in_degrees, expected_turn
+):
+    """Test DC against a known nonzero value on non-uniform time.
+
+    In ``sharp_turn_paths`` both individuals move in a straight line for
+    8 steps, then turn sharply on the final step, producing a turning
+    angle of ``3 * pi / 4`` (135 degrees) at the last time step.
+    Dividing by the turning interval ``t[-1] - t[-3]`` gives the
+    expected DC there. The non-uniform ``time`` coordinates ensure the
+    interval is aligned to the turning angle's support (positions
+    ``i-2..i``) rather than a centered difference around ``i``.
+    """
+    time = np.array([0, 1, 2, 4, 7, 11, 16, 22, 29, 37], dtype=float)
+    path = sharp_turn_paths.assign_coords(time=time)
+
+    dc = compute_directional_change(path, in_degrees=in_degrees)
+
+    expected_last = expected_turn / (time[-1] - time[-3])
+    last = dc.isel(time=-1)
+    xr.testing.assert_allclose(last, xr.full_like(last, expected_last))
+    # Only the first two time steps are NaN; the last step is now valid.
+    assert dc.isel(time=[0, 1]).isnull().all()
+    assert dc.isel(time=slice(2, None)).notnull().all()
+
+
+# ─────────────────────────────────────────────
+# Path deviation tests
+# ─────────────────────────────────────────────
+
+degenerate_chord_error = pytest.raises(
+    ValueError,
+    match=(
+        "Path deviation is undefined because the start and end positions "
+        "are identical for all tracks."
+    ),
+)
+
+
+@pytest.mark.parametrize(
+    "fixture_name", ["straight_paths", "straight_paths_3d"]
+)
+@pytest.mark.parametrize(
+    # Should also hold true for partial slices of straight paths
+    "time_slice",
+    [slice(None), slice(2, 7)],
+)
+def test_path_deviation_straight_path_is_zero(
+    request, fixture_name, time_slice
+):
+    """Deviation from a straight-line path is zero (2D and 3D).
+    Also checks that the output has the expected attributes.
+    """
+    path = request.getfixturevalue(fixture_name).sel(time=time_slice)
+    result = compute_path_deviation(path)
+    xr.testing.assert_allclose(result, xr.zeros_like(result))
+
+    assert result.name == "path_deviation"
+    assert result.attrs["long_name"] == "Path Deviation"
+
+
+def test_path_deviation_with_nan(straight_paths_with_nan):
+    """Test that NaN positions result in NaN deviation at those time steps."""
+    result = compute_path_deviation(straight_paths_with_nan)
+    assert np.isnan(result.sel(time=5).values).all()
+    off_nan = result.sel(time=[t for t in result.time.values if t != 5])
+    xr.testing.assert_allclose(off_nan, xr.zeros_like(off_nan))
+
+
+def test_path_deviation_known_value(lateral_detour_paths):
+    """Deviation at the detour frame is 1.0 for both individuals;
+    all other frames are 0.0.
+    """
+    result = compute_path_deviation(lateral_detour_paths)
+    at_detour = result.sel(time=5)
+    xr.testing.assert_allclose(at_detour, xr.full_like(at_detour, 1.0))
+    off_detour = result.sel(time=[t for t in result.time.values if t != 5])
+    xr.testing.assert_allclose(off_detour, xr.zeros_like(off_detour))
+
+
+@pytest.mark.parametrize(
+    "fixture_name", ["stationary_paths", "closed_loop_paths"]
+)
+def test_path_deviation_degenerate_chord_raises(request, fixture_name):
+    """Test that a ValueError is raised when the start and end positions are
+    identical for all tracks (deviation is undefined).
+    """
+    with degenerate_chord_error:
+        compute_path_deviation(request.getfixturevalue(fixture_name))
+
+
+def test_path_deviation_partially_degenerate_warns(straight_paths):
+    """Test that a warning is raised when the start and end positions are
+    identical for some but not all tracks, and that the result is NaN for
+    the degenerate tracks and valid for the non-degenerate tracks.
+    """
+    path = straight_paths.copy()
+    # Make id_0 stationary
+    path.loc[{"individual": "id_0"}] = path.loc[
+        {"individual": "id_0", "time": 0}
+    ]
+
+    with pytest.warns(
+        UserWarning,
+        match="Path deviation is undefined for tracks where the start and end",
+    ):
+        result = compute_path_deviation(path)
+        assert np.isnan(result.sel(individual="id_0").values).all()
+        id_1 = result.sel(individual="id_1")
+        xr.testing.assert_allclose(id_1, xr.zeros_like(id_1))
