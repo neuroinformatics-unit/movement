@@ -372,6 +372,32 @@ def test_napari_layers_to_ds_bboxes_not_implemented():
         )
 
 
+def test_on_points_data_changed_ignores_non_move_events(
+    valid_poses_path_and_ds, loaded_data_loader
+):
+    """Test that the callback does nothing for add/remove events.
+
+    Verifies that :meth:`DataLoader._on_points_data_changed` only acts on
+    ``ActionType.CHANGED`` (drag) and leaves confidence untouched for any
+    other action type.
+    """
+    filepath, ds_expected = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_expected)
+
+    original_confidence = loader.points_layer.features["confidence"].copy()
+
+    mock_event = Mock()
+    mock_event.source = loader.points_layer
+    mock_event.action = ActionType.ADDED
+
+    loader._on_points_data_changed(mock_event)
+
+    pd.testing.assert_series_equal(
+        loader.points_layer.features["confidence"],
+        original_confidence,
+    )
+
+
 @pytest.mark.parametrize(
     "nan_location",
     [
