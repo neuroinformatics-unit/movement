@@ -1,9 +1,12 @@
 """Test suite for the movement.napari.convert module."""
 
+from unittest.mock import Mock
+
 import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
+from napari.layers.base._base_constants import ActionType
 from pandas.testing import assert_frame_equal
 
 from movement.napari.convert import ds_to_napari_layers, napari_layers_to_ds
@@ -396,14 +399,13 @@ def test_edited_pose_napari_layers(
     valid_poses_path_and_ds_with_localised_nans,
     loaded_data_loader,
 ):
-    """Test that edits to the napari Points layer are preserved on conversion.
+    """Test that :func:`napari_layers_to_ds` correctly converts edited layers,
+    and sets the new confidence value to ``NaN`` after the edit.
 
-    Simulates a user editing the x, y coordinates of a specific keypoint
-    (``centroid`` of ``id_0`` at frame 2) in the napari Points layer, and
-    setting its confidence score to 1.0 in the properties DataFrame.
-    Verifies that :func:`napari_layers_to_ds` reconstructs a dataset that
-    reflects both edits. The test is parametrized over datasets with and
-    without NaN position values to ensure robustness.
+    Simulates a user dragging the ``centroid`` of ``id_0`` at frame 2 to new
+    ``x``, ``y`` coordinates. Verifies that :func:`napari_layers_to_ds`
+    reconstructs a dataset where the edited point has the new position and
+    ``NaN`` confidence.
     """
     if nan_location is None:
         filepath, ds_expected = valid_poses_path_and_ds
@@ -416,14 +418,27 @@ def test_edited_pose_napari_layers(
     frame = 2  # safe: not NaN in any parametrize case
     keypoint = "centroid"
     individual = "id_0"
-    edit_mask = (
-        (loader.points_layer.properties["time"] == frame)
-        & (loader.points_layer.properties["keypoint"] == keypoint)
-        & (loader.points_layer.properties["individual"] == individual)
+
+    # Find the integer index of the point to edit in the live points layer
+    live_props = loader.points_layer.properties
+    edit_idx = int(
+        np.flatnonzero(
+            (live_props["time"] == frame)
+            & (live_props["keypoint"] == keypoint)
+            & (live_props["individual"] == individual)
+        )[0]
     )
-    # we need two masks because they are applied to different sized-objects
-    loader.points_layer.data[edit_mask, 1] = 100  # y
-    loader.points_layer.data[edit_mask, 2] = 200  # x
+
+    loader.points_layer.data[edit_idx, 1] = 100  # y
+    loader.points_layer.data[edit_idx, 2] = 200  # x
+
+    # Direct mutation does not fire napari events, so we call the callback
+    # manually below with the correct index to replicate what napari does.
+    mock_event = Mock()
+    mock_event.source = loader.points_layer
+    mock_event.action = ActionType.CHANGED
+    mock_event.data_indices = (edit_idx,)
+    loader._on_points_data_changed(mock_event)
 
     ds = napari_layers_to_ds(
         points_as_napari=loader.points_layer.data,
@@ -446,5 +461,5 @@ def test_edited_pose_napari_layers(
             "keypoint": keypoint,
             "individual": individual,
         }
-    ] = 1.0
+    ] = np.nan
     xr.testing.assert_equal(ds, expected_ds)
