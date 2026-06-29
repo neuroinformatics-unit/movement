@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
-from napari.layers.base._base_constants import ActionType
+from napari.layers.base import ActionType
 from pandas.testing import assert_frame_equal
 
 from movement.napari.convert import ds_to_napari_layers, napari_layers_to_ds
