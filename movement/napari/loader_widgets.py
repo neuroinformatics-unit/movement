@@ -7,7 +7,7 @@ import pandas as pd
 import xarray as xr
 from napari.components.dims import RangeTuple
 from napari.layers import Image, Points, Shapes, Tracks
-from napari.layers.base._base_constants import ActionType
+from napari.layers.base import ActionType
 from napari.settings import get_settings
 from napari.utils.notifications import show_error, show_warning
 from napari.viewer import Viewer
