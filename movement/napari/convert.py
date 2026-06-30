@@ -223,7 +223,7 @@ def napari_layers_to_ds(
     using the full coordinate structure from ``properties_with_nans``
 
     """
-    properties_df = pd.DataFrame.from_dict(properties)
+    properties_df = pd.DataFrame.from_dict(properties)  # without nans
     fps = attrs.get("fps") if attrs is not None else None
 
     if "keypoint" in properties_df.columns:
@@ -234,10 +234,12 @@ def napari_layers_to_ds(
         individual_coords = (
             properties_with_nans["individual"].unique().tolist()
         )
+
         # Build position dataframe from napari's live point layer data
         position_df = pd.DataFrame(
             points_as_napari, columns=["frame", "y", "x"]
         )
+
         # Use the frame coordinate from the live napari layer as the
         # source of truth for time. This avoids relying on
         # properties_df["time"], which may become stale when users add
@@ -249,6 +251,19 @@ def napari_layers_to_ds(
 
         position_df["keypoint"] = properties_df["keypoint"].to_numpy()
         position_df["individual"] = properties_df["individual"].to_numpy()
+        position_df["confidence"] = properties_df["confidence"].to_numpy()
+
+        confidence_da = (
+            position_df.set_index(["time", "keypoint", "individual"])[
+                "confidence"
+            ]
+            .to_xarray()
+            .reindex(
+                time=time_coords,
+                keypoint=keypoint_coords,
+                individual=individual_coords,
+            )
+        )
 
         position_df = position_df.melt(
             id_vars=["time", "frame", "keypoint", "individual"],
@@ -264,18 +279,6 @@ def napari_layers_to_ds(
             .reindex(
                 time=time_coords,
                 space=space_coords,
-                keypoint=keypoint_coords,
-                individual=individual_coords,
-            )
-        )
-
-        confidence_da = (
-            properties_with_nans.set_index(["time", "keypoint", "individual"])[
-                "confidence"
-            ]
-            .to_xarray()
-            .reindex(
-                time=time_coords,
                 keypoint=keypoint_coords,
                 individual=individual_coords,
             )

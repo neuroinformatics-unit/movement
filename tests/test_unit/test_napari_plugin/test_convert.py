@@ -305,7 +305,12 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
         napari_points, properties, properties_with_nan, attrs=ds.attrs
     )
 
-    xr.testing.assert_equal(reconstructed_ds, ds)
+    # Missing points (NaN position) are not visible in napari, so their
+    # confidence cannot be preserved — expect NaN for those.
+    position_is_nan = ds["position"].isnull().all("space")
+    expected_ds = ds.copy(deep=True)
+    expected_ds["confidence"] = ds["confidence"].where(~position_is_nan)
+    xr.testing.assert_equal(reconstructed_ds, expected_ds)
 
 
 @pytest.mark.parametrize(
@@ -355,8 +360,14 @@ def test_napari_layers_to_ds(
         attrs=ds_expected.attrs,
     )
 
-    # Assert that the input dataset and the converted one are equal
-    xr.testing.assert_equal(ds, ds_expected)
+    # Missing points (NaN position) are not visible in napari, so their
+    # confidence cannot be preserved — expect NaN for those.
+    position_is_nan = ds_expected["position"].isnull().all("space")
+    expected_ds = ds_expected.copy(deep=True)
+    expected_ds["confidence"] = ds_expected["confidence"].where(
+        ~position_is_nan
+    )
+    xr.testing.assert_equal(ds, expected_ds)
 
 
 def test_napari_layers_to_ds_bboxes_not_implemented():
@@ -372,14 +383,25 @@ def test_napari_layers_to_ds_bboxes_not_implemented():
         )
 
 
+@pytest.mark.parametrize(
+    "action_type",
+    [
+        ActionType.ADDED,
+        ActionType.REMOVED,
+        ActionType.ADDING,
+        ActionType.REMOVING,
+        ActionType.CHANGING,
+    ],
+)
 def test_on_points_data_changed_ignores_non_move_events(
-    valid_poses_path_and_ds, loaded_data_loader
+    action_type, valid_poses_path_and_ds, loaded_data_loader
 ):
-    """Test that the callback does nothing for add/remove events.
+    """Test that the callback leaves confidence untouched for non-drag events.
 
     Verifies that :meth:`DataLoader._on_points_data_changed` only acts on
-    ``ActionType.CHANGED`` (drag) and leaves confidence untouched for any
-    other action type.
+    ``ActionType.CHANGED`` (completed drag) and ignores all other action types,
+    including ``ADDING``, ``ADDED``, ``REMOVING``, ``REMOVED``, and
+    ``CHANGING`` (in-progress drag).
     """
     filepath, ds_expected = valid_poses_path_and_ds
     loader = loaded_data_loader(filepath, ds_expected)
@@ -388,7 +410,7 @@ def test_on_points_data_changed_ignores_non_move_events(
 
     mock_event = Mock()
     mock_event.source = loader.points_layer
-    mock_event.action = ActionType.ADDED
+    mock_event.action = action_type
 
     loader._on_points_data_changed(mock_event)
 
@@ -473,6 +495,12 @@ def test_edited_pose_napari_layers(
         attrs=ds_expected.attrs,
     )
     expected_ds = ds_expected.copy(deep=True)
+    # NaN-position points are hidden in napari, so their confidence can't be
+    # preserved — the reconstructed dataset will have NaN confidence for them.
+    position_is_nan = ds_expected["position"].isnull().all("space")
+    expected_ds["confidence"] = expected_ds["confidence"].where(
+        ~position_is_nan
+    )
     expected_ds.position.loc[
         {
             "time": frame,

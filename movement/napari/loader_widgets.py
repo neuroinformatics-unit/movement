@@ -357,15 +357,15 @@ class DataLoader(QWidget):
         since moved points no longer have a valid confidence score.
         """
         layer = event.source
+        if not isinstance(layer, Points):
+            return
         if event.action != ActionType.CHANGED:
             return
         moved_indices = list(event.data_indices)
-        feats = layer.features
-        feats.loc[moved_indices, "confidence"] = float("nan")
-        layer.features = feats
-
-        full_indices = np.where(self.data_not_nan)[0][moved_indices]
-        self.properties.loc[full_indices, "confidence"] = np.nan
+        props = layer.properties
+        props["confidence"] = props["confidence"].copy()
+        props["confidence"][moved_indices] = float("nan")
+        layer.properties = props
 
     def _add_tracks_layer(self):
         """Add the tracked data to the viewer as a Tracks layer."""
