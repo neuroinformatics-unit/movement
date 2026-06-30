@@ -324,7 +324,7 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     the same set of keypoints (i.e., the same labeled body parts).
     While DeepLabCut supports assigning keypoints that are not shared across
     individuals (see the `DeepLabCut documentation for multi-animal projects
-    <https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#b-configure-the-project>`_),
+    <https://deeplabcut.github.io/DeepLabCut/docs/quick-start/tutorial_maDLC.html>`_),
     this feature is not currently supported in ``movement``.
 
     """
