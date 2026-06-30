@@ -145,7 +145,7 @@ ds = load_poses.from_dlc_style_df(df, fps=30)
 ```
 
 :::{note}
-In `movement`, pose data can only be loaded if all individuals have the same set of keypoints (i.e., the same labeled body parts). While DeepLabCut supports assigning keypoints that are not shared across individuals (see the [DeepLabCut documentation for multi-animal projects](https://deeplabcut.github.io/DeepLabCut/docs/maDLC_UserGuide.html#b-configure-the-project)), this feature is not currently supported in `movement`.
+In `movement`, pose data can only be loaded if all individuals have the same set of keypoints (i.e., the same labeled body parts). While DeepLabCut supports assigning keypoints that are not shared across individuals (see the [DeepLabCut documentation for multi-animal projects](https://deeplabcut.github.io/DeepLabCut/docs/quick-start/tutorial_maDLC.html)), this feature is not currently supported in `movement`.
 :::
 ::::
 
