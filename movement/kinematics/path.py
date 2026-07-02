@@ -7,7 +7,7 @@ keypoint representing the individual's overall position (e.g., centroid).
 """
 
 import warnings
-from typing import Literal
+from typing import Literal, cast
 
 import numpy as np
 import xarray as xr
@@ -505,6 +505,144 @@ def compute_directional_change(
     dc.name = "directional_change"
     dc.attrs["long_name"] = "Directional Change"
     return dc
+
+
+def compute_path_emax(
+    data: xr.DataArray,
+    in_spatial_units: bool = True,
+) -> xr.DataArray:
+    r"""Compute the maximum expected displacement (:math:`E_{\max}`).
+
+    :math:`E_{\max}` is a straightness measure that captures the
+    directional persistence of a path. Intuitively, it is the maximum
+    expected displacement of an animal navigating *without* an external
+    directional reference (e.g. a compass or a landmark), given the
+    observed distribution of its turning angles and step lengths [1]_.
+    Larger values indicate straighter, more persistent paths; values
+    close to zero indicate sinuous paths.
+
+    Two variants are available. The dimensionless variant
+    :math:`E_{\max}^{(a)}` depends only on the turning angles:
+
+    .. math::
+        E_{\max}^{(a)} = \frac{\bar{c}}{1 - \bar{c}}, \qquad
+        \bar{c} = \overline{\cos\theta}
+
+    where :math:`\theta` are the turning angles and :math:`\bar{c}` is
+    their mean cosine. The variant :math:`E_{\max}^{(b)}` scales this by
+    the mean step length :math:`\bar{p}` to express the result in the
+    same spatial units as the input:
+
+    .. math::
+        E_{\max}^{(b)} = \bar{p} \, E_{\max}^{(a)}
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+        The ``space`` dimension must contain exactly the coordinates
+        ``["x", "y"]`` (2D data only).
+    in_spatial_units : bool, optional
+        If ``True`` (the default), return the dimensioned variant
+        :math:`E_{\max}^{(b)}`, expressed in the same spatial units as
+        ``data``. If ``False``, return the dimensionless variant
+        :math:`E_{\max}^{(a)}`.
+
+    Returns
+    -------
+    xarray.DataArray
+        The maximum expected displacement, with dimensions matching
+        those of the input data, except ``time`` and ``space`` are
+        removed. When ``in_spatial_units`` is ``True`` the values are in
+        the same spatial units as ``data``; otherwise they are
+        dimensionless.
+
+    Notes
+    -----
+    1. **Mean cosine of the turning angles.**
+       :math:`\bar{c} = \overline{\cos\theta}` is the ``time`` average
+       (ignoring ``NaN`` values) of the cosine of the turning angles
+       :math:`\theta` returned by :func:`compute_turning_angle`. Each
+       :math:`\theta` is the signed rotation from the backward
+       displacement step arriving at ``t-1`` to the step arriving at
+       ``t``, computed via
+       :func:`movement.utils.vector.compute_signed_angle_2d`. The first
+       two time steps have no defined turning angle and so do not
+       contribute.
+    2. **Radians only.** The turning angles must be in radians for
+       :math:`\cos\theta` to be meaningful, so the ``in_degrees`` flag of
+       :func:`compute_turning_angle` is deliberately *not* exposed here;
+       passing angles in degrees would silently corrupt the result.
+    3. **Range.** :math:`E_{\max}^{(a)} \in [-0.5, \infty)`. Negative
+       values arise for highly sinuous paths, where the mean cosine
+       :math:`\bar{c}` is itself negative.
+    4. **Straight paths.** As a path approaches a perfectly straight
+       line, :math:`\bar{c} \to 1`, so :math:`1 - \bar{c} \to 0` and
+       :math:`E_{\max} \to +\infty`. An infinite result is therefore the
+       correct, expected output for a straight path.
+    5. **Missing values.** Turning angles and step lengths that are
+       ``NaN`` (e.g. from missing positions or stationary steps) are
+       ignored when averaging. If every turning angle is ``NaN`` (e.g. a
+       stationary track), the result is ``NaN``.
+
+    References
+    ----------
+    .. [1] Cheung, A., Zhang, S., Stricker, C. & Srinivasan, M. V.
+       (2007). Animal navigation: the difficulty of moving in a straight
+       line. *Biological Cybernetics* 97(1), 47-61.
+       https://doi.org/10.1007/s00422-007-0158-0
+    .. [2] McLean, D. J. & Skowron Volponi, M. A. (2018). trajr: An R
+       package for characterisation of animal trajectories. *Ethology*
+       124(6), 440-448. https://doi.org/10.1111/eth.12739
+
+    See Also
+    --------
+    compute_turning_angle :
+        The underlying function used to compute the turning angles.
+    compute_path_straightness :
+        A related, path-length-based measure of straightness.
+
+    Examples
+    --------
+    >>> from movement.kinematics import compute_path_emax
+
+    Compute E_max from the centroid trajectory of a poses dataset ``ds``:
+
+    >>> centroid = ds.position.mean(dim="keypoint")
+    >>> emax = compute_path_emax(centroid)
+
+    Return the dimensionless variant instead:
+
+    >>> emax_a = compute_path_emax(centroid, in_spatial_units=False)
+
+    Compute over a specific time window:
+
+    >>> emax = compute_path_emax(centroid.sel(time=slice(0, 100)))
+
+    """
+    data = _validate_time_points(data, "maximum expected displacement")
+
+    theta = compute_turning_angle(data)
+    mean_cosine = cast("xr.DataArray", np.cos(theta)).mean(
+        dim="time", skipna=True
+    )
+
+    # mean_cosine -> 1 for a perfectly straight path, giving E_max -> +inf.
+    # Guard the division so the zero denominator does not emit a warning.
+    one_minus_c = 1 - mean_cosine
+    emax = xr.where(
+        one_minus_c == 0,
+        np.inf,
+        mean_cosine / one_minus_c.where(one_minus_c != 0),
+    )
+
+    if in_spatial_units:
+        emax = emax * _segment_lengths(data).mean(dim="time", skipna=True)
+
+    emax.name = "path_emax"
+    emax.attrs["long_name"] = "Maximum Expected Displacement"
+    return emax
 
 
 def compute_path_deviation(
