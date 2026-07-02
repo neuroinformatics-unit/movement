@@ -202,11 +202,10 @@ def test_to_dlc_file_invalid_dataset(
     """Test that saving an invalid pose dataset to a valid
     DeepLabCut-style file returns the appropriate errors.
     """
+    ds = request.getfixturevalue(invalid_poses_dataset)
     with pytest.raises(expected_exception):
         save_poses.to_dlc_file(
-            request.getfixturevalue(invalid_poses_dataset),
-            tmp_path / "test.h5",
-            split_individuals=False,
+            ds, tmp_path / "test.h5", split_individuals=False
         )
 
 
@@ -225,15 +224,11 @@ def test_auto_split_individuals(valid_poses_dataset, split_value):
 
 
 @pytest.mark.parametrize(
-    "valid_poses_dataset, split_individuals",
-    [
-        ("single_individual_array", True),  # single-individual, split
-        ("multi_individual_array", False),  # multi-individual, no split
-        ("single_individual_array", False),  # single-individual, no split
-        ("multi_individual_array", True),  # multi-individual, split
-    ],
-    indirect=["valid_poses_dataset"],
+    "valid_poses_dataset",
+    ["single_individual_array", "multi_individual_array"],
+    indirect=True,
 )
+@pytest.mark.parametrize("split_individuals", [True, False])
 def test_to_dlc_style_df_split_individuals(
     valid_poses_dataset, split_individuals
 ):
@@ -329,11 +324,9 @@ def test_to_lp_file_invalid_dataset(
     """Test that saving an invalid pose dataset to a valid
     LightningPose-style file returns the appropriate errors.
     """
+    ds = request.getfixturevalue(invalid_poses_dataset)
     with pytest.raises(expected_exception):
-        save_poses.to_lp_file(
-            request.getfixturevalue(invalid_poses_dataset),
-            tmp_path / "test.csv",
-        )
+        save_poses.to_lp_file(ds, tmp_path / "test.csv")
 
 
 @pytest.mark.parametrize(
@@ -378,11 +371,9 @@ def test_to_sleap_analysis_file_invalid_dataset(
     """Test that saving an invalid pose dataset to a valid
     SLEAP-style file returns the appropriate errors.
     """
+    ds = request.getfixturevalue(invalid_poses_dataset)
     with pytest.raises(expected_exception):
-        save_poses.to_sleap_analysis_file(
-            request.getfixturevalue(invalid_poses_dataset),
-            new_h5_file,
-        )
+        save_poses.to_sleap_analysis_file(ds, new_h5_file)
 
 
 nwb_file_expectations_ind = {
