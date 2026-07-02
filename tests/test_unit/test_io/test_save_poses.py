@@ -118,42 +118,67 @@ def test_to_dlc_style_df(ds, expected_exception):
             ]
 
 
-def test_to_dlc_style_df_with_individual_confidence():
+@pytest.mark.parametrize(
+    "valid_poses_dataset",
+    ["single_individual_array", "multi_individual_array"],
+    indirect=True,
+)
+@pytest.mark.parametrize("split_individuals", [True, False])
+def test_to_dlc_style_df_with_individual_confidence(
+    valid_poses_dataset_with_individual_wise_confidence, split_individuals
+):
     """Test that datasets with individual-wise confidence scores can
-    be converted to a DLC-style DataFrame.
+    be converted to DLC-style DataFrame(s), for single- and
+    multi-individual datasets, and both ``split_individuals`` settings.
+    The individual-wise confidence values should be expanded (repeated)
+    across all keypoints in the output DataFrame(s).
     """
-    ds = load_poses.from_dlc_file(
-        DATA_PATHS.get("DLC_single-wasp.predictions.h5")
-    )
+    ds = valid_poses_dataset_with_individual_wise_confidence
+    df = save_poses.to_dlc_style_df(ds, split_individuals=split_individuals)
+    bodyparts = ds.coords["keypoint"].data.tolist()
+    if split_individuals:
+        assert isinstance(df, dict)
+        for ind in ds.individual.values:
+            expected = ds.confidence.sel(individual=ind).values
+            for bp in bodyparts:
+                actual = df[ind][("movement", bp, "likelihood")].to_numpy()
+                np.testing.assert_array_equal(actual, expected)
+    else:
+        assert isinstance(df, pd.DataFrame)
+        for ind in ds.individual.values:
+            expected = ds.confidence.sel(individual=ind).values
+            for bp in bodyparts:
+                actual = df[("movement", ind, bp, "likelihood")].to_numpy()
+                np.testing.assert_array_equal(actual, expected)
 
-    # Convert keypoint-wise confidence to individual-wise confidence
-    ds["confidence"] = ds.confidence.isel(keypoint=0)
 
-    df = save_poses.to_dlc_style_df(
-        ds,
-        split_individuals=False,
-    )
-
-    assert isinstance(df, pd.DataFrame)
-
-
-def test_to_dlc_file_with_individual_confidence(tmp_path):
+@pytest.mark.parametrize(
+    "valid_poses_dataset",
+    ["single_individual_array", "multi_individual_array"],
+    indirect=True,
+)
+@pytest.mark.parametrize("split_individuals", [True, False])
+def test_to_dlc_file_with_individual_confidence(
+    valid_poses_dataset_with_individual_wise_confidence,
+    split_individuals,
+    tmp_path,
+):
     """Test that datasets with individual-wise confidence scores can
-    be exported to DLC format.
+    be exported to DLC format, for single- and multi-individual
+    datasets, and both ``split_individuals`` settings.
+    The exported DLC file should be created successfully.
     """
-    ds = load_poses.from_dlc_file(
-        DATA_PATHS.get("DLC_single-wasp.predictions.h5")
-    )
-
-    ds["confidence"] = ds.confidence.isel(keypoint=0)
-
+    ds = valid_poses_dataset_with_individual_wise_confidence
     save_poses.to_dlc_file(
         ds,
         tmp_path / "test.h5",
-        split_individuals=False,
+        split_individuals=split_individuals,
     )
-
-    assert (tmp_path / "test.h5").is_file()
+    if split_individuals:
+        for ind in ds.individual.values:
+            assert (tmp_path / f"test_{ind}.h5").is_file()
+    else:
+        assert (tmp_path / "test.h5").is_file()
 
 
 def test_to_dlc_file_valid_dataset(
@@ -313,20 +338,23 @@ def test_to_lp_file_invalid_dataset(
         )
 
 
-def test_to_lp_file_with_individual_confidence(tmp_path):
+@pytest.mark.parametrize(
+    "valid_poses_dataset",
+    ["single_individual_array", "multi_individual_array"],
+    indirect=True,
+)
+def test_to_lp_file_with_individual_confidence(
+    valid_poses_dataset_with_individual_wise_confidence, tmp_path
+):
     """Test that datasets with individual-wise confidence scores can
-    be exported to LightningPose format.
+    be exported to LightningPose format, for single- and multi-individual
+    datasets settings. The exported LightningPose file should be created
+    successfully.
     """
-    ds = load_poses.from_dlc_file(
-        DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
-    )
-
-    ds["confidence"] = ds.confidence.isel(keypoint=0)
-
-    save_poses.to_lp_file(
-        ds,
-        tmp_path / "test.csv",
-    )
+    ds = valid_poses_dataset_with_individual_wise_confidence
+    save_poses.to_lp_file(ds, tmp_path / "test.csv")
+    for ind in ds.individual.values:
+        assert (tmp_path / f"test_{ind}.csv").is_file()
 
 
 def test_to_sleap_analysis_file_valid_dataset(

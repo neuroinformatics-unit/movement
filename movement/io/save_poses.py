@@ -37,29 +37,20 @@ def _ds_to_dlc_style_df(
     pandas.DataFrame
 
     """
-    # Keep position data as is, if data is 3D (i.e. contains 'z' coordinate)
-    # Otherwise, concatenate position and confidence scores into one array
-    # DLC stores confidence scores per keypoint. If confidence is provided
-    # per individual, expand it across all keypoints before export.
     confidence = ds.confidence.data
     if "keypoint" not in ds.confidence.dims:
         logger.warning(
             "Dataset contains individual-wise confidence scores. "
-            "DeepLabCut only supports keypoint-wise confidence scores, "
+            "DLC-style formats only supports keypoint-wise confidence scores, "
             "so confidence values will be expanded to all keypoints."
         )
-        if confidence.ndim == 1:
-            confidence = np.repeat(
-                confidence[:, np.newaxis],
-                ds.sizes["keypoint"],
-                axis=1,
-            )
-        else:
-            confidence = np.repeat(
-                confidence[:, np.newaxis, :],
-                ds.sizes["keypoint"],
-                axis=1,
-            )
+        confidence = np.repeat(
+            np.expand_dims(confidence, axis=1), ds.sizes["keypoint"], axis=1
+        )
+    # Keep position data as is, if data is 3D (i.e. contains 'z' coordinate)
+    # Otherwise, concatenate position and confidence scores into one array
+    # DLC stores confidence scores per keypoint. If confidence is provided
+    # per individual, expand it across all keypoints before export.
     tracks = (
         ds.position.data
         if "z" in columns.get_level_values("coords")
