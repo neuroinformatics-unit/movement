@@ -538,12 +538,10 @@ def compute_path_emax(
 
     Parameters
     ----------
-    data : xarray.DataArray
+    data
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-        The ``space`` dimension must contain exactly the coordinates
-        ``["x", "y"]`` (2D data only).
-    in_spatial_units : bool, optional
+    in_spatial_units
         If ``True`` (the default), return the dimensioned variant
         :math:`E_{\max}^{(b)}`, expressed in the same spatial units as
         ``data``. If ``False``, return the dimensionless variant
@@ -592,9 +590,6 @@ def compute_path_emax(
        (2007). Animal navigation: the difficulty of moving in a straight
        line. *Biological Cybernetics* 97(1), 47-61.
        https://doi.org/10.1007/s00422-007-0158-0
-    .. [2] McLean, D. J. & Skowron Volponi, M. A. (2018). trajr: An R
-       package for characterisation of animal trajectories. *Ethology*
-       124(6), 440-448. https://doi.org/10.1111/eth.12739
 
     See Also
     --------

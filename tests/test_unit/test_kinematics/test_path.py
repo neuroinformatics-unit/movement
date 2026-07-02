@@ -1065,23 +1065,32 @@ def test_path_emax_straight_path_is_inf(straight_paths, in_spatial_units):
 
 
 @pytest.mark.parametrize("in_spatial_units", [False, True])
-def test_path_emax_stationary_is_nan(stationary_paths, in_spatial_units):
-    """A stationary track has no valid turning angles, so E_max is NaN."""
-    result = compute_path_emax(
-        stationary_paths, in_spatial_units=in_spatial_units
-    )
-    assert result.isnull().all()
-
-
-@pytest.mark.parametrize("in_spatial_units", [False, True])
-def test_path_emax_two_timepoints_is_nan(straight_paths, in_spatial_units):
-    """With only two time points no turning angle is defined, so E_max
-    is NaN.
+@pytest.mark.parametrize(
+    "positions",
+    [
+        pytest.param(
+            [[5.0, 5.0], [5.0, 5.0], [5.0, 5.0], [5.0, 5.0]],
+            id="stationary",
+        ),
+        pytest.param(
+            [[0.0, 0.0], [1.0, 0.0]],
+            id="only_two_timepoints",
+        ),
+    ],
+)
+def test_path_emax_all_nan_output(positions, in_spatial_units):
+    """Test cases where E_max should be NaN: a stationary track has no
+    valid turning angles, and two time points define no turning angle.
     """
-    result = compute_path_emax(
-        straight_paths.isel(time=slice(0, 2)),
-        in_spatial_units=in_spatial_units,
+    data = xr.DataArray(
+        np.array(positions),
+        dims=["time", "space"],
+        coords={
+            "time": np.arange(len(positions)),
+            "space": ["x", "y"],
+        },
     )
+    result = compute_path_emax(data, in_spatial_units=in_spatial_units)
     assert result.isnull().all()
 
 
