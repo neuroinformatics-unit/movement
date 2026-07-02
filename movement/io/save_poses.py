@@ -37,6 +37,8 @@ def _ds_to_dlc_style_df(
     pandas.DataFrame
 
     """
+    # DLC stores confidence scores per keypoint. If confidence is provided
+    # per individual, expand it across all keypoints before export.
     confidence = ds.confidence.data
     if "keypoint" not in ds.confidence.dims:
         logger.warning(
@@ -49,8 +51,6 @@ def _ds_to_dlc_style_df(
         )
     # Keep position data as is, if data is 3D (i.e. contains 'z' coordinate)
     # Otherwise, concatenate position and confidence scores into one array
-    # DLC stores confidence scores per keypoint. If confidence is provided
-    # per individual, expand it across all keypoints before export.
     tracks = (
         ds.position.data
         if "z" in columns.get_level_values("coords")
