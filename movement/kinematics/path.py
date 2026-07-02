@@ -507,7 +507,7 @@ def compute_directional_change(
     return dc
 
 
-def compute_path_emax(
+def compute_maximum_expected_displacement(
     data: xr.DataArray,
     in_spatial_units: bool = True,
 ) -> xr.DataArray:
@@ -600,20 +600,24 @@ def compute_path_emax(
 
     Examples
     --------
-    >>> from movement.kinematics import compute_path_emax
+    >>> from movement.kinematics import compute_maximum_expected_displacement
 
     Compute E_max from the centroid trajectory of a poses dataset ``ds``:
 
     >>> centroid = ds.position.mean(dim="keypoint")
-    >>> emax = compute_path_emax(centroid)
+    >>> emax = compute_maximum_expected_displacement(centroid)
 
     Return the dimensionless variant instead:
 
-    >>> emax_a = compute_path_emax(centroid, in_spatial_units=False)
+    >>> emax_a = compute_maximum_expected_displacement(
+    ...     centroid, in_spatial_units=False
+    ... )
 
     Compute over a specific time window:
 
-    >>> emax = compute_path_emax(centroid.sel(time=slice(0, 100)))
+    >>> emax = compute_maximum_expected_displacement(
+    ...     centroid.sel(time=slice(0, 100))
+    ... )
 
     """
     data = _validate_time_points(data, "maximum expected displacement")
@@ -635,7 +639,7 @@ def compute_path_emax(
     if in_spatial_units:
         emax = emax * _segment_lengths(data).mean(dim="time", skipna=True)
 
-    emax.name = "path_emax"
+    emax.name = "maximum_expected_displacement"
     emax.attrs["long_name"] = "Maximum Expected Displacement"
     return emax
 

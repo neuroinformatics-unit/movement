@@ -7,8 +7,8 @@ import xarray as xr
 
 from movement.kinematics import (
     compute_directional_change,
+    compute_maximum_expected_displacement,
     compute_path_deviation,
-    compute_path_emax,
     compute_path_length,
     compute_path_sinuosity,
     compute_path_straightness,
@@ -281,7 +281,7 @@ def regular_triangle_path():
         pytest.param(compute_directional_change, id="directional-change"),
         pytest.param(compute_path_deviation, id="deviation"),
         pytest.param(compute_path_sinuosity, id="sinuosity"),
-        pytest.param(compute_path_emax, id="emax"),
+        pytest.param(compute_maximum_expected_displacement, id="emax"),
     ],
 )
 def test_path_metrics_across_time_ranges(
@@ -1037,7 +1037,7 @@ def test_path_sinuosity_outlier_step():
         ),
     ],
 )
-def test_path_emax_known_values(
+def test_maximum_expected_displacement_known_values(
     request, fixture_name, in_spatial_units, expected_value
 ):
     """Test E_max against paths with a constant turning angle.
@@ -1048,16 +1048,20 @@ def test_path_emax_known_values(
     negative part of the E_max range.
     """
     path = request.getfixturevalue(fixture_name)
-    result = compute_path_emax(path, in_spatial_units=in_spatial_units)
-    assert result.name == "path_emax"
+    result = compute_maximum_expected_displacement(
+        path, in_spatial_units=in_spatial_units
+    )
+    assert result.name == "maximum_expected_displacement"
     assert result.attrs["long_name"] == "Maximum Expected Displacement"
     assert np.isclose(result.item(), expected_value)
 
 
 @pytest.mark.parametrize("in_spatial_units", [False, True])
-def test_path_emax_straight_path_is_inf(straight_paths, in_spatial_units):
+def test_maximum_expected_displacement_straight_path_is_inf(
+    straight_paths, in_spatial_units
+):
     """A perfectly straight path has a mean cosine of 1, so E_max is +inf."""
-    result = compute_path_emax(
+    result = compute_maximum_expected_displacement(
         straight_paths, in_spatial_units=in_spatial_units
     )
     assert np.isinf(result).all()
@@ -1078,7 +1082,9 @@ def test_path_emax_straight_path_is_inf(straight_paths, in_spatial_units):
         ),
     ],
 )
-def test_path_emax_all_nan_output(positions, in_spatial_units):
+def test_maximum_expected_displacement_all_nan_output(
+    positions, in_spatial_units
+):
     """Test cases where E_max should be NaN: a stationary track has no
     valid turning angles, and two time points define no turning angle.
     """
@@ -1090,23 +1096,25 @@ def test_path_emax_all_nan_output(positions, in_spatial_units):
             "space": ["x", "y"],
         },
     )
-    result = compute_path_emax(data, in_spatial_units=in_spatial_units)
+    result = compute_maximum_expected_displacement(
+        data, in_spatial_units=in_spatial_units
+    )
     assert result.isnull().all()
 
 
-def test_path_emax_output_shape(straight_paths):
+def test_maximum_expected_displacement_output_shape(straight_paths):
     """Test that ``time`` and ``space`` are removed and other dimensions
     are preserved.
     """
-    result = compute_path_emax(straight_paths)
+    result = compute_maximum_expected_displacement(straight_paths)
     assert "space" not in result.dims
     assert "time" not in result.dims
     assert "individual" in result.dims
 
 
-def test_path_emax_raises_on_3d(straight_paths_3d):
+def test_maximum_expected_displacement_raises_on_3d(straight_paths_3d):
     """E_max is only defined for 2D data (inherited from turning angle)."""
     with pytest.raises(
         ValueError, match="Dimension 'space' must only contain"
     ):
-        compute_path_emax(straight_paths_3d)
+        compute_maximum_expected_displacement(straight_paths_3d)

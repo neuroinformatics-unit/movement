@@ -17,8 +17,8 @@ from movement.kinematics.orientation import (
 )
 from movement.kinematics.path import (
     compute_directional_change,
+    compute_maximum_expected_displacement,
     compute_path_deviation,
-    compute_path_emax,
     compute_path_length,
     compute_path_sinuosity,
     compute_path_straightness,
@@ -35,7 +35,7 @@ __all__ = [
     "compute_path_straightness",
     "compute_directional_change",
     "compute_path_deviation",
-    "compute_path_emax",
+    "compute_maximum_expected_displacement",
     "compute_time_derivative",
     "compute_path_sinuosity",
     "compute_pairwise_distances",
