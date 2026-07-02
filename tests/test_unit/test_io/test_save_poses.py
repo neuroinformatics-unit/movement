@@ -136,20 +136,18 @@ def test_to_dlc_style_df_with_individual_confidence(
     ds = valid_poses_dataset_with_individual_wise_confidence
     df = save_poses.to_dlc_style_df(ds, split_individuals=split_individuals)
     bodyparts = ds.coords["keypoint"].data.tolist()
-    if split_individuals:
-        assert isinstance(df, dict)
-        for ind in ds.individual.values:
-            expected = ds.confidence.sel(individual=ind).values
-            for bp in bodyparts:
-                actual = df[ind][("movement", bp, "likelihood")].to_numpy()
-                np.testing.assert_array_equal(actual, expected)
-    else:
-        assert isinstance(df, pd.DataFrame)
-        for ind in ds.individual.values:
-            expected = ds.confidence.sel(individual=ind).values
-            for bp in bodyparts:
-                actual = df[("movement", ind, bp, "likelihood")].to_numpy()
-                np.testing.assert_array_equal(actual, expected)
+    assert isinstance(df, dict if split_individuals else pd.DataFrame)
+    for ind in ds.individual.values:
+        expected = ds.confidence.sel(individual=ind).values
+        sub_df = df[ind] if split_individuals else df
+        for bp in bodyparts:
+            col = (
+                ("movement", bp, "likelihood")
+                if split_individuals
+                else ("movement", ind, bp, "likelihood")
+            )
+            actual = sub_df[col].to_numpy()
+            np.testing.assert_array_equal(actual, expected)
 
 
 @pytest.mark.parametrize(
