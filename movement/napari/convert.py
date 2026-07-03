@@ -253,10 +253,8 @@ def napari_layers_to_ds(
 
         position_df["keypoint"] = properties_df["keypoint"].to_numpy()
         position_df["individual"] = properties_df["individual"].to_numpy()
-        position_df["confidence"] = properties_df["confidence"].to_numpy()
-
         confidence_da = (
-            position_df.set_index(["time", "keypoint", "individual"])[
+            properties_df.set_index(["time", "keypoint", "individual"])[
                 "confidence"
             ]
             .to_xarray()
