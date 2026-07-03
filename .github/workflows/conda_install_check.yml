@@ -23,7 +23,7 @@ jobs:
         shell: bash -l {0}  # Required for conda activation
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       # pinning to a specific sha1 is recommended by this action's docs
       - uses: conda-incubator/setup-miniconda@8ee1f361103df19b6f8c8655fd3967a8ecb162d5 # v4.0.1
         with:
