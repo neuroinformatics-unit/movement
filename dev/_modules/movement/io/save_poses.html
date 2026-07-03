@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../../../_static/documentation_options.js?v=eacfd036"></script>
+    <script src="../../../_static/documentation_options.js?v=4eb7542f"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev6</p>
+    <p class="title logo__title">movement v0.17.1.dev7</p>
   
 </a></div>
     
@@ -516,6 +516,18 @@
 <span class="sd">    pandas.DataFrame</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># DLC stores confidence scores per keypoint. If confidence is provided</span>
+    <span class="c1"># per individual, expand it across all keypoints before export.</span>
+    <span class="n">confidence</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">data</span>
+    <span class="k">if</span> <span class="s2">&quot;keypoint&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Dataset contains individual-wise confidence scores. &quot;</span>
+            <span class="s2">&quot;DLC-style formats only supports keypoint-wise confidence scores, &quot;</span>
+            <span class="s2">&quot;so confidence values will be expanded to all keypoints.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">confidence</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">confidence</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
     <span class="c1"># Keep position data as is, if data is 3D (i.e. contains &#39;z&#39; coordinate)</span>
     <span class="c1"># Otherwise, concatenate position and confidence scores into one array</span>
     <span class="n">tracks</span> <span class="o">=</span> <span class="p">(</span>
@@ -524,7 +536,7 @@
         <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
             <span class="p">(</span>
                 <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-                <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+                <span class="n">confidence</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
             <span class="p">),</span>
             <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
