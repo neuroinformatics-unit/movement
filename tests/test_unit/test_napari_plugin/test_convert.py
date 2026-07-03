@@ -447,7 +447,7 @@ def test_on_points_data_changed_ignores_non_move_events(
     mock_event = Mock()
     mock_event.source = loader.points_layer
     mock_event.action = action_type
-
+mock_event.data_indices = (0,)
     loader._on_points_data_changed(mock_event)
 
     pd.testing.assert_series_equal(
