@@ -223,7 +223,9 @@ def napari_layers_to_ds(
     using the full coordinate structure from ``properties_with_nans``
 
     """
-    properties_df = pd.DataFrame.from_dict(properties)  # live data without nans
+    properties_df = pd.DataFrame.from_dict(
+        properties
+    )  # live data without nans
     fps = attrs.get("fps") if attrs is not None else None
 
     if "keypoint" in properties_df.columns:
