@@ -404,7 +404,7 @@ def test_on_points_data_changed_ignores_tracks_layer(
     original_tracks_confidence = tracks_layer.properties["confidence"].copy()
 
     mock_event = Mock()
-    mock_event.source = tracks_layer 
+    mock_event.source = tracks_layer
     mock_event.action = ActionType.CHANGED
     # assumes index 0's confidence is non-NaN in the fixture;
     # this is true for valid_poses_path_and_ds which has all
