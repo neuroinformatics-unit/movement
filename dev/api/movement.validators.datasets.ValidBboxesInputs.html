@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../_static/documentation_options.js?v=16beca91"></script>
+    <script src="../_static/documentation_options.js?v=b2c64e88"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev2</p>
+    <p class="title logo__title">movement v0.17.1.dev3</p>
   
 </a></div>
     
@@ -761,7 +761,7 @@ must match the order of dimensions in the <code class="docutils literal notransl
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.confidence_array">
-<span class="sig-name descname"><span class="pre">confidence_array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.confidence_array" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">confidence_array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.confidence_array" title="Link to this definition">#</a></dt>
 <dd><p>Array containing point-wise confidence scores for the position data.
 The shape of this array is the same as that of <code class="docutils literal notranslate"><span class="pre">position_array</span></code>, but
 without the <code class="docutils literal notranslate"><span class="pre">space</span></code> dimension. If None (default), the confidence scores
@@ -778,7 +778,7 @@ set to None and a warning will be issued.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.frame_array">
-<span class="sig-name descname"><span class="pre">frame_array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.frame_array" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">frame_array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.frame_array" title="Link to this definition">#</a></dt>
 <dd><p>Array containing the frame numbers for which bounding boxes are defined.
 The frame_array should be a column vector of shape (n_frames, 1) and should
 be monotonically increasing. If None (default), frame numbers will be
@@ -798,13 +798,13 @@ this list should match the size of the ‘individual’ dimension in the
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.position_array">
-<span class="sig-name descname"><span class="pre">position_array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.position_array" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">position_array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.position_array" title="Link to this definition">#</a></dt>
 <dd><p>Array containing the position data.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.shape_array">
-<span class="sig-name descname"><span class="pre">shape_array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.4)"><span class="pre">ndarray</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.shape_array" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">shape_array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.shape_array" title="Link to this definition">#</a></dt>
 <dd><p>Array containing the shape of the bounding boxes. The shape of a
 bounding box is its width (extent along the x-axis of the image) and height
 (extent along the y-axis of the image). The shape_array must have the same

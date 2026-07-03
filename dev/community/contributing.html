@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
 
-    <script src="../_static/documentation_options.js?v=16beca91"></script>
+    <script src="../_static/documentation_options.js?v=b2c64e88"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev2</p>
+    <p class="title logo__title">movement v0.17.1.dev3</p>
   
 </a></div>
     
@@ -800,7 +800,7 @@ They define the rules an input file must satisfy before it can be loaded, and th
 At minimum, this requires defining:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">suffixes</span></code>: The expected file extensions for the format.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">file</span></code>: The path to the file or an <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> object, depending on the loader.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">file</span></code>: The path to the file or an <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> object, depending on the loader.</p></li>
 </ul>
 <p>Additional attributes can also be defined to store pre-parsed information that the loader may need later.</p>
 <p>Using a hypothetical format “MySoftware” that produces CSV files containing the columns <code class="docutils literal notranslate"><span class="pre">scorer</span></code>, <code class="docutils literal notranslate"><span class="pre">bodyparts</span></code>, and <code class="docutils literal notranslate"><span class="pre">coords</span></code>, we illustrate the full pattern file validators follow:</p>
@@ -921,7 +921,7 @@ Continuing from the hypothetical “MySoftware” example, the loader function <
 <li><p>Accept <code class="docutils literal notranslate"><span class="pre">file</span></code> as its first parameter, which may be:</p>
 <ul>
 <li><p>A <code class="docutils literal notranslate"><span class="pre">str</span></code> or a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>.</p></li>
-<li><p>An <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v3.1.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> object (for NWB-based formats).</p></li>
+<li><p>An <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.0.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> object (for NWB-based formats).</p></li>
 </ul>
 </li>
 <li><p>Return an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.4.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> object containing the <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset</span></a>.</p></li>
