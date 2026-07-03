@@ -309,7 +309,9 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
     # confidence cannot be preserved — expect NaN for those.
     position_is_nan = ds["position"].isnull().all("space")
     expected_ds = ds.copy(deep=True)
-    expected_ds["confidence"] = ds["confidence"].where(~position_is_nan) # where condition is False, sets value to NaN
+    expected_ds["confidence"] = ds["confidence"].where(
+        ~position_is_nan
+    )  # where condition is False, sets value to NaN
     xr.testing.assert_equal(reconstructed_ds, expected_ds)
 
 
