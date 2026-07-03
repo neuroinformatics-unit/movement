@@ -345,30 +345,28 @@ def test_napari_layers_to_ds(
 ):
     # Get sample data filepath and dataset
     if nan_location is None:
-        filepath, ds_expected = valid_poses_path_and_ds
+        filepath, ds_loaded = valid_poses_path_and_ds
     else:
-        filepath, ds_expected = valid_poses_path_and_ds_with_localised_nans(
+        filepath, ds_loaded = valid_poses_path_and_ds_with_localised_nans(
             nan_location
         )
 
     # Get loader widget with sample data loaded
-    loader = loaded_data_loader(filepath, ds_expected)
+    loader = loaded_data_loader(filepath, ds_loaded)
 
     # Convert data in napari point layer to a movement dataset
     ds = napari_layers_to_ds(
         points_as_napari=loader.points_layer.data,
         properties=loader.points_layer.properties,  # dict
         properties_with_nans=loader.properties,
-        attrs=ds_expected.attrs,
+        attrs=ds_loaded.attrs,
     )
 
     # Missing points (NaN position) are not visible in napari, so their
     # confidence cannot be preserved — expect NaN for those.
-    position_is_nan = ds_expected["position"].isnull().all("space")
-    expected_ds = ds_expected.copy(deep=True)
-    expected_ds["confidence"] = ds_expected["confidence"].where(
-        ~position_is_nan
-    )
+    position_is_nan = ds_loaded["position"].isnull().all("space")
+    expected_ds = ds_loaded.copy(deep=True)
+    expected_ds["confidence"] = ds_loaded["confidence"].where(~position_is_nan)
     xr.testing.assert_equal(ds, expected_ds)
 
 
@@ -395,8 +393,8 @@ def test_on_points_data_changed_ignores_tracks_layer(
     without modifying confidence when `event.source` is not a
     `napari.layers.Points` instance.
     """
-    filepath, ds_expected = valid_poses_path_and_ds
-    loader = loaded_data_loader(filepath, ds_expected)
+    filepath, ds_loaded = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_loaded)
 
     tracks_layer = next(
         layer for layer in loader.viewer.layers if isinstance(layer, Tracks)
@@ -439,8 +437,8 @@ def test_on_points_data_changed_ignores_non_move_events(
     including ``ADDING``, ``ADDED``, ``REMOVING``, ``REMOVED``, and
     ``CHANGING`` (in-progress drag).
     """
-    filepath, ds_expected = valid_poses_path_and_ds
-    loader = loaded_data_loader(filepath, ds_expected)
+    filepath, ds_loaded = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_loaded)
 
     original_confidence = loader.points_layer.features["confidence"].copy()
 
@@ -492,12 +490,12 @@ def test_edited_pose_napari_layers(
     ``NaN`` confidence.
     """
     if nan_location is None:
-        filepath, ds_expected = valid_poses_path_and_ds
+        filepath, ds_loaded = valid_poses_path_and_ds
     else:
-        filepath, ds_expected = valid_poses_path_and_ds_with_localised_nans(
+        filepath, ds_loaded = valid_poses_path_and_ds_with_localised_nans(
             nan_location
         )
-    loader = loaded_data_loader(filepath, ds_expected)
+    loader = loaded_data_loader(filepath, ds_loaded)
 
     frame = 2  # safe: not NaN in any parametrize case
     keypoint = "centroid"
@@ -528,12 +526,12 @@ def test_edited_pose_napari_layers(
         points_as_napari=loader.points_layer.data,
         properties=loader.points_layer.properties,
         properties_with_nans=loader.properties,
-        attrs=ds_expected.attrs,
+        attrs=ds_loaded.attrs,
     )
-    expected_ds = ds_expected.copy(deep=True)
+    expected_ds = ds_loaded.copy(deep=True)
     # NaN-position points are hidden in napari, so their confidence can't be
     # preserved — the reconstructed dataset will have NaN confidence for them.
-    position_is_nan = ds_expected["position"].isnull().all("space")
+    position_is_nan = ds_loaded["position"].isnull().all("space")
     expected_ds["confidence"] = expected_ds["confidence"].where(
         ~position_is_nan
     )
