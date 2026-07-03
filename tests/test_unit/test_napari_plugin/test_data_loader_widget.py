@@ -7,8 +7,10 @@ instantiated (the methods would have already been connected to signals).
 
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
+from unittest.mock import Mock
 
 import numpy as np
+import pandas as pd
 import pytest
 from napari.components.dims import RangeTuple
 from napari.layers import (
@@ -20,6 +22,7 @@ from napari.layers import (
     Tracks,
     Vectors,
 )
+from napari.layers.base import ActionType
 from napari.settings import get_settings
 from napari.utils.events import EmitterGroup
 from pytest import DATA_PATHS
@@ -940,3 +943,67 @@ def test_add_points_and_tracks_layer_style(
         np.testing.assert_allclose(
             bboxes_layer_colormap_sorted, text_colormap_sorted, atol=1e-7
         )
+
+
+def test_on_points_data_changed_ignores_non_points_source(
+    valid_poses_path_and_ds, loaded_data_loader
+):
+    """Test that the callback does nothing when the event source is
+    not a Points layer.
+
+    Verifies that :meth:`DataLoader._on_points_data_changed` returns early
+    without modifying confidence when ``event.source`` is not a
+    :class:`napari.layers.Points` instance.
+    """
+    filepath, ds_loaded = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_loaded)
+
+    original_confidence = loader.points_layer.features["confidence"].copy()
+
+    mock_event = Mock()
+    mock_event.source = Mock()  # not a Points layer
+    mock_event.action = ActionType.CHANGED
+
+    loader._on_points_data_changed(mock_event)
+
+    pd.testing.assert_series_equal(
+        loader.points_layer.features["confidence"],
+        original_confidence,
+    )
+
+
+@pytest.mark.parametrize(
+    "action_type",
+    [
+        ActionType.ADDED,
+        ActionType.REMOVED,
+        ActionType.ADDING,
+        ActionType.REMOVING,
+        ActionType.CHANGING,
+    ],
+)
+def test_on_points_data_changed_ignores_non_move_events(
+    action_type, valid_poses_path_and_ds, loaded_data_loader
+):
+    """Test that the callback leaves confidence untouched for non-drag events.
+
+    Verifies that :meth:`DataLoader._on_points_data_changed` only acts on
+    ``ActionType.CHANGED`` (completed drag) and ignores all other action types,
+    including ``ADDING``, ``ADDED``, ``REMOVING``, ``REMOVED``, and
+    ``CHANGING`` (in-progress drag).
+    """
+    filepath, ds_loaded = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_loaded)
+
+    original_confidence = loader.points_layer.features["confidence"].copy()
+
+    mock_event = Mock()
+    mock_event.source = loader.points_layer
+    mock_event.action = action_type
+
+    loader._on_points_data_changed(mock_event)
+
+    pd.testing.assert_series_equal(
+        loader.points_layer.features["confidence"],
+        original_confidence,
+    )

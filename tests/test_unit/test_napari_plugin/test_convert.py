@@ -271,6 +271,19 @@ def test_invalid_poses_to_napari_layers(ds_name, expected_exception, request):
 # -------------------- Valid napari layers test --------------------
 
 
+def _set_confidence_to_nan(ds):
+    """Return the dataset expected after a napari layer round-trip.
+
+    Points with a NaN position are hidden in napari, so their confidence
+    cannot be preserved — the reconstructed dataset has NaN confidence for
+    those points.
+    """
+    position_is_nan = ds["position"].isnull().all("space")
+    expected_ds = ds.copy(deep=True)
+    expected_ds["confidence"] = ds["confidence"].where(~position_is_nan)
+    return expected_ds
+
+
 @pytest.mark.parametrize(
     "ds_dataset",
     [
@@ -305,14 +318,7 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
         napari_points, properties, properties_with_nan, attrs=ds.attrs
     )
 
-    # Missing points (NaN position) are not visible in napari, so their
-    # confidence cannot be preserved — expect NaN for those.
-    position_is_nan = ds["position"].isnull().all("space")
-    expected_ds = ds.copy(deep=True)
-    expected_ds["confidence"] = ds["confidence"].where(
-        ~position_is_nan
-    )  # where condition is False, sets value to NaN
-    xr.testing.assert_equal(reconstructed_ds, expected_ds)
+    xr.testing.assert_equal(reconstructed_ds, _set_confidence_to_nan(ds))
 
 
 @pytest.mark.parametrize(
@@ -362,12 +368,7 @@ def test_napari_layers_to_ds(
         attrs=ds_loaded.attrs,
     )
 
-    # Missing points (NaN position) are not visible in napari, so their
-    # confidence cannot be preserved — expect NaN for those.
-    position_is_nan = ds_loaded["position"].isnull().all("space")
-    expected_ds = ds_loaded.copy(deep=True)
-    expected_ds["confidence"] = ds_loaded["confidence"].where(~position_is_nan)
-    xr.testing.assert_equal(ds, expected_ds)
+    xr.testing.assert_equal(ds, _set_confidence_to_nan(ds_loaded))
 
 
 def test_napari_layers_to_ds_bboxes_not_implemented():
@@ -381,77 +382,6 @@ def test_napari_layers_to_ds_bboxes_not_implemented():
             properties={"individual": np.array([])},
             properties_with_nans=pd.DataFrame(),
         )
-
-
-def test_on_points_data_changed_ignores_tracks_layer(
-    valid_poses_path_and_ds, loaded_data_loader
-):
-    """Test that the callback does not modify a layer's properties
-    when the data change occurs on a non-Points layer.
-
-    Verifies that `DataLoader._on_points_data_changed` returns early
-    without modifying confidence when `event.source` is not a
-    `napari.layers.Points` instance.
-    """
-    filepath, ds_loaded = valid_poses_path_and_ds
-    loader = loaded_data_loader(filepath, ds_loaded)
-
-    tracks_layer = next(
-        layer for layer in loader.viewer.layers if isinstance(layer, Tracks)
-    )
-    original_tracks_confidence = tracks_layer.properties["confidence"].copy()
-
-    mock_event = Mock()
-    mock_event.source = tracks_layer
-    mock_event.action = ActionType.CHANGED
-    # assumes index 0's confidence is non-NaN in the fixture;
-    # this is true for valid_poses_path_and_ds which has all
-    # confidence values non-nan
-    mock_event.data_indices = (0,)
-
-    loader._on_points_data_changed(mock_event)
-
-    np.testing.assert_array_equal(
-        tracks_layer.properties["confidence"],
-        original_tracks_confidence,
-    )
-
-
-@pytest.mark.parametrize(
-    "action_type",
-    [
-        ActionType.ADDED,
-        ActionType.REMOVED,
-        ActionType.ADDING,
-        ActionType.REMOVING,
-        ActionType.CHANGING,
-    ],
-)
-def test_on_points_data_changed_ignores_non_move_events(
-    action_type, valid_poses_path_and_ds, loaded_data_loader
-):
-    """Test that the callback leaves confidence untouched for non-drag events.
-
-    Verifies that :meth:`DataLoader._on_points_data_changed` only acts on
-    ``ActionType.CHANGED`` (completed drag) and ignores all other action types,
-    including ``ADDING``, ``ADDED``, ``REMOVING``, ``REMOVED``, and
-    ``CHANGING`` (in-progress drag).
-    """
-    filepath, ds_loaded = valid_poses_path_and_ds
-    loader = loaded_data_loader(filepath, ds_loaded)
-
-    original_confidence = loader.points_layer.features["confidence"].copy()
-
-    mock_event = Mock()
-    mock_event.source = loader.points_layer
-    mock_event.action = action_type
-mock_event.data_indices = (0,)
-    loader._on_points_data_changed(mock_event)
-
-    pd.testing.assert_series_equal(
-        loader.points_layer.features["confidence"],
-        original_confidence,
-    )
 
 
 @pytest.mark.parametrize(
@@ -528,13 +458,7 @@ def test_edited_pose_napari_layers(
         properties_with_nans=loader.properties,
         attrs=ds_loaded.attrs,
     )
-    expected_ds = ds_loaded.copy(deep=True)
-    # NaN-position points are hidden in napari, so their confidence can't be
-    # preserved — the reconstructed dataset will have NaN confidence for them.
-    position_is_nan = ds_loaded["position"].isnull().all("space")
-    expected_ds["confidence"] = expected_ds["confidence"].where(
-        ~position_is_nan
-    )
+    expected_ds = _set_confidence_to_nan(ds_loaded)
     expected_ds.position.loc[
         {
             "time": frame,
