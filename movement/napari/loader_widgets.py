@@ -352,8 +352,8 @@ class DataLoader(QWidget):
     def _on_points_data_changed(self, event):
         """Set confidence to NaN for moved (dragged) points.
 
-        Connected to ``points_layer.events.data``. Fires on 
-        ``ActionType.CHANGED`` (i.e., when the data array values 
+        Connected to ``points_layer.events.data``. Fires on
+        ``ActionType.CHANGED`` (i.e., when the data array values
         change) and sets the confidence score of moved points to NaN.
         """
         layer = event.source
