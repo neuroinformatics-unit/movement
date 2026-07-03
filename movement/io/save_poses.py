@@ -37,6 +37,18 @@ def _ds_to_dlc_style_df(
     pandas.DataFrame
 
     """
+    # DLC stores confidence scores per keypoint. If confidence is provided
+    # per individual, expand it across all keypoints before export.
+    confidence = ds.confidence.data
+    if "keypoint" not in ds.confidence.dims:
+        logger.warning(
+            "Dataset contains individual-wise confidence scores. "
+            "DLC-style formats only supports keypoint-wise confidence scores, "
+            "so confidence values will be expanded to all keypoints."
+        )
+        confidence = np.repeat(
+            np.expand_dims(confidence, axis=1), ds.sizes["keypoint"], axis=1
+        )
     # Keep position data as is, if data is 3D (i.e. contains 'z' coordinate)
     # Otherwise, concatenate position and confidence scores into one array
     tracks = (
@@ -45,7 +57,7 @@ def _ds_to_dlc_style_df(
         else np.concatenate(
             (
                 ds.position.data,
-                ds.confidence.data[:, np.newaxis, ...],
+                confidence[:, np.newaxis, ...],
             ),
             axis=1,
         )

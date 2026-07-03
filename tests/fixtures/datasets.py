@@ -312,6 +312,18 @@ def valid_poses_dataset_with_nan(valid_poses_dataset):
 
 
 @pytest.fixture
+def valid_poses_dataset_with_individual_wise_confidence(valid_poses_dataset):
+    """Return a valid poses dataset with individual-wise (rather than
+    keypoint-wise) confidence scores, derived from the centroid
+    keypoint's confidence values in ``valid_poses_dataset``.
+    """
+    valid_poses_dataset["confidence"] = valid_poses_dataset.confidence.isel(
+        keypoint=0
+    )
+    return valid_poses_dataset
+
+
+@pytest.fixture
 def valid_dlc_poses_df():
     """Return a valid DLC-style poses DataFrame."""
     return pd.read_hdf(pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5"))

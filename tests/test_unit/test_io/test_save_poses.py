@@ -118,6 +118,67 @@ def test_to_dlc_style_df(ds, expected_exception):
             ]
 
 
+@pytest.mark.parametrize(
+    "valid_poses_dataset",
+    ["single_individual_array", "multi_individual_array"],
+    indirect=True,
+)
+@pytest.mark.parametrize("split_individuals", [True, False])
+def test_to_dlc_style_df_with_individual_confidence(
+    valid_poses_dataset_with_individual_wise_confidence, split_individuals
+):
+    """Test that datasets with individual-wise confidence scores can
+    be converted to DLC-style DataFrame(s), for single- and
+    multi-individual datasets, and both ``split_individuals`` settings.
+    The individual-wise confidence values should be expanded (repeated)
+    across all keypoints in the output DataFrame(s).
+    """
+    ds = valid_poses_dataset_with_individual_wise_confidence
+    df = save_poses.to_dlc_style_df(ds, split_individuals=split_individuals)
+    bodyparts = ds.coords["keypoint"].data.tolist()
+    assert isinstance(df, dict if split_individuals else pd.DataFrame)
+    for ind in ds.individual.values:
+        expected = ds.confidence.sel(individual=ind).values
+        sub_df = df[ind] if split_individuals else df
+        for bp in bodyparts:
+            col = (
+                ("movement", bp, "likelihood")
+                if split_individuals
+                else ("movement", ind, bp, "likelihood")
+            )
+            actual = sub_df[col].to_numpy()
+            np.testing.assert_array_equal(actual, expected)
+
+
+@pytest.mark.parametrize(
+    "valid_poses_dataset",
+    ["single_individual_array", "multi_individual_array"],
+    indirect=True,
+)
+@pytest.mark.parametrize("split_individuals", [True, False])
+def test_to_dlc_file_with_individual_confidence(
+    valid_poses_dataset_with_individual_wise_confidence,
+    split_individuals,
+    tmp_path,
+):
+    """Test that datasets with individual-wise confidence scores can
+    be exported to DLC format, for single- and multi-individual
+    datasets, and both ``split_individuals`` settings.
+    The exported DLC file should be created successfully.
+    """
+    ds = valid_poses_dataset_with_individual_wise_confidence
+    save_poses.to_dlc_file(
+        ds,
+        tmp_path / "test.h5",
+        split_individuals=split_individuals,
+    )
+    if split_individuals:
+        for ind in ds.individual.values:
+            assert (tmp_path / f"test_{ind}.h5").is_file()
+    else:
+        assert (tmp_path / "test.h5").is_file()
+
+
 def test_to_dlc_file_valid_dataset(
     output_file_params, valid_poses_dataset, request
 ):
@@ -141,11 +202,10 @@ def test_to_dlc_file_invalid_dataset(
     """Test that saving an invalid pose dataset to a valid
     DeepLabCut-style file returns the appropriate errors.
     """
+    ds = request.getfixturevalue(invalid_poses_dataset)
     with pytest.raises(expected_exception):
         save_poses.to_dlc_file(
-            request.getfixturevalue(invalid_poses_dataset),
-            tmp_path / "test.h5",
-            split_individuals=False,
+            ds, tmp_path / "test.h5", split_individuals=False
         )
 
 
@@ -164,15 +224,11 @@ def test_auto_split_individuals(valid_poses_dataset, split_value):
 
 
 @pytest.mark.parametrize(
-    "valid_poses_dataset, split_individuals",
-    [
-        ("single_individual_array", True),  # single-individual, split
-        ("multi_individual_array", False),  # multi-individual, no split
-        ("single_individual_array", False),  # single-individual, no split
-        ("multi_individual_array", True),  # multi-individual, split
-    ],
-    indirect=["valid_poses_dataset"],
+    "valid_poses_dataset",
+    ["single_individual_array", "multi_individual_array"],
+    indirect=True,
 )
+@pytest.mark.parametrize("split_individuals", [True, False])
 def test_to_dlc_style_df_split_individuals(
     valid_poses_dataset, split_individuals
 ):
@@ -268,11 +324,28 @@ def test_to_lp_file_invalid_dataset(
     """Test that saving an invalid pose dataset to a valid
     LightningPose-style file returns the appropriate errors.
     """
+    ds = request.getfixturevalue(invalid_poses_dataset)
     with pytest.raises(expected_exception):
-        save_poses.to_lp_file(
-            request.getfixturevalue(invalid_poses_dataset),
-            tmp_path / "test.csv",
-        )
+        save_poses.to_lp_file(ds, tmp_path / "test.csv")
+
+
+@pytest.mark.parametrize(
+    "valid_poses_dataset",
+    ["single_individual_array", "multi_individual_array"],
+    indirect=True,
+)
+def test_to_lp_file_with_individual_confidence(
+    valid_poses_dataset_with_individual_wise_confidence, tmp_path
+):
+    """Test that datasets with individual-wise confidence scores can
+    be exported to LightningPose format, for single- and multi-individual
+    datasets settings. The exported LightningPose file should be created
+    successfully.
+    """
+    ds = valid_poses_dataset_with_individual_wise_confidence
+    save_poses.to_lp_file(ds, tmp_path / "test.csv")
+    for ind in ds.individual.values:
+        assert (tmp_path / f"test_{ind}.csv").is_file()
 
 
 def test_to_sleap_analysis_file_valid_dataset(
@@ -298,11 +371,9 @@ def test_to_sleap_analysis_file_invalid_dataset(
     """Test that saving an invalid pose dataset to a valid
     SLEAP-style file returns the appropriate errors.
     """
+    ds = request.getfixturevalue(invalid_poses_dataset)
     with pytest.raises(expected_exception):
-        save_poses.to_sleap_analysis_file(
-            request.getfixturevalue(invalid_poses_dataset),
-            new_h5_file,
-        )
+        save_poses.to_sleap_analysis_file(ds, new_h5_file)
 
 
 nwb_file_expectations_ind = {
