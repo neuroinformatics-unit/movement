@@ -296,6 +296,134 @@ def compute_turning_angle(
     return turning
 
 
+def compute_path_sinuosity(
+    data: xr.DataArray,
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    r"""Compute the sinuosity of a path.
+
+    Sinuosity (S) quantifies the tortuosity of a path by combining
+    turning angle statistics with step-length variability. Higher
+    values indicate more tortuous movement. A perfectly straight
+    path has S = 0.
+
+    The corrected sinuosity index (Eq. 8 in [1]_) is defined as:
+
+    .. math::
+
+        S = 2\left[\bar{p}\left(
+            \frac{1+\bar{c}}{1-\bar{c}} + b^{2}
+        \right)\right]^{-1/2}
+
+    where :math:`\bar{p}` is the mean step length,
+    :math:`\bar{c} = \tfrac{1}{n}\sum_{i=1}^{n}\cos(\phi_i)` is the mean
+    cosine of turning angles, and
+    :math:`b = \mathrm{SD}(p_i)\,/\,\bar{p}` is the coefficient of
+    variation of step length.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+        To compute sinuosity over a specific time window, pre-slice with
+        ``data.sel(time=slice(start, stop))`` before passing in.
+    nan_warn_threshold : float, optional
+        If any point track in the data has at least (:math:`\ge`)
+        this proportion of values missing, a warning will be emitted.
+        Defaults to ``0.2`` (20%).
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed sinuosity,
+        with dimensions matching those of the input data,
+        except ``time`` and ``space`` are removed.
+
+    See Also
+    --------
+    compute_path_length : Total distance travelled along a path.
+    compute_path_straightness : Net displacement divided by path length.
+    compute_turning_angle : Step-wise turning angle along a path.
+
+    Notes
+    -----
+    Step lengths are computed as the norm of backward displacement vectors
+    via :func:`~movement.utils.vector.compute_norm` and
+    :func:`~movement.kinematics.compute_backward_displacement`.
+    Turning angles are computed via :func:`compute_turning_angle`.
+
+    NaN positions propagate to NaN step lengths and turning angles;
+    the statistics are then computed over the remaining valid samples
+    via ``skipna=True``.
+
+    Sinuosity has units of :math:`1/\sqrt{\text{length}}`, so its
+    numerical value depends on the position units of the input data.
+    Values are not directly comparable across datasets recorded in
+    different spatial units.
+
+    **Edge cases**:
+
+    - :math:`\bar{c} = 1` (perfectly straight path): handled without
+      division-by-zero warnings; the formula naturally evaluates to
+      :math:`S = 0`.
+    - :math:`\bar{p} = 0` (entirely stationary track): S is NaN.
+    - All steps NaN: returns NaN.
+
+    References
+    ----------
+    .. [1] Benhamou, S. (2004). How to reliably estimate the tortuosity
+       of an animal's path: straightness, sinuosity, or fractal dimension?
+       *Journal of Theoretical Biology*, 229(2), 209–220.
+       https://doi.org/10.1016/j.jtbi.2004.03.016
+
+    Examples
+    --------
+    Compute sinuosity for all individuals and keypoints:
+
+    >>> sinuosity = compute_path_sinuosity(ds.position)
+
+    Constrain to a specific time window using xarray's ``.sel()``:
+
+    >>> sinuosity = compute_path_sinuosity(
+    ...     ds.position.sel(time=slice(10.0, 60.0))
+    ... )
+
+    """
+    data = _validate_time_points(
+        data, metric_name="path sinuosity", min_points=3
+    )
+
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+
+    # --- Step lengths -------------------------------------------------------
+    step_lengths = _segment_lengths(data)
+
+    # --- Turning angles -----------------------------------------------------
+    theta = compute_turning_angle(data)
+
+    # --- Summary statistics (NaN-aware) -------------------------------------
+    p_bar = step_lengths.mean(dim="time", skipna=True)
+    c_bar = xr.apply_ufunc(np.cos, theta).mean(dim="time", skipna=True)
+    b = step_lengths.std(dim="time", skipna=True) / p_bar
+
+    # --- Benhamou 2004 Eq. 8 ------------------------------------------------
+    # c_bar -> 1 for a perfectly straight path, giving S -> 0.
+    # Guard the division so the zero denominator does not emit a warning.
+    one_minus_c = 1.0 - c_bar
+    angle_term = xr.where(
+        one_minus_c == 0,
+        np.inf,
+        (1.0 + c_bar) / one_minus_c.where(one_minus_c != 0),
+    )
+    result = 2.0 * (p_bar * (angle_term + b**2)) ** -0.5
+
+    result.name = "sinuosity"
+    result.attrs["long_name"] = "Path Sinuosity"
+
+    return result
+
+
 def compute_directional_change(
     data: xr.DataArray,
     in_degrees: bool = False,
@@ -513,15 +641,19 @@ def compute_path_deviation(
 def _validate_time_points(
     data: xr.DataArray,
     metric_name: str,
+    min_points: int = 2,
 ) -> xr.DataArray:
-    """Validate dims/coords and require at least 2 time points.
+    """Validate dims/coords and require at least ``min_points`` time points.
 
     Parameters
     ----------
     data : xarray.DataArray
         Position data with ``time`` and ``space`` dimensions.
     metric_name : str
-        Used in the error message when there are fewer than 2 time points.
+         Used in the error message when there are fewer than
+        `min_points` time points.
+    min_points : int, optional
+        The minimum number of time points required. Defaults to 2.
 
     Returns
     -------
@@ -531,10 +663,10 @@ def _validate_time_points(
     """
     validate_dims_coords(data, {"time": [], "space": []})
     n_time = data.sizes["time"]
-    if n_time < 2:
+    if n_time < min_points:
         raise logger.error(
             ValueError(
-                "At least 2 time points are required to compute "
+                f"At least {min_points} time points are required to compute "
                 f"{metric_name}, but {n_time} were found."
             )
         )

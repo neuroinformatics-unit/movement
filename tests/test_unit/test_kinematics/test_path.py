@@ -9,6 +9,7 @@ from movement.kinematics import (
     compute_directional_change,
     compute_path_deviation,
     compute_path_length,
+    compute_path_sinuosity,
     compute_path_straightness,
     compute_turning_angle,
 )
@@ -801,3 +802,111 @@ def test_path_deviation_partially_degenerate_warns(straight_paths):
         assert np.isnan(result.sel(individual="id_0").values).all()
         id_1 = result.sel(individual="id_1")
         xr.testing.assert_allclose(id_1, xr.zeros_like(id_1))
+
+
+# ─────────────────────────────────────────────
+# Path sinuosity tests
+# ─────────────────────────────────────────────
+
+
+def test_path_sinuosity_too_few_timepoints(valid_poses_dataset):
+    """Test that sinuosity enforces the minimum length requirement."""
+    # Slice the data to exactly 2 time points (which is only 1 segment)
+    position = valid_poses_dataset.position.isel(time=slice(0, 2))
+
+    with pytest.raises(ValueError, match="3 time points are required"):
+        compute_path_sinuosity(position)
+
+
+@pytest.fixture
+def regular_zigzag_path():
+    """Unit-step 90-degree zigzag (East, North, East, North, ...).
+
+    Every step has length 1 (so b = 0) and every turn is 90 degrees
+    (so c_bar = cos(90) = 0). Benhamou 2004 Eq. 8 then reduces to
+    S = 2 * [p * (1 + c_bar) / (1 - c_bar)]^(-1/2) = 2 / sqrt(1) = 2.0
+    """
+    n = 20
+    xy = np.zeros((n, 2))
+    for i in range(1, n):
+        xy[i] = xy[i - 1] + ([1, 0] if i % 2 else [0, 1])
+    return xr.DataArray(
+        xy,
+        dims=["time", "space"],
+        coords={"time": np.arange(n), "space": ["x", "y"]},
+    )
+
+
+@pytest.mark.parametrize(
+    "fixture_name, expected_value",
+    [
+        pytest.param("straight_paths", 0.0, id="straight-line"),
+        pytest.param("stationary_paths", np.nan, id="stationary"),
+        pytest.param("regular_zigzag_path", 2.0, id="zigzag"),
+    ],
+)
+def test_path_sinuosity_known_values(request, fixture_name, expected_value):
+    """Test that sinuosity matches expected values for standard geometries."""
+    position = request.getfixturevalue(fixture_name)
+    result = compute_path_sinuosity(position)
+
+    if np.isnan(expected_value):
+        assert result.isnull().all()
+    else:
+        xr.testing.assert_allclose(
+            result,
+            xr.full_like(result, expected_value),
+            atol=1e-7,
+        )
+
+
+def test_path_sinuosity_variable_reversals():
+    """Biological edge case: Natural tortuous pacing.
+
+    An animal repeatedly reversing direction but with natural, variable
+    step lengths. This is genuinely tortuous movement and should compute
+    successfully to a finite, positive value.
+    """
+    rng = np.random.default_rng(11)
+    n = 30
+    x = np.zeros(n)
+    for i in range(1, n):
+        # Reverse direction each step, but multiply by a random stride length
+        x[i] = x[i - 1] + rng.choice([-1, 1]) * rng.uniform(0.5, 2.0)
+    xy = np.column_stack([x, np.zeros(n)])
+
+    data = xr.DataArray(
+        xy,
+        dims=["time", "space"],
+        coords={"time": np.arange(n), "space": ["x", "y"]},
+    )
+    result = compute_path_sinuosity(data)
+
+    assert not result.isnull().any()
+    assert float(result.item()) > 0
+    assert np.isfinite(result.item())
+
+
+def test_path_sinuosity_outlier_step():
+    """Artefact edge case: Tracking teleportation.
+
+    Simulates a tracker losing ID and assigning a point across the arena.
+    The massive jump creates an extreme standard deviation in step length (b).
+    The metric should not crash, but rather return a valid, finite float.
+    """
+    rng = np.random.default_rng(20)
+    n = 50
+    # Normal erratic movement
+    xy = np.column_stack([np.arange(n, dtype=float), rng.normal(0, 0.3, n)])
+    # Single massive tracking failure
+    xy[25] = [1000.0, 1000.0]
+
+    data = xr.DataArray(
+        xy,
+        dims=["time", "space"],
+        coords={"time": np.arange(n), "space": ["x", "y"]},
+    )
+    result = compute_path_sinuosity(data)
+
+    assert not result.isnull().any()
+    assert np.isfinite(result.item())
