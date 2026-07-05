@@ -144,7 +144,7 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
     # Make all zeros in phi positive zeros
     # - where rho == 0, set phi to 0
     # - where rho != 0, keep the phi value from atan2
-    phi = xr.where(np.isclose(rho.values, 0.0, atol=1e-9), 0.0, phi)
+    phi = xr.where(np.isclose(rho, 0.0, atol=1e-9), 0.0, phi)
 
     # Replace space dim with space_pol
     dims = list(data.dims)
@@ -298,11 +298,12 @@ def compute_signed_angle_2d(
         cross *= -1.0
     dot = u_x * v_x + u_y * v_y
 
-    angles = np.arctan2(cross, dot)
-    assert isinstance(angles, xr.DataArray)
+    angles = xr.apply_ufunc(np.arctan2, cross, dot)
+
     # arctan2 returns values in [-pi, pi].
-    # We need to map -pi angles to pi, to stay in the (-pi, pi] range
-    angles.values[angles <= -np.pi] = np.pi
+    # Map -pi angles to pi to stay in the (-pi, pi] range
+    angles = xr.where(angles <= -np.pi, np.pi, angles)
+
     angles.name = "signed_angle"
     return angles
 
