@@ -153,6 +153,10 @@ def compute_path_straightness(
     --------
     compute_path_length : The underlying function used to
         compute the path length :math:`L`.
+    compute_maximum_expected_displacement :
+        An alternative straightness measure derived from the
+        turning-angle distribution which, unlike the :math:`D/L`
+        ratio, does not depend on the number of steps in the path.
 
     Examples
     --------
@@ -470,6 +474,8 @@ def compute_directional_change(
     --------
     compute_turning_angle :
         The underlying function used to compute turning angles.
+    compute_maximum_expected_displacement :
+        A related path-straightness measure based on turning angles.
 
     Examples
     --------
@@ -568,18 +574,16 @@ def compute_maximum_expected_displacement(
        :func:`movement.utils.vector.compute_signed_angle_2d`. The first
        two time steps have no defined turning angle and so do not
        contribute.
-    2. **Radians only.** The turning angles must be in radians for
-       :math:`\cos\theta` to be meaningful, so the ``in_degrees`` flag of
-       :func:`compute_turning_angle` is deliberately *not* exposed here;
-       passing angles in degrees would silently corrupt the result.
-    3. **Range.** :math:`E_{\max}^{(a)} \in [-0.5, \infty)`. Negative
-       values arise for highly sinuous paths, where the mean cosine
+    2. **Range.** :math:`E_{\max}^{(a)} \in [-0.5, \infty)`. While
+       highly sinuous paths actually have values approaching 0,
+       negative values specifically arise for trajectories with a
+       systematic backward-turning bias where the mean cosine
        :math:`\bar{c}` is itself negative.
-    4. **Straight paths.** As a path approaches a perfectly straight
+    3. **Straight paths.** As a path approaches a perfectly straight
        line, :math:`\bar{c} \to 1`, so :math:`1 - \bar{c} \to 0` and
        :math:`E_{\max} \to +\infty`. An infinite result is therefore the
        correct, expected output for a straight path.
-    5. **Missing values.** Turning angles and step lengths that are
+    4. **Missing values.** Turning angles and step lengths that are
        ``NaN`` (e.g. from missing positions or stationary steps) are
        ignored when averaging. If every turning angle is ``NaN`` (e.g. a
        stationary track), the result is ``NaN``.
