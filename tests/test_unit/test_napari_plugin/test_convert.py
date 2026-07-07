@@ -271,7 +271,7 @@ def test_invalid_poses_to_napari_layers(ds_name, expected_exception, request):
 # -------------------- Valid napari layers test --------------------
 
 
-def _set_confidence_to_nan(ds):
+def _nan_confidence_at_nan_pos(ds):
     """Return the dataset expected after a napari layer round-trip.
 
     Points with a NaN position are hidden in napari, so their confidence
@@ -280,7 +280,12 @@ def _set_confidence_to_nan(ds):
     """
     position_is_nan = ds["position"].isnull().all("space")
     expected_ds = ds.copy(deep=True)
-    expected_ds["confidence"] = ds["confidence"].where(~position_is_nan)
+    expected_ds["confidence"] = xr.where(
+        position_is_nan,
+        np.nan,
+        expected_ds["confidence"],
+    )
+
     return expected_ds
 
 
@@ -318,7 +323,10 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
         napari_points, properties, properties_with_nan, attrs=ds.attrs
     )
 
-    xr.testing.assert_equal(reconstructed_ds, _set_confidence_to_nan(ds))
+    xr.testing.assert_equal(
+        reconstructed_ds,
+        _nan_confidence_at_nan_pos(ds),
+    )
 
 
 @pytest.mark.parametrize(
@@ -368,7 +376,7 @@ def test_napari_layers_to_ds(
         attrs=ds_loaded.attrs,
     )
 
-    xr.testing.assert_equal(ds, _set_confidence_to_nan(ds_loaded))
+    xr.testing.assert_equal(ds, _nan_confidence_at_nan_pos(ds_loaded))
 
 
 def test_napari_layers_to_ds_bboxes_not_implemented():
@@ -458,7 +466,11 @@ def test_edited_pose_napari_layers(
         properties_with_nans=loader.properties,
         attrs=ds_loaded.attrs,
     )
-    expected_ds = _set_confidence_to_nan(ds_loaded)
+
+    # after loading in napari and exporting:
+    # confidence is nan where position is nan
+    expected_ds = _nan_confidence_at_nan_pos(ds_loaded)
+    # edited point values
     expected_ds.position.loc[
         {
             "time": frame,
