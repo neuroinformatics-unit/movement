@@ -7,6 +7,7 @@ import pandas as pd
 import xarray as xr
 from napari.components.dims import RangeTuple
 from napari.layers import Image, Points, Shapes, Tracks
+from napari.layers.base import ActionType
 from napari.settings import get_settings
 from napari.utils.notifications import show_error, show_warning
 from napari.viewer import Viewer
@@ -344,8 +345,27 @@ class DataLoader(QWidget):
             metadata={"max_frame_idx": max(self.data[:, 1])},
             **points_style.as_kwargs(),
         )
+        self.points_layer.events.data.connect(self._on_points_data_changed)
 
         logger.info("Added tracked dataset as a napari Points layer.")
+
+    def _on_points_data_changed(self, event):
+        """Set confidence to NaN for moved (dragged) points.
+
+        Connected to ``points_layer.events.data``. Fires on
+        ``ActionType.CHANGED`` (i.e., when the data array values
+        change) and sets the confidence score of moved points to NaN.
+        """
+        layer = event.source
+        if not isinstance(layer, Points):
+            return
+        if event.action != ActionType.CHANGED:
+            return
+        moved_indices = list(event.data_indices)
+        props = layer.properties
+        props["confidence"] = props["confidence"].copy()
+        props["confidence"][moved_indices] = float("nan")
+        layer.properties = props
 
     def _add_tracks_layer(self):
         """Add the tracked data to the viewer as a Tracks layer."""

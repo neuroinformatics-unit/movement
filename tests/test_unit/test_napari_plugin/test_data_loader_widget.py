@@ -7,8 +7,10 @@ instantiated (the methods would have already been connected to signals).
 
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
+from unittest.mock import Mock
 
 import numpy as np
+import pandas as pd
 import pytest
 from napari.components.dims import RangeTuple
 from napari.layers import (
@@ -20,6 +22,7 @@ from napari.layers import (
     Tracks,
     Vectors,
 )
+from napari.layers.base import ActionType
 from napari.settings import get_settings
 from napari.utils.events import EmitterGroup
 from pytest import DATA_PATHS
@@ -940,3 +943,78 @@ def test_add_points_and_tracks_layer_style(
         np.testing.assert_allclose(
             bboxes_layer_colormap_sorted, text_colormap_sorted, atol=1e-7
         )
+
+
+def test_on_points_data_changed_ignores_tracks_layer(
+    valid_poses_path_and_ds, loaded_data_loader
+):
+    """Test that the callback does not modify a layer's properties
+    when the data change occurs on a non-Points layer.
+
+    Verifies that `DataLoader._on_points_data_changed` returns early
+    without modifying confidence when `event.source` is not a
+    `napari.layers.Points` instance.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+
+    # Get tracks layer data and confidence
+    tracks_layer = next(
+        layer for layer in loader.viewer.layers if isinstance(layer, Tracks)
+    )
+    original_tracks_confidence = tracks_layer.properties["confidence"].copy()
+
+    # Mock a change in the tracks layer;
+    # assumes index 0's confidence is non-NaN in the fixture;
+    # this is true for valid_poses_path_and_ds which has all
+    # confidence values non-nan
+    mock_event = Mock()
+    mock_event.source = tracks_layer
+    mock_event.action = ActionType.CHANGED
+    mock_event.data_indices = (0,)
+
+    loader._on_points_data_changed(mock_event)
+
+    # Check tracks layer properties are unchanged
+    np.testing.assert_array_equal(
+        tracks_layer.properties["confidence"],
+        original_tracks_confidence,
+    )
+
+
+@pytest.mark.parametrize(
+    "action_type",
+    [
+        ActionType.ADDED,
+        ActionType.REMOVED,
+        ActionType.ADDING,
+        ActionType.REMOVING,
+        ActionType.CHANGING,
+    ],
+)
+def test_on_points_data_changed_ignores_non_move_events(
+    action_type, valid_poses_path_and_ds, loaded_data_loader
+):
+    """Test that the callback leaves confidence untouched for non-drag events.
+
+    Verifies that :meth:`DataLoader._on_points_data_changed` only acts on
+    ``ActionType.CHANGED`` (completed drag) and ignores all other action types,
+    including ``ADDING``, ``ADDED``, ``REMOVING``, ``REMOVED``, and
+    ``CHANGING`` (in-progress drag).
+    """
+    filepath, ds_loaded = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_loaded)
+
+    original_confidence = loader.points_layer.features["confidence"].copy()
+
+    mock_event = Mock()
+    mock_event.source = loader.points_layer
+    mock_event.action = action_type
+    mock_event.data_indices = (0,)
+
+    loader._on_points_data_changed(mock_event)
+
+    pd.testing.assert_series_equal(
+        loader.points_layer.features["confidence"],
+        original_confidence,
+    )

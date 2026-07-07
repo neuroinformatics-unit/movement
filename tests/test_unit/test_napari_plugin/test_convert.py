@@ -1,9 +1,12 @@
 """Test suite for the movement.napari.convert module."""
 
+from unittest.mock import Mock
+
 import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
+from napari.layers.base import ActionType
 from pandas.testing import assert_frame_equal
 
 from movement.napari.convert import ds_to_napari_layers, napari_layers_to_ds
@@ -268,6 +271,24 @@ def test_invalid_poses_to_napari_layers(ds_name, expected_exception, request):
 # -------------------- Valid napari layers test --------------------
 
 
+def _nan_confidence_at_nan_pos(ds):
+    """Return the dataset expected after a napari layer round-trip.
+
+    Points with a NaN position are hidden in napari, so their confidence
+    cannot be preserved — the reconstructed dataset has NaN confidence for
+    those points.
+    """
+    position_is_nan = ds["position"].isnull().all("space")
+    expected_ds = ds.copy(deep=True)
+    expected_ds["confidence"] = xr.where(
+        position_is_nan,
+        np.nan,
+        expected_ds["confidence"],
+    )
+
+    return expected_ds
+
+
 @pytest.mark.parametrize(
     "ds_dataset",
     [
@@ -302,7 +323,10 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
         napari_points, properties, properties_with_nan, attrs=ds.attrs
     )
 
-    xr.testing.assert_equal(reconstructed_ds, ds)
+    xr.testing.assert_equal(
+        reconstructed_ds,
+        _nan_confidence_at_nan_pos(ds),
+    )
 
 
 @pytest.mark.parametrize(
@@ -335,25 +359,24 @@ def test_napari_layers_to_ds(
 ):
     # Get sample data filepath and dataset
     if nan_location is None:
-        filepath, ds_expected = valid_poses_path_and_ds
+        filepath, ds_loaded = valid_poses_path_and_ds
     else:
-        filepath, ds_expected = valid_poses_path_and_ds_with_localised_nans(
+        filepath, ds_loaded = valid_poses_path_and_ds_with_localised_nans(
             nan_location
         )
 
     # Get loader widget with sample data loaded
-    loader = loaded_data_loader(filepath, ds_expected)
+    loader = loaded_data_loader(filepath, ds_loaded)
 
     # Convert data in napari point layer to a movement dataset
     ds = napari_layers_to_ds(
         points_as_napari=loader.points_layer.data,
         properties=loader.points_layer.properties,  # dict
         properties_with_nans=loader.properties,
-        attrs=ds_expected.attrs,
+        attrs=ds_loaded.attrs,
     )
 
-    # Assert that the input dataset and the converted one are equal
-    xr.testing.assert_equal(ds, ds_expected)
+    xr.testing.assert_equal(ds, _nan_confidence_at_nan_pos(ds_loaded))
 
 
 def test_napari_layers_to_ds_bboxes_not_implemented():
@@ -367,3 +390,100 @@ def test_napari_layers_to_ds_bboxes_not_implemented():
             properties={"individual": np.array([])},
             properties_with_nans=pd.DataFrame(),
         )
+
+
+@pytest.mark.parametrize(
+    "nan_location",
+    [
+        None,
+        {
+            "time": "start",
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
+        },
+        {
+            "time": "end",
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
+        },
+        {
+            "time": "middle",
+            "individual": ["id_0"],
+            "keypoint": ["centroid"],
+        },
+    ],
+)
+def test_edited_pose_napari_layers(
+    nan_location,
+    valid_poses_path_and_ds,
+    valid_poses_path_and_ds_with_localised_nans,
+    loaded_data_loader,
+):
+    """Test that :func:`napari_layers_to_ds` correctly converts edited layers,
+    and sets the new confidence value to ``NaN`` after the edit.
+
+    Simulates a user dragging the ``centroid`` of ``id_0`` at frame 2 to new
+    ``x``, ``y`` coordinates. Verifies that :func:`napari_layers_to_ds`
+    reconstructs a dataset where the edited point has the new position and
+    ``NaN`` confidence.
+    """
+    if nan_location is None:
+        filepath, ds_loaded = valid_poses_path_and_ds
+    else:
+        filepath, ds_loaded = valid_poses_path_and_ds_with_localised_nans(
+            nan_location
+        )
+    loader = loaded_data_loader(filepath, ds_loaded)
+
+    frame = 2  # safe: not NaN in any parametrize case
+    keypoint = "centroid"
+    individual = "id_0"
+
+    # Find the integer index of the point to edit in the live points layer
+    live_props = loader.points_layer.properties
+    edit_idx = int(
+        np.flatnonzero(
+            (live_props["time"] == frame)
+            & (live_props["keypoint"] == keypoint)
+            & (live_props["individual"] == individual)
+        )[0]
+    )
+
+    loader.points_layer.data[edit_idx, 1] = 100  # y
+    loader.points_layer.data[edit_idx, 2] = 200  # x
+
+    # Direct mutation does not fire napari events, so we call the callback
+    # manually below with the correct index to replicate what napari does.
+    mock_event = Mock()
+    mock_event.source = loader.points_layer
+    mock_event.action = ActionType.CHANGED
+    mock_event.data_indices = (edit_idx,)
+    loader._on_points_data_changed(mock_event)
+
+    ds = napari_layers_to_ds(
+        points_as_napari=loader.points_layer.data,
+        properties=loader.points_layer.properties,
+        properties_with_nans=loader.properties,
+        attrs=ds_loaded.attrs,
+    )
+
+    # after loading in napari and exporting:
+    # confidence is nan where position is nan
+    expected_ds = _nan_confidence_at_nan_pos(ds_loaded)
+    # edited point values
+    expected_ds.position.loc[
+        {
+            "time": frame,
+            "space": ["x", "y"],
+            "keypoint": keypoint,
+            "individual": individual,
+        }
+    ] = [200, 100]
+    expected_ds["confidence"].loc[
+        {
+            "time": frame,
+            "keypoint": keypoint,
+            "individual": individual,
+        }
+    ] = np.nan
+    xr.testing.assert_equal(ds, expected_ds)
