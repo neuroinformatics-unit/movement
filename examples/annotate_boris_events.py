@@ -1,29 +1,49 @@
 """Annotate and load events with BORIS
 ======================================
 
-Manually annotate gait phase events in BORIS and load them into a
-``movement`` dataset as per-frame labels for data selection and visualisation.
+Manually annotate events in BORIS and load them into a
+``movement`` dataset as per-frame labels.
 """
+
+# %%
+# .. admonition:: Acknowledgements
+#   :class: acknowledgements
+#
+#   This example was originally contributed by `Holly Morley
+#   <https://github.com/HollyMorley>`_—a PhD student at the
+#   `Sainsbury Wellcome Centre <https://www.sainsburywellcome.org/>`_
+#   studying sensory-guided predictive movements in mice—and uses
+#   data she collected for her PhD project.
+
 # %%
 # Overview
 # --------
-# This example demonstrates how to label gait phase events using
+# This example demonstrates how to label events using
 # `BORIS (Behavioural Observation Research Interactive Software)
 # <https://www.boris.unito.it/>`_ and load them into a
 # ``movement``-compatible format for downstream analysis.
 #
-# Gait phase - whether each limb is in stance (in contact with the
+# Specifically, we will be annotating gait phases in this example. Gait
+# phase describes whether each limb is in stance (in contact with the
 # ground), swing (in the air), or unknown (e.g. when the limb is off-screen
-# or occluded) - is an example of a case where we want to annotate events that
-# are perhaps not easily defined by a simple threshold on a single variable,
-# but rather require visual inspection of the video data. Such manual
-# annotations can be used directly for analysis in small datasets,
-# or as training data for supervised learning models.
+# or occluded). Like many events of interest, gait phase can be hard to
+# detect reliably from the pose tracking data using simple thresholds
+# alone, so here we label it by eye from the video. These manual
+# annotations can then be used directly for analysis, or used
+# as training data for supervised behavioural classification models,
+# which can scale the analysis to larger datasets.
 #
-# In this example, we will use the ``DLC_single-mouse_DBTravelator_3D``
+# We will use the ``DLC_single-mouse_DBTravelator_3D``
 # dataset. This contains 3D pose estimates of the limbs and body of a
 # single mouse locomoting on a dual-belt travelator, transitioning from one
 # belt onto a second faster belt.
+#
+# .. note::
+#
+#   While this example focuses on gait phases, the workflow it
+#   demonstrates—annotating events in BORIS and integrating them into
+#   ``movement``—generalises to any project that combines events
+#   of interest (behavioural or otherwise) with tracking data.
 
 # %%
 # Imports
@@ -64,23 +84,19 @@ video_path = pooch.retrieve(
 )
 
 # %%
-# The video will be saved to your local movement cache directory and the path
-# stored in ``video_path``, e.g.:
+# We saved the video to our local ``movement`` cache directory here,
+# but feel free to modify the ``path`` in the ``pooch.retrieve`` call.
 #
-# .. code::
-#
-#    C:/Users/<username>/.movement/data/videos/
-#    single-mouse_DBTravelator_video.avi
-#
-# Make a note of this path as you will need it to open the video in BORIS.
+# Either way, make a note of this path as you will need it to open the video
+# in BORIS.
 
 # %%
 # Annotate gait phase events in BORIS
 # -----------------------------------
 # The following steps describe how to annotate gait phase events for four
 # limbs in the downloaded video, producing labels that we will later load
-# into the associated dataset ``ds``. For a more complete guide, refer to
-# the `BORIS user guide <https://www.boris.unito.it/user_guide/>`_.
+# into the associated dataset ``ds``. For a more complete guide, please refer
+# to the `BORIS user guide <https://www.boris.unito.it/user_guide/>`_.
 #
 # **Step 1: Install BORIS**
 #
@@ -108,16 +124,17 @@ video_path = pooch.retrieve(
 # Navigate to the **Ethogram** tab. An ethogram is a catalogue of all
 # events (or behaviours) to be annotated, where each event is assigned a
 # keyboard shortcut for fast labelling. Here, each event represents a gait
-# phase state for a single limb, e.g. left forepaw stance.  For each
-# combination of limb (``FL``, ``FR``, ``HL``, ``HR``) and phase (
+# phase state for a single limb, e.g. the front-left paw in stance. The four
+# limbs are the front-left (``FL``), front-right (``FR``), hind-left (``HL``),
+# and hind-right (``HR``) paws. For each combination of limb and phase (
 # ``stance``, ``swing``, ``unknown``), add a new behaviour:
 #
 # 1. Click **Behaviour > Add new behaviour**.
-# 2. Under **Behaviour type**, select **State event** - a state event has a
+# 2. Under **Behaviour type**, select **State event**—a state event has a
 #    duration, defined by a start and end time, as opposed to a point event
 #    which is instantaneous.
-# 3. Assign a unique **Key**, e.g. ``q`` for ``FL_stance``.
-# 4. Set the **Code**, e.g. ``FL_stance``.
+# 3. Set the **Code**, e.g. ``FL_stance`` for front-left paw in stance.
+# 4. Assign a unique **Key**, e.g. ``q`` for ``FL_stance``.
 # 5. Repeat until all 12 behaviours (4 limbs × 3 phases) are defined.
 #
 # .. image:: /_static/events_ethogram.png
@@ -128,69 +145,111 @@ video_path = pooch.retrieve(
 #    Open the **Exclusion matrix** and tick all mutually exclusive pairs
 #    (e.g. ``FL_stance`` with ``FL_swing``). With this configured, starting
 #    a new state within a limb will automatically close the previous state for
-#    the same limb.
+#    the same limb. Click **OK**.
 #
 # .. image:: /_static/events_exclusions.png
 #    :width: 600
+#
+# 7. Now you have configured your project, click **OK** to close the project
+#    creation pop-up. You can always edit your project at a later stage via
+#    **Project > Edit project**. Before we move on to annotating our video,
+#    make sure to save the configured project via **Project > Save project**
+#    or **Ctrl + S**.
 #
 # **Step 4: Start an observation**
 #
 # Create a new observation via **Observations > New observation**:
 #
-# - Set an **Observation ID**, e.g. ``individual_0``.
+# - Set an **Observation ID**, e.g. ``0001``.
 # - Tick **Observation from media file(s)**.
 # - Click **Add media > with absolute path** and navigate to the
 #   video file downloaded above at ``video_path``.
-#
 # - Click **Start**.
 #
 # **Step 5: Annotate events**
 #
-# - Use the ``←`` and ``→`` arrow keys or the upper panel buttons to step
-#   through the video frame-by-frame.
-# - Press the specified keyboard shortcut for a behaviour to mark its start
-#   at the current frame.
-# - Once the full video is annotated, close any remaining open state events
-#   (i.e. the final behaviour for each limb, which has no subsequent behaviour
-#   to trigger an automatic stop) via **Observations > Fix unpaired events**.
-#   When prompted, enter a time near the end of the video. Note: BORIS staggers
-#   each closing event by +1 ms to ensure unique timestamps, so choosing a
-#   time too close to the end may place some events beyond the video duration.
-#   For this video (total duration: 1.692 s; limbs: 4), we use 1.688 s,
-#   giving closing events at 1.688, 1.689, 1.690, and 1.691 s.
-# - BORIS sets frame indexes to NA for automatically generated stop events when
-#   they do not correspond to a frame boundary. Run **Observations > Add
-#   frame indexes** before exporting to populate these.
-#
 # .. image:: /_static/events_observation.png
 #    :width: 600
+#
+# - Use the ``←`` and ``→`` arrow keys or the upper panel buttons to step
+#   through the video frame-by-frame.
+# - The on-screen ethogram lists each event's keyboard shortcut.
+#   As each event occurs across the video, press its assigned keyboard
+#   shortcut (e.g. ``q`` for the front-left paw in stance) at the frame where
+#   it begins. This **opens** the state event, recording its start.
+#
+# Every open state event must also be **closed**. There are two ways to do
+# this in BORIS:
+#
+# - **Implicit closing**: an open event is automatically closed when you
+#   start another event that is mutually exclusive with it, as defined by the
+#   exclusion matrix. For example, because we set the front-left paw's
+#   phases as mutually exclusive, pressing the shortcut for its swing phase
+#   while ``FL_stance`` is open closes ``FL_stance`` and opens ``FL_swing``
+#   in one action.
+#   N.B. BORIS places this stop just before the frame where the new event
+#   begins (at ``next_event_start - 0.001 s``), so it falls between frames and
+#   its frame index is left empty (NA).
+# - **Explicit closing**: an open event is closed manually by pressing its
+#   own shortcut again, which stops it at the current frame (with the frame
+#   index filled in).
+#
+# In this example, each limb is always in one of its phases (stance, swing,
+# or unknown), with one beginning as the last ends, so we can use implicit
+# closing to annotate almost the entire video. The only exception
+# is the final phase of each limb, which has no following event to close it:
+#
+# - At the **last frame** of the video, press the shortcut of each still-open
+#   event again to close it **explicitly**.
+#
+# Because the implicit stops fall between frames, run **Observations > Add
+# frame indexes** before exporting to populate their empty frame indexes.
+#
+# .. note::
+#
+#    If you were instead annotating isolated or non-contiguous state events
+#    (e.g. ``groom`` for occasional bouts of grooming behaviours), you would
+#    simply close every event explicitly. Note that in this case there is no
+#    need to run **Observations > Add frame indexes** as all frames are
+#    explicitly defined. Alternatively, if the events are instantaneous (
+#    e.g. ``lick`` to mark the occurrence of a single lick), you could
+#    define them as **point events** rather than state events (see **Step
+#    3**): point events have no start and stop time and are instead recorded
+#    at a single frame with a single keypress.
+#
+# - Make sure to save the project along with your new annotations via
+#   **Project > Save project** or **Ctrl + S**.
 #
 # **Step 6: Export the event data**
 #
 # Export the annotations via
-# **Observations > Export events > Aggregated events** and save as a CSV.
+# **Observations > Export events > Aggregated events** and save as a TSV
+# (the default here, though you can choose CSV if you prefer).
 
 # %%
 # Import BORIS event data into movement
 # -------------------------------------
-# We will now load the exported CSV file into a pandas DataFrame. If you
+# We will now load the exported TSV file into a pandas DataFrame. If you
 # have created your own annotations following
 # the steps above, replace ``gait_events_path`` with the path to your
-# exported CSV file, e.g.:
+# exported TSV file, e.g.:
 #
 # .. code-block:: python
 #
-#     gait_events_path = "/your/path/to/aggregated.csv"
+#     gait_events_path = "/your/path/to/aggregated.tsv"
 #
-# Load the event data from CSV into a pandas Dataframe using
-# :func:`pandas.read_csv`.
+# Load the event data from TSV into a pandas Dataframe using
+# :func:`pandas.read_csv`. We pass ``sep="\t"`` because a TSV file separates
+# columns with tabs rather than commas (drop it if you exported a CSV).
 
 # sphinx_gallery_start_ignore
 import pathlib  # noqa: E402
 import tempfile  # noqa: E402
 
-csv_data = """\
-Behavior,Start (s),Stop (s),Image index start,Image index stop
+tsv_data = "\n".join(
+    "\t".join(row.split(","))
+    for row in """\
+Behaviour,Start (s),Stop (s),Image index start,Image index stop
 FL_unknown,0.000,0.627,0,155
 HL_unknown,0.000,0.716,0,177
 FR_unknown,0.000,0.525,0,130
@@ -241,36 +300,31 @@ FL_stance,1.445,1.546,357,382
 HL_swing,1.453,1.546,359,382
 FR_swing,1.478,1.533,365,379
 FR_stance,1.534,1.542,379,381
-FR_unknown,1.543,1.689,381,417
+FR_unknown,1.543,1.688,381,417
 FL_swing,1.547,1.562,382,386
 HL_stance,1.547,1.614,382,399
 HR_swing,1.547,1.590,382,393
 FL_unknown,1.563,1.688,386,417
-HR_unknown,1.591,1.691,393,417
-HL_unknown,1.615,1.690,399,417
-"""
+HR_unknown,1.591,1.688,393,417
+HL_unknown,1.615,1.688,399,417\
+""".splitlines()
+)
 
-gait_events_path = pathlib.Path(tempfile.mkdtemp()) / "aggregated.csv"
-gait_events_path.write_text(csv_data)
+gait_events_path = pathlib.Path(tempfile.mkdtemp()) / "aggregated.tsv"
+gait_events_path.write_text(tsv_data)
 # sphinx_gallery_end_ignore
 
-df = pd.read_csv(gait_events_path)
+df = pd.read_csv(gait_events_path, sep="\t")
 
-print(
-    f"Key columns from the BORIS file:\n"
-    f"{
-        df.loc[
-            :5,
-            [
-                'Behavior',
-                'Start (s)',
-                'Stop (s)',
-                'Image index start',
-                'Image index stop',
-            ],
-        ]
-    }"
-)
+show_columns = [
+    "Behaviour",
+    "Start (s)",
+    "Stop (s)",
+    "Image index start",
+    "Image index stop",
+]
+print("Key columns from the BORIS file:")
+print(df[show_columns].head(10))
 
 # %%
 # Each row corresponds to a single annotated event, with columns for the
@@ -278,40 +332,68 @@ print(
 # frame indices.
 #
 # To attach these labels to ``ds`` as per-frame gait phase labels, we first
-# reformat the event data, parsing the behaviour codes into separate columns
-# for limb, state, and frame indices.
+# reformat the event data: we split each behaviour code into separate
+# ``limb`` and ``state`` columns, and copy across the corresponding start
+# and stop frame indices.
 
 limbs = ["FL", "FR", "HL", "HR"]
 
 events = (
-    df["Behavior"]
+    df["Behaviour"]
     .str.split("_", expand=True)
     .rename(columns={0: "limb", 1: "state"})
 )
 events["start_frame"] = df["Image index start"]
 events["stop_frame"] = df["Image index stop"]
 
-# Increment the final stop frame per limb by 1 so the last frame is included
-events.loc[events.groupby("limb")["stop_frame"].idxmax(), "stop_frame"] += 1
+print(f"Parsed events:\n{events.head(10)}")
 
-print(f"Parsed events:\n{events.head()}")
+# %%
+# Note that consecutive events for the same limb share a boundary frame in
+# the BORIS export (e.g. ``FR_stance`` ends at frame 155 and ``FR_swing``
+# starts at frame 155). We will therefore treat each event as a half-open
+# interval ``[start_frame, stop_frame]``, which naturally assigns each
+# shared frame to the next event and avoids double-counting.
+# The final event per limb has no successor, so we extend its ``stop_frame``
+# by 1 to make sure its actual last frame is still included.
+
+events.loc[events.groupby("limb")["stop_frame"].idxmax(), "stop_frame"] += 1
 
 # %%
 # Each row in ``events`` defines a phase label over a range of frames rather
 # than for a single frame. We therefore expand this into a per-frame
 # representation, initialising a 2-D array of shape ``(n_frames, n_limbs)``
 # with ``NaN`` and filling each interval with the corresponding phase label.
+# The ``NaN`` initial values act as a fallback for any frames not covered
+# by an annotated event. Every frame is covered in this example but this
+# keeps the approach robust to partial annotations in other cases.
 
 phase_data = np.full((ds.time.size, len(limbs)), np.nan, dtype=object)
 
 for limb_idx, limb in enumerate(limbs):
     limb_events = events[events["limb"] == limb]
-    lengths = (limb_events["stop_frame"] - limb_events["start_frame"]).values
-    states = limb_events["state"].values
 
-    phase_data[:, limb_idx] = np.repeat(states, lengths)
+    for _, ev in limb_events.iterrows():
+        start, stop = ev["start_frame"], ev["stop_frame"]
+        phase_data[start:stop, limb_idx] = ev["state"]
 
-print(f"10 sample frames from `phase_data`:\n{phase_data[210:220]}")
+print(
+    f"10 sample frames from phase_data (shape: n_frames, n_limbs):\n"
+    f"{phase_data[210:220]}"
+)
+
+# %%
+# .. note::
+#
+#    You may recall from Step 5 that BORIS subtracts 1 ms from the stop time
+#    of each implicitly closed event. For video frame rates below ~500 fps,
+#    this small difference is rounded out when the empty frame indices are
+#    filled in (via **Observations > Add frame indexes**), so consecutive
+#    events stay contiguous. At higher frame rates it may instead leave an
+#    unlabelled one-frame gap (here a ``NaN``) between events that should be
+#    back-to-back.
+#    This does not affect our approach here, which is robust to ``NaN`` gaps,
+#    but is worth being aware of.
 
 # %%
 # Before attaching the labels, let's inspect ``ds``.
@@ -319,19 +401,25 @@ print(f"10 sample frames from `phase_data`:\n{phase_data[210:220]}")
 print(ds)
 
 # %%
-# The dataset currently has four dimension coordinates - ``time``,
-# ``space``, ``keypoints``, and ``individuals`` - but no information about
-# gait phase.
+# The dataset currently has four dimension coordinates—``time``,
+# ``space``, ``keypoint``, and ``individual``—but no information about
+# gait phase. See :ref:`target-dataset-structure` for a refresher on the
+# structure of a ``movement`` dataset.
 
 # %%
-# In xarray, additional per-timepoint information can be attached alongside
-# the dimension coordinates as `non-dimension coordinates
-# <https://docs.xarray.dev/en/stable/user-guide/data-structures.html
-# #coordinates>`_. We use :meth:`xarray.Dataset.assign_coords` to attach
-# the per-frame gait phase labels as non-dimension coordinates on the
-# ``time`` dimension, one per limb, following the naming convention
-# ``gait_<limb>``. These non-dimension coordinates can be thought of as
-# metadata associated with each point along the ``time`` dimension.
+# We want to attach the gait phase labels along the existing ``time``
+# dimension. So far, ``time`` has only one set of labels along it—the
+# seconds of each frame—which shares the dimension's name and is therefore
+# called a "dimension coordinate" (these are the entries marked with a ``*``
+# in the printout above). xarray also lets us attach additional sets of
+# labels along the same dimension under different names; these are called
+# `non-dimension coordinates <https://docs.xarray.dev/en/stable/user-guide
+# /data-structures.html#coordinates>`_.
+#
+# We use :meth:`xarray.Dataset.assign_coords` to attach one non-dimension
+# coordinate per limb on the ``time`` dimension, named ``gait_<limb>``,
+# holding the per-frame gait phase label for that limb. This will allow us
+# to select data by gait phase in the next section.
 
 for limb_idx, limb in enumerate(limbs):
     ds = ds.assign_coords({f"gait_{limb}": ("time", phase_data[:, limb_idx])})
@@ -339,18 +427,25 @@ for limb_idx, limb in enumerate(limbs):
 print(ds)
 
 # %%
-# We now have four new coordinates on the ``time`` dimension - one per limb
-# - each containing the gait phase label for every frame.
+# We now have four new coordinates on the ``time`` dimension, appearing
+# without a ``*``.
 
 # %%
 # Select data by gait phase
 # -------------------------
 # With the gait phase coordinates in place, we can now select subsets of
-# ``ds`` by gait using :meth:`~xarray.DataArray.sel`. For example, to select
-# all timepoints where the front-right paw is in stance:
+# ``ds`` by gait phase. Comparing a ``gait_<limb>`` coordinate against a
+# phase label produces a **boolean mask** that is ``True`` for matching frames
+# and ``False`` elsewhere. Passing this mask to
+# :meth:`~xarray.DataArray.sel` keeps only the matching timepoints. For
+# example, to select all timepoints where the front-right paw is in stance:
 
-ds_fr_stance = ds.position.sel(time=ds.gait_FR == "stance")
+mask = ds.gait_FR == "stance"
+ds_fr_stance = ds.position.sel(time=mask)
 print(ds_fr_stance)
+
+# %%
+# Notice the size of the ``time`` dimension is now reduced to 137 data points.
 
 # %%
 # As a sanity check, we can now visualise the z-position (height) of the
@@ -366,7 +461,7 @@ ds["position"] = filter_by_confidence(
 )
 
 # Select the z-position of the right forepaw toe
-fr_z = ds.position.sel(keypoints="ForepawToeR", space="z")
+fr_z = ds.position.sel(keypoint="ForepawToeR", space="z")
 
 # Select frames by gait phase using the gait_FR coordinate
 fr_swing = fr_z.sel(time=ds.gait_FR == "swing")
@@ -384,9 +479,9 @@ plt.show()
 # %%
 # Indeed, we see a clear separation between swing and stance phases,
 # with the paw elevated during swing and near the belt surface during stance.
-# Note, that the position of the toe at the end of stance phase can be greater
-# in z than time points in swing phase, possibly reflecting subtle tracking
-# inconsistencies when the foot is in different positions. This illustrates
+# Note, however, that the toe's z-value at the end of some stance phases can
+# exceed that of some swing frames—likely reflecting subtle tracking
+# inconsistencies that depend on the paw's pose. This illustrates
 # why a simple threshold-based approach may not always be sufficient for
 # tasks like gait phase detection.
 
@@ -422,46 +517,43 @@ print(all_stance)
 fig, ax = plt.subplots(figsize=(10, 3))
 
 limbs_ordered = ["HL", "FL", "FR", "HR"]
-diagonal_colors = {
-    "FL": "steelblue",
-    "HR": "steelblue",
-    "FR": "tomato",
-    "HL": "tomato",
-}
 
 fl_hr_stance = (ds["gait_FL"] == "stance") & (ds["gait_HR"] == "stance")
 fr_hl_stance = (ds["gait_FR"] == "stance") & (ds["gait_HL"] == "stance")
 
 frame_duration = 1 / ds.fps
-time_vals = ds.time.values
 
 for i, limb in enumerate(limbs_ordered):
-    # Pick a diagonal pair mask
-    diagonal_mask = fl_hr_stance if limb in {"FL", "HR"} else fr_hl_stance
+    # Pick a diagonal pair mask and colour for this limb
+    if limb in {"FL", "HR"}:
+        diagonal_mask, diagonal_color = fl_hr_stance, "steelblue"
+    else:
+        diagonal_mask, diagonal_color = fr_hl_stance, "tomato"
+
     # Find the single limb stance phase frames
     stance_mask = ds[f"gait_{limb}"] == "stance"
 
-    # Frames where diagonal partner is also in stance
-    for t in ds.time.sel(time=stance_mask & diagonal_mask).values:
-        ax.barh(
-            i,
-            frame_duration,
-            left=t,
-            height=0.9,
-            color=diagonal_colors[limb],
-            edgecolor="none",
-        )
+    # Frames where the diagonal partner is also in stance
+    diag_times = ds.time.sel(time=stance_mask & diagonal_mask).values
+    ax.barh(
+        i,
+        frame_duration,
+        left=diag_times,
+        height=0.9,
+        color=diagonal_color,
+        edgecolor="none",
+    )
 
     # Remaining stance frames
-    for t in ds.time.sel(time=stance_mask & ~diagonal_mask).values:
-        ax.barh(
-            i,
-            frame_duration,
-            left=t,
-            height=0.9,
-            color="lightgrey",
-            edgecolor="none",
-        )
+    solo_times = ds.time.sel(time=stance_mask & ~diagonal_mask).values
+    ax.barh(
+        i,
+        frame_duration,
+        left=solo_times,
+        height=0.9,
+        color="lightgrey",
+        edgecolor="none",
+    )
 
 ax.set_yticks(range(len(limbs_ordered)))
 ax.set_yticklabels(limbs_ordered)
@@ -481,7 +573,7 @@ plt.show()
 # sphinx_gallery_thumbnail_number = 2
 
 # %%
-# As expected, stance phases largely overlap within diagonal pairs - when
+# As expected, stance phases largely overlap within diagonal pairs—when
 # the front-left limb is in stance, the hind-right limb tends to be too,
 # and vice versa for front-right and hind-left, confirming that the mouse is
 # locomoting with a trotting gait.
@@ -549,14 +641,13 @@ stance_blocks = find_phase_blocks(gait_coord, "stance")
 swing_blocks = find_phase_blocks(gait_coord, "swing")
 
 stride_data = np.full(ds.time.size, np.nan)
+swing_lookup = dict(swing_blocks)  # {start_frame: end_frame}
 stride_idx = 0
 for stance_start, stance_end in stance_blocks:
-    # Find the swing block that starts immediately after this stance block
-    following_swings = [(s, e) for s, e in swing_blocks if s == stance_end]
-    if following_swings:
-        # Label all frames from stance onset to swing offset with the stride
-        # index
-        swing_start, swing_end = np.squeeze(following_swings)
+    # If a swing block starts immediately after this stance block, label all
+    # frames from stance onset to swing offset with the stride index
+    if stance_end in swing_lookup:
+        swing_end = swing_lookup[stance_end]
         stride_data[stance_start:swing_end] = stride_idx
         stride_idx += 1
 
@@ -566,47 +657,50 @@ ds = ds.assign_coords(stride_FR=("time", stride_data))
 print(ds.isel(time=np.arange(150, 350)))
 
 # %%
+# We now have a new non-dimension coordinate on ``time`` called
+# ``stride_FR``, containing the stride index each frame belongs to (0, 1, 2,
+# ...).
+
+# %%
 # We can now select data by stride index in the same way as with gait phase.
 # To visualise the segmentation, we plot the z-position of the front-right limb
-# for each stride as a separate coloured line, with stance and swing
-# phases shown by shaded boxes. Dashed vertical lines mark the boundaries
+# for each stride as a separate coloured line, with swing
+# phase shown by shaded boxes. Dashed vertical lines mark the boundaries
 # between consecutive strides.
 
-# Plot with stance and swing phases highlighted
-fr = ds.position.sel(keypoints="ForepawToeR", space="z")
+fr = ds.position.sel(keypoint="ForepawToeR", space="z")
 
 fig, ax = plt.subplots(figsize=(8, 3))
 
 n_strides = int(np.nanmax(fr.stride_FR.values)) + 1
+
 # Plot each stride trajectory
 for i in range(n_strides):
     stride = fr.sel(time=fr.stride_FR == i)
     ax.plot(stride.time, stride.values.squeeze(), linewidth=1.5, zorder=100)
     ax.scatter(stride.time, stride.values.squeeze(), s=8, zorder=100)
 
-# Plot shaded boxes for stance and swing phases, and vertical lines at
-# stride boundaries
-for phase, color in [("stance", "white"), ("swing", "lightgrey")]:
-    blocks = find_phase_blocks(fr["gait_FR"].values, phase)
-    for j, (s, e) in enumerate(blocks):
-        # Plot shaded box for this phase block
-        ax.axvspan(
-            fr.time.values[s],
-            fr.time.values[e - 1],
-            alpha=0.4,
-            zorder=1,
-            color=color,
-            label=phase if j == 0 else None,
-        )
-        # plot boundary line between consecutive strides
-        if phase == "swing":
-            ax.axvline(
-                fr.time.values[e - 1],
-                color="grey",
-                linestyle="--",
-                alpha=0.5,
-                zorder=200,
-            )
+# Shade swing phases (reusing swing_blocks computed above)
+for j, (swing_start, swing_end) in enumerate(swing_blocks):
+    ax.axvspan(
+        fr.time.values[swing_start],
+        fr.time.values[swing_end - 1],
+        alpha=0.4,
+        zorder=1,
+        color="lightgrey",
+        label="swing" if j == 0 else None,
+    )
+
+# Draw stride boundary lines using the new stride_FR coordinate
+for i in range(n_strides):
+    stride_end = fr.sel(time=fr.stride_FR == i).time.values[-1]
+    ax.axvline(
+        stride_end,
+        color="grey",
+        linestyle="--",
+        alpha=0.5,
+        zorder=200,
+    )
 
 ax.set_xlabel("Time (s)")
 ax.set_ylabel("Z position (mm)")
@@ -625,15 +719,13 @@ for i in range(n_strides):
     stride = fr.sel(time=fr.stride_FR == i).values.squeeze()
     strides.append(stride)
 
-# Align by last frame of each stride
-last_indices = [len(s) - 1 for s in strides]
-max_stride_len = max(last_indices)
-stride_array = np.full((n_strides, max_stride_len + 1), np.nan)
-for i, (s, last) in enumerate(zip(strides, last_indices, strict=True)):
-    start = max_stride_len - last
-    stride_array[i, start : start + len(s)] = s
+# Right-align each stride into a fixed-width array, padding the start with NaN
+max_len = max(len(s) for s in strides)
+stride_array = np.full((n_strides, max_len), np.nan)
+for i, s in enumerate(strides):
+    stride_array[i, max_len - len(s) :] = s
 
-frame_indices = np.arange(stride_array.shape[1]) - max_stride_len
+frame_indices = np.arange(max_len) - (max_len - 1)
 mean_stride = np.nanmean(stride_array, axis=0)
 
 fig, ax = plt.subplots(figsize=(4, 3))
