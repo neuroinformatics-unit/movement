@@ -9,6 +9,7 @@ import xarray as xr
 from napari.layers.base import ActionType
 from pandas.testing import assert_frame_equal
 
+from movement.io import save_poses
 from movement.napari.convert import ds_to_napari_layers, napari_layers_to_ds
 
 
@@ -386,9 +387,9 @@ def test_napari_layers_to_ds_bboxes_not_implemented():
         match="Reconstruction of bounding box datasets",
     ):
         napari_layers_to_ds(
-            points_as_napari=np.empty((0, 3)),
-            properties={"individual": np.array([])},
-            properties_with_nans=pd.DataFrame(),
+            points_as_napari=np.empty((1, 3)),
+            properties={"individual": np.array(["id_0"])},
+            properties_with_nans=pd.DataFrame({"individual": ["id_0"]}),
         )
 
 
@@ -489,77 +490,132 @@ def test_edited_pose_napari_layers(
     xr.testing.assert_equal(ds, expected_ds)
 
 
+def _target_points_to_remove(target, ds):
+    """Define target points to remove into a concrete coordinate value.
+
+    ``target`` is a dict with keys ``"time"``, ``"individual"`` and
+    ``"keypoint"``, each mapping to either an explicit list of
+    coordinate values to target; or the string ``"all"`` as shorthand
+    for every value along this axis. This function replaces any
+    ``"all"`` entries with the dataset's actual coordinate values (e.g.
+    ``ds.coords["individual"].values``), so that the returned dict can
+    be used directly to build a removal mask (see :func:`_remove_points`)
+    or an xarray ``.loc`` selection.
+
+    Parameters
+    ----------
+    target : dict
+        Removal target with keys ``"time"``, ``"individual"``,
+        ``"keypoint"``; each value is either a list of coordinate
+        values or ``"all"``.
+    ds : xarray.Dataset
+        Dataset to resolve ``"all"`` against, providing the full set
+        of ``time``/``individual``/``keypoint`` coordinate values.
+
+    Returns
+    -------
+    dict
+        Same keys as ``target``, with every ``"all"`` entry replaced
+        by the corresponding coordinate values from ``ds``.
+
+    Examples
+    --------
+    For a dataset with individuals ``["id_0", "id_1"]``, keypoints
+    ``["centroid", "left", "right"]`` and 10 frames (``0`` to ``9``),
+    targeting individual ``"id_0"`` for every keypoint and frame:
+
+    >>> target = {"time": "all", "individual": ["id_0"], "keypoint": "all"}
+    >>> _target_points_to_remove(target, ds)  # doctest: +SKIP
+    {
+        "time": array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
+        "individual": ["id_0"],
+        "keypoint": array(["centroid", "left", "right"]),
+    }
+
+    """
+    return {
+        key: (ds.coords[key].values if target[key] == "all" else target[key])
+        for key in ("time", "individual", "keypoint")
+    }
+
+
+def _remove_points(loader, target):
+    """Simulate napari deleting the targeted points from the live point layer.
+
+    In napari, deleting points removes the corresponding rows from both
+    the Points layer data and its properties.
+    This function selects every point whose ``time``, ``individual`` and
+    ``keypoint`` all match ``target``(as produced by
+    :func:`_target_points_to_remove`) and drops those rows from both
+    ``loader.points_layer.data`` and ``loader.points_layer.properties``,
+    returning the shrunk arrays.
+
+    Parameters
+    ----------
+    loader : movement.napari.loader_widgets.DataLoader
+        Loader widget with data already loaded, providing the live
+        ``points_layer.data`` and ``points_layer.properties`` to remove
+        points from.
+    target : dict
+        Removal target with keys ``"time"``, ``"individual"``,
+        ``"keypoint"``, each mapping to a list of coordinate values (as
+        returned by :func:`_target_points_to_remove`, with no remaining
+        ``"all"`` entries).
+
+    Returns
+    -------
+    points : numpy.ndarray
+        ``points_as_napari`` array, i.e. ``loader.points_layer.data``
+        with the targeted rows removed.
+    properties : dict
+        ``loader.points_layer.properties`` with the targeted rows
+        removed from every value array.
+
+    """
+    live_props = loader.points_layer.properties
+    remove_mask = (
+        np.isin(live_props["time"], target["time"])
+        & np.isin(live_props["individual"], target["individual"])
+        & np.isin(live_props["keypoint"], target["keypoint"])
+    )
+    keep_mask = ~remove_mask
+    points = loader.points_layer.data[keep_mask]
+    properties = {key: value[keep_mask] for key, value in live_props.items()}
+    return points, properties
+
+
 @pytest.mark.parametrize(
-    "nan_location",
+    "removal_selector",
     [
-        None,
-        {
-            "time": "start",
-            "individual": ["id_0", "id_1"],
-            "keypoint": ["centroid", "left", "right"],
-        },
-        {
-            "time": "end",
-            "individual": ["id_0", "id_1"],
-            "keypoint": ["centroid", "left", "right"],
-        },
-        {
-            "time": "middle",
-            "individual": ["id_0"],
-            "keypoint": ["centroid"],
-        },
+        {"time": "all", "individual": ["id_0"], "keypoint": ["centroid"]},
+        {"time": [3], "individual": "all", "keypoint": "all"},
+        {"time": [3, 4, 5], "individual": ["id_0"], "keypoint": "all"},
+        {"time": [3, 4, 5], "individual": "all", "keypoint": "all"},
+    ],
+    ids=[
+        "keypoint_removed_for_one_individual_all_frames",
+        "single_frame_removed_all_keypoints_all_individuals",
+        "frame_range_removed_one_individual_all_keypoints",
+        "frame_range_removed_all_individuals_all_keypoints",
     ],
 )
 def test_removed_pose_napari_layers(
-    nan_location,
+    removal_selector,
     valid_poses_path_and_ds,
-    valid_poses_path_and_ds_with_localised_nans,
     loaded_data_loader,
 ):
-    """Test that deleted napari points are restored as NaNs on conversion.
+    """Test removal of napari points across a keypoint, individual,
+    or frame range.
 
-    Simulates a user deleting the prediction for ``centroid`` of ``id_0``
-    at frame 2 from the napari Points layer. In napari, deleting a point
-    removes the corresponding row from both ``points_layer.data`` and
-    ``points_layer.properties``. Verifies that :func:`napari_layers_to_ds`
-    reconstructs a dataset where the deleted point has NaN x, y coordinates
-    and NaN confidence. The test is parametrized over datasets with and
-    without NaN position values to ensure robustness.
+    Simulates a user selecting and deleting many points at once in the
+    napari Points layer: every point for a keypoint (for one individual,
+    or for all of them), every point for an individual, or every point
+    for a range of frames (for one individual, or for all of them).
     """
-    if nan_location is None:
-        filepath, ds_expected = valid_poses_path_and_ds
-    else:
-        filepath, ds_expected = valid_poses_path_and_ds_with_localised_nans(
-            nan_location
-        )
+    filepath, ds_expected = valid_poses_path_and_ds
     loader = loaded_data_loader(filepath, ds_expected)
-
-    frame = 2  # safe: not NaN in any parametrize case
-    keypoint = "centroid"
-    individual = "id_0"
-
-    # In napari, deleting a point removes that row from both the Points
-    # layer data and its properties by index. Replicate that here.
-    mask = (
-        (loader.points_layer.properties["time"] == frame)
-        & (loader.points_layer.properties["keypoint"] == keypoint)
-        & (loader.points_layer.properties["individual"] == individual)
-    )
-    remove_idx = int(np.flatnonzero(mask)[0])
-    points = np.delete(
-        loader.points_layer.data, remove_idx, axis=0
-    )  # delete entire row
-    properties = {
-        key: np.delete(value, remove_idx)
-        for key, value in loader.points_layer.properties.items()
-    }
-
-    conf_mask = (
-        (loader.properties["time"] == frame)
-        & (loader.properties["keypoint"] == keypoint)
-        & (loader.properties["individual"] == individual)
-    )
-    loader.properties.loc[conf_mask, "confidence"] = np.nan
+    target = _target_points_to_remove(removal_selector, ds_expected)
+    points, properties = _remove_points(loader, target)
 
     ds = napari_layers_to_ds(
         points_as_napari=points,
@@ -568,23 +624,117 @@ def test_removed_pose_napari_layers(
         attrs=ds_expected.attrs,
     )
 
-    expected_ds = ds_expected.copy(deep=True)
-
+    # Removed points are restored as NaN; nothing is dropped from the
+    # dataset's time/keypoint/individual coordinates.
+    expected_ds = _nan_confidence_at_nan_pos(ds_expected)
     expected_ds.position.loc[
         {
-            "time": frame,
+            "time": target["time"],
             "space": ["x", "y"],
-            "keypoint": keypoint,
-            "individual": individual,
+            "keypoint": target["keypoint"],
+            "individual": target["individual"],
         }
-    ] = [np.nan, np.nan]
-
+    ] = np.nan
     expected_ds["confidence"].loc[
         {
-            "time": frame,
-            "keypoint": keypoint,
-            "individual": individual,
+            "time": target["time"],
+            "keypoint": target["keypoint"],
+            "individual": target["individual"],
         }
     ] = np.nan
 
     xr.testing.assert_equal(ds, expected_ds)
+
+
+@pytest.mark.parametrize(
+    "removal_selector, dropped_dim",
+    [
+        (
+            {"time": "all", "individual": "all", "keypoint": ["centroid"]},
+            "keypoint",
+        ),
+        (
+            {"time": "all", "individual": ["id_0"], "keypoint": "all"},
+            "individual",
+        ),
+    ],
+    ids=[
+        "keypoint_removed_for_all_individuals_all_frames",
+        "individual_removed_all_keypoints_all_frames",
+    ],
+)
+def test_removed_pose_napari_layers_drops_empty_coord(
+    removal_selector,
+    dropped_dim,
+    valid_poses_path_and_ds,
+    loaded_data_loader,
+):
+    """Test that a keypoint/individual with no data left anywhere is
+    dropped entirely from the reconstructed dataset.
+
+    Unlike a partial removal (some, but not all, individuals/frames for
+    a keypoint), removing a keypoint or individual entirely leaves it
+    with no data anywhere -- ``napari_layers_to_ds`` drops it from the
+    dataset rather than keeping it as an all-NaN coordinate.
+    """
+    filepath, ds_expected = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_expected)
+    target = _target_points_to_remove(removal_selector, ds_expected)
+    points, properties = _remove_points(loader, target)
+
+    ds = napari_layers_to_ds(
+        points_as_napari=points,
+        properties=properties,
+        properties_with_nans=loader.properties,
+        attrs=ds_expected.attrs,
+    )
+
+    removed_labels = target[dropped_dim]
+    remaining_labels = [
+        label
+        for label in ds_expected.coords[dropped_dim].values
+        if label not in removed_labels
+    ]
+    assert list(ds.coords[dropped_dim].values) == remaining_labels
+
+    expected_ds = ds_expected.sel({dropped_dim: remaining_labels})
+    xr.testing.assert_equal(ds, expected_ds)
+
+
+@pytest.mark.parametrize(
+    "valid_poses_dataset",
+    ["multi_individual_array", "single_individual_array"],
+    indirect=True,
+    ids=["two_individual_dataset", "single_individual_dataset"],
+)
+def test_removed_pose_napari_layers_empty_ds(
+    valid_poses_dataset,
+    tmp_path,
+    loaded_data_loader,
+):
+    """Test that removing every point in the dataset raises a ValueError.
+
+    Covers deleting all individuals (and therefore every point) from a
+    2-individual dataset, and deleting the only individual from a
+    1-individual dataset. Either way, nothing is left to reconstruct, so
+    :func:`napari_layers_to_ds` should raise rather than silently return
+    an empty dataset.
+    """
+    ds_expected = valid_poses_dataset
+    filepath = tmp_path / "ds.csv"
+    save_poses.to_dlc_file(ds_expected, filepath, split_individuals=False)
+    loader = loaded_data_loader(filepath, ds_expected)
+    target = _target_points_to_remove(
+        {"time": "all", "individual": "all", "keypoint": "all"}, ds_expected
+    )
+    points, properties = _remove_points(loader, target)
+
+    with pytest.raises(
+        ValueError, match="No points found in the napari layer"
+    ):
+        napari_layers_to_ds(
+            points_as_napari=points,
+            properties=properties,
+            properties_with_nans=loader.properties,
+            attrs=ds_expected.attrs,
+        )
