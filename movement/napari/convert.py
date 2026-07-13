@@ -227,11 +227,11 @@ def napari_layers_to_ds(
     This function reconstructs the full dataset by restoring missing points
     using the full coordinate structure from ``properties_with_nans``.
 
-    If all data is removed for a keypoint or individual (i.e. it is
-    NaN across every frame, individual/keypoint and space), it is
-    dropped entirely from the returned dataset rather than kept as an
-    all-NaN coordinate. This does not apply to ``time``: a frame with
-    no detections at all still remains in the timeline.
+    If a keypoint or individual has no remaining points in any frame,
+    it is dropped from the returned dataset rather than kept as an
+    all-NaN entry. The ``time`` dimension is never reduced in this
+    way: a frame from which every point has been removed is kept,
+    with NaN values for position and confidence.
 
     """
     properties_df = pd.DataFrame.from_dict(
@@ -308,11 +308,7 @@ def napari_layers_to_ds(
             },
             attrs=attrs if attrs is not None else {},
         )
-        # A keypoint/individual with all data removed (all NaN
-        # across every other dimension) is dropped entirely, rather
-        # than kept as an all-NaN coordinate. `time` is never dropped
-        # this way. A frame with no detections should still exist in
-        # the timeline.
+        # Drop keypoints/individuals with no data left; never `time`.
         ds = ds.dropna(dim="keypoint", how="all").dropna(
             dim="individual", how="all"
         )
