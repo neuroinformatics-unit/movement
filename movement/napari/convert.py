@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from movement.utils.logging import logger
+
 
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
     """Construct a properties DataFrame from a ``movement`` dataset."""
@@ -189,6 +191,9 @@ def napari_layers_to_ds(
 
     Raises
     ------
+    ValueError
+        If ``points_as_napari`` is empty, i.e. all points have been
+        removed from the dataset.
     NotImplementedError
         If the napari Points layer data does not represent a pose dataset.
 
@@ -223,6 +228,14 @@ def napari_layers_to_ds(
     using the full coordinate structure from ``properties_with_nans``
 
     """
+    if len(points_as_napari) == 0:
+        raise logger.error(
+            ValueError(
+                "No points found in the napari layer. "
+                "This happens when all points have been removed."
+            )
+        )
+
     properties_df = pd.DataFrame.from_dict(
         properties
     )  # live data without nans
