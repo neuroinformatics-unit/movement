@@ -225,7 +225,13 @@ def napari_layers_to_ds(
     reconstructing a dataset via :func:`napari_layers_to_ds`, the input arrays
     will have no NaN (i.e. missing) coordinates.
     This function reconstructs the full dataset by restoring missing points
-    using the full coordinate structure from ``properties_with_nans``
+    using the full coordinate structure from ``properties_with_nans``.
+
+    If all data is removed for a keypoint or individual (i.e. it is
+    NaN across every frame, individual/keypoint and space), it is
+    dropped entirely from the returned dataset rather than kept as an
+    all-NaN coordinate. This does not apply to ``time``: a frame with
+    no detections at all still remains in the timeline.
 
     """
     if len(points_as_napari) == 0:
@@ -297,7 +303,7 @@ def napari_layers_to_ds(
             )
         )
 
-        return xr.Dataset(
+        ds = xr.Dataset(
             data_vars={
                 "position": position_da,
                 "confidence": confidence_da,
@@ -309,6 +315,14 @@ def napari_layers_to_ds(
                 "individual": individual_coords,
             },
             attrs=attrs if attrs is not None else {},
+        )
+        # A keypoint/individual with all data removed (all NaN
+        # across every other dimension) is dropped entirely, rather
+        # than kept as an all-NaN coordinate. `time` is never dropped
+        # this way. A frame with no detections should still exist in
+        # the timeline.
+        return ds.dropna(dim="keypoint", how="all").dropna(
+            dim="individual", how="all"
         )
 
     raise NotImplementedError(
