@@ -192,8 +192,8 @@ def napari_layers_to_ds(
     Raises
     ------
     ValueError
-        If ``points_as_napari`` is empty, i.e. all points have been
-        removed from the dataset.
+        If no keypoint or individual has any data left, i.e. all
+        points have been removed from the dataset.
     NotImplementedError
         If the napari Points layer data does not represent a pose dataset.
 
@@ -234,14 +234,6 @@ def napari_layers_to_ds(
     no detections at all still remains in the timeline.
 
     """
-    if len(points_as_napari) == 0:
-        raise logger.error(
-            ValueError(
-                "No points found in the napari layer. "
-                "This happens when all points have been removed."
-            )
-        )
-
     properties_df = pd.DataFrame.from_dict(
         properties
     )  # live data without nans
@@ -321,9 +313,17 @@ def napari_layers_to_ds(
         # than kept as an all-NaN coordinate. `time` is never dropped
         # this way. A frame with no detections should still exist in
         # the timeline.
-        return ds.dropna(dim="keypoint", how="all").dropna(
+        ds = ds.dropna(dim="keypoint", how="all").dropna(
             dim="individual", how="all"
         )
+        if ds.sizes["keypoint"] == 0 or ds.sizes["individual"] == 0:
+            raise logger.error(
+                ValueError(
+                    "No points found in the napari layer. "
+                    "This happens when all points have been removed."
+                )
+            )
+        return ds
 
     raise NotImplementedError(
         "Reconstruction of bounding box datasets from napari layers "
