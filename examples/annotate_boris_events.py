@@ -383,7 +383,9 @@ print(
 )
 
 # %%
-# .. note::
+# .. dropdown:: A caveat on BORIS stop times at high frame rates
+#    :color: info
+#    :icon: info
 #
 #    You may recall from Step 5 that BORIS subtracts 1 ms from the stop time
 #    of each implicitly closed event. For video frame rates below ~500 fps,
