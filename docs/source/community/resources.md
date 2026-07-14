@@ -82,7 +82,7 @@ A selection of talks, posters, and blogposts about `movement`.
 
 | Type | Venue | Date | Link |
 |-------|-------|------|------|
-| Poster  | Multiple conferences | Apr 2025 -- Jul 2026| [PDFs on Zenodo](https://doi.org/10.5281/zenodo.17924159) |
+| Poster  | Multiple conferences | Apr 2025 onwards | [PDFs on Zenodo](https://doi.org/10.5281/zenodo.17924159) |
 | Talk  | [TheBehaviourForum](https://www.thebehaviourforum.org) Virtual Workshop | Apr 2026 | [Video on YouTube](https://www.youtube.com/watch?v=RUDhXB1ZZIg) |
 | Talk  | [FOSDEM 2026](https://fosdem.org/2026/schedule/) | Jan 2026 | [Video on fosdem.org](https://fosdem.org/2026/schedule/event/9VLSXV-movement-tracks-python/) |
 | Talk  | [CBIAS 2025](https://www.crick.ac.uk/whats-on/crick-bioimage-analysis-symposium-2025) | Nov 2025 | [Slides](https://neuroinformatics.dev/slides-movement-cbias2025/) |
