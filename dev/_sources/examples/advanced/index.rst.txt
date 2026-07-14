@@ -39,6 +39,23 @@ full power of ``movement``.
     </div>
 
 
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Manually annotate events in BORIS and load them into a movement dataset as per-frame labels.">
+
+.. only:: html
+
+  .. image:: /examples/advanced/images/thumb/sphx_glr_annotate_boris_events_thumb.png
+    :alt:
+
+  :doc:`/examples/advanced/annotate_boris_events`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Annotate and load events with BORIS</div>
+    </div>
+
+
 .. thumbnail-parent-div-close
 
 .. raw:: html
@@ -50,4 +67,5 @@ full power of ``movement``.
    :hidden:
 
    /examples/advanced/broadcasting_your_own_methods
+   /examples/advanced/annotate_boris_events
 
