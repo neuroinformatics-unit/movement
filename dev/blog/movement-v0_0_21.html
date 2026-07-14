@@ -27,8 +27,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=a95f357e85573c9b56d5" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=634eab24" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
@@ -39,12 +39,12 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=a6adf7ed"></script>
+    <script src="../_static/documentation_options.js?v=02d573f4"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -52,7 +52,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'blog/movement-v0_0_21';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.19.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -142,7 +142,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev8</p>
+    <p class="title logo__title">movement v0.17.1.dev9</p>
   
 </a></div>
     
@@ -609,7 +609,7 @@ because we’ve found the concept hard to convey to new users. All functions are
 </pre></div>
 </div>
 </li>
-<li><p>We have slightly modified the <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">structure of movement datasets</span></a>, by changing the order of dimensions. This should have no effect when indexing data by dimension names, i.e. using the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.sel.html#xarray.Dataset.sel" title="(in xarray v2026.4.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.sel()</span></code></a> or <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.isel.html#xarray.Dataset.isel" title="(in xarray v2026.4.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.isel()</span></code></a> methods. However, you may need to update your code if you are using Numpy-style indexing, for example:</p>
+<li><p>We have slightly modified the <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">structure of movement datasets</span></a>, by changing the order of dimensions. This should have no effect when indexing data by dimension names, i.e. using the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.sel.html#xarray.Dataset.sel" title="(in xarray v2026.7.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.sel()</span></code></a> or <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.isel.html#xarray.Dataset.isel" title="(in xarray v2026.7.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.isel()</span></code></a> methods. However, you may need to update your code if you are using Numpy-style indexing, for example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Indexing with dimension names (recommended, works always)</span>
 <span class="n">position</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
     <span class="n">individuals</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keypoints</span><span class="o">=-</span><span class="mi">1</span>     <span class="c1"># first individual, last keypoint</span>
@@ -727,8 +727,8 @@ to stay updated.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=a95f357e85573c9b56d5"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=a95f357e85573c9b56d5"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -742,7 +742,7 @@ to stay updated.</p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.19.0.
+    0.20.0.
     </p></div>
       
     </div>
