@@ -352,7 +352,7 @@ print(f"Parsed events:\n{events.head(10)}")
 # Note that consecutive events for the same limb share a boundary frame in
 # the BORIS export (e.g. ``FR_stance`` ends at frame 155 and ``FR_swing``
 # starts at frame 155). We will therefore treat each event as a half-open
-# interval ``[start_frame, stop_frame]``, which naturally assigns each
+# interval ``[start_frame, stop_frame)``, which naturally assigns each
 # shared frame to the next event and avoids double-counting.
 # The final event per limb has no successor, so we extend its ``stop_frame``
 # by 1 to make sure its actual last frame is still included.
