@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+from movement.utils.logging import logger
+
 
 def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
     """Construct a properties DataFrame from a ``movement`` dataset."""
@@ -189,6 +191,9 @@ def napari_layers_to_ds(
 
     Raises
     ------
+    ValueError
+        If no keypoint or individual has any data left, i.e. all
+        points have been removed from the dataset.
     NotImplementedError
         If the napari Points layer data does not represent a pose dataset.
 
@@ -220,7 +225,13 @@ def napari_layers_to_ds(
     reconstructing a dataset via :func:`napari_layers_to_ds`, the input arrays
     will have no NaN (i.e. missing) coordinates.
     This function reconstructs the full dataset by restoring missing points
-    using the full coordinate structure from ``properties_with_nans``
+    using the full coordinate structure from ``properties_with_nans``.
+
+    If a keypoint or individual has no remaining points in any frame,
+    it is dropped from the returned dataset rather than kept as an
+    all-NaN entry. The ``time`` dimension is never reduced in this
+    way: a frame from which every point has been removed is kept,
+    with NaN values for position and confidence.
 
     """
     properties_df = pd.DataFrame.from_dict(
@@ -284,7 +295,7 @@ def napari_layers_to_ds(
             )
         )
 
-        return xr.Dataset(
+        ds = xr.Dataset(
             data_vars={
                 "position": position_da,
                 "confidence": confidence_da,
@@ -297,6 +308,18 @@ def napari_layers_to_ds(
             },
             attrs=attrs if attrs is not None else {},
         )
+        # Drop keypoints/individuals with no data left; never `time`.
+        ds = ds.dropna(dim="keypoint", how="all").dropna(
+            dim="individual", how="all"
+        )
+        if ds.sizes["keypoint"] == 0 or ds.sizes["individual"] == 0:
+            raise logger.error(
+                ValueError(
+                    "No points found in the napari layer. "
+                    "This happens when all points have been removed."
+                )
+            )
+        return ds
 
     raise NotImplementedError(
         "Reconstruction of bounding box datasets from napari layers "
