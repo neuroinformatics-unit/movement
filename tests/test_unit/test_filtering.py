@@ -1,5 +1,6 @@
 from contextlib import nullcontext as does_not_raise
 
+import numpy as np
 import pytest
 import xarray as xr
 
@@ -279,3 +280,46 @@ def test_filter_by_confidence_on_position(
     n_low_confidence_kpts = 5
     assert isinstance(position_filtered, xr.DataArray)
     assert n_nans == valid_input_dataset.sizes["space"] * n_low_confidence_kpts
+
+
+@pytest.mark.parametrize(
+    "valid_dataset_no_nans",
+    list_valid_datasets_without_nans,
+)
+@pytest.mark.parametrize(
+    "keep_points_with_nan_confidence",
+    [
+        pytest.param(True, id="keep NaN-confidence points (default)"),
+        pytest.param(False, id="drop NaN-confidence points"),
+    ],
+)
+def test_filter_by_confidence_with_nan_confidence(
+    valid_dataset_no_nans, keep_points_with_nan_confidence, helpers, request
+):
+    """Test the handling of NaN confidence values.
+
+    Points with NaN confidence (e.g. manually edited ones) should survive
+    filtering by default, but are dropped if the
+    ``keep_points_with_nan_confidence`` argument is set to ``False``.
+    """
+    valid_input_dataset = request.getfixturevalue(valid_dataset_no_nans)
+    # Set the confidence of individual id_0 at times 0 and 1 to NaN,
+    # on top of the 5 pre-existing low-confidence points
+    confidence = valid_input_dataset.confidence.copy()
+    confidence.loc[{"time": [0, 1], "individual": "id_0"}] = np.nan
+    n_nan_confidence_pts = helpers.count_nans(confidence)
+    position_filtered = filter_by_confidence(
+        valid_input_dataset.position,
+        confidence=confidence,
+        threshold=0.6,
+        keep_points_with_nan_confidence=keep_points_with_nan_confidence,
+    )
+    # Only the low-confidence points are dropped if NaNs are kept,
+    # otherwise the NaN-confidence points are dropped as well
+    n_low_confidence_pts = 5
+    n_expected_dropped_pts = n_low_confidence_pts + (
+        0 if keep_points_with_nan_confidence else n_nan_confidence_pts
+    )
+    assert helpers.count_nans(position_filtered) == (
+        valid_input_dataset.sizes["space"] * n_expected_dropped_pts
+    )
