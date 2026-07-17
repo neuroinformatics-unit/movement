@@ -73,10 +73,9 @@ class _BaseDatasetInputs(ABC):
         default=None,
         validator=validators.optional(validators.instance_of(np.ndarray)),
     )
-    """Array containing point-wise confidence scores for the position data.
-    The shape of this array is the same as that of ``position_array``, but
-    without the ``space`` dimension. If None (default), the confidence scores
-    will be set to an array of NaNs."""
+    """Array containing confidence scores for the position data. The expected
+    shape depends on the subclass - see its class docstring for details. If
+    None (default), the confidence scores will be set to an array of NaNs."""
 
     individual_names: list[str] | None = field(
         default=None,
