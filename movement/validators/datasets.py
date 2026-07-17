@@ -420,12 +420,21 @@ class ValidPosesInputs(_BaseDatasetInputs):
             time_unit = "frames"
         dataset_attrs["time_unit"] = time_unit
         DIM_NAMES = self.DIM_NAMES
+        # confidence_array may be point-wise (all non-space dims) or
+        # individual-wise (non-space and non-keypoint dims)
+        confidence_dims = tuple(d for d in DIM_NAMES if d != "space")
+        # Ignore type error as ValidPosesInputs ensures
+        # `confidence_array` is not None
+        if self.confidence_array.ndim == 2:  # type: ignore[union-attr]
+            confidence_dims = tuple(
+                d for d in confidence_dims if d != "keypoint"
+            )
         # Convert data to an xarray.Dataset
         return xr.Dataset(
             data_vars={
                 "position": xr.DataArray(self.position_array, dims=DIM_NAMES),
                 "confidence": xr.DataArray(
-                    self.confidence_array, dims=DIM_NAMES[:1] + DIM_NAMES[2:]
+                    self.confidence_array, dims=confidence_dims
                 ),
             },
             coords={
