@@ -402,8 +402,9 @@ class ValidPosesInputs(_BaseDatasetInputs):
             and associated metadata.
 
         """
-        n_frames = self.position_array.shape[0]
-        n_space = self.position_array.shape[1]
+        DIM_NAMES = self.DIM_NAMES
+        n_frames = self.position_array.shape[DIM_NAMES.index("time")]
+        n_space = self.position_array.shape[DIM_NAMES.index("space")]
         dataset_attrs: dict[str, str | float | None] = {
             "source_software": self.source_software,
             "ds_type": "poses",
@@ -419,7 +420,6 @@ class ValidPosesInputs(_BaseDatasetInputs):
             time_coords = np.arange(n_frames, dtype=np.int64)
             time_unit = "frames"
         dataset_attrs["time_unit"] = time_unit
-        DIM_NAMES = self.DIM_NAMES
         # confidence_array may be point-wise (all non-space dims) or
         # individual-wise (non-space and non-keypoint dims)
         confidence_dims = tuple(d for d in DIM_NAMES if d != "space")
@@ -579,7 +579,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
         # Convert data to an xarray.Dataset
         # with dimensions ('time', 'space', 'individual')
         DIM_NAMES = self.DIM_NAMES
-        n_space = self.position_array.shape[1]
+        n_space = self.position_array.shape[DIM_NAMES.index("space")]
         return xr.Dataset(
             data_vars={
                 "position": xr.DataArray(self.position_array, dims=DIM_NAMES),
