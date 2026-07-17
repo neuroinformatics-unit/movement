@@ -366,6 +366,21 @@ class TestValidPosesInputs:
             expected_ds.time.attrs["units"] = "seconds"
             xr.testing.assert_equal(ds, expected_ds)
 
+    def test_to_dataset_individual_wise_confidence(self):
+        """to_dataset should handle 2D individual-wise confidence (issue #1038)."""
+        n_frames, n_space, n_keypoints, n_individuals = 5, 2, 3, 2
+        ds = ValidPosesInputs(
+            position_array=np.zeros(
+                (n_frames, n_space, n_keypoints, n_individuals)
+            ),
+            confidence_array=np.zeros((n_frames, n_individuals)),
+            individual_names=[f"id_{i}" for i in range(n_individuals)],
+            keypoint_names=[f"kp_{i}" for i in range(n_keypoints)],
+            source_software=None,
+        ).to_dataset()
+        assert ds["confidence"].dims == ("time", "individual")
+        assert ds["confidence"].shape == (n_frames, n_individuals)
+
     @pytest.mark.parametrize(
         "confidence_array, expected_context",
         [
