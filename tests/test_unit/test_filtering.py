@@ -10,6 +10,7 @@ from movement.filtering import (
     rolling_filter,
     savgol_filter,
 )
+from movement.io import load_poses
 
 # Dataset fixtures
 list_valid_datasets_without_nans = [
@@ -323,3 +324,36 @@ def test_filter_by_confidence_with_nan_confidence(
     assert helpers.count_nans(position_filtered) == (
         valid_input_dataset.sizes["space"] * n_expected_dropped_pts
     )
+
+
+@pytest.mark.parametrize(
+    "keep_points_with_nan_confidence",
+    [
+        pytest.param(True, id="keep proof-read points (default)"),
+        pytest.param(False, id="drop proof-read points"),
+    ],
+)
+def test_filter_by_confidence_on_proofread_data(
+    sleap_analysis_file, keep_points_with_nan_confidence, helpers
+):
+    """Test filtering by confidence on manually proof-read SLEAP data.
+
+    All points in this dataset were proof-read in SLEAP, and therefore
+    have a missing (NaN) confidence value despite holding a valid position.
+    Such points should survive filtering by default.
+    """
+    ds = load_poses.from_sleap_file(sleap_analysis_file)
+    # Verify all points are proof-read, i.e. NaN confidence, valid position
+    assert ds.confidence.isnull().all()
+    assert ds.position.notnull().all()
+
+    position_filtered = filter_by_confidence(
+        ds.position,
+        ds.confidence,
+        keep_points_with_nan_confidence=keep_points_with_nan_confidence,
+    )
+    # All points are kept by default, and dropped otherwise
+    expected_n_nans = (
+        0 if keep_points_with_nan_confidence else ds.position.size
+    )
+    assert helpers.count_nans(position_filtered) == expected_n_nans
