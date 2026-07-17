@@ -2,7 +2,6 @@ from contextlib import nullcontext as does_not_raise
 
 import numpy as np
 import pytest
-import xarray as xr
 
 from movement.filtering import (
     filter_by_confidence,
@@ -260,69 +259,26 @@ class TestFilteringValidDatasetWithNaNs:
 def test_filter_by_confidence_on_position(
     valid_dataset_no_nans, helpers, request
 ):
-    """Test that points below the default 0.6 confidence threshold
-    are converted to NaN.
-    """
-    # Filter position by confidence
-    valid_input_dataset = request.getfixturevalue(valid_dataset_no_nans)
-    position_filtered = filter_by_confidence(
-        valid_input_dataset.position,
-        confidence=valid_input_dataset.confidence,
-        threshold=0.6,
-        print_report=True,
-    )
-    # Count number of NaNs in the full array
-    n_nans = helpers.count_nans(position_filtered)
-    # expected number of nans for poses:
-    # 5 timepoints * 2 individuals * 2 keypoints
-    # Note: we count the number of nans in the array, so we multiply
-    # the number of low confidence keypoints by the number of
-    # space dimensions
-    n_low_confidence_kpts = 5
-    assert isinstance(position_filtered, xr.DataArray)
-    assert n_nans == valid_input_dataset.sizes["space"] * n_low_confidence_kpts
-
-
-@pytest.mark.parametrize(
-    "valid_dataset_no_nans",
-    list_valid_datasets_without_nans,
-)
-@pytest.mark.parametrize(
-    "keep_points_with_nan_confidence",
-    [
-        pytest.param(True, id="keep NaN-confidence points (default)"),
-        pytest.param(False, id="drop NaN-confidence points"),
-    ],
-)
-def test_filter_by_confidence_with_nan_confidence(
-    valid_dataset_no_nans, keep_points_with_nan_confidence, helpers, request
-):
-    """Test the handling of NaN confidence values.
-
-    Points with NaN confidence (e.g. manually edited ones) should survive
-    filtering by default, but are dropped if the
-    ``keep_points_with_nan_confidence`` argument is set to ``False``.
+    """Test that points below the 0.6 confidence threshold are converted
+    to NaN, whereas points with a NaN confidence value are kept.
     """
     valid_input_dataset = request.getfixturevalue(valid_dataset_no_nans)
     # Set the confidence of individual id_0 at times 0 and 1 to NaN,
     # on top of the 5 pre-existing low-confidence points
     confidence = valid_input_dataset.confidence.copy()
     confidence.loc[{"time": [0, 1], "individual": "id_0"}] = np.nan
-    n_nan_confidence_pts = helpers.count_nans(confidence)
+    # Filter position by confidence
     position_filtered = filter_by_confidence(
         valid_input_dataset.position,
         confidence=confidence,
         threshold=0.6,
-        keep_points_with_nan_confidence=keep_points_with_nan_confidence,
+        print_report=True,
     )
-    # Only the low-confidence points are dropped if NaNs are kept,
-    # otherwise the NaN-confidence points are dropped as well
+    # Only the 5 low-confidence points are dropped, as points with a
+    # NaN confidence value are kept by default.
     n_low_confidence_pts = 5
-    n_expected_dropped_pts = n_low_confidence_pts + (
-        0 if keep_points_with_nan_confidence else n_nan_confidence_pts
-    )
     assert helpers.count_nans(position_filtered) == (
-        valid_input_dataset.sizes["space"] * n_expected_dropped_pts
+        valid_input_dataset.sizes["space"] * n_low_confidence_pts
     )
 
 
