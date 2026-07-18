@@ -285,6 +285,8 @@ def napari_layers_to_ds(
                     "edited"
                 ]
                 .to_xarray()
+                .fillna(False)
+                .astype(bool)
                 .reindex(
                     time=time_coords,
                     keypoint=keypoint_coords,
