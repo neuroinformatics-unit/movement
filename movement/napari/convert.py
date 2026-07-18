@@ -278,6 +278,7 @@ def napari_layers_to_ds(
                 individual=individual_coords,
             )
         )
+        edited_da = None
         if "edited" in properties_df.columns:
             edited_da = (
                 properties_df.set_index(["time", "keypoint", "individual"])[
@@ -291,8 +292,6 @@ def napari_layers_to_ds(
                     fill_value=False,
                 )
             )
-        else:
-            edited_da = xr.full_like(confidence_da, False, dtype=bool)
 
         position_df = position_df.melt(
             id_vars=["time", "frame", "keypoint", "individual"],
@@ -313,12 +312,15 @@ def napari_layers_to_ds(
             )
         )
 
+        data_vars = {
+            "position": position_da,
+            "confidence": confidence_da,
+        }
+        if edited_da is not None:
+            data_vars["edited"] = edited_da
+
         ds = xr.Dataset(
-            data_vars={
-                "position": position_da,
-                "confidence": confidence_da,
-                "edited": edited_da,
-            },
+            data_vars=data_vars,
             coords={
                 "time": time_coords,
                 "space": space_coords,
@@ -328,9 +330,10 @@ def napari_layers_to_ds(
             attrs=attrs if attrs is not None else {},
         )
         # Drop keypoints/individuals with no data left; never `time`.
-        # `edited` is excluded from the check: it's boolean (fill
-        # value False), so it's never "null" and would otherwise
-        # prevent any keypoint/individual from ever being dropped.
+        # `edited` (if present) is excluded from the check: it's
+        # boolean (fill value False), so it's never "null" and would
+        # otherwise prevent any keypoint/individual from ever being
+        # dropped.
         dropna_subset = ["position", "confidence"]
         ds = ds.dropna(dim="keypoint", how="all", subset=dropna_subset).dropna(
             dim="individual", how="all", subset=dropna_subset
