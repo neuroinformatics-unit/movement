@@ -278,18 +278,21 @@ def napari_layers_to_ds(
                 individual=individual_coords,
             )
         )
-        edited_da = (
-            properties_df.set_index(["time", "keypoint", "individual"])[
-                "edited"
-            ]
-            .to_xarray()
-            .reindex(
-                time=time_coords,
-                keypoint=keypoint_coords,
-                individual=individual_coords,
-                fill_value=False,
+        if "edited" in properties_df.columns:
+            edited_da = (
+                properties_df.set_index(["time", "keypoint", "individual"])[
+                    "edited"
+                ]
+                .to_xarray()
+                .reindex(
+                    time=time_coords,
+                    keypoint=keypoint_coords,
+                    individual=individual_coords,
+                    fill_value=False,
+                )
             )
-        )
+        else:
+            edited_da = xr.full_like(confidence_da, False, dtype=bool)
 
         position_df = position_df.melt(
             id_vars=["time", "frame", "keypoint", "individual"],
