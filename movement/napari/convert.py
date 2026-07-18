@@ -18,6 +18,9 @@ def _construct_properties_dataframe(ds: xr.Dataset) -> pd.DataFrame:
     if "keypoint" in ds.coords:
         data["keypoint"] = ds.coords["keypoint"].values
         desired_order.insert(1, "keypoint")
+    if "edited" in ds:
+        data["edited"] = ds["edited"].values.flatten()
+        desired_order.append("edited")
 
     # sort
     return pd.DataFrame(data).reindex(columns=desired_order)
@@ -64,8 +67,8 @@ def ds_to_napari_layers(
         (track_id, frame, y, x). Returns None when the input dataset doesn't
         have a "shape" variable.
     properties : pandas.DataFrame
-        DataFrame with properties (individual, keypoint, time, confidence)
-        for use with napari layers.
+        DataFrame with properties (individual, keypoint, time, confidence,
+        edited) for use with napari layers.
 
     See Also
     --------
@@ -172,8 +175,8 @@ def napari_layers_to_ds(
     properties
         Live napari Point properties data. It is in-sync with the
         Points layer data. It is a dictionary with keys
-        ``individual``, ``keypoint``, ``time`` and ``confidence``,
-        each mapping to a list of values, and each value
+        ``individual``, ``keypoint``, ``time``, ``confidence`` and
+        ``edited``, each mapping to a list of values, and each value
         corresponding to a point.
     properties_with_nans:
         Properties DataFrame derived from the original loaded dataset
@@ -275,6 +278,18 @@ def napari_layers_to_ds(
                 individual=individual_coords,
             )
         )
+        edited_da = (
+            properties_df.set_index(["time", "keypoint", "individual"])[
+                "edited"
+            ]
+            .to_xarray()
+            .reindex(
+                time=time_coords,
+                keypoint=keypoint_coords,
+                individual=individual_coords,
+                fill_value=False,
+            )
+        )
 
         position_df = position_df.melt(
             id_vars=["time", "frame", "keypoint", "individual"],
@@ -299,6 +314,7 @@ def napari_layers_to_ds(
             data_vars={
                 "position": position_da,
                 "confidence": confidence_da,
+                "edited": edited_da,
             },
             coords={
                 "time": time_coords,
@@ -309,8 +325,12 @@ def napari_layers_to_ds(
             attrs=attrs if attrs is not None else {},
         )
         # Drop keypoints/individuals with no data left; never `time`.
-        ds = ds.dropna(dim="keypoint", how="all").dropna(
-            dim="individual", how="all"
+        # `edited` is excluded from the check: it's boolean (fill
+        # value False), so it's never "null" and would otherwise
+        # prevent any keypoint/individual from ever being dropped.
+        dropna_subset = ["position", "confidence"]
+        ds = ds.dropna(dim="keypoint", how="all", subset=dropna_subset).dropna(
+            dim="individual", how="all", subset=dropna_subset
         )
         if ds.sizes["keypoint"] == 0 or ds.sizes["individual"] == 0:
             raise logger.error(

@@ -350,11 +350,12 @@ class DataLoader(QWidget):
         logger.info("Added tracked dataset as a napari Points layer.")
 
     def _on_points_data_changed(self, event):
-        """Set confidence to NaN for moved (dragged) points.
+        """Set confidence to NaN and flag as edited for moved points.
 
         Connected to ``points_layer.events.data``. Fires on
         ``ActionType.CHANGED`` (i.e., when the data array values
-        change) and sets the confidence score of moved points to NaN.
+        change) and sets the confidence score of moved (dragged)
+        points to NaN, and marks them as edited.
         """
         layer = event.source
         if not isinstance(layer, Points):
@@ -365,6 +366,11 @@ class DataLoader(QWidget):
         props = layer.properties
         props["confidence"] = props["confidence"].copy()
         props["confidence"][moved_indices] = float("nan")
+        if "edited" in props:
+            props["edited"] = props["edited"].copy()
+        else:
+            props["edited"] = np.full(len(props["confidence"]), False)
+        props["edited"][moved_indices] = True
         layer.properties = props
 
     def _add_tracks_layer(self):
