@@ -393,6 +393,26 @@ def test_napari_layers_to_ds_bboxes_not_implemented():
         )
 
 
+def _move_point(loader, frame, keypoint, individual, new_y, new_x):
+    """Simulate a user dragging a single point to a new position."""
+    live_props = loader.points_layer.properties
+    edit_idx = int(
+        np.flatnonzero(
+            (live_props["time"] == frame)
+            & (live_props["keypoint"] == keypoint)
+            & (live_props["individual"] == individual)
+        )[0]
+    )
+    loader.points_layer.data[edit_idx, 1] = new_y
+    loader.points_layer.data[edit_idx, 2] = new_x
+
+    mock_event = Mock()
+    mock_event.source = loader.points_layer
+    mock_event.action = ActionType.CHANGED
+    mock_event.data_indices = (edit_idx,)
+    loader._on_points_data_changed(mock_event)
+
+
 @pytest.mark.parametrize(
     "nan_location",
     [
@@ -439,27 +459,14 @@ def test_edited_pose_napari_layers(
     frame = 2  # safe: not NaN in any parametrize case
     keypoint = "centroid"
     individual = "id_0"
-
-    # Find the integer index of the point to edit in the live points layer
-    live_props = loader.points_layer.properties
-    edit_idx = int(
-        np.flatnonzero(
-            (live_props["time"] == frame)
-            & (live_props["keypoint"] == keypoint)
-            & (live_props["individual"] == individual)
-        )[0]
+    _move_point(
+        loader,
+        frame=frame,
+        keypoint=keypoint,
+        individual=individual,
+        new_y=100,
+        new_x=200,
     )
-
-    loader.points_layer.data[edit_idx, 1] = 100  # y
-    loader.points_layer.data[edit_idx, 2] = 200  # x
-
-    # Direct mutation does not fire napari events, so we call the callback
-    # manually below with the correct index to replicate what napari does.
-    mock_event = Mock()
-    mock_event.source = loader.points_layer
-    mock_event.action = ActionType.CHANGED
-    mock_event.data_indices = (edit_idx,)
-    loader._on_points_data_changed(mock_event)
 
     ds = napari_layers_to_ds(
         points_as_napari=loader.points_layer.data,
@@ -467,27 +474,108 @@ def test_edited_pose_napari_layers(
         properties_with_nans=loader.properties,
         attrs=ds_loaded.attrs,
     )
+    # check if `edited` is boolean
+    assert ds["edited"].dtype == bool
 
     # after loading in napari and exporting:
     # confidence is nan where position is nan
     expected_ds = _nan_confidence_at_nan_pos(ds_loaded)
-    # edited point values
-    expected_ds.position.loc[
-        {
-            "time": frame,
-            "space": ["x", "y"],
-            "keypoint": keypoint,
-            "individual": individual,
-        }
-    ] = [200, 100]
-    expected_ds["confidence"].loc[
-        {
-            "time": frame,
-            "keypoint": keypoint,
-            "individual": individual,
-        }
-    ] = np.nan
+    edited_point = {
+        "time": frame,
+        "keypoint": keypoint,
+        "individual": individual,
+    }
+    expected_ds.position.loc[{**edited_point, "space": ["x", "y"]}] = [
+        200,
+        100,
+    ]
+    expected_ds["confidence"].loc[edited_point] = np.nan
+    expected_ds["edited"] = xr.full_like(
+        expected_ds["confidence"], False, dtype=bool
+    )
+    expected_ds["edited"].loc[edited_point] = True
     xr.testing.assert_equal(ds, expected_ds)
+
+
+@pytest.mark.parametrize(
+    "nan_location",
+    [
+        None,
+        {
+            "time": "start",
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
+        },
+        {
+            "time": "end",
+            "individual": ["id_0", "id_1"],
+            "keypoint": ["centroid", "left", "right"],
+        },
+        {
+            "time": "middle",
+            "individual": ["id_0"],
+            "keypoint": ["centroid"],
+        },
+    ],
+)
+def test_edited_property_round_trip(
+    nan_location,
+    valid_poses_path_and_ds,
+    valid_poses_path_and_ds_with_localised_nans,
+    loaded_data_loader,
+):
+    """Test that an ``edited`` variable survives a full round trip.
+
+    Once a dataset has been reconstructed with an ``edited`` variable
+    (e.g. from a previous napari editing session), it must be possible
+    to load it back into napari via :func:`ds_to_napari_layers`, and
+    to convert it back again via :func:`napari_layers_to_ds`, without
+    losing the ``edited`` flags. This simulates reopening a
+    previously-edited dataset in a new napari session.
+    """
+    if nan_location is None:
+        filepath, ds_loaded = valid_poses_path_and_ds
+    else:
+        filepath, ds_loaded = valid_poses_path_and_ds_with_localised_nans(
+            nan_location
+        )
+    loader = loaded_data_loader(filepath, ds_loaded)
+
+    _move_point(
+        loader,
+        frame=2,  # safe: not NaN in any parametrize case
+        keypoint="centroid",
+        individual="id_0",
+        new_y=100,
+        new_x=200,
+    )
+
+    ds = napari_layers_to_ds(
+        points_as_napari=loader.points_layer.data,
+        properties=loader.points_layer.properties,
+        properties_with_nans=loader.properties,
+        attrs=ds_loaded.attrs,
+    )
+    assert "edited" in ds
+
+    # Load the previously-edited dataset back into napari layers.
+    napari_tracks, _, properties_with_nan = ds_to_napari_layers(ds)
+    assert "edited" in properties_with_nan.columns
+
+    # Simulate the loader widget filtering out NaN position rows, then
+    # convert back to a dataset again.
+    valid_point_mask = ~np.any(np.isnan(napari_tracks[:, 2:4]), axis=1)
+    napari_points = napari_tracks[valid_point_mask, 1:]
+    properties = properties_with_nan.iloc[valid_point_mask].reset_index(
+        drop=True
+    )
+
+    reconstructed_ds = napari_layers_to_ds(
+        napari_points, properties, properties_with_nan, attrs=ds.attrs
+    )
+
+    assert reconstructed_ds["edited"].dtype == bool
+    xr.testing.assert_equal(reconstructed_ds, ds)
 
 
 def _target_points_to_remove(target, ds):
@@ -579,6 +667,9 @@ def test_removed_pose_napari_layers_restores_nans(
         properties_with_nans=loader.properties,
         attrs=ds_expected.attrs,
     )
+    # No point was ever dragged, so the live properties never gained an
+    # `edited` key: deletion alone does not add the variable.
+    assert "edited" not in ds
 
     # Removed points are restored as NaN; nothing is dropped from the
     # dataset's time/keypoint/individual coordinates.
@@ -644,6 +735,9 @@ def test_removed_pose_napari_layers_drops_empty_coord(
         properties_with_nans=loader.properties,
         attrs=ds_expected.attrs,
     )
+    # No point was ever dragged, so the live properties never gained an
+    # `edited` key: deletion alone does not add the variable.
+    assert "edited" not in ds
 
     removed_labels = target[dropped_dim]
     remaining_labels = [
