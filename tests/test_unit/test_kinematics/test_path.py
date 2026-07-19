@@ -235,13 +235,13 @@ def test_path_length_across_time_ranges(
     "nan_policy, expected_path_lengths_id_0, expected_exception",
     [
         (
-            "ffill",
-            np.array([np.sqrt(2) * 9, np.sqrt(2) * 8, np.nan]),
+            None,
+            np.array([np.sqrt(2) * 4, np.sqrt(2) * 8, np.nan]),
             does_not_raise(),
         ),
         (
-            "scale",
-            np.array([np.sqrt(2) * 9, np.sqrt(2) * 9, np.nan]),
+            "ffill",
+            np.array([np.sqrt(2) * 9, np.sqrt(2) * 8, np.nan]),
             does_not_raise(),
         ),
         (
@@ -259,10 +259,13 @@ def test_path_length_with_nan(
 ):
     """Test path length computation for a uniform linear motion case,
     with varying number of missing values per individual and keypoint.
-    Because the underlying motion is uniform linear, the "scale" policy should
-    perfectly restore the path length for individual "id_0" to its true value.
-    The "ffill" policy should do likewise if frames are missing in the middle,
-    but will not "correct" for missing values at the edges.
+    The default policy (``None``) sums only the segments between consecutive
+    valid positions, so each missing position removes the two segments on
+    either side of it (the "centroid" keypoint loses 3 interior frames,
+    dropping 5 of its 9 segments). The "ffill" policy instead crosses each
+    interior gap in a straight line, exactly restoring the path length for
+    uniform linear motion, but cannot "correct" for missing values at the
+    edges (as in the "left" keypoint, missing at time=0).
     """
     position = valid_poses_dataset_with_nan.position
     with (
@@ -382,7 +385,7 @@ def test_path_length_nan_warn_threshold(
         ),
     ],
 )
-@pytest.mark.parametrize("nan_policy", ["ffill", "scale"])
+@pytest.mark.parametrize("nan_policy", ["ffill", None])
 def test_path_straightness_known_values(
     request, fixture_name, expected_value, nan_policy
 ):
