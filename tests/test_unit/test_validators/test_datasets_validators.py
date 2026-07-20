@@ -347,8 +347,20 @@ class TestValidPosesInputs:
             assert data.keypoint_names == expected_keypoint_names
 
     @pytest.mark.parametrize("fps", [30, None])
-    def test_to_dataset(self, fps, valid_poses_dataset):
+    @pytest.mark.parametrize(
+        "dataset_fixture",
+        [
+            "valid_poses_dataset",
+            "valid_poses_dataset_with_individual_wise_confidence",
+        ],
+        ids=[
+            "Point-wise confidence array",
+            "Individual-wise confidence array",
+        ],
+    )
+    def test_to_dataset(self, fps, dataset_fixture, request):
         """Test to_dataset creates the expected poses dataset."""
+        valid_poses_dataset = request.getfixturevalue(dataset_fixture)
         ds = ValidPosesInputs(
             position_array=valid_poses_dataset.position.values,
             confidence_array=valid_poses_dataset.confidence.values,
