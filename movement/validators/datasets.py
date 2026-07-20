@@ -420,8 +420,9 @@ class ValidPosesInputs(_BaseDatasetInputs):
             time_unit = "frames"
         dataset_attrs["time_unit"] = time_unit
         DIM_NAMES = self.DIM_NAMES
-        # Point-wise confidence is 3D (time, keypoint, individual); individual-wise
-        # confidence is 2D (time, individual) and skips the keypoint dimension.
+        # Point-wise confidence is 3D (time, keypoint, individual);
+        # individual-wise confidence is 2D (time, individual) and skips
+        # the keypoint dimension.
         if self.confidence_array.ndim == 2:
             confidence_dims = DIM_NAMES[:1] + DIM_NAMES[3:]
         else:
