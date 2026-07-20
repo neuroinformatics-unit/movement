@@ -12,7 +12,7 @@ language: English
 
 _This is a short summary of the spatial navigation features introduced during Jan-Feb 2025._
 
-This work was part of a collaboration involving Sepiedeh Keshavarzi (Cambridge University), the Centre for Advanced Research Computing at University College London(UCL-ARC), and the core `movement` development team and has been funded by the Wellcome Trust.
+This work was part of a collaboration involving Sepiedeh Keshavarzi (Cambridge University), the Centre for Advanced Research Computing at University College London (UCL-ARC), and the core `movement` development team and has been funded by the Wellcome Trust.
 
 _At a glance_
 

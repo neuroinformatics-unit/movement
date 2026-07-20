@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=c2f02bfa"></script>
+    <script src="../_static/documentation_options.js?v=6688afe3"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev12</p>
+    <p class="title logo__title">movement v0.17.1.dev13</p>
   
 </a></div>
     
@@ -919,21 +919,21 @@ False otherwise.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ax</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Axes object on which to draw the region. If None, a new
+<li><p><strong>ax</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.11.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Axes object on which to draw the region. If None, a new
 figure and axes are created.</p></li>
-<li><p><strong>matplotlib_kwargs</strong> – Keyword arguments passed to the <a class="reference external" href="https://matplotlib.org/stable/api/pyplot_summary.html#module-matplotlib.pyplot" title="(in Matplotlib v3.11.0)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib.pyplot</span></code></a> plotting
+<li><p><strong>matplotlib_kwargs</strong> – Keyword arguments passed to the <a class="reference external" href="https://matplotlib.org/stable/api/pyplot_summary.html#module-matplotlib.pyplot" title="(in Matplotlib v3.11.1)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">matplotlib.pyplot</span></code></a> plotting
 function.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a> | <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.SubFigure.html#matplotlib.figure.SubFigure" title="(in Matplotlib v3.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubFigure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.11.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code></a> | <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.SubFigure.html#matplotlib.figure.SubFigure" title="(in Matplotlib v3.11.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">SubFigure</span></code></a>, <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.11.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><ul class="simple">
 <li><p><strong>fig</strong> (<em>matplotlib.figure.Figure or matplotlib.figure.SubFigure</em>) – If <code class="docutils literal notranslate"><span class="pre">ax</span></code> is provided, this is <code class="docutils literal notranslate"><span class="pre">ax.figure</span></code>
-(<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> or
-<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.SubFigure.html#matplotlib.figure.SubFigure" title="(in Matplotlib v3.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.SubFigure</span></code></a>). Otherwise, a new
-<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.11.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> is created and returned.</p></li>
+(<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.11.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> or
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.SubFigure.html#matplotlib.figure.SubFigure" title="(in Matplotlib v3.11.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.SubFigure</span></code></a>). Otherwise, a new
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="(in Matplotlib v3.11.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">matplotlib.figure.Figure</span></code></a> is created and returned.</p></li>
 <li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – Axes on which the region was drawn. If <code class="docutils literal notranslate"><span class="pre">ax</span></code> is provided,
 the input will be directly modified and returned in this value.</p></li>
 </ul>

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=c2f02bfa"></script>
+    <script src="../_static/documentation_options.js?v=6688afe3"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -142,7 +142,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev12</p>
+    <p class="title logo__title">movement v0.17.1.dev13</p>
   
 </a></div>
     
@@ -571,7 +571,7 @@
 <p>This post introduces recent improvements to how <code class="docutils literal notranslate"><span class="pre">movement</span></code> computes displacement vectors, making the definitions more explicit, flexible, and intuitive for users.</p>
 <section id="background">
 <h2>Background<a class="headerlink" href="#background" title="Link to this heading">#</a></h2>
-<p>Computing kinematic properties is a core functionality since early versions of <code class="docutils literal notranslate"><span class="pre">movement</span></code>, when they where first introduced by <a class="reference external" href="https://github.com/lochhh">Chang Huan Lo</a> in <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/pull/106">#106</a>.
+<p>Computing kinematic properties is a core functionality since early versions of <code class="docutils literal notranslate"><span class="pre">movement</span></code>, when they were first introduced by <a class="reference external" href="https://github.com/lochhh">Chang Huan Lo</a> in <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/pull/106">#106</a>.
 For a library dedicated to analysing motion-tracking data, quantifying how far a tracked point moves between consecutive frames is fundamental. This measure underpins subsequent computations, such as the total distance travelled along a path. That’s why we introduced the <code class="docutils literal notranslate"><span class="pre">compute_displacement</span></code> function early on, and why it features in our <a class="reference internal" href="../examples/compute_kinematics.html#sphx-glr-examples-compute-kinematics-py"><span class="std std-ref">compute and visualise kinematics</span></a> example<!--#compute-displacement-vectors heading-->.</p>
 <p>Its original implementation, however, produced results that were difficult to interpret. For a given individual and keypoint at timestep <code class="docutils literal notranslate"><span class="pre">t</span></code>, displacement was defined as the vector pointing from the previous position at <code class="docutils literal notranslate"><span class="pre">t-1</span></code> to the current position at <code class="docutils literal notranslate"><span class="pre">t</span></code>. This definition is somewhat counter-intuitive: it identifies the last spatial translation used by the keypoint to reach its current position. It indicates where the point <em>came from</em> rather than where it is <em>going</em>.</p>
 <p>For this reason, during the Hackday at <a class="reference external" href="https://neuroinformatics.dev/open-software-summer-school/2025/index.html">Open Software Week 2025</a>—and as my first contribution to <code class="docutils literal notranslate"><span class="pre">movement</span></code>—I <a class="reference external" href="https://github.com/neuroinformatics-unit/osw25-hackday/issues/16">volunteered</a> to develop a more intuitive interface for displacement vectors, under the supervision of <a class="reference external" href="https://github.com/sfmig">Sofía Miñano</a>.
