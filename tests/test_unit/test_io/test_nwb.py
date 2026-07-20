@@ -5,6 +5,7 @@ from typing import Any
 from unittest.mock import patch
 
 import ndx_pose
+import numpy as np
 import pytest
 from pynwb.file import Subject
 
@@ -43,6 +44,24 @@ def test_ds_to_pose_and_skeletons_invalid(valid_poses_dataset):
         match=".*must contain only one individual.*",
     ):
         _ds_to_pose_and_skeletons(valid_poses_dataset)
+
+
+def test_ds_to_pose_and_skeletons_with_individual_confidence(
+    valid_poses_dataset_with_individual_wise_confidence, caplog
+):
+    """Test that a dataset with individual-wise confidence scores has
+    its confidence values expanded (repeated) across all keypoints when
+    converted to PoseEstimation objects, and that a warning is logged.
+    """
+    ds = valid_poses_dataset_with_individual_wise_confidence.sel(
+        individual="id_0"
+    )
+    pose_estimation, _ = _ds_to_pose_and_skeletons(
+        ds, subject=Subject(subject_id="id_0")
+    )
+    assert "only supports keypoint-wise confidence scores" in caplog.text
+    for series in pose_estimation.pose_estimation_series.values():
+        np.testing.assert_array_equal(series.confidence, ds.confidence.values)
 
 
 def test_write_processing_module(nwbfile_object):
