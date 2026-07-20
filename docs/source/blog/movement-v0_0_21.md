@@ -9,7 +9,7 @@ language: English
 
 # Release v0.0.21 and next steps
 
-_This is our inaugaural blogpost, containing a summary of the `v0.0.21` release and a preview of what's coming next in 2025._
+_This is our inaugural blogpost, containing a summary of the `v0.0.21` release and a preview of what's coming next in 2025._
 
 ## What's new in movement v0.0.21?
 
