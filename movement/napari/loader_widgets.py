@@ -49,6 +49,16 @@ SUPPORTED_DATA_FILES = {
     **SUPPORTED_NETCDF_FILES,
 }
 
+# Metadata keys stored on napari Points layers created by this widget.
+# Set here (where the layer is created) and read back in save_widget.py
+# (where the layer is saved).
+# - PROPERTIES_KEY stores the full properties dataframe (including
+#   NaN rows dropped from the layer) needed to reconstruct the dataset.
+# - ATTRS_KEY stores the original dataset attributes (e.g.
+#   source_software, fps) to preserve them on save.
+PROPERTIES_KEY: str = "movement_properties_with_nans"
+ATTRS_KEY: str = "movement_attrs"
+
 
 class DataLoader(QWidget):
     """Widget for loading movement datasets from file."""
@@ -224,6 +234,7 @@ class DataLoader(QWidget):
 
         # Convert to napari arrays
         self.data, self.data_bboxes, self.properties = ds_to_napari_layers(ds)
+        self.ds_attrs = ds.attrs
 
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)
@@ -337,12 +348,14 @@ class DataLoader(QWidget):
             :, ~self.properties.columns.str.endswith("_factorized")
         ]
 
-        # Add data as a points layer with metadata
-        # (max_frame_idx is used to set the frame slider range)
         self.points_layer = self.viewer.add_points(
             self.data[self.data_not_nan, 1:],
             properties=points_properties.iloc[self.data_not_nan, :],
-            metadata={"max_frame_idx": max(self.data[:, 1])},
+            metadata={
+                "max_frame_idx": max(self.data[:, 1]),
+                PROPERTIES_KEY: self.properties,
+                ATTRS_KEY: self.ds_attrs,
+            },
             **points_style.as_kwargs(),
         )
         self.points_layer.events.data.connect(self._on_points_data_changed)

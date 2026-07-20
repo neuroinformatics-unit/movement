@@ -5,6 +5,7 @@ from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 
 from movement.napari.loader_widgets import DataLoader
 from movement.napari.regions_widget import RegionsWidget
+from movement.napari.save_widget import DataSaver
 
 
 class MovementMetaWidget(CollapsibleWidgetContainer):
@@ -30,6 +31,13 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             RegionsWidget(napari_viewer, parent=self),
             collapsible=True,
             widget_title="Define regions of interest",
+        )
+
+        # Add the Save widget
+        self.add_widget(
+            DataSaver(napari_viewer, parent=self),
+            collapsible=True,
+            widget_title="Save tracked data",
         )
 
         loader_collapsible = self.collapsible_widgets[0]
