@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=6688afe3"></script>
+    <script src="../../../_static/documentation_options.js?v=ad013f2e"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev13</p>
+    <p class="title logo__title">movement v0.17.1.dev14</p>
   
 </a></div>
     
@@ -552,10 +552,9 @@
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)),</span>
     <span class="p">)</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array containing point-wise confidence scores for the position data.</span>
-<span class="sd">    The shape of this array is the same as that of ``position_array``, but</span>
-<span class="sd">    without the ``space`` dimension. If None (default), the confidence scores</span>
-<span class="sd">    will be set to an array of NaNs.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array containing confidence scores for the position data. The expected</span>
+<span class="sd">    shape depends on the subclass - see its class docstring for details. If</span>
+<span class="sd">    None (default), the confidence scores will be set to an array of NaNs.&quot;&quot;&quot;</span>
 
     <span class="n">individual_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -885,8 +884,9 @@
 <span class="sd">            and associated metadata.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">n_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">n_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span>
+        <span class="n">n_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)]</span>
+        <span class="n">n_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;space&quot;</span><span class="p">)]</span>
         <span class="n">dataset_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;source_software&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_software</span><span class="p">,</span>
             <span class="s2">&quot;ds_type&quot;</span><span class="p">:</span> <span class="s2">&quot;poses&quot;</span><span class="p">,</span>
@@ -902,13 +902,21 @@
             <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
             <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;frames&quot;</span>
         <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">&quot;time_unit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_unit</span>
-        <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span>
+        <span class="c1"># confidence_array may be point-wise (all non-space dims) or</span>
+        <span class="c1"># individual-wise (non-space and non-keypoint dims)</span>
+        <span class="n">confidence_dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">DIM_NAMES</span> <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="s2">&quot;space&quot;</span><span class="p">)</span>
+        <span class="c1"># Ignore type error as ValidPosesInputs ensures</span>
+        <span class="c1"># `confidence_array` is not None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence_array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># type: ignore[union-attr]</span>
+            <span class="n">confidence_dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+                <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">confidence_dims</span> <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="s2">&quot;keypoint&quot;</span>
+            <span class="p">)</span>
         <span class="c1"># Convert data to an xarray.Dataset</span>
         <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
             <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>
                 <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
                 <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">confidence_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">confidence_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">confidence_dims</span>
                 <span class="p">),</span>
             <span class="p">},</span>
             <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
@@ -1059,7 +1067,7 @@
         <span class="c1"># Convert data to an xarray.Dataset</span>
         <span class="c1"># with dimensions (&#39;time&#39;, &#39;space&#39;, &#39;individual&#39;)</span>
         <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span>
-        <span class="n">n_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">n_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;space&quot;</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
             <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>
                 <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=6688afe3"></script>
+    <script src="../_static/documentation_options.js?v=ad013f2e"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev13</p>
+    <p class="title logo__title">movement v0.17.1.dev14</p>
   
 </a></div>
     
@@ -763,10 +763,9 @@ must match the order of dimensions in the <code class="docutils literal notransl
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.confidence_array">
 <span class="sig-name descname"><span class="pre">confidence_array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.confidence_array" title="Link to this definition">#</a></dt>
-<dd><p>Array containing point-wise confidence scores for the position data.
-The shape of this array is the same as that of <code class="docutils literal notranslate"><span class="pre">position_array</span></code>, but
-without the <code class="docutils literal notranslate"><span class="pre">space</span></code> dimension. If None (default), the confidence scores
-will be set to an array of NaNs.</p>
+<dd><p>Array containing confidence scores for the position data. The expected
+shape depends on the subclass - see its class docstring for details. If
+None (default), the confidence scores will be set to an array of NaNs.</p>
 </dd></dl>
 
 <dl class="py attribute">
