@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=ad013f2e"></script>
+    <script src="../../../_static/documentation_options.js?v=0979bb37"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev14</p>
+    <p class="title logo__title">movement v0.17.1.dev15</p>
   
 </a></div>
     
@@ -1049,6 +1049,12 @@
         <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">time_unit</span> <span class="o">==</span> <span class="s2">&quot;seconds&quot;</span>
         <span class="k">else</span> <span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span> <span class="o">/</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;fps&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
     <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;keypoint&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Dataset contains individual-wise confidence scores. &quot;</span>
+            <span class="s2">&quot;NWB only supports keypoint-wise confidence scores, &quot;</span>
+            <span class="s2">&quot;so confidence values will be expanded to all keypoints.&quot;</span>
+        <span class="p">)</span>
     <span class="n">pose_estimation_series</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">ndx_pose</span><span class="o">.</span><span class="n">PoseEstimationSeries</span><span class="p">(</span>
             <span class="n">data</span><span class="o">=</span><span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="n">keypoint</span><span class="p">)</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
