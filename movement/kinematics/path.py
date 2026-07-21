@@ -36,12 +36,10 @@ def compute_path_length(
         and ``space`` (in Cartesian coordinates) as required dimensions.
     nan_policy
         Policy for handling NaN (missing) values. By default (``None``),
-        no gap-filling is performed and the path length is the sum of the
-        lengths of the segments between consecutive *valid* positions; any
-        segment with a missing endpoint is skipped. If ``"ffill"``, missing
-        positions are forward-filled across time before the segment lengths
-        are computed. See Notes for more details on the two policies.
-        Defaults to ``None``.
+        no gap-filling is performed, meaning missing positions are skipped.
+        If ``"ffill"``, missing positions are forward-filled across
+        time before path length is computed. See Notes for more
+        details on the two policies.
     nan_warn_threshold
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
@@ -56,33 +54,29 @@ def compute_path_length(
 
     Notes
     -----
-    By default (``nan_policy=None``), the path length is the sum of the
-    lengths of the segments between consecutive valid positions. A missing
-    position invalidates the two segments on either side of it (the arriving
-    and departing steps), so these are omitted from the sum. This performs
-    only the geometric calculation the function's name implies, without
-    making any assumption about the missing data. Note that this tends to
-    *underestimate* the true path length, because the distance travelled
-    across gaps is not counted at all; the error grows with the number and
-    size of the gaps. A warning is emitted (controlled by
-    ``nan_warn_threshold``) when many values are missing.
+    1. **Handling missing values:**
+       By default (``nan_policy=None``), path length sums the lengths of the
+       segments between consecutive *valid* positions. A missing position
+       invalidates the two segments on either side of it (the arriving and
+       departing steps), which are omitted from the sum. Choosing
+       ``nan_policy="ffill"`` will use :meth:`xarray.DataArray.ffill` to
+       forward-fill missing positions across time before computing the segment
+       lengths. This equates to bridging the gaps with straight lines, i.e., it
+       gives the same result as linearly interpolating over the gaps prior to
+       computing the path length. Missing values at the beginning of a path
+       cannot be forward-filled and are still skipped. Both policies
+       underestimate the true path length in the presence of gaps, but
+       ``"ffill"`` less so. For more control over handling missing values,
+       use :func:`~movement.filtering.interpolate_over_time`
+       before calling this function.
 
-    Choosing ``nan_policy="ffill"`` will use :meth:`xarray.DataArray.ffill`
-    to forward-fill missing positions across time before computing the
-    segment lengths. This equates to assuming that a track remains stationary
-    for the duration of a missing segment and then instantaneously moves to
-    the next valid position, following a straight line. Compared to the
-    default, this counts a straight-line crossing of each gap, which may
-    over- or under-estimate the true path length depending on the underlying
-    motion. Leading missing values cannot be forward-filled and are still
-    skipped.
-
-    **Sampling rate sensitivity ('coastline paradox'):**
-    The measured path length is sensitive to the temporal sampling rate
-    (i.e., frames per second) of the tracking data. Higher sampling rates
-    capture finer micro-movements and tracking jitter, which inherently
-    increases the total measured path length. Exercise caution when comparing
-    path lengths across datasets with different temporal resolutions.
+    2. **Sampling rate sensitivity ('coastline paradox'):**
+       The measured path length is sensitive to the temporal sampling rate
+       (i.e., frames per second) of the tracking data. Higher sampling rates
+       capture finer micro-movements and tracking jitter, which inherently
+       increases the total measured path length. Exercise caution when
+       comparing path lengths across datasets with different temporal
+       resolutions.
 
     See Also
     --------

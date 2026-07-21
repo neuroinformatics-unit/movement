@@ -245,7 +245,7 @@ def test_path_length_across_time_ranges(
             does_not_raise(),
         ),
         (
-            "invalid",  # invalid value for nan_policy
+            "scale",  # invalid value for nan_policy
             np.zeros(3),
             pytest.raises(ValueError, match="Invalid value for nan_policy"),
         ),
