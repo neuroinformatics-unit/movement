@@ -567,6 +567,12 @@ def _ds_to_pose_and_skeletons(
         if ds.time_unit == "seconds"
         else ds.time.values / getattr(ds, "fps", 1.0)
     )
+    if "keypoint" not in ds.confidence.dims:
+        logger.warning(
+            "Dataset contains individual-wise confidence scores. "
+            "NWB only supports keypoint-wise confidence scores, "
+            "so confidence values will be expanded to all keypoints."
+        )
     pose_estimation_series = [
         ndx_pose.PoseEstimationSeries(
             data=ds.sel(keypoint=keypoint).position.values,

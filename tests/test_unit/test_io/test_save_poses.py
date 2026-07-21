@@ -125,16 +125,20 @@ def test_to_dlc_style_df(ds, expected_exception):
 )
 @pytest.mark.parametrize("split_individuals", [True, False])
 def test_to_dlc_style_df_with_individual_confidence(
-    valid_poses_dataset_with_individual_wise_confidence, split_individuals
+    valid_poses_dataset_with_individual_wise_confidence,
+    split_individuals,
+    caplog,
 ):
     """Test that datasets with individual-wise confidence scores can
     be converted to DLC-style DataFrame(s), for single- and
     multi-individual datasets, and both ``split_individuals`` settings.
     The individual-wise confidence values should be expanded (repeated)
-    across all keypoints in the output DataFrame(s).
+    across all keypoints in the output DataFrame(s), and a warning
+    should be logged.
     """
     ds = valid_poses_dataset_with_individual_wise_confidence
     df = save_poses.to_dlc_style_df(ds, split_individuals=split_individuals)
+    assert "only supports keypoint-wise confidence scores" in caplog.text
     bodyparts = ds.coords["keypoint"].data.tolist()
     assert isinstance(df, dict if split_individuals else pd.DataFrame)
     for ind in ds.individual.values:
@@ -335,15 +339,16 @@ def test_to_lp_file_invalid_dataset(
     indirect=True,
 )
 def test_to_lp_file_with_individual_confidence(
-    valid_poses_dataset_with_individual_wise_confidence, tmp_path
+    valid_poses_dataset_with_individual_wise_confidence, tmp_path, caplog
 ):
     """Test that datasets with individual-wise confidence scores can
     be exported to LightningPose format, for single- and multi-individual
     datasets settings. The exported LightningPose file should be created
-    successfully.
+    successfully, and a warning should be logged.
     """
     ds = valid_poses_dataset_with_individual_wise_confidence
     save_poses.to_lp_file(ds, tmp_path / "test.csv")
+    assert "only supports keypoint-wise confidence scores" in caplog.text
     for ind in ds.individual.values:
         assert (tmp_path / f"test_{ind}.csv").is_file()
 
