@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=0979bb37"></script>
+    <script src="../_static/documentation_options.js?v=3e81315d"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev15</p>
+    <p class="title logo__title">movement v0.17.1.dev16</p>
   
 </a></div>
     
@@ -668,7 +668,8 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.utils.broadcasting.make_broadcastable">
 <span class="sig-prename descclassname"><span class="pre">movement.utils.broadcasting.</span></span><span class="sig-name descname"><span class="pre">make_broadcastable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_classmethod</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_broadcastable_along</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_dimension_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/broadcasting.html#make_broadcastable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.broadcasting.make_broadcastable" title="Link to this definition">#</a></dt>
-<dd><dl class="field-list simple">
+<dd><p>Create a decorator that allows a function to be broadcast.</p>
+<dl class="field-list simple">
 <dt class="field-odd">Overloads<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>is_classmethod</strong> (<span class="sphinx_autodoc_typehints-type">Literal[False]</span>), <strong>only_broadcastable_along</strong> (<span class="sphinx_autodoc_typehints-type">str | None</span>), <strong>new_dimension_name</strong> (<span class="sphinx_autodoc_typehints-type">str | None</span>) → <span class="sphinx_autodoc_typehints-type">Callable[[Function1DTo1D[P, ScalarOr1D]], FunctionDaToDa[P]]</span></p></li>
@@ -676,11 +677,8 @@
 <li><p><strong>is_classmethod</strong> (<span class="sphinx_autodoc_typehints-type">bool</span>), <strong>only_broadcastable_along</strong> (<span class="sphinx_autodoc_typehints-type">str | None</span>), <strong>new_dimension_name</strong> (<span class="sphinx_autodoc_typehints-type">str | None</span>) → <span class="sphinx_autodoc_typehints-type">Callable[…, FunctionDaToDa[P] | ClsMethodDaToDa[Self, P]]</span></p></li>
 </ul>
 </dd>
-</dl>
-<p>Create a decorator that allows a function to be broadcast.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>is_classmethod</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Whether the target of the decoration is a class method which takes
 the <code class="docutils literal notranslate"><span class="pre">self</span></code> argument, or a standalone function that receives no
 implicit arguments.</p></li>
@@ -691,13 +689,13 @@ here as the value for this argument.</p></li>
 <li><p><strong>new_dimension_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Passed to <a class="reference internal" href="movement.utils.broadcasting.apply_along_da_axis.html#movement.utils.broadcasting.apply_along_da_axis" title="movement.utils.broadcasting.apply_along_da_axis"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_along_da_axis()</span></code></a>.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Decorator function that can be applied with the
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Decorator function that can be applied with the
 <code class="docutils literal notranslate"><span class="pre">&#64;make_broadcastable(...)</span></code> syntax. See Notes for a description of
 the action of the returned decorator.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)">collections.abc.Callable</a></p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)">collections.abc.Callable</a></p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
