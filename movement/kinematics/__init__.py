@@ -19,6 +19,7 @@ from movement.kinematics.path import (
     compute_directional_change,
     compute_path_deviation,
     compute_path_length,
+    compute_path_sinuosity,
     compute_path_straightness,
     compute_turning_angle,
 )
@@ -35,6 +36,7 @@ __all__ = [
     "compute_directional_change",
     "compute_path_deviation",
     "compute_time_derivative",
+    "compute_path_sinuosity",
     "compute_pairwise_distances",
     "compute_forward_vector",
     "compute_head_direction_vector",

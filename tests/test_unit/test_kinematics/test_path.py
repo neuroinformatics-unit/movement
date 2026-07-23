@@ -9,14 +9,16 @@ from movement.kinematics import (
     compute_directional_change,
     compute_path_deviation,
     compute_path_length,
+    compute_path_sinuosity,
     compute_path_straightness,
     compute_turning_angle,
 )
 
-# Shared by all metrics that require at least 2 time points.
+# Shared by all metrics with a minimum number of time points.
+# The number itself is metric-specific, so it is left out of the match.
 time_points_value_error = pytest.raises(
     ValueError,
-    match="At least 2 time points are required",
+    match="time points are required",
 )
 
 # Pre-sliced time-range cases shared by multiple unit tests
@@ -165,6 +167,52 @@ def lateral_detour_paths(straight_paths):
     return path
 
 
+@pytest.fixture
+def regular_zigzag_path():
+    """Unit-step 90-degree zigzag (East, North, East, North, ...).
+
+    Every step has length 1, so the mean step length is 1 and the
+    coefficient of variation of step length is 0. Every turn is 90
+    degrees, so the mean cosine of the turning angles is
+    cos(90 deg) = 0. Benhamou 2004 Eq. 8 (the one used to compute
+    sinuosity) then reduces to
+    S = 2 * [1 * (1 + 0) / (1 - 0)]^(-1/2) = 2 / sqrt(1) = 2.0
+    """
+    n = 20
+    xy = np.zeros((n, 2))
+    for i in range(1, n):
+        xy[i] = xy[i - 1] + ([1, 0] if i % 2 else [0, 1])
+    return xr.DataArray(
+        xy,
+        dims=["time", "space"],
+        coords={"time": np.arange(n), "space": ["x", "y"]},
+    )
+
+
+@pytest.fixture
+def scaled_zigzag_path(regular_zigzag_path):
+    """Return the zigzag path with all positions scaled by a factor of 4.
+
+    Sinuosity has units of 1/sqrt(length), so scaling the positions by
+    k leaves the shape unchanged but divides S by sqrt(k).
+    Here S = 2.0 / sqrt(4) = 1.0.
+    """
+    return regular_zigzag_path * 4
+
+
+@pytest.fixture
+def zigzag_path_with_nan(regular_zigzag_path):
+    """Return the zigzag path with the position at time=10 missing.
+
+    The missing position invalidates 2 step lengths and 3 turning angles,
+    but every remaining step still has length 1 and every remaining turn
+    is still 90 degrees, so sinuosity (S) is unchanged at 2.0.
+    """
+    path = regular_zigzag_path.copy()
+    path.loc[{"time": 10}] = np.nan
+    return path
+
+
 # ─────────────────────────────────────────────
 # Cross-metric time-range tests
 # ─────────────────────────────────────────────
@@ -177,6 +225,7 @@ def lateral_detour_paths(straight_paths):
         pytest.param(compute_path_straightness, id="straightness"),
         pytest.param(compute_directional_change, id="directional-change"),
         pytest.param(compute_path_deviation, id="deviation"),
+        pytest.param(compute_path_sinuosity, id="sinuosity"),
     ],
 )
 def test_path_metrics_across_time_ranges(
@@ -801,3 +850,113 @@ def test_path_deviation_partially_degenerate_warns(straight_paths):
         assert np.isnan(result.sel(individual="id_0").values).all()
         id_1 = result.sel(individual="id_1")
         xr.testing.assert_allclose(id_1, xr.zeros_like(id_1))
+
+
+# ─────────────────────────────────────────────
+# Path sinuosity tests
+# ─────────────────────────────────────────────
+
+
+def test_path_sinuosity_too_few_timepoints(straight_paths):
+    """Test that sinuosity enforces the minimum length (3) requirement."""
+    # Slice the data to exactly 2 time points (which is only 1 segment)
+    position = straight_paths.isel(time=slice(0, 2))
+    with pytest.raises(ValueError, match="3 time points are required"):
+        compute_path_sinuosity(position)
+
+
+@pytest.mark.parametrize(
+    "fixture_name, expected_value",
+    [
+        pytest.param("straight_paths", 0.0, id="straight-line"),
+        pytest.param("stationary_paths", np.nan, id="stationary"),
+        pytest.param("regular_zigzag_path", 2.0, id="zigzag"),
+        pytest.param("scaled_zigzag_path", 1.0, id="zigzag-scaled-4x"),
+        pytest.param("zigzag_path_with_nan", 2.0, id="zigzag-with-nan"),
+    ],
+)
+def test_path_sinuosity_known_values(request, fixture_name, expected_value):
+    """Test that sinuosity matches expected values for standard geometries."""
+    position = request.getfixturevalue(fixture_name)
+    result = compute_path_sinuosity(position)
+    assert result.name == "sinuosity"
+    assert result.long_name == "Path Sinuosity"
+
+    assert set(result.dims) == set(position.dims) - {"time", "space"}
+    if np.isnan(expected_value):
+        assert result.isnull().all()
+    else:
+        xr.testing.assert_allclose(
+            result,
+            xr.full_like(result, expected_value),
+            atol=1e-7,
+        )
+
+
+def test_path_sinuosity_raises_on_3d(straight_paths_3d):
+    """Sinuosity is only defined for 2D data (inherited from turning angle)."""
+    with pytest.raises(
+        ValueError, match="Dimension 'space' must only contain"
+    ):
+        compute_path_sinuosity(straight_paths_3d)
+
+
+def test_path_sinuosity_all_nan(straight_paths):
+    """Test that fully missing tracks warn and yield NaN sinuosity."""
+    position = straight_paths.copy()
+    position[:] = np.nan
+    with pytest.warns(UserWarning, match="The result may be unreliable"):
+        result = compute_path_sinuosity(position)
+    assert result.isnull().all()
+
+
+def test_path_sinuosity_variable_reversals():
+    """Biological edge case: back-and-forth pacing with variable step lengths.
+
+    An animal repeatedly reversing direction but with naturalistic, variable
+    step lengths. This is a highly tortuous movement and should compute
+    successfully to a finite, positive value.
+    """
+    rng = np.random.default_rng(11)
+    n = 30
+    x = np.zeros(n)
+    for i in range(1, n):
+        # Reverse direction each step, but multiply by a random stride length
+        x[i] = x[i - 1] + rng.choice([-1, 1]) * rng.uniform(0.5, 2.0)
+    xy = np.column_stack([x, np.zeros(n)])
+
+    data = xr.DataArray(
+        xy,
+        dims=["time", "space"],
+        coords={"time": np.arange(n), "space": ["x", "y"]},
+    )
+    result = compute_path_sinuosity(data)
+
+    assert not result.isnull().any()
+    assert float(result.item()) > 0
+    assert np.isfinite(result.item())
+
+
+def test_path_sinuosity_outlier_step():
+    """Artefact edge case: Tracking 'teleportation'.
+
+    Simulates a tracker losing ID and assigning a point across the arena.
+    The massive jump creates an extreme standard deviation in step length (b).
+    The metric should not crash, but rather return a valid, finite float.
+    """
+    rng = np.random.default_rng(20)
+    n = 50
+    # Normal erratic movement
+    xy = np.column_stack([np.arange(n, dtype=float), rng.normal(0, 0.3, n)])
+    # Single massive tracking failure
+    xy[25] = [1000.0, 1000.0]
+
+    data = xr.DataArray(
+        xy,
+        dims=["time", "space"],
+        coords={"time": np.arange(n), "space": ["x", "y"]},
+    )
+    result = compute_path_sinuosity(data)
+
+    assert not result.isnull().any()
+    assert np.isfinite(result.item())
