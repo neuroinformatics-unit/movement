@@ -849,6 +849,19 @@ def scaled_zigzag_path(regular_zigzag_path):
     return regular_zigzag_path * 4
 
 
+@pytest.fixture
+def zigzag_path_with_nan(regular_zigzag_path):
+    """Return the zigzag path with the position at time=10 missing.
+
+    The missing position invalidates 2 step lengths and 3 turning angles,
+    but every remaining step still has length 1 and every remaining turn
+    is still 90 degrees, so S is unchanged at 2.0.
+    """
+    path = regular_zigzag_path.copy()
+    path.loc[{"time": 10}] = np.nan
+    return path
+
+
 @pytest.mark.parametrize(
     "fixture_name, expected_value",
     [
@@ -856,6 +869,7 @@ def scaled_zigzag_path(regular_zigzag_path):
         pytest.param("stationary_paths", np.nan, id="stationary"),
         pytest.param("regular_zigzag_path", 2.0, id="zigzag"),
         pytest.param("scaled_zigzag_path", 1.0, id="zigzag-scaled-4x"),
+        pytest.param("zigzag_path_with_nan", 2.0, id="zigzag-with-nan"),
     ],
 )
 def test_path_sinuosity_known_values(request, fixture_name, expected_value):
@@ -872,6 +886,15 @@ def test_path_sinuosity_known_values(request, fixture_name, expected_value):
             xr.full_like(result, expected_value),
             atol=1e-7,
         )
+
+
+def test_path_sinuosity_all_nan(straight_paths):
+    """Test that fully missing tracks warn and yield NaN sinuosity."""
+    position = straight_paths.copy()
+    position[:] = np.nan
+    with pytest.warns(UserWarning, match="The result may be unreliable"):
+        result = compute_path_sinuosity(position)
+    assert result.isnull().all()
 
 
 def test_path_sinuosity_variable_reversals():
