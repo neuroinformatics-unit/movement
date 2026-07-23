@@ -167,6 +167,50 @@ def lateral_detour_paths(straight_paths):
     return path
 
 
+@pytest.fixture
+def regular_zigzag_path():
+    """Unit-step 90-degree zigzag (East, North, East, North, ...).
+
+    Every step has length 1 (so b = 0) and every turn is 90 degrees
+    (so c_bar = cos(90) = 0). Benhamou 2004 Eq. 8
+    (the one used to compute sinuosity) then reduces to
+    S = 2 * [p * (1 + c_bar) / (1 - c_bar)]^(-1/2) = 2 / sqrt(1) = 2.0
+    """
+    n = 20
+    xy = np.zeros((n, 2))
+    for i in range(1, n):
+        xy[i] = xy[i - 1] + ([1, 0] if i % 2 else [0, 1])
+    return xr.DataArray(
+        xy,
+        dims=["time", "space"],
+        coords={"time": np.arange(n), "space": ["x", "y"]},
+    )
+
+
+@pytest.fixture
+def scaled_zigzag_path(regular_zigzag_path):
+    """Return the zigzag path with all positions scaled by a factor of 4.
+
+    Sinuosity has units of 1/sqrt(length), so scaling the positions by
+    k leaves the shape unchanged but divides S by sqrt(k).
+    Here S = 2.0 / sqrt(4) = 1.0.
+    """
+    return regular_zigzag_path * 4
+
+
+@pytest.fixture
+def zigzag_path_with_nan(regular_zigzag_path):
+    """Return the zigzag path with the position at time=10 missing.
+
+    The missing position invalidates 2 step lengths and 3 turning angles,
+    but every remaining step still has length 1 and every remaining turn
+    is still 90 degrees, so sinuosity (S) is unchanged at 2.0.
+    """
+    path = regular_zigzag_path.copy()
+    path.loc[{"time": 10}] = np.nan
+    return path
+
+
 # ─────────────────────────────────────────────
 # Cross-metric time-range tests
 # ─────────────────────────────────────────────
@@ -817,49 +861,6 @@ def test_path_sinuosity_too_few_timepoints(straight_paths):
     position = straight_paths.isel(time=slice(0, 2))
     with pytest.raises(ValueError, match="3 time points are required"):
         compute_path_sinuosity(position)
-
-
-@pytest.fixture
-def regular_zigzag_path():
-    """Unit-step 90-degree zigzag (East, North, East, North, ...).
-
-    Every step has length 1 (so b = 0) and every turn is 90 degrees
-    (so c_bar = cos(90) = 0). Benhamou 2004 Eq. 8 then reduces to
-    S = 2 * [p * (1 + c_bar) / (1 - c_bar)]^(-1/2) = 2 / sqrt(1) = 2.0
-    """
-    n = 20
-    xy = np.zeros((n, 2))
-    for i in range(1, n):
-        xy[i] = xy[i - 1] + ([1, 0] if i % 2 else [0, 1])
-    return xr.DataArray(
-        xy,
-        dims=["time", "space"],
-        coords={"time": np.arange(n), "space": ["x", "y"]},
-    )
-
-
-@pytest.fixture
-def scaled_zigzag_path(regular_zigzag_path):
-    """Return the zigzag path with all positions scaled by a factor of 4.
-
-    Sinuosity has units of 1/sqrt(length), so scaling the positions by
-    k leaves the shape unchanged but divides S by sqrt(k).
-    Here S = 2.0 / sqrt(4) = 1.0.
-    """
-    return regular_zigzag_path * 4
-
-
-@pytest.fixture
-def zigzag_path_with_nan(regular_zigzag_path):
-    """Return the zigzag path with the position at time=10 missing.
-
-    The missing position invalidates 2 step lengths and 3 turning angles,
-    but every remaining step still has length 1 and every remaining turn
-    is still 90 degrees, so S is unchanged at 2.0.
-    """
-    path = regular_zigzag_path.copy()
-    path.loc[{"time": 10}] = np.nan
-    return path
 
 
 @pytest.mark.parametrize(
