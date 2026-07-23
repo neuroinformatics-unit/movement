@@ -326,8 +326,6 @@ def compute_path_sinuosity(
     data : xarray.DataArray
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
-        To compute sinuosity over a specific time window, pre-slice with
-        ``data.sel(time=slice(start, stop))`` before passing in.
     nan_warn_threshold : float, optional
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
@@ -354,40 +352,34 @@ def compute_path_sinuosity(
     Turning angles are computed via :func:`compute_turning_angle`.
 
     NaN positions propagate to NaN step lengths and turning angles;
-    the statistics are then computed over the remaining valid samples
-    via ``skipna=True``.
+    the statistics are then computed over the remaining valid samples.
+    An entirely stationary track, or one with all NaN values,
+    will produce NaN sinuosity.
 
     Sinuosity has units of :math:`1/\sqrt{\text{length}}`, so its
     numerical value depends on the position units of the input data.
     Values are not directly comparable across datasets recorded in
     different spatial units.
 
-    **Edge cases**:
-
-    - :math:`\bar{c} = 1` (perfectly straight path): handled without
-      division-by-zero warnings; the formula naturally evaluates to
-      :math:`S = 0`.
-    - :math:`\bar{p} = 0` (entirely stationary track): S is NaN.
-    - All steps NaN: returns NaN.
-
     References
     ----------
     .. [1] Benhamou, S. (2004). How to reliably estimate the tortuosity
        of an animal's path: straightness, sinuosity, or fractal dimension?
-       *Journal of Theoretical Biology*, 229(2), 209–220.
+       *Journal of Theoretical Biology*, 229(2), 209-220.
        https://doi.org/10.1016/j.jtbi.2004.03.016
 
     Examples
     --------
-    Compute sinuosity for all individuals and keypoints:
+    >>> from movement.kinematics import compute_path_sinuosity
 
-    >>> sinuosity = compute_path_sinuosity(ds.position)
+    Compute sinuosity for the centroid trajectory of a poses dataset ``ds``:
 
-    Constrain to a specific time window using xarray's ``.sel()``:
+    >>> centroid = ds.position.mean(dim="keypoint")
+    >>> sinuosity = compute_path_sinuosity(centroid)
 
-    >>> sinuosity = compute_path_sinuosity(
-    ...     ds.position.sel(time=slice(10.0, 60.0))
-    ... )
+    Compute sinuosity over a specific time window:
+
+    >>> sinuosity = compute_path_sinuosity(centroid.sel(time=slice(0, 100)))
 
     """
     data = _validate_time_points(
@@ -396,19 +388,15 @@ def compute_path_sinuosity(
 
     _warn_about_nan_proportion(data, nan_warn_threshold)
 
-    # --- Step lengths -------------------------------------------------------
     step_lengths = _segment_lengths(data)
-
-    # --- Turning angles -----------------------------------------------------
     theta = compute_turning_angle(data)
 
-    # --- Summary statistics (NaN-aware) -------------------------------------
+    # Summary statistics (NaN-aware)
     p_bar = step_lengths.mean(dim="time", skipna=True)
     c_bar = xr.apply_ufunc(np.cos, theta).mean(dim="time", skipna=True)
     b = step_lengths.std(dim="time", skipna=True) / p_bar
 
-    # --- Benhamou 2004 Eq. 8 ------------------------------------------------
-    # c_bar -> 1 for a perfectly straight path, giving S -> 0.
+    # Benhamou 2004 Eq. 8
     result = 2.0 * (p_bar * ((1.0 + c_bar) / (1.0 - c_bar) + b**2)) ** -0.5
 
     result.name = "sinuosity"
