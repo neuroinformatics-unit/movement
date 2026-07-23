@@ -572,11 +572,7 @@ def compute_maximum_expected_displacement(
     1. **Mean cosine of the turning angles.**
        :math:`\bar{c} = \overline{\cos\theta}` is the ``time`` average
        (ignoring ``NaN`` values) of the cosine of the turning angles
-       :math:`\theta` returned by :func:`compute_turning_angle`. Each
-       :math:`\theta` is the signed rotation from the backward
-       displacement step arriving at ``t-1`` to the step arriving at
-       ``t``, computed via
-       :func:`movement.utils.vector.compute_signed_angle_2d`. The first
+       :math:`\theta` returned by :func:`compute_turning_angle`. The first
        two time steps have no defined turning angle and so do not
        contribute.
     2. **Range.** :math:`E_{\max}^{(a)} \in [-0.5, \infty)`. While
