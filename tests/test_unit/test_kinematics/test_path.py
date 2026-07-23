@@ -1076,18 +1076,12 @@ def test_maximum_expected_displacement_straight_path_is_inf(
             [[5.0, 5.0], [5.0, 5.0], [5.0, 5.0], [5.0, 5.0]],
             id="stationary",
         ),
-        pytest.param(
-            [[0.0, 0.0], [1.0, 0.0]],
-            id="only_two_timepoints",
-        ),
     ],
 )
 def test_maximum_expected_displacement_all_nan_output(
     positions, in_spatial_units
 ):
-    """Test cases where E_max should be NaN: a stationary track has no
-    valid turning angles, and two time points define no turning angle.
-    """
+    """A stationary track has no valid turning angles, so E_max is NaN."""
     data = xr.DataArray(
         np.array(positions),
         dims=["time", "space"],
@@ -1100,6 +1094,14 @@ def test_maximum_expected_displacement_all_nan_output(
         data, in_spatial_units=in_spatial_units
     )
     assert result.isnull().all()
+
+
+def test_maximum_expected_displacement_too_few_timepoints(straight_paths):
+    """E_max needs at least 3 time points for one valid turning angle."""
+    # Slice the data to exactly 2 time points (which is only 1 segment)
+    position = straight_paths.isel(time=slice(0, 2))
+    with pytest.raises(ValueError, match="3 time points are required"):
+        compute_maximum_expected_displacement(position)
 
 
 def test_maximum_expected_displacement_output_shape(straight_paths):

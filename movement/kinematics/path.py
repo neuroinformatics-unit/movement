@@ -624,21 +624,16 @@ def compute_maximum_expected_displacement(
     ... )
 
     """
-    data = _validate_time_points(data, "maximum expected displacement")
+    data = _validate_time_points(
+        data, metric_name="maximum expected displacement", min_points=3
+    )
 
     theta = compute_turning_angle(data)
     mean_cosine = cast("xr.DataArray", np.cos(theta)).mean(
         dim="time", skipna=True
     )
 
-    # mean_cosine -> 1 for a perfectly straight path, giving E_max -> +inf.
-    # Guard the division so the zero denominator does not emit a warning.
-    one_minus_c = 1 - mean_cosine
-    emax = xr.where(
-        one_minus_c == 0,
-        np.inf,
-        mean_cosine / one_minus_c.where(one_minus_c != 0),
-    )
+    emax = mean_cosine / (1 - mean_cosine)
 
     if in_spatial_units:
         emax = emax * _segment_lengths(data).mean(dim="time", skipna=True)
