@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=3e81315d"></script>
+    <script src="../../_static/documentation_options.js?v=9af9b544"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev16</p>
+    <p class="title logo__title">movement v0.17.1.dev17</p>
   
 </a></div>
     
@@ -496,12 +496,15 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">confidence</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span>
+    <span class="n">keep_points_with_nan_confidence</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop data points below a certain confidence threshold.</span>
 
 <span class="sd">    Data points with an associated confidence value below the threshold are</span>
-<span class="sd">    converted to NaN.</span>
+<span class="sd">    converted to NaN. Data points with a missing (NaN) confidence value are</span>
+<span class="sd">    kept by default, but this can be changed via</span>
+<span class="sd">    ``keep_points_with_nan_confidence``.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -512,6 +515,9 @@
 <span class="sd">    threshold</span>
 <span class="sd">        The confidence threshold below which datapoints are filtered.</span>
 <span class="sd">        A default value of ``0.6`` is used. See notes for more information.</span>
+<span class="sd">    keep_points_with_nan_confidence</span>
+<span class="sd">        Whether to keep data points whose confidence value is NaN.</span>
+<span class="sd">        Default is ``True``. See notes for more information.</span>
 <span class="sd">    print_report</span>
 <span class="sd">        Whether to print a report on the number of NaNs in the dataset</span>
 <span class="sd">        before and after filtering. Default is ``False``.</span>
@@ -533,8 +539,18 @@
 <span class="sd">    pose estimation frameworks. We advise users to inspect the confidence</span>
 <span class="sd">    values in their dataset and adjust the threshold accordingly.</span>
 
+<span class="sd">    A missing (NaN) confidence value may mean that the point was manually</span>
+<span class="sd">    annotated or edited, and therefore has no associated model confidence.</span>
+<span class="sd">    For example, this is the case for points proof-read in SLEAP. Such</span>
+<span class="sd">    points are the ones we should be most confident about, so they are kept</span>
+<span class="sd">    by default. Set ``keep_points_with_nan_confidence=False`` to drop them</span>
+<span class="sd">    instead.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data_filtered</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">confidence</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">)</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="n">confidence</span> <span class="o">&gt;=</span> <span class="n">threshold</span>
+    <span class="k">if</span> <span class="n">keep_points_with_nan_confidence</span><span class="p">:</span>
+        <span class="n">keep</span> <span class="o">=</span> <span class="n">keep</span> <span class="o">|</span> <span class="n">confidence</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
+    <span class="n">data_filtered</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">))</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_filtered</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">))</span>

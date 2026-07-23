@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=3e81315d"></script>
+    <script src="../_static/documentation_options.js?v=9af9b544"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev16</p>
+    <p class="title logo__title">movement v0.17.1.dev17</p>
   
 </a></div>
     
@@ -667,10 +667,12 @@
 <h1>filter_by_confidence<a class="headerlink" href="#filter-by-confidence" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.filtering.filter_by_confidence">
-<span class="sig-prename descclassname"><span class="pre">movement.filtering.</span></span><span class="sig-name descname"><span class="pre">filter_by_confidence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/filtering.html#filter_by_confidence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.filtering.filter_by_confidence" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">movement.filtering.</span></span><span class="sig-name descname"><span class="pre">filter_by_confidence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_points_with_nan_confidence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">print_report</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/filtering.html#filter_by_confidence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.filtering.filter_by_confidence" title="Link to this definition">#</a></dt>
 <dd><p>Drop data points below a certain confidence threshold.</p>
 <p>Data points with an associated confidence value below the threshold are
-converted to NaN.</p>
+converted to NaN. Data points with a missing (NaN) confidence value are
+kept by default, but this can be changed via
+<code class="docutils literal notranslate"><span class="pre">keep_points_with_nan_confidence</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -678,6 +680,8 @@ converted to NaN.</p>
 <li><p><strong>confidence</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The data array containing confidence scores to filter by.</p></li>
 <li><p><strong>threshold</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – The confidence threshold below which datapoints are filtered.
 A default value of <code class="docutils literal notranslate"><span class="pre">0.6</span></code> is used. See notes for more information.</p></li>
+<li><p><strong>keep_points_with_nan_confidence</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Whether to keep data points whose confidence value is NaN.
+Default is <code class="docutils literal notranslate"><span class="pre">True</span></code>. See notes for more information.</p></li>
 <li><p><strong>print_report</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Whether to print a report on the number of NaNs in the dataset
 before and after filtering. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 </ul>
@@ -699,6 +703,12 @@ range above 1. Therefore, the default threshold value will not be
 appropriate for all datasets and does not have the same meaning across
 pose estimation frameworks. We advise users to inspect the confidence
 values in their dataset and adjust the threshold accordingly.</p>
+<p>A missing (NaN) confidence value may mean that the point was manually
+annotated or edited, and therefore has no associated model confidence.
+For example, this is the case for points proof-read in SLEAP. Such
+points are the ones we should be most confident about, so they are kept
+by default. Set <code class="docutils literal notranslate"><span class="pre">keep_points_with_nan_confidence=False</span></code> to drop them
+instead.</p>
 </dd></dl>
 
 <section id="examples-using-filter-by-confidence">
