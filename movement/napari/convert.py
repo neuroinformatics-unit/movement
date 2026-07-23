@@ -285,14 +285,13 @@ def napari_layers_to_ds(
                     "edited"
                 ]
                 .to_xarray()
-                .fillna(False)
-                .astype(bool)
                 .reindex(
                     time=time_coords,
                     keypoint=keypoint_coords,
                     individual=individual_coords,
-                    fill_value=False,
                 )
+                .fillna(False)
+                .astype(bool)
             )
 
         position_df = position_df.melt(
