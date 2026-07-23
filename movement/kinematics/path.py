@@ -409,14 +409,7 @@ def compute_path_sinuosity(
 
     # --- Benhamou 2004 Eq. 8 ------------------------------------------------
     # c_bar -> 1 for a perfectly straight path, giving S -> 0.
-    # Guard the division so the zero denominator does not emit a warning.
-    one_minus_c = 1.0 - c_bar
-    angle_term = xr.where(
-        one_minus_c == 0,
-        np.inf,
-        (1.0 + c_bar) / one_minus_c.where(one_minus_c != 0),
-    )
-    result = 2.0 * (p_bar * (angle_term + b**2)) ** -0.5
+    result = 2.0 * (p_bar * ((1.0 + c_bar) / (1.0 - c_bar) + b**2)) ** -0.5
 
     result.name = "sinuosity"
     result.attrs["long_name"] = "Path Sinuosity"
