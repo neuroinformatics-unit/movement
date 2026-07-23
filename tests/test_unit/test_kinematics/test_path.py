@@ -838,12 +838,24 @@ def regular_zigzag_path():
     )
 
 
+@pytest.fixture
+def scaled_zigzag_path(regular_zigzag_path):
+    """Return the zigzag path with all positions scaled by a factor of 4.
+
+    Sinuosity has units of 1/sqrt(length), so scaling the positions by
+    k leaves the shape unchanged but divides S by sqrt(k).
+    Here S = 2.0 / sqrt(4) = 1.0.
+    """
+    return regular_zigzag_path * 4
+
+
 @pytest.mark.parametrize(
     "fixture_name, expected_value",
     [
         pytest.param("straight_paths", 0.0, id="straight-line"),
         pytest.param("stationary_paths", np.nan, id="stationary"),
         pytest.param("regular_zigzag_path", 2.0, id="zigzag"),
+        pytest.param("scaled_zigzag_path", 1.0, id="zigzag-scaled-4x"),
     ],
 )
 def test_path_sinuosity_known_values(request, fixture_name, expected_value):
