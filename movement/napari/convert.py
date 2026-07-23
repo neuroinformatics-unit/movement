@@ -67,8 +67,9 @@ def ds_to_napari_layers(
         (track_id, frame, y, x). Returns None when the input dataset doesn't
         have a "shape" variable.
     properties : pandas.DataFrame
-        DataFrame with properties (individual, keypoint, time, confidence,
-        edited) for use with napari layers.
+        DataFrame with properties (individual, keypoint, time, confidence)
+        for use with napari layers. An ``edited`` column is also included
+        if the input dataset has an ``edited`` variable.
 
     See Also
     --------
