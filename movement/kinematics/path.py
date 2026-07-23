@@ -7,7 +7,7 @@ keypoint representing the individual's overall position (e.g., centroid).
 """
 
 import warnings
-from typing import Literal, cast
+from typing import Literal
 
 import numpy as np
 import xarray as xr
@@ -629,9 +629,7 @@ def compute_maximum_expected_displacement(
     )
 
     theta = compute_turning_angle(data)
-    mean_cosine = cast("xr.DataArray", np.cos(theta)).mean(
-        dim="time", skipna=True
-    )
+    mean_cosine = xr.apply_ufunc(np.cos, theta).mean(dim="time", skipna=True)
 
     emax = mean_cosine / (1 - mean_cosine)
 
