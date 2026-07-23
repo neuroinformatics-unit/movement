@@ -171,10 +171,12 @@ def lateral_detour_paths(straight_paths):
 def regular_zigzag_path():
     """Unit-step 90-degree zigzag (East, North, East, North, ...).
 
-    Every step has length 1 (so b = 0) and every turn is 90 degrees
-    (so c_bar = cos(90) = 0). Benhamou 2004 Eq. 8
-    (the one used to compute sinuosity) then reduces to
-    S = 2 * [p * (1 + c_bar) / (1 - c_bar)]^(-1/2) = 2 / sqrt(1) = 2.0
+    Every step has length 1, so the mean step length is 1 and the
+    coefficient of variation of step length is 0. Every turn is 90
+    degrees, so the mean cosine of the turning angles is
+    cos(90 deg) = 0. Benhamou 2004 Eq. 8 (the one used to compute
+    sinuosity) then reduces to
+    S = 2 * [1 * (1 + 0) / (1 - 0)]^(-1/2) = 2 / sqrt(1) = 2.0
     """
     n = 20
     xy = np.zeros((n, 2))

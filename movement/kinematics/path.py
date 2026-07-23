@@ -392,12 +392,17 @@ def compute_path_sinuosity(
     theta = compute_turning_angle(data)
 
     # Summary statistics (NaN-aware)
-    p_bar = step_lengths.mean(dim="time", skipna=True)
-    c_bar = xr.apply_ufunc(np.cos, theta).mean(dim="time", skipna=True)
-    b = step_lengths.std(dim="time", skipna=True) / p_bar
+    mean_step_length = step_lengths.mean(dim="time", skipna=True)
+    mean_cosine = xr.apply_ufunc(np.cos, theta).mean(dim="time", skipna=True)
+    step_length_cv = (
+        step_lengths.std(dim="time", skipna=True) / mean_step_length
+    )
 
     # Benhamou 2004 Eq. 8
-    result = 2.0 * (p_bar * ((1.0 + c_bar) / (1.0 - c_bar) + b**2)) ** -0.5
+    angular_term = (1.0 + mean_cosine) / (1.0 - mean_cosine)
+    result = (
+        2.0 * (mean_step_length * (angular_term + step_length_cv**2)) ** -0.5
+    )
 
     result.name = "sinuosity"
     result.attrs["long_name"] = "Path Sinuosity"
