@@ -38,6 +38,8 @@ movement.kinematics
     
     compute_path_length
     
+    compute_path_sinuosity
+    
     compute_path_straightness
     
     compute_speed

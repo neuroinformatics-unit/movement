@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=9af9b544"></script>
+    <script src="../../../_static/documentation_options.js?v=72e31686"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev17</p>
+    <p class="title logo__title">movement v0.17.1.dev18</p>
   
 </a></div>
     
@@ -784,6 +784,123 @@
 
 
 
+<div class="viewcode-block" id="compute_path_sinuosity">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_path_sinuosity.html#movement.kinematics.compute_path_sinuosity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_path_sinuosity</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the sinuosity of a path.</span>
+
+<span class="sd">    Sinuosity (S) quantifies the tortuosity of a path by combining</span>
+<span class="sd">    turning angle statistics with step-length variability. Higher</span>
+<span class="sd">    values indicate more tortuous movement. A perfectly straight</span>
+<span class="sd">    path has S = 0.</span>
+
+<span class="sd">    The corrected sinuosity index (Eq. 8 in [1]_) is defined as:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        S = 2\left[\bar{p}\left(</span>
+<span class="sd">            \frac{1+\bar{c}}{1-\bar{c}} + b^{2}</span>
+<span class="sd">        \right)\right]^{-1/2}</span>
+
+<span class="sd">    where :math:`\bar{p}` is the mean step length,</span>
+<span class="sd">    :math:`\bar{c} = \tfrac{1}{n}\sum_{i=1}^{n}\cos(\phi_i)` is the mean</span>
+<span class="sd">    cosine of turning angles, and</span>
+<span class="sd">    :math:`b = \mathrm{SD}(p_i)\,/\,\bar{p}` is the coefficient of</span>
+<span class="sd">    variation of step length.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : xarray.DataArray</span>
+<span class="sd">        The input data containing position information, with ``time``</span>
+<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
+<span class="sd">    nan_warn_threshold : float, optional</span>
+<span class="sd">        If any point track in the data has at least (:math:`\ge`)</span>
+<span class="sd">        this proportion of values missing, a warning will be emitted.</span>
+<span class="sd">        Defaults to ``0.2`` (20%).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        An xarray DataArray containing the computed sinuosity,</span>
+<span class="sd">        with dimensions matching those of the input data,</span>
+<span class="sd">        except ``time`` and ``space`` are removed.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    compute_path_length : Total distance travelled along a path.</span>
+<span class="sd">    compute_path_straightness : Net displacement divided by path length.</span>
+<span class="sd">    compute_turning_angle : Step-wise turning angle along a path.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Step lengths are computed as the norm of backward displacement vectors</span>
+<span class="sd">    via :func:`~movement.utils.vector.compute_norm` and</span>
+<span class="sd">    :func:`~movement.kinematics.compute_backward_displacement`.</span>
+<span class="sd">    Turning angles are computed via :func:`compute_turning_angle`.</span>
+
+<span class="sd">    NaN positions propagate to NaN step lengths and turning angles;</span>
+<span class="sd">    the statistics are then computed over the remaining valid samples.</span>
+<span class="sd">    An entirely stationary track, or one with all NaN values,</span>
+<span class="sd">    will produce NaN sinuosity.</span>
+
+<span class="sd">    Sinuosity has units of :math:`1/\sqrt{\text{length}}`, so its</span>
+<span class="sd">    numerical value depends on the position units of the input data.</span>
+<span class="sd">    Values are not directly comparable across datasets recorded in</span>
+<span class="sd">    different spatial units.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Benhamou, S. (2004). How to reliably estimate the tortuosity</span>
+<span class="sd">       of an animal&#39;s path: straightness, sinuosity, or fractal dimension?</span>
+<span class="sd">       *Journal of Theoretical Biology*, 229(2), 209-220.</span>
+<span class="sd">       https://doi.org/10.1016/j.jtbi.2004.03.016</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from movement.kinematics import compute_path_sinuosity</span>
+
+<span class="sd">    Compute sinuosity for the centroid trajectory of a poses dataset ``ds``:</span>
+
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoint&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; sinuosity = compute_path_sinuosity(centroid)</span>
+
+<span class="sd">    Compute sinuosity over a specific time window:</span>
+
+<span class="sd">    &gt;&gt;&gt; sinuosity = compute_path_sinuosity(centroid.sel(time=slice(0, 100)))</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;path sinuosity&quot;</span><span class="p">,</span> <span class="n">min_points</span><span class="o">=</span><span class="mi">3</span>
+    <span class="p">)</span>
+
+    <span class="n">_warn_about_nan_proportion</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">)</span>
+
+    <span class="n">step_lengths</span> <span class="o">=</span> <span class="n">_segment_lengths</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">compute_turning_angle</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1"># Summary statistics (NaN-aware)</span>
+    <span class="n">mean_step_length</span> <span class="o">=</span> <span class="n">step_lengths</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mean_cosine</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">step_length_cv</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">step_lengths</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">/</span> <span class="n">mean_step_length</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Benhamou 2004 Eq. 8</span>
+    <span class="n">angular_term</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">mean_cosine</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">mean_cosine</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">mean_step_length</span> <span class="o">*</span> <span class="p">(</span><span class="n">angular_term</span> <span class="o">+</span> <span class="n">step_length_cv</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">**</span> <span class="o">-</span><span class="mf">0.5</span>
+    <span class="p">)</span>
+
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;sinuosity&quot;</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Path Sinuosity&quot;</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
 <div class="viewcode-block" id="compute_directional_change">
 <a class="viewcode-back" href="../../../api/movement.kinematics.compute_directional_change.html#movement.kinematics.compute_directional_change">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_directional_change</span><span class="p">(</span>
@@ -1007,15 +1124,19 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_time_points</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">min_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate dims/coords and require at least 2 time points.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate dims/coords and require at least ``min_points`` time points.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : xarray.DataArray</span>
 <span class="sd">        Position data with ``time`` and ``space`` dimensions.</span>
 <span class="sd">    metric_name : str</span>
-<span class="sd">        Used in the error message when there are fewer than 2 time points.</span>
+<span class="sd">        Used in the error message when there are fewer than ``min_points``</span>
+<span class="sd">        time points.</span>
+<span class="sd">    min_points : int, optional</span>
+<span class="sd">        The minimum number of time points required. Defaults to 2.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1025,10 +1146,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[]})</span>
     <span class="n">n_time</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">n_time</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">n_time</span> <span class="o">&lt;</span> <span class="n">min_points</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;At least 2 time points are required to compute &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;At least </span><span class="si">{</span><span class="n">min_points</span><span class="si">}</span><span class="s2"> time points are required to compute &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2">, but </span><span class="si">{</span><span class="n">n_time</span><span class="si">}</span><span class="s2"> were found.&quot;</span>
             <span class="p">)</span>
         <span class="p">)</span>

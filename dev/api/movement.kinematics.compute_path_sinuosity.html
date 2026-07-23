@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>MovementLogger &#8212; movement</title>
+    <title>compute_path_sinuosity &#8212; movement</title>
   
   
   
@@ -50,7 +50,9 @@
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.utils.logging.MovementLogger';</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.kinematics.compute_path_sinuosity';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
@@ -60,12 +62,12 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <script src="../_static/js/contributors.js?v=c45a1201"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.utils.logging.MovementLogger.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.kinematics.compute_path_sinuosity.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="log_to_attrs" href="movement.utils.logging.log_to_attrs.html" />
-    <link rel="prev" title="movement.utils.logging" href="movement.utils.logging.html" /> 
+    <link rel="next" title="compute_path_straightness" href="movement.kinematics.compute_path_straightness.html" />
+    <link rel="prev" title="compute_path_length" href="movement.kinematics.compute_path_length.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -490,7 +492,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">to_sleap_analysis_file</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="movement.kinematics.html">movement.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.kinematics.html">movement.kinematics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_acceleration.html">compute_acceleration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_backward_displacement.html">compute_backward_displacement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_directional_change.html">compute_directional_change</a></li>
@@ -502,7 +504,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_pairwise_distances.html">compute_pairwise_distances</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_deviation.html">compute_path_deviation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_length.html">compute_path_length</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_sinuosity.html">compute_path_sinuosity</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">compute_path_sinuosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_straightness.html">compute_path_straightness</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_speed.html">compute_speed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_time_derivative.html">compute_time_derivative</a></li>
@@ -561,8 +563,8 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.broadcasting.space_broadcastable.html">space_broadcastable</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.utils.logging.html">movement.utils.logging</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">MovementLogger</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.utils.logging.html">movement.utils.logging</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.MovementLogger.html">MovementLogger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.log_to_attrs.html">log_to_attrs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.utils.logging.showwarning.html">showwarning</a></li>
 </ul>
@@ -646,9 +648,9 @@
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="movement.utils.logging.html" class="nav-link">movement.utils.logging</a></li>
+    <li class="breadcrumb-item"><a href="movement.kinematics.html" class="nav-link">movement.kinematics</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">MovementLogger</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compute_path_sinuosity</span></li>
   </ul>
 </nav>
 </div>
@@ -664,70 +666,92 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="movementlogger">
-<h1>MovementLogger<a class="headerlink" href="#movementlogger" title="Link to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="movement.utils.logging.MovementLogger">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">movement.utils.logging.</span></span><span class="sig-name descname"><span class="pre">MovementLogger</span></span><a class="reference internal" href="../_modules/movement/utils/logging.html#MovementLogger"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.MovementLogger" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>A custom logger extending the <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#module-loguru._logger" title="(in loguru)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">loguru</span> <span class="pre">logger</span></code></a>.</p>
-<p class="rubric">Methods</p>
-<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement.utils.logging.MovementLogger.configure" title="movement.utils.logging.MovementLogger.configure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure</span></code></a>([log_file_name, log_directory, ...])</p></td>
-<td><p>Configure a rotating file logger and optionally a console logger.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#movement.utils.logging.MovementLogger.error" title="movement.utils.logging.MovementLogger.error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">error</span></code></a>(message, *args, **kwargs)</p></td>
-<td><p>Log error message and optionally return an Exception.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#movement.utils.logging.MovementLogger.exception" title="movement.utils.logging.MovementLogger.exception"><code class="xref py py-obj docutils literal notranslate"><span class="pre">exception</span></code></a>(message, *args, **kwargs)</p></td>
-<td><p>Log error message with traceback and optionally return an Exception.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<dl class="py method">
-<dt class="sig sig-object py" id="movement.utils.logging.MovementLogger.configure">
-<span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">log_file_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'movement'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">PosixPath('/home/runner/.movement')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">console</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/logging.html#MovementLogger.configure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.MovementLogger.configure" title="Link to this definition">#</a></dt>
-<dd><p>Configure a rotating file logger and optionally a console logger.</p>
-<p>This method configures a rotating log file that
-logs at the DEBUG level with a maximum size of 5 MB
-and retains the last log file.
-It also optionally adds a console (<a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.stderr" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">sys.stderr</span></code></a>) handler
-that logs at the WARNING level.
-Finally, it redirects warnings from the <a class="reference external" href="https://docs.python.org/3/library/warnings.html#module-warnings" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> module
-to the logger.</p>
+                   <section id="compute-path-sinuosity">
+<h1>compute_path_sinuosity<a class="headerlink" href="#compute-path-sinuosity" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="movement.kinematics.compute_path_sinuosity">
+<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_path_sinuosity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_warn_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/path.html#compute_path_sinuosity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_path_sinuosity" title="Link to this definition">#</a></dt>
+<dd><p>Compute the sinuosity of a path.</p>
+<p>Sinuosity (S) quantifies the tortuosity of a path by combining
+turning angle statistics with step-length variability. Higher
+values indicate more tortuous movement. A perfectly straight
+path has S = 0.</p>
+<p>The corrected sinuosity index (Eq. 8 in <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>) is defined as:</p>
+<div class="math notranslate nohighlight">
+\[S = 2\left[\bar{p}\left(
+    \frac{1+\bar{c}}{1-\bar{c}} + b^{2}
+\right)\right]^{-1/2}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\bar{p}\)</span> is the mean step length,
+<span class="math notranslate nohighlight">\(\bar{c} = \tfrac{1}{n}\sum_{i=1}^{n}\cos(\phi_i)\)</span> is the mean
+cosine of turning angles, and
+<span class="math notranslate nohighlight">\(b = \mathrm{SD}(p_i)\,/\,\bar{p}\)</span> is the coefficient of
+variation of step length.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>log_file_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – The name of the log file. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;movement&quot;</span></code>.</p></li>
-<li><p><strong>log_directory</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – The directory to store the log file in. Defaults to
-<code class="docutils literal notranslate"><span class="pre">&quot;~/.movement&quot;</span></code>. A different directory can be specified,
-for example, for testing purposes.</p></li>
-<li><p><strong>console</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Whether to add a console logger. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input data containing position information, with <code class="docutils literal notranslate"><span class="pre">time</span></code>
+and <code class="docutils literal notranslate"><span class="pre">space</span></code> (in Cartesian coordinates) as required dimensions.</p></li>
+<li><p><strong>nan_warn_threshold</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – If any point track in the data has at least (<span class="math notranslate nohighlight">\(\ge\)</span>)
+this proportion of values missing, a warning will be emitted.
+Defaults to <code class="docutils literal notranslate"><span class="pre">0.2</span></code> (20%).</p></li>
 </ul>
 </dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An xarray DataArray containing the computed sinuosity,
+with dimensions matching those of the input data,
+except <code class="docutils literal notranslate"><span class="pre">time</span></code> and <code class="docutils literal notranslate"><span class="pre">space</span></code> are removed.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
+</dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="movement.utils.logging.MovementLogger.error">
-<span class="sig-name descname"><span class="pre">error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/logging.html#MovementLogger.error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.MovementLogger.error" title="Link to this definition">#</a></dt>
-<dd><p>Log error message and optionally return an Exception.</p>
-<p>This method overrides loguru’s
-<a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.error" title="(in loguru)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.error()</span></code></a> to optionally
-return an Exception if the message is an Exception.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="movement.utils.logging.MovementLogger.exception">
-<span class="sig-name descname"><span class="pre">exception</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/logging.html#MovementLogger.exception"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.MovementLogger.exception" title="Link to this definition">#</a></dt>
-<dd><p>Log error message with traceback and optionally return an Exception.</p>
-<p>This method overrides loguru’s
-<a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.exception" title="(in loguru)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.exception()</span></code></a> to
-optionally return an Exception if the message is an Exception.</p>
-</dd></dl>
-
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_length</span></code></a></dt><dd><p>Total distance travelled along a path.</p>
+</dd>
+<dt><a class="reference internal" href="movement.kinematics.compute_path_straightness.html#movement.kinematics.compute_path_straightness" title="movement.kinematics.compute_path_straightness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_straightness</span></code></a></dt><dd><p>Net displacement divided by path length.</p>
+</dd>
+<dt><a class="reference internal" href="movement.kinematics.compute_turning_angle.html#movement.kinematics.compute_turning_angle" title="movement.kinematics.compute_turning_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_turning_angle</span></code></a></dt><dd><p>Step-wise turning angle along a path.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<p>Step lengths are computed as the norm of backward displacement vectors
+via <a class="reference internal" href="movement.utils.vector.compute_norm.html#movement.utils.vector.compute_norm" title="movement.utils.vector.compute_norm"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_norm()</span></code></a> and
+<a class="reference internal" href="movement.kinematics.compute_backward_displacement.html#movement.kinematics.compute_backward_displacement" title="movement.kinematics.compute_backward_displacement"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_backward_displacement()</span></code></a>.
+Turning angles are computed via <a class="reference internal" href="movement.kinematics.compute_turning_angle.html#movement.kinematics.compute_turning_angle" title="movement.kinematics.compute_turning_angle"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_turning_angle()</span></code></a>.</p>
+<p>NaN positions propagate to NaN step lengths and turning angles;
+the statistics are then computed over the remaining valid samples.
+An entirely stationary track, or one with all NaN values,
+will produce NaN sinuosity.</p>
+<p>Sinuosity has units of <span class="math notranslate nohighlight">\(1/\sqrt{\text{length}}\)</span>, so its
+numerical value depends on the position units of the input data.
+Values are not directly comparable across datasets recorded in
+different spatial units.</p>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Benhamou, S. (2004). How to reliably estimate the tortuosity
+of an animal’s path: straightness, sinuosity, or fractal dimension?
+<em>Journal of Theoretical Biology</em>, 229(2), 209-220.
+<a class="reference external" href="https://doi.org/10.1016/j.jtbi.2004.03.016">https://doi.org/10.1016/j.jtbi.2004.03.016</a></p>
+</aside>
+</aside>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_path_sinuosity</span>
+</pre></div>
+</div>
+<p>Compute sinuosity for the centroid trajectory of a poses dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">centroid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sinuosity</span> <span class="o">=</span> <span class="n">compute_path_sinuosity</span><span class="p">(</span><span class="n">centroid</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Compute sinuosity over a specific time window:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sinuosity</span> <span class="o">=</span> <span class="n">compute_path_sinuosity</span><span class="p">(</span><span class="n">centroid</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)))</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
@@ -746,20 +770,20 @@ optionally return an Exception if the message is an Exception.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.utils.logging.html"
+       href="movement.kinematics.compute_path_length.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">movement.utils.logging</p>
+        <p class="prev-next-title">compute_path_length</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.utils.logging.log_to_attrs.html"
+       href="movement.kinematics.compute_path_straightness.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">log_to_attrs</p>
+        <p class="prev-next-title">compute_path_straightness</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -782,19 +806,14 @@ optionally return an Exception if the message is an Exception.</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.utils.logging.MovementLogger"><code class="docutils literal notranslate"><span class="pre">MovementLogger</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.utils.logging.MovementLogger.configure"><code class="docutils literal notranslate"><span class="pre">MovementLogger.configure()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.utils.logging.MovementLogger.error"><code class="docutils literal notranslate"><span class="pre">MovementLogger.error()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.utils.logging.MovementLogger.exception"><code class="docutils literal notranslate"><span class="pre">MovementLogger.exception()</span></code></a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.kinematics.compute_path_sinuosity"><code class="docutils literal notranslate"><span class="pre">compute_path_sinuosity()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/api/movement.utils.logging.MovementLogger.rst.txt">
+    <a href="../_sources/api/movement.kinematics.compute_path_sinuosity.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

@@ -1,0 +1,9 @@
+﻿compute\_path\_sinuosity
+========================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_path_sinuosity
+
+.. minigallery:: movement.kinematics.compute_path_sinuosity
+   :add-heading: Examples using ``compute_path_sinuosity``
