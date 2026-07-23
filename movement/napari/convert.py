@@ -176,9 +176,9 @@ def napari_layers_to_ds(
     properties
         Live napari Point properties data. It is in-sync with the
         Points layer data. It is a dictionary with keys
-        ``individual``, ``keypoint``, ``time``, ``confidence`` and
-        ``edited``, each mapping to a list of values, and each value
-        corresponding to a point.
+        ``individual``, ``keypoint``, ``time`` and ``confidence``
+        (plus ``edited`` once any point has been dragged), each mapping
+        to a list of values, and each value corresponding to a point.
     properties_with_nans:
         Properties DataFrame derived from the original loaded dataset
         including any NaN position data.
