@@ -516,6 +516,7 @@ def compute_directional_change(
 def compute_maximum_expected_displacement(
     data: xr.DataArray,
     in_spatial_units: bool = True,
+    nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
     r"""Compute the maximum expected displacement (:math:`E_{\max}`).
 
@@ -552,6 +553,10 @@ def compute_maximum_expected_displacement(
         :math:`E_{\max}^{(b)}`, expressed in the same spatial units as
         ``data``. If ``False``, return the dimensionless variant
         :math:`E_{\max}^{(a)}`.
+    nan_warn_threshold
+        If any point track in the data has at least (:math:`\ge`)
+        this proportion of values missing, a warning will be emitted.
+        Defaults to 0.2 (20%).
 
     Returns
     -------
@@ -627,6 +632,8 @@ def compute_maximum_expected_displacement(
     data = _validate_time_points(
         data, metric_name="maximum expected displacement", min_points=3
     )
+
+    _warn_about_nan_proportion(data, nan_warn_threshold)
 
     theta = compute_turning_angle(data)
     mean_cosine = xr.apply_ufunc(np.cos, theta).mean(dim="time", skipna=True)

@@ -1096,6 +1096,15 @@ def test_maximum_expected_displacement_all_nan_output(
     assert result.isnull().all()
 
 
+def test_maximum_expected_displacement_nan_warning(straight_paths):
+    """Test that fully missing tracks warn and yield NaN E_max."""
+    position = straight_paths.copy()
+    position[:] = np.nan
+    with pytest.warns(UserWarning, match="The result may be unreliable"):
+        result = compute_maximum_expected_displacement(position)
+    assert result.isnull().all()
+
+
 def test_maximum_expected_displacement_too_few_timepoints(straight_paths):
     """E_max needs at least 3 time points for one valid turning angle."""
     # Slice the data to exactly 2 time points (which is only 1 segment)
