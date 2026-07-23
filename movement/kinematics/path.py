@@ -153,6 +153,8 @@ def compute_path_straightness(
     --------
     compute_path_length : The underlying function used to
         compute the path length :math:`L`.
+    compute_path_sinuosity :
+        A related turning-angle-based measure of path tortuosity.
     compute_maximum_expected_displacement :
         An alternative straightness measure derived from the
         turning-angle distribution which, unlike the :math:`D/L`
@@ -347,6 +349,7 @@ def compute_path_sinuosity(
     compute_path_length : Total distance travelled along a path.
     compute_path_straightness : Net displacement divided by path length.
     compute_turning_angle : Step-wise turning angle along a path.
+    compute_maximum_expected_displacement : Directional-persistence measure.
 
     Notes
     -----
@@ -567,6 +570,15 @@ def compute_maximum_expected_displacement(
         the same spatial units as ``data``; otherwise they are
         dimensionless.
 
+    See Also
+    --------
+    compute_turning_angle :
+        The underlying function used to compute the turning angles.
+    compute_path_sinuosity :
+        A related turning-angle-based measure of path tortuosity.
+    compute_path_straightness :
+        A related, path-length-based measure of straightness.
+
     Notes
     -----
     1. **Mean cosine of the turning angles.**
@@ -595,13 +607,6 @@ def compute_maximum_expected_displacement(
        (2007). Animal navigation: the difficulty of moving in a straight
        line. *Biological Cybernetics* 97(1), 47-61.
        https://doi.org/10.1007/s00422-007-0158-0
-
-    See Also
-    --------
-    compute_turning_angle :
-        The underlying function used to compute the turning angles.
-    compute_path_straightness :
-        A related, path-length-based measure of straightness.
 
     Examples
     --------
