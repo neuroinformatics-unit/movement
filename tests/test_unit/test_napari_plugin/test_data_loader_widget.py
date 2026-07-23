@@ -1018,3 +1018,40 @@ def test_on_points_data_changed_ignores_non_move_events(
         loader.points_layer.features["confidence"],
         original_confidence,
     )
+
+
+def test_on_points_data_changed_second_drag_extends_edited(
+    valid_poses_path_and_ds, loaded_data_loader
+):
+    """Test that a second drag reuses and extends the ``edited`` property.
+
+    The first drag creates the ``edited`` array (``else`` branch), while a
+    second drag on different points must copy the existing array and flag
+    the new points too (``if "edited" in props`` branch). The second drag
+    targets multiple points at once, which is how napari reports a
+    multi-point selection being dragged: a single ``CHANGED`` event with
+    several ``data_indices``.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+
+    def drag(indices):
+        mock_event = Mock()
+        mock_event.source = loader.points_layer
+        mock_event.action = ActionType.CHANGED
+        mock_event.data_indices = indices
+        loader._on_points_data_changed(mock_event)
+
+    # First drag creates `edited`
+    drag((0,))
+    assert loader.points_layer.properties["edited"][0]
+
+    # Second, drag hits the "edited already exists" branch
+    drag((1, 2))
+
+    edited = loader.points_layer.properties["edited"]
+    confidence = loader.points_layer.properties["confidence"]
+    assert edited[[0, 1, 2]].all()  # all dragged points flagged
+    assert not edited[3:].any()  # untouched points stay False
+    assert np.isnan(confidence[[0, 1, 2]]).all()  # confidence set to NaN
+    assert not np.isnan(confidence[3:]).any()  # untouched points untouched
