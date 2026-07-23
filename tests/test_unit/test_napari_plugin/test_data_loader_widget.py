@@ -1023,14 +1023,12 @@ def test_on_points_data_changed_ignores_non_move_events(
 def test_on_points_data_changed_second_drag_extends_edited(
     valid_poses_path_and_ds, loaded_data_loader
 ):
-    """Test that a second drag reuses and extends the ``edited`` property.
+    """Test that a second, multi-point drag extends the ``edited`` property.
 
-    The first drag creates the ``edited`` array (``else`` branch), while a
-    second drag on different points must copy the existing array and flag
-    the new points too (``if "edited" in props`` branch). The second drag
-    targets multiple points at once, which is how napari reports a
-    multi-point selection being dragged: a single ``CHANGED`` event with
-    several ``data_indices``.
+    The first drag creates ``edited`` (the ``else`` branch). The second
+    drag moves two points at once, as napari does for a multi-point
+    selection, hitting the ``if "edited" in props`` branch and covering
+    multi-point drags in the same test.
     """
     filepath, ds = valid_poses_path_and_ds
     loader = loaded_data_loader(filepath, ds)
@@ -1042,11 +1040,12 @@ def test_on_points_data_changed_second_drag_extends_edited(
         mock_event.data_indices = indices
         loader._on_points_data_changed(mock_event)
 
-    # First drag creates `edited`
+    # First drag: creates `edited` (the `else` branch), one point moved
     drag((0,))
     assert loader.points_layer.properties["edited"][0]
 
-    # Second, drag hits the "edited already exists" branch
+    # Second drag: extends `edited` (the `if "edited" in props` branch),
+    # moving two points (1, 2) at once in a single event
     drag((1, 2))
 
     edited = loader.points_layer.properties["edited"]
