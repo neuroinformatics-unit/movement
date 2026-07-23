@@ -14,10 +14,11 @@ from movement.kinematics import (
     compute_turning_angle,
 )
 
-# Shared by all metrics that require at least 2 time points.
+# Shared by all metrics with a minimum number of time points.
+# The number itself is metric-specific, so it is left out of the match.
 time_points_value_error = pytest.raises(
     ValueError,
-    match="At least 2 time points are required",
+    match="time points are required",
 )
 
 # Pre-sliced time-range cases shared by multiple unit tests
@@ -178,6 +179,7 @@ def lateral_detour_paths(straight_paths):
         pytest.param(compute_path_straightness, id="straightness"),
         pytest.param(compute_directional_change, id="directional-change"),
         pytest.param(compute_path_deviation, id="deviation"),
+        pytest.param(compute_path_sinuosity, id="sinuosity"),
     ],
 )
 def test_path_metrics_across_time_ranges(
@@ -809,11 +811,10 @@ def test_path_deviation_partially_degenerate_warns(straight_paths):
 # ─────────────────────────────────────────────
 
 
-def test_path_sinuosity_too_few_timepoints(valid_poses_dataset):
-    """Test that sinuosity enforces the minimum length requirement."""
+def test_path_sinuosity_too_few_timepoints(straight_paths):
+    """Test that sinuosity enforces the minimum length (3) requirement."""
     # Slice the data to exactly 2 time points (which is only 1 segment)
-    position = valid_poses_dataset.position.isel(time=slice(0, 2))
-
+    position = straight_paths.isel(time=slice(0, 2))
     with pytest.raises(ValueError, match="3 time points are required"):
         compute_path_sinuosity(position)
 
@@ -861,10 +862,10 @@ def test_path_sinuosity_known_values(request, fixture_name, expected_value):
 
 
 def test_path_sinuosity_variable_reversals():
-    """Biological edge case: Natural tortuous pacing.
+    """Biological edge case: back-and-forth pacing with variable step lengths.
 
-    An animal repeatedly reversing direction but with natural, variable
-    step lengths. This is genuinely tortuous movement and should compute
+    An animal repeatedly reversing direction but with naturalistic, variable
+    step lengths. This is a highly tortuous movement and should compute
     successfully to a finite, positive value.
     """
     rng = np.random.default_rng(11)
@@ -888,7 +889,7 @@ def test_path_sinuosity_variable_reversals():
 
 
 def test_path_sinuosity_outlier_step():
-    """Artefact edge case: Tracking teleportation.
+    """Artefact edge case: Tracking 'teleportation'.
 
     Simulates a tracker losing ID and assigning a point across the arena.
     The massive jump creates an extreme standard deviation in step length (b).
