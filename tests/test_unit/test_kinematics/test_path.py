@@ -890,6 +890,14 @@ def test_path_sinuosity_known_values(request, fixture_name, expected_value):
         )
 
 
+def test_path_sinuosity_raises_on_3d(straight_paths_3d):
+    """Sinuosity is only defined for 2D data (inherited from turning angle)."""
+    with pytest.raises(
+        ValueError, match="Dimension 'space' must only contain"
+    ):
+        compute_path_sinuosity(straight_paths_3d)
+
+
 def test_path_sinuosity_all_nan(straight_paths):
     """Test that fully missing tracks warn and yield NaN sinuosity."""
     position = straight_paths.copy()
