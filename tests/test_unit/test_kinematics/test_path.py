@@ -851,6 +851,7 @@ def test_path_sinuosity_known_values(request, fixture_name, expected_value):
     position = request.getfixturevalue(fixture_name)
     result = compute_path_sinuosity(position)
 
+    assert set(result.dims) == set(position.dims) - {"time", "space"}
     if np.isnan(expected_value):
         assert result.isnull().all()
     else:
