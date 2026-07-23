@@ -643,8 +643,8 @@ def _validate_time_points(
     data : xarray.DataArray
         Position data with ``time`` and ``space`` dimensions.
     metric_name : str
-         Used in the error message when there are fewer than
-        `min_points` time points.
+        Used in the error message when there are fewer than ``min_points``
+        time points.
     min_points : int, optional
         The minimum number of time points required. Defaults to 2.
 
