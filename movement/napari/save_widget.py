@@ -65,9 +65,9 @@ class DataSaver(QWidget):
 
     def _on_save_clicked(self):
         """Reconstruct a dataset from the selected layer and save it."""
-        layer = self._get_points_layer_to_save()
-        if layer is None:
-            return
+        # The button is only enabled for a valid movement points layer
+        # (see _update_save_button_state), so the active layer is safe to use.
+        layer = self.viewer.layers.selection.active
 
         file_path, _ = QFileDialog.getSaveFileName(
             self,
@@ -97,23 +97,6 @@ class DataSaver(QWidget):
 
         logger.info(f"Saved dataset to '{valid_path}'.")
         show_info(f"Saved dataset to '{valid_path}'.")
-
-    def _get_points_layer_to_save(self) -> Points | None:
-        """Return the points layer to save, or None if selection is invalid."""
-        layer = self.viewer.layers.selection.active
-        if not isinstance(layer, Points):
-            show_error(
-                "Please select a tracked data points layer in the "
-                "layers list before saving."
-            )
-            return None
-        if not layer.metadata.get(POINTS_LAYER_KEY, False):
-            show_error(
-                f"The layer '{layer.name}' was not loaded via the "
-                "movement plugin and cannot be saved."
-            )
-            return None
-        return layer
 
     def _is_valid_points_layer(self, layer) -> bool:
         """Return True if the layer is a points layer with tracked data."""
