@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=72e31686"></script>
+    <script src="../_static/documentation_options.js?v=d69b929f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev18</p>
+    <p class="title logo__title">movement v0.17.1.dev19</p>
   
 </a></div>
     
@@ -690,7 +690,8 @@ and progressing in counterclockwise order) with the columns
 (track_id, frame, y, x). Returns None when the input dataset doesn’t
 have a “shape” variable.</p></li>
 <li><p><strong>properties</strong> (<em>pandas.DataFrame</em>) – DataFrame with properties (individual, keypoint, time, confidence)
-for use with napari layers.</p></li>
+for use with napari layers. An <code class="docutils literal notranslate"><span class="pre">edited</span></code> column is also included
+if the input dataset has an <code class="docutils literal notranslate"><span class="pre">edited</span></code> variable.</p></li>
 </ul>
 </p>
 </dd>

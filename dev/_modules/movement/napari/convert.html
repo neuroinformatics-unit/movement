@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=72e31686"></script>
+    <script src="../../../_static/documentation_options.js?v=d69b929f"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev18</p>
+    <p class="title logo__title">movement v0.17.1.dev19</p>
   
 </a></div>
     
@@ -497,6 +497,9 @@
     <span class="k">if</span> <span class="s2">&quot;keypoint&quot;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">:</span>
         <span class="n">data</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="n">desired_order</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;edited&quot;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;edited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;edited&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="n">desired_order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;edited&quot;</span><span class="p">)</span>
 
     <span class="c1"># sort</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">desired_order</span><span class="p">)</span>
@@ -546,7 +549,8 @@
 <span class="sd">        have a &quot;shape&quot; variable.</span>
 <span class="sd">    properties : pandas.DataFrame</span>
 <span class="sd">        DataFrame with properties (individual, keypoint, time, confidence)</span>
-<span class="sd">        for use with napari layers.</span>
+<span class="sd">        for use with napari layers. An ``edited`` column is also included</span>
+<span class="sd">        if the input dataset has an ``edited`` variable.</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
@@ -656,9 +660,9 @@
 <span class="sd">    properties</span>
 <span class="sd">        Live napari Point properties data. It is in-sync with the</span>
 <span class="sd">        Points layer data. It is a dictionary with keys</span>
-<span class="sd">        ``individual``, ``keypoint``, ``time`` and ``confidence``,</span>
-<span class="sd">        each mapping to a list of values, and each value</span>
-<span class="sd">        corresponding to a point.</span>
+<span class="sd">        ``individual``, ``keypoint``, ``time`` and ``confidence``</span>
+<span class="sd">        (plus ``edited`` once any point has been dragged), each mapping</span>
+<span class="sd">        to a list of values, and each value corresponding to a point.</span>
 <span class="sd">    properties_with_nans:</span>
 <span class="sd">        Properties DataFrame derived from the original loaded dataset</span>
 <span class="sd">        including any NaN position data.</span>
@@ -759,6 +763,21 @@
                 <span class="n">individual</span><span class="o">=</span><span class="n">individual_coords</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
+        <span class="n">edited_da</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="s2">&quot;edited&quot;</span> <span class="ow">in</span> <span class="n">properties_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">edited_da</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">properties_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">])[</span>
+                    <span class="s2">&quot;edited&quot;</span>
+                <span class="p">]</span>
+                <span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
+                    <span class="n">time</span><span class="o">=</span><span class="n">time_coords</span><span class="p">,</span>
+                    <span class="n">keypoint</span><span class="o">=</span><span class="n">keypoint_coords</span><span class="p">,</span>
+                    <span class="n">individual</span><span class="o">=</span><span class="n">individual_coords</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="p">)</span>
 
         <span class="n">position_df</span> <span class="o">=</span> <span class="n">position_df</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span>
             <span class="n">id_vars</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;frame&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">],</span>
@@ -779,11 +798,15 @@
             <span class="p">)</span>
         <span class="p">)</span>
 
+        <span class="n">data_vars</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">position_da</span><span class="p">,</span>
+            <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">confidence_da</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">edited_da</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">data_vars</span><span class="p">[</span><span class="s2">&quot;edited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edited_da</span>
+
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
-            <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">position_da</span><span class="p">,</span>
-                <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">confidence_da</span><span class="p">,</span>
-            <span class="p">},</span>
+            <span class="n">data_vars</span><span class="o">=</span><span class="n">data_vars</span><span class="p">,</span>
             <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
                 <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">time_coords</span><span class="p">,</span>
                 <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="n">space_coords</span><span class="p">,</span>
@@ -793,8 +816,13 @@
             <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span> <span class="k">if</span> <span class="n">attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{},</span>
         <span class="p">)</span>
         <span class="c1"># Drop keypoints/individuals with no data left; never `time`.</span>
-        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
-            <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span>
+        <span class="c1"># `edited` (if present) is excluded from the check: it&#39;s</span>
+        <span class="c1"># boolean (fill value False), so it&#39;s never &quot;null&quot; and would</span>
+        <span class="c1"># otherwise prevent any keypoint/individual from ever being</span>
+        <span class="c1"># dropped.</span>
+        <span class="n">dropna_subset</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">,</span> <span class="s2">&quot;confidence&quot;</span><span class="p">]</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">dropna_subset</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
+            <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">dropna_subset</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>

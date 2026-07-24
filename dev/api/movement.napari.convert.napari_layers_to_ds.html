@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=72e31686"></script>
+    <script src="../_static/documentation_options.js?v=d69b929f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev18</p>
+    <p class="title logo__title">movement v0.17.1.dev19</p>
   
 </a></div>
     
@@ -679,9 +679,9 @@ NaN rows are excluded (napari cannot handle NaN coordinates),
 so this may be shorter than the full timeline.</p></li>
 <li><p><strong>properties</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span>) – Live napari Point properties data. It is in-sync with the
 Points layer data. It is a dictionary with keys
-<code class="docutils literal notranslate"><span class="pre">individual</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoint</span></code>, <code class="docutils literal notranslate"><span class="pre">time</span></code> and <code class="docutils literal notranslate"><span class="pre">confidence</span></code>,
-each mapping to a list of values, and each value
-corresponding to a point.</p></li>
+<code class="docutils literal notranslate"><span class="pre">individual</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoint</span></code>, <code class="docutils literal notranslate"><span class="pre">time</span></code> and <code class="docutils literal notranslate"><span class="pre">confidence</span></code>
+(plus <code class="docutils literal notranslate"><span class="pre">edited</span></code> once any point has been dragged), each mapping
+to a list of values, and each value corresponding to a point.</p></li>
 <li><p><strong>properties_with_nans</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span>) – Properties DataFrame derived from the original loaded dataset
 including any NaN position data.</p></li>
 <li><p><strong>attrs</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Attributes of the original loaded dataset (e.g.
