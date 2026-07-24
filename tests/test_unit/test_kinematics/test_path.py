@@ -7,6 +7,7 @@ import xarray as xr
 
 from movement.kinematics import (
     compute_directional_change,
+    compute_maximum_expected_displacement,
     compute_path_deviation,
     compute_path_length,
     compute_path_sinuosity,
@@ -190,6 +191,33 @@ def regular_zigzag_path():
 
 
 @pytest.fixture
+def regular_hexagon_path():
+    """Return a path tracing a regular hexagon with step length 2.
+
+    Every step turns by a constant 60 degrees, so the mean cosine of the
+    turning angles is cos(60 deg) = 0.5, giving E_max-a = 0.5 / (1 - 0.5)
+    = 1.0. With a constant step length of 2, E_max-b = 2.0.
+    """
+    r3 = np.sqrt(3)
+    positions = np.array(
+        [
+            [0.0, 0.0],
+            [2.0, 0.0],
+            [3.0, r3],
+            [2.0, 2 * r3],
+            [0.0, 2 * r3],
+            [-1.0, r3],
+            [0.0, 0.0],
+        ]
+    )
+    return xr.DataArray(
+        positions,
+        dims=["time", "space"],
+        coords={"time": np.arange(len(positions)), "space": ["x", "y"]},
+    )
+
+
+@pytest.fixture
 def scaled_zigzag_path(regular_zigzag_path):
     """Return the zigzag path with all positions scaled by a factor of 4.
 
@@ -213,6 +241,33 @@ def zigzag_path_with_nan(regular_zigzag_path):
     return path
 
 
+@pytest.fixture
+def regular_triangle_path():
+    """Return a path tracing a regular triangle with unit step length.
+
+    Every step turns by a constant 120 degrees, so the mean cosine of the
+    turning angles is cos(120 deg) = -0.5, giving E_max-a = -0.5 / 1.5 =
+    -1/3. This exercises the negative part of the E_max range.
+    """
+    r3 = np.sqrt(3)
+    positions = np.array(
+        [
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [0.5, r3 / 2],
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [0.5, r3 / 2],
+            [0.0, 0.0],
+        ]
+    )
+    return xr.DataArray(
+        positions,
+        dims=["time", "space"],
+        coords={"time": np.arange(len(positions)), "space": ["x", "y"]},
+    )
+
+
 # ─────────────────────────────────────────────
 # Cross-metric time-range tests
 # ─────────────────────────────────────────────
@@ -226,6 +281,7 @@ def zigzag_path_with_nan(regular_zigzag_path):
         pytest.param(compute_directional_change, id="directional-change"),
         pytest.param(compute_path_deviation, id="deviation"),
         pytest.param(compute_path_sinuosity, id="sinuosity"),
+        pytest.param(compute_maximum_expected_displacement, id="emax"),
     ],
 )
 def test_path_metrics_across_time_ranges(
@@ -960,3 +1016,105 @@ def test_path_sinuosity_outlier_step():
 
     assert not result.isnull().any()
     assert np.isfinite(result.item())
+
+
+# ─────────────────────────────────────────────
+# E_max tests
+# ─────────────────────────────────────────────
+
+
+@pytest.mark.parametrize(
+    "fixture_name, in_spatial_units, expected_value",
+    [
+        pytest.param(
+            "regular_hexagon_path", False, 1.0, id="hexagon-dimensionless"
+        ),
+        pytest.param(
+            "regular_hexagon_path", True, 2.0, id="hexagon-spatial-units"
+        ),
+        pytest.param(
+            "regular_triangle_path", False, -1 / 3, id="triangle-negative"
+        ),
+    ],
+)
+def test_maximum_expected_displacement_known_values(
+    request, fixture_name, in_spatial_units, expected_value
+):
+    """Test E_max against paths with a constant turning angle.
+
+    For a constant turning angle the mean cosine is exactly its cosine,
+    so both E_max variants have closed-form values. The triangle case
+    (120 degree turns) has a negative mean cosine, exercising the
+    negative part of the E_max range.
+    """
+    path = request.getfixturevalue(fixture_name)
+    result = compute_maximum_expected_displacement(
+        path, in_spatial_units=in_spatial_units
+    )
+    assert result.name == "maximum_expected_displacement"
+    assert result.attrs["long_name"] == "Maximum Expected Displacement"
+    assert np.isclose(result.item(), expected_value)
+
+
+@pytest.mark.parametrize("in_spatial_units", [False, True])
+def test_maximum_expected_displacement_straight_path_is_inf(
+    straight_paths, in_spatial_units
+):
+    """A perfectly straight path has a mean cosine of 1, so E_max is +inf."""
+    result = compute_maximum_expected_displacement(
+        straight_paths, in_spatial_units=in_spatial_units
+    )
+    assert np.isinf(result).all()
+    assert (result > 0).all()
+
+
+@pytest.mark.parametrize("in_spatial_units", [False, True])
+@pytest.mark.parametrize(
+    "positions",
+    [
+        pytest.param(
+            [[5.0, 5.0], [5.0, 5.0], [5.0, 5.0], [5.0, 5.0]],
+            id="stationary",
+        ),
+        pytest.param(
+            [[0.0, 0.0], [1.0, 0.0]],
+            id="only_two_timepoints",
+        ),
+    ],
+)
+def test_maximum_expected_displacement_all_nan_output(
+    positions, in_spatial_units
+):
+    """Test cases where E_max should be NaN: a stationary track has no
+    valid turning angles, and two time points define no turning angle.
+    """
+    data = xr.DataArray(
+        np.array(positions),
+        dims=["time", "space"],
+        coords={
+            "time": np.arange(len(positions)),
+            "space": ["x", "y"],
+        },
+    )
+    result = compute_maximum_expected_displacement(
+        data, in_spatial_units=in_spatial_units
+    )
+    assert result.isnull().all()
+
+
+def test_maximum_expected_displacement_output_shape(straight_paths):
+    """Test that ``time`` and ``space`` are removed and other dimensions
+    are preserved.
+    """
+    result = compute_maximum_expected_displacement(straight_paths)
+    assert "space" not in result.dims
+    assert "time" not in result.dims
+    assert "individual" in result.dims
+
+
+def test_maximum_expected_displacement_raises_on_3d(straight_paths_3d):
+    """E_max is only defined for 2D data (inherited from turning angle)."""
+    with pytest.raises(
+        ValueError, match="Dimension 'space' must only contain"
+    ):
+        compute_maximum_expected_displacement(straight_paths_3d)
