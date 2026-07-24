@@ -4,7 +4,16 @@ import numpy as np
 import xarray as xr
 from qtpy.QtWidgets import QPushButton
 
-from movement.napari.save_widget import DataSaver
+from movement.napari.loader_widgets import (
+    DATASET_ATTRS_KEY,
+    POINTS_LAYER_KEY,
+    POINTS_PROPERTIES_KEY,
+)
+from movement.napari.save_widget import (
+    DISABLED_TOOLTIP,
+    ENABLED_TOOLTIP,
+    DataSaver,
+)
 
 
 def test_data_saver_widget_instantiation(make_napari_viewer_proxy):
@@ -14,6 +23,43 @@ def test_data_saver_widget_instantiation(make_napari_viewer_proxy):
     assert data_saver_widget.layout().rowCount() == 1
     assert isinstance(data_saver_widget.save_button, QPushButton)
     assert data_saver_widget.save_button.objectName() == "save_button"
+    assert not data_saver_widget.save_button.isEnabled()
+    assert data_saver_widget.save_button.toolTip() == DISABLED_TOOLTIP
+
+
+def test_save_button_enabled_for_valid_points_layer(make_napari_viewer_proxy):
+    """Test that selecting a valid movement points layer enables the save
+    button and updates its tooltip.
+    """
+    viewer = make_napari_viewer_proxy()
+    data_saver_widget = DataSaver(viewer)
+
+    layer = viewer.add_points(
+        name="points",
+        metadata={
+            POINTS_LAYER_KEY: True,
+            POINTS_PROPERTIES_KEY: None,
+            DATASET_ATTRS_KEY: {},
+        },
+    )
+    viewer.layers.selection.active = layer
+
+    assert data_saver_widget.save_button.isEnabled()
+    assert data_saver_widget.save_button.toolTip() == ENABLED_TOOLTIP
+
+
+def test_save_button_disabled_for_invalid_layer(make_napari_viewer_proxy):
+    """Test that selecting a layer without movement metadata keeps the
+    save button disabled with the default tooltip.
+    """
+    viewer = make_napari_viewer_proxy()
+    data_saver_widget = DataSaver(viewer)
+
+    layer = viewer.add_points(name="not from movement")
+    viewer.layers.selection.active = layer
+
+    assert not data_saver_widget.save_button.isEnabled()
+    assert data_saver_widget.save_button.toolTip() == DISABLED_TOOLTIP
 
 
 def test_save_clicked_without_points_layer_selected(
@@ -57,6 +103,38 @@ def test_save_clicked_with_non_movement_points_layer(
     mock_file_dialog.assert_not_called()
 
 
+def test_save_clicked_with_properties_but_no_layer_key(
+    make_napari_viewer_proxy, mocker
+):
+    """Test that a Points layer with a properties key but without the
+    explicit POINTS_LAYER_KEY marker is still rejected.
+
+    Guards against relying on the mere presence of
+    ``POINTS_PROPERTIES_KEY`` (even if its value is falsy/None) as a
+    stand-in for "this layer was created by movement".
+    """
+    viewer = make_napari_viewer_proxy()
+    data_saver_widget = DataSaver(viewer)
+
+    layer = viewer.add_points(
+        name="not from movement",
+        metadata={POINTS_PROPERTIES_KEY: None},
+    )
+    viewer.layers.selection.active = layer
+
+    assert not data_saver_widget.save_button.isEnabled()
+
+    mock_show_error = mocker.patch("movement.napari.save_widget.show_error")
+    mock_file_dialog = mocker.patch(
+        "movement.napari.save_widget.QFileDialog.getSaveFileName"
+    )
+
+    data_saver_widget._on_save_clicked()
+
+    mock_show_error.assert_called_once()
+    mock_file_dialog.assert_not_called()
+
+
 def test_save_clicked_with_non_points_layer_selected(
     make_napari_viewer_proxy, mocker
 ):
@@ -82,8 +160,9 @@ def test_save_clicked_cancelled_dialog(make_napari_viewer_proxy, mocker):
     layer = viewer.add_points(
         name="points",
         metadata={
-            "movement_properties_with_nans": None,
-            "movement_attrs": {},
+            POINTS_LAYER_KEY: True,
+            POINTS_PROPERTIES_KEY: None,
+            DATASET_ATTRS_KEY: {},
         },
     )
     viewer.layers.selection.active = layer
@@ -125,3 +204,4 @@ def test_save_round_trip(
     assert out_path.exists()
     saved_ds = xr.open_dataset(out_path)
     xr.testing.assert_equal(saved_ds, ds_loaded)
+    assert saved_ds.attrs == loader.ds_attrs
