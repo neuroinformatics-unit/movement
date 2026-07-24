@@ -13,6 +13,11 @@ from movement.napari.loader_widgets import (
 from movement.utils.logging import logger
 from movement.validators.files import validate_file_path
 
+DISABLED_TOOLTIP = "Select a points layer containing tracked data"
+ENABLED_TOOLTIP = (
+    "Save currently selected points layer to a movement (netCDF) file"
+)
+
 
 class DataSaver(QWidget):
     """Widget for saving a tracked data layer to the native file format."""
@@ -23,13 +28,39 @@ class DataSaver(QWidget):
         self.viewer = napari_viewer
         self.setLayout(QFormLayout())
         self._create_save_button()
+        self.viewer.layers.selection.events.changed.connect(
+            self._on_napari_layer_selection_changed
+        )
+        self._update_save_button_state()
 
     def _create_save_button(self):
         """Create a button to save the selected points layer to file."""
         self.save_button = QPushButton("Save")
         self.save_button.setObjectName("save_button")
+        self.save_button.setEnabled(False)
+        self.save_button.setToolTip(DISABLED_TOOLTIP)
         self.save_button.clicked.connect(self._on_save_clicked)
         self.layout().addRow(self.save_button)
+
+    def _on_napari_layer_selection_changed(self, event=None):
+        """Update the save button's enabled state and tooltip."""
+        self._update_save_button_state()
+
+    def _update_save_button_state(self):
+        """Enable the save button only when a valid points layer is active."""
+        layer = self.viewer.layers.selection.active
+        is_valid = self._is_valid_points_layer(layer)
+        self.save_button.setEnabled(is_valid)
+        self.save_button.setToolTip(
+            ENABLED_TOOLTIP if is_valid else DISABLED_TOOLTIP
+        )
+
+    def closeEvent(self, event):
+        """Disconnect signals when the widget is closed."""
+        self.viewer.layers.selection.events.changed.disconnect(
+            self._on_napari_layer_selection_changed
+        )
+        super().closeEvent(event)
 
     def _on_save_clicked(self):
         """Reconstruct a dataset from the selected layer and save it."""
@@ -82,3 +113,7 @@ class DataSaver(QWidget):
             )
             return None
         return layer
+
+    def _is_valid_points_layer(self, layer) -> bool:
+        """Return True if the layer is a points layer with tracked data."""
+        return isinstance(layer, Points) and PROPERTIES_KEY in layer.metadata
