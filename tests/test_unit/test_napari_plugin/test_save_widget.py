@@ -1,7 +1,9 @@
 """Unit tests for the save widget in the napari plugin."""
 
 import numpy as np
+import pytest
 import xarray as xr
+from qtpy.QtGui import QCloseEvent
 from qtpy.QtWidgets import QPushButton
 
 from movement.napari.loader_widgets import (
@@ -178,7 +180,15 @@ def test_save_clicked_cancelled_dialog(make_napari_viewer_proxy, mocker):
     mock_to_netcdf.assert_not_called()
 
 
+@pytest.mark.parametrize(
+    "dialog_name",
+    [
+        pytest.param("roundtrip.nc", id="with_suffix"),
+        pytest.param("roundtrip", id="without_suffix"),
+    ],
+)
 def test_save_round_trip(
+    dialog_name,
     tmp_path,
     valid_poses_path_and_ds,
     loaded_data_loader,
@@ -186,7 +196,37 @@ def test_save_round_trip(
 ):
     """Test that saving a loaded dataset via the save widget reconstructs
     the original dataset in the netCDF file written to disk.
+
+    The ``dialog_name`` without a ".nc" suffix also covers the branch
+    that appends it automatically.
     """
+    filepath, ds_loaded = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_loaded)
+
+    data_saver_widget = DataSaver(loader.viewer)
+    loader.viewer.layers.selection.active = loader.points_layer
+
+    out_path = tmp_path / "roundtrip.nc"
+    mocker.patch(
+        "movement.napari.save_widget.QFileDialog.getSaveFileName",
+        return_value=(str(tmp_path / dialog_name), None),
+    )
+
+    data_saver_widget._on_save_clicked()
+
+    assert out_path.exists()
+    saved_ds = xr.open_dataset(out_path)
+    xr.testing.assert_equal(saved_ds, ds_loaded)
+    assert saved_ds.attrs == loader.ds_attrs
+
+
+def test_save_failure_shows_error(
+    tmp_path,
+    valid_poses_path_and_ds,
+    loaded_data_loader,
+    mocker,
+):
+    """Test that a failure during saving shows an error notification."""
     filepath, ds_loaded = valid_poses_path_and_ds
     loader = loaded_data_loader(filepath, ds_loaded)
 
@@ -198,10 +238,35 @@ def test_save_round_trip(
         "movement.napari.save_widget.QFileDialog.getSaveFileName",
         return_value=(str(out_path), None),
     )
+    mocker.patch.object(
+        xr.Dataset, "to_netcdf", side_effect=OSError("disk full")
+    )
+    mock_show_error = mocker.patch("movement.napari.save_widget.show_error")
 
     data_saver_widget._on_save_clicked()
 
-    assert out_path.exists()
-    saved_ds = xr.open_dataset(out_path)
-    xr.testing.assert_equal(saved_ds, ds_loaded)
-    assert saved_ds.attrs == loader.ds_attrs
+    mock_show_error.assert_called_once()
+    assert not out_path.exists()
+
+
+def test_close_event_disconnects_selection_signal(make_napari_viewer_proxy):
+    """Test that closing the widget disconnects the layer selection
+    callback, so it no longer reacts to further selection changes.
+    """
+    viewer = make_napari_viewer_proxy()
+    data_saver_widget = DataSaver(viewer)
+
+    data_saver_widget.closeEvent(QCloseEvent())
+
+    layer = viewer.add_points(
+        name="points",
+        metadata={
+            POINTS_LAYER_KEY: True,
+            POINTS_PROPERTIES_KEY: None,
+            DATASET_ATTRS_KEY: {},
+        },
+    )
+    viewer.layers.selection.active = layer
+
+    assert not data_saver_widget.save_button.isEnabled()
+    assert data_saver_widget.save_button.toolTip() == DISABLED_TOOLTIP
