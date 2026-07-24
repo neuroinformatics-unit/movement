@@ -21,7 +21,7 @@ from movement.validators.arrays import validate_dims_coords
 
 def compute_path_length(
     data: xr.DataArray,
-    nan_policy: Literal["ffill", "scale"] = "ffill",
+    nan_policy: Literal["ffill"] | None = None,
     nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
     r"""Compute the length of a path travelled.
@@ -35,9 +35,11 @@ def compute_path_length(
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
     nan_policy
-        Policy to handle NaN (missing) values. Can be one of the ``"ffill"``
-        or ``"scale"``. Defaults to ``"ffill"`` (forward fill).
-        See Notes for more details on the two policies.
+        Policy for handling NaN (missing) values. By default (``None``),
+        no gap-filling is performed, meaning missing positions are skipped.
+        If ``"ffill"``, missing positions are forward-filled across
+        time before path length is computed. See Notes for more
+        details on the two policies.
     nan_warn_threshold
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
@@ -52,27 +54,29 @@ def compute_path_length(
 
     Notes
     -----
-    Choosing ``nan_policy="ffill"`` will use :meth:`xarray.DataArray.ffill`
-    to forward-fill missing segments (NaN values) across time.
-    This equates to assuming that a track remains stationary for
-    the duration of the missing segment and then instantaneously moves to
-    the next valid position, following a straight line. This approach tends
-    to underestimate the path length, and the error increases with the number
-    of missing values.
+    1. **Handling missing values:**
+       By default (``nan_policy=None``), path length sums the lengths of the
+       segments between consecutive *valid* positions. A missing position
+       invalidates the two segments on either side of it (the arriving and
+       departing steps), which are omitted from the sum. Choosing
+       ``nan_policy="ffill"`` will use :meth:`xarray.DataArray.ffill` to
+       forward-fill missing positions across time before computing the segment
+       lengths. This equates to bridging the gaps with straight lines, i.e., it
+       gives the same result as linearly interpolating over the gaps prior to
+       computing the path length. Missing values at the beginning of a path
+       cannot be forward-filled and are still skipped. Both policies
+       underestimate the true path length in the presence of gaps, but
+       ``"ffill"`` less so. For more control over handling missing values,
+       use :func:`~movement.filtering.interpolate_over_time`
+       before calling this function.
 
-    Choosing ``nan_policy="scale"`` will adjust the path length based on the
-    the proportion of valid segments per point track. For example, if only
-    80% of segments are present, the path length will be computed based on
-    these and the result will be divided by 0.8. This approach assumes
-    that motion dynamics are similar across observed and missing time
-    segments, which may not accurately reflect actual conditions.
-
-    **Sampling rate sensitivity ('coastline paradox'):**
-    The measured path length is sensitive to the temporal sampling rate
-    (i.e., frames per second) of the tracking data. Higher sampling rates
-    capture finer micro-movements and tracking jitter, which inherently
-    increases the total measured path length. Exercise caution when comparing
-    path lengths across datasets with different temporal resolutions.
+    2. **Sampling rate sensitivity ('coastline paradox'):**
+       The measured path length is sensitive to the temporal sampling rate
+       (i.e., frames per second) of the tracking data. Higher sampling rates
+       capture finer micro-movements and tracking jitter, which inherently
+       increases the total measured path length. Exercise caution when
+       comparing path lengths across datasets with different temporal
+       resolutions.
 
     See Also
     --------
@@ -93,9 +97,9 @@ def compute_path_length(
 
     >>> length = compute_path_length(centroid.sel(time=slice(0, 100)))
 
-    Use the scale policy to handle missing values:
+    Forward-fill missing positions before computing the path length:
 
-    >>> length = compute_path_length(centroid, nan_policy="scale")
+    >>> length = compute_path_length(centroid, nan_policy="ffill")
 
     """
     data = _validate_time_points(data, "path length")
@@ -104,7 +108,7 @@ def compute_path_length(
 
 def compute_path_straightness(
     data: xr.DataArray,
-    nan_policy: Literal["ffill", "scale"] = "ffill",
+    nan_policy: Literal["ffill"] | None = None,
     nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
     r"""Compute the straightness index of a path :math:`(D/L)`.
@@ -121,10 +125,11 @@ def compute_path_straightness(
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
     nan_policy
-        Policy to handle NaN (missing) values for the path length computation.
-        Can be one of ``"ffill"`` or ``"scale"``. Defaults to ``"ffill"``
-        (forward fill). See :func:`compute_path_length` for more details on
-        the two policies.
+        Policy for handling NaN (missing) values in the path length
+        computation. By default (``None``), segments with a missing endpoint
+        are skipped. If ``"ffill"``, missing positions are forward-filled
+        first. See :func:`compute_path_length` for more details on the two
+        policies. Defaults to ``None``.
     nan_warn_threshold
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
@@ -687,7 +692,7 @@ def _path_distance(data: xr.DataArray) -> xr.DataArray:
 
 def _path_length(
     data: xr.DataArray,
-    nan_policy: Literal["ffill", "scale"],
+    nan_policy: Literal["ffill"] | None,
     nan_warn_threshold: float,
 ) -> xr.DataArray:
     """Compute path length on already-validated data.
@@ -695,20 +700,20 @@ def _path_length(
     See :func:`compute_path_length` for parameter details.
     """
     _warn_about_nan_proportion(data, nan_warn_threshold)
-    if nan_policy == "ffill":
+    if nan_policy is None:
+        # Sum the lengths of the segments between consecutive valid
+        # positions. Segments touching a NaN are skipped; a track is only
+        # NaN if all its segments are (hence min_count=1).
+        result = _segment_lengths(data).sum(dim="time", min_count=1)
+    elif nan_policy == "ffill":
         result = _segment_lengths(data.ffill(dim="time")).sum(
             dim="time", min_count=1
         )
-    elif nan_policy == "scale":
-        lengths = _segment_lengths(data)
-        valid_segments = (~lengths.isnull()).sum(dim="time")
-        valid_proportion = valid_segments / (data.sizes["time"] - 1)
-        result = lengths.sum(dim="time") / valid_proportion
     else:
         raise logger.error(
             ValueError(
-                f"Invalid value for nan_policy: {nan_policy}. "
-                "Must be one of 'ffill' or 'scale'."
+                f"Invalid value for nan_policy: {nan_policy!r}. "
+                "Must be None or 'ffill'."
             )
         )
     result.name = "path_length"
