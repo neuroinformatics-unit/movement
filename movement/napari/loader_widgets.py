@@ -49,15 +49,16 @@ SUPPORTED_DATA_FILES = {
     **SUPPORTED_NETCDF_FILES,
 }
 
-# Metadata keys stored on napari Points layers created by this widget.
-# Set here (where the layer is created) and read back in save_widget.py
-# (where the layer is saved).
-# - PROPERTIES_KEY stores the full properties dataframe (including
-#   NaN rows dropped from the layer) needed to reconstruct the dataset.
-# - ATTRS_KEY stores the original dataset attributes (e.g.
-#   source_software, fps) to preserve them on save.
-PROPERTIES_KEY: str = "movement_properties_with_nans"
-ATTRS_KEY: str = "movement_attrs"
+# Metadata keys stored on the movement Points layer.
+# Set in _add_points_layer (where the layer is created);
+# read in save_widget.py (where the layer is saved).
+# - POINTS_LAYER_KEY marks the layer as movement-created.
+# - POINTS_PROPERTIES_KEY holds the full properties df, incl. the NaN rows
+#   dropped from the live layer, needed to reconstruct the dataset.
+# - DATASET_ATTRS_KEY holds the source dataset's attrs (source_software, fps…).
+POINTS_LAYER_KEY: str = "movement_points_layer"
+POINTS_PROPERTIES_KEY: str = "movement_points_properties"
+DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
 
 
 class DataLoader(QWidget):
@@ -353,8 +354,9 @@ class DataLoader(QWidget):
             properties=points_properties.iloc[self.data_not_nan, :],
             metadata={
                 "max_frame_idx": max(self.data[:, 1]),
-                PROPERTIES_KEY: self.properties,
-                ATTRS_KEY: self.ds_attrs,
+                POINTS_LAYER_KEY: True,
+                POINTS_PROPERTIES_KEY: self.properties,
+                DATASET_ATTRS_KEY: self.ds_attrs,
             },
             **points_style.as_kwargs(),
         )

@@ -7,8 +7,9 @@ from qtpy.QtWidgets import QFileDialog, QFormLayout, QPushButton, QWidget
 
 from movement.napari.convert import napari_layers_to_ds
 from movement.napari.loader_widgets import (
-    ATTRS_KEY,
-    PROPERTIES_KEY,
+    DATASET_ATTRS_KEY,
+    POINTS_LAYER_KEY,
+    POINTS_PROPERTIES_KEY,
 )
 from movement.utils.logging import logger
 from movement.validators.files import validate_file_path
@@ -86,8 +87,8 @@ class DataSaver(QWidget):
             ds = napari_layers_to_ds(
                 points_as_napari=layer.data,
                 properties=layer.properties,
-                properties_with_nans=layer.metadata[PROPERTIES_KEY],
-                attrs=layer.metadata[ATTRS_KEY],
+                properties_with_nans=layer.metadata[POINTS_PROPERTIES_KEY],
+                attrs=layer.metadata[DATASET_ATTRS_KEY],
             )
             ds.to_netcdf(valid_path)
         except Exception as e:
@@ -106,7 +107,7 @@ class DataSaver(QWidget):
                 "layers list before saving."
             )
             return None
-        if PROPERTIES_KEY not in layer.metadata:
+        if not layer.metadata.get(POINTS_LAYER_KEY, False):
             show_error(
                 f"The layer '{layer.name}' was not loaded via the "
                 "movement plugin and cannot be saved."
@@ -116,4 +117,6 @@ class DataSaver(QWidget):
 
     def _is_valid_points_layer(self, layer) -> bool:
         """Return True if the layer is a points layer with tracked data."""
-        return isinstance(layer, Points) and PROPERTIES_KEY in layer.metadata
+        return isinstance(layer, Points) and layer.metadata.get(
+            POINTS_LAYER_KEY, False
+        )
