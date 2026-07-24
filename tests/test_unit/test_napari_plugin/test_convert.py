@@ -330,28 +330,31 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
     )
 
 
-@pytest.mark.parametrize(
-    "nan_location",
-    [
-        None,
-        # no NaNs
-        {
-            "time": "start",
-            "individual": ["id_0", "id_1"],
-            "keypoint": ["centroid", "left", "right"],
-        },  # all individuals are nan at the start
-        {
-            "time": "end",
-            "individual": ["id_0", "id_1"],
-            "keypoint": ["centroid", "left", "right"],
-        },  # all individuals are nan at the end
-        {
-            "time": "middle",
-            "individual": ["id_0"],
-            "keypoint": ["centroid"],
-        },  # a single keypoint of an individual is nan mid-sequence
-    ],
-)
+# NaN scenarios shared by the napari-layer round-trip tests below.
+# Each entry is passed to ``valid_poses_path_and_ds_with_localised_nans``
+# (or is ``None`` for the no-NaN case) to place missing data at a known
+# location.
+NAN_LOCATIONS = [
+    None,  # no NaNs
+    {
+        "time": "start",
+        "individual": ["id_0", "id_1"],
+        "keypoint": ["centroid", "left", "right"],
+    },  # all individuals are nan at the start
+    {
+        "time": "end",
+        "individual": ["id_0", "id_1"],
+        "keypoint": ["centroid", "left", "right"],
+    },  # all individuals are nan at the end
+    {
+        "time": "middle",
+        "individual": ["id_0"],
+        "keypoint": ["centroid"],
+    },  # a single keypoint of an individual is nan mid-sequence
+]
+
+
+@pytest.mark.parametrize("nan_location", NAN_LOCATIONS)
 def test_napari_layers_to_ds(
     nan_location,
     valid_poses_path_and_ds,
@@ -413,27 +416,7 @@ def _move_point(loader, frame, keypoint, individual, new_y, new_x):
     loader._on_points_data_changed(mock_event)
 
 
-@pytest.mark.parametrize(
-    "nan_location",
-    [
-        None,
-        {
-            "time": "start",
-            "individual": ["id_0", "id_1"],
-            "keypoint": ["centroid", "left", "right"],
-        },
-        {
-            "time": "end",
-            "individual": ["id_0", "id_1"],
-            "keypoint": ["centroid", "left", "right"],
-        },
-        {
-            "time": "middle",
-            "individual": ["id_0"],
-            "keypoint": ["centroid"],
-        },
-    ],
-)
+@pytest.mark.parametrize("nan_location", NAN_LOCATIONS)
 def test_edited_pose_napari_layers(
     nan_location,
     valid_poses_path_and_ds,
@@ -497,27 +480,7 @@ def test_edited_pose_napari_layers(
     xr.testing.assert_equal(ds, expected_ds)
 
 
-@pytest.mark.parametrize(
-    "nan_location",
-    [
-        None,
-        {
-            "time": "start",
-            "individual": ["id_0", "id_1"],
-            "keypoint": ["centroid", "left", "right"],
-        },
-        {
-            "time": "end",
-            "individual": ["id_0", "id_1"],
-            "keypoint": ["centroid", "left", "right"],
-        },
-        {
-            "time": "middle",
-            "individual": ["id_0"],
-            "keypoint": ["centroid"],
-        },
-    ],
-)
+@pytest.mark.parametrize("nan_location", NAN_LOCATIONS)
 def test_edited_property_round_trip(
     nan_location,
     valid_poses_path_and_ds,
