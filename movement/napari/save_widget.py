@@ -40,7 +40,7 @@ class DataSaver(QWidget):
         file_path, _ = QFileDialog.getSaveFileName(
             self,
             caption="Save dataset as",
-            filter="movement native format (*.nc)",
+            filter="movement (netCDF) format (*.nc)",
         )
         # A blank string is returned if the user cancels the dialog
         if not file_path:
