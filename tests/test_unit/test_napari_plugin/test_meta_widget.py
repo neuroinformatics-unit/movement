@@ -8,7 +8,7 @@ def test_meta_widget_instantiation(make_napari_viewer_proxy):
     viewer = make_napari_viewer_proxy()
     meta_widget = MovementMetaWidget(viewer)
 
-    assert len(meta_widget.collapsible_widgets) == 2
+    assert len(meta_widget.collapsible_widgets) == 3
 
     first_widget = meta_widget.collapsible_widgets[0]
     assert first_widget._text == "Load tracked data"
@@ -17,3 +17,7 @@ def test_meta_widget_instantiation(make_napari_viewer_proxy):
     second_widget = meta_widget.collapsible_widgets[1]
     assert second_widget._text == "Define regions of interest"
     assert not second_widget.isExpanded()
+
+    third_widget = meta_widget.collapsible_widgets[2]
+    assert third_widget._text == "Save tracked data"
+    assert not third_widget.isExpanded()
