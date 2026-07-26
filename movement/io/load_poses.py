@@ -30,6 +30,7 @@ def from_numpy(
     confidence_array: np.ndarray | None = None,
     individual_names: list[str] | None = None,
     keypoint_names: list[str] | None = None,
+    frame_array: np.ndarray | None = None,
     fps: float | None = None,
     source_software: str | None = None,
 ) -> xr.Dataset:
@@ -53,6 +54,11 @@ def from_numpy(
         List of unique names for the keypoints in the skeleton. If None
         (default), the keypoints will be named "keypoint_0", "keypoint_1",
         etc.
+    frame_array
+        Array containing the frame numbers for which poses are defined.
+        It should be a column vector of shape (n_frames, 1). If None
+        (default), frame numbers are assigned as consecutive 0-based
+        integers.
     fps
         Frames per second of the video. Defaults to None, in which case
         the time coordinates will be in frame numbers.
@@ -81,6 +87,7 @@ def from_numpy(
     ...     confidence_array=np.ones((100, 3, 2)),
     ...     individual_names=["Alice", "Bob"],
     ...     keypoint_names=["snout", "centre", "tail_base"],
+    ...     frame_array=np.arange(10, 110).reshape(-1, 1),
     ...     fps=30,
     ... )
 
@@ -90,6 +97,7 @@ def from_numpy(
         confidence_array=confidence_array,
         individual_names=individual_names,
         keypoint_names=keypoint_names,
+        frame_array=frame_array,
         fps=fps,
         source_software=source_software,
     )

@@ -346,7 +346,75 @@ class TestValidPosesInputs:
             )
             assert data.keypoint_names == expected_keypoint_names
 
+    @pytest.mark.parametrize(
+        "frame_array, expected_context",
+        [
+            (None, does_not_raise(np.arange(5)[:, None])),
+            (
+                np.arange(3, 8)[:, None],
+                does_not_raise(np.arange(3, 8)[:, None]),
+            ),
+            (
+                np.arange(3, 12, 2)[:, None],
+                does_not_raise(np.arange(3, 12, 2)[:, None]),
+            ),
+            (
+                np.arange(5)[::-1][:, None],
+                pytest.raises(
+                    ValueError,
+                    match="not monotonically increasing",
+                ),
+            ),
+            (
+                np.zeros((5, 2)),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape("have shape [(5, 1)], but got (5, 2)"),
+                ),
+            ),
+            (
+                np.zeros((7, 1)),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape("have shape [(5, 1)], but got (7, 1)"),
+                ),
+            ),
+        ],
+        ids=[
+            "Not provided, use default",
+            "Consecutive monotonically increasing",
+            "Non-consecutive but monotonically increasing",
+            "Non-monotonically increasing frame numbers",
+            "Shape mismatch: not a column vector",
+            "Shape mismatch: frame number different from position_array",
+        ],
+    )
+    def test_frame_array(self, frame_array, expected_context):
+        """Test frame_array validation in ValidPosesInputs."""
+        position_array = np.zeros((5, 2, 3, 2))
+
+        with expected_context as expected_frame_array:
+            data = ValidPosesInputs(
+                position_array=position_array,
+                frame_array=frame_array,
+            )
+            np.testing.assert_array_equal(
+                data.frame_array,
+                expected_frame_array,
+            )
+
     @pytest.mark.parametrize("fps", [30, None])
+    @pytest.mark.parametrize(
+        "frame_array",
+        [
+            None,
+            np.arange(10, 20)[:, None],
+        ],
+        ids=[
+            "Default frame numbers",
+            "Custom frame numbers",
+        ],
+    )
     @pytest.mark.parametrize(
         "dataset_fixture",
         [
@@ -358,7 +426,7 @@ class TestValidPosesInputs:
             "Individual-wise confidence array",
         ],
     )
-    def test_to_dataset(self, fps, dataset_fixture, request):
+    def test_to_dataset(self, fps, frame_array, dataset_fixture, request):
         """Test to_dataset creates the expected poses dataset."""
         valid_poses_dataset = request.getfixturevalue(dataset_fixture)
         ds = ValidPosesInputs(
@@ -366,17 +434,23 @@ class TestValidPosesInputs:
             confidence_array=valid_poses_dataset.confidence.values,
             individual_names=valid_poses_dataset.individual.values,
             keypoint_names=valid_poses_dataset.keypoint.values,
+            frame_array=frame_array,
             fps=fps,
             source_software=valid_poses_dataset.attrs["source_software"],
         ).to_dataset()
-        if fps is None:
-            xr.testing.assert_equal(ds, valid_poses_dataset)
-        else:
-            expected_ds = valid_poses_dataset.assign_coords(
-                time=valid_poses_dataset.time.values / fps
+
+        expected_ds = valid_poses_dataset
+
+        if frame_array is not None:
+            expected_ds = expected_ds.assign_coords(time=frame_array.squeeze())
+
+        if fps is not None:
+            expected_ds = expected_ds.assign_coords(
+                time=expected_ds.time.values / fps
             )
             expected_ds.time.attrs["units"] = "seconds"
-            xr.testing.assert_equal(ds, expected_ds)
+
+        xr.testing.assert_equal(ds, expected_ds)
 
     @pytest.mark.parametrize(
         "confidence_array, expected_context",
