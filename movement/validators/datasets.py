@@ -323,6 +323,11 @@ class ValidPosesInputs(_BaseDatasetInputs):
       if provided, is a list of unique names for the individuals and keypoints,
       with lengths matching the number of individuals and keypoints
       in the dataset, respectively; otherwise, default names are assigned.
+    - The optional ``frame_array``, if provided, is a column vector
+      containing the frame numbers for which poses are defined.
+      The ``frame_array`` should have shape ``(n_frames, 1)``
+      and be monotonically increasing. If None (default),
+      frame numbers are assigned as consecutive 0-based integers.
     - The optional ``fps`` is a positive float; otherwise, it defaults to None.
     - The optional ``source_software`` is a string; otherwise,
       it defaults to None.
@@ -342,6 +347,15 @@ class ValidPosesInputs(_BaseDatasetInputs):
     """List of unique names for the keypoints in the skeleton. If None
     (default), the keypoints will be named "keypoint_0", "keypoint_1",
     etc."""
+
+    frame_array: np.ndarray | None = field(
+        default=None,
+        validator=validators.optional(validators.instance_of(np.ndarray)),
+    )
+    """Array containing the frame numbers for which poses are defined.
+    The frame_array should be a column vector of shape (n_frames, 1)
+    and should be monotonically increasing. If None (default),
+    frame numbers are assigned as consecutive 0-based integers."""
 
     DIM_NAMES: ClassVar[tuple[str, ...]] = (
         "time",
@@ -376,6 +390,26 @@ class ValidPosesInputs(_BaseDatasetInputs):
         )
         self._validate_list_uniqueness(attribute, value)
 
+    @frame_array.validator
+    def _validate_frame_array(self, attribute, value):
+        """Validate frame_array type, shape, and monotonicity."""
+        if value is not None:
+            # should be a column vector (n_frames, 1)
+            time_dim_index = self.DIM_NAMES.index("time")
+            self._validate_array_shape(
+                attribute,
+                value,
+                expected_shape=(self.position_array.shape[time_dim_index], 1),
+            )
+            # check frames are monotonically increasing
+            if not np.all(np.diff(value, axis=0) >= 1):
+                raise logger.error(
+                    ValueError(
+                        f"Frame numbers in {attribute.name} are "
+                        "not monotonically increasing."
+                    )
+                )
+
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
         super().__attrs_post_init__()
@@ -390,6 +424,14 @@ class ValidPosesInputs(_BaseDatasetInputs):
                 "Keypoint names were not provided. "
                 f"Setting to {self.keypoint_names}."
             )
+        if self.frame_array is None:
+            time_dim_index = self.DIM_NAMES.index("time")
+            n_frames = position_array_shape[time_dim_index]
+            self.frame_array = np.arange(n_frames).reshape(-1, 1)
+            logger.info(
+                "Frame numbers were not provided. "
+                "Setting to an array of 0-based integers."
+            )
 
     def to_dataset(self) -> xr.Dataset:
         """Convert validated poses inputs to a ``movement poses`` dataset.
@@ -402,23 +444,28 @@ class ValidPosesInputs(_BaseDatasetInputs):
 
         """
         DIM_NAMES = self.DIM_NAMES
-        n_frames = self.position_array.shape[DIM_NAMES.index("time")]
         n_space = self.position_array.shape[DIM_NAMES.index("space")]
         dataset_attrs: dict[str, str | float | None] = {
             "source_software": self.source_software,
             "ds_type": "poses",
         }
-        # Create the time coordinate, depending on the value of fps
-        time_coords: NDArray[np.floating] | NDArray[np.integer]
-        time_unit: Literal["seconds", "frames"]
+        # Use frame_array as the time coordinate
+        # Ignore type error as ValidPosesInputs ensures
+        # `frame_array` is not None
+        time_coords: NDArray[np.floating] | NDArray[np.integer] = (
+            self.frame_array.squeeze()  # type: ignore[union-attr]
+        )
+
+        time_unit: Literal["seconds", "frames"] = "frames"
+
+        # If fps is provided, express time in seconds
         if self.fps is not None:
-            time_coords = np.arange(n_frames, dtype=np.float64) / self.fps
+            time_coords = time_coords / self.fps
             time_unit = "seconds"
             dataset_attrs["fps"] = self.fps
-        else:
-            time_coords = np.arange(n_frames, dtype=np.int64)
-            time_unit = "frames"
+
         dataset_attrs["time_unit"] = time_unit
+
         # confidence_array may be point-wise (all non-space dims) or
         # individual-wise (non-space and non-keypoint dims)
         confidence_dims = tuple(d for d in DIM_NAMES if d != "space")
