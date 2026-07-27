@@ -578,29 +578,93 @@ A GitHub actions workflow (`.github/workflows/test_and_deploy.yml`) has been set
 * Testing (only if linting checks pass)
 * Release to PyPI (only if a git tag is present and if tests pass).
 
-### Versioning and releases
+The PyPI upload uses [trusted publishing](https://docs.pypi.org/trusted-publishers/),
+so no API tokens are stored in the repository.
+
+### Versioning
 We use [semantic versioning](https://semver.org/), which includes `MAJOR`.`MINOR`.`PATCH` version numbers:
 
 * PATCH = small bugfix
 * MINOR = new feature
 * MAJOR = breaking change
 
+For now, semantic versioning applies to `MINOR` and `PATCH` versions only.
+Until we are ready for a `v1` `MAJOR` version, we cannot commit to backward compatibility,
+so the `MAJOR` version stays at 0 even for breaking changes.
+Any such changes should be clearly communicated in the release notes, and,
+where possible, preceded by a deprecation warning
+(see [Deprecation lifecycle](#deprecation-lifecycle)).
+
 We use [setuptools_scm](setuptools-scm:) to automatically version `movement`.
 It has been pre-configured in the `pyproject.toml` file.
-`setuptools_scm` will automatically [infer the version using git](setuptools-scm:usage#default-versioning-scheme).
-To manually set a new semantic version, create a tag and make sure the tag is pushed to GitHub.
-Make sure you commit any changes you wish to be included in this version. E.g. to bump the version to `1.0.0`:
+`setuptools_scm` will automatically [infer the version using git](setuptools-scm:usage#default-versioning-scheme),
+based on the latest tag matching the `vMAJOR.MINOR.PATCH` format on the _main_ branch.
+Pushing such a tag triggers the package's deployment to PyPI, as well as a documentation build for that version.
+In practice, we create tags via the GitHub release interface, as described below.
 
-```sh
-git add .
-git commit -m "Add new changes"
-git tag -a v1.0.0 -m "Bump to version 1.0.0"
-git push --follow-tags
-```
-Alternatively, you can also use the GitHub web interface to create a new release and tag.
+### Making a new release
 
-The addition of a GitHub tag triggers the package's deployment to PyPI.
-The version number is automatically determined from the latest tag on the _main_ branch.
+:::{note}
+The steps in this section require write access to the `movement` repository,
+so they can only be carried out by maintainers.
+:::
+
+#### 1. Start a draft release
+Go to the [new release page](movement-github:releases/new), which is equivalent to going to
+[Releases](movement-github:releases) and clicking the "Draft a new release" button.
+
+#### 2. Set the tag and title
+* In the "Tag" dropdown, create a new tag following the `vMAJOR.MINOR.PATCH` format (e.g. `v0.10.0`). Don't forget the `v` prefix; it is required.
+* Leave "Target" set to `main`.
+* Use the tag name as the release title.
+
+#### 3. Generate release notes
+* Leave "Previous tag" set to "Auto" and click the "Generate release notes" button.
+* Organise the PR list under "What's Changed" into meaningful subsections (`###` headers).
+* Start with the most important updates (e.g. a flagship feature or breaking change).
+  You may put those under a _Highlights_ subsection.
+* Other common subsections are:
+    * _Housekeeping_: bot PRs, dependency updates, CI changes
+    * _Documentation_
+
+:::{tip}
+Acknowledge first-time or external contributors.
+For breaking changes, include code snippets showing the old vs new syntax.
+:::
+
+#### 4. Publish the release
+Leave the "Set as the latest release" checkbox ticked (default) and publish.
+Then check the "Actions" tab to ensure both the "Tests" and "Docs" workflows finish successfully.
+
+#### 5. Verify the docs and Binder
+Confirm that the new version appears on the [website](target-movement) and that the API reference is up to date.
+As a bonus, try launching an [example](target-examples) in Binder. The first launch may take a while,
+but Binder caches the environment, so later runs are fast (across all examples).
+
+#### 6. Announce the release
+* Post in the ["Releases" topic on Zulip](movement-releases:)
+  with a link to the GitHub release notes. Optionally include a relevant image.
+* You may also link to relevant new pages of the docs, e.g. a new example or the
+  API reference page for a new function.
+* Someone from the team will usually adapt this announcement for social media.
+
+#### 7. Release on conda-forge
+* Wait for the `regro-cf-autotick-bot` to open a PR on `movement`'s
+  [conda-forge feedstock](https://github.com/conda-forge/movement-feedstock)
+  (typically a few hours after the PyPI release).
+* Inspect the PR's diff. Normally there are only two changes in `recipes/meta.yaml`:
+  the version number and the sha256 hash of the source.
+* Check whether dependencies need to be changed. If that's not obvious from the list of PRs
+  in the GitHub release notes, inspect the "Full Changelog" linked at the bottom of the
+  release notes and look for any changes to `pyproject.toml`.
+* If no dependencies have changed and the CI on the feedstock PR has passed, merge the bot's PR
+  to trigger the conda-forge build and release.
+* If dependencies have changed, make the corresponding changes under `requirements` in
+  `recipes/meta.yaml`. You can push these directly to the feedstock PR branch and wait for the CI to pass.
+* After merging, wait for the CI to pass on the feedstock's `main` branch.
+
+See the [conda-forge docs on maintaining packages](https://conda-forge.org/docs/maintainer/updating_pkgs/)
+for more information.
 
 ### Deprecation lifecycle
 
