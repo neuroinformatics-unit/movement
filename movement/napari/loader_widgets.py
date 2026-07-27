@@ -24,7 +24,12 @@ from qtpy.QtWidgets import (
 
 from movement.io.load import load_dataset, rename_legacy_dimensions
 from movement.napari.convert import ds_to_napari_layers
-from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
+from movement.napari.layer_styles import (
+    EDITED_SYMBOL,
+    BoxesStyle,
+    PointsStyle,
+    TracksStyle,
+)
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
 
@@ -364,13 +369,26 @@ class DataLoader(QWidget):
 
         logger.info("Added tracked dataset as a napari Points layer.")
 
+    @staticmethod
+    def _set_symbol_by_edited(
+        layer: Points, edited_indices: list | np.ndarray
+    ) -> None:
+        """Mark the given point indices with the edited marker symbol."""
+        if len(edited_indices) == 0:
+            return
+        symbols = np.asarray(layer.symbol).copy()
+        symbols[edited_indices] = EDITED_SYMBOL
+        layer.symbol = symbols
+
     def _on_points_data_changed(self, event):
         """Set confidence to NaN and flag as edited for moved points.
 
         Connected to ``points_layer.events.data``. Fires on
         ``ActionType.CHANGED`` (i.e., when the data array values
         change) and sets the confidence score of moved (dragged)
-        points to NaN, and marks them as edited.
+        points to NaN, marks them as edited, and changes their
+        marker symbol to ``EDITED_SYMBOL`` so edited points are
+        visually distinguishable.
         """
         layer = event.source
         if not isinstance(layer, Points):
@@ -387,6 +405,7 @@ class DataLoader(QWidget):
             props["edited"] = np.full(len(props["confidence"]), False)
         props["edited"][moved_indices] = True
         layer.properties = props
+        self._set_symbol_by_edited(layer, moved_indices)
 
     def _add_tracks_layer(self):
         """Add the tracked data to the viewer as a Tracks layer."""
