@@ -945,6 +945,21 @@ def test_add_points_and_tracks_layer_style(
         )
 
 
+def test_set_symbol_by_edited_no_indices_is_noop(
+    valid_poses_path_and_ds, loaded_data_loader
+):
+    """Test that ``_set_symbol_by_edited`` leaves symbols unchanged
+    when given an empty list of indices.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+
+    original_symbol = loader.points_layer.symbol.copy()
+    loader._set_symbol_by_edited(loader.points_layer, [])
+
+    np.testing.assert_array_equal(loader.points_layer.symbol, original_symbol)
+
+
 def test_on_points_data_changed_ignores_tracks_layer(
     valid_poses_path_and_ds, loaded_data_loader
 ):
@@ -1028,7 +1043,9 @@ def test_on_points_data_changed_second_drag_extends_edited(
     The first drag creates ``edited`` (the ``else`` branch). The second
     drag moves two points at once, as napari does for a multi-point
     selection, hitting the ``if "edited" in props`` branch and covering
-    multi-point drags in the same test.
+    multi-point drags in the same test. Also checks that dragged points'
+    marker symbol is changed to "ring", while untouched points keep the
+    default "disc" symbol.
     """
     filepath, ds = valid_poses_path_and_ds
     loader = loaded_data_loader(filepath, ds)
@@ -1043,6 +1060,7 @@ def test_on_points_data_changed_second_drag_extends_edited(
     # First drag: creates `edited` (the `else` branch), one point moved
     drag((0,))
     assert loader.points_layer.properties["edited"][0]
+    assert loader.points_layer.symbol[0] == "ring"
 
     # Second drag: extends `edited` (the `if "edited" in props` branch),
     # moving two points (1, 2) at once in a single event
@@ -1050,7 +1068,10 @@ def test_on_points_data_changed_second_drag_extends_edited(
 
     edited = loader.points_layer.properties["edited"]
     confidence = loader.points_layer.properties["confidence"]
+    symbol = loader.points_layer.symbol
     assert edited[[0, 1, 2]].all()  # all dragged points flagged
     assert not edited[3:].any()  # untouched points stay False
     assert np.isnan(confidence[[0, 1, 2]]).all()  # confidence set to NaN
     assert not np.isnan(confidence[3:]).any()  # untouched points untouched
+    assert (symbol[[0, 1, 2]] == "ring").all()  # all dragged points ringed
+    assert (symbol[3:] == "disc").all()  # untouched points stay disc
