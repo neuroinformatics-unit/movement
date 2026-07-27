@@ -1,5 +1,6 @@
 """Widgets for loading movement datasets from file."""
 
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -55,15 +56,18 @@ SUPPORTED_DATA_FILES = {
 }
 
 # Metadata keys stored on the movement Points layer.
-# Set in _add_points_layer (where the layer is created);
-# read in save_widget.py (where the layer is saved).
+# Set in _add_points_layer/_add_tracks_layer (where the layers are created);
+# read in save_widget.py (where the layer is saved) and in
+# _on_points_data_changed (to keep the Tracks layer in sync).
 # - POINTS_LAYER_KEY marks the layer as movement-created.
 # - POINTS_PROPERTIES_KEY holds the full properties df, incl. the NaN rows
 #   dropped from the live layer, needed to reconstruct the dataset.
 # - DATASET_ATTRS_KEY holds the source dataset's attrs (source_software, fps…).
+# - TRACKS_LAYER_KEY holds a reference to the companion Tracks layer.
 POINTS_LAYER_KEY: str = "movement_points_layer"
 POINTS_PROPERTIES_KEY: str = "movement_points_properties"
 DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
+TRACKS_LAYER_KEY: str = "movement_tracks_layer"
 
 
 class DataLoader(QWidget):
@@ -415,6 +419,43 @@ class DataLoader(QWidget):
         layer.properties = props
         self._set_point_symbol_by_edited(layer)
 
+        self._sync_tracks_layer(layer, moved_indices)
+
+    def _sync_tracks_layer(self, points_layer, moved_indices):
+        """Update the corresponding Tracks layer to match an edited point.
+
+        A moved point's new (frame, y, x) is written to the same row
+        in the Tracks layer, so the track segment connecting the
+        previous frame to this one terminates at the dragged position.
+        """
+        tracks_layer = points_layer.metadata.get(TRACKS_LAYER_KEY)
+        if tracks_layer is None:
+            return
+
+        # Points and Tracks layers are built from the same NaN-filtered
+        # array in the same row order (see _add_points_layer/
+        # _add_tracks_layer). the Tracks layer only has an extra
+        # leading track_id column.
+        tracks_data = tracks_layer.data
+        tracks_data[moved_indices, 1:] = points_layer.data[moved_indices]
+
+        # Setting `.data` on a napari Tracks layer resets its internal
+        # features to empty, which transiently invalidates `color_by`
+        # (napari warns and falls back to "track_id") even though we
+        # restore the same properties and colour-by property right
+        # after. Suppress that spurious warning around the sequence.
+        tracks_properties = tracks_layer.properties
+        color_by = tracks_layer.color_by
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=".*Previous color_by key.*",
+                category=UserWarning,
+            )
+            tracks_layer.data = tracks_data
+            tracks_layer.properties = tracks_properties
+            tracks_layer.color_by = color_by
+
     def _add_tracks_layer(self):
         """Add the tracked data to the viewer as a Tracks layer."""
         # Define style for tracks layer
@@ -430,12 +471,14 @@ class DataLoader(QWidget):
         tracks_style.set_color_by(property=self.color_property_factorized)
 
         # Add data as a tracks layer
-        self.viewer.add_tracks(
+        self.tracks_layer = self.viewer.add_tracks(
             self.data[self.data_not_nan, :],
             properties=self.properties.iloc[self.data_not_nan, :],
             metadata={"max_frame_idx": max(self.data[:, 1])},
             **tracks_style.as_kwargs(),
         )
+        # Let the Points layer's callback find its companion Tracks layer
+        self.points_layer.metadata[TRACKS_LAYER_KEY] = self.tracks_layer
         logger.info("Added tracked dataset as a napari Tracks layer.")
 
     def _add_boxes_layer(self):
