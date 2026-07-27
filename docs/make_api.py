@@ -26,6 +26,7 @@ EXCLUDE_MODULES = {
     "movement.cli_entrypoint",
     "movement.napari.loader_widgets",
     "movement.napari.regions_widget",
+    "movement.napari.save_widget",
     "movement.napari.meta_widget",
 }
 
