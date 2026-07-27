@@ -50,108 +50,68 @@ def test_save_button_enabled_for_valid_points_layer(make_napari_viewer_proxy):
     assert data_saver_widget.save_button.toolTip() == ENABLED_TOOLTIP
 
 
-def test_save_button_disabled_for_invalid_layer(make_napari_viewer_proxy):
-    """Test that selecting a layer without movement metadata keeps the
-    save button disabled with the default tooltip.
+@pytest.mark.parametrize(
+    "make_layer",
+    [
+        pytest.param(
+            lambda v: v.add_points(name="not from movement"),
+            id="points_without_metadata",
+        ),
+        pytest.param(
+            lambda v: v.add_points(
+                name="not from movement",
+                metadata={POINTS_PROPERTIES_KEY: None},
+            ),
+            id="points_with_properties_but_no_layer_key",
+        ),
+        pytest.param(
+            lambda v: v.add_image(np.zeros((10, 10)), name="an image"),
+            id="non_points_layer",
+        ),
+    ],
+)
+def test_save_button_disabled_for_invalid_layer(
+    make_layer, make_napari_viewer_proxy
+):
+    """Test that selecting a layer that is not a movement points layer
+    keeps the save button disabled with the default tooltip.
+
+    The ``points_with_properties_but_no_layer_key`` case guards against
+    treating the mere presence of ``POINTS_PROPERTIES_KEY`` (even if
+    falsy/None) as a stand-in for "this layer was created by movement".
     """
     viewer = make_napari_viewer_proxy()
     data_saver_widget = DataSaver(viewer)
 
-    layer = viewer.add_points(name="not from movement")
-    viewer.layers.selection.active = layer
+    viewer.layers.selection.active = make_layer(viewer)
 
     assert not data_saver_widget.save_button.isEnabled()
     assert data_saver_widget.save_button.toolTip() == DISABLED_TOOLTIP
 
 
-def test_save_clicked_without_points_layer_selected(
-    make_napari_viewer_proxy, mocker
-):
-    """Test that clicking 'Save' without a valid layer selected shows
-    an error and never opens the file dialog.
+def test_disabled_button_click_does_not_save(make_napari_viewer_proxy, mocker):
+    """Test that clicking the disabled save button (no valid layer
+    selected) never opens the file dialog.
+
+    This guards the invariant that the button's enabled state is the
+    sole gate on saving, so ``_on_save_clicked`` can safely assume the
+    active layer is a valid movement points layer.
     """
     viewer = make_napari_viewer_proxy()
     data_saver_widget = DataSaver(viewer)
 
-    mock_show_error = mocker.patch("movement.napari.save_widget.show_error")
+    viewer.layers.selection.active = viewer.add_image(
+        np.zeros((10, 10)), name="an image"
+    )
+
     mock_file_dialog = mocker.patch(
         "movement.napari.save_widget.QFileDialog.getSaveFileName"
     )
 
-    data_saver_widget._on_save_clicked()
+    # click() is a no-op on a disabled button, so the slot must not run
+    data_saver_widget.save_button.click()
 
-    mock_show_error.assert_called_once()
     mock_file_dialog.assert_not_called()
-
-
-def test_save_clicked_with_non_movement_points_layer(
-    make_napari_viewer_proxy, mocker
-):
-    """Test that a Points layer without movement metadata is rejected."""
-    viewer = make_napari_viewer_proxy()
-    data_saver_widget = DataSaver(viewer)
-
-    layer = viewer.add_points(name="not from movement")
-    viewer.layers.selection.active = layer
-
-    mock_show_error = mocker.patch("movement.napari.save_widget.show_error")
-    mock_file_dialog = mocker.patch(
-        "movement.napari.save_widget.QFileDialog.getSaveFileName"
-    )
-
-    data_saver_widget._on_save_clicked()
-
-    mock_show_error.assert_called_once()
-    mock_file_dialog.assert_not_called()
-
-
-def test_save_clicked_with_properties_but_no_layer_key(
-    make_napari_viewer_proxy, mocker
-):
-    """Test that a Points layer with a properties key but without the
-    explicit POINTS_LAYER_KEY marker is still rejected.
-
-    Guards against relying on the mere presence of
-    ``POINTS_PROPERTIES_KEY`` (even if its value is falsy/None) as a
-    stand-in for "this layer was created by movement".
-    """
-    viewer = make_napari_viewer_proxy()
-    data_saver_widget = DataSaver(viewer)
-
-    layer = viewer.add_points(
-        name="not from movement",
-        metadata={POINTS_PROPERTIES_KEY: None},
-    )
-    viewer.layers.selection.active = layer
-
-    assert not data_saver_widget.save_button.isEnabled()
-
-    mock_show_error = mocker.patch("movement.napari.save_widget.show_error")
-    mock_file_dialog = mocker.patch(
-        "movement.napari.save_widget.QFileDialog.getSaveFileName"
-    )
-
-    data_saver_widget._on_save_clicked()
-
-    mock_show_error.assert_called_once()
-    mock_file_dialog.assert_not_called()
-
-
-def test_save_clicked_with_non_points_layer_selected(
-    make_napari_viewer_proxy, mocker
-):
-    """Test that a non-Points layer selection is rejected."""
-    viewer = make_napari_viewer_proxy()
-    data_saver_widget = DataSaver(viewer)
-
-    layer = viewer.add_image(np.zeros((10, 10)), name="an image")
-    viewer.layers.selection.active = layer
-
-    mock_show_error = mocker.patch("movement.napari.save_widget.show_error")
-
-    data_saver_widget._on_save_clicked()
-
-    mock_show_error.assert_called_once()
 
 
 def test_save_clicked_cancelled_dialog(make_napari_viewer_proxy, mocker):
