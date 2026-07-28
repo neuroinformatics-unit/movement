@@ -7,11 +7,10 @@ from typing import Concatenate, Literal, ParamSpec, Protocol, cast
 import pynwb
 import xarray as xr
 
-from movement.io import save_bboxes, save_poses
 from movement.utils.logging import logger
 from movement.validators.files import validate_file_path
 
-type SaveTarget = Literal[
+type SourceSoftware = Literal[
     "netCDF",
     "DeepLabCut",
     "SLEAP",
@@ -105,31 +104,15 @@ def register_writer(
     return decorator
 
 
-# Mapping of pose-format names to the writer that handles them. Each writer
-# accepts ``(ds, file_path, **kwargs)`` and saves directly to disk.
-_POSES_WRITERS: dict[str, Callable] = {
-    "DeepLabCut": save_poses.to_dlc_file,
-    "SLEAP": save_poses.to_sleap_analysis_file,
-    "LightningPose": save_poses.to_lp_file,
-}
-
-# Mapping of bounding-boxes-format names to the writer that handles them.
-_BBOXES_WRITERS: dict[str, Callable] = {
-    "VIA-tracks": save_bboxes.to_via_tracks_file,
-}
-
-# The ``ds_type`` each non-netCDF target is compatible with.
-_TARGET_DS_TYPE: dict[str, Literal["poses", "bboxes"]] = {
-    **{name: "poses" for name in _POSES_WRITERS},
-    "NWB": "poses",
-    **{name: "bboxes" for name in _BBOXES_WRITERS},
-}
+# NWB is special-cased in save_dataset below (its writer doesn't write to
+# disk itself, see _save_nwb), so it isn't registered via @register_writer.
+_WRITER_DS_TYPE_REGISTRY["NWB"] = "poses"
 
 
 def save_dataset(
     ds: xr.Dataset,
     file: str | Path,
-    source_software: SaveTarget | None = None,
+    source_software: SourceSoftware | None = None,
     **kwargs,
 ) -> None:
     """Save a ``movement`` dataset to a file in any supported format.
@@ -209,12 +192,8 @@ def save_dataset(
 
     target = source_software if source_software is not None else "netCDF"
 
-    if target == "netCDF":
-        _save_netcdf(ds, file, **kwargs)
-        return
-
-    if target not in _TARGET_DS_TYPE:
-        supported = ", ".join(["netCDF", *_TARGET_DS_TYPE])
+    if target not in _WRITER_REGISTRY and target != "NWB":
+        supported = ", ".join([*_WRITER_REGISTRY, "NWB"])
         raise logger.error(
             ValueError(
                 f"Unsupported source_software for saving: '{target}'. "
@@ -228,17 +207,20 @@ def save_dataset(
         _save_nwb(ds, file, **kwargs)
         return
 
-    writer = {**_POSES_WRITERS, **_BBOXES_WRITERS}[target]
-    writer(ds, file, **kwargs)
+    _WRITER_REGISTRY[target](ds, file, **kwargs)
 
 
 def _validate_ds_type(ds: xr.Dataset, target: str) -> None:
     """Check that the dataset's ``ds_type`` is compatible with the target.
 
-    The check is skipped if the dataset has no ``ds_type`` attribute, in which
-    case the format-specific writer's own validation will catch any mismatch.
+    The check is skipped if the target is compatible with any dataset type
+    (``ds_type=None``, e.g. netCDF), or if the dataset has no ``ds_type``
+    attribute, in which case the format-specific writer's own validation will
+    catch any mismatch.
     """
-    expected = _TARGET_DS_TYPE[target]
+    expected = _WRITER_DS_TYPE_REGISTRY[target]
+    if expected is None:
+        return
     ds_type = ds.attrs.get("ds_type")
     if ds_type is not None and ds_type != expected:
         raise logger.error(
@@ -249,6 +231,7 @@ def _validate_ds_type(ds: xr.Dataset, target: str) -> None:
         )
 
 
+@register_writer("netCDF")
 def _save_netcdf(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
     """Save a ``movement`` dataset to a netCDF file."""
     valid_path = validate_file_path(file, permission="w", suffixes={".nc"})
@@ -264,6 +247,11 @@ def _save_nwb(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
     datasets yield one file per individual, with the individual name appended
     to the file path.
     """
+    # Local import to avoid a circular import: save_poses needs
+    # register_writer from this module at import time. Relocated alongside
+    # to_nwb_file in save_poses.py once NWB moves into the registry.
+    from movement.io import save_poses
+
     valid_path = validate_file_path(file, permission="w", suffixes={".nwb"})
     nwb_files = save_poses.to_nwb_file(ds, **kwargs)
     if isinstance(nwb_files, pynwb.file.NWBFile):
