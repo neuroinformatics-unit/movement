@@ -119,3 +119,15 @@ def test_save_dataset_nwb_multi_individual(
         tmp_path / "out_id_0.nwb",
         tmp_path / "out_id_1.nwb",
     ]
+
+
+def test_register_writer_decorator():
+    """Test register_writer populates both registries correctly."""
+    from movement.io import save
+
+    @save.register_writer("StubSoftware", ds_type="poses")
+    def stub_writer_fn(ds, file_path, **kwargs) -> None:
+        """Stub writer function for testing."""
+
+    assert save._WRITER_REGISTRY["StubSoftware"] is stub_writer_fn
+    assert save._WRITER_DS_TYPE_REGISTRY["StubSoftware"] == "poses"
