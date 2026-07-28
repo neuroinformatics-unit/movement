@@ -492,6 +492,71 @@ SourceSoftware: TypeAlias = Literal[
 ]
 ```
 
+### Implementing new writers
+Implementing a new writer to support additional save formats involves the following steps:
+
+1. Implement the writer function.
+2. Decorate it with `@register_writer`.
+3. Update the `SourceSoftware` type alias.
+
+#### Implement writer function
+Writer functions live in {mod}`movement.io.save_poses` or {mod}`movement.io.save_bboxes`, depending on the data type (poses or bounding boxes).
+Unlike loaders, writers do not need file validators — `movement` datasets are already validated by the time they reach a writer, and each writer calls {func}`validate_file_path()<movement.validators.files.validate_file_path>` itself to check the output path.
+
+A writer function must conform to the {class}`WriterProtocol<movement.io.save.WriterProtocol>`, which requires the function to:
+
+- Accept `ds` ({class}`xarray.Dataset<xarray.Dataset>`) as its first argument and `file` (`str` or {class}`Path<pathlib.Path>`) as its second.
+- Accept any format-specific keyword arguments.
+- Save `ds` directly to `file` on disk.
+
+Using the hypothetical "MySoftware" example from the loaders section above, a writer `to_mysoftware_file` would look like this:
+
+```python
+@register_writer("MySoftware", ds_type="poses")
+def to_mysoftware_file(ds: xr.Dataset, file_path: str | Path, **kwargs) -> None:
+    """Save a ``movement`` dataset to a MySoftware file."""
+    valid_path = validate_file_path(file_path, permission="w", suffixes={".csv"})
+    # The _format_* function is pseudocode
+    df = _format_as_mysoftware_df(ds)
+    df.to_csv(valid_path)
+    logger.info(f"Saved poses dataset to {valid_path}.")
+```
+
+#### Decorate the writer with `@register_writer`
+The {func}`@register_writer()<movement.io.save.register_writer>` decorator associates a writer function with a `source_software` name so that users can save to that format via the unified {func}`save_dataset()<movement.io.save.save_dataset>` interface:
+
+```python
+from movement.io import save_dataset
+save_dataset(ds, "/path/to/output.csv", source_software="MySoftware")
+```
+
+which is equivalent to calling the writer function directly:
+
+```python
+from movement.io.save_poses import to_mysoftware_file
+to_mysoftware_file(ds, "/path/to/output.csv")
+```
+
+The `ds_type` argument (`"poses"`, `"bboxes"`, or `None`) tells `save_dataset` which kind of dataset the format is compatible with, so it can raise a clear error if a bounding boxes dataset is passed to a poses-only writer (or vice versa). Pass `ds_type=None` (the default) only for formats compatible with any dataset type, such as `movement`'s native netCDF format.
+
+:::{seealso}
+{class}`WriterProtocol<movement.io.save.WriterProtocol>`: the protocol writer functions must conform to.
+:::
+
+#### Update SourceSoftware type alias (writers)
+The `SourceSoftware` type alias is defined in {mod}`movement.io.save` as a `Literal` containing all supported save target names.
+This is a separate type alias from the one of the same name in {mod}`movement.io.load` — the two lists differ (e.g. `"netCDF"` is save-only, `"Anipose"` is load-only), so each is maintained independently.
+When adding a new writer, update this type alias to include the new software name:
+
+```python
+type SourceSoftware = Literal[
+    "netCDF",
+    "DeepLabCut",
+    ...,
+    "MySoftware",  # Newly added software
+]
+```
+
 ### Developing the CLI
 
 The `movement` command-line interface lives in `movement/cli_entrypoint`
