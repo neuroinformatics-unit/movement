@@ -4,6 +4,16 @@ By 'path' we refer to the spatial trajectory of an individual over the
 time span of the data. While these metrics can be computed based on any
 set of keypoints, they are most meaningful when applied to a single
 keypoint representing the individual's overall position (e.g., centroid).
+
+When adding a new path metric, follow this convention for the
+``nan_warn_threshold`` parameter: expose it only if the metric returns a
+single scalar per path (e.g. ``compute_path_length``,
+``compute_path_straightness``, ``compute_path_sinuosity`` and
+``compute_path_emax``), where a high proportion of missing values can
+silently skew that scalar. Do not expose it if the metric returns a
+time-varying quantity (e.g. ``compute_directional_change`` and
+``compute_path_deviation``), where missing values remain visible per
+time step and propagate on their own.
 """
 
 import warnings
@@ -153,6 +163,12 @@ def compute_path_straightness(
     --------
     compute_path_length : The underlying function used to
         compute the path length :math:`L`.
+    compute_path_sinuosity :
+        A related turning-angle-based measure of path tortuosity.
+    compute_path_emax :
+        An alternative straightness measure derived from the
+        turning-angle distribution which, unlike the :math:`D/L`
+        ratio, does not depend on the number of steps in the path.
 
     Examples
     --------
@@ -343,6 +359,7 @@ def compute_path_sinuosity(
     compute_path_length : Total distance travelled along a path.
     compute_path_straightness : Net displacement divided by path length.
     compute_turning_angle : Step-wise turning angle along a path.
+    compute_path_emax : Directional-persistence measure.
 
     Notes
     -----
@@ -470,6 +487,8 @@ def compute_directional_change(
     --------
     compute_turning_angle :
         The underlying function used to compute turning angles.
+    compute_path_emax :
+        A related path-straightness measure based on turning angles.
 
     Examples
     --------
@@ -505,6 +524,135 @@ def compute_directional_change(
     dc.name = "directional_change"
     dc.attrs["long_name"] = "Directional Change"
     return dc
+
+
+def compute_path_emax(
+    data: xr.DataArray,
+    in_spatial_units: bool = True,
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    r"""Compute the maximum expected displacement (:math:`E_{\max}`).
+
+    :math:`E_{\max}` is a straightness measure that captures the
+    directional persistence of a path. Intuitively, it is the maximum
+    expected displacement of an animal navigating *without* an external
+    directional reference (e.g. a compass or a landmark), given the
+    observed distribution of its turning angles and step lengths [1]_.
+    Larger values indicate straighter, more persistent paths; values
+    close to zero indicate sinuous paths.
+
+    Two variants are available. The dimensionless variant
+    :math:`E_{\max}^{(a)}` depends only on the turning angles:
+
+    .. math::
+        E_{\max}^{(a)} = \frac{\bar{c}}{1 - \bar{c}}, \qquad
+        \bar{c} = \overline{\cos\theta}
+
+    where :math:`\theta` are the turning angles and :math:`\bar{c}` is
+    their mean cosine. The variant :math:`E_{\max}^{(b)}` scales this by
+    the mean step length :math:`\bar{p}` to express the result in the
+    same spatial units as the input:
+
+    .. math::
+        E_{\max}^{(b)} = \bar{p} \, E_{\max}^{(a)}
+
+    Parameters
+    ----------
+    data
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+    in_spatial_units
+        If ``True`` (the default), return the dimensioned variant
+        :math:`E_{\max}^{(b)}`, expressed in the same spatial units as
+        ``data``. If ``False``, return the dimensionless variant
+        :math:`E_{\max}^{(a)}`.
+    nan_warn_threshold
+        If any point track in the data has at least (:math:`\ge`)
+        this proportion of values missing, a warning will be emitted.
+        Defaults to 0.2 (20%).
+
+    Returns
+    -------
+    xarray.DataArray
+        The maximum expected displacement, with dimensions matching
+        those of the input data, except ``time`` and ``space`` are
+        removed. When ``in_spatial_units`` is ``True`` the values are in
+        the same spatial units as ``data``; otherwise they are
+        dimensionless.
+
+    See Also
+    --------
+    compute_turning_angle :
+        The underlying function used to compute the turning angles.
+    compute_path_sinuosity :
+        A related turning-angle-based measure of path tortuosity.
+    compute_path_straightness :
+        A related, path-length-based measure of straightness.
+
+    Notes
+    -----
+    1. **Mean cosine of the turning angles.**
+       :math:`\bar{c} = \overline{\cos\theta}` is the ``time`` average
+       (ignoring ``NaN`` values) of the cosine of the turning angles
+       :math:`\theta` returned by :func:`compute_turning_angle`. The first
+       two time steps have no defined turning angle and so do not
+       contribute.
+    2. **Range.** :math:`E_{\max}^{(a)} \in [-0.5, \infty)`. While
+       highly sinuous paths actually have values approaching 0,
+       negative values specifically arise for trajectories with a
+       systematic backward-turning bias where the mean cosine
+       :math:`\bar{c}` is itself negative.
+    3. **Straight paths.** As a path approaches a perfectly straight
+       line, :math:`\bar{c} \to 1`, so :math:`1 - \bar{c} \to 0` and
+       :math:`E_{\max} \to +\infty`. An infinite result is therefore the
+       correct, expected output for a straight path.
+    4. **Missing values.** Turning angles and step lengths that are
+       ``NaN`` (e.g. from missing positions or stationary steps) are
+       ignored when averaging. If every turning angle is ``NaN`` (e.g. a
+       stationary track), the result is ``NaN``.
+
+    References
+    ----------
+    .. [1] Cheung, A., Zhang, S., Stricker, C. & Srinivasan, M. V.
+       (2007). Animal navigation: the difficulty of moving in a straight
+       line. *Biological Cybernetics* 97(1), 47-61.
+       https://doi.org/10.1007/s00422-007-0158-0
+
+    Examples
+    --------
+    >>> from movement.kinematics import compute_path_emax
+
+    Compute E_max from the centroid trajectory of a poses dataset ``ds``:
+
+    >>> centroid = ds.position.mean(dim="keypoint")
+    >>> emax = compute_path_emax(centroid)
+
+    Return the dimensionless variant instead:
+
+    >>> emax_a = compute_path_emax(centroid, in_spatial_units=False)
+
+    Compute over a specific time window:
+
+    >>> emax = compute_path_emax(centroid.sel(time=slice(0, 100)))
+
+    """
+    data = _validate_time_points(
+        data, metric_name="maximum expected displacement", min_points=3
+    )
+
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+
+    theta = compute_turning_angle(data)
+    mean_cosine = xr.apply_ufunc(np.cos, theta).mean(dim="time", skipna=True)
+
+    emax = mean_cosine / (1 - mean_cosine)
+
+    if in_spatial_units:
+        emax = emax * _segment_lengths(data).mean(dim="time", skipna=True)
+
+    emax.name = "maximum_expected_displacement"
+    emax.attrs["long_name"] = "Maximum Expected Displacement"
+    return emax
 
 
 def compute_path_deviation(
