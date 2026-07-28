@@ -2,7 +2,7 @@
 
 from collections.abc import Callable
 from pathlib import Path
-from typing import Literal
+from typing import Concatenate, Literal, ParamSpec, Protocol, cast
 
 import pynwb
 import xarray as xr
@@ -19,6 +19,91 @@ type SaveTarget = Literal[
     "NWB",
     "VIA-tracks",
 ]
+
+P = ParamSpec("P")
+
+
+class WriterProtocol(Protocol):
+    """Protocol for writer functions to be registered via ``register_writer``.
+
+    All writer functions registered via :func:`register_writer` must conform
+    to this protocol. Writers must accept a ``movement`` dataset and a file
+    path (or any other keyword arguments needed for that format) and save
+    the dataset directly to disk.
+
+    See Also
+    --------
+    register_writer : Decorator for registering writer functions.
+
+    """
+
+    def __call__(
+        self, ds: xr.Dataset, file: str | Path, *args, **kwargs
+    ) -> None:
+        """Save a ``movement`` dataset to a file.
+
+        Parameters
+        ----------
+        ds
+            The ``movement`` dataset to save.
+        file
+            Path to the file to save the dataset to.
+        *args
+            Additional positional arguments for the writer.
+        **kwargs
+            Additional keyword arguments for the writer.
+
+        """
+        ...
+
+
+_WRITER_REGISTRY: dict[str, WriterProtocol] = {}
+_WRITER_DS_TYPE_REGISTRY: dict[str, Literal["poses", "bboxes"] | None] = {}
+
+
+def register_writer(
+    source_software: str,
+    *,
+    ds_type: Literal["poses", "bboxes"] | None = None,
+) -> Callable[
+    [Callable[Concatenate[xr.Dataset, str | Path, P], object]],
+    Callable[Concatenate[xr.Dataset, str | Path, P], object],
+]:
+    """Register a writer function for a given source software.
+
+    Parameters
+    ----------
+    source_software
+        The name of the source software (i.e. target format) to save to.
+    ds_type
+        The ``movement`` dataset type (``"poses"`` or ``"bboxes"``) the
+        writer is compatible with. If None (default), the writer is
+        compatible with any dataset type (e.g. ``movement``'s native
+        netCDF format).
+
+    Returns
+    -------
+    collections.abc.Callable
+        A decorator that registers the writer function.
+
+    Examples
+    --------
+    >>> from movement.io.save import register_writer
+    >>> @register_writer("MySoftware", ds_type="poses")
+    ... def to_mysoftware_file(ds, file_path, **kwargs):
+    ...     pass
+
+    """
+
+    def decorator(
+        writer_fn: Callable[Concatenate[xr.Dataset, str | Path, P], object],
+    ) -> Callable[Concatenate[xr.Dataset, str | Path, P], object]:
+        _WRITER_REGISTRY[source_software] = cast("WriterProtocol", writer_fn)
+        _WRITER_DS_TYPE_REGISTRY[source_software] = ds_type
+        return writer_fn
+
+    return decorator
+
 
 # Mapping of pose-format names to the writer that handles them. Each writer
 # accepts ``(ds, file_path, **kwargs)`` and saves directly to disk.
