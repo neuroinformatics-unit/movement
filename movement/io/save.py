@@ -4,7 +4,6 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Concatenate, Literal, ParamSpec, Protocol, cast
 
-import pynwb
 import xarray as xr
 
 from movement.utils.logging import logger
@@ -105,11 +104,6 @@ def register_writer(
     return decorator
 
 
-# NWB is special-cased in save_dataset below (its writer doesn't write to
-# disk itself, see _save_nwb), so it isn't registered via @register_writer.
-_WRITER_DS_TYPE_REGISTRY["NWB"] = "poses"
-
-
 def save_dataset(
     ds: xr.Dataset,
     file: str | Path,
@@ -179,8 +173,8 @@ def save_dataset(
     """
     target = target_software if target_software is not None else "netCDF"
 
-    if target not in _WRITER_REGISTRY and target != "NWB":
-        supported = ", ".join([*_WRITER_REGISTRY, "NWB"])
+    if target not in _WRITER_REGISTRY:
+        supported = ", ".join(_WRITER_REGISTRY)
         raise logger.error(
             ValueError(
                 f"Unsupported target_software for saving: '{target}'. "
@@ -189,10 +183,6 @@ def save_dataset(
         )
 
     _validate_ds_type(ds, target)
-
-    if target == "NWB":
-        _save_nwb(ds, file, **kwargs)
-        return
 
     _WRITER_REGISTRY[target](ds, file, **kwargs)
 
@@ -242,35 +232,3 @@ def _save_netcdf(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
     valid_path = validate_file_path(file, permission="w", suffixes={".nc"})
     ds.to_netcdf(valid_path, **kwargs)
     logger.info(f"Saved dataset to {valid_path}.")
-
-
-def _save_nwb(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
-    """Save a ``movement`` poses dataset to one or more NWB files.
-
-    :func:`movement.io.save_poses.to_nwb_file` builds the NWBFile object(s)
-    but does not write them to disk; this helper writes them. Multi-individual
-    datasets yield one file per individual, with the individual name appended
-    to the file path.
-    """
-    # Local import to avoid a circular import: save_poses needs
-    # register_writer from this module at import time. Relocated alongside
-    # to_nwb_file in save_poses.py once NWB moves into the registry.
-    from movement.io import save_poses
-
-    valid_path = validate_file_path(file, permission="w", suffixes={".nwb"})
-    nwb_files = save_poses.to_nwb_file(ds, **kwargs)
-    if isinstance(nwb_files, pynwb.file.NWBFile):
-        _write_nwb_to_disk(nwb_files, valid_path)
-    else:
-        for nwb_file in nwb_files:
-            individual_path = valid_path.with_name(
-                f"{valid_path.stem}_{nwb_file.identifier}{valid_path.suffix}"
-            )
-            _write_nwb_to_disk(nwb_file, individual_path)
-
-
-def _write_nwb_to_disk(nwb_file: pynwb.file.NWBFile, file_path: Path) -> None:
-    """Write a single NWBFile object to disk."""
-    with pynwb.NWBHDF5IO(file_path, mode="w") as io:
-        io.write(nwb_file)
-    logger.info(f"Saved dataset to {file_path}.")

@@ -107,7 +107,7 @@ def test_save_dataset_nwb_single_individual(
     single = valid_poses_dataset.isel(individual=[0])
     fake_nwb = mocker.MagicMock(spec=pynwb.file.NWBFile)
     mocker.patch("movement.io.save_poses.to_nwb_file", return_value=fake_nwb)
-    mock_write = mocker.patch("movement.io.save._write_nwb_to_disk")
+    mock_write = mocker.patch("movement.io.save_poses._write_nwb_to_disk")
     file_path = tmp_path / "out.nwb"
     save_dataset(single, file_path, target_software="NWB")
     mock_write.assert_called_once_with(fake_nwb, file_path)
@@ -124,7 +124,7 @@ def test_save_dataset_nwb_multi_individual(
         mocker.MagicMock(identifier="id_1"),
     ]
     mocker.patch("movement.io.save_poses.to_nwb_file", return_value=fake_files)
-    mock_write = mocker.patch("movement.io.save._write_nwb_to_disk")
+    mock_write = mocker.patch("movement.io.save_poses._write_nwb_to_disk")
     file_path = tmp_path / "out.nwb"
     save_dataset(valid_poses_dataset, file_path, target_software="NWB")
     written_paths = [call.args[1] for call in mock_write.call_args_list]
