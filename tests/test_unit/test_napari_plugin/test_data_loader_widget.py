@@ -12,6 +12,7 @@ from unittest.mock import Mock
 import numpy as np
 import pandas as pd
 import pytest
+import xarray as xr
 from napari.components.dims import RangeTuple
 from napari.layers import (
     Image,
@@ -945,17 +946,17 @@ def test_add_points_and_tracks_layer_style(
         )
 
 
-def test_set_symbol_by_edited_no_indices_is_noop(
+def test_set_symbol_by_edited_no_edited_property_is_noop(
     valid_poses_path_and_ds, loaded_data_loader
 ):
     """Test that ``_set_symbol_by_edited`` leaves symbols unchanged
-    when given an empty list of indices.
+    when the layer has no ``edited`` property yet (nothing dragged so far).
     """
     filepath, ds = valid_poses_path_and_ds
     loader = loaded_data_loader(filepath, ds)
 
     original_symbol = loader.points_layer.symbol.copy()
-    loader._set_symbol_by_edited(loader.points_layer, [])
+    loader._set_symbol_by_edited(loader.points_layer)
 
     np.testing.assert_array_equal(loader.points_layer.symbol, original_symbol)
 
@@ -1075,3 +1076,31 @@ def test_on_points_data_changed_second_drag_extends_edited(
     assert not np.isnan(confidence[3:]).any()  # untouched points untouched
     assert (symbol[[0, 1, 2]] == "ring").all()  # all dragged points ringed
     assert (symbol[3:] == "disc").all()  # untouched points stay disc
+
+
+def test_add_points_layer_shows_edited_symbol_for_previously_edited_points(
+    valid_poses_dataset, tmp_path, make_napari_viewer_proxy
+):
+    """Test that points already flagged as ``edited`` when a dataset is
+    loaded are shown with the "ring" marker symbol immediately, without
+    requiring a fresh drag in this session.
+    """
+    ds = valid_poses_dataset.copy(deep=True)
+    ds.attrs["source_software"] = "movement (netCDF)"
+    ds["edited"] = xr.full_like(ds["confidence"], False, dtype=bool)
+    ds["edited"].loc[
+        {"individual": "id_0", "keypoint": "centroid", "time": 0}
+    ] = True
+
+    file_path = tmp_path / "ds_with_edited.nc"
+    ds.to_netcdf(file_path)
+
+    loader = DataLoader(make_napari_viewer_proxy())
+    loader.file_path_edit.setText(str(file_path))
+    loader.source_software_combo.setCurrentText("movement (netCDF)")
+    loader._on_load_clicked()
+
+    edited = loader.points_layer.properties["edited"]
+    symbol = loader.points_layer.symbol
+    assert (symbol[edited] == "ring").all()
+    assert (symbol[~edited] == "disc").all()

@@ -353,7 +353,6 @@ class DataLoader(QWidget):
         points_properties = self.properties.loc[
             :, ~self.properties.columns.str.endswith("_factorized")
         ]
-
         self.points_layer = self.viewer.add_points(
             self.data[self.data_not_nan, 1:],
             properties=points_properties.iloc[self.data_not_nan, :],
@@ -367,17 +366,20 @@ class DataLoader(QWidget):
         )
         self.points_layer.events.data.connect(self._on_points_data_changed)
 
+        # If the loaded dataset already has an `edited` property
+        # mark those points with the edited symbol.
+        self._set_symbol_by_edited(self.points_layer)
+
         logger.info("Added tracked dataset as a napari Points layer.")
 
     @staticmethod
-    def _set_symbol_by_edited(
-        layer: Points, edited_indices: list | np.ndarray
-    ) -> None:
-        """Mark the given point indices with the edited marker symbol."""
-        if len(edited_indices) == 0:
+    def _set_symbol_by_edited(layer: Points) -> None:
+        """Show points flagged as edited with a distinct marker symbol."""
+        edited = layer.properties.get("edited")
+        if edited is None or not edited.any():
             return
         symbols = np.asarray(layer.symbol).copy()
-        symbols[edited_indices] = EDITED_SYMBOL
+        symbols[edited] = EDITED_SYMBOL
         layer.symbol = symbols
 
     def _on_points_data_changed(self, event):
@@ -405,7 +407,7 @@ class DataLoader(QWidget):
             props["edited"] = np.full(len(props["confidence"]), False)
         props["edited"][moved_indices] = True
         layer.properties = props
-        self._set_symbol_by_edited(layer, moved_indices)
+        self._set_symbol_by_edited(layer)
 
     def _add_tracks_layer(self):
         """Add the tracked data to the viewer as a Tracks layer."""
