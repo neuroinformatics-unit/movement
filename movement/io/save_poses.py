@@ -544,6 +544,35 @@ def to_nwb_file(
     return nwb_files if is_multi_ind else nwb_files[0]
 
 
+@register_writer("NWB", ds_type="poses")
+def _write_nwb_file(ds: xr.Dataset, file_path: str | Path, **kwargs) -> None:
+    """Save a ``movement`` poses dataset to one or more NWB files.
+
+    :func:`to_nwb_file` builds the NWBFile object(s) but does not write them
+    to disk; this helper writes them. Multi-individual datasets yield one
+    file per individual, with the individual name appended to the file path.
+    """
+    valid_path = validate_file_path(
+        file_path, permission="w", suffixes={".nwb"}
+    )
+    nwb_files = to_nwb_file(ds, **kwargs)
+    if isinstance(nwb_files, pynwb.file.NWBFile):
+        _write_nwb_to_disk(nwb_files, valid_path)
+    else:
+        for nwb_file in nwb_files:
+            individual_path = valid_path.with_name(
+                f"{valid_path.stem}_{nwb_file.identifier}{valid_path.suffix}"
+            )
+            _write_nwb_to_disk(nwb_file, individual_path)
+
+
+def _write_nwb_to_disk(nwb_file: pynwb.file.NWBFile, file_path: Path) -> None:
+    """Write a single NWBFile object to disk."""
+    with pynwb.NWBHDF5IO(file_path, mode="w") as io:
+        io.write(nwb_file)
+    logger.info(f"Saved dataset to {file_path}.")
+
+
 def _remove_unoccupied_tracks(ds: xr.Dataset):
     """Remove tracks that are completely unoccupied from the dataset.
 
