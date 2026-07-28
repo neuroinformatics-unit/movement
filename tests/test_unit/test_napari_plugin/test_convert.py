@@ -1,12 +1,9 @@
 """Test suite for the movement.napari.convert module."""
 
-from unittest.mock import Mock
-
 import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
-from napari.layers.base import ActionType
 from pandas.testing import assert_frame_equal
 
 from movement.io import save_poses
@@ -397,32 +394,13 @@ def test_napari_layers_to_ds_bboxes_not_implemented():
         )
 
 
-def _move_point(loader, frame, keypoint, individual, new_y, new_x):
-    """Simulate a user dragging a single point to a new position."""
-    live_props = loader.points_layer.properties
-    edit_idx = int(
-        np.flatnonzero(
-            (live_props["time"] == frame)
-            & (live_props["keypoint"] == keypoint)
-            & (live_props["individual"] == individual)
-        )[0]
-    )
-    loader.points_layer.data[edit_idx, 1] = new_y
-    loader.points_layer.data[edit_idx, 2] = new_x
-
-    mock_event = Mock()
-    mock_event.source = loader.points_layer
-    mock_event.action = ActionType.CHANGED
-    mock_event.data_indices = (edit_idx,)
-    loader._on_points_data_changed(mock_event)
-
-
 @pytest.mark.parametrize("nan_location", NAN_LOCATIONS)
 def test_edited_pose_napari_layers(
     nan_location,
     valid_poses_path_and_ds,
     valid_poses_path_and_ds_with_localised_nans,
     loaded_data_loader,
+    move_point,
 ):
     """Test that :func:`napari_layers_to_ds` correctly converts edited layers,
     and sets the new confidence value to ``NaN`` after the edit.
@@ -443,7 +421,7 @@ def test_edited_pose_napari_layers(
     frame = 2  # safe: not NaN in any parametrize case
     keypoint = "centroid"
     individual = "id_0"
-    _move_point(
+    move_point(
         loader,
         frame=frame,
         keypoint=keypoint,
@@ -487,6 +465,7 @@ def test_edited_property_round_trip(
     valid_poses_path_and_ds,
     valid_poses_path_and_ds_with_localised_nans,
     loaded_data_loader,
+    move_point,
 ):
     """Test that an ``edited`` variable survives a full round trip.
 
@@ -505,7 +484,7 @@ def test_edited_property_round_trip(
         )
     loader = loaded_data_loader(filepath, ds_loaded)
 
-    _move_point(
+    move_point(
         loader,
         frame=2,  # safe: not NaN in any parametrize case
         keypoint="centroid",
