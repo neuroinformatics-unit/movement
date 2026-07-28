@@ -8,9 +8,10 @@ import pynwb
 import xarray as xr
 
 from movement.utils.logging import logger
+from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
 from movement.validators.files import validate_file_path
 
-type SourceSoftware = Literal[
+type TargetSoftware = Literal[
     "netCDF",
     "DeepLabCut",
     "SLEAP",
@@ -61,19 +62,19 @@ _WRITER_DS_TYPE_REGISTRY: dict[str, Literal["poses", "bboxes"] | None] = {}
 
 
 def register_writer(
-    source_software: str,
+    target_software: str,
     *,
     ds_type: Literal["poses", "bboxes"] | None = None,
 ) -> Callable[
     [Callable[Concatenate[xr.Dataset, str | Path, P], object]],
     Callable[Concatenate[xr.Dataset, str | Path, P], object],
 ]:
-    """Register a writer function for a given source software.
+    """Register a writer function for a given target software.
 
     Parameters
     ----------
-    source_software
-        The name of the source software (i.e. target format) to save to.
+    target_software
+        The name of the target software (i.e. target format) to save to.
     ds_type
         The ``movement`` dataset type (``"poses"`` or ``"bboxes"``) the
         writer is compatible with. If None (default), the writer is
@@ -97,8 +98,8 @@ def register_writer(
     def decorator(
         writer_fn: Callable[Concatenate[xr.Dataset, str | Path, P], object],
     ) -> Callable[Concatenate[xr.Dataset, str | Path, P], object]:
-        _WRITER_REGISTRY[source_software] = cast("WriterProtocol", writer_fn)
-        _WRITER_DS_TYPE_REGISTRY[source_software] = ds_type
+        _WRITER_REGISTRY[target_software] = cast("WriterProtocol", writer_fn)
+        _WRITER_DS_TYPE_REGISTRY[target_software] = ds_type
         return writer_fn
 
     return decorator
@@ -112,14 +113,14 @@ _WRITER_DS_TYPE_REGISTRY["NWB"] = "poses"
 def save_dataset(
     ds: xr.Dataset,
     file: str | Path,
-    source_software: SourceSoftware | None = None,
+    target_software: TargetSoftware | None = None,
     **kwargs,
 ) -> None:
     """Save a ``movement`` dataset to a file in any supported format.
 
-    This is a unified entry point for saving ``movement`` datasets, mirroring
-    :func:`movement.io.load_dataset`. Based on the value of
-    ``source_software``, the appropriate format-specific writer is called.
+    Based on the value of ``target_software``, the appropriate format-specific
+    writer in :mod:`movement.io.save_poses` or :mod:`movement.io.save_bboxes`
+    is called.
 
     Parameters
     ----------
@@ -129,13 +130,10 @@ def save_dataset(
         Path to the file to save the dataset to. The required file extension
         depends on the target format (see the format-specific writers listed
         under "See Also").
-    source_software
+    target_software
         The format to save the dataset in. If None (default), the dataset is
-        saved in ``movement``'s native netCDF format (the file extension must
-        be ``.nc``). Otherwise, one of the supported third-party formats:
-        ``"DeepLabCut"``, ``"SLEAP"``, ``"LightningPose"``, ``"NWB"`` (poses
-        only), or ``"VIA-tracks"`` (bounding boxes only). The value
-        ``"netCDF"`` may also be passed explicitly.
+        saved in ``movement``'s native netCDF format (``.nc``). Otherwise, one
+        of the :ref:`supported third-party formats <target-supported-formats>`.
     **kwargs
         Additional keyword arguments passed to the format-specific writer
         (e.g. ``split_individuals`` for DeepLabCut, ``config`` for NWB, or any
@@ -146,17 +144,14 @@ def save_dataset(
     TypeError
         If ``ds`` is not an :class:`xarray.Dataset`.
     ValueError
-        If ``source_software`` is not a supported target, or if it is
+        If ``target_software`` is not a supported format, or if it is
         incompatible with the dataset's ``ds_type`` (e.g. saving a bounding
         boxes dataset to a poses-only format).
 
     See Also
     --------
-    movement.io.save_poses.to_dlc_file
-    movement.io.save_poses.to_sleap_analysis_file
-    movement.io.save_poses.to_lp_file
-    movement.io.save_poses.to_nwb_file
-    movement.io.save_bboxes.to_via_tracks_file
+    movement.io.save_poses
+    movement.io.save_bboxes
 
     Notes
     -----
@@ -165,9 +160,6 @@ def save_dataset(
     ``file``. For a multi-individual dataset, the individual's name is appended
     to the file path, just before the extension, e.g.
     ``"/path/to/file_id_0.nwb"``.
-
-    Writers for the Anipose format and changes to the DeepLabCut splitting
-    default are not yet covered by this function (see issues #314 and #965).
 
     Examples
     --------
@@ -178,25 +170,20 @@ def save_dataset(
 
     Save a poses dataset to a DeepLabCut .h5 file:
 
-    >>> save_dataset(ds, "/path/to/file.h5", source_software="DeepLabCut")
+    >>> save_dataset(ds, "/path/to/file.h5", target_software="DeepLabCut")
 
     Save a bounding boxes dataset to a VIA-tracks .csv file:
 
-    >>> save_dataset(ds, "/path/to/file.csv", source_software="VIA-tracks")
+    >>> save_dataset(ds, "/path/to/file.csv", target_software="VIA-tracks")
 
     """
-    if not isinstance(ds, xr.Dataset):
-        raise logger.error(
-            TypeError(f"Expected an xarray Dataset, but got {type(ds)}.")
-        )
-
-    target = source_software if source_software is not None else "netCDF"
+    target = target_software if target_software is not None else "netCDF"
 
     if target not in _WRITER_REGISTRY and target != "NWB":
         supported = ", ".join([*_WRITER_REGISTRY, "NWB"])
         raise logger.error(
             ValueError(
-                f"Unsupported source_software for saving: '{target}'. "
+                f"Unsupported target_software for saving: '{target}'. "
                 f"Supported values are: {supported}."
             )
         )
@@ -210,25 +197,43 @@ def save_dataset(
     _WRITER_REGISTRY[target](ds, file, **kwargs)
 
 
-def _validate_ds_type(ds: xr.Dataset, target: str) -> None:
-    """Check that the dataset's ``ds_type`` is compatible with the target.
+# Mapping of ds_type names to the dataset validators
+_DS_TYPE_VALIDATORS: dict[
+    str, type[ValidPosesInputs] | type[ValidBboxesInputs]
+] = {
+    "poses": ValidPosesInputs,
+    "bboxes": ValidBboxesInputs,
+}
 
-    The check is skipped if the target is compatible with any dataset type
-    (``ds_type=None``, e.g. netCDF), or if the dataset has no ``ds_type``
-    attribute, in which case the format-specific writer's own validation will
-    catch any mismatch.
+
+def _validate_ds_type(ds: xr.Dataset, target: str) -> None:
+    """Check that ``ds`` is a valid dataset for the given save ``target``.
+
+    For targets restricted to a specific ``movement`` dataset type (poses or
+    bounding boxes), the corresponding validator's ``validate()`` classmethod
+    is used to check that ``ds`` has the required variables and dimensions
+    for that type.
+
+    For targets compatible with either type (currently only netCDF), the
+    expected type is inferred from ``ds.attrs["ds_type"]``.
     """
     expected = _WRITER_DS_TYPE_REGISTRY[target]
     if expected is None:
-        return
-    ds_type = ds.attrs.get("ds_type")
-    if ds_type is not None and ds_type != expected:
-        raise logger.error(
-            ValueError(
-                f"Cannot save a '{ds_type}' dataset to the '{target}' format, "
-                f"which expects a '{expected}' dataset."
+        # netCDF: determine the expected type from ds_type attribute
+        try:
+            expected = ds.attrs.get("ds_type")
+        except AttributeError:
+            # let validator raise TypeError for non-xr.Dataset
+            expected = "poses"
+        if expected not in _DS_TYPE_VALIDATORS:
+            raise logger.error(
+                ValueError(
+                    f"Cannot save to '{target}': expected `ds` to have a "
+                    f"'ds_type' attribute of 'poses' or 'bboxes', but got "
+                    f"{expected!r}."
+                )
             )
-        )
+    _DS_TYPE_VALIDATORS[expected].validate(ds)
 
 
 @register_writer("netCDF")
