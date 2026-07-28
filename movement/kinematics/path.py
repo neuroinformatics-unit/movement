@@ -4,6 +4,16 @@ By 'path' we refer to the spatial trajectory of an individual over the
 time span of the data. While these metrics can be computed based on any
 set of keypoints, they are most meaningful when applied to a single
 keypoint representing the individual's overall position (e.g., centroid).
+
+When adding a new path metric, follow this convention for the
+``nan_warn_threshold`` parameter: expose it only if the metric returns a
+single scalar per path (e.g. ``compute_path_length``,
+``compute_path_straightness``, ``compute_path_sinuosity`` and
+``compute_path_emax``), where a high proportion of missing values can
+silently skew that scalar. Do not expose it if the metric returns a
+time-varying quantity (e.g. ``compute_directional_change`` and
+``compute_path_deviation``), where missing values remain visible per
+time step and propagate on their own.
 """
 
 import warnings
@@ -155,7 +165,7 @@ def compute_path_straightness(
         compute the path length :math:`L`.
     compute_path_sinuosity :
         A related turning-angle-based measure of path tortuosity.
-    compute_maximum_expected_displacement :
+    compute_path_emax :
         An alternative straightness measure derived from the
         turning-angle distribution which, unlike the :math:`D/L`
         ratio, does not depend on the number of steps in the path.
@@ -349,7 +359,7 @@ def compute_path_sinuosity(
     compute_path_length : Total distance travelled along a path.
     compute_path_straightness : Net displacement divided by path length.
     compute_turning_angle : Step-wise turning angle along a path.
-    compute_maximum_expected_displacement : Directional-persistence measure.
+    compute_path_emax : Directional-persistence measure.
 
     Notes
     -----
@@ -477,7 +487,7 @@ def compute_directional_change(
     --------
     compute_turning_angle :
         The underlying function used to compute turning angles.
-    compute_maximum_expected_displacement :
+    compute_path_emax :
         A related path-straightness measure based on turning angles.
 
     Examples
@@ -516,7 +526,7 @@ def compute_directional_change(
     return dc
 
 
-def compute_maximum_expected_displacement(
+def compute_path_emax(
     data: xr.DataArray,
     in_spatial_units: bool = True,
     nan_warn_threshold: float = 0.2,
@@ -610,24 +620,20 @@ def compute_maximum_expected_displacement(
 
     Examples
     --------
-    >>> from movement.kinematics import compute_maximum_expected_displacement
+    >>> from movement.kinematics import compute_path_emax
 
     Compute E_max from the centroid trajectory of a poses dataset ``ds``:
 
     >>> centroid = ds.position.mean(dim="keypoint")
-    >>> emax = compute_maximum_expected_displacement(centroid)
+    >>> emax = compute_path_emax(centroid)
 
     Return the dimensionless variant instead:
 
-    >>> emax_a = compute_maximum_expected_displacement(
-    ...     centroid, in_spatial_units=False
-    ... )
+    >>> emax_a = compute_path_emax(centroid, in_spatial_units=False)
 
     Compute over a specific time window:
 
-    >>> emax = compute_maximum_expected_displacement(
-    ...     centroid.sel(time=slice(0, 100))
-    ... )
+    >>> emax = compute_path_emax(centroid.sel(time=slice(0, 100)))
 
     """
     data = _validate_time_points(
