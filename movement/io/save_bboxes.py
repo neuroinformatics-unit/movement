@@ -25,7 +25,7 @@ def to_via_tracks_file(
     frame_n_digits: int | None = None,
     image_file_prefix: str | None = None,
     image_file_suffix: str = ".png",
-) -> Path:
+) -> None:
     """Save a ``movement`` bounding boxes dataset to a VIA tracks .csv file.
 
     Parameters
@@ -51,11 +51,6 @@ def to_via_tracks_file(
     image_file_suffix
         Suffix to add to every image filename holding the file extension.
         Strings with or without the dot are accepted. Default is '.png'.
-
-    Returns
-    -------
-    pathlib.Path
-        Path to the saved file.
 
     Notes
     -----
@@ -154,7 +149,6 @@ def to_via_tracks_file(
         img_filename_template,
     )
     logger.info(f"Saved bounding boxes dataset to {valid_path}.")
-    return valid_path
 
 
 def _get_image_filename_template(
