@@ -1,4 +1,9 @@
-from . import load_bboxes, load_poses  # Trigger register_loader decorators
+from . import (  # Trigger register_loader/register_writer decorators
+    load_bboxes,
+    load_poses,
+    save_bboxes,
+    save_poses,
+)
 from .load import (
     load_dataset,
     load_multiview_dataset,

@@ -40,16 +40,16 @@ def test_save_dataset_invalid_source_software(valid_poses_dataset, tmp_path):
 
 
 @pytest.mark.parametrize(
-    "source_software, dict_name, dataset_fixture",
+    "source_software, dataset_fixture",
     [
-        ("DeepLabCut", "_POSES_WRITERS", "valid_poses_dataset"),
-        ("SLEAP", "_POSES_WRITERS", "valid_poses_dataset"),
-        ("LightningPose", "_POSES_WRITERS", "valid_poses_dataset"),
-        ("VIA-tracks", "_BBOXES_WRITERS", "valid_bboxes_dataset"),
+        ("DeepLabCut", "valid_poses_dataset"),
+        ("SLEAP", "valid_poses_dataset"),
+        ("LightningPose", "valid_poses_dataset"),
+        ("VIA-tracks", "valid_bboxes_dataset"),
     ],
 )
 def test_save_dataset_dispatches_to_writer(
-    source_software, dict_name, dataset_fixture, request, mocker, tmp_path
+    source_software, dataset_fixture, request, mocker, tmp_path
 ):
     """``save_dataset`` forwards to the correct format-specific writer,
     passing the dataset, file path and extra kwargs through unchanged.
@@ -57,7 +57,7 @@ def test_save_dataset_dispatches_to_writer(
     ds = request.getfixturevalue(dataset_fixture)
     mock_writer = mocker.MagicMock()
     mocker.patch.dict(
-        f"movement.io.save.{dict_name}",
+        "movement.io.save._WRITER_REGISTRY",
         {source_software: mock_writer},
     )
     file_path = tmp_path / "output"
@@ -89,9 +89,7 @@ def test_save_dataset_nwb_single_individual(
 
     single = valid_poses_dataset.isel(individual=[0])
     fake_nwb = mocker.MagicMock(spec=pynwb.file.NWBFile)
-    mocker.patch(
-        "movement.io.save.save_poses.to_nwb_file", return_value=fake_nwb
-    )
+    mocker.patch("movement.io.save_poses.to_nwb_file", return_value=fake_nwb)
     mock_write = mocker.patch("movement.io.save._write_nwb_to_disk")
     file_path = tmp_path / "out.nwb"
     save_dataset(single, file_path, source_software="NWB")
@@ -108,9 +106,7 @@ def test_save_dataset_nwb_multi_individual(
         mocker.MagicMock(identifier="id_0"),
         mocker.MagicMock(identifier="id_1"),
     ]
-    mocker.patch(
-        "movement.io.save.save_poses.to_nwb_file", return_value=fake_files
-    )
+    mocker.patch("movement.io.save_poses.to_nwb_file", return_value=fake_files)
     mock_write = mocker.patch("movement.io.save._write_nwb_to_disk")
     file_path = tmp_path / "out.nwb"
     save_dataset(valid_poses_dataset, file_path, source_software="NWB")
