@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>list_datasets &#8212; movement</title>
+    <title>compute_path_emax &#8212; movement</title>
   
   
   
@@ -50,7 +50,9 @@
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.sample_data.list_datasets';</script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.kinematics.compute_path_emax';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
@@ -60,12 +62,12 @@
         </script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <script src="../_static/js/contributors.js?v=c45a1201"></script>
-    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.sample_data.list_datasets.html" />
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/api/movement.kinematics.compute_path_emax.html" />
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="movement.transforms" href="movement.transforms.html" />
-    <link rel="prev" title="fetch_dataset_paths" href="movement.sample_data.fetch_dataset_paths.html" /> 
+    <link rel="next" title="compute_path_length" href="movement.kinematics.compute_path_length.html" />
+    <link rel="prev" title="compute_path_deviation" href="movement.kinematics.compute_path_deviation.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -490,7 +492,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">to_sleap_analysis_file</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="movement.kinematics.html">movement.kinematics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.kinematics.html">movement.kinematics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_acceleration.html">compute_acceleration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_backward_displacement.html">compute_backward_displacement</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_directional_change.html">compute_directional_change</a></li>
@@ -501,7 +503,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_kinetic_energy.html">compute_kinetic_energy</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_pairwise_distances.html">compute_pairwise_distances</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_deviation.html">compute_path_deviation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_emax.html">compute_path_emax</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">compute_path_emax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_length.html">compute_path_length</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_sinuosity.html">compute_path_sinuosity</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.kinematics.compute_path_straightness.html">compute_path_straightness</a></li>
@@ -543,10 +545,10 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.roi.save_rois.html">save_rois</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="movement.sample_data.html">movement.sample_data</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.sample_data.html">movement.sample_data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.fetch_dataset.html">fetch_dataset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.sample_data.fetch_dataset_paths.html">fetch_dataset_paths</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">list_datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.sample_data.list_datasets.html">list_datasets</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.transforms.html">movement.transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -647,9 +649,9 @@
     <li class="breadcrumb-item"><a href="../api_index.html" class="nav-link">API reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="movement.sample_data.html" class="nav-link">movement.sample_data</a></li>
+    <li class="breadcrumb-item"><a href="movement.kinematics.html" class="nav-link">movement.kinematics</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">list_datasets</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compute_path_emax</span></li>
   </ul>
 </nav>
 </div>
@@ -665,20 +667,115 @@
                 
 <div id="searchbox"></div>
                 <article class="bd-article">
-                   <section id="list-datasets">
-<h1>list_datasets<a class="headerlink" href="#list-datasets" title="Link to this heading">#</a></h1>
+                   <section id="compute-path-emax">
+<h1>compute_path_emax<a class="headerlink" href="#compute-path-emax" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="movement.sample_data.list_datasets">
-<span class="sig-prename descclassname"><span class="pre">movement.sample_data.</span></span><span class="sig-name descname"><span class="pre">list_datasets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/sample_data.html#list_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.sample_data.list_datasets" title="Link to this definition">#</a></dt>
-<dd><p>List available sample datasets.</p>
+<dt class="sig sig-object py" id="movement.kinematics.compute_path_emax">
+<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_path_emax</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_spatial_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_warn_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/path.html#compute_path_emax"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_path_emax" title="Link to this definition">#</a></dt>
+<dd><p>Compute the maximum expected displacement (<span class="math notranslate nohighlight">\(E_{\max}\)</span>).</p>
+<p><span class="math notranslate nohighlight">\(E_{\max}\)</span> is a straightness measure that captures the
+directional persistence of a path. Intuitively, it is the maximum
+expected displacement of an animal navigating <em>without</em> an external
+directional reference (e.g. a compass or a landmark), given the
+observed distribution of its turning angles and step lengths <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
+Larger values indicate straighter, more persistent paths; values
+close to zero indicate sinuous paths.</p>
+<p>Two variants are available. The dimensionless variant
+<span class="math notranslate nohighlight">\(E_{\max}^{(a)}\)</span> depends only on the turning angles:</p>
+<div class="math notranslate nohighlight">
+\[E_{\max}^{(a)} = \frac{\bar{c}}{1 - \bar{c}}, \qquad
+\bar{c} = \overline{\cos\theta}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\theta\)</span> are the turning angles and <span class="math notranslate nohighlight">\(\bar{c}\)</span> is
+their mean cosine. The variant <span class="math notranslate nohighlight">\(E_{\max}^{(b)}\)</span> scales this by
+the mean step length <span class="math notranslate nohighlight">\(\bar{p}\)</span> to express the result in the
+same spatial units as the input:</p>
+<div class="math notranslate nohighlight">
+\[E_{\max}^{(b)} = \bar{p} \, E_{\max}^{(a)}\]</div>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>filenames</strong> – List of filenames for available sample datasets.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input data containing position information, with <code class="docutils literal notranslate"><span class="pre">time</span></code>
+and <code class="docutils literal notranslate"><span class="pre">space</span></code> (in Cartesian coordinates) as required dimensions.</p></li>
+<li><p><strong>in_spatial_units</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> (the default), return the dimensioned variant
+<span class="math notranslate nohighlight">\(E_{\max}^{(b)}\)</span>, expressed in the same spatial units as
+<code class="docutils literal notranslate"><span class="pre">data</span></code>. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, return the dimensionless variant
+<span class="math notranslate nohighlight">\(E_{\max}^{(a)}\)</span>.</p></li>
+<li><p><strong>nan_warn_threshold</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – If any point track in the data has at least (<span class="math notranslate nohighlight">\(\ge\)</span>)
+this proportion of values missing, a warning will be emitted.
+Defaults to 0.2 (20%).</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span></p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The maximum expected displacement, with dimensions matching
+those of the input data, except <code class="docutils literal notranslate"><span class="pre">time</span></code> and <code class="docutils literal notranslate"><span class="pre">space</span></code> are
+removed. When <code class="docutils literal notranslate"><span class="pre">in_spatial_units</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> the values are in
+the same spatial units as <code class="docutils literal notranslate"><span class="pre">data</span></code>; otherwise they are
+dimensionless.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.kinematics.compute_turning_angle.html#movement.kinematics.compute_turning_angle" title="movement.kinematics.compute_turning_angle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_turning_angle</span></code></a></dt><dd><p>The underlying function used to compute the turning angles.</p>
+</dd>
+<dt><a class="reference internal" href="movement.kinematics.compute_path_sinuosity.html#movement.kinematics.compute_path_sinuosity" title="movement.kinematics.compute_path_sinuosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_sinuosity</span></code></a></dt><dd><p>A related turning-angle-based measure of path tortuosity.</p>
+</dd>
+<dt><a class="reference internal" href="movement.kinematics.compute_path_straightness.html#movement.kinematics.compute_path_straightness" title="movement.kinematics.compute_path_straightness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_path_straightness</span></code></a></dt><dd><p>A related, path-length-based measure of straightness.</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Notes</p>
+<ol class="arabic simple">
+<li><p><strong>Mean cosine of the turning angles.</strong>
+<span class="math notranslate nohighlight">\(\bar{c} = \overline{\cos\theta}\)</span> is the <code class="docutils literal notranslate"><span class="pre">time</span></code> average
+(ignoring <code class="docutils literal notranslate"><span class="pre">NaN</span></code> values) of the cosine of the turning angles
+<span class="math notranslate nohighlight">\(\theta\)</span> returned by <a class="reference internal" href="movement.kinematics.compute_turning_angle.html#movement.kinematics.compute_turning_angle" title="movement.kinematics.compute_turning_angle"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_turning_angle()</span></code></a>. The first
+two time steps have no defined turning angle and so do not
+contribute.</p></li>
+<li><p><strong>Range.</strong> <span class="math notranslate nohighlight">\(E_{\max}^{(a)} \in [-0.5, \infty)\)</span>. While
+highly sinuous paths actually have values approaching 0,
+negative values specifically arise for trajectories with a
+systematic backward-turning bias where the mean cosine
+<span class="math notranslate nohighlight">\(\bar{c}\)</span> is itself negative.</p></li>
+<li><p><strong>Straight paths.</strong> As a path approaches a perfectly straight
+line, <span class="math notranslate nohighlight">\(\bar{c} \to 1\)</span>, so <span class="math notranslate nohighlight">\(1 - \bar{c} \to 0\)</span> and
+<span class="math notranslate nohighlight">\(E_{\max} \to +\infty\)</span>. An infinite result is therefore the
+correct, expected output for a straight path.</p></li>
+<li><p><strong>Missing values.</strong> Turning angles and step lengths that are
+<code class="docutils literal notranslate"><span class="pre">NaN</span></code> (e.g. from missing positions or stationary steps) are
+ignored when averaging. If every turning angle is <code class="docutils literal notranslate"><span class="pre">NaN</span></code> (e.g. a
+stationary track), the result is <code class="docutils literal notranslate"><span class="pre">NaN</span></code>.</p></li>
+</ol>
+<p class="rubric">References</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id2" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Cheung, A., Zhang, S., Stricker, C. &amp; Srinivasan, M. V.
+(2007). Animal navigation: the difficulty of moving in a straight
+line. <em>Biological Cybernetics</em> 97(1), 47-61.
+<a class="reference external" href="https://doi.org/10.1007/s00422-007-0158-0">https://doi.org/10.1007/s00422-007-0158-0</a></p>
+</aside>
+</aside>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_path_emax</span>
+</pre></div>
+</div>
+<p>Compute E_max from the centroid trajectory of a poses dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code>:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">centroid</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">emax</span> <span class="o">=</span> <span class="n">compute_path_emax</span><span class="p">(</span><span class="n">centroid</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Return the dimensionless variant instead:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">emax_a</span> <span class="o">=</span> <span class="n">compute_path_emax</span><span class="p">(</span><span class="n">centroid</span><span class="p">,</span> <span class="n">in_spatial_units</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Compute over a specific time window:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">emax</span> <span class="o">=</span> <span class="n">compute_path_emax</span><span class="p">(</span><span class="n">centroid</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)))</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
@@ -697,20 +794,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="movement.sample_data.fetch_dataset_paths.html"
+       href="movement.kinematics.compute_path_deviation.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">fetch_dataset_paths</p>
+        <p class="prev-next-title">compute_path_deviation</p>
       </div>
     </a>
     <a class="right-next"
-       href="movement.transforms.html"
+       href="movement.kinematics.compute_path_length.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">movement.transforms</p>
+        <p class="prev-next-title">compute_path_length</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -733,14 +830,14 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.sample_data.list_datasets"><code class="docutils literal notranslate"><span class="pre">list_datasets()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#movement.kinematics.compute_path_emax"><code class="docutils literal notranslate"><span class="pre">compute_path_emax()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/api/movement.sample_data.list_datasets.rst.txt">
+    <a href="../_sources/api/movement.kinematics.compute_path_emax.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>

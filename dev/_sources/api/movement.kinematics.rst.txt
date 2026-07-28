@@ -36,6 +36,8 @@ movement.kinematics
     
     compute_path_deviation
     
+    compute_path_emax
+    
     compute_path_length
     
     compute_path_sinuosity

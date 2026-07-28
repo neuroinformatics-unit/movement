@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=fc205545"></script>
+    <script src="../../../_static/documentation_options.js?v=5858d15c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev20</p>
+    <p class="title logo__title">movement v0.17.1.dev21</p>
   
 </a></div>
     
@@ -483,6 +483,16 @@
 <span class="sd">time span of the data. While these metrics can be computed based on any</span>
 <span class="sd">set of keypoints, they are most meaningful when applied to a single</span>
 <span class="sd">keypoint representing the individual&#39;s overall position (e.g., centroid).</span>
+
+<span class="sd">When adding a new path metric, follow this convention for the</span>
+<span class="sd">``nan_warn_threshold`` parameter: expose it only if the metric returns a</span>
+<span class="sd">single scalar per path (e.g. ``compute_path_length``,</span>
+<span class="sd">``compute_path_straightness``, ``compute_path_sinuosity`` and</span>
+<span class="sd">``compute_path_emax``), where a high proportion of missing values can</span>
+<span class="sd">silently skew that scalar. Do not expose it if the metric returns a</span>
+<span class="sd">time-varying quantity (e.g. ``compute_directional_change`` and</span>
+<span class="sd">``compute_path_deviation``), where missing values remain visible per</span>
+<span class="sd">time step and propagate on their own.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -637,6 +647,12 @@
 <span class="sd">    --------</span>
 <span class="sd">    compute_path_length : The underlying function used to</span>
 <span class="sd">        compute the path length :math:`L`.</span>
+<span class="sd">    compute_path_sinuosity :</span>
+<span class="sd">        A related turning-angle-based measure of path tortuosity.</span>
+<span class="sd">    compute_path_emax :</span>
+<span class="sd">        An alternative straightness measure derived from the</span>
+<span class="sd">        turning-angle distribution which, unlike the :math:`D/L`</span>
+<span class="sd">        ratio, does not depend on the number of steps in the path.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -833,6 +849,7 @@
 <span class="sd">    compute_path_length : Total distance travelled along a path.</span>
 <span class="sd">    compute_path_straightness : Net displacement divided by path length.</span>
 <span class="sd">    compute_turning_angle : Step-wise turning angle along a path.</span>
+<span class="sd">    compute_path_emax : Directional-persistence measure.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -963,6 +980,8 @@
 <span class="sd">    --------</span>
 <span class="sd">    compute_turning_angle :</span>
 <span class="sd">        The underlying function used to compute turning angles.</span>
+<span class="sd">    compute_path_emax :</span>
+<span class="sd">        A related path-straightness measure based on turning angles.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -998,6 +1017,138 @@
     <span class="n">dc</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;directional_change&quot;</span>
     <span class="n">dc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Directional Change&quot;</span>
     <span class="k">return</span> <span class="n">dc</span></div>
+
+
+
+<div class="viewcode-block" id="compute_path_emax">
+<a class="viewcode-back" href="../../../api/movement.kinematics.compute_path_emax.html#movement.kinematics.compute_path_emax">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_path_emax</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="n">in_spatial_units</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the maximum expected displacement (:math:`E_{\max}`).</span>
+
+<span class="sd">    :math:`E_{\max}` is a straightness measure that captures the</span>
+<span class="sd">    directional persistence of a path. Intuitively, it is the maximum</span>
+<span class="sd">    expected displacement of an animal navigating *without* an external</span>
+<span class="sd">    directional reference (e.g. a compass or a landmark), given the</span>
+<span class="sd">    observed distribution of its turning angles and step lengths [1]_.</span>
+<span class="sd">    Larger values indicate straighter, more persistent paths; values</span>
+<span class="sd">    close to zero indicate sinuous paths.</span>
+
+<span class="sd">    Two variants are available. The dimensionless variant</span>
+<span class="sd">    :math:`E_{\max}^{(a)}` depends only on the turning angles:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        E_{\max}^{(a)} = \frac{\bar{c}}{1 - \bar{c}}, \qquad</span>
+<span class="sd">        \bar{c} = \overline{\cos\theta}</span>
+
+<span class="sd">    where :math:`\theta` are the turning angles and :math:`\bar{c}` is</span>
+<span class="sd">    their mean cosine. The variant :math:`E_{\max}^{(b)}` scales this by</span>
+<span class="sd">    the mean step length :math:`\bar{p}` to express the result in the</span>
+<span class="sd">    same spatial units as the input:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        E_{\max}^{(b)} = \bar{p} \, E_{\max}^{(a)}</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data</span>
+<span class="sd">        The input data containing position information, with ``time``</span>
+<span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
+<span class="sd">    in_spatial_units</span>
+<span class="sd">        If ``True`` (the default), return the dimensioned variant</span>
+<span class="sd">        :math:`E_{\max}^{(b)}`, expressed in the same spatial units as</span>
+<span class="sd">        ``data``. If ``False``, return the dimensionless variant</span>
+<span class="sd">        :math:`E_{\max}^{(a)}`.</span>
+<span class="sd">    nan_warn_threshold</span>
+<span class="sd">        If any point track in the data has at least (:math:`\ge`)</span>
+<span class="sd">        this proportion of values missing, a warning will be emitted.</span>
+<span class="sd">        Defaults to 0.2 (20%).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.DataArray</span>
+<span class="sd">        The maximum expected displacement, with dimensions matching</span>
+<span class="sd">        those of the input data, except ``time`` and ``space`` are</span>
+<span class="sd">        removed. When ``in_spatial_units`` is ``True`` the values are in</span>
+<span class="sd">        the same spatial units as ``data``; otherwise they are</span>
+<span class="sd">        dimensionless.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    compute_turning_angle :</span>
+<span class="sd">        The underlying function used to compute the turning angles.</span>
+<span class="sd">    compute_path_sinuosity :</span>
+<span class="sd">        A related turning-angle-based measure of path tortuosity.</span>
+<span class="sd">    compute_path_straightness :</span>
+<span class="sd">        A related, path-length-based measure of straightness.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    1. **Mean cosine of the turning angles.**</span>
+<span class="sd">       :math:`\bar{c} = \overline{\cos\theta}` is the ``time`` average</span>
+<span class="sd">       (ignoring ``NaN`` values) of the cosine of the turning angles</span>
+<span class="sd">       :math:`\theta` returned by :func:`compute_turning_angle`. The first</span>
+<span class="sd">       two time steps have no defined turning angle and so do not</span>
+<span class="sd">       contribute.</span>
+<span class="sd">    2. **Range.** :math:`E_{\max}^{(a)} \in [-0.5, \infty)`. While</span>
+<span class="sd">       highly sinuous paths actually have values approaching 0,</span>
+<span class="sd">       negative values specifically arise for trajectories with a</span>
+<span class="sd">       systematic backward-turning bias where the mean cosine</span>
+<span class="sd">       :math:`\bar{c}` is itself negative.</span>
+<span class="sd">    3. **Straight paths.** As a path approaches a perfectly straight</span>
+<span class="sd">       line, :math:`\bar{c} \to 1`, so :math:`1 - \bar{c} \to 0` and</span>
+<span class="sd">       :math:`E_{\max} \to +\infty`. An infinite result is therefore the</span>
+<span class="sd">       correct, expected output for a straight path.</span>
+<span class="sd">    4. **Missing values.** Turning angles and step lengths that are</span>
+<span class="sd">       ``NaN`` (e.g. from missing positions or stationary steps) are</span>
+<span class="sd">       ignored when averaging. If every turning angle is ``NaN`` (e.g. a</span>
+<span class="sd">       stationary track), the result is ``NaN``.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+<span class="sd">    .. [1] Cheung, A., Zhang, S., Stricker, C. &amp; Srinivasan, M. V.</span>
+<span class="sd">       (2007). Animal navigation: the difficulty of moving in a straight</span>
+<span class="sd">       line. *Biological Cybernetics* 97(1), 47-61.</span>
+<span class="sd">       https://doi.org/10.1007/s00422-007-0158-0</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from movement.kinematics import compute_path_emax</span>
+
+<span class="sd">    Compute E_max from the centroid trajectory of a poses dataset ``ds``:</span>
+
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoint&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; emax = compute_path_emax(centroid)</span>
+
+<span class="sd">    Return the dimensionless variant instead:</span>
+
+<span class="sd">    &gt;&gt;&gt; emax_a = compute_path_emax(centroid, in_spatial_units=False)</span>
+
+<span class="sd">    Compute over a specific time window:</span>
+
+<span class="sd">    &gt;&gt;&gt; emax = compute_path_emax(centroid.sel(time=slice(0, 100)))</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;maximum expected displacement&quot;</span><span class="p">,</span> <span class="n">min_points</span><span class="o">=</span><span class="mi">3</span>
+    <span class="p">)</span>
+
+    <span class="n">_warn_about_nan_proportion</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">)</span>
+
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">compute_turning_angle</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">mean_cosine</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">emax</span> <span class="o">=</span> <span class="n">mean_cosine</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mean_cosine</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">in_spatial_units</span><span class="p">:</span>
+        <span class="n">emax</span> <span class="o">=</span> <span class="n">emax</span> <span class="o">*</span> <span class="n">_segment_lengths</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">emax</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;maximum_expected_displacement&quot;</span>
+    <span class="n">emax</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Maximum Expected Displacement&quot;</span>
+    <span class="k">return</span> <span class="n">emax</span></div>
 
 
 

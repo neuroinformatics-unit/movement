@@ -1,0 +1,9 @@
+﻿compute\_path\_emax
+===================
+
+.. currentmodule:: movement.kinematics
+
+.. autofunction:: compute_path_emax
+
+.. minigallery:: movement.kinematics.compute_path_emax
+   :add-heading: Examples using ``compute_path_emax``
