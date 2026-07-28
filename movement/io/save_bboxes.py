@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import xarray as xr
 
+from movement.io.save import register_writer
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs
 from movement.validators.files import validate_file_path
@@ -18,6 +19,7 @@ if TYPE_CHECKING:
     import _csv
 
 
+@register_writer("VIA-tracks", ds_type="bboxes")
 def to_via_tracks_file(
     ds: xr.Dataset,
     file_path: str | Path,

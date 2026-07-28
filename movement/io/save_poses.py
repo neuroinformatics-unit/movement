@@ -14,6 +14,7 @@ from movement.io.nwb import (
     _ds_to_pose_and_skeletons,
     _write_processing_module,
 )
+from movement.io.save import register_writer
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import validate_file_path
@@ -173,6 +174,7 @@ def to_dlc_style_df(
         return df_all
 
 
+@register_writer("DeepLabCut", ds_type="poses")
 def to_dlc_file(
     ds: xr.Dataset,
     file_path: str | Path,
@@ -249,6 +251,7 @@ def to_dlc_file(
         logger.info(f"Saved poses dataset to {valid_path}.")
 
 
+@register_writer("LightningPose", ds_type="poses")
 def to_lp_file(
     ds: xr.Dataset,
     file_path: str | Path,
@@ -285,6 +288,7 @@ def to_lp_file(
     to_dlc_file(ds, valid_path, split_individuals=True)
 
 
+@register_writer("SLEAP", ds_type="poses")
 def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     """Save a ``movement`` dataset to a SLEAP analysis file.
 
