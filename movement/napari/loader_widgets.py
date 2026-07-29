@@ -400,7 +400,8 @@ class DataLoader(QWidget):
         change) and sets the confidence score of moved (dragged)
         points to NaN, marks them as edited, and changes their
         marker symbol to ``EDITED_POINT_SYMBOL`` so edited points are
-        visually distinguishable.
+        visually distinguishable. The companion Tracks layer is then
+        updated to match via :meth:`_sync_tracks_layer`.
         """
         layer = event.source
         if not isinstance(layer, Points):
