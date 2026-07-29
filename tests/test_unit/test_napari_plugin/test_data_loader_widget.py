@@ -946,17 +946,17 @@ def test_add_points_and_tracks_layer_style(
         )
 
 
-def test_set_symbol_by_edited_no_edited_property_is_noop(
+def test_set_point_symbol_by_edited_no_edited_property_is_noop(
     valid_poses_path_and_ds, loaded_data_loader
 ):
-    """Test that ``_set_symbol_by_edited`` leaves symbols unchanged
+    """Test that ``_set_point_symbol_by_edited`` leaves symbols unchanged
     when the layer has no ``edited`` property yet (nothing dragged so far).
     """
     filepath, ds = valid_poses_path_and_ds
     loader = loaded_data_loader(filepath, ds)
 
     original_symbol = loader.points_layer.symbol.copy()
-    loader._set_symbol_by_edited(loader.points_layer)
+    loader._set_point_symbol_by_edited(loader.points_layer)
 
     np.testing.assert_array_equal(loader.points_layer.symbol, original_symbol)
 
