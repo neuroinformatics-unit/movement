@@ -656,6 +656,51 @@ def test_removed_pose_napari_layers_restores_nans(
     xr.testing.assert_equal(ds, expected_ds)
 
 
+def test_removed_point_marked_edited(
+    valid_poses_path_and_ds,
+    loaded_data_loader,
+):
+    """Test that a point removed from the napari Points layer is
+    reconstructed with ``edited=True``.
+
+    Mirrors :func:`test_edited_pose_napari_layers`, but the point is
+    deleted rather than dragged. Unlike a drag, there is no live row
+    left in the Points layer to carry an ``edited`` property once the
+    point is removed, so :func:`napari_layers_to_ds` must recover the
+    flag from the point's confidence value instead: it was real before
+    removal, and is missing (reconstructed as NaN) afterwards.
+    """
+    filepath, ds_expected = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_expected)
+
+    removed_point = {
+        "time": [2],
+        "individual": ["id_0"],
+        "keypoint": ["centroid"],
+    }
+    target = _target_points_to_remove(removed_point, ds_expected)
+    points, properties = _remove_points(loader, target)
+
+    ds = napari_layers_to_ds(
+        points_as_napari=points,
+        properties=properties,
+        properties_with_nans=loader.properties,
+        attrs=ds_expected.attrs,
+    )
+    # check if `edited` is boolean
+    assert ds["edited"].dtype == bool
+
+    expected_ds = _nan_confidence_at_nan_pos(ds_expected)
+    removed_point = {"time": 2, "keypoint": "centroid", "individual": "id_0"}
+    expected_ds.position.loc[{**removed_point, "space": ["x", "y"]}] = np.nan
+    expected_ds["confidence"].loc[removed_point] = np.nan
+    expected_ds["edited"] = xr.full_like(
+        expected_ds["confidence"], False, dtype=bool
+    )
+    expected_ds["edited"].loc[removed_point] = True
+    xr.testing.assert_equal(ds, expected_ds)
+
+
 @pytest.mark.parametrize(
     "removal_selector, dropped_dim",
     [
