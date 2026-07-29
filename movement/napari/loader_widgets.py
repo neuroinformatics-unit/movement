@@ -24,7 +24,12 @@ from qtpy.QtWidgets import (
 
 from movement.io.load import load_dataset, rename_legacy_dimensions
 from movement.napari.convert import ds_to_napari_layers
-from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
+from movement.napari.layer_styles import (
+    EDITED_POINT_SYMBOL,
+    BoxesStyle,
+    PointsStyle,
+    TracksStyle,
+)
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
 
@@ -348,7 +353,6 @@ class DataLoader(QWidget):
         points_properties = self.properties.loc[
             :, ~self.properties.columns.str.endswith("_factorized")
         ]
-
         self.points_layer = self.viewer.add_points(
             self.data[self.data_not_nan, 1:],
             properties=points_properties.iloc[self.data_not_nan, :],
@@ -362,7 +366,21 @@ class DataLoader(QWidget):
         )
         self.points_layer.events.data.connect(self._on_points_data_changed)
 
+        # If the loaded dataset already has an `edited` property
+        # mark those points with the edited symbol.
+        self._set_point_symbol_by_edited(self.points_layer)
+
         logger.info("Added tracked dataset as a napari Points layer.")
+
+    @staticmethod
+    def _set_point_symbol_by_edited(layer: Points) -> None:
+        """Show points flagged as edited with a distinct marker symbol."""
+        edited = layer.properties.get("edited")
+        if edited is None or not edited.any():
+            return
+        symbols = np.asarray(layer.symbol).copy()
+        symbols[edited] = EDITED_POINT_SYMBOL
+        layer.symbol = symbols
 
     def _on_points_data_changed(self, event):
         """Set confidence to NaN and flag as edited for moved points.
@@ -370,7 +388,9 @@ class DataLoader(QWidget):
         Connected to ``points_layer.events.data``. Fires on
         ``ActionType.CHANGED`` (i.e., when the data array values
         change) and sets the confidence score of moved (dragged)
-        points to NaN, and marks them as edited.
+        points to NaN, marks them as edited, and changes their
+        marker symbol to ``EDITED_POINT_SYMBOL`` so edited points are
+        visually distinguishable.
         """
         layer = event.source
         if not isinstance(layer, Points):
@@ -387,6 +407,7 @@ class DataLoader(QWidget):
             props["edited"] = np.full(len(props["confidence"]), False)
         props["edited"][moved_indices] = True
         layer.properties = props
+        self._set_point_symbol_by_edited(layer)
 
     def _add_tracks_layer(self):
         """Add the tracked data to the viewer as a Tracks layer."""
