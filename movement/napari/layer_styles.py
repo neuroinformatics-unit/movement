@@ -9,7 +9,7 @@ from napari.utils.color import ColorValue
 from napari.utils.colormaps import ensure_colormap
 
 DEFAULT_COLORMAP = "turbo"
-EDITED_SYMBOL = "ring"
+EDITED_POINT_SYMBOL = "ring"
 
 
 @dataclass
