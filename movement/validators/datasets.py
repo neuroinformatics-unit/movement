@@ -56,8 +56,8 @@ class _BaseDatasetInputs(ABC):
     assignment logic for creating ``movement`` datasets
     (e.g. poses, bounding boxes).
     It registers the attrs validators for required fields like
-    ``position_array`` and optional fields like ``confidence_array`` and
-    ``individual_names``.
+    ``position_array`` and optional fields like ``confidence_array``,
+    ``individual_names``, and ``frame_array``.
     Subclasses must implement ``to_dataset()`` and define class variables
     ``DIM_NAMES``, ``VAR_NAMES``, and ``_ALLOWED_SPACE_DIM_SIZE``.
     """
@@ -86,6 +86,16 @@ class _BaseDatasetInputs(ABC):
     ``position_array``. If None (default), the names will be in the format of
     ``id_<N>``, where <N> is an integer from 0 to the size of the
     'individual' dimension minus 1."""
+
+    frame_array: np.ndarray | None = field(
+        default=None,
+        validator=validators.optional(validators.instance_of(np.ndarray)),
+    )
+    """Array containing the frame numbers corresponding to the data.
+    The frame_array should be a column vector of shape (n_frames, 1)
+    and should be monotonically increasing. If None (default),
+    frame numbers are assigned as consecutive 0-based integers.
+    """
 
     fps: float | None = field(
         default=None,
@@ -136,6 +146,16 @@ class _BaseDatasetInputs(ABC):
             logger.info(
                 "Individual names were not provided. "
                 f"Setting to {self.individual_names}."
+            )
+
+        # assign default frame_array
+        if self.frame_array is None:
+            time_dim_index = self.DIM_NAMES.index("time")
+            n_frames = self.position_array.shape[time_dim_index]
+            self.frame_array = np.arange(n_frames).reshape(-1, 1)
+            logger.info(
+                "Frame numbers were not provided. "
+                "Setting to an array of 0-based integers."
             )
 
     # --- Properties (derived attributes) ---
@@ -193,6 +213,26 @@ class _BaseDatasetInputs(ABC):
             self._validate_array_shape(
                 attribute, value, self._confidence_expected_shapes
             )
+
+    @frame_array.validator
+    def _validate_frame_array(self, attribute, value):
+        """Validate frame_array type, shape, and monotonicity."""
+        if value is not None:
+            # should be a column vector (n_frames, 1)
+            time_dim_index = self.DIM_NAMES.index("time")
+            self._validate_array_shape(
+                attribute,
+                value,
+                expected_shape=(self.position_array.shape[time_dim_index], 1),
+            )
+            # check frames are monotonically increasing
+            if not np.all(np.diff(value, axis=0) >= 1):
+                raise logger.error(
+                    ValueError(
+                        f"Frame numbers in '{attribute.name}' are "
+                        "not monotonically increasing."
+                    )
+                )
 
     @individual_names.validator
     def _validate_individual_names(self, attribute, value):
@@ -348,15 +388,6 @@ class ValidPosesInputs(_BaseDatasetInputs):
     (default), the keypoints will be named "keypoint_0", "keypoint_1",
     etc."""
 
-    frame_array: np.ndarray | None = field(
-        default=None,
-        validator=validators.optional(validators.instance_of(np.ndarray)),
-    )
-    """Array containing the frame numbers for which poses are defined.
-    The frame_array should be a column vector of shape (n_frames, 1)
-    and should be monotonically increasing. If None (default),
-    frame numbers are assigned as consecutive 0-based integers."""
-
     DIM_NAMES: ClassVar[tuple[str, ...]] = (
         "time",
         "space",
@@ -390,26 +421,6 @@ class ValidPosesInputs(_BaseDatasetInputs):
         )
         self._validate_list_uniqueness(attribute, value)
 
-    @frame_array.validator
-    def _validate_frame_array(self, attribute, value):
-        """Validate frame_array type, shape, and monotonicity."""
-        if value is not None:
-            # should be a column vector (n_frames, 1)
-            time_dim_index = self.DIM_NAMES.index("time")
-            self._validate_array_shape(
-                attribute,
-                value,
-                expected_shape=(self.position_array.shape[time_dim_index], 1),
-            )
-            # check frames are monotonically increasing
-            if not np.all(np.diff(value, axis=0) >= 1):
-                raise logger.error(
-                    ValueError(
-                        f"Frame numbers in {attribute.name} are "
-                        "not monotonically increasing."
-                    )
-                )
-
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
         super().__attrs_post_init__()
@@ -423,14 +434,6 @@ class ValidPosesInputs(_BaseDatasetInputs):
             logger.info(
                 "Keypoint names were not provided. "
                 f"Setting to {self.keypoint_names}."
-            )
-        if self.frame_array is None:
-            time_dim_index = self.DIM_NAMES.index("time")
-            n_frames = position_array_shape[time_dim_index]
-            self.frame_array = np.arange(n_frames).reshape(-1, 1)
-            logger.info(
-                "Frame numbers were not provided. "
-                "Setting to an array of 0-based integers."
             )
 
     def to_dataset(self) -> xr.Dataset:
@@ -450,7 +453,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
             "ds_type": "poses",
         }
         # Use frame_array as the time coordinate
-        # Ignore type error as ValidPosesInputs ensures
+        # Ignore type error as _BaseDatasetInputs ensures
         # `frame_array` is not None
         time_coords: NDArray[np.floating] | NDArray[np.integer] = (
             self.frame_array.squeeze()  # type: ignore[union-attr]
@@ -536,16 +539,6 @@ class ValidBboxesInputs(_BaseDatasetInputs):
     (extent along the y-axis of the image). The shape_array must have the same
     shape as the position_array."""
 
-    frame_array: np.ndarray | None = field(
-        default=None,
-        validator=validators.optional(validators.instance_of(np.ndarray)),
-    )
-    """Array containing the frame numbers for which bounding boxes are defined.
-    The frame_array should be a column vector of shape (n_frames, 1) and should
-    be monotonically increasing. If None (default), frame numbers will be
-    assigned based on the first dimension of the position_array, starting from
-    0."""
-
     DIM_NAMES: ClassVar[tuple[str, ...]] = ("time", "space", "individual")
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "shape", "confidence")
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[int] = 2
@@ -559,38 +552,9 @@ class ValidBboxesInputs(_BaseDatasetInputs):
             attribute, value, expected_shape=self.position_array.shape
         )
 
-    @frame_array.validator
-    def _validate_frame_array(self, attribute, value):
-        """Validate frame_array type, shape, and monotonicity."""
-        if value is not None:
-            # should be a column vector (n_frames, 1)
-            time_dim_index = self.DIM_NAMES.index("time")
-            self._validate_array_shape(
-                attribute,
-                value,
-                expected_shape=(self.position_array.shape[time_dim_index], 1),
-            )
-            # check frames are monotonically increasing
-            if not np.all(np.diff(value, axis=0) >= 1):
-                raise logger.error(
-                    ValueError(
-                        f"Frame numbers in {attribute.name} are "
-                        "not monotonically increasing."
-                    )
-                )
-
     def __attrs_post_init__(self):
         """Assign default values to optional attributes (if None)."""
         super().__attrs_post_init__()
-        # assign default frame_array
-        if self.frame_array is None:
-            time_dim_index = self.DIM_NAMES.index("time")
-            n_frames = self.position_array.shape[time_dim_index]
-            self.frame_array = np.arange(n_frames).reshape(-1, 1)
-            logger.info(
-                "Frame numbers were not provided. "
-                "Setting to an array of 0-based integers."
-            )
 
     def to_dataset(self) -> xr.Dataset:
         """Convert validated bboxes inputs to a ``movement bboxes`` dataset.
@@ -606,7 +570,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
             "source_software": self.source_software,
             "ds_type": "bboxes",
         }
-        # Ignore type error as ValidBboxesInputs ensures
+        # Ignore type error as _BaseDatasetInputs ensures
         # `frame_array` is not None
         time_coords: NDArray[np.floating] | NDArray[np.integer] = (
             self.frame_array.squeeze()  # type: ignore[union-attr]
