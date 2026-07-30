@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=6fa05b36"></script>
+    <script src="../_static/documentation_options.js?v=cbd8df2f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev22</p>
+    <p class="title logo__title">movement v0.17.1.dev23</p>
   
 </a></div>
     
@@ -1073,31 +1073,112 @@ This will usually include linting, testing and deployment.</p>
 <ul class="simple">
 <li><p>Linting checks (pre-commit).</p></li>
 <li><p>Testing (only if linting checks pass)</p></li>
-<li><p>Release to PyPI (only if a git tag is present and if tests pass).</p></li>
+<li><p>Release to PyPI using <a class="reference external" href="https://docs.pypi.org/trusted-publishers/">trusted publishing</a> (only if a git tag is present and if tests pass).</p></li>
 </ul>
 </section>
-<section id="versioning-and-releases">
-<h3>Versioning and releases<a class="headerlink" href="#versioning-and-releases" title="Link to this heading">#</a></h3>
+<section id="versioning">
+<h3>Versioning<a class="headerlink" href="#versioning" title="Link to this heading">#</a></h3>
 <p>We use <a class="reference external" href="https://semver.org/">semantic versioning</a>, which includes <code class="docutils literal notranslate"><span class="pre">MAJOR</span></code>.<code class="docutils literal notranslate"><span class="pre">MINOR</span></code>.<code class="docutils literal notranslate"><span class="pre">PATCH</span></code> version numbers:</p>
 <ul class="simple">
 <li><p>PATCH = small bugfix</p></li>
 <li><p>MINOR = new feature</p></li>
 <li><p>MAJOR = breaking change</p></li>
 </ul>
-<p>We use <a class="reference external" href="https://setuptools-scm.readthedocs.io/en/latest/#">setuptools_scm</a> to automatically version <code class="docutils literal notranslate"><span class="pre">movement</span></code>.
-It has been pre-configured in the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file.
-<code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code> will automatically <a class="reference external" href="https://setuptools-scm.readthedocs.io/en/latest/usage#default-versioning-scheme">infer the version using git</a>.
-To manually set a new semantic version, create a tag and make sure the tag is pushed to GitHub.
-Make sure you commit any changes you wish to be included in this version. E.g. to bump the version to <code class="docutils literal notranslate"><span class="pre">1.0.0</span></code>:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>add<span class="w"> </span>.
-git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Add new changes&quot;</span>
-git<span class="w"> </span>tag<span class="w"> </span>-a<span class="w"> </span>v1.0.0<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Bump to version 1.0.0&quot;</span>
-git<span class="w"> </span>push<span class="w"> </span>--follow-tags
-</pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While the project is still in the <code class="docutils literal notranslate"><span class="pre">v0.x</span></code> phase, breaking changes may occur in
+<code class="docutils literal notranslate"><span class="pre">MINOR</span></code> releases. Backward compatibility is not guaranteed at this stage.
+Any breaking change must be clearly communicated in the release notes and,
+where possible, introduced with a deprecation warning
+(see <a class="reference internal" href="#deprecation-lifecycle"><span class="std std-ref">Deprecation lifecycle</span></a>).</p>
 </div>
-<p>Alternatively, you can also use the GitHub web interface to create a new release and tag.</p>
-<p>The addition of a GitHub tag triggers the package’s deployment to PyPI.
-The version number is automatically determined from the latest tag on the <em>main</em> branch.</p>
+<p>We use <a class="reference external" href="https://setuptools-scm.readthedocs.io/en/latest/#">setuptools_scm</a> (configured in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>) to
+automatically version <code class="docutils literal notranslate"><span class="pre">movement</span></code>.
+<code class="docutils literal notranslate"><span class="pre">setuptools_scm</span></code> <a class="reference external" href="https://setuptools-scm.readthedocs.io/en/latest/usage#default-versioning-scheme">derives the version from git</a>,
+based on the most recent tag on the <em>main</em> branch that matches the <code class="docutils literal notranslate"><span class="pre">vMAJOR.MINOR.PATCH</span></code> pattern.
+Pushing such a tag triggers the package’s deployment to PyPI, as well as a documentation build for that version.
+In practice, tags are created via the GitHub release interface, as described below.</p>
+</section>
+<section id="making-a-new-release">
+<h3>Making a new release<a class="headerlink" href="#making-a-new-release" title="Link to this heading">#</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The steps in this section require write access to the <code class="docutils literal notranslate"><span class="pre">movement</span></code> repository,
+so they can only be carried out by maintainers.</p>
+</div>
+<section id="start-a-draft-release">
+<h4>1. Start a draft release<a class="headerlink" href="#start-a-draft-release" title="Link to this heading">#</a></h4>
+<p>Go to the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/releases/new">new release page</a>, which is equivalent to going to
+<a class="reference external" href="https://github.com/neuroinformatics-unit/movement/releases">Releases</a> and clicking the “Draft a new release” button.</p>
+</section>
+<section id="set-the-tag-and-title">
+<h4>2. Set the tag and title<a class="headerlink" href="#set-the-tag-and-title" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>In the “Tag” dropdown, create a new tag following the <code class="docutils literal notranslate"><span class="pre">vMAJOR.MINOR.PATCH</span></code> format (e.g. <code class="docutils literal notranslate"><span class="pre">v0.10.0</span></code>). Don’t forget the required <code class="docutils literal notranslate"><span class="pre">v</span></code> prefix.</p></li>
+<li><p>Leave “Target” set to <code class="docutils literal notranslate"><span class="pre">main</span></code>.</p></li>
+<li><p>Use the tag name as the release title.</p></li>
+</ul>
+</section>
+<section id="generate-release-notes">
+<h4>3. Generate release notes<a class="headerlink" href="#generate-release-notes" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Leave “Previous tag” set to “Auto” and click the “Generate release notes” button.</p></li>
+<li><p>Organise the PR list under “What’s Changed” into meaningful subsections (<code class="docutils literal notranslate"><span class="pre">###</span></code> headers).</p></li>
+<li><p>Start with the most important updates (e.g. a flagship feature or breaking change).
+You may put those under a <em>Highlights</em> subsection.</p></li>
+<li><p>Other common subsections are:</p>
+<ul>
+<li><p><em>Housekeeping</em>: bot PRs, dependency updates, CI changes</p></li>
+<li><p><em>Documentation</em></p></li>
+</ul>
+</li>
+</ul>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Acknowledge first-time or external contributors.
+For breaking changes, include code snippets showing the old vs new syntax.</p>
+</div>
+</section>
+<section id="publish-the-release">
+<h4>4. Publish the release<a class="headerlink" href="#publish-the-release" title="Link to this heading">#</a></h4>
+<p>Leave the “Set as the latest release” checkbox ticked (default) and publish.
+Then check the “Actions” tab to ensure both the “Tests” and “Docs” workflows finish successfully.</p>
+</section>
+<section id="verify-the-docs-and-binder">
+<h4>5. Verify the docs and Binder<a class="headerlink" href="#verify-the-docs-and-binder" title="Link to this heading">#</a></h4>
+<p>Confirm that the new version appears on the <a class="reference internal" href="../index.html#target-movement"><span class="std std-ref">website</span></a> and that the API reference reflects the latest changes.
+As an extra check, try launching an <a class="reference internal" href="../examples/index.html#target-examples"><span class="std std-ref">example</span></a> in Binder. The first launch may take a while,
+but Binder caches the environment, so later runs (for any example) are fast.</p>
+</section>
+<section id="announce-the-release">
+<h4>6. Announce the release<a class="headerlink" href="#announce-the-release" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Post in the <a class="reference external" href="https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Releases/with/601196586">“Releases” topic on Zulip</a>
+with a link to the GitHub release notes. Optionally include a relevant image.</p></li>
+<li><p>You may also link to relevant new pages of the docs, e.g. a new example or the
+API reference page for a new function.</p></li>
+<li><p>Someone from the team will usually adapt this announcement for social media.</p></li>
+</ul>
+</section>
+<section id="release-on-conda-forge">
+<h4>7. Release on conda-forge<a class="headerlink" href="#release-on-conda-forge" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Wait for the <code class="docutils literal notranslate"><span class="pre">regro-cf-autotick-bot</span></code> to open a PR on <code class="docutils literal notranslate"><span class="pre">movement</span></code>’s
+<a class="reference external" href="https://github.com/conda-forge/movement-feedstock">conda-forge feedstock</a>
+(typically a few hours after the PyPI release).</p></li>
+<li><p>Review the PR diff. In most cases, there are only two changes in <code class="docutils literal notranslate"><span class="pre">recipes/meta.yaml</span></code>:
+the version number and the sha256 hash of the source.</p></li>
+<li><p>Check whether dependencies need to be changed. Inspect the “Full Changelog” linked at
+the bottom of the GitHub release notes and look for any changes to <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>.</p></li>
+<li><p>If no dependencies have changed and CI on the feedstock PR passes, merge the bot’s PR
+to trigger the conda-forge build and release.</p></li>
+<li><p>If dependencies <em>have</em> changed, update the corresponding entries under <code class="docutils literal notranslate"><span class="pre">requirements</span></code> in
+<code class="docutils literal notranslate"><span class="pre">recipes/meta.yaml</span></code>. You can push these edits directly to the bot’s PR branch and wait for CI to pass.</p></li>
+<li><p>After merging, wait for CI to pass on the feedstock’s <code class="docutils literal notranslate"><span class="pre">main</span></code> branch.</p></li>
+</ul>
+<p>See the <a class="reference external" href="https://conda-forge.org/docs/maintainer/updating_pkgs/">conda-forge docs on maintaining packages</a>
+for more information.</p>
+</section>
 </section>
 <section id="deprecation-lifecycle">
 <h3>Deprecation lifecycle<a class="headerlink" href="#deprecation-lifecycle" title="Link to this heading">#</a></h3>
@@ -1616,7 +1697,17 @@ verify that the video is correctly linked to the dataset:</p>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-integration">Continuous integration</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#versioning-and-releases">Versioning and releases</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#versioning">Versioning</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#making-a-new-release">Making a new release</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#start-a-draft-release">1. Start a draft release</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#set-the-tag-and-title">2. Set the tag and title</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#generate-release-notes">3. Generate release notes</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#publish-the-release">4. Publish the release</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#verify-the-docs-and-binder">5. Verify the docs and Binder</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#announce-the-release">6. Announce the release</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#release-on-conda-forge">7. Release on conda-forge</a></li>
+</ul>
+</li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deprecation-lifecycle">Deprecation lifecycle</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#mark-the-deprecated-element">1. Mark the deprecated element</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#test-the-deprecation">2. Test the deprecation</a></li>
