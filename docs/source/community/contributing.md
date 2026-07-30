@@ -576,7 +576,7 @@ This will usually include linting, testing and deployment.
 A GitHub actions workflow (`.github/workflows/test_and_deploy.yml`) has been set up to run (on each push/PR):
 * Linting checks (pre-commit).
 * Testing (only if linting checks pass)
-* Release to PyPI (only if a git tag is present and if tests pass).
+* Release to PyPI using [trusted publishing](https://docs.pypi.org/trusted-publishers/) (only if a git tag is present and if tests pass).
 
 ### Versioning
 We use [semantic versioning](https://semver.org/), which includes `MAJOR`.`MINOR`.`PATCH` version numbers:
@@ -585,11 +585,13 @@ We use [semantic versioning](https://semver.org/), which includes `MAJOR`.`MINOR
 * MINOR = new feature
 * MAJOR = breaking change
 
+::: {note}
 While the project is still in the `v0.x` phase, breaking changes may occur in
 `MINOR` releases. Backward compatibility is not guaranteed at this stage.
 Any breaking change must be clearly communicated in the release notes and,
 where possible, introduced with a deprecation warning
 (see [Deprecation lifecycle](#deprecation-lifecycle)).
+:::
 
 We use [setuptools_scm](setuptools-scm:) (configured in `pyproject.toml`) to
 automatically version `movement`.
