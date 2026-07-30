@@ -650,7 +650,7 @@ but Binder caches the environment, so later runs (for any example) are fast.
   (typically a few hours after the PyPI release).
 * Review the PR diff. In most cases, there are only two changes in `recipes/meta.yaml`:
   the version number and the sha256 hash of the source.
-* Check whether dependencies need to be changed. Inspect the "Full Changelog" linked at 
+* Check whether dependencies need to be changed. Inspect the "Full Changelog" linked at
   the bottom of the GitHub release notes and look for any changes to `pyproject.toml`.
 * If no dependencies have changed and CI on the feedstock PR passes, merge the bot's PR
   to trigger the conda-forge build and release.
