@@ -430,7 +430,7 @@ class DataLoader(QWidget):
 
         # Points and Tracks layers are built from the same NaN-filtered
         # array in the same row order (see _add_points_layer/
-        # _add_tracks_layer). the Tracks layer only has an extra
+        # _add_tracks_layer). The Tracks layer only has an extra
         # leading track_id column.
         tracks_data = tracks_layer.data
         tracks_data[moved_indices, 1:] = points_layer.data[moved_indices]
