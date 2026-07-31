@@ -65,8 +65,8 @@ def register_writer(
     *,
     ds_type: Literal["poses", "bboxes"] | None = None,
 ) -> Callable[
-    [Callable[Concatenate[xr.Dataset, str | Path, P], object]],
-    Callable[Concatenate[xr.Dataset, str | Path, P], object],
+    [Callable[Concatenate[xr.Dataset, str | Path, P], None]],
+    Callable[Concatenate[xr.Dataset, str | Path, P], None],
 ]:
     """Register a writer function for a given target software.
 
@@ -95,8 +95,8 @@ def register_writer(
     """
 
     def decorator(
-        writer_fn: Callable[Concatenate[xr.Dataset, str | Path, P], object],
-    ) -> Callable[Concatenate[xr.Dataset, str | Path, P], object]:
+        writer_fn: Callable[Concatenate[xr.Dataset, str | Path, P], None],
+    ) -> Callable[Concatenate[xr.Dataset, str | Path, P], None]:
         _WRITER_REGISTRY[target_software] = cast("WriterProtocol", writer_fn)
         _WRITER_DS_TYPE_REGISTRY[target_software] = ds_type
         return writer_fn
