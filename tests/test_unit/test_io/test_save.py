@@ -3,7 +3,7 @@
 import pytest
 import xarray as xr
 
-from movement.io import save_dataset
+from movement.io import save
 
 
 @pytest.mark.parametrize("target_software", [None, "netCDF"])
@@ -12,7 +12,7 @@ def test_save_dataset_netcdf_roundtrip(
 ):
     """A dataset saved to netCDF (default target) loads back unchanged."""
     file_path = tmp_path / "dataset.nc"
-    save_dataset(valid_poses_dataset, file_path, target_software)
+    save.save_dataset(valid_poses_dataset, file_path, target_software)
     assert file_path.is_file()
     loaded = xr.load_dataset(file_path)
     xr.testing.assert_allclose(loaded, valid_poses_dataset)
@@ -22,19 +22,19 @@ def test_save_dataset_netcdf_roundtrip(
 def test_save_dataset_netcdf_requires_nc_suffix(valid_poses_dataset, tmp_path):
     """Saving to netCDF with a non-.nc suffix raises an error."""
     with pytest.raises(ValueError, match="Expected file with suffix"):
-        save_dataset(valid_poses_dataset, tmp_path / "dataset.csv")
+        save.save_dataset(valid_poses_dataset, tmp_path / "dataset.csv")
 
 
 def test_save_dataset_rejects_non_dataset(tmp_path):
     """Passing a non-Dataset object raises a TypeError."""
     with pytest.raises(TypeError, match="Expected an xarray Dataset"):
-        save_dataset([1, 2, 3], tmp_path / "dataset.nc")
+        save.save_dataset([1, 2, 3], tmp_path / "dataset.nc")
 
 
 def test_save_dataset_invalid_target_software(valid_poses_dataset, tmp_path):
     """An unsupported target raises a helpful ValueError."""
     with pytest.raises(ValueError, match="Unsupported target_software"):
-        save_dataset(
+        save.save_dataset(
             valid_poses_dataset, tmp_path / "f.txt", target_software="bogus"
         )
 
@@ -61,7 +61,9 @@ def test_save_dataset_dispatches_to_writer(
         {target_software: mock_writer},
     )
     file_path = tmp_path / "output"
-    save_dataset(ds, file_path, target_software=target_software, foo="bar")
+    save.save_dataset(
+        ds, file_path, target_software=target_software, foo="bar"
+    )
     mock_writer.assert_called_once_with(ds, file_path, foo="bar")
 
 
@@ -78,7 +80,9 @@ def test_save_dataset_ds_type_mismatch(
     """Saving a dataset to a format meant for the other ds_type errors out."""
     ds = request.getfixturevalue(dataset_fixture)
     with pytest.raises(ValueError, match="Missing required"):
-        save_dataset(ds, tmp_path / "output", target_software=target_software)
+        save.save_dataset(
+            ds, tmp_path / "output", target_software=target_software
+        )
 
 
 def test_save_dataset_netcdf_rejects_missing_ds_type(tmp_path):
@@ -87,7 +91,7 @@ def test_save_dataset_netcdf_rejects_missing_ds_type(tmp_path):
     """
     ds = xr.Dataset({"position": (["time"], [1.0, 2.0])})
     with pytest.raises(ValueError, match="Cannot save to 'netCDF'"):
-        save_dataset(ds, tmp_path / "dataset.nc")
+        save.save_dataset(ds, tmp_path / "dataset.nc")
 
 
 def test_save_dataset_netcdf_rejects_invalid_ds_type(tmp_path):
@@ -95,7 +99,7 @@ def test_save_dataset_netcdf_rejects_invalid_ds_type(tmp_path):
     ds = xr.Dataset({"position": (["time"], [1.0, 2.0])})
     ds.attrs["ds_type"] = "not-a-real-type"
     with pytest.raises(ValueError, match="Cannot save to 'netCDF'"):
-        save_dataset(ds, tmp_path / "dataset.nc")
+        save.save_dataset(ds, tmp_path / "dataset.nc")
 
 
 def test_save_dataset_nwb_single_individual(
@@ -109,7 +113,7 @@ def test_save_dataset_nwb_single_individual(
     mocker.patch("movement.io.save_poses.to_nwb_file", return_value=fake_nwb)
     mock_write = mocker.patch("movement.io.save_poses._write_nwb_to_disk")
     file_path = tmp_path / "out.nwb"
-    save_dataset(single, file_path, target_software="NWB")
+    save.save_dataset(single, file_path, target_software="NWB")
     mock_write.assert_called_once_with(fake_nwb, file_path)
 
 
@@ -126,7 +130,7 @@ def test_save_dataset_nwb_multi_individual(
     mocker.patch("movement.io.save_poses.to_nwb_file", return_value=fake_files)
     mock_write = mocker.patch("movement.io.save_poses._write_nwb_to_disk")
     file_path = tmp_path / "out.nwb"
-    save_dataset(valid_poses_dataset, file_path, target_software="NWB")
+    save.save_dataset(valid_poses_dataset, file_path, target_software="NWB")
     written_paths = [call.args[1] for call in mock_write.call_args_list]
     assert written_paths == [
         tmp_path / "out_id_0.nwb",
@@ -134,9 +138,10 @@ def test_save_dataset_nwb_multi_individual(
     ]
 
 
-def test_register_writer_decorator():
+def test_register_writer_decorator(mocker):
     """Test register_writer populates both registries correctly."""
-    from movement.io import save
+    mocker.patch.dict("movement.io.save._WRITER_REGISTRY")
+    mocker.patch.dict("movement.io.save._WRITER_DS_TYPE_REGISTRY")
 
     @save.register_writer("StubSoftware", ds_type="poses")
     def stub_writer_fn(ds, file_path, **kwargs) -> None:
