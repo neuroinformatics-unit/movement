@@ -310,6 +310,7 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
 
     # simulate loader widget filtering of nans
     valid_point_mask = ~np.any(np.isnan(napari_tracks[:, 2:4]), axis=1)
+    properties_with_nan["position_is_nan"] = ~valid_point_mask
 
     # napari_tracks is shape (N,4): (track_id, frame, y, x)
     # but our function is expecting the points layer (N,3): (frame, y, x)
@@ -528,6 +529,7 @@ def test_edited_property_round_trip(
     # Simulate the loader widget filtering out NaN position rows, then
     # convert back to a dataset again.
     valid_point_mask = ~np.any(np.isnan(napari_tracks[:, 2:4]), axis=1)
+    properties_with_nan["position_is_nan"] = ~valid_point_mask
     napari_points = napari_tracks[valid_point_mask, 1:]
     properties = properties_with_nan.iloc[valid_point_mask].reset_index(
         drop=True
@@ -612,7 +614,8 @@ def test_removed_pose_napari_layers_restores_nans(
     for a range of frames (for one individual, or for all of them).
     Parametrized over datasets with and without pre-existing NaN
     positions, to check removal still works when combined with data
-    that's already missing.
+    that's already missing. Removed points are marked ``edited=True``;
+    pre-existing NaNs are not, since they were never real data.
     """
     if nan_location is None:
         filepath, ds_expected = valid_poses_path_and_ds
@@ -630,9 +633,6 @@ def test_removed_pose_napari_layers_restores_nans(
         properties_with_nans=loader.properties,
         attrs=ds_expected.attrs,
     )
-    # No point was ever dragged, so the live properties never gained an
-    # `edited` key: deletion alone does not add the variable.
-    assert "edited" not in ds
 
     # Removed points are restored as NaN; nothing is dropped from the
     # dataset's time/keypoint/individual coordinates.
@@ -652,6 +652,22 @@ def test_removed_pose_napari_layers_restores_nans(
             "individual": target["individual"],
         }
     ] = np.nan
+
+    # Points removed by the user are marked as edited, but only if
+    # they had real (non-NaN) data to begin with. Points that were
+    # already NaN before removal (pre-existing NaNs) are not edits.
+    originally_valid = ~ds_expected.position.isnull().all("space")
+    removed_target_mask = xr.zeros_like(originally_valid)
+    removed_target_mask.loc[
+        {
+            "time": target["time"],
+            "keypoint": target["keypoint"],
+            "individual": target["individual"],
+        }
+    ] = True
+    expected_ds["edited"] = (removed_target_mask & originally_valid).astype(
+        bool
+    )
 
     xr.testing.assert_equal(ds, expected_ds)
 

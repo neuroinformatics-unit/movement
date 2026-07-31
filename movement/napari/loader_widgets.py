@@ -244,6 +244,9 @@ class DataLoader(QWidget):
 
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)
+        # Record which points had a NaN position originally as a property
+        # This is used to reconstruct a dataset on save
+        self.properties["position_is_nan"] = ~self.data_not_nan
         return True
 
     def _load_third_party_file(self) -> xr.Dataset:
@@ -348,10 +351,13 @@ class DataLoader(QWidget):
             properties_df=self.properties,
         )
 
-        # Filter out columns ending in _factorized (used internally for
-        # Tracks/Shapes coloring but not needed in Points layer tooltips)
+        # Filter out columns used internally (for Tracks/Shapes coloring,
+        # or for reconstructing the dataset on save) but not needed in
+        # Points layer tooltips: _factorized columns and position_is_nan.
         points_properties = self.properties.loc[
-            :, ~self.properties.columns.str.endswith("_factorized")
+            :,
+            ~self.properties.columns.str.endswith("_factorized")
+            & (self.properties.columns != "position_is_nan"),
         ]
         self.points_layer = self.viewer.add_points(
             self.data[self.data_not_nan, 1:],

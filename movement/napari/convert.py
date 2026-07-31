@@ -181,7 +181,8 @@ def napari_layers_to_ds(
         to a list of values, and each value corresponding to a point.
     properties_with_nans:
         Properties DataFrame derived from the original loaded dataset
-        including any NaN position data.
+        including any NaN position data. Must include a
+        ``position_is_nan`` boolean column flagging any such points.
     attrs
         Attributes of the original loaded dataset (e.g.
         ``source_software``, ``fps``, ``time_unit`` and
@@ -268,9 +269,16 @@ def napari_layers_to_ds(
 
         position_df["keypoint"] = properties_df["keypoint"].to_numpy()
         position_df["individual"] = properties_df["individual"].to_numpy()
-        confidence_da = (
+        # Points dragged in napari gain an `edited` flag; the column is
+        # absent until the first drag.
+        if "edited" not in properties_df.columns:
+            properties_df["edited"] = False
+
+        # Reconstruct the confidence and edited arrays from the live
+        # properties DataFrame
+        live_das = (
             properties_df.set_index(["time", "keypoint", "individual"])[
-                "confidence"
+                ["confidence", "edited"]
             ]
             .to_xarray()
             .reindex(
@@ -279,41 +287,9 @@ def napari_layers_to_ds(
                 individual=individual_coords,
             )
         )
-        edited_da_full = (
-            (
-                properties_df.set_index(["time", "keypoint", "individual"])[
-                    "edited"
-                ]
-                .to_xarray()
-                .reindex(
-                    time=time_coords,
-                    keypoint=keypoint_coords,
-                    individual=individual_coords,
-                )
-                .fillna(False)
-                .astype(bool)
-                if "edited" in properties_df.columns
-                else xr.full_like(confidence_da, False, dtype=bool)
-            )
-            | (
-                confidence_da.isnull()
-                & properties_with_nans.set_index(
-                    ["time", "keypoint", "individual"]
-                )["confidence"]
-                .notna()
-                .to_xarray()
-                .reindex(
-                    time=time_coords,
-                    keypoint=keypoint_coords,
-                    individual=individual_coords,
-                    fill_value=False,
-                )
-            )
-        ).astype(bool)
-        edited_da: xr.DataArray | None = (
-            edited_da_full if edited_da_full.any() else None
-        )
+        confidence_da = live_das["confidence"]
 
+        # Reconstruct the position array from the live napari Points layer
         position_df = position_df.melt(
             id_vars=["time", "frame", "keypoint", "individual"],
             value_vars=["x", "y"],
@@ -333,15 +309,34 @@ def napari_layers_to_ds(
             )
         )
 
-        data_vars = {
-            "position": position_da,
-            "confidence": confidence_da,
-        }
-        if edited_da is not None:
-            data_vars["edited"] = edited_da
+        # A point missing from the live layer shows up as NaN position
+        # after the reindex above
+        point_missing_now = position_da.isnull().all("space")
+        position_was_present_originally = ~(
+            properties_with_nans.set_index(["time", "keypoint", "individual"])[
+                "position_is_nan"
+            ]
+            .to_xarray()
+            .reindex(
+                time=time_coords,
+                keypoint=keypoint_coords,
+                individual=individual_coords,
+                fill_value=True,
+            )
+            .astype(bool)
+        )
+        # A point counts as edited if it was dragged in napari, or removed
+        # by the user (i.e. is now missing but was present originally).
+        edited_da = live_das["edited"].fillna(False).astype(bool) | (
+            point_missing_now & position_was_present_originally
+        )
 
         ds = xr.Dataset(
-            data_vars=data_vars,
+            data_vars={
+                "position": position_da,
+                "confidence": confidence_da,
+                "edited": edited_da,
+            },
             coords={
                 "time": time_coords,
                 "space": space_coords,
@@ -351,10 +346,9 @@ def napari_layers_to_ds(
             attrs=attrs if attrs is not None else {},
         )
         # Drop keypoints/individuals with no data left; never `time`.
-        # `edited` (if present) is excluded from the check: it's
-        # boolean (fill value False), so it's never "null" and would
-        # otherwise prevent any keypoint/individual from ever being
-        # dropped.
+        # `edited` is excluded from the check: it's boolean (fill value
+        # False), so it's never "null" and would otherwise prevent any
+        # keypoint/individual from ever being dropped.
         dropna_subset = ["position", "confidence"]
         ds = ds.dropna(dim="keypoint", how="all", subset=dropna_subset).dropna(
             dim="individual", how="all", subset=dropna_subset
@@ -366,6 +360,10 @@ def napari_layers_to_ds(
                     "This happens when all points have been removed."
                 )
             )
+        # Drop `edited` entirely if nothing survived the trim above:
+        # e.g. the only edits were on a keypoint/individual just dropped.
+        if not ds["edited"].any():
+            ds = ds.drop_vars("edited")
         return ds
 
     raise NotImplementedError(
