@@ -56,9 +56,6 @@ SUPPORTED_DATA_FILES = {
 }
 
 # Metadata keys stored on the movement Points layer.
-# Set in _add_points_layer/_add_tracks_layer (where the layers are created);
-# read in save_widget.py (where the layer is saved) and in
-# _on_points_data_changed (to keep the Tracks layer in sync).
 # - POINTS_LAYER_KEY marks the layer as movement-created.
 # - POINTS_PROPERTIES_KEY holds the full properties df, incl. the NaN rows
 #   dropped from the live layer, needed to reconstruct the dataset.
