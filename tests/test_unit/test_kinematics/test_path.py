@@ -294,7 +294,9 @@ def test_path_metrics_default_to_omit(valid_poses_dataset_with_nan):
     with pytest.warns(UserWarning, match="The result may be unreliable"):
         default_straightness = compute_path_straightness(position)
     with pytest.warns(UserWarning, match="The result may be unreliable"):
-        omit_straightness = compute_path_straightness(position, nan_policy="omit")
+        omit_straightness = compute_path_straightness(
+            position, nan_policy="omit"
+        )
     xr.testing.assert_identical(default_straightness, omit_straightness)
 
 
