@@ -21,7 +21,7 @@ from movement.validators.arrays import validate_dims_coords
 
 def compute_path_length(
     data: xr.DataArray,
-    nan_policy: Literal["ffill"] | None = None,
+    nan_policy: Literal["ffill", "omit"] = "omit",
     nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
     r"""Compute the length of a path travelled.
@@ -35,7 +35,7 @@ def compute_path_length(
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
     nan_policy
-        Policy for handling NaN (missing) values. By default (``None``),
+        Policy for handling NaN (missing) values. By default (``"omit"``),
         no gap-filling is performed, meaning missing positions are skipped.
         If ``"ffill"``, missing positions are forward-filled across
         time before path length is computed. See Notes for more
@@ -55,7 +55,7 @@ def compute_path_length(
     Notes
     -----
     1. **Handling missing values:**
-       By default (``nan_policy=None``), path length sums the lengths of the
+       By default (``nan_policy="omit"``), path length sums the lengths of the
        segments between consecutive *valid* positions. A missing position
        invalidates the two segments on either side of it (the arriving and
        departing steps), which are omitted from the sum. Choosing
@@ -108,7 +108,7 @@ def compute_path_length(
 
 def compute_path_straightness(
     data: xr.DataArray,
-    nan_policy: Literal["ffill"] | None = None,
+    nan_policy: Literal["ffill", "omit"] = "omit",
     nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
     r"""Compute the straightness index of a path :math:`(D/L)`.
@@ -126,10 +126,10 @@ def compute_path_straightness(
         and ``space`` (in Cartesian coordinates) as required dimensions.
     nan_policy
         Policy for handling NaN (missing) values in the path length
-        computation. By default (``None``), segments with a missing endpoint
+        computation. By default (``"omit"``), segments with a missing endpoint
         are skipped. If ``"ffill"``, missing positions are forward-filled
         first. See :func:`compute_path_length` for more details on the two
-        policies. Defaults to ``None``.
+        policies. Defaults to ``"omit"``.
     nan_warn_threshold
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
@@ -574,7 +574,7 @@ def _path_distance(data: xr.DataArray) -> xr.DataArray:
 
 def _path_length(
     data: xr.DataArray,
-    nan_policy: Literal["ffill"] | None,
+    nan_policy: Literal["ffill", "omit"],
     nan_warn_threshold: float,
 ) -> xr.DataArray:
     """Compute path length on already-validated data.
@@ -582,7 +582,7 @@ def _path_length(
     See :func:`compute_path_length` for parameter details.
     """
     _warn_about_nan_proportion(data, nan_warn_threshold)
-    if nan_policy is None:
+    if nan_policy == "omit":
         # Sum the lengths of the segments between consecutive valid
         # positions. Segments touching a NaN are skipped; a track is only
         # NaN if all its segments are (hence min_count=1).
@@ -595,7 +595,7 @@ def _path_length(
         raise logger.error(
             ValueError(
                 f"Invalid value for nan_policy: {nan_policy!r}. "
-                "Must be None or 'ffill'."
+                "Must be 'omit' or 'ffill'."
             )
         )
     result.name = "path_length"

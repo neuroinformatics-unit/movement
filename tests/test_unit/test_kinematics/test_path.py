@@ -235,7 +235,7 @@ def test_path_length_across_time_ranges(
     "nan_policy, expected_path_lengths_id_0, expected_exception",
     [
         (
-            None,
+            "omit",
             np.array([np.sqrt(2) * 4, np.sqrt(2) * 8, np.nan]),
             does_not_raise(),
         ),
@@ -259,7 +259,7 @@ def test_path_length_with_nan(
 ):
     """Test path length computation for a uniform linear motion case,
     with varying number of missing values per individual and keypoint.
-    The default policy (``None``) sums only the segments between consecutive
+    The default ``"omit"`` policy sums only the segments between consecutive
     valid positions, so each missing position removes the two segments on
     either side of it (the "centroid" keypoint loses 3 interior frames,
     dropping 5 of its 9 segments). The "ffill" policy instead crosses each
@@ -280,6 +280,22 @@ def test_path_length_with_nan(
         np.testing.assert_allclose(
             path_length_id_0, expected_path_lengths_id_0
         )
+
+
+def test_path_metrics_default_to_omit(valid_poses_dataset_with_nan):
+    """Test that path metrics use the explicit ``"omit"`` policy by default."""
+    position = valid_poses_dataset_with_nan.position
+    with pytest.warns(UserWarning, match="The result may be unreliable"):
+        default_length = compute_path_length(position)
+    with pytest.warns(UserWarning, match="The result may be unreliable"):
+        omit_length = compute_path_length(position, nan_policy="omit")
+    xr.testing.assert_identical(default_length, omit_length)
+
+    with pytest.warns(UserWarning, match="The result may be unreliable"):
+        default_straightness = compute_path_straightness(position)
+    with pytest.warns(UserWarning, match="The result may be unreliable"):
+        omit_straightness = compute_path_straightness(position, nan_policy="omit")
+    xr.testing.assert_identical(default_straightness, omit_straightness)
 
 
 # Regex patterns to match the warning messages
@@ -385,7 +401,7 @@ def test_path_length_nan_warn_threshold(
         ),
     ],
 )
-@pytest.mark.parametrize("nan_policy", ["ffill", None])
+@pytest.mark.parametrize("nan_policy", ["ffill", "omit"])
 def test_path_straightness_known_values(
     request, fixture_name, expected_value, nan_policy
 ):
