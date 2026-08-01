@@ -8,15 +8,18 @@ import xarray as xr
 from movement.kinematics import (
     compute_directional_change,
     compute_path_deviation,
+    compute_path_emax,
     compute_path_length,
+    compute_path_sinuosity,
     compute_path_straightness,
     compute_turning_angle,
 )
 
-# Shared by all metrics that require at least 2 time points.
+# Shared by all metrics with a minimum number of time points.
+# The number itself is metric-specific, so it is left out of the match.
 time_points_value_error = pytest.raises(
     ValueError,
-    match="At least 2 time points are required",
+    match="time points are required",
 )
 
 # Pre-sliced time-range cases shared by multiple unit tests
@@ -165,6 +168,106 @@ def lateral_detour_paths(straight_paths):
     return path
 
 
+@pytest.fixture
+def regular_zigzag_path():
+    """Unit-step 90-degree zigzag (East, North, East, North, ...).
+
+    Every step has length 1, so the mean step length is 1 and the
+    coefficient of variation of step length is 0. Every turn is 90
+    degrees, so the mean cosine of the turning angles is
+    cos(90 deg) = 0. Benhamou 2004 Eq. 8 (the one used to compute
+    sinuosity) then reduces to
+    S = 2 * [1 * (1 + 0) / (1 - 0)]^(-1/2) = 2 / sqrt(1) = 2.0
+    """
+    n = 20
+    xy = np.zeros((n, 2))
+    for i in range(1, n):
+        xy[i] = xy[i - 1] + ([1, 0] if i % 2 else [0, 1])
+    return xr.DataArray(
+        xy,
+        dims=["time", "space"],
+        coords={"time": np.arange(n), "space": ["x", "y"]},
+    )
+
+
+@pytest.fixture
+def regular_hexagon_path():
+    """Return a path tracing a regular hexagon with step length 2.
+
+    Every step turns by a constant 60 degrees, so the mean cosine of the
+    turning angles is cos(60 deg) = 0.5, giving E_max-a = 0.5 / (1 - 0.5)
+    = 1.0. With a constant step length of 2, E_max-b = 2.0.
+    """
+    r3 = np.sqrt(3)
+    positions = np.array(
+        [
+            [0.0, 0.0],
+            [2.0, 0.0],
+            [3.0, r3],
+            [2.0, 2 * r3],
+            [0.0, 2 * r3],
+            [-1.0, r3],
+            [0.0, 0.0],
+        ]
+    )
+    return xr.DataArray(
+        positions,
+        dims=["time", "space"],
+        coords={"time": np.arange(len(positions)), "space": ["x", "y"]},
+    )
+
+
+@pytest.fixture
+def scaled_zigzag_path(regular_zigzag_path):
+    """Return the zigzag path with all positions scaled by a factor of 4.
+
+    Sinuosity has units of 1/sqrt(length), so scaling the positions by
+    k leaves the shape unchanged but divides S by sqrt(k).
+    Here S = 2.0 / sqrt(4) = 1.0.
+    """
+    return regular_zigzag_path * 4
+
+
+@pytest.fixture
+def zigzag_path_with_nan(regular_zigzag_path):
+    """Return the zigzag path with the position at time=10 missing.
+
+    The missing position invalidates 2 step lengths and 3 turning angles,
+    but every remaining step still has length 1 and every remaining turn
+    is still 90 degrees, so sinuosity (S) is unchanged at 2.0.
+    """
+    path = regular_zigzag_path.copy()
+    path.loc[{"time": 10}] = np.nan
+    return path
+
+
+@pytest.fixture
+def regular_triangle_path():
+    """Return a path tracing a regular triangle with unit step length.
+
+    Every step turns by a constant 120 degrees, so the mean cosine of the
+    turning angles is cos(120 deg) = -0.5, giving E_max-a = -0.5 / 1.5 =
+    -1/3. This exercises the negative part of the E_max range.
+    """
+    r3 = np.sqrt(3)
+    positions = np.array(
+        [
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [0.5, r3 / 2],
+            [0.0, 0.0],
+            [1.0, 0.0],
+            [0.5, r3 / 2],
+            [0.0, 0.0],
+        ]
+    )
+    return xr.DataArray(
+        positions,
+        dims=["time", "space"],
+        coords={"time": np.arange(len(positions)), "space": ["x", "y"]},
+    )
+
+
 # ─────────────────────────────────────────────
 # Cross-metric time-range tests
 # ─────────────────────────────────────────────
@@ -177,6 +280,8 @@ def lateral_detour_paths(straight_paths):
         pytest.param(compute_path_straightness, id="straightness"),
         pytest.param(compute_directional_change, id="directional-change"),
         pytest.param(compute_path_deviation, id="deviation"),
+        pytest.param(compute_path_sinuosity, id="sinuosity"),
+        pytest.param(compute_path_emax, id="emax"),
     ],
 )
 def test_path_metrics_across_time_ranges(
@@ -822,3 +927,218 @@ def test_path_deviation_partially_degenerate_warns(straight_paths):
         assert np.isnan(result.sel(individual="id_0").values).all()
         id_1 = result.sel(individual="id_1")
         xr.testing.assert_allclose(id_1, xr.zeros_like(id_1))
+
+
+# ─────────────────────────────────────────────
+# Path sinuosity tests
+# ─────────────────────────────────────────────
+
+
+def test_path_sinuosity_too_few_timepoints(straight_paths):
+    """Test that sinuosity enforces the minimum length (3) requirement."""
+    # Slice the data to exactly 2 time points (which is only 1 segment)
+    position = straight_paths.isel(time=slice(0, 2))
+    with pytest.raises(ValueError, match="3 time points are required"):
+        compute_path_sinuosity(position)
+
+
+@pytest.mark.parametrize(
+    "fixture_name, expected_value",
+    [
+        pytest.param("straight_paths", 0.0, id="straight-line"),
+        pytest.param("stationary_paths", np.nan, id="stationary"),
+        pytest.param("regular_zigzag_path", 2.0, id="zigzag"),
+        pytest.param("scaled_zigzag_path", 1.0, id="zigzag-scaled-4x"),
+        pytest.param("zigzag_path_with_nan", 2.0, id="zigzag-with-nan"),
+    ],
+)
+def test_path_sinuosity_known_values(request, fixture_name, expected_value):
+    """Test that sinuosity matches expected values for standard geometries."""
+    position = request.getfixturevalue(fixture_name)
+    result = compute_path_sinuosity(position)
+    assert result.name == "sinuosity"
+    assert result.long_name == "Path Sinuosity"
+
+    assert set(result.dims) == set(position.dims) - {"time", "space"}
+    if np.isnan(expected_value):
+        assert result.isnull().all()
+    else:
+        xr.testing.assert_allclose(
+            result,
+            xr.full_like(result, expected_value),
+            atol=1e-7,
+        )
+
+
+def test_path_sinuosity_raises_on_3d(straight_paths_3d):
+    """Sinuosity is only defined for 2D data (inherited from turning angle)."""
+    with pytest.raises(
+        ValueError, match="Dimension 'space' must only contain"
+    ):
+        compute_path_sinuosity(straight_paths_3d)
+
+
+def test_path_sinuosity_all_nan(straight_paths):
+    """Test that fully missing tracks warn and yield NaN sinuosity."""
+    position = straight_paths.copy()
+    position[:] = np.nan
+    with pytest.warns(UserWarning, match="The result may be unreliable"):
+        result = compute_path_sinuosity(position)
+    assert result.isnull().all()
+
+
+def test_path_sinuosity_variable_reversals():
+    """Biological edge case: back-and-forth pacing with variable step lengths.
+
+    An animal repeatedly reversing direction but with naturalistic, variable
+    step lengths. This is a highly tortuous movement and should compute
+    successfully to a finite, positive value.
+    """
+    rng = np.random.default_rng(11)
+    n = 30
+    x = np.zeros(n)
+    for i in range(1, n):
+        # Reverse direction each step, but multiply by a random stride length
+        x[i] = x[i - 1] + rng.choice([-1, 1]) * rng.uniform(0.5, 2.0)
+    xy = np.column_stack([x, np.zeros(n)])
+
+    data = xr.DataArray(
+        xy,
+        dims=["time", "space"],
+        coords={"time": np.arange(n), "space": ["x", "y"]},
+    )
+    result = compute_path_sinuosity(data)
+
+    assert not result.isnull().any()
+    assert float(result.item()) > 0
+    assert np.isfinite(result.item())
+
+
+def test_path_sinuosity_outlier_step():
+    """Artefact edge case: Tracking 'teleportation'.
+
+    Simulates a tracker losing ID and assigning a point across the arena.
+    The massive jump creates an extreme standard deviation in step length (b).
+    The metric should not crash, but rather return a valid, finite float.
+    """
+    rng = np.random.default_rng(20)
+    n = 50
+    # Normal erratic movement
+    xy = np.column_stack([np.arange(n, dtype=float), rng.normal(0, 0.3, n)])
+    # Single massive tracking failure
+    xy[25] = [1000.0, 1000.0]
+
+    data = xr.DataArray(
+        xy,
+        dims=["time", "space"],
+        coords={"time": np.arange(n), "space": ["x", "y"]},
+    )
+    result = compute_path_sinuosity(data)
+
+    assert not result.isnull().any()
+    assert np.isfinite(result.item())
+
+
+# ─────────────────────────────────────────────
+# E_max tests
+# ─────────────────────────────────────────────
+
+
+@pytest.mark.parametrize(
+    "fixture_name, in_spatial_units, expected_value",
+    [
+        pytest.param(
+            "regular_hexagon_path", False, 1.0, id="hexagon-dimensionless"
+        ),
+        pytest.param(
+            "regular_hexagon_path", True, 2.0, id="hexagon-spatial-units"
+        ),
+        pytest.param(
+            "regular_triangle_path", False, -1 / 3, id="triangle-negative"
+        ),
+    ],
+)
+def test_path_emax_known_values(
+    request, fixture_name, in_spatial_units, expected_value
+):
+    """Test E_max against paths with a constant turning angle.
+
+    For a constant turning angle the mean cosine is exactly its cosine,
+    so both E_max variants have closed-form values. The triangle case
+    (120 degree turns) has a negative mean cosine, exercising the
+    negative part of the E_max range.
+    """
+    path = request.getfixturevalue(fixture_name)
+    result = compute_path_emax(path, in_spatial_units=in_spatial_units)
+    assert result.name == "maximum_expected_displacement"
+    assert result.attrs["long_name"] == "Maximum Expected Displacement"
+    assert np.isclose(result.item(), expected_value)
+
+
+@pytest.mark.parametrize("in_spatial_units", [False, True])
+def test_path_emax_straight_path_is_inf(straight_paths, in_spatial_units):
+    """A perfectly straight path has a mean cosine of 1, so E_max is +inf."""
+    result = compute_path_emax(
+        straight_paths, in_spatial_units=in_spatial_units
+    )
+    assert np.isinf(result).all()
+    assert (result > 0).all()
+
+
+@pytest.mark.parametrize("in_spatial_units", [False, True])
+@pytest.mark.parametrize(
+    "positions",
+    [
+        pytest.param(
+            [[5.0, 5.0], [5.0, 5.0], [5.0, 5.0], [5.0, 5.0]],
+            id="stationary",
+        ),
+    ],
+)
+def test_path_emax_all_nan_output(positions, in_spatial_units):
+    """A stationary track has no valid turning angles, so E_max is NaN."""
+    data = xr.DataArray(
+        np.array(positions),
+        dims=["time", "space"],
+        coords={
+            "time": np.arange(len(positions)),
+            "space": ["x", "y"],
+        },
+    )
+    result = compute_path_emax(data, in_spatial_units=in_spatial_units)
+    assert result.isnull().all()
+
+
+def test_path_emax_nan_warning(straight_paths):
+    """Test that fully missing tracks warn and yield NaN E_max."""
+    position = straight_paths.copy()
+    position[:] = np.nan
+    with pytest.warns(UserWarning, match="The result may be unreliable"):
+        result = compute_path_emax(position)
+    assert result.isnull().all()
+
+
+def test_path_emax_too_few_timepoints(straight_paths):
+    """E_max needs at least 3 time points for one valid turning angle."""
+    # Slice the data to exactly 2 time points (which is only 1 segment)
+    position = straight_paths.isel(time=slice(0, 2))
+    with pytest.raises(ValueError, match="3 time points are required"):
+        compute_path_emax(position)
+
+
+def test_path_emax_output_shape(straight_paths):
+    """Test that ``time`` and ``space`` are removed and other dimensions
+    are preserved.
+    """
+    result = compute_path_emax(straight_paths)
+    assert "space" not in result.dims
+    assert "time" not in result.dims
+    assert "individual" in result.dims
+
+
+def test_path_emax_raises_on_3d(straight_paths_3d):
+    """E_max is only defined for 2D data (inherited from turning angle)."""
+    with pytest.raises(
+        ValueError, match="Dimension 'space' must only contain"
+    ):
+        compute_path_emax(straight_paths_3d)

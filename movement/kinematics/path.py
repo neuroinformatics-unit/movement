@@ -4,6 +4,16 @@ By 'path' we refer to the spatial trajectory of an individual over the
 time span of the data. While these metrics can be computed based on any
 set of keypoints, they are most meaningful when applied to a single
 keypoint representing the individual's overall position (e.g., centroid).
+
+When adding a new path metric, follow this convention for the
+``nan_warn_threshold`` parameter: expose it only if the metric returns a
+single scalar per path (e.g. ``compute_path_length``,
+``compute_path_straightness``, ``compute_path_sinuosity`` and
+``compute_path_emax``), where a high proportion of missing values can
+silently skew that scalar. Do not expose it if the metric returns a
+time-varying quantity (e.g. ``compute_directional_change`` and
+``compute_path_deviation``), where missing values remain visible per
+time step and propagate on their own.
 """
 
 import warnings
@@ -158,6 +168,12 @@ def compute_path_straightness(
     --------
     compute_path_length : The underlying function used to
         compute the path length :math:`L`.
+    compute_path_sinuosity :
+        A related turning-angle-based measure of path tortuosity.
+    compute_path_emax :
+        An alternative straightness measure derived from the
+        turning-angle distribution which, unlike the :math:`D/L`
+        ratio, does not depend on the number of steps in the path.
 
     Examples
     --------
@@ -301,6 +317,121 @@ def compute_turning_angle(
     return turning
 
 
+def compute_path_sinuosity(
+    data: xr.DataArray,
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    r"""Compute the sinuosity of a path.
+
+    Sinuosity (S) quantifies the tortuosity of a path by combining
+    turning angle statistics with step-length variability. Higher
+    values indicate more tortuous movement. A perfectly straight
+    path has S = 0.
+
+    The corrected sinuosity index (Eq. 8 in [1]_) is defined as:
+
+    .. math::
+
+        S = 2\left[\bar{p}\left(
+            \frac{1+\bar{c}}{1-\bar{c}} + b^{2}
+        \right)\right]^{-1/2}
+
+    where :math:`\bar{p}` is the mean step length,
+    :math:`\bar{c} = \tfrac{1}{n}\sum_{i=1}^{n}\cos(\phi_i)` is the mean
+    cosine of turning angles, and
+    :math:`b = \mathrm{SD}(p_i)\,/\,\bar{p}` is the coefficient of
+    variation of step length.
+
+    Parameters
+    ----------
+    data : xarray.DataArray
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+    nan_warn_threshold : float, optional
+        If any point track in the data has at least (:math:`\ge`)
+        this proportion of values missing, a warning will be emitted.
+        Defaults to ``0.2`` (20%).
+
+    Returns
+    -------
+    xarray.DataArray
+        An xarray DataArray containing the computed sinuosity,
+        with dimensions matching those of the input data,
+        except ``time`` and ``space`` are removed.
+
+    See Also
+    --------
+    compute_path_length : Total distance travelled along a path.
+    compute_path_straightness : Net displacement divided by path length.
+    compute_turning_angle : Step-wise turning angle along a path.
+    compute_path_emax : Directional-persistence measure.
+
+    Notes
+    -----
+    Step lengths are computed as the norm of backward displacement vectors
+    via :func:`~movement.utils.vector.compute_norm` and
+    :func:`~movement.kinematics.compute_backward_displacement`.
+    Turning angles are computed via :func:`compute_turning_angle`.
+
+    NaN positions propagate to NaN step lengths and turning angles;
+    the statistics are then computed over the remaining valid samples.
+    An entirely stationary track, or one with all NaN values,
+    will produce NaN sinuosity.
+
+    Sinuosity has units of :math:`1/\sqrt{\text{length}}`, so its
+    numerical value depends on the position units of the input data.
+    Values are not directly comparable across datasets recorded in
+    different spatial units.
+
+    References
+    ----------
+    .. [1] Benhamou, S. (2004). How to reliably estimate the tortuosity
+       of an animal's path: straightness, sinuosity, or fractal dimension?
+       *Journal of Theoretical Biology*, 229(2), 209-220.
+       https://doi.org/10.1016/j.jtbi.2004.03.016
+
+    Examples
+    --------
+    >>> from movement.kinematics import compute_path_sinuosity
+
+    Compute sinuosity for the centroid trajectory of a poses dataset ``ds``:
+
+    >>> centroid = ds.position.mean(dim="keypoint")
+    >>> sinuosity = compute_path_sinuosity(centroid)
+
+    Compute sinuosity over a specific time window:
+
+    >>> sinuosity = compute_path_sinuosity(centroid.sel(time=slice(0, 100)))
+
+    """
+    data = _validate_time_points(
+        data, metric_name="path sinuosity", min_points=3
+    )
+
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+
+    step_lengths = _segment_lengths(data)
+    theta = compute_turning_angle(data)
+
+    # Summary statistics (NaN-aware)
+    mean_step_length = step_lengths.mean(dim="time", skipna=True)
+    mean_cosine = xr.apply_ufunc(np.cos, theta).mean(dim="time", skipna=True)
+    step_length_cv = (
+        step_lengths.std(dim="time", skipna=True) / mean_step_length
+    )
+
+    # Benhamou 2004 Eq. 8
+    angular_term = (1.0 + mean_cosine) / (1.0 - mean_cosine)
+    result = (
+        2.0 * (mean_step_length * (angular_term + step_length_cv**2)) ** -0.5
+    )
+
+    result.name = "sinuosity"
+    result.attrs["long_name"] = "Path Sinuosity"
+
+    return result
+
+
 def compute_directional_change(
     data: xr.DataArray,
     in_degrees: bool = False,
@@ -361,6 +492,8 @@ def compute_directional_change(
     --------
     compute_turning_angle :
         The underlying function used to compute turning angles.
+    compute_path_emax :
+        A related path-straightness measure based on turning angles.
 
     Examples
     --------
@@ -396,6 +529,135 @@ def compute_directional_change(
     dc.name = "directional_change"
     dc.attrs["long_name"] = "Directional Change"
     return dc
+
+
+def compute_path_emax(
+    data: xr.DataArray,
+    in_spatial_units: bool = True,
+    nan_warn_threshold: float = 0.2,
+) -> xr.DataArray:
+    r"""Compute the maximum expected displacement (:math:`E_{\max}`).
+
+    :math:`E_{\max}` is a straightness measure that captures the
+    directional persistence of a path. Intuitively, it is the maximum
+    expected displacement of an animal navigating *without* an external
+    directional reference (e.g. a compass or a landmark), given the
+    observed distribution of its turning angles and step lengths [1]_.
+    Larger values indicate straighter, more persistent paths; values
+    close to zero indicate sinuous paths.
+
+    Two variants are available. The dimensionless variant
+    :math:`E_{\max}^{(a)}` depends only on the turning angles:
+
+    .. math::
+        E_{\max}^{(a)} = \frac{\bar{c}}{1 - \bar{c}}, \qquad
+        \bar{c} = \overline{\cos\theta}
+
+    where :math:`\theta` are the turning angles and :math:`\bar{c}` is
+    their mean cosine. The variant :math:`E_{\max}^{(b)}` scales this by
+    the mean step length :math:`\bar{p}` to express the result in the
+    same spatial units as the input:
+
+    .. math::
+        E_{\max}^{(b)} = \bar{p} \, E_{\max}^{(a)}
+
+    Parameters
+    ----------
+    data
+        The input data containing position information, with ``time``
+        and ``space`` (in Cartesian coordinates) as required dimensions.
+    in_spatial_units
+        If ``True`` (the default), return the dimensioned variant
+        :math:`E_{\max}^{(b)}`, expressed in the same spatial units as
+        ``data``. If ``False``, return the dimensionless variant
+        :math:`E_{\max}^{(a)}`.
+    nan_warn_threshold
+        If any point track in the data has at least (:math:`\ge`)
+        this proportion of values missing, a warning will be emitted.
+        Defaults to 0.2 (20%).
+
+    Returns
+    -------
+    xarray.DataArray
+        The maximum expected displacement, with dimensions matching
+        those of the input data, except ``time`` and ``space`` are
+        removed. When ``in_spatial_units`` is ``True`` the values are in
+        the same spatial units as ``data``; otherwise they are
+        dimensionless.
+
+    See Also
+    --------
+    compute_turning_angle :
+        The underlying function used to compute the turning angles.
+    compute_path_sinuosity :
+        A related turning-angle-based measure of path tortuosity.
+    compute_path_straightness :
+        A related, path-length-based measure of straightness.
+
+    Notes
+    -----
+    1. **Mean cosine of the turning angles.**
+       :math:`\bar{c} = \overline{\cos\theta}` is the ``time`` average
+       (ignoring ``NaN`` values) of the cosine of the turning angles
+       :math:`\theta` returned by :func:`compute_turning_angle`. The first
+       two time steps have no defined turning angle and so do not
+       contribute.
+    2. **Range.** :math:`E_{\max}^{(a)} \in [-0.5, \infty)`. While
+       highly sinuous paths actually have values approaching 0,
+       negative values specifically arise for trajectories with a
+       systematic backward-turning bias where the mean cosine
+       :math:`\bar{c}` is itself negative.
+    3. **Straight paths.** As a path approaches a perfectly straight
+       line, :math:`\bar{c} \to 1`, so :math:`1 - \bar{c} \to 0` and
+       :math:`E_{\max} \to +\infty`. An infinite result is therefore the
+       correct, expected output for a straight path.
+    4. **Missing values.** Turning angles and step lengths that are
+       ``NaN`` (e.g. from missing positions or stationary steps) are
+       ignored when averaging. If every turning angle is ``NaN`` (e.g. a
+       stationary track), the result is ``NaN``.
+
+    References
+    ----------
+    .. [1] Cheung, A., Zhang, S., Stricker, C. & Srinivasan, M. V.
+       (2007). Animal navigation: the difficulty of moving in a straight
+       line. *Biological Cybernetics* 97(1), 47-61.
+       https://doi.org/10.1007/s00422-007-0158-0
+
+    Examples
+    --------
+    >>> from movement.kinematics import compute_path_emax
+
+    Compute E_max from the centroid trajectory of a poses dataset ``ds``:
+
+    >>> centroid = ds.position.mean(dim="keypoint")
+    >>> emax = compute_path_emax(centroid)
+
+    Return the dimensionless variant instead:
+
+    >>> emax_a = compute_path_emax(centroid, in_spatial_units=False)
+
+    Compute over a specific time window:
+
+    >>> emax = compute_path_emax(centroid.sel(time=slice(0, 100)))
+
+    """
+    data = _validate_time_points(
+        data, metric_name="maximum expected displacement", min_points=3
+    )
+
+    _warn_about_nan_proportion(data, nan_warn_threshold)
+
+    theta = compute_turning_angle(data)
+    mean_cosine = xr.apply_ufunc(np.cos, theta).mean(dim="time", skipna=True)
+
+    emax = mean_cosine / (1 - mean_cosine)
+
+    if in_spatial_units:
+        emax = emax * _segment_lengths(data).mean(dim="time", skipna=True)
+
+    emax.name = "maximum_expected_displacement"
+    emax.attrs["long_name"] = "Maximum Expected Displacement"
+    return emax
 
 
 def compute_path_deviation(
@@ -518,15 +780,19 @@ def compute_path_deviation(
 def _validate_time_points(
     data: xr.DataArray,
     metric_name: str,
+    min_points: int = 2,
 ) -> xr.DataArray:
-    """Validate dims/coords and require at least 2 time points.
+    """Validate dims/coords and require at least ``min_points`` time points.
 
     Parameters
     ----------
     data : xarray.DataArray
         Position data with ``time`` and ``space`` dimensions.
     metric_name : str
-        Used in the error message when there are fewer than 2 time points.
+        Used in the error message when there are fewer than ``min_points``
+        time points.
+    min_points : int, optional
+        The minimum number of time points required. Defaults to 2.
 
     Returns
     -------
@@ -536,10 +802,10 @@ def _validate_time_points(
     """
     validate_dims_coords(data, {"time": [], "space": []})
     n_time = data.sizes["time"]
-    if n_time < 2:
+    if n_time < min_points:
         raise logger.error(
             ValueError(
-                "At least 2 time points are required to compute "
+                f"At least {min_points} time points are required to compute "
                 f"{metric_name}, but {n_time} were found."
             )
         )

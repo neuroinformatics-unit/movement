@@ -13,7 +13,7 @@ jobs:
   linting:
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/lint@v2
+      - uses: neuroinformatics-unit/actions/lint@v3
 
   test:
     needs: [linting]
@@ -54,7 +54,7 @@ jobs:
     if: github.event_name == 'push' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
     steps:
-    - uses: neuroinformatics-unit/actions/build_sdist_wheels@v2
+    - uses: neuroinformatics-unit/actions/build_sdist_wheels@v3
 
 
   upload_all:
@@ -62,12 +62,14 @@ jobs:
     needs: [build_sdist_wheels]
     if: github.event_name == 'push' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
+    environment: # use Trusted Publisher route
+      name: pypi
+      url: https://pypi.org/p/movement
+    permissions:
+      id-token: write # mandatory for trusted publishing
     steps:
     - uses: actions/download-artifact@v8
       with:
         name: artifact
         path: dist
     - uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.TWINE_API_KEY }}

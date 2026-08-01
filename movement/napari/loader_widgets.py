@@ -24,7 +24,12 @@ from qtpy.QtWidgets import (
 
 from movement.io.load import load_dataset, rename_legacy_dimensions
 from movement.napari.convert import ds_to_napari_layers
-from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
+from movement.napari.layer_styles import (
+    EDITED_POINT_SYMBOL,
+    BoxesStyle,
+    PointsStyle,
+    TracksStyle,
+)
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
 
@@ -48,6 +53,17 @@ SUPPORTED_DATA_FILES = {
     **SUPPORTED_BBOXES_FILES,
     **SUPPORTED_NETCDF_FILES,
 }
+
+# Metadata keys stored on the movement Points layer.
+# Set in _add_points_layer (where the layer is created);
+# read in save_widget.py (where the layer is saved).
+# - POINTS_LAYER_KEY marks the layer as movement-created.
+# - POINTS_PROPERTIES_KEY holds the full properties df, incl. the NaN rows
+#   dropped from the live layer, needed to reconstruct the dataset.
+# - DATASET_ATTRS_KEY holds the source dataset's attrs (source_software, fps…).
+POINTS_LAYER_KEY: str = "movement_points_layer"
+POINTS_PROPERTIES_KEY: str = "movement_points_properties"
+DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
 
 
 class DataLoader(QWidget):
@@ -224,6 +240,7 @@ class DataLoader(QWidget):
 
         # Convert to napari arrays
         self.data, self.data_bboxes, self.properties = ds_to_napari_layers(ds)
+        self.ds_attrs = ds.attrs
 
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)
@@ -336,25 +353,44 @@ class DataLoader(QWidget):
         points_properties = self.properties.loc[
             :, ~self.properties.columns.str.endswith("_factorized")
         ]
-
-        # Add data as a points layer with metadata
-        # (max_frame_idx is used to set the frame slider range)
         self.points_layer = self.viewer.add_points(
             self.data[self.data_not_nan, 1:],
             properties=points_properties.iloc[self.data_not_nan, :],
-            metadata={"max_frame_idx": max(self.data[:, 1])},
+            metadata={
+                "max_frame_idx": max(self.data[:, 1]),
+                POINTS_LAYER_KEY: True,
+                POINTS_PROPERTIES_KEY: self.properties,
+                DATASET_ATTRS_KEY: self.ds_attrs,
+            },
             **points_style.as_kwargs(),
         )
         self.points_layer.events.data.connect(self._on_points_data_changed)
 
+        # If the loaded dataset already has an `edited` property
+        # mark those points with the edited symbol.
+        self._set_point_symbol_by_edited(self.points_layer)
+
         logger.info("Added tracked dataset as a napari Points layer.")
 
+    @staticmethod
+    def _set_point_symbol_by_edited(layer: Points) -> None:
+        """Show points flagged as edited with a distinct marker symbol."""
+        edited = layer.properties.get("edited")
+        if edited is None or not edited.any():
+            return
+        symbols = np.asarray(layer.symbol).copy()
+        symbols[edited] = EDITED_POINT_SYMBOL
+        layer.symbol = symbols
+
     def _on_points_data_changed(self, event):
-        """Set confidence to NaN for moved (dragged) points.
+        """Set confidence to NaN and flag as edited for moved points.
 
         Connected to ``points_layer.events.data``. Fires on
         ``ActionType.CHANGED`` (i.e., when the data array values
-        change) and sets the confidence score of moved points to NaN.
+        change) and sets the confidence score of moved (dragged)
+        points to NaN, marks them as edited, and changes their
+        marker symbol to ``EDITED_POINT_SYMBOL`` so edited points are
+        visually distinguishable.
         """
         layer = event.source
         if not isinstance(layer, Points):
@@ -365,7 +401,13 @@ class DataLoader(QWidget):
         props = layer.properties
         props["confidence"] = props["confidence"].copy()
         props["confidence"][moved_indices] = float("nan")
+        if "edited" in props:
+            props["edited"] = props["edited"].copy()
+        else:
+            props["edited"] = np.full(len(props["confidence"]), False)
+        props["edited"][moved_indices] = True
         layer.properties = props
+        self._set_point_symbol_by_edited(layer)
 
     def _add_tracks_layer(self):
         """Add the tracked data to the viewer as a Tracks layer."""

@@ -15,12 +15,15 @@ def filter_by_confidence(
     data: xr.DataArray,
     confidence: xr.DataArray,
     threshold: float = 0.6,
+    keep_points_with_nan_confidence: bool = True,
     print_report: bool = False,
 ) -> xr.DataArray:
     """Drop data points below a certain confidence threshold.
 
     Data points with an associated confidence value below the threshold are
-    converted to NaN.
+    converted to NaN. Data points with a missing (NaN) confidence value are
+    kept by default, but this can be changed via
+    ``keep_points_with_nan_confidence``.
 
     Parameters
     ----------
@@ -31,6 +34,9 @@ def filter_by_confidence(
     threshold
         The confidence threshold below which datapoints are filtered.
         A default value of ``0.6`` is used. See notes for more information.
+    keep_points_with_nan_confidence
+        Whether to keep data points whose confidence value is NaN.
+        Default is ``True``. See notes for more information.
     print_report
         Whether to print a report on the number of NaNs in the dataset
         before and after filtering. Default is ``False``.
@@ -52,8 +58,18 @@ def filter_by_confidence(
     pose estimation frameworks. We advise users to inspect the confidence
     values in their dataset and adjust the threshold accordingly.
 
+    A missing (NaN) confidence value may mean that the point was manually
+    annotated or edited, and therefore has no associated model confidence.
+    For example, this is the case for points proof-read in SLEAP. Such
+    points are the ones we should be most confident about, so they are kept
+    by default. Set ``keep_points_with_nan_confidence=False`` to drop them
+    instead.
+
     """
-    data_filtered = data.where(confidence >= threshold)
+    keep = confidence >= threshold
+    if keep_points_with_nan_confidence:
+        keep = keep | confidence.isnull()
+    data_filtered = data.where(keep)
     if print_report:
         print(report_nan_values(data, "input"))
         print(report_nan_values(data_filtered, "output"))

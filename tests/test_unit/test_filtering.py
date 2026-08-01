@@ -1,7 +1,7 @@
 from contextlib import nullcontext as does_not_raise
 
+import numpy as np
 import pytest
-import xarray as xr
 
 from movement.filtering import (
     filter_by_confidence,
@@ -9,6 +9,7 @@ from movement.filtering import (
     rolling_filter,
     savgol_filter,
 )
+from movement.io import load_poses
 
 # Dataset fixtures
 list_valid_datasets_without_nans = [
@@ -258,24 +259,57 @@ class TestFilteringValidDatasetWithNaNs:
 def test_filter_by_confidence_on_position(
     valid_dataset_no_nans, helpers, request
 ):
-    """Test that points below the default 0.6 confidence threshold
-    are converted to NaN.
+    """Test that points below the 0.6 confidence threshold are converted
+    to NaN, whereas points with a NaN confidence value are kept.
     """
-    # Filter position by confidence
     valid_input_dataset = request.getfixturevalue(valid_dataset_no_nans)
+    # Set the confidence of individual id_0 at times 0 and 1 to NaN,
+    # on top of the 5 pre-existing low-confidence points
+    confidence = valid_input_dataset.confidence.copy()
+    confidence.loc[{"time": [0, 1], "individual": "id_0"}] = np.nan
+    # Filter position by confidence
     position_filtered = filter_by_confidence(
         valid_input_dataset.position,
-        confidence=valid_input_dataset.confidence,
+        confidence=confidence,
         threshold=0.6,
         print_report=True,
     )
-    # Count number of NaNs in the full array
-    n_nans = helpers.count_nans(position_filtered)
-    # expected number of nans for poses:
-    # 5 timepoints * 2 individuals * 2 keypoints
-    # Note: we count the number of nans in the array, so we multiply
-    # the number of low confidence keypoints by the number of
-    # space dimensions
-    n_low_confidence_kpts = 5
-    assert isinstance(position_filtered, xr.DataArray)
-    assert n_nans == valid_input_dataset.sizes["space"] * n_low_confidence_kpts
+    # Only the 5 low-confidence points are dropped, as points with a
+    # NaN confidence value are kept by default.
+    n_low_confidence_pts = 5
+    assert helpers.count_nans(position_filtered) == (
+        valid_input_dataset.sizes["space"] * n_low_confidence_pts
+    )
+
+
+@pytest.mark.parametrize(
+    "keep_points_with_nan_confidence",
+    [
+        pytest.param(True, id="keep proof-read points (default)"),
+        pytest.param(False, id="drop proof-read points"),
+    ],
+)
+def test_filter_by_confidence_on_proofread_data(
+    sleap_analysis_file, keep_points_with_nan_confidence, helpers
+):
+    """Test filtering by confidence on manually proof-read SLEAP data.
+
+    All points in this dataset were proof-read in SLEAP, and therefore
+    have a missing (NaN) confidence value despite holding a valid position.
+    Such points should survive filtering by default.
+    """
+    ds = load_poses.from_sleap_file(sleap_analysis_file)
+    # Verify all points are proof-read, i.e. NaN confidence, valid position
+    assert ds.confidence.isnull().all()
+    assert ds.position.notnull().all()
+
+    position_filtered = filter_by_confidence(
+        ds.position,
+        ds.confidence,
+        keep_points_with_nan_confidence=keep_points_with_nan_confidence,
+    )
+    # All points are kept by default, and dropped otherwise
+    expected_n_nans = (
+        0 if keep_points_with_nan_confidence else ds.position.size
+    )
+    assert helpers.count_nans(position_filtered) == expected_n_nans
