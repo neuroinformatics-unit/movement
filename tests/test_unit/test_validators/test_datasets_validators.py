@@ -280,7 +280,7 @@ class TestBaseDatasetInputs:
             "Shape mismatch: frame number different from position_array",
         ],
     )
-    def test_validate_frame_array(self, frame_array, expected_context):
+    def test_frame_array(self, frame_array, expected_context):
         """Test frame_array validation and default assignment."""
         stub_dataset_inputs_class = self.make_stub_dataset_inputs_class(
             dim_names=("time", "space")
@@ -296,6 +296,68 @@ class TestBaseDatasetInputs:
                 data.frame_array,
                 expected_frame_array,
             )
+
+    @pytest.mark.parametrize(
+        "frame_array, fps, expected_time, expected_attrs",
+        [
+            (
+                np.arange(5)[:, None],
+                None,
+                np.arange(5),
+                {
+                    "source_software": None,
+                    "time_unit": "frames",
+                },
+            ),
+            (
+                np.arange(5)[:, None],
+                2,
+                np.arange(5) / 2,
+                {
+                    "source_software": None,
+                    "fps": 2.0,
+                    "time_unit": "seconds",
+                },
+            ),
+            (
+                np.arange(10, 15)[:, None],
+                None,
+                np.arange(10, 15),
+                {
+                    "source_software": None,
+                    "time_unit": "frames",
+                },
+            ),
+            (
+                np.arange(10, 15)[:, None],
+                10,
+                np.arange(10, 15) / 10,
+                {
+                    "source_software": None,
+                    "fps": 10.0,
+                    "time_unit": "seconds",
+                },
+            ),
+        ],
+    )
+    def test_time_coords_and_attrs(
+        self, frame_array, fps, expected_time, expected_attrs
+    ):
+        """Test _time_coords_and_attrs."""
+        stub_dataset_inputs_class = self.make_stub_dataset_inputs_class(
+            dim_names=("time", "space")
+        )
+
+        data = stub_dataset_inputs_class(
+            position_array=np.zeros((5, 2)),
+            frame_array=frame_array,
+            fps=fps,
+        )
+
+        time_coords, dataset_attrs = data._time_coords_and_attrs()
+
+        np.testing.assert_allclose(time_coords, expected_time)
+        assert dataset_attrs == expected_attrs
 
     @pytest.mark.parametrize(
         "val, expected_length, expected_exception",
@@ -413,18 +475,6 @@ class TestValidPosesInputs:
             )
             assert data.keypoint_names == expected_keypoint_names
 
-    @pytest.mark.parametrize("fps", [30, None])
-    @pytest.mark.parametrize(
-        "frame_array",
-        [
-            None,
-            np.arange(10, 20)[:, None],
-        ],
-        ids=[
-            "Default frame numbers",
-            "Custom frame numbers",
-        ],
-    )
     @pytest.mark.parametrize(
         "dataset_fixture",
         [
@@ -436,7 +486,7 @@ class TestValidPosesInputs:
             "Individual-wise confidence array",
         ],
     )
-    def test_to_dataset(self, fps, frame_array, dataset_fixture, request):
+    def test_to_dataset(self, dataset_fixture, request):
         """Test to_dataset creates the expected poses dataset."""
         valid_poses_dataset = request.getfixturevalue(dataset_fixture)
         ds = ValidPosesInputs(
@@ -444,23 +494,9 @@ class TestValidPosesInputs:
             confidence_array=valid_poses_dataset.confidence.values,
             individual_names=valid_poses_dataset.individual.values,
             keypoint_names=valid_poses_dataset.keypoint.values,
-            frame_array=frame_array,
-            fps=fps,
             source_software=valid_poses_dataset.attrs["source_software"],
         ).to_dataset()
-
-        expected_ds = valid_poses_dataset
-
-        if frame_array is not None:
-            expected_ds = expected_ds.assign_coords(time=frame_array.squeeze())
-
-        if fps is not None:
-            expected_ds = expected_ds.assign_coords(
-                time=expected_ds.time.values / fps
-            )
-            expected_ds.time.attrs["units"] = "seconds"
-
-        xr.testing.assert_equal(ds, expected_ds)
+        xr.testing.assert_equal(ds, valid_poses_dataset)
 
     @pytest.mark.parametrize(
         "confidence_array, expected_context",
@@ -545,35 +581,13 @@ class TestValidBboxesInputs:
                 shape_array=shape_array,
             )
 
-    @pytest.mark.parametrize("fps", [30, None])
-    @pytest.mark.parametrize(
-        "frame_array",
-        [
-            None,
-            np.arange(10, 20)[:, None],
-        ],
-        ids=[
-            "Default frame numbers",
-            "Custom frame numbers",
-        ],
-    )
-    def test_to_dataset(self, fps, frame_array, valid_bboxes_dataset):
+    def test_to_dataset(self, valid_bboxes_dataset):
         """Test to_dataset creates the expected bboxes dataset."""
         ds = ValidBboxesInputs(
             position_array=valid_bboxes_dataset.position.values,
             shape_array=valid_bboxes_dataset.shape.values,
             confidence_array=valid_bboxes_dataset.confidence.values,
             individual_names=valid_bboxes_dataset.individual.values,
-            frame_array=frame_array,
-            fps=fps,
             source_software=valid_bboxes_dataset.attrs["source_software"],
         ).to_dataset()
-        expected_ds = valid_bboxes_dataset
-        if frame_array is not None:
-            expected_ds = expected_ds.assign_coords(time=frame_array.squeeze())
-        if fps is not None:
-            expected_ds = expected_ds.assign_coords(
-                time=expected_ds.time.values / fps
-            )
-            expected_ds.time.attrs["units"] = "seconds"
-        xr.testing.assert_equal(ds, expected_ds)
+        xr.testing.assert_equal(ds, valid_bboxes_dataset)

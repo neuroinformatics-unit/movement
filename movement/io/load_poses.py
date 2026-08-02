@@ -55,10 +55,10 @@ def from_numpy(
         (default), the keypoints will be named "keypoint_0", "keypoint_1",
         etc.
     frame_array
-        Array containing the frame numbers for which poses are defined.
-        It should be a column vector of shape (n_frames, 1). If None
-        (default), frame numbers are assigned as consecutive 0-based
-        integers.
+        Array containing the frame numbers corresponding to the data.
+        It must be a column vector of shape (n_frames, 1) and values
+        must be monotonically increasing. If None (default), frame
+        numbers are assigned as consecutive 0-based integers.
     fps
         Frames per second of the video. Defaults to None, in which case
         the time coordinates will be in frame numbers.
@@ -76,8 +76,9 @@ def from_numpy(
     --------
     Create random position data for two individuals, ``Alice`` and ``Bob``,
     with three keypoints each: ``snout``, ``centre``, and ``tail_base``.
-    These are tracked in 2D space over 100 frames, at 30 fps.
-    The confidence scores are set to 1 for all points.
+    These are tracked in 2D space for 100 frames, which are numbered from
+    the start frame 1200 to the end frame 1299. The confidence score for
+    all keypoints is set to 1.
 
     >>> import numpy as np
     >>> from movement.io import load_poses
@@ -87,7 +88,46 @@ def from_numpy(
     ...     confidence_array=np.ones((100, 3, 2)),
     ...     individual_names=["Alice", "Bob"],
     ...     keypoint_names=["snout", "centre", "tail_base"],
-    ...     frame_array=np.arange(10, 110).reshape(-1, 1),
+    ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),
+    ... )
+
+    Create a dataset with the same data as above, but with the time
+    coordinates in seconds. We use a video sampling rate of 30 fps. The time
+    coordinates in the resulting dataset will indicate the elapsed time from
+    the capture of the 0th frame. So for the frames 1200, 1201, 1202, ...
+    1299 the corresponding time coordinates in seconds will be
+    40.0, 40.033..., 40.067..., ... 43.3 s.
+
+    >>> ds = load_poses.from_numpy(
+    ...     position_array=rng.random((100, 2, 3, 2)),
+    ...     confidence_array=np.ones((100, 3, 2)),
+    ...     individual_names=["Alice", "Bob"],
+    ...     keypoint_names=["snout", "centre", "tail_base"],
+    ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),
+    ...     fps=30,
+    ... )
+
+    Create a dataset with the same data as above, but express the time
+    coordinate in frames, and assume the first tracked frame is frame 0.
+    To do this, we simply omit the ``frame_array`` input argument.
+
+    >>> ds = load_poses.from_numpy(
+    ...     position_array=rng.random((100, 2, 3, 2)),
+    ...     confidence_array=np.ones((100, 3, 2)),
+    ...     individual_names=["Alice", "Bob"],
+    ...     keypoint_names=["snout", "centre", "tail_base"],
+    ... )
+
+    Create a dataset with the same data as above, but express the time
+    coordinate in seconds, and assume the first tracked frame is captured
+    at time = 0 seconds. To do this, we omit the ``frame_array`` input
+    argument and pass an ``fps`` value.
+
+    >>> ds = load_poses.from_numpy(
+    ...     position_array=rng.random((100, 2, 3, 2)),
+    ...     confidence_array=np.ones((100, 3, 2)),
+    ...     individual_names=["Alice", "Bob"],
+    ...     keypoint_names=["snout", "centre", "tail_base"],
     ...     fps=30,
     ... )
 
