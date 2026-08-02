@@ -390,34 +390,41 @@ class DataLoader(QWidget):
         layer.symbol = symbols
 
     def _on_points_data_changed(self, event):
-        """Set confidence to NaN and flag as edited for moved points.
+        """Keep the corresponding Tracks layer in sync with the Points layer.
 
-        Connected to ``points_layer.events.data``. Fires on
-        ``ActionType.CHANGED`` (i.e., when the data array values
-        change) and sets the confidence score of moved (dragged)
-        points to NaN, marks them as edited, and changes their
-        marker symbol to ``EDITED_POINT_SYMBOL`` so edited points are
-        visually distinguishable. The companion Tracks layer is then
-        updated to match via :meth:`_sync_tracks_layer`.
+        Connected to ``points_layer.events.data``. Handles two actions:
+
+        - ``ActionType.CHANGED`` (a point was dragged): sets the
+          confidence score of moved points to NaN, marks them as
+          edited, and changes their marker symbol to
+          ``EDITED_POINT_SYMBOL`` so edited points are visually
+          distinguishable. The Tracks layer row is updated in place
+          via `_sync_tracks_layer`.
+        - ``ActionType.REMOVED`` (one or more points were deleted):
+          removes the corresponding rows from
+          the Tracks layer via `_remove_from_tracks_layer`.
         """
         layer = event.source
         if not isinstance(layer, Points):
             return
-        if event.action != ActionType.CHANGED:
-            return
-        moved_indices = list(event.data_indices)
-        props = layer.properties
-        props["confidence"] = props["confidence"].copy()
-        props["confidence"][moved_indices] = float("nan")
-        if "edited" in props:
-            props["edited"] = props["edited"].copy()
-        else:
-            props["edited"] = np.full(len(props["confidence"]), False)
-        props["edited"][moved_indices] = True
-        layer.properties = props
-        self._set_point_symbol_by_edited(layer)
 
-        self._sync_tracks_layer(layer, moved_indices)
+        if event.action == ActionType.CHANGED:
+            moved_indices = list(event.data_indices)
+            props = layer.properties
+            props["confidence"] = props["confidence"].copy()
+            props["confidence"][moved_indices] = float("nan")
+            if "edited" in props:
+                props["edited"] = props["edited"].copy()
+            else:
+                props["edited"] = np.full(len(props["confidence"]), False)
+            props["edited"][moved_indices] = True
+            layer.properties = props
+            self._set_point_symbol_by_edited(layer)
+            self._sync_tracks_layer(layer, moved_indices)
+
+        elif event.action == ActionType.REMOVED:
+            removed_indices = list(event.data_indices)
+            self._remove_from_tracks_layer(layer, removed_indices)
 
     def _sync_tracks_layer(self, points_layer, moved_indices):
         """Update the corresponding Tracks layer to match an edited point.
@@ -435,12 +442,44 @@ class DataLoader(QWidget):
         tracks_data = tracks_layer.data
         tracks_data[moved_indices, 1:] = points_layer.data[moved_indices]
 
-        # Setting `.data` on a napari Tracks layer resets its internal
-        # features to empty, which transiently invalidates `color_by`
-        # (napari warns and falls back to "track_id") even though we
-        # restore the same properties and colour-by property right
-        # after. Suppress that spurious warning around the sequence.
-        tracks_properties = tracks_layer.properties
+        self._set_tracks_layer_data(
+            tracks_layer, tracks_data, tracks_layer.properties
+        )
+
+    def _remove_from_tracks_layer(self, points_layer, removed_indices):
+        """Remove the rows corresponding to deleted points.
+
+        Users edit the Points layer directly, either dragging points
+        or removing inaccurate predictions. The Tracks layer has no
+        interactive editing of its own, so it must be kept in sync
+        with the Points layer instead.
+
+        ``removed_indices`` are indices in the Points layer which line
+        up with rows in the Tracks layer, the same way
+        :meth:`_sync_tracks_layer` relies on for edits.
+        """
+        tracks_layer = points_layer.metadata[TRACKS_LAYER_KEY]
+
+        tracks_data = np.delete(tracks_layer.data, removed_indices, axis=0)
+        tracks_properties = {
+            key: np.delete(np.asarray(values), removed_indices, axis=0)
+            for key, values in tracks_layer.properties.items()
+        }
+
+        self._set_tracks_layer_data(
+            tracks_layer, tracks_data, tracks_properties
+        )
+
+    @staticmethod
+    def _set_tracks_layer_data(tracks_layer, data, properties):
+        """Set a Tracks layer's data and properties, preserving color_by.
+
+        Setting ``.data`` on a napari Tracks layer resets its internal
+        features to empty, which transiently invalidates ``color_by``
+        (napari warns and falls back to "track_id") even though we
+        restore the same properties and colour-by property right
+        after. Suppress that spurious warning around the sequence.
+        """
         color_by = tracks_layer.color_by
         with warnings.catch_warnings():
             warnings.filterwarnings(
@@ -448,8 +487,8 @@ class DataLoader(QWidget):
                 message=".*Previous color_by key.*",
                 category=UserWarning,
             )
-            tracks_layer.data = tracks_data
-            tracks_layer.properties = tracks_properties
+            tracks_layer.data = data
+            tracks_layer.properties = properties
             tracks_layer.color_by = color_by
 
     def _add_tracks_layer(self):
