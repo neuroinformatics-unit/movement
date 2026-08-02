@@ -3,7 +3,7 @@
 import warnings
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, ClassVar, Literal, cast
+from typing import Any, ClassVar, Literal, cast
 
 import attrs
 import numpy as np
@@ -12,9 +12,6 @@ from attrs import converters, define, field, validators
 from numpy.typing import NDArray
 
 from movement.utils.logging import logger
-
-if TYPE_CHECKING:
-    from numpy.typing import NDArray
 
 
 def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
@@ -92,8 +89,8 @@ class _BaseDatasetInputs(ABC):
         validator=validators.optional(validators.instance_of(np.ndarray)),
     )
     """Array containing the frame numbers corresponding to the data.
-    The frame_array should be a column vector of shape (n_frames, 1)
-    and should be monotonically increasing. If None (default),
+    The frame_array must be a column vector of shape (n_frames, 1)
+    and values must be monotonically increasing. If None (default),
     frame numbers are assigned as consecutive 0-based integers.
     """
 
@@ -147,8 +144,7 @@ class _BaseDatasetInputs(ABC):
                 "Individual names were not provided. "
                 f"Setting to {self.individual_names}."
             )
-
-        # assign default frame_array
+        # frame_array default: 0-based integers up to n_frames - 1
         if self.frame_array is None:
             time_dim_index = self.DIM_NAMES.index("time")
             n_frames = self.position_array.shape[time_dim_index]
@@ -176,6 +172,30 @@ class _BaseDatasetInputs(ABC):
                 if d != "space"
             )
         ]
+
+    def _time_coords_and_attrs(
+        self,
+    ) -> tuple[NDArray[np.floating] | NDArray[np.integer], dict]:
+        """Return time coordinate values and associated dataset attrs.
+
+        If ``fps`` is provided, time is expressed in seconds (elapsed
+        from frame 0); otherwise, it is expressed in frames.
+        """
+        # Ignore type error as __attrs_post_init__ ensures
+        # `frame_array` is not None
+        time_coords: NDArray[np.floating] | NDArray[np.integer] = (
+            self.frame_array.squeeze()  # type: ignore[union-attr]
+        )
+        dataset_attrs: dict[str, str | float | None] = {
+            "source_software": self.source_software,
+        }
+        time_unit: Literal["seconds", "frames"] = "frames"
+        if self.fps:
+            time_coords = time_coords / self.fps
+            time_unit = "seconds"
+            dataset_attrs["fps"] = self.fps
+        dataset_attrs["time_unit"] = time_unit
+        return time_coords, dataset_attrs
 
     # --- Validators ---
     @position_array.validator
@@ -364,10 +384,8 @@ class ValidPosesInputs(_BaseDatasetInputs):
       with lengths matching the number of individuals and keypoints
       in the dataset, respectively; otherwise, default names are assigned.
     - The optional ``frame_array``, if provided, is a column vector
-      containing the frame numbers for which poses are defined.
-      The ``frame_array`` should have shape ``(n_frames, 1)``
-      and be monotonically increasing. If None (default),
-      frame numbers are assigned as consecutive 0-based integers.
+      with the frame numbers; otherwise, it defaults to an array of
+      consecutive 0-based integers.
     - The optional ``fps`` is a positive float; otherwise, it defaults to None.
     - The optional ``source_software`` is a string; otherwise,
       it defaults to None.
@@ -448,26 +466,8 @@ class ValidPosesInputs(_BaseDatasetInputs):
         """
         DIM_NAMES = self.DIM_NAMES
         n_space = self.position_array.shape[DIM_NAMES.index("space")]
-        dataset_attrs: dict[str, str | float | None] = {
-            "source_software": self.source_software,
-            "ds_type": "poses",
-        }
-        # Use frame_array as the time coordinate
-        # Ignore type error as _BaseDatasetInputs ensures
-        # `frame_array` is not None
-        time_coords: NDArray[np.floating] | NDArray[np.integer] = (
-            self.frame_array.squeeze()  # type: ignore[union-attr]
-        )
-
-        time_unit: Literal["seconds", "frames"] = "frames"
-
-        # If fps is provided, express time in seconds
-        if self.fps is not None:
-            time_coords = time_coords / self.fps
-            time_unit = "seconds"
-            dataset_attrs["fps"] = self.fps
-
-        dataset_attrs["time_unit"] = time_unit
+        time_coords, dataset_attrs = self._time_coords_and_attrs()
+        dataset_attrs["ds_type"] = "poses"
 
         # confidence_array may be point-wise (all non-space dims) or
         # individual-wise (non-space and non-keypoint dims)
@@ -518,7 +518,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
       individuals in the dataset; otherwise, default names are assigned.
     - The optional ``frame_array``, if provided, is a column vector
       with the frame numbers; otherwise, it defaults to an array of
-      0-based integers.
+      consecutive 0-based integers.
     - The optional ``fps`` is a positive float; otherwise, it defaults to None.
     - The optional ``source_software`` is a string; otherwise, it defaults to
       None.
@@ -552,10 +552,6 @@ class ValidBboxesInputs(_BaseDatasetInputs):
             attribute, value, expected_shape=self.position_array.shape
         )
 
-    def __attrs_post_init__(self):
-        """Assign default values to optional attributes (if None)."""
-        super().__attrs_post_init__()
-
     def to_dataset(self) -> xr.Dataset:
         """Convert validated bboxes inputs to a ``movement bboxes`` dataset.
 
@@ -566,26 +562,8 @@ class ValidBboxesInputs(_BaseDatasetInputs):
             shapes, confidence scores and associated metadata.
 
         """
-        dataset_attrs: dict[str, str | float | None] = {
-            "source_software": self.source_software,
-            "ds_type": "bboxes",
-        }
-        # Ignore type error as _BaseDatasetInputs ensures
-        # `frame_array` is not None
-        time_coords: NDArray[np.floating] | NDArray[np.integer] = (
-            self.frame_array.squeeze()  # type: ignore[union-attr]
-        )
-        time_unit: Literal["seconds", "frames"] = "frames"
-        # if fps is provided:
-        # time_coords is expressed in seconds, with the time origin
-        # set as frame 0 == time 0 seconds
-        # Store fps as a dataset attribute
-        if self.fps:
-            # Compute elapsed time from frame 0.
-            time_coords = time_coords / self.fps
-            time_unit = "seconds"
-            dataset_attrs["fps"] = self.fps
-        dataset_attrs["time_unit"] = time_unit
+        time_coords, dataset_attrs = self._time_coords_and_attrs()
+        dataset_attrs["ds_type"] = "bboxes"
         # Convert data to an xarray.Dataset
         # with dimensions ('time', 'space', 'individual')
         DIM_NAMES = self.DIM_NAMES

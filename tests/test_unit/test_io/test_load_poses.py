@@ -202,23 +202,32 @@ def test_load_multi_individual_from_lp_file_raises():
         load_poses.from_lp_file(file_path)
 
 
+@pytest.mark.parametrize("with_frame_array", [True, False])
+@pytest.mark.parametrize("fps", [None, 30, 60.0])
 @pytest.mark.parametrize("source_software", [None, "SLEAP"])
-def test_from_numpy_valid(valid_poses_arrays, source_software, helpers):
+def test_from_numpy_valid(
+    valid_poses_arrays, with_frame_array, fps, source_software, helpers
+):
     """Test that loading pose tracks from a multi-animal numpy array
     with valid parameters returns a proper Dataset.
     """
     poses_arrays = valid_poses_arrays("multi_individual_array")
+    frame_array = (
+        np.arange(1200, 1210).reshape(-1, 1) if with_frame_array else None
+    )
     ds = load_poses.from_numpy(
         poses_arrays["position"],
         poses_arrays["confidence"],
         individual_names=["id_0", "id_1"],
         keypoint_names=["centroid", "left", "right"],
-        fps=None,
+        frame_array=frame_array,
+        fps=fps,
         source_software=source_software,
     )
     expected_values = {
         **expected_values_poses,
         "source_software": source_software,
+        "fps": fps,
     }
     helpers.assert_valid_dataset(ds, expected_values)
 
