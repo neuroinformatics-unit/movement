@@ -27,7 +27,7 @@ jobs:
       (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/lint@v2
+      - uses: neuroinformatics-unit/actions/lint@v3
 
   build_sphinx_docs:
     name: Build Sphinx Docs
