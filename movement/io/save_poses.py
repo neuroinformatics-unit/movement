@@ -17,7 +17,6 @@ from movement.io.nwb import (
 from movement.io.save import register_writer
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
-from movement.validators.files import validate_file_path
 
 
 def _ds_to_dlc_style_df(
@@ -181,7 +180,7 @@ def to_dlc_style_df(
         return df_all
 
 
-@register_writer("DeepLabCut", ds_type="poses")
+@register_writer("DeepLabCut", ds_type="poses", suffixes={".csv", ".h5"})
 def to_dlc_file(
     ds: xr.Dataset,
     file_path: str | Path,
@@ -226,10 +225,7 @@ def to_dlc_file(
     >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
 
     """
-    valid_path = validate_file_path(
-        file_path, permission="w", suffixes={".csv", ".h5"}
-    )
-
+    valid_path = Path(file_path)
     # Sets default behaviour for the function
     if split_individuals == "auto":
         split_individuals = ds.individual.size == 1
@@ -258,7 +254,7 @@ def to_dlc_file(
         logger.info(f"Saved poses dataset to {filepath}.")
 
 
-@register_writer("LightningPose", ds_type="poses")
+@register_writer("LightningPose", ds_type="poses", suffixes={".csv"})
 def to_lp_file(
     ds: xr.Dataset,
     file_path: str | Path,
@@ -289,14 +285,10 @@ def to_lp_file(
     to_dlc_file : Save dataset to a DeepLabCut-style .h5 or .csv file.
 
     """
-    valid_path = validate_file_path(
-        file_path, permission="w", suffixes={".csv"}
-    )
-    ValidPosesInputs.validate(ds)
-    to_dlc_file(ds, valid_path, split_individuals=True)
+    to_dlc_file(ds, file_path, split_individuals=True)
 
 
-@register_writer("SLEAP", ds_type="poses")
+@register_writer("SLEAP", ds_type="poses", suffixes={".h5"})
 def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     """Save a ``movement`` dataset to a SLEAP analysis file.
 
@@ -336,10 +328,6 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     ... )
 
     """
-    valid_path = validate_file_path(
-        file_path, permission="w", suffixes={".h5"}
-    )
-    ValidPosesInputs.validate(ds)
     ds = _remove_unoccupied_tracks(ds)
     # Target shapes:
     # "track_occupancy"     n_frames * n_individuals
@@ -365,7 +353,6 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     point_scores = ds.confidence.data.T
     instance_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
     tracking_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
-
     source_file = getattr(ds, "source_file", None)
     labels_path = (
         source_file
@@ -387,7 +374,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
         video_ind=0,
         provenance="{}",
     )
-    with h5py.File(valid_path, "w") as f:
+    with h5py.File(file_path, "w") as f:
         for key, val in data_dict.items():
             if isinstance(val, np.ndarray):
                 f.create_dataset(
@@ -398,7 +385,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
                 )
             else:
                 f.create_dataset(key, data=val)
-    logger.info(f"Saved poses dataset to {valid_path}.")
+    logger.info(f"Saved poses dataset to {file_path}.")
 
 
 def to_nwb_file(
@@ -544,7 +531,7 @@ def to_nwb_file(
     return nwb_files if is_multi_ind else nwb_files[0]
 
 
-@register_writer("NWB", ds_type="poses")
+@register_writer("NWB", ds_type="poses", suffixes={".nwb"})
 def _write_nwb_file(ds: xr.Dataset, file_path: str | Path, **kwargs) -> None:
     """Save a ``movement`` poses dataset to one or more NWB files.
 
@@ -552,9 +539,7 @@ def _write_nwb_file(ds: xr.Dataset, file_path: str | Path, **kwargs) -> None:
     to disk; this helper writes them. Multi-individual datasets yield one
     file per individual, with the individual name appended to the file path.
     """
-    valid_path = validate_file_path(
-        file_path, permission="w", suffixes={".nwb"}
-    )
+    valid_path = Path(file_path)
     nwb_files = to_nwb_file(ds, **kwargs)
     if isinstance(nwb_files, pynwb.file.NWBFile):
         _write_nwb_to_disk(nwb_files, valid_path)
