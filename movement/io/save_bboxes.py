@@ -12,14 +12,12 @@ import xarray as xr
 
 from movement.io.save import register_writer
 from movement.utils.logging import logger
-from movement.validators.datasets import ValidBboxesInputs
-from movement.validators.files import validate_file_path
 
 if TYPE_CHECKING:
     import _csv
 
 
-@register_writer("VIA-tracks", ds_type="bboxes")
+@register_writer("VIA-tracks", ds_type="bboxes", suffixes={".csv"})
 def to_via_tracks_file(
     ds: xr.Dataset,
     file_path: str | Path,
@@ -123,11 +121,6 @@ def to_via_tracks_file(
     ... )
 
     """
-    # Validate file path and dataset
-    valid_path = validate_file_path(
-        file_path, permission="w", suffixes={".csv"}
-    )
-    ValidBboxesInputs.validate(ds)
     # Check the number of digits required to represent the frame numbers
     frame_n_digits = _check_frame_required_digits(
         ds=ds, frame_n_digits=frame_n_digits
@@ -146,11 +139,11 @@ def to_via_tracks_file(
     # Write file
     _write_via_tracks_csv(
         ds,
-        valid_path,
+        file_path,
         map_individual_to_track_id,
         img_filename_template,
     )
-    logger.info(f"Saved bounding boxes dataset to {valid_path}.")
+    logger.info(f"Saved bounding boxes dataset to {file_path}.")
 
 
 def _get_image_filename_template(

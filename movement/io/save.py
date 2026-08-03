@@ -1,6 +1,7 @@
 """Save ``movement`` datasets to various file formats."""
 
 from collections.abc import Callable
+from functools import wraps
 from pathlib import Path
 from typing import Concatenate, Literal, ParamSpec, Protocol, cast
 
@@ -64,31 +65,47 @@ def register_writer(
     target_software: str,
     *,
     ds_type: Literal["poses", "bboxes"] | None = None,
+    suffixes: set[str] | None = None,
 ) -> Callable[
     [Callable[Concatenate[xr.Dataset, str | Path, P], None]],
     Callable[Concatenate[xr.Dataset, str | Path, P], None],
 ]:
     """Register a writer function for a given target software.
 
+    The decorator also handles dataset and file path validation: the
+    dataset is checked against ``ds_type`` and the file path is checked
+    for write permission and valid ``suffixes`` before the writer function
+    is called.
+
     Parameters
     ----------
     target_software
-        The name of the target software (i.e. target format) to save to.
+        The name of the target software to save to.
     ds_type
         The ``movement`` dataset type (``"poses"`` or ``"bboxes"``) the
         writer is compatible with. If None (default), the writer is
         compatible with any dataset type (e.g. ``movement``'s native
         netCDF format).
+    suffixes
+        The set of valid file suffixes (e.g. ``{".h5", ".csv"}``) for this
+        writer. If None (default), the file path is still validated for write
+        permission, but its suffix is not checked.
 
     Returns
     -------
     collections.abc.Callable
         A decorator that registers the writer function.
 
+    Notes
+    -----
+    The ``file`` argument passed to the decorated writer function will be
+    a validated :class:`pathlib.Path` object, instead of the original
+    file path.
+
     Examples
     --------
     >>> from movement.io.save import register_writer
-    >>> @register_writer("MySoftware", ds_type="poses")
+    >>> @register_writer("MySoftware", ds_type="poses", suffixes={".csv"})
     ... def to_mysoftware_file(ds, file_path, **kwargs):
     ...     pass
 
@@ -97,9 +114,19 @@ def register_writer(
     def decorator(
         writer_fn: Callable[Concatenate[xr.Dataset, str | Path, P], None],
     ) -> Callable[Concatenate[xr.Dataset, str | Path, P], None]:
-        _WRITER_REGISTRY[target_software] = cast("WriterProtocol", writer_fn)
+        @wraps(writer_fn)
+        def wrapper(
+            ds: xr.Dataset, file: str | Path, *args: P.args, **kwargs: P.kwargs
+        ) -> None:
+            _validate_ds_type(ds, target_software)
+            valid_file = validate_file_path(
+                file, permission="w", suffixes=suffixes
+            )
+            return writer_fn(ds, valid_file, *args, **kwargs)
+
+        _WRITER_REGISTRY[target_software] = cast("WriterProtocol", wrapper)
         _WRITER_DS_TYPE_REGISTRY[target_software] = ds_type
-        return writer_fn
+        return wrapper
 
     return decorator
 
@@ -172,7 +199,6 @@ def save_dataset(
 
     """
     target = target_software if target_software is not None else "netCDF"
-
     if target not in _WRITER_REGISTRY:
         supported = ", ".join(_WRITER_REGISTRY)
         raise logger.error(
@@ -181,19 +207,13 @@ def save_dataset(
                 f"Supported values are: {supported}."
             )
         )
-
-    _validate_ds_type(ds, target)
-
     _WRITER_REGISTRY[target](ds, file, **kwargs)
 
 
 # Mapping of ds_type names to the dataset validators
 _DS_TYPE_VALIDATORS: dict[
     str, type[ValidPosesInputs] | type[ValidBboxesInputs]
-] = {
-    "poses": ValidPosesInputs,
-    "bboxes": ValidBboxesInputs,
-}
+] = {"poses": ValidPosesInputs, "bboxes": ValidBboxesInputs}
 
 
 def _validate_ds_type(ds: xr.Dataset, target: str) -> None:
@@ -226,9 +246,8 @@ def _validate_ds_type(ds: xr.Dataset, target: str) -> None:
     _DS_TYPE_VALIDATORS[expected].validate(ds)
 
 
-@register_writer("netCDF")
+@register_writer("netCDF", suffixes={".nc"})
 def _save_netcdf(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
     """Save a ``movement`` dataset to a netCDF file."""
-    valid_path = validate_file_path(file, permission="w", suffixes={".nc"})
-    ds.to_netcdf(valid_path, **kwargs)
-    logger.info(f"Saved dataset to {valid_path}.")
+    ds.to_netcdf(file, **kwargs)
+    logger.info(f"Saved dataset to {file}.")
