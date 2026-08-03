@@ -31,12 +31,12 @@ repos:
           - id: rst-directive-colons
           - id: rst-inline-touching-normal
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.15.20
+      rev: v0.16.1
       hooks:
           - id: ruff
           - id: ruff-format
     - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: v2.1.0
+      rev: v2.3.0
       hooks:
           - id: mypy
             exclude: ^(tests|docs|examples)/
@@ -60,7 +60,7 @@ repos:
             additional_dependencies: ["setuptools>=77", "wheel", "setuptools_scm[toml]>=6.2"]
     - repo: https://github.com/codespell-project/codespell
       # Configuration for codespell is in pyproject.toml
-      rev: v2.4.2
+      rev: v2.4.3
       hooks:
           - id: codespell
     - repo: local
