@@ -145,7 +145,7 @@ def test_save_dataset_and_load_dataset_roundtrip(
     """
     ds = request.getfixturevalue(dataset_fixture)
     file_path = tmp_path / filename
-    save_dataset(ds, file_path, source_software=source_software, **save_kwargs)
+    save_dataset(ds, file_path, target_software=source_software, **save_kwargs)
     loaded = load_dataset(file_path, source_software=source_software)
     xr.testing.assert_allclose(loaded, ds)
 
@@ -158,7 +158,7 @@ def test_save_dataset_and_load_dataset_nwb_roundtrip(
     """
     single = valid_poses_dataset.isel(individual=[0])
     file_path = tmp_path / "dataset.nwb"
-    save_dataset(single, file_path, source_software="NWB")
+    save_dataset(single, file_path, target_software="NWB")
     loaded = load_dataset(file_path, source_software="NWB")
     # Change expected differences to match the original dataset
     loaded["time"] = loaded.time.astype(int)
