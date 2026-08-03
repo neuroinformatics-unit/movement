@@ -173,30 +173,6 @@ class _BaseDatasetInputs(ABC):
             )
         ]
 
-    def _time_coords_and_attrs(
-        self,
-    ) -> tuple[NDArray[np.floating] | NDArray[np.integer], dict]:
-        """Return time coordinate values and associated dataset attrs.
-
-        If ``fps`` is provided, time is expressed in seconds (elapsed
-        from frame 0); otherwise, it is expressed in frames.
-        """
-        # Ignore type error as __attrs_post_init__ ensures
-        # `frame_array` is not None
-        time_coords: NDArray[np.floating] | NDArray[np.integer] = (
-            self.frame_array.squeeze()  # type: ignore[union-attr]
-        )
-        dataset_attrs: dict[str, str | float | None] = {
-            "source_software": self.source_software,
-        }
-        time_unit: Literal["seconds", "frames"] = "frames"
-        if self.fps:
-            time_coords = time_coords / self.fps
-            time_unit = "seconds"
-            dataset_attrs["fps"] = self.fps
-        dataset_attrs["time_unit"] = time_unit
-        return time_coords, dataset_attrs
-
     # --- Validators ---
     @position_array.validator
     def _validate_position_array(self, attribute, value):
@@ -267,6 +243,30 @@ class _BaseDatasetInputs(ABC):
             self._validate_list_uniqueness(attribute, value)
 
     # --- Utility methods ---
+    def _time_coords_and_attrs(
+        self,
+    ) -> tuple[NDArray[np.floating] | NDArray[np.integer], dict]:
+        """Return time coordinate values and associated dataset attrs.
+
+        If ``fps`` is provided, time is expressed in seconds (elapsed
+        from frame 0); otherwise, it is expressed in frames.
+        """
+        # Ignore type error as __attrs_post_init__ ensures
+        # `frame_array` is not None
+        time_coords: NDArray[np.floating] | NDArray[np.integer] = (
+            self.frame_array.squeeze()  # type: ignore[union-attr]
+        )
+        dataset_attrs: dict[str, str | float | None] = {
+            "source_software": self.source_software,
+        }
+        time_unit: Literal["seconds", "frames"] = "frames"
+        if self.fps:
+            time_coords = time_coords / self.fps
+            time_unit = "seconds"
+            dataset_attrs["fps"] = self.fps
+        dataset_attrs["time_unit"] = time_unit
+        return time_coords, dataset_attrs
+
     @staticmethod
     def _validate_array_shape(
         attribute: attrs.Attribute,
