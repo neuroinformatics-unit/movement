@@ -298,66 +298,38 @@ class TestBaseDatasetInputs:
             )
 
     @pytest.mark.parametrize(
-        "frame_array, fps, expected_time, expected_attrs",
+        "fps, expected_time_unit", [(None, "frames"), (2, "seconds")]
+    )
+    @pytest.mark.parametrize(
+        "frame_array, expected_time",
         [
-            (
-                np.arange(5)[:, None],
-                None,
-                np.arange(5),
-                {
-                    "source_software": None,
-                    "time_unit": "frames",
-                },
-            ),
-            (
-                np.arange(5)[:, None],
-                2,
-                np.arange(5) / 2,
-                {
-                    "source_software": None,
-                    "fps": 2.0,
-                    "time_unit": "seconds",
-                },
-            ),
-            (
-                np.arange(10, 15)[:, None],
-                None,
-                np.arange(10, 15),
-                {
-                    "source_software": None,
-                    "time_unit": "frames",
-                },
-            ),
-            (
-                np.arange(10, 15)[:, None],
-                10,
-                np.arange(10, 15) / 10,
-                {
-                    "source_software": None,
-                    "fps": 10.0,
-                    "time_unit": "seconds",
-                },
-            ),
+            (np.arange(5)[:, None], np.arange(5)),
+            (np.arange(10, 15)[:, None], np.arange(10, 15)),
         ],
+        ids=["zero-based frame numbers", "non-zero-based frame numbers"],
     )
     def test_time_coords_and_attrs(
-        self, frame_array, fps, expected_time, expected_attrs
+        self, frame_array, fps, expected_time, expected_time_unit
     ):
-        """Test _time_coords_and_attrs."""
+        """Test _time_coords_and_attrs time coords and unit assignment."""
         stub_dataset_inputs_class = self.make_stub_dataset_inputs_class(
             dim_names=("time", "space")
         )
-
         data = stub_dataset_inputs_class(
             position_array=np.zeros((5, 2)),
             frame_array=frame_array,
             fps=fps,
         )
-
+        expected_dataset_attrs = {
+            "source_software": None,
+            "time_unit": expected_time_unit,
+        }
         time_coords, dataset_attrs = data._time_coords_and_attrs()
-
+        if fps is not None:
+            expected_time = expected_time / fps
+            expected_dataset_attrs["fps"] = fps
         np.testing.assert_allclose(time_coords, expected_time)
-        assert dataset_attrs == expected_attrs
+        assert dataset_attrs == expected_dataset_attrs
 
     @pytest.mark.parametrize(
         "val, expected_length, expected_exception",
