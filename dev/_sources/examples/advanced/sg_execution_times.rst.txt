@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:01.987** total execution time for 2 files **from examples/advanced**:
+**00:01.986** total execution time for 2 files **from examples/advanced**:
 
 .. container::
 
@@ -36,5 +36,5 @@ Computation times
      - 00:01.130
      - 0.0
    * - :ref:`sphx_glr_examples_advanced_annotate_boris_events.py` (``annotate_boris_events.py``)
-     - 00:00.856
+     - 00:00.857
      - 0.0

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=a429cbfb"></script>
+    <script src="../_static/documentation_options.js?v=93d14191"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev25</p>
+    <p class="title logo__title">movement v0.17.1.dev26</p>
   
 </a></div>
     
@@ -684,7 +684,8 @@ Points layer data. It is a dictionary with keys
 (plus <code class="docutils literal notranslate"><span class="pre">edited</span></code> once any point has been dragged), each mapping
 to a list of values, and each value corresponding to a point.</p></li>
 <li><p><strong>properties_with_nans</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span>) – Properties DataFrame derived from the original loaded dataset
-including any NaN position data.</p></li>
+including any NaN position data. Must include a
+<code class="docutils literal notranslate"><span class="pre">position_is_nan</span></code> boolean column flagging any such points.</p></li>
 <li><p><strong>attrs</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Attributes of the original loaded dataset (e.g.
 <code class="docutils literal notranslate"><span class="pre">source_software</span></code>, <code class="docutils literal notranslate"><span class="pre">fps</span></code>, <code class="docutils literal notranslate"><span class="pre">time_unit</span></code> and
 <code class="docutils literal notranslate"><span class="pre">source_file</span></code>).</p></li>

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=a429cbfb"></script>
+    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev25</p>
+    <p class="title logo__title">movement v0.17.1.dev26</p>
   
 </a></div>
     
@@ -665,7 +665,8 @@
 <span class="sd">        to a list of values, and each value corresponding to a point.</span>
 <span class="sd">    properties_with_nans:</span>
 <span class="sd">        Properties DataFrame derived from the original loaded dataset</span>
-<span class="sd">        including any NaN position data.</span>
+<span class="sd">        including any NaN position data. Must include a</span>
+<span class="sd">        ``position_is_nan`` boolean column flagging any such points.</span>
 <span class="sd">    attrs</span>
 <span class="sd">        Attributes of the original loaded dataset (e.g.</span>
 <span class="sd">        ``source_software``, ``fps``, ``time_unit`` and</span>
@@ -752,9 +753,16 @@
 
         <span class="n">position_df</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties_df</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
         <span class="n">position_df</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">properties_df</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-        <span class="n">confidence_da</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="c1"># Points dragged in napari gain an `edited` flag; the column is</span>
+        <span class="c1"># absent until the first drag.</span>
+        <span class="k">if</span> <span class="s2">&quot;edited&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">properties_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">properties_df</span><span class="p">[</span><span class="s2">&quot;edited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Reconstruct the confidence and edited arrays from the live</span>
+        <span class="c1"># properties DataFrame</span>
+        <span class="n">live_das</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">properties_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">])[</span>
-                <span class="s2">&quot;confidence&quot;</span>
+                <span class="p">[</span><span class="s2">&quot;confidence&quot;</span><span class="p">,</span> <span class="s2">&quot;edited&quot;</span><span class="p">]</span>
             <span class="p">]</span>
             <span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
             <span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
@@ -763,22 +771,9 @@
                 <span class="n">individual</span><span class="o">=</span><span class="n">individual_coords</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="n">edited_da</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="s2">&quot;edited&quot;</span> <span class="ow">in</span> <span class="n">properties_df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-            <span class="n">edited_da</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">properties_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">])[</span>
-                    <span class="s2">&quot;edited&quot;</span>
-                <span class="p">]</span>
-                <span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
-                <span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
-                    <span class="n">time</span><span class="o">=</span><span class="n">time_coords</span><span class="p">,</span>
-                    <span class="n">keypoint</span><span class="o">=</span><span class="n">keypoint_coords</span><span class="p">,</span>
-                    <span class="n">individual</span><span class="o">=</span><span class="n">individual_coords</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="n">confidence_da</span> <span class="o">=</span> <span class="n">live_das</span><span class="p">[</span><span class="s2">&quot;confidence&quot;</span><span class="p">]</span>
 
+        <span class="c1"># Reconstruct the position array from the live napari Points layer</span>
         <span class="n">position_df</span> <span class="o">=</span> <span class="n">position_df</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span>
             <span class="n">id_vars</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;frame&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">],</span>
             <span class="n">value_vars</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span>
@@ -798,15 +793,34 @@
             <span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="n">data_vars</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">position_da</span><span class="p">,</span>
-            <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">confidence_da</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="k">if</span> <span class="n">edited_da</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">data_vars</span><span class="p">[</span><span class="s2">&quot;edited&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">edited_da</span>
+        <span class="c1"># A point missing from the live layer shows up as NaN position</span>
+        <span class="c1"># after the reindex above</span>
+        <span class="n">point_missing_now</span> <span class="o">=</span> <span class="n">position_da</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="s2">&quot;space&quot;</span><span class="p">)</span>
+        <span class="n">position_was_present_originally</span> <span class="o">=</span> <span class="o">~</span><span class="p">(</span>
+            <span class="n">properties_with_nans</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">])[</span>
+                <span class="s2">&quot;position_is_nan&quot;</span>
+            <span class="p">]</span>
+            <span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">reindex</span><span class="p">(</span>
+                <span class="n">time</span><span class="o">=</span><span class="n">time_coords</span><span class="p">,</span>
+                <span class="n">keypoint</span><span class="o">=</span><span class="n">keypoint_coords</span><span class="p">,</span>
+                <span class="n">individual</span><span class="o">=</span><span class="n">individual_coords</span><span class="p">,</span>
+                <span class="n">fill_value</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># A point counts as edited if it was dragged in napari, or removed</span>
+        <span class="c1"># by the user (i.e. is now missing but was present originally).</span>
+        <span class="n">edited_da</span> <span class="o">=</span> <span class="n">live_das</span><span class="p">[</span><span class="s2">&quot;edited&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span>
+            <span class="n">point_missing_now</span> <span class="o">&amp;</span> <span class="n">position_was_present_originally</span>
+        <span class="p">)</span>
 
         <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
-            <span class="n">data_vars</span><span class="o">=</span><span class="n">data_vars</span><span class="p">,</span>
+            <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">position_da</span><span class="p">,</span>
+                <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">confidence_da</span><span class="p">,</span>
+                <span class="s2">&quot;edited&quot;</span><span class="p">:</span> <span class="n">edited_da</span><span class="p">,</span>
+            <span class="p">},</span>
             <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
                 <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">time_coords</span><span class="p">,</span>
                 <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="n">space_coords</span><span class="p">,</span>
@@ -816,10 +830,9 @@
             <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span> <span class="k">if</span> <span class="n">attrs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">{},</span>
         <span class="p">)</span>
         <span class="c1"># Drop keypoints/individuals with no data left; never `time`.</span>
-        <span class="c1"># `edited` (if present) is excluded from the check: it&#39;s</span>
-        <span class="c1"># boolean (fill value False), so it&#39;s never &quot;null&quot; and would</span>
-        <span class="c1"># otherwise prevent any keypoint/individual from ever being</span>
-        <span class="c1"># dropped.</span>
+        <span class="c1"># `edited` is excluded from the check: it&#39;s boolean (fill value</span>
+        <span class="c1"># False), so it&#39;s never &quot;null&quot; and would otherwise prevent any</span>
+        <span class="c1"># keypoint/individual from ever being dropped.</span>
         <span class="n">dropna_subset</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">,</span> <span class="s2">&quot;confidence&quot;</span><span class="p">]</span>
         <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">dropna_subset</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span>
             <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="n">dropna_subset</span>
@@ -831,6 +844,10 @@
                     <span class="s2">&quot;This happens when all points have been removed.&quot;</span>
                 <span class="p">)</span>
             <span class="p">)</span>
+        <span class="c1"># Drop `edited` entirely if nothing survived the trim above:</span>
+        <span class="c1"># e.g. the only edits were on a keypoint/individual just dropped.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;edited&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">drop_vars</span><span class="p">(</span><span class="s2">&quot;edited&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ds</span>
 
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
