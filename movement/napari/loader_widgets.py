@@ -89,6 +89,17 @@ class DataLoader(QWidget):
             )
         self._enable_layer_tooltips()
 
+        # Point drags are only guaranteed to stay within their own frame
+        # when frame is the sliced (non-displayed) axis in a 2D view. If
+        # axes are rolled or a 3D view is used, disable editing rather
+        # than risk a drag moving a point onto a different frame.
+        self.viewer.dims.events.order.connect(
+            self._update_points_layers_editable
+        )
+        self.viewer.dims.events.ndisplay.connect(
+            self._update_points_layers_editable
+        )
+
     def _create_source_software_widget(self):
         """Create a combo box for selecting the source software."""
         self.source_software_combo = QComboBox()
@@ -372,12 +383,51 @@ class DataLoader(QWidget):
             **points_style.as_kwargs(),
         )
         self.points_layer.events.data.connect(self._on_points_data_changed)
+        self.points_layer.editable = self._is_canonical_dims()
 
         # If the loaded dataset already has an `edited` property
         # mark those points with the edited symbol.
         self._set_point_symbol_by_edited(self.points_layer)
 
         logger.info("Added tracked dataset as a napari Points layer.")
+
+    def _is_canonical_dims(self) -> bool:
+        """Whether frame is the sliced axis in a 2D view.
+
+        A point drag only ever touches the currently *displayed* axes
+        (see ``Points._move`` in napari). When frame is the sliced
+        axis, that means x/y -- everything is safe to edit. If axes
+        have been rolled so frame is displayed instead, or a 3D view
+        is active, a drag could move a point onto a different frame.
+        """
+        return (
+            self.viewer.dims.ndisplay == 2 and self.viewer.dims.order[0] == 0
+        )
+
+    def _update_points_layers_editable(self, event=None):
+        """Disable point editing while axes aren't in the canonical order.
+
+        Connected to ``viewer.dims.events.order``/``ndisplay``. This
+        greys out each movement Points layer's select/add/delete
+        controls (via napari's built-in ``Layer.editable``), since a
+        drag only ever touches the currently *displayed* axes (see
+        ``Points._move`` in napari) -- if frame isn't the sliced axis,
+        a drag could otherwise move a point onto a different frame.
+        """
+        is_canonical = self._is_canonical_dims()
+        movement_points_layers = [
+            ly
+            for ly in self.viewer.layers
+            if isinstance(ly, Points) and ly.metadata.get(POINTS_LAYER_KEY)
+        ]
+        for layer in movement_points_layers:
+            layer.editable = is_canonical
+        if not is_canonical and movement_points_layers:
+            show_warning(
+                "Point editing disabled: axes must be in the default "
+                "order and 2D view, otherwise a drag could move a "
+                "point onto a different frame."
+            )
 
     @staticmethod
     def _set_point_symbol_by_edited(layer: Points) -> None:
