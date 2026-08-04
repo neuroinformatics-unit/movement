@@ -33,6 +33,18 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 # File name for the .yaml file in DATA_URL containing dataset metadata
 METADATA_FILE = "metadata.yaml"
 
+# GIN blocks generic client User-Agents (e.g. the default "python-requests/x"
+# sent by pooch/requests) with a 403. Identify as a real client instead.
+_UA_HEADERS = {
+    "User-Agent": (
+        "movement (https://github.com/neuroinformatics-unit/movement)"
+    )
+}
+_DOWNLOADER = pooch.HTTPDownloader(headers=_UA_HEADERS)
+_DOWNLOADER_WITH_PROGRESSBAR = pooch.HTTPDownloader(
+    headers=_UA_HEADERS, progressbar=True
+)
+
 
 @contextmanager
 def _hide_pooch_hash_logs():
@@ -89,6 +101,7 @@ def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
             path=data_dir,
             fname=f"temp_{file_name}",
             progressbar=False,
+            downloader=_DOWNLOADER,
         )
 
     logger.debug(
@@ -255,12 +268,18 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
         "frame": None
         if not frame_file_name
         else Path(
-            SAMPLE_DATA.fetch(f"frames/{frame_file_name}", progressbar=True)
+            SAMPLE_DATA.fetch(
+                f"frames/{frame_file_name}",
+                downloader=_DOWNLOADER_WITH_PROGRESSBAR,
+            )
         ),
         "video": None
         if (not video_file_name) or not (with_video)
         else Path(
-            SAMPLE_DATA.fetch(f"videos/{video_file_name}", progressbar=True)
+            SAMPLE_DATA.fetch(
+                f"videos/{video_file_name}",
+                downloader=_DOWNLOADER_WITH_PROGRESSBAR,
+            )
         ),
     }
 
@@ -273,7 +292,10 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     else:
         # Store the path to a single downloaded file
         paths_dict[data_type] = Path(
-            SAMPLE_DATA.fetch(f"{data_type}/{filename}", progressbar=True)
+            SAMPLE_DATA.fetch(
+                f"{data_type}/{filename}",
+                downloader=_DOWNLOADER_WITH_PROGRESSBAR,
+            )
         )
     return paths_dict
 
@@ -369,7 +391,7 @@ def _fetch_and_unzip(data_type: str, file_name: str | Path) -> Path:
     raw_paths = SAMPLE_DATA.fetch(
         file_path.as_posix(),
         processor=pooch.Unzip(),
-        progressbar=True,
+        downloader=_DOWNLOADER_WITH_PROGRESSBAR,
     )
     paths = [Path(p) for p in raw_paths]  # convert to Path objects
 
