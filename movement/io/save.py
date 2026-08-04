@@ -178,9 +178,10 @@ def save_dataset(
     -----
     For NWB, each individual is written to a separate file (as required by the
     NWB format). For a single-individual dataset, the dataset is written to
-    ``file``. For a multi-individual dataset, the individual's name is appended
-    to the file path, just before the extension, e.g.
-    ``"/path/to/file_id_0.nwb"``.
+    ``file``. For a multi-individual dataset, each NWBFile's ``identifier``
+    (by default the individual's name, but configurable via
+    :class:`~movement.io.nwb.NWBFileSaveConfig`) is appended to the file
+    path, just before the extension, e.g. ``"/path/to/file_id_0.nwb"``.
 
     Examples
     --------
@@ -196,6 +197,16 @@ def save_dataset(
     Save a bounding boxes dataset to a VIA-tracks .csv file:
 
     >>> save_dataset(ds, "/path/to/file.csv", target_software="VIA-tracks")
+
+    Save a poses dataset to NWB file(s), with custom metadata:
+
+    >>> from movement.io.nwb import NWBFileSaveConfig
+    >>> config = NWBFileSaveConfig(
+    ...     nwbfile_kwargs={"session_description": "foraging session"}
+    ... )
+    >>> save_dataset(
+    ...     ds, "/path/to/file.nwb", target_software="NWB", config=config
+    ... )
 
     """
     target = target_software if target_software is not None else "netCDF"
