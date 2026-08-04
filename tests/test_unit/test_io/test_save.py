@@ -126,41 +126,50 @@ class TestSaveDataset:
         with expected_context:
             save.save_dataset(valid_poses_dataset, file_path, target_software)
 
+    @pytest.mark.parametrize(
+        "valid_poses_dataset, identifiers",
+        [
+            ("single_individual_array", None),
+            ("multi_individual_array", ["subj0", "subj"]),
+        ],
+        ids=[
+            "single individual: writes to given path verbatim",
+            "multi individual: appends identifier to path",
+        ],
+        indirect=["valid_poses_dataset"],
+    )
+    def test_save_nwb(
+        self, valid_poses_dataset, identifiers, mocker, tmp_path
+    ):
+        """Test saving to NWB writes a single file for a single-individual
+        dataset, or one file per individual (identifier appended to the file
+        path) for a multi-individual dataset.
+        """
+        import pynwb
 
-def test_save_dataset_nwb_single_individual(
-    valid_poses_dataset, mocker, tmp_path
-):
-    """A single-individual NWB save writes to the given path verbatim."""
-    import pynwb
-
-    single = valid_poses_dataset.isel(individual=[0])
-    fake_nwb = mocker.MagicMock(spec=pynwb.file.NWBFile)
-    mocker.patch("movement.io.save_poses.to_nwb_file", return_value=fake_nwb)
-    mock_write = mocker.patch("movement.io.save_poses._write_nwb_to_disk")
-    file_path = tmp_path / "out.nwb"
-    save.save_dataset(single, file_path, target_software="NWB")
-    mock_write.assert_called_once_with(fake_nwb, file_path)
-
-
-def test_save_dataset_nwb_multi_individual(
-    valid_poses_dataset, mocker, tmp_path
-):
-    """A multi-individual NWB save writes one file per individual, with the
-    individual name appended to the file path.
-    """
-    fake_files = [
-        mocker.MagicMock(identifier="id_0"),
-        mocker.MagicMock(identifier="id_1"),
-    ]
-    mocker.patch("movement.io.save_poses.to_nwb_file", return_value=fake_files)
-    mock_write = mocker.patch("movement.io.save_poses._write_nwb_to_disk")
-    file_path = tmp_path / "out.nwb"
-    save.save_dataset(valid_poses_dataset, file_path, target_software="NWB")
-    written_paths = [call.args[1] for call in mock_write.call_args_list]
-    assert written_paths == [
-        tmp_path / "out_id_0.nwb",
-        tmp_path / "out_id_1.nwb",
-    ]
+        file_path = tmp_path / "out.nwb"
+        if identifiers is None:
+            to_nwb_file_return = mocker.MagicMock(spec=pynwb.file.NWBFile)
+            expected_paths = [file_path]
+        else:
+            to_nwb_file_return = [
+                mocker.MagicMock(identifier=identifier)
+                for identifier in identifiers
+            ]
+            expected_paths = [
+                tmp_path / f"out_{identifier}.nwb"
+                for identifier in identifiers
+            ]
+        mocker.patch(
+            "movement.io.save_poses.to_nwb_file",
+            return_value=to_nwb_file_return,
+        )
+        mock_write = mocker.patch("movement.io.save_poses._write_nwb_to_disk")
+        save.save_dataset(
+            valid_poses_dataset, file_path, target_software="NWB"
+        )
+        written_paths = [call.args[1] for call in mock_write.call_args_list]
+        assert written_paths == expected_paths
 
 
 class TestRegisterWriterDecorator:

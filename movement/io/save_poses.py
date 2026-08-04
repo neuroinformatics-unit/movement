@@ -543,7 +543,7 @@ def _write_nwb_file(ds: xr.Dataset, file_path: str | Path, **kwargs) -> None:
     nwb_files = to_nwb_file(ds, **kwargs)
     if isinstance(nwb_files, pynwb.file.NWBFile):
         _write_nwb_to_disk(nwb_files, valid_path)
-    else:
+    else:  # list of NWBFile objects for multi-individual datasets
         for nwb_file in nwb_files:
             individual_path = valid_path.with_name(
                 f"{valid_path.stem}_{nwb_file.identifier}{valid_path.suffix}"
