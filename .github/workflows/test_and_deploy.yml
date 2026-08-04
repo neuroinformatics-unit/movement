@@ -41,6 +41,7 @@ jobs:
         with:
           path: |
             ~/.movement/*
+            !~/.movement/data/metadata.yaml
           key: cached-test-data-${{ runner.os }}
           restore-keys: cached-test-data
       - uses: neuroinformatics-unit/actions/test@main
