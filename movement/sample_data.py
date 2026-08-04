@@ -18,6 +18,7 @@ from requests.exceptions import RequestException
 
 from movement.io import load_dataset
 from movement.utils.logging import logger
+from movement.validators.datasets import DS_TYPE_VALIDATORS
 
 # URL to the remote data repository on GIN
 # noinspection PyInterpreter
@@ -331,7 +332,7 @@ def fetch_dataset(
 
     file_paths = fetch_dataset_paths(filename, with_video=with_video)
 
-    for key in ["poses", "bboxes"]:
+    for key in DS_TYPE_VALIDATORS:
         if file_paths.get(key):
             ds = load_dataset(
                 file_paths[key],

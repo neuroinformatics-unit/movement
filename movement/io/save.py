@@ -8,7 +8,7 @@ from typing import Concatenate, Literal, ParamSpec, Protocol, cast
 import xarray as xr
 
 from movement.utils.logging import logger
-from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
+from movement.validators.datasets import DS_TYPE_VALIDATORS, DsType
 from movement.validators.files import validate_file_path
 
 type TargetSoftware = Literal[
@@ -58,13 +58,13 @@ class WriterProtocol(Protocol):
 
 
 _WRITER_REGISTRY: dict[str, WriterProtocol] = {}
-_WRITER_DS_TYPE_REGISTRY: dict[str, Literal["poses", "bboxes"] | None] = {}
+_WRITER_DS_TYPE_REGISTRY: dict[str, DsType | None] = {}
 
 
 def register_writer(
     target_software: str,
     *,
-    ds_type: Literal["poses", "bboxes"] | None = None,
+    ds_type: DsType | None = None,
     suffixes: set[str] | None = None,
 ) -> Callable[
     [Callable[Concatenate[xr.Dataset, str | Path, P], None]],
@@ -210,12 +210,6 @@ def save_dataset(
     _WRITER_REGISTRY[target](ds, file, **kwargs)
 
 
-# Mapping of ds_type names to the dataset validators
-_DS_TYPE_VALIDATORS: dict[
-    str, type[ValidPosesInputs] | type[ValidBboxesInputs]
-] = {"poses": ValidPosesInputs, "bboxes": ValidBboxesInputs}
-
-
 def _validate_ds_type(ds: xr.Dataset, target: str) -> None:
     """Check that ``ds`` is a valid dataset for the given save ``target``.
 
@@ -235,7 +229,7 @@ def _validate_ds_type(ds: xr.Dataset, target: str) -> None:
         except AttributeError:
             # let validator raise TypeError for non-xr.Dataset
             expected = "poses"
-        if expected not in _DS_TYPE_VALIDATORS:
+        if expected not in DS_TYPE_VALIDATORS:
             raise logger.error(
                 ValueError(
                     f"Cannot save to '{target}': expected `ds` to have a "
@@ -243,7 +237,7 @@ def _validate_ds_type(ds: xr.Dataset, target: str) -> None:
                     f"{expected!r}."
                 )
             )
-    _DS_TYPE_VALIDATORS[expected].validate(ds)
+    DS_TYPE_VALIDATORS[expected].validate(ds)
 
 
 @register_writer("netCDF", suffixes={".nc"})

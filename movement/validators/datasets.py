@@ -16,6 +16,9 @@ from movement.utils.logging import logger
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 
+# ``movement`` dataset types
+type DsType = Literal["poses", "bboxes"]
+
 
 def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
     """Try to coerce the value into a list of strings."""
@@ -59,7 +62,7 @@ class _BaseDatasetInputs(ABC):
     ``position_array`` and optional fields like ``confidence_array`` and
     ``individual_names``.
     Subclasses must implement ``to_dataset()`` and define class variables
-    ``DIM_NAMES``, ``VAR_NAMES``, and ``_ALLOWED_SPACE_DIM_SIZE``.
+    ``ds_type``, ``DIM_NAMES``, ``VAR_NAMES``, and ``_ALLOWED_SPACE_DIM_SIZE``.
     """
 
     # --- Required fields ---
@@ -105,6 +108,9 @@ class _BaseDatasetInputs(ABC):
     a dataset attribute in the resulting xarray.Dataset. Defaults to None."""
 
     # --- Required class variables (to be defined by subclasses) ---
+    ds_type: ClassVar[DsType]
+    """The ``movement`` dataset type this validator produces."""
+
     DIM_NAMES: ClassVar[tuple[str, ...]]
     """Required dimension names for the dataset. The order of dimension names
     must match the order of dimensions in the ``position_array``."""
@@ -343,6 +349,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
     (default), the keypoints will be named "keypoint_0", "keypoint_1",
     etc."""
 
+    ds_type: ClassVar[DsType] = "poses"
     DIM_NAMES: ClassVar[tuple[str, ...]] = (
         "time",
         "space",
@@ -406,7 +413,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
         n_space = self.position_array.shape[DIM_NAMES.index("space")]
         dataset_attrs: dict[str, str | float | None] = {
             "source_software": self.source_software,
-            "ds_type": "poses",
+            "ds_type": self.ds_type,
         }
         # Create the time coordinate, depending on the value of fps
         time_coords: NDArray[np.floating] | NDArray[np.integer]
@@ -499,6 +506,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
     assigned based on the first dimension of the position_array, starting from
     0."""
 
+    ds_type: ClassVar[DsType] = "bboxes"
     DIM_NAMES: ClassVar[tuple[str, ...]] = ("time", "space", "individual")
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "shape", "confidence")
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[int] = 2
@@ -557,7 +565,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
         """
         dataset_attrs: dict[str, str | float | None] = {
             "source_software": self.source_software,
-            "ds_type": "bboxes",
+            "ds_type": self.ds_type,
         }
         # Ignore type error as ValidBboxesInputs ensures
         # `frame_array` is not None
@@ -594,3 +602,10 @@ class ValidBboxesInputs(_BaseDatasetInputs):
             },
             attrs=dataset_attrs,
         )
+
+
+# Mapping of dataset types to their corresponding validator classes
+DS_TYPE_VALIDATORS: dict[DsType, type[_BaseDatasetInputs]] = {
+    cls.ds_type: cls  # type: ignore[type-abstract]
+    for cls in _BaseDatasetInputs.__subclasses__()
+}
