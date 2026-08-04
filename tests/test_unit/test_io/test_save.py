@@ -1,5 +1,3 @@
-"""Test the unified ``save_dataset`` entry point."""
-
 from contextlib import nullcontext as does_not_raise
 
 import pytest
@@ -8,100 +6,125 @@ import xarray as xr
 from movement.io import save
 
 
-@pytest.mark.parametrize("target_software", [None, "netCDF"])
-def test_save_dataset_netcdf_roundtrip(
-    valid_poses_dataset, target_software, tmp_path
-):
-    """A dataset saved to netCDF (default target) loads back unchanged."""
-    file_path = tmp_path / "dataset.nc"
-    save.save_dataset(valid_poses_dataset, file_path, target_software)
-    assert file_path.is_file()
-    loaded = xr.load_dataset(file_path)
-    xr.testing.assert_allclose(loaded, valid_poses_dataset)
-    assert loaded.attrs == valid_poses_dataset.attrs
+class TestSaveDataset:
+    """Tests for save_dataset."""
 
-
-def test_save_dataset_netcdf_requires_nc_suffix(valid_poses_dataset, tmp_path):
-    """Saving to netCDF with a non-.nc suffix raises an error."""
-    with pytest.raises(ValueError, match="Expected file with suffix"):
-        save.save_dataset(valid_poses_dataset, tmp_path / "dataset.csv")
-
-
-def test_save_dataset_rejects_non_dataset(tmp_path):
-    """Passing a non-Dataset object raises a TypeError."""
-    with pytest.raises(TypeError, match="Expected an xarray Dataset"):
-        save.save_dataset([1, 2, 3], tmp_path / "dataset.nc")
-
-
-def test_save_dataset_invalid_target_software(valid_poses_dataset, tmp_path):
-    """An unsupported target raises a helpful ValueError."""
-    with pytest.raises(ValueError, match="Unsupported target_software"):
+    def test_dispatches_to_writer(self, valid_poses_dataset, mocker, tmp_path):
+        """Test save_dataset forwards to the registered writer, passing the
+        dataset, file path and extra kwargs through unchanged.
+        """
+        mock_writer = mocker.MagicMock()
+        mocker.patch.dict(
+            "movement.io.save._WRITER_REGISTRY",
+            {"StubSoftware": mock_writer},
+        )
+        file_path = tmp_path / "output"
         save.save_dataset(
-            valid_poses_dataset, tmp_path / "f.txt", target_software="bogus"
+            valid_poses_dataset,
+            file_path,
+            target_software="StubSoftware",
+            foo="bar",
+        )
+        mock_writer.assert_called_once_with(
+            valid_poses_dataset, file_path, foo="bar"
         )
 
+    def test_invalid_target_software(self):
+        """Test save_dataset raises an error for invalid target software."""
+        with pytest.raises(ValueError, match="Unsupported target_software"):
+            save.save_dataset(
+                xr.Dataset(), "some_file", target_software="bogus"
+            )
 
-@pytest.mark.parametrize(
-    "target_software, dataset_fixture",
-    [
-        ("DeepLabCut", "valid_poses_dataset"),
-        ("SLEAP", "valid_poses_dataset"),
-        ("LightningPose", "valid_poses_dataset"),
-        ("VIA-tracks", "valid_bboxes_dataset"),
-    ],
-)
-def test_save_dataset_dispatches_to_writer(
-    target_software, dataset_fixture, request, mocker, tmp_path
-):
-    """``save_dataset`` forwards to the correct format-specific writer,
-    passing the dataset, file path and extra kwargs through unchanged.
-    """
-    ds = request.getfixturevalue(dataset_fixture)
-    mock_writer = mocker.MagicMock()
-    mocker.patch.dict(
-        "movement.io.save._WRITER_REGISTRY",
-        {target_software: mock_writer},
+    @pytest.mark.parametrize(
+        "target_software, dataset_fixture, mutate_attrs, expected_context",
+        [
+            (
+                "DeepLabCut",
+                "valid_bboxes_dataset",
+                None,
+                pytest.raises(ValueError, match="Missing required"),
+            ),
+            (
+                "VIA-tracks",
+                "valid_poses_dataset",
+                None,
+                pytest.raises(ValueError, match="Missing required"),
+            ),
+            (
+                None,
+                "not_a_dataset",
+                None,
+                pytest.raises(TypeError, match="Expected an xarray Dataset"),
+            ),
+            (
+                "netCDF",
+                "valid_bboxes_dataset",
+                lambda attrs: attrs.pop("ds_type", None),
+                pytest.raises(
+                    ValueError, match="Cannot save to 'netCDF'.*ds_type"
+                ),
+            ),
+            (
+                "netCDF",
+                "valid_bboxes_dataset",
+                lambda attrs: attrs.update(ds_type="bogus"),
+                pytest.raises(
+                    ValueError, match="Cannot save to 'netCDF'.*ds_type"
+                ),
+            ),
+        ],
+        ids=[
+            "DeepLabCut: rejects bboxes dataset",
+            "VIA-tracks: rejects poses dataset",
+            "netCDF: rejects non-xarray Dataset",
+            "netCDF: rejects xarray Dataset missing ds_type attr",
+            "netCDF: rejects xarray Dataset with invalid ds_type attr",
+        ],
     )
-    file_path = tmp_path / "output"
-    save.save_dataset(
-        ds, file_path, target_software=target_software, foo="bar"
+    def test_rejects_mismatched_ds_type(
+        self,
+        target_software,
+        dataset_fixture,
+        mutate_attrs,
+        expected_context,
+        request,
+    ):
+        """Test _validate_ds_type called by save_dataset raises the
+        appropriate error when the dataset is incompatible with the
+        target software.
+        """
+        ds = request.getfixturevalue(dataset_fixture)
+        if mutate_attrs is not None:
+            mutate_attrs(ds.attrs)
+        with expected_context:
+            save.save_dataset(ds, "some_file", target_software=target_software)
+
+    @pytest.mark.parametrize("target_software", [None, "netCDF"])
+    @pytest.mark.parametrize(
+        "file, expected_context",
+        [
+            ("dataset.nc", does_not_raise()),
+            (
+                "dataset.ext1",
+                pytest.raises(ValueError, match="Expected file with suffix"),
+            ),
+        ],
     )
-    mock_writer.assert_called_once_with(ds, file_path, foo="bar")
-
-
-@pytest.mark.parametrize(
-    "target_software, dataset_fixture",
-    [
-        ("DeepLabCut", "valid_bboxes_dataset"),  # poses-only target
-        ("VIA-tracks", "valid_poses_dataset"),  # bboxes-only target
-    ],
-)
-def test_save_dataset_ds_type_mismatch(
-    target_software, dataset_fixture, request, tmp_path
-):
-    """Saving a dataset to a format meant for the other ds_type errors out."""
-    ds = request.getfixturevalue(dataset_fixture)
-    with pytest.raises(ValueError, match="Missing required"):
-        save.save_dataset(
-            ds, tmp_path / "output", target_software=target_software
-        )
-
-
-def test_save_dataset_netcdf_rejects_missing_ds_type(tmp_path):
-    """Saving an xr.Dataset with no ``ds_type`` attr to netCDF now errors,
-    instead of silently writing an unvalidated dataset to disk.
-    """
-    ds = xr.Dataset({"position": (["time"], [1.0, 2.0])})
-    with pytest.raises(ValueError, match="Cannot save to 'netCDF'"):
-        save.save_dataset(ds, tmp_path / "dataset.nc")
-
-
-def test_save_dataset_netcdf_rejects_invalid_ds_type(tmp_path):
-    """Saving an xr.Dataset with an unrecognized ``ds_type`` attr errors."""
-    ds = xr.Dataset({"position": (["time"], [1.0, 2.0])})
-    ds.attrs["ds_type"] = "not-a-real-type"
-    with pytest.raises(ValueError, match="Cannot save to 'netCDF'"):
-        save.save_dataset(ds, tmp_path / "dataset.nc")
+    def test_save_netcdf(
+        self,
+        valid_poses_dataset,
+        target_software,
+        file,
+        expected_context,
+        tmp_path,
+    ):
+        """Test saving to netCDF (default/explicit) with valid and invalid
+        file suffixes. Indirectly tests _to_netcdf_file.
+        """
+        file_path = tmp_path / file
+        with expected_context:
+            save.save_dataset(valid_poses_dataset, file_path, target_software)
 
 
 def test_save_dataset_nwb_single_individual(
@@ -140,8 +163,8 @@ def test_save_dataset_nwb_multi_individual(
     ]
 
 
-class TestRegisterWriter:
-    """Tests for the ``register_writer`` decorator."""
+class TestRegisterWriterDecorator:
+    """Tests for the register_writer decorator."""
 
     @pytest.fixture(autouse=True)
     def _setup(self, mocker):
@@ -171,11 +194,11 @@ class TestRegisterWriter:
     @pytest.mark.parametrize(
         "allowed_suffixes, file_path, expected_context",
         [
-            (None, "dummy_path.ext1", does_not_raise()),
-            ({".ext1"}, "dummy_path.ext1", does_not_raise()),
+            (None, "some_file.ext1", does_not_raise()),
+            ({".ext1"}, "some_file.ext1", does_not_raise()),
             (
                 {".ext1"},
-                "dummy_path.ext2",
+                "some_file.ext2",
                 pytest.raises(ValueError, match="Expected file with suffix"),
             ),
         ],

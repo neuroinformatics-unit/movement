@@ -240,7 +240,7 @@ def _validate_ds_type(ds: xr.Dataset, target: str) -> None:
 
 
 @register_writer("netCDF", suffixes={".nc"})
-def _save_netcdf(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
-    """Save a ``movement`` dataset to a netCDF file."""
+def _to_netcdf_file(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
+    """Save a ``movement`` dataset to a netCDF (.nc) file."""
     ds.to_netcdf(file, **kwargs)
     logger.info(f"Saved dataset to {file}.")
