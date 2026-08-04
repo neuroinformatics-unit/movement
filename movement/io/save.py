@@ -222,8 +222,7 @@ def _validate_ds_type(ds: xr.Dataset, target: str) -> None:
     expected type is inferred from ``ds.attrs["ds_type"]``.
     """
     expected = _WRITER_DS_TYPE_REGISTRY[target]
-    if expected is None:
-        # netCDF: determine the expected type from ds_type attribute
+    if expected is None:  # netCDF: determine the expected type from ds_type
         try:
             expected = ds.attrs.get("ds_type")
         except AttributeError:
