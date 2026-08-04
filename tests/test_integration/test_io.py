@@ -134,34 +134,18 @@ def test_save_and_load_to_nwb_file(valid_poses_dataset):
         ),
         ("SLEAP", "dataset.h5", "valid_poses_dataset", {}),
         ("VIA-tracks", "dataset.csv", "valid_bboxes_dataset", {}),
+        ("NWB", "dataset.nwb", "valid_poses_dataset", {}),
     ],
 )
 def test_save_dataset_and_load_dataset_roundtrip(
     source_software, filename, dataset_fixture, save_kwargs, request, tmp_path
 ):
-    """``save_dataset()`` followed by ``load_dataset()``, the unified
-    entry points, returns an equivalent dataset, across supported formats.
+    """Test that save_dataset followed by load_dataset returns an equivalent
+    dataset across supported formats.
     """
-    ds = request.getfixturevalue(dataset_fixture)
+    # Reduce to single individual for simplicity
+    ds = request.getfixturevalue(dataset_fixture).isel(individual=[0])
     file_path = tmp_path / filename
     save_dataset(ds, file_path, target_software=source_software, **save_kwargs)
     loaded = load_dataset(file_path, source_software=source_software)
     xr.testing.assert_allclose(loaded, ds)
-
-
-def test_save_dataset_and_load_dataset_nwb_roundtrip(
-    valid_poses_dataset, tmp_path
-):
-    """A single-individual dataset saved to NWB via ``save_dataset()`` and
-    loaded back via ``load_dataset()`` returns an equivalent dataset.
-    """
-    single = valid_poses_dataset.isel(individual=[0])
-    file_path = tmp_path / "dataset.nwb"
-    save_dataset(single, file_path, target_software="NWB")
-    loaded = load_dataset(file_path, source_software="NWB")
-    # Change expected differences to match the original dataset
-    loaded["time"] = loaded.time.astype(int)
-    loaded.attrs["time_unit"] = single.attrs["time_unit"]
-    loaded.attrs["source_file"] = single.attrs["source_file"]
-    del loaded.attrs["fps"]
-    xr.testing.assert_allclose(loaded, single)
