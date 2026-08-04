@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
-from pytest import DATA_PATHS
 
 from movement.io import load_poses, save_poses
 
@@ -69,25 +68,25 @@ def output_file_params(request):
         (np.array([1, 2, 3]), pytest.raises(TypeError)),  # incorrect type
         (
             load_poses.from_dlc_file(
-                DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+                pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
             ),
             does_not_raise(),
         ),  # valid dataset
         (
             load_poses.from_dlc_file(
-                DATA_PATHS.get("DLC_two-mice.predictions.csv")
+                pytest.DATA_PATHS.get("DLC_two-mice.predictions.csv")
             ),
             does_not_raise(),
         ),  # valid dataset
         (
             load_poses.from_sleap_file(
-                DATA_PATHS.get("SLEAP_single-mouse_EPM.analysis.h5")
+                pytest.DATA_PATHS.get("SLEAP_single-mouse_EPM.analysis.h5")
             ),
             does_not_raise(),
         ),  # valid dataset
         (
             load_poses.from_sleap_file(
-                DATA_PATHS.get(
+                pytest.DATA_PATHS.get(
                     "SLEAP_three-mice_Aeon_proofread.predictions.slp"
                 )
             ),
@@ -95,7 +94,7 @@ def output_file_params(request):
         ),  # valid dataset
         (
             load_poses.from_lp_file(
-                DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
+                pytest.DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
             ),
             does_not_raise(),
         ),  # valid dataset
