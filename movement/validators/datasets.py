@@ -13,6 +13,9 @@ from numpy.typing import NDArray
 
 from movement.utils.logging import logger
 
+# ``movement`` dataset types
+type DsType = Literal["poses", "bboxes"]
+
 
 def _convert_to_list_of_str(value: str | Iterable[Any]) -> list[str]:
     """Try to coerce the value into a list of strings."""
@@ -56,7 +59,7 @@ class _BaseDatasetInputs(ABC):
     ``position_array`` and optional fields like ``confidence_array``,
     ``individual_names``, and ``frame_array``.
     Subclasses must implement ``to_dataset()`` and define class variables
-    ``DIM_NAMES``, ``VAR_NAMES``, and ``_ALLOWED_SPACE_DIM_SIZE``.
+    ``ds_type``, ``DIM_NAMES``, ``VAR_NAMES``, and ``_ALLOWED_SPACE_DIM_SIZE``.
     """
 
     # --- Required fields ---
@@ -112,6 +115,9 @@ class _BaseDatasetInputs(ABC):
     a dataset attribute in the resulting xarray.Dataset. Defaults to None."""
 
     # --- Required class variables (to be defined by subclasses) ---
+    ds_type: ClassVar[DsType]
+    """The ``movement`` dataset type this validator produces."""
+
     DIM_NAMES: ClassVar[tuple[str, ...]]
     """Required dimension names for the dataset. The order of dimension names
     must match the order of dimensions in the ``position_array``."""
@@ -265,6 +271,7 @@ class _BaseDatasetInputs(ABC):
             time_unit = "seconds"
             dataset_attrs["fps"] = self.fps
         dataset_attrs["time_unit"] = time_unit
+        dataset_attrs["ds_type"] = self.ds_type
         return time_coords, dataset_attrs
 
     @staticmethod
@@ -406,6 +413,7 @@ class ValidPosesInputs(_BaseDatasetInputs):
     (default), the keypoints will be named "keypoint_0", "keypoint_1",
     etc."""
 
+    ds_type: ClassVar[DsType] = "poses"
     DIM_NAMES: ClassVar[tuple[str, ...]] = (
         "time",
         "space",
@@ -467,7 +475,6 @@ class ValidPosesInputs(_BaseDatasetInputs):
         DIM_NAMES = self.DIM_NAMES
         n_space = self.position_array.shape[DIM_NAMES.index("space")]
         time_coords, dataset_attrs = self._time_coords_and_attrs()
-        dataset_attrs["ds_type"] = "poses"
 
         # confidence_array may be point-wise (all non-space dims) or
         # individual-wise (non-space and non-keypoint dims)
@@ -539,6 +546,7 @@ class ValidBboxesInputs(_BaseDatasetInputs):
     (extent along the y-axis of the image). The shape_array must have the same
     shape as the position_array."""
 
+    ds_type: ClassVar[DsType] = "bboxes"
     DIM_NAMES: ClassVar[tuple[str, ...]] = ("time", "space", "individual")
     VAR_NAMES: ClassVar[tuple[str, ...]] = ("position", "shape", "confidence")
     _ALLOWED_SPACE_DIM_SIZE: ClassVar[int] = 2
@@ -563,7 +571,6 @@ class ValidBboxesInputs(_BaseDatasetInputs):
 
         """
         time_coords, dataset_attrs = self._time_coords_and_attrs()
-        dataset_attrs["ds_type"] = "bboxes"
         # Convert data to an xarray.Dataset
         # with dimensions ('time', 'space', 'individual')
         DIM_NAMES = self.DIM_NAMES
@@ -583,3 +590,10 @@ class ValidBboxesInputs(_BaseDatasetInputs):
             },
             attrs=dataset_attrs,
         )
+
+
+# Mapping of dataset types to their corresponding validator classes
+DS_TYPE_VALIDATORS: dict[DsType, type[_BaseDatasetInputs]] = {
+    cls.ds_type: cls  # type: ignore[type-abstract]
+    for cls in _BaseDatasetInputs.__subclasses__()
+}
