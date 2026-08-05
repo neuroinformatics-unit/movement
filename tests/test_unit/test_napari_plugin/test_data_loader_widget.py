@@ -1002,21 +1002,22 @@ def test_on_points_data_changed_ignores_tracks_layer(
     "action_type",
     [
         ActionType.ADDED,
-        ActionType.REMOVED,
         ActionType.ADDING,
         ActionType.REMOVING,
         ActionType.CHANGING,
     ],
 )
-def test_on_points_data_changed_ignores_non_move_events(
+def test_on_points_data_changed_ignores_unhandled_action_types(
     action_type, valid_poses_path_and_ds, loaded_data_loader
 ):
-    """Test that the callback leaves confidence untouched for non-drag events.
+    """Test that the callback leaves confidence untouched for other events.
 
-    Verifies that :meth:`DataLoader._on_points_data_changed` only acts on
-    ``ActionType.CHANGED`` (completed drag) and ignores all other action types,
-    including ``ADDING``, ``ADDED``, ``REMOVING``, ``REMOVED``, and
-    ``CHANGING`` (in-progress drag).
+    Verifies that :meth:`DataLoader._on_points_data_changed` leaves
+    ``confidence`` untouched for action types it does not act on:
+    ``ADDING``, ``ADDED``, ``REMOVING``, and ``CHANGING``
+    (in-progress drag). The two action types it does handle,
+    ``ActionType.CHANGED`` (completed drag) and ``ActionType.REMOVED``
+    (completed removal), are covered elsewhere.
     """
     filepath, ds_loaded = valid_poses_path_and_ds
     loader = loaded_data_loader(filepath, ds_loaded)
@@ -1034,6 +1035,84 @@ def test_on_points_data_changed_ignores_non_move_events(
         loader.points_layer.features["confidence"],
         original_confidence,
     )
+
+
+def test_on_points_data_changed_syncs_tracks_layer(
+    valid_poses_path_and_ds, loaded_data_loader, move_point
+):
+    """Test that dragging a point updates the corresponding Tracks layer.
+
+    Verifies that :meth:`DataLoader._on_points_data_changed` writes a
+    moved point's new (frame, y, x) to the same row in the Tracks
+    layer, and leaves every other row untouched.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+
+    original_tracks_data = loader.tracks_layer.data.copy()
+
+    move_point(
+        loader,
+        frame=5,
+        keypoint="centroid",
+        individual="id_0",
+        new_y=100,
+        new_x=200,
+    )
+
+    # `edited` flags exactly the dragged row; use it to partition rows
+    edited = loader.points_layer.properties["edited"]
+    moved_index = int(np.flatnonzero(edited)[0])
+    new_position = loader.points_layer.data[moved_index]
+
+    # The dragged row is updated to the new position in the Tracks layer...
+    np.testing.assert_array_equal(
+        loader.tracks_layer.data[moved_index, 1:], new_position
+    )
+    # ...while every non-edited row is untouched.
+    np.testing.assert_array_equal(
+        loader.tracks_layer.data[~edited], original_tracks_data[~edited]
+    )
+
+
+def test_on_points_data_removes_tracks_layer_row(
+    valid_poses_path_and_ds, loaded_data_loader
+):
+    """Test that deleting a point removes the matching row from Tracks.
+
+    Verifies that `DataLoader._on_points_data_changed` reacts to
+    the real ``ActionType.REMOVED`` event fired by napari's own
+    ``Points.remove`` by dropping the same row from the companion
+    Tracks layer, leaving every other row untouched.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+
+    live_props = loader.points_layer.properties
+    edit_idx = int(
+        np.flatnonzero(
+            (live_props["time"] == 5)
+            & (live_props["keypoint"] == "centroid")
+            & (live_props["individual"] == "id_0")
+        )[0]
+    )
+    original_tracks = loader.tracks_layer.data.copy()
+
+    # Use napari's `Points.remove(indices)``
+    loader.points_layer.remove([edit_idx])
+    assert len(loader.tracks_layer.data) == len(original_tracks) - 1
+
+    # Rows before the deleted one are untouched; rows after it have
+    # shifted up by one position, as ``np.delete`` does.
+    np.testing.assert_array_equal(
+        loader.tracks_layer.data[:edit_idx],
+        original_tracks[:edit_idx],
+    )  # is everything before the deleted row identical?
+    np.testing.assert_array_equal(
+        loader.tracks_layer.data[edit_idx:],
+        original_tracks[edit_idx + 1 :],
+    )  # did everything survive after the deleted row and shifted
+    # down by exactly one index to fill the gap?
 
 
 def test_on_points_data_changed_second_drag_extends_edited(

@@ -1,8 +1,10 @@
 import string
+from unittest.mock import Mock
 
 import numpy as np
 import pandas as pd
 import pytest
+from napari.layers.base import ActionType
 
 from movement.io import save_poses
 from movement.napari.loader_widgets import DataLoader
@@ -191,6 +193,37 @@ def sample_properties_with_factorized():
         return properties_df
 
     return _sample_properties_with_factorized
+
+
+@pytest.fixture
+def move_point():
+    """Return a factory that simulates a user dragging a single point
+    to a new position in a loaded ``DataLoader``'s Points layer.
+
+    Looks up the point by its ``frame``/``keypoint``/``individual``
+    (rather than a raw row index), so callers don't need to reason
+    about how NaN-filtering may have shifted row positions.
+    """
+
+    def _move_point(loader, frame, keypoint, individual, new_y, new_x):
+        live_props = loader.points_layer.properties
+        edit_idx = int(
+            np.flatnonzero(
+                (live_props["time"] == frame)
+                & (live_props["keypoint"] == keypoint)
+                & (live_props["individual"] == individual)
+            )[0]
+        )
+        loader.points_layer.data[edit_idx, 1] = new_y
+        loader.points_layer.data[edit_idx, 2] = new_x
+
+        mock_event = Mock()
+        mock_event.source = loader.points_layer
+        mock_event.action = ActionType.CHANGED
+        mock_event.data_indices = (edit_idx,)
+        loader._on_points_data_changed(mock_event)
+
+    return _move_point
 
 
 @pytest.fixture
