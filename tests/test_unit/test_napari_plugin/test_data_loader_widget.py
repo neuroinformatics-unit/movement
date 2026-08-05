@@ -1061,7 +1061,6 @@ def test_on_points_data_changed_syncs_tracks_layer(
     )
 
     # `edited` flags exactly the dragged row; use it to partition rows
-    # instead of assuming which index is "the previous frame".
     edited = loader.points_layer.properties["edited"]
     moved_index = int(np.flatnonzero(edited)[0])
     new_position = loader.points_layer.data[moved_index]
