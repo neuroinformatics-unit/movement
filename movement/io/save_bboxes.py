@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 @register_writer("VIA-tracks", ds_type="bboxes", suffixes={".csv"})
 def to_via_tracks_file(
     ds: xr.Dataset,
-    file_path: str | Path,
+    file: str | Path,
     track_ids_from_trailing_numbers: bool = True,
     frame_n_digits: int | None = None,
     image_file_prefix: str | None = None,
@@ -32,7 +32,7 @@ def to_via_tracks_file(
     ----------
     ds
         The ``movement`` bounding boxes dataset to export.
-    file_path
+    file
         Path where the VIA tracks .csv file [1]_ will be saved.
     track_ids_from_trailing_numbers
         If True, extract track IDs from the numbers at the end of the
@@ -139,11 +139,11 @@ def to_via_tracks_file(
     # Write file
     _write_via_tracks_csv(
         ds,
-        file_path,
+        file,
         map_individual_to_track_id,
         img_filename_template,
     )
-    logger.info(f"Saved bounding boxes dataset to {file_path}.")
+    logger.info(f"Saved bounding boxes dataset to {file}.")
 
 
 def _get_image_filename_template(
@@ -332,7 +332,7 @@ def _extract_track_ids_from_individuals_names(
 
 def _write_via_tracks_csv(
     ds: xr.Dataset,
-    file_path: str | Path,
+    file: str | Path,
     map_individual_to_track_id: dict,
     img_filename_template: str,
 ) -> None:
@@ -342,7 +342,7 @@ def _write_via_tracks_csv(
     ----------
     ds
         A movement bounding boxes dataset.
-    file_path
+    file
         Path where the VIA tracks .csv file will be saved.
     map_individual_to_track_id
         Dictionary mapping individuals' names to track IDs.
@@ -372,7 +372,7 @@ def _write_via_tracks_csv(
         ds.shape.isnull(), axis=1
     )  # (time, individual)
 
-    with open(file_path, "w", newline="") as f:
+    with open(file, "w", newline="") as f:
         csv_writer = csv.writer(f)
         csv_writer.writerow(header)
 
