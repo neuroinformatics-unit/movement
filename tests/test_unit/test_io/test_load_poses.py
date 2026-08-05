@@ -3,7 +3,6 @@
 import numpy as np
 import pytest
 import xarray as xr
-from pytest import DATA_PATHS
 
 from movement.io import load_poses
 from movement.validators.datasets import ValidPosesInputs
@@ -35,7 +34,7 @@ def test_load_from_sleap_file_without_tracks(sleap_file_without_tracks):
     """
     ds_from_trackless = load_poses.from_sleap_file(sleap_file_without_tracks)
     ds_from_tracked = load_poses.from_sleap_file(
-        DATA_PATHS.get("SLEAP_single-mouse_EPM.analysis.h5")
+        pytest.DATA_PATHS.get("SLEAP_single-mouse_EPM.analysis.h5")
     )
     # Check if the "individual" coordinate matches
     # the assigned default "id_0"
@@ -67,8 +66,8 @@ def test_load_from_sleap_slp_file_or_h5_file_returns_same(slp_file, h5_file):
     """Test that loading pose tracks from SLEAP .slp and .h5 files
     return the same Dataset.
     """
-    slp_file_path = DATA_PATHS.get(slp_file)
-    h5_file_path = DATA_PATHS.get(h5_file)
+    slp_file_path = pytest.DATA_PATHS.get(slp_file)
+    h5_file_path = pytest.DATA_PATHS.get(h5_file)
     ds_from_slp = load_poses.from_sleap_file(slp_file_path)
     ds_from_h5 = load_poses.from_sleap_file(h5_file_path)
     xr.testing.assert_allclose(ds_from_h5, ds_from_slp)
@@ -86,7 +85,7 @@ def test_load_from_dlc_file(file_name, helpers):
     """Test that loading pose tracks from valid DLC files
     returns a proper Dataset.
     """
-    file_path = DATA_PATHS.get(file_name)
+    file_path = pytest.DATA_PATHS.get(file_name)
     ds = load_poses.from_dlc_file(file_path)
     expected_values = {
         **expected_values_poses,
@@ -122,8 +121,8 @@ def test_load_from_dlc_file_csv_or_h5_file_returns_same():
     """Test that loading pose tracks from DLC .csv and .h5 files
     return the same Dataset.
     """
-    csv_file_path = DATA_PATHS.get("DLC_single-wasp.predictions.csv")
-    h5_file_path = DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+    csv_file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.csv")
+    h5_file_path = pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
     ds_from_csv = load_poses.from_dlc_file(csv_file_path)
     ds_from_h5 = load_poses.from_dlc_file(h5_file_path)
     xr.testing.assert_allclose(ds_from_h5, ds_from_csv)
@@ -145,7 +144,7 @@ def test_load_from_dlc_file_csv_or_h5_file_returns_same():
 def test_fps_and_time_coords(fps, expected_fps, expected_time_unit):
     """Test that time coordinates are set according to the provided fps."""
     ds = load_poses.from_sleap_file(
-        DATA_PATHS.get("SLEAP_three-mice_Aeon_proofread.analysis.h5"),
+        pytest.DATA_PATHS.get("SLEAP_three-mice_Aeon_proofread.analysis.h5"),
         fps=fps,
     )
     assert ds.time_unit == expected_time_unit
@@ -170,7 +169,7 @@ def test_load_from_lp_file(file_name, helpers):
     """Test that loading pose tracks from valid LightningPose (LP) files
     returns a proper Dataset.
     """
-    file_path = DATA_PATHS.get(file_name)
+    file_path = pytest.DATA_PATHS.get(file_name)
     ds = load_poses.from_lp_file(file_path)
     expected_values = {
         **expected_values_poses,
@@ -185,7 +184,7 @@ def test_load_from_lp_or_dlc_file_returns_same():
     using either the `from_lp_file` or `from_dlc_file` function
     returns the same Dataset (except for the source_software).
     """
-    file_path = DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
+    file_path = pytest.DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
     ds_drom_lp = load_poses.from_lp_file(file_path)
     ds_from_dlc = load_poses.from_dlc_file(file_path)
     xr.testing.assert_allclose(ds_from_dlc, ds_drom_lp)
@@ -197,7 +196,7 @@ def test_load_multi_individual_from_lp_file_raises():
     """Test that loading a multi-individual .csv file using the
     `from_lp_file` function raises a ValueError.
     """
-    file_path = DATA_PATHS.get("DLC_two-mice.predictions.csv")
+    file_path = pytest.DATA_PATHS.get("DLC_two-mice.predictions.csv")
     with pytest.raises(ValueError, match="only supports single-individual"):
         load_poses.from_lp_file(file_path)
 
@@ -227,7 +226,7 @@ def test_load_from_anipose_file():
     """Test that loading pose tracks from an Anipose triangulation
     csv file returns the same Dataset.
     """
-    file_path = DATA_PATHS.get(
+    file_path = pytest.DATA_PATHS.get(
         "anipose_mouse-paw_anipose-paper.triangulation.csv"
     )
     ds = load_poses.from_anipose_file(file_path)
