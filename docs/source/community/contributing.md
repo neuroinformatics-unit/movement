@@ -542,7 +542,15 @@ The {func}`@register_writer()<movement.io.save.register_writer>` decorator also 
   Pass `ds_type=None` (the default) only for formats compatible with any dataset type, such as `movement`'s native netCDF format.
   In that case, the decorator will select the appropriate validator based on the `ds_type` attribute of the dataset (i.e. `ds.attrs["ds_type"]`).
 - The optional `suffixes` argument (e.g. `{".csv"}`) tells the decorator which file extensions are valid for the format.
-  It is passed to {func}`~movement.validators.files.validate_file_path`, which checks that `file` has one of the specified suffixes (or skips that check if `suffixes=None`, the default) and always checks that `file` is writable.
+  It is passed to {func}`~movement.validators.files.validate_file_path`, which checks that `file` has one of the specified suffixes (or skips that check if `suffixes=None`, the default), always checks that `file` is writable, and returns `file` as a validated {class}`~pathlib.Path`, which is what the writer actually receives.
+
+::::{dropdown} Type checkers and the validated `file` path
+:color: success
+:icon: light-bulb
+
+Because the writer's signature declares `str | Path`, type checkers may not recognise that `file` is already a {class}`~pathlib.Path` inside the writer body.
+If you call a function that requires a {class}`~pathlib.Path` and the type checker complains, simply reassign `file = Path(file)` — a no-op at runtime that satisfies static typing.
+::::
 
 #### Update TargetSoftware type alias
 The `TargetSoftware` type alias is defined in {mod}`movement.io.save` as a `Literal` containing all supported save target names.
