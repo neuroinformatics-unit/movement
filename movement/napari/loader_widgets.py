@@ -392,8 +392,7 @@ class DataLoader(QWidget):
         logger.info("Added tracked dataset as a napari Points layer.")
 
     def _is_canonical_dims(self) -> bool:
-        """Whether frame is the sliced axis in a 2D view.
-        """
+        """Whether frame is the sliced axis in a 2D view."""
         return (
             self.viewer.dims.ndisplay == 2 and self.viewer.dims.order[0] == 0
         )
