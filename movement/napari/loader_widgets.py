@@ -400,12 +400,13 @@ class DataLoader(QWidget):
     def _update_points_layers_editable(self, event=None):
         """Disable point editing while axes aren't in the canonical order.
 
-        Connected to ``viewer.dims.events.order``/``ndisplay``. This
-        greys out each movement Points layer's select/add/delete
-        controls (via napari's built-in ``Layer.editable``), since a
-        drag only ever touches the currently *displayed* axes (see
-        ``Points._move`` in napari) -- if frame isn't the sliced axis,
-        a drag could otherwise move a point onto a different frame.
+        Connected to ``viewer.dims.events.order``/``ndisplay``.
+        In the default view, the frame axis is the slider, so
+        dragging a point can only change its x/y position. Rolling
+        the axes or switching to 3D makes frame draggable too, which
+        would let a drag move a point to another frame. Disable
+        editing on every movement Points layer while that is the
+        case; napari greys out the select/add/delete controls.
         """
         is_canonical = self._is_canonical_dims()
         movement_points_layers = [
