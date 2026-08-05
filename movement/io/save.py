@@ -107,7 +107,7 @@ def register_writer(
     --------
     >>> from movement.io.save import register_writer
     >>> @register_writer("SLEAP", ds_type="poses", suffixes={".h5"})
-    ... def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path):
+    ... def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path):
     ...     pass
 
     """
