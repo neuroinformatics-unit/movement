@@ -28,8 +28,8 @@ class WriterProtocol(Protocol):
 
     All writer functions registered via :func:`register_writer` must conform
     to this protocol. Writers must accept a ``movement`` dataset and a file
-    path (or any other keyword arguments needed for that format) and save
-    the dataset directly to disk.
+    path, and save the dataset directly to disk. Additional positional and
+    keyword arguments are allowed.
 
     See Also
     --------
@@ -73,19 +73,20 @@ def register_writer(
     """Register a writer function for a given target software.
 
     The decorator also handles dataset and file path validation: the
-    dataset is checked against ``ds_type`` and the file path is checked
-    for write permission and valid ``suffixes`` before the writer function
-    is called.
+    dataset is checked against its expected type (``ds_type``, or if
+    unset, the type inferred from ``ds.attrs["ds_type"]``), and the file
+    path is checked for write permission and optional suffixes, before
+    the writer function is called.
 
     Parameters
     ----------
     target_software
         The name of the target software to save to.
     ds_type
-        The ``movement`` dataset type (``"poses"`` or ``"bboxes"``) the
-        writer is compatible with. If None (default), the writer is
-        compatible with any dataset type (e.g. ``movement``'s native
-        netCDF format).
+        The ``movement`` dataset type the writer is restricted to. If None
+        (default), the writer (e.g., ``movement``'s native netCDF format)
+        accepts either type, and the expected type is instead inferred from the
+        dataset's ``ds_type`` attribute at save time.
     suffixes
         The set of valid file suffixes (e.g. ``{".h5", ".csv"}``) for this
         writer. If None (default), the file path is still validated for write
@@ -105,8 +106,8 @@ def register_writer(
     Examples
     --------
     >>> from movement.io.save import register_writer
-    >>> @register_writer("MySoftware", ds_type="poses", suffixes={".csv"})
-    ... def to_mysoftware_file(ds, file_path, **kwargs):
+    >>> @register_writer("SLEAP", ds_type="poses", suffixes={".h5"})
+    ... def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path):
     ...     pass
 
     """
@@ -139,18 +140,13 @@ def save_dataset(
 ) -> None:
     """Save a ``movement`` dataset to a file in any supported format.
 
-    Based on the value of ``target_software``, the appropriate format-specific
-    writer in :mod:`movement.io.save_poses` or :mod:`movement.io.save_bboxes`
-    is called.
-
     Parameters
     ----------
     ds
-        The ``movement`` poses or bounding boxes dataset to save.
+        The ``movement`` dataset to save.
     file
         Path to the file to save the dataset to. The required file extension
-        depends on the target format (see the format-specific writers listed
-        under "See Also").
+        depends on the target format.
     target_software
         The format to save the dataset in. If None (default), the dataset is
         saved in ``movement``'s native netCDF format (``.nc``). Otherwise, one
@@ -159,6 +155,10 @@ def save_dataset(
         Additional keyword arguments passed to the format-specific writer
         (e.g. ``split_individuals`` for DeepLabCut, ``config`` for NWB, or any
         :meth:`xarray.Dataset.to_netcdf` argument for netCDF).
+
+    Returns
+    -------
+    None
 
     Raises
     ------
