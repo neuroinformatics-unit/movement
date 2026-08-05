@@ -1017,9 +1017,7 @@ def test_on_points_data_changed_ignores_unhandled_action_types(
     ``ADDING``, ``ADDED``, ``REMOVING``, and ``CHANGING``
     (in-progress drag). The two action types it does handle,
     ``ActionType.CHANGED`` (completed drag) and ``ActionType.REMOVED``
-    (completed removal), are covered separately - see
-    :func:`test_on_points_data_changed_syncs_tracks_layer` and
-    :func:`test_on_points_data_changed_removes_tracks_layer_row`.
+    (completed removal), are covered elsewhere.
     """
     filepath, ds_loaded = valid_poses_path_and_ds
     loader = loaded_data_loader(filepath, ds_loaded)
