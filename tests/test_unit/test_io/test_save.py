@@ -1,7 +1,6 @@
 from contextlib import nullcontext as does_not_raise
 
 import pytest
-import xarray as xr
 
 from movement.io import save
 
@@ -29,11 +28,11 @@ class TestSaveDataset:
             valid_poses_dataset, file_path, foo="bar"
         )
 
-    def test_invalid_target_software(self):
+    def test_invalid_target_software(self, valid_poses_dataset):
         """Test save_dataset raises an error for invalid target software."""
         with pytest.raises(ValueError, match="Unsupported target_software"):
             save.save_dataset(
-                xr.Dataset(), "some_file", target_software="bogus"
+                valid_poses_dataset, "some_file", target_software="bogus"
             )
 
     @pytest.mark.parametrize(
@@ -183,6 +182,7 @@ class TestRegisterWriterDecorator:
         self.mock_writer = mocker.MagicMock()
 
     def _register(self, **kwargs):
+        """Register a stub writer function with the decorator."""
         return save.register_writer("StubSoftware", **kwargs)(self.mock_writer)
 
     @pytest.mark.parametrize(
