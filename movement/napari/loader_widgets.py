@@ -393,12 +393,6 @@ class DataLoader(QWidget):
 
     def _is_canonical_dims(self) -> bool:
         """Whether frame is the sliced axis in a 2D view.
-
-        A point drag only ever touches the currently *displayed* axes
-        (see ``Points._move`` in napari). When frame is the sliced
-        axis, that means x/y -- everything is safe to edit. If axes
-        have been rolled so frame is displayed instead, or a 3D view
-        is active, a drag could move a point onto a different frame.
         """
         return (
             self.viewer.dims.ndisplay == 2 and self.viewer.dims.order[0] == 0
