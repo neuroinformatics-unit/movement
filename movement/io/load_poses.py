@@ -15,6 +15,7 @@ from movement.io.load import register_loader
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import (
+    ValidAniframeParquet,
     ValidAniposeCSV,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
@@ -666,6 +667,235 @@ def from_anipose_file(
     return from_anipose_style_df(
         anipose_df, fps=fps, individual_name=individual_name
     )
+
+
+@register_loader("aniframe", file_validators=ValidAniframeParquet)
+def from_aniframe_file(
+    file: str | Path,
+    fps: float | None = None,
+    use_frame_numbers_from_file: bool = False,
+) -> xr.Dataset:
+    """Create a ``movement`` poses dataset from an aniframe Parquet file.
+
+    aniframe [1]_ is a long-format tidy data structure produced by the
+    `animovement <https://animovement.dev/>`_ R ecosystem. Each row
+    represents a single observation for one individual, keypoint, and
+    timepoint. The linked spec documents the column categories
+    (``variables_what``, ``variables_when``, ``variables_where``) referenced
+    throughout this loader.
+
+    Parameters
+    ----------
+    file
+        Path to the aniframe Parquet file (``.parquet``).
+    fps
+        Frames per second. If ``None`` (default), the value is read from
+        the file's embedded metadata (``sampling_rate`` field). An
+        explicitly provided value takes precedence over the metadata.
+        If no fps can be determined and ``unit_time`` is not ``"frame"``,
+        the time coordinates will be in frame numbers.
+    use_frame_numbers_from_file
+        If ``True``, the dataset's ``time`` coordinate is built from the
+        file's ``time`` column rather than a regenerated
+        ``np.arange(n_frames) / fps`` sequence. Use this when the source
+        file has irregular sampling, dropped frames, or a non-zero start
+        offset that should be preserved. Values are converted from the
+        file's ``unit_time`` to seconds (using a fixed lookup) when the
+        unit is recognised; ``"frame"`` units are kept as integer frame
+        numbers. Defaults to ``False`` (current behaviour).
+
+    Returns
+    -------
+    xarray.Dataset
+        ``movement`` dataset containing the pose tracks, confidence scores,
+        and associated metadata.
+
+    Raises
+    ------
+    ValueError
+        If the file contains polar or spherical coordinate columns
+        (``rho``, ``phi``, ``theta``), if any extra identity or temporal
+        column holds more than one unique value, or if the aniframe
+        metadata is missing the required ``variables_what``,
+        ``variables_when``, or ``variables_where`` fields.
+
+    See Also
+    --------
+    movement.io.load_poses.from_numpy
+
+    References
+    ----------
+    .. [1] https://animovement.dev/aniframe/articles/aniframe-structure.html
+
+    Examples
+    --------
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_aniframe_file("path/to/file.parquet")
+
+    Notes
+    -----
+    Only 2D and 3D Cartesian coordinate systems are supported. Extra
+    ``variables_what`` or ``variables_when`` columns (e.g., ``model``,
+    ``session``, ``trial``) are silently dropped when they hold a single
+    unique value; they raise a ``ValueError`` when they hold multiple values.
+
+    If the file uses a ``track`` column instead of ``individual``, each
+    track is interpreted as an individual and an INFO message is logged.
+    If your data contains multiple tracks per individual, stitch them
+    before loading.
+
+    Columns that do not belong to any aniframe variable category
+    (``variables_what``, ``variables_when``, ``variables_where``) are
+    treated as extra data variables and added to the returned Dataset with
+    automatically inferred dimensions. The minimum dimensions needed to
+    represent each column are detected, then expanded to include any
+    canonical dim (``time``, ``keypoints``, ``individuals``) that is a
+    singleton in this file — so output shapes stay consistent across
+    files differing only in singleton-dim sizes (e.g., 1- vs 3-individual).
+    Numeric columns are stored as ``float64`` (with NaN fill); boolean
+    columns and other dtypes (strings, mixed objects) are stored as
+    ``object`` (with ``None`` fill). Constant columns (identical across
+    every row) are skipped.
+
+    The original tracking software is taken from the ``source`` field in
+    the aniframe metadata (e.g., ``"SLEAP"`` or ``"DeepLabCut"``).
+
+    Files declaring ``origin == "bottom_left"`` are auto-converted to
+    ``movement``'s top-left convention via ``new_y = y_height - y``,
+    using ``y_height`` from the metadata when present and
+    ``max(y)`` from the data otherwise. The resulting dataset has
+    ``ds.attrs["origin"] = "top_left"`` and the ``y_height`` value is
+    kept on ``ds.attrs["y_height"]`` for round-tripping.
+
+    """
+    from movement.io.aniframe import (
+        _WHERE_CARTESIAN,
+        _attach_extra_attrs,
+        _build_extra_array,
+        _check_no_polar_coords,
+        _decode_aniframe_metadata,
+        _extract_meta_vars,
+        _flip_y_to_top_left,
+        _infer_extra_dims,
+        _override_time_coord_from_file,
+        _resolve_columns,
+        _resolve_fps,
+    )
+
+    valid_file = cast("ValidFile", file)
+    file_path = valid_file.file
+
+    df = pd.read_parquet(file_path)
+    meta = _decode_aniframe_metadata(file_path)
+    vars_what, vars_when, vars_where = _extract_meta_vars(meta)
+    df, extra_data_cols = _resolve_columns(
+        df, vars_what, vars_when, vars_where
+    )
+    _check_no_polar_coords(set(df.columns))
+
+    # Detect which Cartesian space columns are present
+    space_cols = sorted(_WHERE_CARTESIAN & set(df.columns))
+
+    # Preserve order of appearance for both axes
+    keypoint_names = df["keypoint"].astype(str).drop_duplicates().tolist()
+    individual_names = df["individual"].astype(str).drop_duplicates().tolist()
+    time_values = sorted(df["time"].unique().tolist())
+
+    n_frames = len(time_values)
+    n_space = len(space_cols)
+    n_keypoints = len(keypoint_names)
+    n_individuals = len(individual_names)
+
+    position_array = np.full(
+        (n_frames, n_space, n_keypoints, n_individuals), np.nan
+    )
+    has_confidence = "confidence" in df.columns
+    confidence_array = (
+        np.full((n_frames, n_keypoints, n_individuals), np.nan)
+        if has_confidence
+        else None
+    )
+
+    # Build fast integer-index lookups then fill arrays in one vectorised pass
+    time_idx = {t: i for i, t in enumerate(time_values)}
+    ind_idx = {ind: i for i, ind in enumerate(individual_names)}
+    kp_idx = {kp: i for i, kp in enumerate(keypoint_names)}
+
+    ti = df["time"].map(time_idx).to_numpy()
+    ii = df["individual"].astype(str).map(ind_idx).to_numpy()
+    ki = df["keypoint"].astype(str).map(kp_idx).to_numpy()
+
+    for si, sc in enumerate(space_cols):
+        position_array[ti, si, ki, ii] = df[sc].to_numpy()
+
+    if has_confidence:
+        confidence_array[ti, ki, ii] = df["confidence"].to_numpy()  # type: ignore[index]
+
+    # Flip y in-place when the source uses a bottom-left origin so that
+    # the data overlays correctly on a top-left (image-coordinates) frame.
+    flipped_y_height: float | None = None
+    if meta.get("origin") == "bottom_left":
+        flipped_y_height = _flip_y_to_top_left(
+            position_array, meta, space_cols
+        )
+
+    # Auto-expand inferred dims to include any canonical dim that is a
+    # singleton in this file. Output shapes stay consistent across files
+    # differing only in singleton-dim sizes (e.g. 1- vs 3-individual).
+    canonical_sizes = {
+        "time": n_frames,
+        "keypoints": n_keypoints,
+        "individuals": n_individuals,
+    }
+    singleton_dims = {d for d, n in canonical_sizes.items() if n == 1}
+
+    extra_vars: dict[str, tuple[tuple[str, ...], np.ndarray]] = {}
+    for col in extra_data_cols:
+        dims = _infer_extra_dims(df, col)
+        if not dims:
+            logger.info(f"Column '{col}' is constant and will be skipped.")
+            continue
+        dims = tuple(
+            d
+            for d in ("time", "keypoints", "individuals")
+            if d in dims or d in singleton_dims
+        )
+        extra_vars[col] = (
+            dims,
+            _build_extra_array(
+                df,
+                col,
+                dims,
+                ti=ti,
+                ki=ki,
+                ii=ii,
+                n_frames=n_frames,
+                n_keypoints=n_keypoints,
+                n_individuals=n_individuals,
+            ),
+        )
+
+    fps_to_use = _resolve_fps(fps, meta)
+    source = meta.get("source") or None
+
+    ds = from_numpy(
+        position_array=position_array,
+        confidence_array=confidence_array,
+        individual_names=individual_names,
+        keypoint_names=keypoint_names,
+        fps=fps_to_use,
+        source_software=source,
+    )
+
+    for col, (dims, arr) in extra_vars.items():
+        ds[col] = xr.DataArray(arr, dims=dims)
+
+    if use_frame_numbers_from_file:
+        ds = _override_time_coord_from_file(ds, time_values, meta)
+
+    _attach_extra_attrs(ds, meta, file_path, flipped_y_height=flipped_y_height)
+    logger.info(f"Loaded poses dataset from {file_path.name}")
+    return ds
 
 
 @register_loader("NWB", file_validators=[ValidNWBFile])
