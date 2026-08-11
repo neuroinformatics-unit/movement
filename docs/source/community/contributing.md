@@ -210,8 +210,8 @@ Avoid including large data files directly in the GitHub repository.
 Some tests are marked as `benchmark` because we use them with [pytest-benchmark](pytest-benchmark:) to measure the performance of specific code paths.
 These tests are excluded from the default test run to keep the suite fast.
 This applies to any direct `pytest` invocation (command line or IDE).
-Our `tox` environment—used in CI—runs the normal test suite and then runs the benchmark tests once with benchmarking disabled (`--benchmark-disable`).
-This serves as a smoke check: no timing or statistics are collected; it simply verifies that the benchmarked code still executes correctly.
+Our `tox` environment—used in CI—runs the full test suite, including the benchmark tests, but with benchmarking disabled (`--benchmark-disable`).
+This acts as a smoke check: no timing or statistics are collected; it simply verifies that the benchmarked code still executes correctly.
 
 To run only the benchmark tests locally:
 
