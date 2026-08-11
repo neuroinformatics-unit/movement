@@ -225,23 +225,25 @@ linkcheck_anchors_ignore_for_url = [
 ]
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
-    "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
-    "https://opensource.org/license/bsd-3-clause/",  # 403 error
-    "https://www.sainsburywellcome.org/",  # ConnectTimeoutError
+    "https://pubs.acs.org/doi/",  # Checking dois is forbidden here
     "https://www.robots.ox.ac.uk/",  # 404 error
     "https://silvalab.codeberg.page/BraiAn/",  # SSLError despite working link
-    "https://www.g-node.org/",  # frequent timeouts
-    "https://www.contributor-covenant.org/*",  # frequent timeouts
-    "https://docutils.sourceforge.io/*",  # 403 error
-    "https://www.iso.org/",  # 403 error
-    "https://www.ffmpeg.org/",  # 403 error
     # Checking zenodo redirects (from concept doi to record) takes a long time
-    "https://zenodo.org/doi/*",
-    "https://zenodo.org/records/*",
+    "https://zenodo.org/doi/",
+    "https://zenodo.org/records/",
     # DOI resolvers often rate-limit or return 403/429 in CI
-    "https://doi.org/*",
-    "https://abide.ics.ulisboa.pt/*",  # flaky
+    "https://doi.org/",
+    "https://abide.ics.ulisboa.pt/",
     "https://docs.unidata.ucar.edu/nug/current/",
+    "https://docutils.sourceforge.io/",
+    "https://www.iso.org/",
+    "https://www.ffmpeg.org/",
+    "https://gis.stackexchange.com/",
+    "https://www.g-node.org/",
+    "https://www.contributor-covenant.org/",
+    "https://opensource.org/license/bsd-3-clause/",
+    "https://www.sainsburywellcome.org/",
+    "https://en.wikipedia.org/wiki/",
 ]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {
