@@ -251,6 +251,12 @@ linkcheck_request_headers = {
         "Authorization": f"Bearer {os.environ.get('GITHUB_TOKEN', '')}",
     },
 }
+# Allow redirects for URIs that require authentication
+linkcheck_allowed_redirects = {
+    "https://github.com/neuroinformatics-unit/movement/releases/new": (
+        r"https://github\.com/login\?return_to=.*"
+    ),
+}
 
 
 myst_url_schemes = {
