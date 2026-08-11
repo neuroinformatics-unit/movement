@@ -222,4 +222,5 @@ dependency_groups =
     dev
 commands =
     pytest -v --color=yes --cov=movement --cov-report=xml
+    pytest -m benchmark --benchmark-disable
 """
