@@ -263,7 +263,7 @@ myst_url_schemes = {
     "movement-community-calls": "https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Community.20Calls",
     "movement-releases": "https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Releases/with/601196586",
     "conda": "https://docs.conda.io/projects/conda/en/latest/{{path}}#{{fragment}}",
-    "dlc": "https://www.mackenziemathislab.org/deeplabcut/",
+    "dlc": "https://mlabofai.org/deeplabcut/",
     "gin": "https://gin.g-node.org/{{path}}#{{fragment}}",
     "github-docs": "https://docs.github.com/en/{{path}}#{{fragment}}",
     "myst-parser": "https://myst-parser.readthedocs.io/en/latest/{{path}}#{{fragment}}",
