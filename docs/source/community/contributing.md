@@ -207,8 +207,11 @@ These datasets are accessible through the `pytest.DATA_PATHS` dictionary, popula
 Avoid including large data files directly in the GitHub repository.
 
 #### Running benchmark tests
-Some tests are marked as `benchmark` because we use them along with [pytest-benchmark](pytest-benchmark:) to measure the performance of a section of the code. These tests are excluded from the default test run to keep CI and local test running fast.
-This applies to all ways of running `pytest` (via command line, IDE, tox or CI).
+Some tests are marked as `benchmark` because we use them with [pytest-benchmark](pytest-benchmark:) to measure the performance of specific code paths.
+These tests are excluded from the default test run to keep the suite fast.
+This applies to any direct `pytest` invocation (command line or IDE).
+Our `tox` environment—used in CI—runs the normal test suite and then runs the benchmark tests once with benchmarking disabled (`--benchmark-disable`).
+This serves as a smoke check: no timing or statistics are collected; it simply verifies that the benchmarked code still executes correctly.
 
 To run only the benchmark tests locally:
 
@@ -216,7 +219,7 @@ To run only the benchmark tests locally:
 pytest -m benchmark
 ```
 
-To run all tests, including those marked as `benchmark`:
+To run the full test suite, including tests marked as `benchmark`:
 
 ```sh
 pytest -m ""
