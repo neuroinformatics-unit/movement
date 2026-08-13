@@ -1,6 +1,7 @@
 from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 
+import h5py
 import numpy as np
 import pandas as pd
 import pytest
@@ -364,6 +365,45 @@ def test_to_sleap_analysis_file_valid_dataset(
         val = request.getfixturevalue(file_fixture)
         file_path = val.get("file_path") if isinstance(val, dict) else val
         save_poses.to_sleap_analysis_file(valid_poses_dataset, file_path)
+
+
+@pytest.mark.parametrize(
+    "dataset, expected_confidence_key",
+    [
+        ("valid_poses_dataset", "point_scores"),
+        (
+            "valid_poses_dataset_with_individual_wise_confidence",
+            "instance_scores",
+        ),
+    ],
+)
+def test_to_sleap_analysis_file_confidence_scores(
+    dataset, expected_confidence_key, new_h5_file, request
+):
+    """Test that saving to SLEAP analysis files a dataset with:
+    - keypoint-wise confidence scores stores the scores in "point_scores"
+    - individual-wise confidence scores stores the scores in "instance_scores"
+    and that the other score array is filled with NaNs with the correct shape.
+    """
+    ds = request.getfixturevalue(dataset)
+    save_poses.to_sleap_analysis_file(ds, new_h5_file)
+    empty_shapes = {
+        "point_scores": (
+            ds.sizes["time"],
+            ds.sizes["keypoint"],
+            ds.sizes["individual"],
+        ),
+        "instance_scores": (ds.sizes["time"], ds.sizes["individual"]),
+    }
+    with h5py.File(new_h5_file, "r") as f:
+        scores = {key: f[key][:].T for key in empty_shapes}
+    empty_key = next(k for k in empty_shapes if k != expected_confidence_key)
+    np.testing.assert_allclose(
+        scores[expected_confidence_key], ds.confidence.values
+    )
+    np.testing.assert_array_equal(
+        scores[empty_key], np.full(empty_shapes[empty_key], np.nan)
+    )
 
 
 @pytest.mark.parametrize(
