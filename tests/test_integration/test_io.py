@@ -49,6 +49,24 @@ def test_convert_sleap_to_dlc_file(sleap_file, dlc_output_file):
 
 
 @pytest.mark.parametrize(
+    "dataset",
+    [
+        "valid_poses_dataset",
+        "valid_poses_dataset_with_individual_wise_confidence",
+    ],
+)
+def test_save_and_load_sleap_file(dataset, new_h5_file, request):
+    """Test that saving pose tracks with keypoint- and individual-wise
+    confidence to SLEAP-style .h5 analysis files and then loading them
+    back in returns the same Dataset.
+    """
+    ds_saved = request.getfixturevalue(dataset)
+    save_poses.to_sleap_analysis_file(ds_saved, new_h5_file)
+    ds_loaded = load_poses.from_sleap_file(new_h5_file)
+    xr.testing.assert_allclose(ds_saved, ds_loaded)
+
+
+@pytest.mark.parametrize(
     "sleap_h5_file, fps",
     [
         ("SLEAP_single-mouse_EPM.analysis.h5", 30),
