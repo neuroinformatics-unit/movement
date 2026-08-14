@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Concatenate, Literal, ParamSpec, Protocol, cast
 
 import xarray as xr
+from attrs import field, frozen, validators
 
 from movement.utils.logging import logger
 from movement.validators.datasets import DS_TYPE_VALIDATORS, DsType
@@ -57,8 +58,19 @@ class WriterProtocol(Protocol):
         ...
 
 
-_WRITER_REGISTRY: dict[TargetSoftware, WriterProtocol] = {}
-_WRITER_DS_TYPE_REGISTRY: dict[TargetSoftware, DsType | None] = {}
+@frozen
+class _WriterEntry:
+    """Writer function and dataset-type restriction for a target software."""
+
+    writer: WriterProtocol = field(validator=validators.is_callable())
+    """Writer function for the target software."""
+
+    ds_type: DsType | None = field(default=None, kw_only=True)
+    """``movement`` dataset type the writer is restricted to, or None if
+    unrestricted."""
+
+
+_WRITER_REGISTRY: dict[TargetSoftware, _WriterEntry] = {}
 
 
 def register_writer(
@@ -125,8 +137,9 @@ def register_writer(
             )
             return writer_fn(ds, valid_file, *args, **kwargs)
 
-        _WRITER_REGISTRY[target_software] = cast("WriterProtocol", wrapper)
-        _WRITER_DS_TYPE_REGISTRY[target_software] = ds_type
+        _WRITER_REGISTRY[target_software] = _WriterEntry(
+            cast("WriterProtocol", wrapper), ds_type=ds_type
+        )
         return wrapper
 
     return decorator
@@ -218,7 +231,7 @@ def save_dataset(
                 f"Supported values are: {supported}."
             )
         )
-    _WRITER_REGISTRY[target](ds, file, **kwargs)
+    _WRITER_REGISTRY[target].writer(ds, file, **kwargs)
 
 
 def _validate_ds_type(ds: xr.Dataset, target: TargetSoftware) -> None:
@@ -232,7 +245,7 @@ def _validate_ds_type(ds: xr.Dataset, target: TargetSoftware) -> None:
     For targets compatible with either type (currently only netCDF), the
     expected type is inferred from ``ds.attrs["ds_type"]``.
     """
-    expected = _WRITER_DS_TYPE_REGISTRY[target]
+    expected = _WRITER_REGISTRY[target].ds_type
     if expected is None:  # netCDF: determine the expected type from ds_type
         try:
             expected = ds.attrs.get("ds_type")

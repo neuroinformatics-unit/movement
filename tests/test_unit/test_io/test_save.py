@@ -15,7 +15,7 @@ class TestSaveDataset:
         mock_writer = mocker.MagicMock()
         mocker.patch.dict(
             "movement.io.save._WRITER_REGISTRY",
-            {"StubSoftware": mock_writer},
+            {"StubSoftware": save._WriterEntry(mock_writer)},
         )
         file_path = tmp_path / "output"
         save.save_dataset(
@@ -176,9 +176,8 @@ class TestRegisterWriterDecorator:
 
     @pytest.fixture(autouse=True)
     def _setup(self, mocker):
-        """Patch both writer registries and provide a reusable stub writer."""
+        """Patch the writer registry and provide a reusable stub writer."""
         mocker.patch.dict("movement.io.save._WRITER_REGISTRY")
-        mocker.patch.dict("movement.io.save._WRITER_DS_TYPE_REGISTRY")
         self.mock_writer = mocker.MagicMock()
 
     def _register(self, **kwargs):
@@ -252,7 +251,8 @@ class TestRegisterWriterDecorator:
 
     @pytest.mark.parametrize("ds_type", ["poses", "bboxes", None])
     def test_populates_registries(self, ds_type):
-        """Test the wrapper and ds_type are recorded in both registries."""
+        """Test the wrapper and ds_type are recorded in the registry entry."""
         to_stubsoftware_file = self._register(ds_type=ds_type)
-        assert save._WRITER_REGISTRY["StubSoftware"] is to_stubsoftware_file
-        assert save._WRITER_DS_TYPE_REGISTRY["StubSoftware"] == ds_type
+        entry = save._WRITER_REGISTRY["StubSoftware"]
+        assert entry.writer is to_stubsoftware_file
+        assert entry.ds_type == ds_type
