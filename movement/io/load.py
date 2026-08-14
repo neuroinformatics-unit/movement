@@ -81,7 +81,7 @@ class LoaderProtocol(Protocol):
 
 @frozen
 class _LoaderEntry:
-    """Loader function and file validators registered for a source software."""
+    """Loader function and suffix-to-validator map for a source software."""
 
     loader: LoaderProtocol = field(validator=validators.is_callable())
     """Loader function for the source software."""
@@ -339,7 +339,7 @@ def register_loader(
     ) -> Callable[Concatenate[TInputFile, P], xr.Dataset]:
         @wraps(loader_fn)
         def wrapper(file: TInputFile, *args, **kwargs) -> xr.Dataset:
-            if not validators_list:
+            if not suffix_map:
                 return loader_fn(file, *args, **kwargs)
 
             valid_file = _validate_file(
