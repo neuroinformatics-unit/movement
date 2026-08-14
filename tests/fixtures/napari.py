@@ -227,6 +227,32 @@ def move_point():
 
 
 @pytest.fixture
+def remove_point():
+    """Return a factory that simulates a user deleting a single point
+    from a loaded ``DataLoader``'s Points layer.
+
+    Looks up the point by its ``frame``/``keypoint``/``individual``
+    (rather than a raw row index), so callers don't need to reason
+    about how NaN-filtering or earlier edits may have shifted row
+    positions. Returns the row index that was removed.
+    """
+
+    def _remove_point(loader, frame, keypoint, individual):
+        live_props = loader.points_layer.properties
+        edit_idx = int(
+            np.flatnonzero(
+                (live_props["time"] == frame)
+                & (live_props["keypoint"] == keypoint)
+                & (live_props["individual"] == individual)
+            )[0]
+        )
+        loader.points_layer.remove([edit_idx])
+        return edit_idx
+
+    return _remove_point
+
+
+@pytest.fixture
 def loaded_data_loader(make_napari_viewer_proxy):
     """Return a factory of DataLoader widgets with loaded data."""
 
