@@ -383,7 +383,7 @@ class DataLoader(QWidget):
             **points_style.as_kwargs(),
         )
         self.points_layer.events.data.connect(self._on_points_data_changed)
-        self.points_layer.editable = self._is_canonical_dims()
+        self.points_layer.editable = self._frame_axis_is_sliced()
 
         # If the loaded dataset already has an `edited` property
         # mark those points with the edited symbol.
@@ -391,14 +391,26 @@ class DataLoader(QWidget):
 
         logger.info("Added tracked dataset as a napari Points layer.")
 
+<<<<<<< HEAD
     def _is_canonical_dims(self) -> bool:
         """Whether frame is the sliced axis in a 2D view."""
+=======
+    def _frame_axis_is_sliced(self) -> bool:
+        """Whether frame is the sliced axis in a 2D view.
+
+        A point drag only ever touches the currently *displayed* axes
+        (see ``Points._move`` in napari). When frame is the sliced
+        axis, that means x/y -- everything is safe to edit. If axes
+        have been rolled so frame is displayed instead, or a 3D view
+        is active, a drag could move a point onto a different frame.
+        """
+>>>>>>> 9e3acad8 (remoiving warnings)
         return (
             self.viewer.dims.ndisplay == 2 and self.viewer.dims.order[0] == 0
         )
 
     def _update_points_layers_editable(self, event=None):
-        """Disable point editing while axes aren't in the canonical order.
+        """Disable point editing while the frame axis isn't sliced.
 
         Connected to ``viewer.dims.events.order``/``ndisplay``.
         In the default view, the frame axis is the slider, so
@@ -408,20 +420,12 @@ class DataLoader(QWidget):
         editing on every movement Points layer while that is the
         case; napari greys out the select/add/delete controls.
         """
-        is_canonical = self._is_canonical_dims()
-        movement_points_layers = [
-            ly
-            for ly in self.viewer.layers
-            if isinstance(ly, Points) and ly.metadata.get(POINTS_LAYER_KEY)
-        ]
-        for layer in movement_points_layers:
-            layer.editable = is_canonical
-        if not is_canonical and movement_points_layers:
-            show_warning(
-                "Point editing disabled: axes must be in the default "
-                "order and 2D view, otherwise a drag could move a "
-                "point onto a different frame."
-            )
+        frame_axis_is_sliced = self._frame_axis_is_sliced()
+        for layer in self.viewer.layers:
+            if isinstance(layer, Points) and layer.metadata.get(
+                POINTS_LAYER_KEY
+            ):
+                layer.editable = frame_axis_is_sliced
 
     @staticmethod
     def _set_point_symbol_by_edited(layer: Points) -> None:
