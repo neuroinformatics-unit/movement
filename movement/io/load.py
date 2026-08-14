@@ -157,24 +157,26 @@ def infer_source_software(
 
     # Try all registered validators and keep track of matching candidates
     candidates: list[SourceSoftware] = []
-
-    for source_sw, entry in _LOADER_REGISTRY.items():
-        suffix_map = entry.suffix_validator_map
-        try:
-            # Temporarily disable the logger to avoid flooding the console
-            # with expected validation errors during candidate testing
-            logger.disable("movement")
-            _validate_file(
-                file_path,
-                suffix_map,
-                source_sw,
-                loader_kwargs=loader_kwargs,
-            )
-        except (OSError, TypeError, ValueError):
-            continue
-        finally:
-            logger.enable("movement")  # re-store logging
-        candidates.append(source_sw)
+    # Temporarily disable the logger to avoid flooding the console
+    # with expected validation errors during candidate testing
+    logger.disable("movement")
+    try:
+        for source_sw, entry in _LOADER_REGISTRY.items():
+            suffix_map = entry.suffix_validator_map
+            if file_path.suffix not in suffix_map:
+                continue
+            try:
+                _validate_file(
+                    file_path,
+                    suffix_map,
+                    source_sw,
+                    loader_kwargs=loader_kwargs,
+                )
+            except (OSError, TypeError, ValueError):
+                continue
+            candidates.append(source_sw)
+    finally:
+        logger.enable("movement")  # re-store logging
 
     # If exactly one candidate matches, return it.
     if len(candidates) == 1:
