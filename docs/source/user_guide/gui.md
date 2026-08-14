@@ -284,13 +284,6 @@ change the colormap of a selected tracks layer.
 over the length of the tail and head tracks. However, we are
 working on a workaround, stay tuned!
 
-- You may occasionally see a warning message in the GUI upon loading a datafile, that says:
-  ```bash
-  UserWarning: Previous color_by key 'keypoint_factorized'
-  not present in features. Falling back to track_id!
-  ```
-  This is a known issue and can be safely ignored. It does not currently affect the functionality of the GUI.
-
 - Also note that currently the `show ID` checkbox in the [tracks layer](napari:howtos/layers/tracks.html) controls panel refers to
 an internal napari track ID, rather than the individual or the keypoint ID. This is a known issue and we are working on a fix or workaround.
 :::
