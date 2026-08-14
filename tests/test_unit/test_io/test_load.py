@@ -49,7 +49,7 @@ def test_register_loader_decorator(file_validators, expected_file_type):
 
     ds = stub_loader_fn("file.stub")
     assert "StubSoftware" in load._LOADER_REGISTRY
-    assert load._LOADER_REGISTRY["StubSoftware"] is stub_loader_fn
+    assert load._LOADER_REGISTRY["StubSoftware"].loader is stub_loader_fn
     assert isinstance(ds.attrs["file"], expected_file_type)
 
 
@@ -78,7 +78,8 @@ def test_load_dataset_delegates_correctly(
     else:
         mock_loader = mocker.patch(loader_fn)
         mocker.patch.dict(
-            load._LOADER_REGISTRY, {source_software: mock_loader}
+            load._LOADER_REGISTRY,
+            {source_software: load._LoaderEntry(mock_loader)},
         )
         if source_software == "NWB" and fps is not None:
             with pytest.warns(UserWarning, match="fps argument is ignored"):
@@ -212,8 +213,7 @@ def test_get_supported_source_software():
     assert isinstance(supported, dict)
     assert set(supported) == set(load._LOADER_REGISTRY)
     for sw, suffixes in supported.items():
-        for validator_cls in load._LOADER_VALIDATORS_REGISTRY.get(sw, []):
-            assert validator_cls.suffixes.issubset(suffixes)
+        assert suffixes == set(load._LOADER_REGISTRY[sw].suffix_validator_map)
 
 
 @pytest.mark.parametrize(
