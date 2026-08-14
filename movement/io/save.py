@@ -57,12 +57,12 @@ class WriterProtocol(Protocol):
         ...
 
 
-_WRITER_REGISTRY: dict[str, WriterProtocol] = {}
-_WRITER_DS_TYPE_REGISTRY: dict[str, DsType | None] = {}
+_WRITER_REGISTRY: dict[TargetSoftware, WriterProtocol] = {}
+_WRITER_DS_TYPE_REGISTRY: dict[TargetSoftware, DsType | None] = {}
 
 
 def register_writer(
-    target_software: str,
+    target_software: TargetSoftware,
     *,
     ds_type: DsType | None = None,
     suffixes: set[str] | None = None,
@@ -221,7 +221,7 @@ def save_dataset(
     _WRITER_REGISTRY[target](ds, file, **kwargs)
 
 
-def _validate_ds_type(ds: xr.Dataset, target: str) -> None:
+def _validate_ds_type(ds: xr.Dataset, target: TargetSoftware) -> None:
     """Check that ``ds`` is a valid dataset for the given save ``target``.
 
     For targets restricted to a specific ``movement`` dataset type (poses or
