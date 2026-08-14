@@ -21,7 +21,7 @@ You are also welcome to try `movement` by loading some [sample data](target-samp
 
 `movement` supports the analysis of trajectories of keypoints (_pose tracks_) and of bounding box centroids (_bounding box tracks_),
 which are represented as [movement datasets](target-poses-and-bboxes-dataset)
-and can be loaded from and saved to various third-party formats.
+and can be [loaded from](target-loading-any-format) and [saved to](target-saving-any-format) various third-party formats.
 
 :::{tip}
 To programmatically query the supported source software names and their file suffixes, use {func}`~movement.io.load.get_supported_source_software`.
@@ -37,7 +37,7 @@ To programmatically query the supported source software names and their file suf
 | [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB          | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose)                                | Pose                 | Load & Save          |
 | Any                                                                         |              | Numpy arrays                                                                                                              | Pose or Bounding box | Load & Save\*        |
 
-\*Exporting any `movement` DataArray to a NumPy array is as simple as calling xarray's built-in {meth}`xarray.DataArray.to_numpy()` method, so no specialised "Export/Save As" function is needed, see [xarray's documentation](xarray:user-guide/duckarrays.html) for more details.
+\*Exporting any `movement` DataArray to a NumPy array is as simple as calling xarray's built-in {meth}`xarray.DataArray.to_numpy` method, so no specialised "Export/Save As" function is needed, see [xarray's documentation](xarray:user-guide/duckarrays.html) for more details.
 
 :::{note}
 Currently, `movement` only works with tracked data: either keypoints or bounding boxes whose identities are known from one frame to the next, across consecutive frames. For pose estimation, this means it only supports the predictions output by the supported software packages listed above. Loading manually labelled data—often defined over a non-continuous set of frames—is not currently supported.
@@ -48,10 +48,10 @@ Below, we explain how to load pose and bounding box tracks from these supported 
 (target-loading-any-format)=
 ### Loading with `load_dataset()`
 
-The {func}`load_dataset()<movement.io.load.load_dataset>` function provides a unified, format-agnostic way to load poses or bounding boxes from any of the [supported software formats](target-supported-formats).
+The {func}`~movement.io.load.load_dataset` function provides a unified, format-agnostic way to load poses or bounding boxes from any of the [supported software formats](target-supported-formats).
 This function directly dispatches the loading task to the appropriate specialised function in the {mod}`movement.io.load_poses` or {mod}`movement.io.load_bboxes` module based on the `source_software` parameter.
 
-To import {func}`load_dataset()<movement.io.load.load_dataset>`:
+To import {func}`~movement.io.load.load_dataset`:
 ```python
 from movement.io import load_dataset
 ```
@@ -88,10 +88,10 @@ ds = load_dataset(
 )
 ```
 
-#### Passing additional options
+#### Passing additional loading options
 
 Some file formats support additional options.
-These can be passed directly as keyword arguments to {func}`load_dataset()<movement.io.load.load_dataset>`, and they will be forwarded to the appropriate loader.
+These can be passed directly as keyword arguments to {func}`~movement.io.load.load_dataset`, and they will be forwarded to the loader.
 
 For example, to specify the tracked individual's name when loading pose tracks from an Anipose triangulation .csv file:
 ```python
@@ -115,7 +115,7 @@ ds = load_dataset(
 For users who want direct access to the underlying loading functions or to construct datasets from NumPy arrays, the dedicated loaders remain available.
 
 (target-loading-pose-tracks)=
-#### Pose tracks
+#### Loading pose tracks
 
 The pose tracks loading functionalities are provided by the
 {mod}`movement.io.load_poses` module, which can be imported as follows:
@@ -124,7 +124,7 @@ The pose tracks loading functionalities are provided by the
 from movement.io import load_poses
 ```
 
-To read a pose tracks file into a [movement poses dataset](target-poses-and-bboxes-dataset), we provide specific functions for each of the supported formats. We additionally provide a more general {func}`from_numpy()<movement.io.load_poses.from_numpy>` function, with which we can build a [movement poses dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
+To read a pose tracks file into a [movement poses dataset](target-poses-and-bboxes-dataset), we provide specific functions for each of the supported formats. We additionally provide a more general {func}`~movement.io.load_poses.from_numpy` function, with which we can build a [movement poses dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
 
 :::::{tab-set}
 ::::{tab-item} DeepLabCut
@@ -201,7 +201,7 @@ ds = load_poses.from_nwb_file(
 )
 ```
 
-The function also accepts an {class}`NWBFile<pynwb.file.NWBFile>` object as input:
+The function also accepts an {class}`~pynwb.file.NWBFile` object as input:
 ```python
 with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
     nwb_file = io.read()
@@ -233,7 +233,7 @@ The resulting poses data structure `ds` will include the predicted trajectories 
 For more information on the poses data structure, see the [movement datasets](target-poses-and-bboxes-dataset) page.
 
 (target-loading-bbox-tracks)=
-#### Bounding box tracks
+#### Loading bounding box tracks
 
 To load bounding box tracks into a [movement bounding boxes dataset](target-poses-and-bboxes-dataset), we need the functions from the
 {mod}`movement.io.load_bboxes` module, which can be imported as follows:
@@ -242,7 +242,7 @@ To load bounding box tracks into a [movement bounding boxes dataset](target-pose
 from movement.io import load_bboxes
 ```
 
-We currently support loading bounding box tracks in the [VGG Image Annotator (VIA)](https://www.robots.ox.ac.uk/~vgg/software/via/) format only. However, like in the poses datasets, we additionally provide a {func}`from_numpy()<movement.io.load_bboxes.from_numpy>` function, with which we can build a [movement bounding boxes dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
+We currently support loading bounding box tracks in the [VGG Image Annotator (VIA)](https://www.robots.ox.ac.uk/~vgg/software/via/) format only. However, like in the poses datasets, we additionally provide a {func}`~movement.io.load_bboxes.from_numpy` function, with which we can build a [movement bounding boxes dataset](target-poses-and-bboxes-dataset) from a set of NumPy arrays.
 
 :::::{tab-set}
 ::::{tab-item} VIA tracks .csv file
@@ -278,11 +278,66 @@ The resulting data structure `ds` will include the centroid trajectories for eac
 
 For more information on the bounding boxes data structure, see the [movement datasets](target-poses-and-bboxes-dataset) page.
 
-(target-saving-pose-tracks)=
-### Saving pose tracks
+(target-saving-any-format)=
+### Saving with `save_dataset()`
 
-To export [movement poses datasets](target-poses-and-bboxes-dataset) to any of the supported third-party formats,
-we'll need functions from the {mod}`movement.io.save_poses` module:
+The {func}`~movement.io.save.save_dataset` function provides a unified, format-agnostic way to save poses or bounding boxes to any of the [supported software formats](target-supported-formats), or to `movement`'s native [netCDF](target-netcdf) format.
+This function directly dispatches the saving task to the appropriate specialised function in the {mod}`movement.io.save_poses` or {mod}`movement.io.save_bboxes` module based on the `target_software` parameter.
+
+To import {func}`~movement.io.save.save_dataset`:
+```python
+from movement.io import save_dataset
+```
+
+By default, `target_software` is `None`, which saves the dataset in `movement`'s native netCDF (`.nc`) format:
+
+```python
+save_dataset(ds, "/path/to/file.nc")
+```
+
+To save to a third-party format instead, set `target_software` explicitly:
+
+```python
+save_dataset(ds, "/path/to/file.h5", target_software="DeepLabCut")
+```
+
+```python
+save_dataset(ds, "/path/to/file.csv", target_software="VIA-tracks")
+```
+
+#### Passing additional saving options
+
+Some file formats support additional options.
+These can be passed directly as keyword arguments to {func}`~movement.io.save.save_dataset`, and they will be forwarded to the writer.
+
+For example, to save a multi-animal dataset as separate single-animal DeepLabCut files:
+```python
+save_dataset(
+    ds,
+    "/path/to/file.h5",
+    target_software="DeepLabCut",
+    split_individuals=True,
+)
+```
+
+Or to save bounding box tracks to a VIA tracks .csv file, with a custom image file extension for the associated video frames:
+```python
+save_dataset(
+    ds,
+    "/path/to/file.csv",
+    target_software="VIA-tracks",
+    image_file_suffix=".jpg",
+)
+```
+
+### Saving with software-specific functions
+For users who want direct access to the underlying saving functions, the dedicated writers remain available.
+
+(target-saving-pose-tracks)=
+#### Saving pose tracks
+
+The pose tracks saving functionalities are provided by the
+{mod}`movement.io.save_poses` module, which can be imported as follows:
 
 ```python
 from movement.io import save_poses
@@ -331,21 +386,21 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 ::::
 
 ::::{tab-item} NWB
-To convert a `movement` poses dataset to {class}`NWBFile<pynwb.file.NWBFile>` objects:
+To convert a `movement` poses dataset to {class}`~pynwb.file.NWBFile` objects:
 
 ```python
 nwb_files = save_poses.to_nwb_file(ds)
 ```
 
-To allow adding additional data to NWB files before saving, {func}`to_nwb_file<movement.io.save_poses.to_nwb_file>` does not write to disk directly.
-Instead, it returns a list of {class}`NWBFile<pynwb.file.NWBFile>` objects---one per individual in the dataset---since NWB files are designed to represent data from a single individual.
+To allow adding additional data to NWB files before saving, {func}`~movement.io.save_poses.to_nwb_file` does not write to disk directly.
+Instead, it returns a list of {class}`~pynwb.file.NWBFile` objects---one per individual in the dataset---since NWB files are designed to represent data from a single individual.
 
-The {func}`to_nwb_file<movement.io.save_poses.to_nwb_file>` function also accepts
-a {class}`NWBFileSaveConfig<movement.io.nwb.NWBFileSaveConfig>` object as its `config` argument
+The {func}`~movement.io.save_poses.to_nwb_file` function also accepts
+a {class}`~movement.io.nwb.NWBFileSaveConfig` object as its `config` argument
 for customising metadata such as session or subject information in the resulting NWBFiles
 (see {func}`the API reference<movement.io.save_poses.to_nwb_file>` for examples).
 
-These {class}`NWBFile<pynwb.file.NWBFile>` objects can then be saved to disk as .nwb files using {class}`pynwb.NWBHDF5IO`:
+These {class}`~pynwb.file.NWBFile` objects can then be saved to disk as .nwb files using {class}`pynwb.NWBHDF5IO`:
 
 ```python
 from pynwb import NWBHDF5IO
@@ -358,7 +413,7 @@ for file in nwb_files:
 :::::
 
 (target-saving-bboxes-tracks)=
-### Saving bounding box tracks
+#### Saving bounding box tracks
 
 We currently support exporting a [movement bboxes datasets](target-poses-and-bboxes-dataset) as a [VIA tracks .csv file](via:docs/face_track_annotation.html), so that you can visualise and correct your bounding box tracks with the [VGG Image Annotator (VIA-2) software](via:via.html). Alternatively, you can save the bounding box tracks to a .csv file with a custom header using the standard Python library `csv`.
 
@@ -419,7 +474,15 @@ and netCDF files on disk directly correspond to {class}`xarray.Dataset` objects.
 Saving to netCDF is the recommended way to preserve the complete state of your analysis,
 including all variables, coordinates, and attributes.
 
-To save any xarray dataset `ds` to a netCDF file:
+The preferred way to save a `movement` dataset to a netCDF file is via
+{func}`~movement.io.save.save_dataset`, which wraps {meth}`xarray.Dataset.to_netcdf` while adding `movement`-specific validation (i.e. checking that the dataset is a valid `movement` dataset, and that the file path is writable with a `.nc` suffix):
+```python
+from movement.io import save_dataset
+
+save_dataset(ds, "/path/to/my_data.nc")
+```
+
+If you prefer to skip this validation, you can also call {meth}`xarray.Dataset.to_netcdf` directly:
 ```python
 ds.to_netcdf("/path/to/my_data.nc")
 ```
@@ -428,7 +491,7 @@ To load the dataset back:
 ```python
 import xarray as xr
 
-ds = xr.open_dataset("my_data.nc")
+ds = xr.open_dataset("/path/to/my_data.nc")
 ```
 
 :::{note}
@@ -445,9 +508,9 @@ ds = rename_legacy_dimensions(ds)
 :::
 
 Similarly, an {class}`xarray.DataArray` object (e.g. the `position` variable
-of a `movement` dataset) can be saved to disk using the
-{meth}`to_netcdf()<xarray.DataArray.to_netcdf()>` method, and loaded from disk using the
-{func}`xarray.open_dataarray()` function.
+of a `movement` dataset) can be saved to disk using
+{meth}`xarray.DataArray.to_netcdf`, and loaded from disk using
+{func}`xarray.open_dataarray`.
 As netCDF files correspond to Dataset objects,
 these functions internally convert the DataArray to a Dataset before saving,
 and then convert back when loading.
@@ -457,11 +520,11 @@ xarray also supports compression and chunking options with netCDF, which can be 
 For more details, see the [xarray documentation on netCDF](xarray:user-guide/io.html).
 :::
 
-Below is an example of how you may integrate netCDF into you
+Below is an example of how you may integrate netCDF into your
 `movement`-powered workflows:
 
 ```python
-from movement.io import load_dataset
+from movement.io import load_dataset, save_dataset
 from movement.filtering import rolling_filter
 from movement.kinematics import compute_speed
 
@@ -478,7 +541,7 @@ ds["speed"] = compute_speed(ds["position_smooth"])
 # Save the dataset to a netCDF file
 # This includes the original position and confidence data,
 # the smoothed position, and the computed speed
-ds.to_netcdf("my_data_processed.nc")
+save_dataset(ds, "path/to/my_data_processed.nc")
 ```
 
 :::{tip}
@@ -509,7 +572,7 @@ of the software package that was used to generate it.
 
 To load one of the sample files as a
 [movement dataset](target-poses-and-bboxes-dataset), use the
-{func}`fetch_dataset<movement.sample_data.fetch_dataset()>` function:
+{func}`~movement.sample_data.fetch_dataset` function:
 
 ```python
 filename = "SLEAP_three-mice_Aeon_proofread.analysis.h5"
@@ -540,6 +603,6 @@ the `frame_path` attribute will not be set.
 :::{dropdown} Under the hood
 :color: info
 :icon: info
-When you import the {mod}`sample_data<movement.sample_data>` module with `from movement import sample_data`,
-`movement` downloads a small metadata file to your local machine with information about the latest sample datasets available. Then, the first time you call the `fetch_dataset()` function, `movement` downloads the requested file to your machine and caches it in the `~/.movement/data` directory. On subsequent calls, the data are directly loaded from this local cache.
+When you import the {mod}`~movement.sample_data` module with `from movement import sample_data`,
+`movement` downloads a small metadata file to your local machine with information about the latest sample datasets available. Then, the first time you call the {func}`~movement.sample_data.fetch_dataset` function, `movement` downloads the requested file to your machine and caches it in the `~/.movement/data` directory. On subsequent calls, the data are directly loaded from this local cache.
 :::

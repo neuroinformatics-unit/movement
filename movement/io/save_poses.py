@@ -14,9 +14,9 @@ from movement.io.nwb import (
     _ds_to_pose_and_skeletons,
     _write_processing_module,
 )
+from movement.io.save import register_writer
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
-from movement.validators.files import validate_file_path
 
 
 def _ds_to_dlc_style_df(
@@ -173,9 +173,10 @@ def to_dlc_style_df(
         return df_all
 
 
+@register_writer("DeepLabCut", ds_type="poses", suffixes={".csv", ".h5"})
 def to_dlc_file(
     ds: xr.Dataset,
-    file_path: str | Path,
+    file: str | Path,
     split_individuals: bool | Literal["auto"] = "auto",
 ) -> None:
     """Save a ``movement`` dataset to DeepLabCut file(s).
@@ -185,7 +186,7 @@ def to_dlc_file(
     ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    file_path
+    file
         Path to the file to save the poses to. The file extension
         must be either .h5 (recommended) or .csv.
     split_individuals
@@ -215,14 +216,10 @@ def to_dlc_file(
     >>> save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")
 
     """
-    valid_path = validate_file_path(
-        file_path, permission="w", suffixes={".csv", ".h5"}
-    )
-
+    valid_path = Path(file)
     # Sets default behaviour for the function
     if split_individuals == "auto":
         split_individuals = _auto_split_individuals(ds)
-
     elif not isinstance(split_individuals, bool):
         raise logger.error(
             ValueError(
@@ -234,7 +231,6 @@ def to_dlc_file(
     if split_individuals:
         # split the dataset into a dictionary of dataframes per individual
         df_dict = to_dlc_style_df(ds, split_individuals=True)
-
         for key, df in df_dict.items():
             # the key is the individual's name
             filepath = f"{valid_path.with_suffix('')}_{key}{valid_path.suffix}"
@@ -249,9 +245,10 @@ def to_dlc_file(
         logger.info(f"Saved poses dataset to {valid_path}.")
 
 
+@register_writer("LightningPose", ds_type="poses", suffixes={".csv"})
 def to_lp_file(
     ds: xr.Dataset,
-    file_path: str | Path,
+    file: str | Path,
 ) -> None:
     """Save a ``movement`` dataset to a LightningPose file.
 
@@ -260,7 +257,7 @@ def to_lp_file(
     ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    file_path
+    file
         Path to the file to save the poses to. File extension must be .csv.
 
     Notes
@@ -278,14 +275,11 @@ def to_lp_file(
     to_dlc_file : Save dataset to a DeepLabCut-style .h5 or .csv file.
 
     """
-    valid_path = validate_file_path(
-        file_path, permission="w", suffixes={".csv"}
-    )
-    ValidPosesInputs.validate(ds)
-    to_dlc_file(ds, valid_path, split_individuals=True)
+    to_dlc_file(ds, file, split_individuals=True)
 
 
-def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
+@register_writer("SLEAP", ds_type="poses", suffixes={".h5"})
+def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
     """Save a ``movement`` dataset to a SLEAP analysis file.
 
     Parameters
@@ -293,7 +287,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     ds
         ``movement`` dataset containing pose tracks, confidence scores,
         and associated metadata.
-    file_path
+    file
         Path to the file to save the poses to. File extension must be .h5.
 
     Notes
@@ -324,10 +318,6 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     ... )
 
     """
-    valid_path = validate_file_path(
-        file_path, permission="w", suffixes={".h5"}
-    )
-    ValidPosesInputs.validate(ds)
     ds = _remove_unoccupied_tracks(ds)
     # Target shapes:
     # "track_occupancy"     n_frames * n_individuals
@@ -353,7 +343,6 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
     point_scores = ds.confidence.data.T
     instance_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
     tracking_scores = np.full((n_individuals, n_frames), np.nan, dtype=float)
-
     source_file = getattr(ds, "source_file", None)
     labels_path = (
         source_file
@@ -375,7 +364,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
         video_ind=0,
         provenance="{}",
     )
-    with h5py.File(valid_path, "w") as f:
+    with h5py.File(file, "w") as f:
         for key, val in data_dict.items():
             if isinstance(val, np.ndarray):
                 f.create_dataset(
@@ -386,7 +375,7 @@ def to_sleap_analysis_file(ds: xr.Dataset, file_path: str | Path) -> None:
                 )
             else:
                 f.create_dataset(key, data=val)
-    logger.info(f"Saved poses dataset to {valid_path}.")
+    logger.info(f"Saved poses dataset to {file}.")
 
 
 def to_nwb_file(
@@ -530,6 +519,33 @@ def to_nwb_file(
             nwb_file, processing_module_kwargs, pose_estimation, skeletons
         )
     return nwb_files if is_multi_ind else nwb_files[0]
+
+
+@register_writer("NWB", ds_type="poses", suffixes={".nwb"})
+def _write_nwb_file(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
+    """Save a ``movement`` poses dataset to one or more NWB files.
+
+    :func:`to_nwb_file` builds the NWBFile object(s) but does not write them
+    to disk; this helper writes them. Multi-individual datasets yield one
+    file per individual, with the individual name appended to the file path.
+    """
+    valid_path = Path(file)
+    nwb_files = to_nwb_file(ds, **kwargs)
+    if isinstance(nwb_files, pynwb.file.NWBFile):
+        _write_nwb_to_disk(nwb_files, valid_path)
+    else:  # list of NWBFile objects for multi-individual datasets
+        for nwb_file in nwb_files:
+            individual_path = valid_path.with_name(
+                f"{valid_path.stem}_{nwb_file.identifier}{valid_path.suffix}"
+            )
+            _write_nwb_to_disk(nwb_file, individual_path)
+
+
+def _write_nwb_to_disk(nwb_file: pynwb.file.NWBFile, file: Path) -> None:
+    """Write a single NWBFile object to disk."""
+    with pynwb.NWBHDF5IO(file, mode="w") as io:
+        io.write(nwb_file)
+    logger.info(f"Saved dataset to {file}.")
 
 
 def _remove_unoccupied_tracks(ds: xr.Dataset):
