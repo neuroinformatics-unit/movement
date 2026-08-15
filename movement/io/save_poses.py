@@ -196,9 +196,11 @@ def to_dlc_file(
     -----
     If ``split_individuals`` is True, each individual will be saved to a
     separate file, formatted as in a single-animal DeepLabCut project
-    (without the "individuals" column level). The individual's name will be
-    appended to the file path, just before the file extension, e.g.
-    "/path/to/filename_individual1.h5". If False, all individuals will be
+    (without the "individuals" column level). If the dataset contains more
+    than one individual, the individual's name will be appended to the file
+    path, just before the file extension, e.g.
+    "/path/to/filename_individual1.h5". If it contains only one individual,
+    the given file path is used as is. If False, all individuals will be
     saved to the same file, formatted as in a multi-animal DeepLabCut project
     (with the "individuals" column level). The file path will not be modified.
     If "auto", the argument's value is determined based on the number of
@@ -234,13 +236,19 @@ def to_dlc_file(
     if split_individuals:
         # split the dataset into a dictionary of dataframes per individual
         df_dict = to_dlc_style_df(ds, split_individuals=True)
+        # only disambiguate the file paths if there is more than one file
+        append_name = len(df_dict) > 1
 
         for key, df in df_dict.items():
             # the key is the individual's name
-            filepath = f"{valid_path.with_suffix('')}_{key}{valid_path.suffix}"
+            filepath = (
+                Path(f"{valid_path.with_suffix('')}_{key}{valid_path.suffix}")
+                if append_name
+                else valid_path
+            )
             if isinstance(df, pd.DataFrame):
-                _save_dlc_df(Path(filepath), df)
-            logger.info(f"Saved poses for individual {key} to {valid_path}.")
+                _save_dlc_df(filepath, df)
+            logger.info(f"Saved poses for individual {key} to {filepath}.")
     else:
         # convert the dataset to a single dataframe for all individuals
         df_all = to_dlc_style_df(ds, split_individuals=False)
@@ -269,9 +277,10 @@ def to_lp_file(
     format as single-animal DeepLabCut projects. Therefore, under the hood,
     this function calls :func:`movement.io.save_poses.to_dlc_file`
     with ``split_individuals=True``. This setting means that each individual
-    is saved to a separate file, with the individual's name appended to the
-    file path, just before the file extension,
-    i.e. "/path/to/filename_individual1.csv".
+    is saved to a separate file. If the dataset contains more than one
+    individual, the individual's name is appended to the file path, just
+    before the file extension, i.e. "/path/to/filename_individual1.csv".
+    If it contains only one individual, the given file path is used as is.
 
     See Also
     --------
