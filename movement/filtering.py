@@ -212,7 +212,9 @@ def rolling_filter(
     data_rolled = getattr(data_windows, statistic)(skipna=True)
 
     # Remove the padded edges
-    data_rolled = data_rolled.isel(time=slice(half_window, -half_window))
+    data_rolled = data_rolled.isel(
+        time=slice(half_window, data_rolled.sizes["time"] - half_window)
+    )
 
     # Optional: Print NaN report
     if print_report:
