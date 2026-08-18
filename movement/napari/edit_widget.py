@@ -24,7 +24,8 @@ from qtpy.QtWidgets import QVBoxLayout, QWidget
 
 from movement.napari.loader_widgets import POINTS_LAYER_KEY
 
-PLAYHEAD_COLOR = "tab:orange"  # bar indicating current frame
+PLAYHEAD_COLOR = "#55606E"  # bar indicating current frame
+# this is same color as napari slidebar.
 
 # A click never lands exactly on a frame (e.g. 42.3, not 42), so treat
 # any click within this fraction of the visible frame range as a hit.
