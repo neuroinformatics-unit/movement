@@ -61,9 +61,9 @@ from movement.utils.vector import compute_norm, convert_to_unit
 # timestep by applying `structure-from-motion
 # <https://en.wikipedia.org/wiki/Structure_from_motion>`_ (with `OpenSfM
 # <https://github.com/mapillary/OpenSfM>`_ and `OpenDroneMap
-# <https://github.com/OpenDroneMap/OpenDroneMap>`_). This allowed us to
-# express the trajectories in a coordinate system fixed to the ground, and to
-# disentangle the motion of the zebras from the movement of the camera drone.
+# <https://github.com/OpenDroneMap/ODM>`_). This allowed us to express the
+# trajectories in a coordinate system fixed to the ground, and to disentangle
+# the motion of the zebras from the movement of the camera drone.
 # After this coordinate transformation, the data was cleaned by removing
 # low-confidence keypoints and implausible data points.
 
@@ -390,7 +390,7 @@ plt.show()
 #     repository, for a detailed description of how the world coordinate
 #     trajectories were computed.
 #   * The corresponding chapter of the `Animals in Motion
-#     <https://neuroinformatics-unit.github.io/course-animals-in-motion/>`_
-#     course, from which this example is adapted.
+#     <https://animals-in-motion.neuroinformatics.dev/>`_ course, from which
+#     this example is adapted.
 
 # sphinx_gallery_thumbnail_number = 4
