@@ -75,7 +75,7 @@ ds = sample_data.fetch_dataset(
 vid_name = "single-mouse_DBTravelator_video.avi"
 video_path = pooch.retrieve(
     url=(
-        f"https://gin.swc.ucl.ac.uk/lochhh/movement-test-data/raw"
+        f"https://gin.swc.ucl.ac.uk/neuroinformatics/movement-sample-data/raw"
         f"/master/videos/{vid_name}"
     ),
     known_hash=None,

@@ -1000,7 +1000,7 @@ If the limit is reached, previews may temporarily be unavailable until the quota
 (target-contributing-sample-data)=
 ## Sample data
 We maintain some sample datasets to be used for testing, examples and tutorials on an
-[external data repository](swc-gin:lochhh/movement-test-data).
+[external data repository](swc-gin:neuroinformatics/movement-sample-data).
 Our hosting platform of choice is called [GIN](gin:), based on the
 software maintained by the [German Neuroinformatics Node](https://www.g-node.org/).
 GIN has a GitHub-like interface and git-like
@@ -1042,12 +1042,12 @@ Make sure to run the following procedure on a UNIX-like system, as we have obser
 To add a new file, you will need to:
 
 1. Create a [GIN](swc-gin:) account on our self-hosted instance.
-2. Request collaborator access to the [movement data repository](swc-gin:lochhh/movement-test-data) if you don't already have it.
-3. Install and configure the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) by running `gin login` in a terminal with your GIN credentials, pointing it at `https://gin.swc.ucl.ac.uk` as the server.
-4. Clone the `movement` data repository to your local machine using `gin get lochhh/movement-test-data`, then run `gin download --content` to download all the files.
+2. Request collaborator access to the [movement data repository](swc-gin:neuroinformatics/movement-sample-data) if you don't already have it.
+3. Install the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart), then log in by running `gin login --server https://gin.swc.ucl.ac.uk` and following the instructions to authenticate with your GIN account.
+4. Clone the `movement` data repository to your local machine using `gin get neuroinformatics/movement-sample-data`, then run `gin download --content` to download all the files.
 5. Add your new files to the appropriate folders (`poses`, `bboxes`, `videos`, and/or `frames`) following the existing file naming conventions.
 6. Add metadata for your new files to `metadata.yaml` using the [example entry below](target-metadata-yaml) as a template. You can leave all `sha256sum` values as `null` for now.
-7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](swc-gin:lochhh/movement-test-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with `movement` installed](#creating-a-development-environment).
+7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](swc-gin:neuroinformatics/movement-sample-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with `movement` installed](#creating-a-development-environment).
 8. Commit your changes using `gin commit -m <message> <filename>` for specific files or `gin commit -m <message> .` for all changes.
 9. Upload your committed changes to the GIN repository with `gin upload`. Use `gin download` to pull the latest changes or `gin sync` to synchronise changes bidirectionally.
 10. [Verify](target-verify-sample-data) the new files can be fetched and loaded correctly using the {mod}`movement.sample_data` module.
