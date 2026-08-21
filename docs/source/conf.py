@@ -271,6 +271,7 @@ myst_url_schemes = {
     "conda": "https://docs.conda.io/projects/conda/en/latest/{{path}}#{{fragment}}",
     "dlc": "https://mlabofai.org/deeplabcut/",
     "gin": "https://gin.g-node.org/{{path}}#{{fragment}}",
+    "swc-gin": "https://gin.swc.ucl.ac.uk/{{path}}#{{fragment}}",
     "github-docs": "https://docs.github.com/en/{{path}}#{{fragment}}",
     "myst-parser": "https://myst-parser.readthedocs.io/en/latest/{{path}}#{{fragment}}",
     "napari": "https://napari.org/stable/{{path}}",
