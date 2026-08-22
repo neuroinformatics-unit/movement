@@ -33,12 +33,12 @@ If you want to contribute to `movement` and don't have permission to make change
 When you create your own copy (or "fork") of a project, it's like making a new workspace that shares code with the original project.
 Once you've made your changes in your copy, you can submit them as a pull request, which is a way to propose changes back to the main project.
 
-If you are not familiar with `git`, we recommend reading up on [this guide](https://docs.github.com/en/get-started/using-git/about-git#basic-git-commands).
+If you are not familiar with `git`, we recommend reading up on [this guide](github-docs:get-started/using-git/about-git#basic-git-commands).
 
 ### Forking the repository
 
 1. Fork the [repository](movement-github:) on GitHub.
-   You can read more about [forking in the GitHub docs](https://docs.github.com/en/get-started/quickstart/fork-a-repo).
+   You can read more about [forking in the GitHub docs](github-docs:pull-requests/how-tos/work-with-forks/fork-a-repo).
 
 2. Clone your fork to your local machine and navigate to the repository folder:
 
@@ -56,6 +56,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](http
 
     :::{note}
     Your repository now has two remotes: `origin` (your fork, where you push changes) and `upstream` (the main repository, where you pull updates from)
+    :::
 
 ### Creating a development environment
 
@@ -124,7 +125,7 @@ We recommend, and adhere, to the following conventions:
 - The maintainers triage PRs and assign suitable reviewers using the GitHub review system.
 - One approval of a PR (by a maintainer) is enough for it to be merged.
 - Unless someone approves the PR with optional comments, the PR is immediately merged by the approving reviewer.
-- PRs are preferably merged via the ["squash and merge"](github-docs:pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits) option, to keep a clean commit history on the _main_ branch.
+- PRs are preferably merged via the ["squash and merge"](github-docs:pull-requests/reference/pull-request-merges) option, to keep a clean commit history on the _main_ branch.
 
 A typical PR workflow would be:
 * Create a new branch, make your changes, and stage them.
@@ -984,12 +985,17 @@ make clean html linkcheck
 :::
 
 ### Previewing the documentation in continuous integration
-We use [artifact.ci](https://www.artifact.ci/) to preview the documentation that is built as part of our GitHub Actions workflow. To do so:
+We use [artifact.ci](https://artifact.ci/) to preview the documentation that is built as part of our GitHub Actions workflow. To do so:
 1. Go to the "Checks" tab in the GitHub PR.
 2. Click on the "Docs" section on the left.
 3. If the "Build Sphinx Docs" action is successful, a summary section will appear under the block diagram with a link to preview the built documentation.
 4. Click on the link and wait for the files to be uploaded (it may take a while the first time). You may be asked to sign in to GitHub.
 5. Once the upload is complete, look for `docs/build/html/index.html` under the "Detected Entrypoints" section.
+
+:::{note}
+[artifact.ci](https://artifact.ci/) provides a limited number of preview builds per account.
+If the limit is reached, previews may temporarily be unavailable until the quota resets.
+:::
 
 (target-contributing-sample-data)=
 ## Sample data
