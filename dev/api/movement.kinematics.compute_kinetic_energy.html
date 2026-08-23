@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -146,7 +146,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -739,12 +739,12 @@ between the total and translational components:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
-<span class="gp">... </span>        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
-<span class="gp">... </span>        <span class="s2">&quot;individual&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;id0&quot;</span><span class="p">,</span> <span class="s2">&quot;id1&quot;</span><span class="p">],</span>
-<span class="gp">... </span>        <span class="s2">&quot;keypoint&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;snout&quot;</span><span class="p">,</span> <span class="s2">&quot;spine&quot;</span><span class="p">,</span> <span class="s2">&quot;tail_base&quot;</span><span class="p">,</span> <span class="s2">&quot;tail_tip&quot;</span><span class="p">],</span>
-<span class="gp">... </span>        <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"time"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="s2">"individual"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"id0"</span><span class="p">,</span> <span class="s2">"id1"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"keypoint"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"snout"</span><span class="p">,</span> <span class="s2">"spine"</span><span class="p">,</span> <span class="s2">"tail_base"</span><span class="p">,</span> <span class="s2">"tail_tip"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"space"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="p">},</span>
-<span class="gp">... </span>    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"space"</span><span class="p">],</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
@@ -756,7 +756,7 @@ between the total and translational components:</p>
 <span class="go">0.6579 0.7394 0.1304 0.05152 0.2436 0.5719</span>
 <span class="go">Coordinates:</span>
 <span class="go">* time        (time) int64 24B 0 1 2</span>
-<span class="go">* individual  (individual) &lt;U3 24B &#39;id0&#39; &#39;id1&#39;</span>
+<span class="go">* individual  (individual) &lt;U3 24B 'id0' 'id1'</span>
 </pre></div>
 </div>
 <p>Compute kinetic energy decomposed into translational
@@ -769,22 +769,22 @@ and internal components:</p>
 <span class="go">0.0172 1.318 0.02069 0.6498 0.02933 ... 0.1716 0.07829 0.7942 0.06901 0.857</span>
 <span class="go">Coordinates:</span>
 <span class="go">* time        (time) int64 24B 0 1 2</span>
-<span class="go">* individual  (individual) &lt;U3 24B &#39;id0&#39; &#39;id1&#39;</span>
-<span class="go">* energy       (energy) &lt;U13 104B &#39;translational&#39; &#39;internal&#39;</span>
+<span class="go">* individual  (individual) &lt;U3 24B 'id0' 'id1'</span>
+<span class="go">* energy       (energy) &lt;U13 104B 'translational' 'internal'</span>
 </pre></div>
 </div>
 <p>Select the ‘internal’ component:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kinetic_energy_internal</span> <span class="o">=</span> <span class="n">kinetic_energy</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="s2">&quot;internal&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kinetic_energy_internal</span> <span class="o">=</span> <span class="n">kinetic_energy</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="s2">"internal"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Use unequal keypoint masses and exclude an unreliable keypoint
 (e.g. “tail_tip”):</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">masses</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;snout&quot;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s2">&quot;spine&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">&quot;tail_base&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">masses</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"snout"</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s2">"spine"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span> <span class="s2">"tail_base"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
 </pre></div>
 </div>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">kinetic_energy</span> <span class="o">=</span> <span class="n">compute_kinetic_energy</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">position</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">keypoints</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;snout&quot;</span><span class="p">,</span> <span class="s2">&quot;spine&quot;</span><span class="p">,</span> <span class="s2">&quot;tail_base&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">keypoints</span><span class="o">=</span><span class="p">[</span><span class="s2">"snout"</span><span class="p">,</span> <span class="s2">"spine"</span><span class="p">,</span> <span class="s2">"tail_base"</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">masses</span><span class="o">=</span><span class="n">masses</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">decompose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>

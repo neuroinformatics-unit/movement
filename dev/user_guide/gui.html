@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -625,7 +625,7 @@ netCDF file with <code class="docutils literal notranslate"><span class="pre">mo
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.filtering</span><span class="w"> </span><span class="kn">import</span> <span class="n">rolling_filter</span>
 
 <span class="n">ds_orig</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span>
-    <span class="s2">&quot;path/to/my_data.h5&quot;</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;DeepLabCut&quot;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span>
+    <span class="s2">"path/to/my_data.h5"</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">"DeepLabCut"</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span>
 <span class="p">)</span>
 
 <span class="c1"># Create a copy to avoid modifying the original dataset</span>
@@ -633,12 +633,12 @@ netCDF file with <code class="docutils literal notranslate"><span class="pre">mo
 
 <span class="c1"># Apply some processing to the position data variable.</span>
 <span class="c1"># e.g. a rolling median filter</span>
-<span class="n">ds_new</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rolling_filter</span><span class="p">(</span>
-  <span class="n">ds_orig</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">],</span> <span class="n">window</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">statistic</span><span class="o">=</span><span class="s2">&quot;median&quot;</span>
+<span class="n">ds_new</span><span class="p">[</span><span class="s2">"position"</span><span class="p">]</span> <span class="o">=</span> <span class="n">rolling_filter</span><span class="p">(</span>
+  <span class="n">ds_orig</span><span class="p">[</span><span class="s2">"position"</span><span class="p">],</span> <span class="n">window</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">statistic</span><span class="o">=</span><span class="s2">"median"</span>
 <span class="p">)</span>
 
 <span class="c1"># Save the processed dataset to a netCDF file</span>
-<span class="n">ds_new</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s2">&quot;my_data_processed.nc&quot;</span><span class="p">)</span>
+<span class="n">ds_new</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s2">"my_data_processed.nc"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="sd-card-text">Because <code class="docutils literal notranslate"><span class="pre">ds_new</span></code> is copied from the original dataset, it retains all required
@@ -722,7 +722,7 @@ change the colormap of a selected tracks layer.</p>
 over the length of the tail and head tracks. However, we are
 working on a workaround, stay tuned!</p></li>
 <li><p>You may occasionally see a warning message in the GUI upon loading a datafile, that says:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>UserWarning:<span class="w"> </span>Previous<span class="w"> </span>color_by<span class="w"> </span>key<span class="w"> </span><span class="s1">&#39;keypoint_factorized&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>UserWarning:<span class="w"> </span>Previous<span class="w"> </span>color_by<span class="w"> </span>key<span class="w"> </span><span class="s1">'keypoint_factorized'</span>
 not<span class="w"> </span>present<span class="w"> </span><span class="k">in</span><span class="w"> </span>features.<span class="w"> </span>Falling<span class="w"> </span>back<span class="w"> </span>to<span class="w"> </span>track_id!
 </pre></div>
 </div>
@@ -869,7 +869,7 @@ as a <code class="docutils literal notranslate"><span class="pre">polygon</span>
 in Python with <a class="reference internal" href="../api/movement.roi.load_rois.html#movement.roi.load_rois" title="movement.roi.load_rois"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_rois()</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.roi</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_rois</span>
 
-<span class="n">rois</span> <span class="o">=</span> <span class="n">load_rois</span><span class="p">(</span><span class="s2">&quot;path/to/regions.geojson&quot;</span><span class="p">)</span>
+<span class="n">rois</span> <span class="o">=</span> <span class="n">load_rois</span><span class="p">(</span><span class="s2">"path/to/regions.geojson"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p class="sd-card-text">This returns a list of <a class="reference internal" href="../api/movement.roi.LineOfInterest.html#movement.roi.LineOfInterest" title="movement.roi.LineOfInterest"><code class="xref py py-class docutils literal notranslate"><span class="pre">LineOfInterest</span></code></a> and/or

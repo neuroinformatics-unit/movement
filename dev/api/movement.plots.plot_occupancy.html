@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -718,20 +718,20 @@ keypoints, aggregated over all individuals.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.plots</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_occupancy</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">positions</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s2">&quot;DLC_two-mice.predictions.csv&quot;</span>
+<span class="gp">... </span>    <span class="s2">"DLC_two-mice.predictions.csv"</span>
 <span class="gp">... </span><span class="p">)</span><span class="o">.</span><span class="n">position</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plot_occupancy</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>However, one can restrict the histogram to only counting the positions of
 (the centroid of) certain keypoints and/or individuals.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Available individuals:&quot;</span><span class="p">,</span> <span class="n">positions</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">"Available individuals:"</span><span class="p">,</span> <span class="n">positions</span><span class="p">[</span><span class="s2">"individual"</span><span class="p">])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">plot_occupancy</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">positions</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="c1"># plot the centroid of keypoints located on the head</span>
-<span class="gp">... </span>    <span class="n">keypoints</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;snout&quot;</span><span class="p">,</span> <span class="s2">&quot;leftear&quot;</span><span class="p">,</span> <span class="s2">&quot;rightear&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">keypoints</span><span class="o">=</span><span class="p">[</span><span class="s2">"snout"</span><span class="p">,</span> <span class="s2">"leftear"</span><span class="p">,</span> <span class="s2">"rightear"</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="c1"># only plot data for 1 individual</span>
-<span class="gp">... </span>    <span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">individuals</span><span class="o">=</span><span class="s2">"individual1"</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>
@@ -740,9 +740,9 @@ this function.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plot_occupancy</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">positions</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="c1"># plot the centroid of keypoints located on the head</span>
-<span class="gp">... </span>    <span class="n">keypoints</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;snout&quot;</span><span class="p">,</span> <span class="s2">&quot;leftear&quot;</span><span class="p">,</span> <span class="s2">&quot;rightear&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">keypoints</span><span class="o">=</span><span class="p">[</span><span class="s2">"snout"</span><span class="p">,</span> <span class="s2">"leftear"</span><span class="p">,</span> <span class="s2">"rightear"</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="c1"># only plot data for 1 individual</span>
-<span class="gp">... </span>    <span class="n">individuals</span><span class="o">=</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">individuals</span><span class="o">=</span><span class="s2">"individual1"</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="c1"># fix the number of bins to use</span>
 <span class="gp">... </span>    <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="c1"># set the minimum count (bins with a lower count show as 0 count).</span>
@@ -750,7 +750,7 @@ this function.</p>
 <span class="gp">... </span>    <span class="c1"># twice.</span>
 <span class="gp">... </span>    <span class="n">cmin</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="c1"># Normalise the plot, scaling the counts to [0, 1]</span>
-<span class="gp">... </span>    <span class="n">norm</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">norm</span><span class="o">=</span><span class="s2">"log"</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.utils.vector</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Utility functions for vector operations.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Utility functions for vector operations."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoReturn</span>
 
@@ -491,7 +491,7 @@
 <div class="viewcode-block" id="compute_norm">
 <a class="viewcode-back" href="../../../api/movement.utils.vector.compute_norm.html#movement.utils.vector.compute_norm">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_norm</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the norm of the vectors along the spatial dimension.</span>
+<span class="w">    </span><span class="sd">"""Compute the norm of the vectors along the spatial dimension.</span>
 
 <span class="sd">    The norm of a vector is its magnitude, also called Euclidean norm, 2-norm</span>
 <span class="sd">    or Euclidean length. Note that if the input data is expressed in polar</span>
@@ -521,18 +521,18 @@
 <span class="sd">    for every individual and at every timestep.</span>
 
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;space&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-        <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]})</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"space"</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">"space"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]})</span>
         <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
             <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">,</span>
             <span class="n">data</span><span class="p">,</span>
-            <span class="n">input_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s2">&quot;space&quot;</span><span class="p">]],</span>
-            <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;axis&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">},</span>
+            <span class="n">input_core_dims</span><span class="o">=</span><span class="p">[[</span><span class="s2">"space"</span><span class="p">]],</span>
+            <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"axis"</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">},</span>
         <span class="p">)</span>
-    <span class="k">elif</span> <span class="s2">&quot;space_pol&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-        <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space_pol&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rho&quot;</span><span class="p">,</span> <span class="s2">&quot;phi&quot;</span><span class="p">]})</span>
-        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;rho&quot;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s2">"space_pol"</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">"space_pol"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rho"</span><span class="p">,</span> <span class="s2">"phi"</span><span class="p">]})</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">"rho"</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">_raise_error_for_missing_spatial_dim</span><span class="p">()</span></div>
 
@@ -541,7 +541,7 @@
 <div class="viewcode-block" id="convert_to_unit">
 <a class="viewcode-back" href="../../../api/movement.utils.vector.convert_to_unit.html#movement.utils.vector.convert_to_unit">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">convert_to_unit</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert the vectors along the spatial dimension into unit vectors.</span>
+<span class="w">    </span><span class="sd">"""Convert the vectors along the spatial dimension into unit vectors.</span>
 
 <span class="sd">    A unit vector is a vector pointing in the same direction as the original</span>
 <span class="sd">    vector but with norm = 1.</span>
@@ -563,17 +563,17 @@
 <span class="sd">    Note that the unit vector for the null vector is undefined, since the null</span>
 <span class="sd">    vector has 0 norm and no direction associated with it.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;space&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-        <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]})</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"space"</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">"space"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]})</span>
         <span class="k">return</span> <span class="n">data</span> <span class="o">/</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="s2">&quot;space_pol&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-        <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space_pol&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rho&quot;</span><span class="p">,</span> <span class="s2">&quot;phi&quot;</span><span class="p">]})</span>
+    <span class="k">elif</span> <span class="s2">"space_pol"</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">"space_pol"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rho"</span><span class="p">,</span> <span class="s2">"phi"</span><span class="p">]})</span>
         <span class="c1"># Set both rho and phi values to NaN at null vectors (where rho = 0)</span>
-        <span class="n">new_data</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;rho&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="n">new_data</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">"rho"</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="c1"># Set the rho values to 1 for non-null vectors (phi is preserved)</span>
-        <span class="n">new_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s2">&quot;space_pol&quot;</span><span class="p">:</span> <span class="s2">&quot;rho&quot;</span><span class="p">}]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
-            <span class="n">new_data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;rho&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">1</span>
+        <span class="n">new_data</span><span class="o">.</span><span class="n">loc</span><span class="p">[{</span><span class="s2">"space_pol"</span><span class="p">:</span> <span class="s2">"rho"</span><span class="p">}]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">new_data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">"rho"</span><span class="p">)</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="mi">1</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">new_data</span>
     <span class="k">else</span><span class="p">:</span>
@@ -584,7 +584,7 @@
 <div class="viewcode-block" id="cart2pol">
 <a class="viewcode-back" href="../../../api/movement.utils.vector.cart2pol.html#movement.utils.vector.cart2pol">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cart2pol</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform Cartesian coordinates to polar.</span>
+<span class="w">    </span><span class="sd">"""Transform Cartesian coordinates to polar.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -619,13 +619,13 @@
 <span class="sd">    --------</span>
 <span class="sd">    :obj:`numpy.arctan2`</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]})</span>
+<span class="sd">    """</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">"space"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]})</span>
     <span class="n">rho</span> <span class="o">=</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">phi</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">,</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">),</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">),</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">"y"</span><span class="p">),</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">"x"</span><span class="p">),</span>
     <span class="p">)</span>
 
     <span class="c1"># Make all zeros in phi positive zeros</span>
@@ -635,13 +635,13 @@
 
     <span class="c1"># Replace space dim with space_pol</span>
     <span class="n">dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
-    <span class="n">dims</span><span class="p">[</span><span class="n">dims</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;space&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">&quot;space_pol&quot;</span>
+    <span class="n">dims</span><span class="p">[</span><span class="n">dims</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"space"</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">"space_pol"</span>
     <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="n">rho</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">&quot;space_pol&quot;</span><span class="p">:</span> <span class="s2">&quot;rho&quot;</span><span class="p">}),</span>
-            <span class="n">phi</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">&quot;space_pol&quot;</span><span class="p">:</span> <span class="s2">&quot;phi&quot;</span><span class="p">}),</span>
+            <span class="n">rho</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">"space_pol"</span><span class="p">:</span> <span class="s2">"rho"</span><span class="p">}),</span>
+            <span class="n">phi</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">"space_pol"</span><span class="p">:</span> <span class="s2">"phi"</span><span class="p">}),</span>
         <span class="p">],</span>
-        <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space_pol&quot;</span><span class="p">,</span>
+        <span class="n">dim</span><span class="o">=</span><span class="s2">"space_pol"</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">dims</span><span class="p">)</span></div>
 
 
@@ -649,7 +649,7 @@
 <div class="viewcode-block" id="pol2cart">
 <a class="viewcode-back" href="../../../api/movement.utils.vector.pol2cart.html#movement.utils.vector.pol2cart">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">pol2cart</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Transform polar coordinates to Cartesian.</span>
+<span class="w">    </span><span class="sd">"""Transform polar coordinates to Cartesian.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -664,22 +664,22 @@
 <span class="sd">        stored in the ``space`` dimension, with ``x`` and ``y``</span>
 <span class="sd">        in the dimension coordinate.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space_pol&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;rho&quot;</span><span class="p">,</span> <span class="s2">&quot;phi&quot;</span><span class="p">]})</span>
-    <span class="n">rho</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;rho&quot;</span><span class="p">)</span>
-    <span class="n">phi</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">&quot;phi&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">"space_pol"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"rho"</span><span class="p">,</span> <span class="s2">"phi"</span><span class="p">]})</span>
+    <span class="n">rho</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">"rho"</span><span class="p">)</span>
+    <span class="n">phi</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space_pol</span><span class="o">=</span><span class="s2">"phi"</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">phi</span><span class="p">)</span>
 
     <span class="c1"># Replace space_pol dim with space</span>
     <span class="n">dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
-    <span class="n">dims</span><span class="p">[</span><span class="n">dims</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;space_pol&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">&quot;space&quot;</span>
+    <span class="n">dims</span><span class="p">[</span><span class="n">dims</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"space_pol"</span><span class="p">)]</span> <span class="o">=</span> <span class="s2">"space"</span>
     <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="n">x</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">}),</span>
-            <span class="n">y</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="s2">&quot;y&quot;</span><span class="p">}),</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">"space"</span><span class="p">:</span> <span class="s2">"x"</span><span class="p">}),</span>
+            <span class="n">y</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">({</span><span class="s2">"space"</span><span class="p">:</span> <span class="s2">"y"</span><span class="p">}),</span>
         <span class="p">],</span>
-        <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span>
+        <span class="n">dim</span><span class="o">=</span><span class="s2">"space"</span><span class="p">,</span>
     <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">dims</span><span class="p">)</span></div>
 
 
@@ -691,7 +691,7 @@
     <span class="n">v</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">v_as_left_operand</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the signed angle from the vector ``u`` to the vector ``v``.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Compute the signed angle from the vector ``u`` to the vector ``v``.</span>
 
 <span class="sd">    The signed angle between ``u`` and ``v`` is the rotation that needs to be</span>
 <span class="sd">    applied to ``u`` to have it point in the same direction as ``v`` (see</span>
@@ -702,11 +702,11 @@
 <span class="sd">    ----------</span>
 <span class="sd">    u</span>
 <span class="sd">        An array of position vectors containing the ``space``</span>
-<span class="sd">        dimension with only ``&quot;x&quot;`` and ``&quot;y&quot;`` coordinates.</span>
+<span class="sd">        dimension with only ``"x"`` and ``"y"`` coordinates.</span>
 <span class="sd">    v</span>
 <span class="sd">        A 2D vector (or array of 2D vectors) against which to</span>
 <span class="sd">        compare ``u``. May either be an xarray</span>
-<span class="sd">        DataArray containing the ``&quot;space&quot;``  dimension or a numpy</span>
+<span class="sd">        DataArray containing the ``"space"``  dimension or a numpy</span>
 <span class="sd">        array containing one or more 2D vectors. (See Notes)</span>
 <span class="sd">    v_as_left_operand</span>
 <span class="sd">        If True, the signed angle between ``v`` and ``u`` is returned, instead</span>
@@ -751,18 +751,18 @@
 <span class="sd">    Vectors given as ``v`` that contain more dimensions, or have shapes</span>
 <span class="sd">    otherwise different from those defined above are considered invalid.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]},</span> <span class="n">exact_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="p">{</span><span class="s2">"space"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]},</span> <span class="n">exact_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="c1"># Ensure v can be broadcast over u</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">v_dims</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;space&quot;</span><span class="p">]</span>
+            <span class="n">v_dims</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"space"</span><span class="p">]</span>
         <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">v_dims</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">]</span>
+            <span class="n">v_dims</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"space"</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;v must be 1D or 2D, but got </span><span class="si">{</span><span class="n">v</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D.&quot;</span><span class="p">)</span>
+                <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"v must be 1D or 2D, but got </span><span class="si">{</span><span class="n">v</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">D."</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="n">v</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
             <span class="n">v</span><span class="p">,</span>
@@ -772,19 +772,19 @@
     <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s2">&quot;v must be an xarray.DataArray or np.ndarray, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">"v must be an xarray.DataArray or np.ndarray, "</span>
+                <span class="sa">f</span><span class="s2">"but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="p">)</span>
-    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]},</span> <span class="n">exact_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">{</span><span class="s2">"space"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]},</span> <span class="n">exact_coords</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">u</span> <span class="o">=</span> <span class="n">convert_to_unit</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
-    <span class="n">u_x</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
-    <span class="n">u_y</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+    <span class="n">u_x</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">"x"</span><span class="p">)</span>
+    <span class="n">u_y</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">"y"</span><span class="p">)</span>
 
     <span class="n">v</span> <span class="o">=</span> <span class="n">convert_to_unit</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
-    <span class="n">v_x</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
-    <span class="n">v_y</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+    <span class="n">v_x</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">"x"</span><span class="p">)</span>
+    <span class="n">v_y</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">"y"</span><span class="p">)</span>
 
     <span class="n">cross</span> <span class="o">=</span> <span class="n">u_x</span> <span class="o">*</span> <span class="n">v_y</span> <span class="o">-</span> <span class="n">u_y</span> <span class="o">*</span> <span class="n">v_x</span>
     <span class="k">if</span> <span class="n">v_as_left_operand</span><span class="p">:</span>
@@ -796,7 +796,7 @@
     <span class="c1"># arctan2 returns values in [-pi, pi].</span>
     <span class="c1"># We need to map -pi angles to pi, to stay in the (-pi, pi] range</span>
     <span class="n">angles</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">angles</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
-    <span class="n">angles</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;signed_angle&quot;</span>
+    <span class="n">angles</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"signed_angle"</span>
     <span class="k">return</span> <span class="n">angles</span></div>
 
 
@@ -804,8 +804,8 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_raise_error_for_missing_spatial_dim</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
     <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
         <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;Input data array must contain either &#39;space&#39; or &#39;space_pol&#39; &quot;</span>
-            <span class="s2">&quot;as dimensions.&quot;</span>
+            <span class="s2">"Input data array must contain either 'space' or 'space_pol' "</span>
+            <span class="s2">"as dimensions."</span>
         <span class="p">)</span>
     <span class="p">)</span>
 </pre></div>

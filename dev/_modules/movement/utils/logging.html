@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.utils.logging</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Logging utilities for the ``movement`` package.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Logging utilities for the ``movement`` package."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -489,27 +489,27 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span> <span class="k">as</span> <span class="n">loguru_logger</span>
 
-<span class="n">DEFAULT_LOG_DIRECTORY</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;.movement&quot;</span>
+<span class="n">DEFAULT_LOG_DIRECTORY</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">".movement"</span>
 
 
 <div class="viewcode-block" id="MovementLogger">
 <a class="viewcode-back" href="../../../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MovementLogger</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A custom logger extending the :mod:`loguru logger &lt;loguru._logger&gt;`.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A custom logger extending the :mod:`loguru logger &lt;loguru._logger&gt;`."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the logger with the :mod:`loguru._logger`.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the logger with the :mod:`loguru._logger`."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">loguru_logger</span>
 
 <div class="viewcode-block" id="MovementLogger.configure">
 <a class="viewcode-back" href="../../../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.configure">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">log_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;movement&quot;</span><span class="p">,</span>
+        <span class="n">log_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"movement"</span><span class="p">,</span>
         <span class="n">log_directory</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">DEFAULT_LOG_DIRECTORY</span><span class="p">,</span>
         <span class="n">console</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Configure a rotating file logger and optionally a console logger.</span>
+<span class="w">        </span><span class="sd">"""Configure a rotating file logger and optionally a console logger.</span>
 
 <span class="sd">        This method configures a rotating log file that</span>
 <span class="sd">        logs at the DEBUG level with a maximum size of 5 MB</span>
@@ -522,28 +522,28 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        log_file_name</span>
-<span class="sd">            The name of the log file. Defaults to ``&quot;movement&quot;``.</span>
+<span class="sd">            The name of the log file. Defaults to ``"movement"``.</span>
 <span class="sd">        log_directory</span>
 <span class="sd">            The directory to store the log file in. Defaults to</span>
-<span class="sd">            ``&quot;~/.movement&quot;``. A different directory can be specified,</span>
+<span class="sd">            ``"~/.movement"``. A different directory can be specified,</span>
 <span class="sd">            for example, for testing purposes.</span>
 <span class="sd">        console</span>
 <span class="sd">            Whether to add a console logger. Defaults to ``True``.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">log_directory</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">log_file</span> <span class="o">=</span> <span class="p">(</span><span class="n">log_directory</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">log_file_name</span><span class="si">}</span><span class="s2">.log&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+        <span class="n">log_file</span> <span class="o">=</span> <span class="p">(</span><span class="n">log_directory</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">log_file_name</span><span class="si">}</span><span class="s2">.log"</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">console</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="s2">&quot;5 MB&quot;</span><span class="p">,</span> <span class="n">retention</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"WARNING"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">log_file</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"DEBUG"</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="s2">"5 MB"</span><span class="p">,</span> <span class="n">retention</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Redirect warnings to the logger</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">showwarning</span>
         <span class="k">return</span> <span class="n">log_file</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_log_and_return_exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">log_method</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log the message and return an Exception if specified.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Log the message and return an Exception if specified."""</span>
         <span class="n">log_method</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="ne">Exception</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">message</span>
@@ -551,12 +551,12 @@
 <div class="viewcode-block" id="MovementLogger.error">
 <a class="viewcode-back" href="../../../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.error">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log error message and optionally return an Exception.</span>
+<span class="w">        </span><span class="sd">"""Log error message and optionally return an Exception.</span>
 
-<span class="sd">        This method overrides loguru&#39;s</span>
+<span class="sd">        This method overrides loguru's</span>
 <span class="sd">        :meth:`logger.error() &lt;loguru._logger.Logger.error&gt;` to optionally</span>
 <span class="sd">        return an Exception if the message is an Exception.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_and_return_exception</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">)</span></div>
@@ -565,23 +565,23 @@
 <div class="viewcode-block" id="MovementLogger.exception">
 <a class="viewcode-back" href="../../../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.exception">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">exception</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Log error message with traceback and optionally return an Exception.</span>
+<span class="w">        </span><span class="sd">"""Log error message with traceback and optionally return an Exception.</span>
 
-<span class="sd">        This method overrides loguru&#39;s</span>
+<span class="sd">        This method overrides loguru's</span>
 <span class="sd">        :meth:`logger.exception() &lt;loguru._logger.Logger.exception&gt;` to</span>
 <span class="sd">        optionally return an Exception if the message is an Exception.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_and_return_exception</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
         <span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Redirect attribute access to the loguru logger.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Redirect attribute access to the loguru logger."""</span>
         <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the loguru logger&#39;s representation.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the loguru logger's representation."""</span>
         <span class="k">return</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span></div>
 
 
@@ -592,11 +592,11 @@
 <div class="viewcode-block" id="showwarning">
 <a class="viewcode-back" href="../../../api/movement.utils.logging.showwarning.html#movement.utils.logging.showwarning">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">showwarning</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Redirect alerts from the :mod:`warnings` module to the logger.</span>
+<span class="w">    </span><span class="sd">"""Redirect alerts from the :mod:`warnings` module to the logger.</span>
 
 <span class="sd">    This function replaces :func:`logging.captureWarnings` which redirects</span>
 <span class="sd">    warnings issued by the :mod:`warnings` module to the logging system.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">formatted_message</span> <span class="o">=</span> <span class="n">warnings</span><span class="o">.</span><span class="n">formatwarning</span><span class="p">(</span>
         <span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">line</span>
     <span class="p">)</span>
@@ -607,21 +607,21 @@
 <div class="viewcode-block" id="log_to_attrs">
 <a class="viewcode-back" href="../../../api/movement.utils.logging.log_to_attrs.html#movement.utils.logging.log_to_attrs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">log_to_attrs</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Log the operation performed by the wrapped function.</span>
+<span class="w">    </span><span class="sd">"""Log the operation performed by the wrapped function.</span>
 
-<span class="sd">    This decorator appends log entries to the data&#39;s ``log``</span>
+<span class="sd">    This decorator appends log entries to the data's ``log``</span>
 <span class="sd">    attribute. The wrapped function must accept an :class:`xarray.Dataset`</span>
 <span class="sd">    or :class:`xarray.DataArray` as its first argument and return an</span>
 <span class="sd">    object of the same type.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">log_entry</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;operation&quot;</span><span class="p">:</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-            <span class="s2">&quot;datetime&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()),</span>
+            <span class="s2">"operation"</span><span class="p">:</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="s2">"datetime"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()),</span>
         <span class="p">}</span>
 
         <span class="c1"># Extract argument names from the function signature</span>
@@ -632,23 +632,23 @@
         <span class="c1"># Store each argument</span>
         <span class="c1"># (excluding the first, which is the Dataset/DataArray itself)</span>
         <span class="k">for</span> <span class="n">param_name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">bound_args</span><span class="o">.</span><span class="n">arguments</span><span class="o">.</span><span class="n">items</span><span class="p">())[</span><span class="mi">1</span><span class="p">:]:</span>
-            <span class="k">if</span> <span class="n">param_name</span> <span class="o">==</span> <span class="s2">&quot;kwargs&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">param_name</span> <span class="o">==</span> <span class="s2">"kwargs"</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">value</span><span class="p">:</span>
                 <span class="k">continue</span>  <span class="c1"># Skip empty kwargs</span>
             <span class="n">log_entry</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;attrs&quot;</span><span class="p">):</span>
-            <span class="n">log_str</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;log&quot;</span><span class="p">,</span> <span class="s2">&quot;[]&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">"attrs"</span><span class="p">):</span>
+            <span class="n">log_str</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"log"</span><span class="p">,</span> <span class="s2">"[]"</span><span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">log_list</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">log_str</span><span class="p">)</span>
             <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
                 <span class="n">log_list</span> <span class="o">=</span> <span class="p">[]</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Failed to decode existing log in attributes: </span><span class="si">{</span><span class="n">log_str</span><span class="si">}</span><span class="s2">. &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Overwriting with an empty list.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Failed to decode existing log in attributes: </span><span class="si">{</span><span class="n">log_str</span><span class="si">}</span><span class="s2">. "</span>
+                    <span class="sa">f</span><span class="s2">"Overwriting with an empty list."</span>
                 <span class="p">)</span>
 
             <span class="n">log_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">log_entry</span><span class="p">)</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;log&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">log_list</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"log"</span><span class="p">]</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">log_list</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">result</span>
 

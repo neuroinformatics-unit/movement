@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.validators.arrays</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Validators for data arrays.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Validators for data arrays."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hashable</span>
 
@@ -493,7 +493,7 @@
     <span class="n">required_dim_coords</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Hashable</span><span class="p">]],</span>
     <span class="n">exact_coords</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate dimensions and coordinates in a data array.</span>
+<span class="w">    </span><span class="sd">"""Validate dimensions and coordinates in a data array.</span>
 
 <span class="sd">    This function raises a ValueError if the specified dimensions and</span>
 <span class="sd">    coordinates are not present in the input data array. By default,</span>
@@ -517,19 +517,19 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    Validate that a data array contains the dimension &#39;time&#39;. No specific</span>
+<span class="sd">    Validate that a data array contains the dimension 'time'. No specific</span>
 <span class="sd">    coordinates are required.</span>
 
-<span class="sd">    &gt;&gt;&gt; validate_dims_coords(data, {&quot;time&quot;: []})</span>
+<span class="sd">    &gt;&gt;&gt; validate_dims_coords(data, {"time": []})</span>
 
-<span class="sd">    Validate that a data array contains the dimensions &#39;time&#39; and &#39;space&#39;,</span>
-<span class="sd">    and that the &#39;space&#39; dimension contains the coordinates &#39;x&#39; and &#39;y&#39;.</span>
+<span class="sd">    Validate that a data array contains the dimensions 'time' and 'space',</span>
+<span class="sd">    and that the 'space' dimension contains the coordinates 'x' and 'y'.</span>
 
-<span class="sd">    &gt;&gt;&gt; validate_dims_coords(data, {&quot;time&quot;: [], &quot;space&quot;: [&quot;x&quot;, &quot;y&quot;]})</span>
+<span class="sd">    &gt;&gt;&gt; validate_dims_coords(data, {"time": [], "space": ["x", "y"]})</span>
 
-<span class="sd">    Enforce that &#39;space&#39; has *only* &#39;x&#39; and &#39;y&#39;, and no other coordinates:</span>
+<span class="sd">    Enforce that 'space' has *only* 'x' and 'y', and no other coordinates:</span>
 
-<span class="sd">    &gt;&gt;&gt; validate_dims_coords(data, {&quot;space&quot;: [&quot;x&quot;, &quot;y&quot;]}, exact_coords=True)</span>
+<span class="sd">    &gt;&gt;&gt; validate_dims_coords(data, {"space": ["x", "y"]}, exact_coords=True)</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
@@ -537,13 +537,13 @@
 <span class="sd">        If the input data does not contain the required dimension(s)</span>
 <span class="sd">        and/or the required coordinate(s).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># 1. Check that all required dimensions are present</span>
     <span class="n">missing_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">required_dim_coords</span> <span class="k">if</span> <span class="n">dim</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">]</span>
-    <span class="n">error_message</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">error_message</span> <span class="o">=</span> <span class="s2">""</span>
     <span class="k">if</span> <span class="n">missing_dims</span><span class="p">:</span>
         <span class="n">error_message</span> <span class="o">+=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Input data must contain </span><span class="si">{</span><span class="n">missing_dims</span><span class="si">}</span><span class="s2"> as dimensions.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Input data must contain </span><span class="si">{</span><span class="n">missing_dims</span><span class="si">}</span><span class="s2"> as dimensions.</span><span class="se">\n</span><span class="s2">"</span>
         <span class="p">)</span>
 
     <span class="c1"># 2. For each dimension, check the presence of required coords</span>
@@ -552,8 +552,8 @@
         <span class="n">missing_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">coords</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dim_coords_in_data</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">missing_coords</span><span class="p">:</span>
             <span class="n">error_message</span> <span class="o">+=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Input data must contain </span><span class="si">{</span><span class="n">missing_coords</span><span class="si">}</span><span class="s2"> &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;in the &#39;</span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">&#39; coordinates.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"Input data must contain </span><span class="si">{</span><span class="n">missing_coords</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"in the '</span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">' coordinates.</span><span class="se">\n</span><span class="s2">"</span>
             <span class="p">)</span>
 
         <span class="c1"># 3. If exact_coords is True, verify no extra coords exist</span>
@@ -561,9 +561,9 @@
             <span class="n">extra_coords</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">dim_coords_in_data</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">extra_coords</span><span class="p">:</span>
                 <span class="n">error_message</span> <span class="o">+=</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Dimension &#39;</span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">&#39; must only contain &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">coords</span><span class="si">}</span><span class="s2"> as coordinates, &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;but it also has </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">extra_coords</span><span class="p">)</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Dimension '</span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">' must only contain "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">coords</span><span class="si">}</span><span class="s2"> as coordinates, "</span>
+                    <span class="sa">f</span><span class="s2">"but it also has </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">extra_coords</span><span class="p">)</span><span class="si">}</span><span class="s2">.</span><span class="se">\n</span><span class="s2">"</span>
                 <span class="p">)</span>
 
     <span class="k">if</span> <span class="n">error_message</span><span class="p">:</span>

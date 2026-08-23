@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.io.save_bboxes</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Save bounding boxes data from ``movement`` to VIA tracks .csv format.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Save bounding boxes data from ``movement`` to VIA tracks .csv format."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -505,9 +505,9 @@
     <span class="n">track_ids_from_trailing_numbers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">frame_n_digits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">image_file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">image_file_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.png&quot;</span><span class="p">,</span>
+    <span class="n">image_file_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">".png"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a ``movement`` bounding boxes dataset to a VIA tracks .csv file.</span>
+<span class="w">    </span><span class="sd">"""Save a ``movement`` bounding boxes dataset to a VIA tracks .csv file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -517,9 +517,9 @@
 <span class="sd">        Path where the VIA tracks .csv file [1]_ will be saved.</span>
 <span class="sd">    track_ids_from_trailing_numbers</span>
 <span class="sd">        If True, extract track IDs from the numbers at the end of the</span>
-<span class="sd">        individuals&#39; names (e.g. `mouse_1` -&gt; track ID 1). If False, the</span>
+<span class="sd">        individuals' names (e.g. `mouse_1` -&gt; track ID 1). If False, the</span>
 <span class="sd">        track IDs will be assigned sequentially (0, 1, 2, ...) based on</span>
-<span class="sd">        the alphabetically sorted list of individuals&#39; names. Default is True.</span>
+<span class="sd">        the alphabetically sorted list of individuals' names. Default is True.</span>
 <span class="sd">    frame_n_digits</span>
 <span class="sd">        The number of digits to use to represent frame numbers in the image</span>
 <span class="sd">        filenames (including leading zeros). If None, the number of digits is</span>
@@ -531,7 +531,7 @@
 <span class="sd">        nothing will be prepended to the padded frame number. Default is None.</span>
 <span class="sd">    image_file_suffix</span>
 <span class="sd">        Suffix to add to every image filename holding the file extension.</span>
-<span class="sd">        Strings with or without the dot are accepted. Default is &#39;.png&#39;.</span>
+<span class="sd">        Strings with or without the dot are accepted. Default is '.png'.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -552,64 +552,64 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,</span>
-<span class="sd">    deriving the track IDs from the numbers at the end of the individuals&#39;</span>
+<span class="sd">    deriving the track IDs from the numbers at the end of the individuals'</span>
 <span class="sd">    names and assuming the image files are PNG files. The frame numbers in the</span>
 <span class="sd">    image filenames are padded with at least one leading zero by default:</span>
 
 <span class="sd">    &gt;&gt;&gt; from movement.io import save_bboxes</span>
-<span class="sd">    &gt;&gt;&gt; save_bboxes.to_via_tracks_file(ds, &quot;/path/to/output.csv&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; save_bboxes.to_via_tracks_file(ds, "/path/to/output.csv")</span>
 
 <span class="sd">    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,</span>
 <span class="sd">    assigning the track IDs sequentially based on the alphabetically sorted</span>
-<span class="sd">    list of individuals&#39; names, and assuming the image files are PNG files:</span>
+<span class="sd">    list of individuals' names, and assuming the image files are PNG files:</span>
 
 <span class="sd">    &gt;&gt;&gt; from movement.io import save_bboxes</span>
 <span class="sd">    &gt;&gt;&gt; save_bboxes.to_via_tracks_file(</span>
 <span class="sd">    ...     ds,</span>
-<span class="sd">    ...     &quot;/path/to/output.csv&quot;,</span>
+<span class="sd">    ...     "/path/to/output.csv",</span>
 <span class="sd">    ...     track_ids_from_trailing_numbers=False,</span>
 <span class="sd">    ... )</span>
 
 <span class="sd">    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,</span>
-<span class="sd">    deriving the track IDs from the numbers at the end of the individuals&#39;</span>
+<span class="sd">    deriving the track IDs from the numbers at the end of the individuals'</span>
 <span class="sd">    names, and assuming the image files are JPG files:</span>
 
 <span class="sd">    &gt;&gt;&gt; from movement.io import save_bboxes</span>
 <span class="sd">    &gt;&gt;&gt; save_bboxes.to_via_tracks_file(</span>
 <span class="sd">    ...     ds,</span>
-<span class="sd">    ...     &quot;/path/to/output.csv&quot;,</span>
-<span class="sd">    ...     image_file_suffix=&quot;.jpg&quot;,</span>
+<span class="sd">    ...     "/path/to/output.csv",</span>
+<span class="sd">    ...     image_file_suffix=".jpg",</span>
 <span class="sd">    ... )</span>
 
 <span class="sd">    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,</span>
-<span class="sd">    deriving the track IDs from the numbers at the end of the individuals&#39;</span>
+<span class="sd">    deriving the track IDs from the numbers at the end of the individuals'</span>
 <span class="sd">    names and with image filenames following the format</span>
 <span class="sd">    ``frame-&lt;frame_number&gt;.jpg``:</span>
 
 <span class="sd">    &gt;&gt;&gt; from movement.io import save_bboxes</span>
 <span class="sd">    &gt;&gt;&gt; save_bboxes.to_via_tracks_file(</span>
 <span class="sd">    ...     ds,</span>
-<span class="sd">    ...     &quot;/path/to/output.csv&quot;,</span>
-<span class="sd">    ...     image_file_prefix=&quot;frame-&quot;,</span>
-<span class="sd">    ...     image_file_suffix=&quot;.jpg&quot;,</span>
+<span class="sd">    ...     "/path/to/output.csv",</span>
+<span class="sd">    ...     image_file_prefix="frame-",</span>
+<span class="sd">    ...     image_file_suffix=".jpg",</span>
 <span class="sd">    ... )</span>
 
 <span class="sd">    Export a ``movement`` bounding boxes dataset as a VIA tracks .csv file,</span>
-<span class="sd">    deriving the track IDs from the numbers at the end of the individuals&#39;</span>
+<span class="sd">    deriving the track IDs from the numbers at the end of the individuals'</span>
 <span class="sd">    names, and with frame numbers in the image filenames represented using 4</span>
 <span class="sd">    digits (i.e., image filenames would be ``0000.png``, ``0001.png``, etc.):</span>
 
 <span class="sd">    &gt;&gt;&gt; from movement.io import save_bboxes</span>
 <span class="sd">    &gt;&gt;&gt; save_bboxes.to_via_tracks_file(</span>
 <span class="sd">    ...     ds,</span>
-<span class="sd">    ...     &quot;/path/to/output.csv&quot;,</span>
+<span class="sd">    ...     "/path/to/output.csv",</span>
 <span class="sd">    ...     frame_n_digits=4,</span>
 <span class="sd">    ... )</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Validate file path and dataset</span>
     <span class="n">valid_path</span> <span class="o">=</span> <span class="n">validate_file_path</span><span class="p">(</span>
-        <span class="n">file_path</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;.csv&quot;</span><span class="p">}</span>
+        <span class="n">file_path</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">{</span><span class="s2">".csv"</span><span class="p">}</span>
     <span class="p">)</span>
     <span class="n">ValidBboxesInputs</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="c1"># Check the number of digits required to represent the frame numbers</span>
@@ -622,9 +622,9 @@
         <span class="n">image_file_prefix</span><span class="o">=</span><span class="n">image_file_prefix</span><span class="p">,</span>
         <span class="n">image_file_suffix</span><span class="o">=</span><span class="n">image_file_suffix</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="c1"># Map individuals&#39; names to track IDs</span>
+    <span class="c1"># Map individuals' names to track IDs</span>
     <span class="n">map_individual_to_track_id</span> <span class="o">=</span> <span class="n">_compute_individuals_to_track_ids_map</span><span class="p">(</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"individual"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
         <span class="n">track_ids_from_trailing_numbers</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Write file</span>
@@ -634,7 +634,7 @@
         <span class="n">map_individual_to_track_id</span><span class="p">,</span>
         <span class="n">img_filename_template</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved bounding boxes dataset to </span><span class="si">{</span><span class="n">valid_path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved bounding boxes dataset to </span><span class="si">{</span><span class="n">valid_path</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">valid_path</span></div>
 
 
@@ -644,7 +644,7 @@
     <span class="n">image_file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">image_file_suffix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a format string for the images&#39; filenames.</span>
+<span class="w">    </span><span class="sd">"""Compute a format string for the images' filenames.</span>
 
 <span class="sd">    The filenames of the images in the VIA tracks .csv file are derived from</span>
 <span class="sd">    the frame numbers. Optionally, a prefix can be added to the frame number.</span>
@@ -664,23 +664,23 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    str</span>
-<span class="sd">        Format string for the images&#39; filenames.</span>
+<span class="sd">        Format string for the images' filenames.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Add the dot to the file extension if required</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">image_file_suffix</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
-        <span class="n">image_file_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;.</span><span class="si">{</span><span class="n">image_file_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">image_file_suffix</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"."</span><span class="p">):</span>
+        <span class="n">image_file_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">".</span><span class="si">{</span><span class="n">image_file_suffix</span><span class="si">}</span><span class="s2">"</span>
 
     <span class="c1"># Add the prefix if not None or not an empty string</span>
     <span class="n">image_file_prefix_modified</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">image_file_prefix</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">image_file_prefix</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">image_file_prefix</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">image_file_prefix</span> <span class="k">else</span> <span class="s2">""</span>
     <span class="p">)</span>
 
     <span class="c1"># Define filename format string</span>
     <span class="k">return</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">image_file_prefix_modified</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">{{</span><span class="s2">:0</span><span class="si">{</span><span class="n">frame_n_digits</span><span class="si">}</span><span class="s2">d</span><span class="se">}}</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">image_file_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">image_file_prefix_modified</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="se">{{</span><span class="s2">:0</span><span class="si">{</span><span class="n">frame_n_digits</span><span class="si">}</span><span class="s2">d</span><span class="se">}}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">image_file_suffix</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
 
 
@@ -688,7 +688,7 @@
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">frame_n_digits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check the number of digits to represent the frame number is valid.</span>
+<span class="w">    </span><span class="sd">"""Check the number of digits to represent the frame number is valid.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -711,10 +711,10 @@
 <span class="sd">        If the proposed number of digits is not enough to represent all the</span>
 <span class="sd">        frame numbers.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Compute minimum number of digits required to represent the</span>
     <span class="c1"># largest frame number</span>
-    <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">time_unit</span> <span class="o">==</span> <span class="s2">&quot;seconds&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">time_unit</span> <span class="o">==</span> <span class="s2">"seconds"</span><span class="p">:</span>
         <span class="n">max_frame_number</span> <span class="o">=</span> <span class="nb">max</span><span class="p">((</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">ds</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">max_frame_number</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
@@ -726,9 +726,9 @@
     <span class="k">elif</span> <span class="n">frame_n_digits</span> <span class="o">&lt;</span> <span class="n">min_required_digits</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;The requested number of digits cannot be used to represent &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;all the frame numbers. Got </span><span class="si">{</span><span class="n">frame_n_digits</span><span class="si">}</span><span class="s2">, but the &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;maximum frame number has </span><span class="si">{</span><span class="n">min_required_digits</span><span class="si">}</span><span class="s2"> digits.&quot;</span>
+                <span class="s2">"The requested number of digits cannot be used to represent "</span>
+                <span class="sa">f</span><span class="s2">"all the frame numbers. Got </span><span class="si">{</span><span class="n">frame_n_digits</span><span class="si">}</span><span class="s2">, but the "</span>
+                <span class="sa">f</span><span class="s2">"maximum frame number has </span><span class="si">{</span><span class="n">min_required_digits</span><span class="si">}</span><span class="s2"> digits."</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
@@ -739,32 +739,32 @@
     <span class="n">individuals</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">track_ids_from_trailing_numbers</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the map from individuals&#39; names to track IDs.</span>
+<span class="w">    </span><span class="sd">"""Compute the map from individuals' names to track IDs.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    individuals</span>
-<span class="sd">        List of individuals&#39; names.</span>
+<span class="sd">        List of individuals' names.</span>
 <span class="sd">    track_ids_from_trailing_numbers</span>
 <span class="sd">        If True, extract track ID from the last consecutive digits in</span>
-<span class="sd">        the individuals&#39; names. If False, the track IDs will be assigned</span>
+<span class="sd">        the individuals' names. If False, the track IDs will be assigned</span>
 <span class="sd">        sequentially (0, 1, 2, ...) based on the alphabetically</span>
-<span class="sd">        sorted list of individuals&#39; names.</span>
+<span class="sd">        sorted list of individuals' names.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dict[str, int]</span>
-<span class="sd">        A dictionary mapping individuals&#39; names to track IDs.</span>
+<span class="sd">        A dictionary mapping individuals' names to track IDs.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">track_ids_from_trailing_numbers</span><span class="p">:</span>
-        <span class="c1"># Extract track IDs from the trailing numbers in the individuals&#39; names</span>
+        <span class="c1"># Extract track IDs from the trailing numbers in the individuals' names</span>
         <span class="n">map_individual_to_track_id</span> <span class="o">=</span> <span class="n">_extract_track_ids_from_individuals_names</span><span class="p">(</span>
             <span class="n">individuals</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Assign track IDs sequentially based on the alphabetically sorted</span>
-        <span class="c1"># list of individuals&#39; names</span>
+        <span class="c1"># list of individuals' names</span>
         <span class="n">map_individual_to_track_id</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">individual</span><span class="p">:</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">individual</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">individuals</span><span class="p">))</span>
         <span class="p">}</span>
@@ -775,48 +775,48 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_track_ids_from_individuals_names</span><span class="p">(</span>
     <span class="n">individuals</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract track IDs as the last digits in the individuals&#39; names.</span>
+<span class="w">    </span><span class="sd">"""Extract track IDs as the last digits in the individuals' names.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    individuals</span>
-<span class="sd">        List of individuals&#39; names.</span>
+<span class="sd">        List of individuals' names.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dict[str, int]</span>
-<span class="sd">        A dictionary mapping individuals&#39; names to track IDs.</span>
+<span class="sd">        A dictionary mapping individuals' names to track IDs.</span>
 
 <span class="sd">    Raises</span>
 <span class="sd">    ------</span>
 <span class="sd">    ValueError</span>
 <span class="sd">        If a track ID is not found by looking at the last consecutive digits</span>
-<span class="sd">        in an individual&#39;s name, or if the extracted track IDs cannot be</span>
-<span class="sd">        uniquely mapped to the individuals&#39; names.</span>
+<span class="sd">        in an individual's name, or if the extracted track IDs cannot be</span>
+<span class="sd">        uniquely mapped to the individuals' names.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">map_individual_to_track_id</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">individual</span> <span class="ow">in</span> <span class="n">individuals</span><span class="p">:</span>
-        <span class="c1"># Match the last consecutive digits in the individual&#39;s name</span>
+        <span class="c1"># Match the last consecutive digits in the individual's name</span>
         <span class="c1"># even if they are not at the end of the string</span>
-        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\d+)(?=\D*$)&quot;</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"(\d+)(?=\D*$)"</span>
         <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">individual</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
             <span class="n">track_id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
             <span class="n">map_individual_to_track_id</span><span class="p">[</span><span class="n">individual</span><span class="p">]</span> <span class="o">=</span> <span class="n">track_id</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not extract track ID from </span><span class="si">{</span><span class="n">individual</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+                <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Could not extract track ID from </span><span class="si">{</span><span class="n">individual</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
             <span class="p">)</span>
 
     <span class="c1"># Check that all individuals have a unique track ID</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">map_individual_to_track_id</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">individuals</span><span class="p">)):</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Could not extract a unique track ID for all individuals. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Expected </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">individuals</span><span class="p">))</span><span class="si">}</span><span class="s2"> unique track IDs, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">map_individual_to_track_id</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">"Could not extract a unique track ID for all individuals. "</span>
+                <span class="sa">f</span><span class="s2">"Expected </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">individuals</span><span class="p">))</span><span class="si">}</span><span class="s2"> unique track IDs, "</span>
+                <span class="sa">f</span><span class="s2">"but got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">map_individual_to_track_id</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
@@ -829,7 +829,7 @@
     <span class="n">map_individual_to_track_id</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">img_filename_template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a VIA tracks .csv file.</span>
+<span class="w">    </span><span class="sd">"""Write a VIA tracks .csv file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -838,24 +838,24 @@
 <span class="sd">    file_path</span>
 <span class="sd">        Path where the VIA tracks .csv file will be saved.</span>
 <span class="sd">    map_individual_to_track_id</span>
-<span class="sd">        Dictionary mapping individuals&#39; names to track IDs.</span>
+<span class="sd">        Dictionary mapping individuals' names to track IDs.</span>
 <span class="sd">    img_filename_template</span>
-<span class="sd">        Format string for the images&#39; filenames.</span>
+<span class="sd">        Format string for the images' filenames.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Define VIA tracks .csv header</span>
     <span class="n">header</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;filename&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;file_size&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;file_attributes&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;region_count&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;region_id&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;region_shape_attributes&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;region_attributes&quot;</span><span class="p">,</span>
+        <span class="s2">"filename"</span><span class="p">,</span>
+        <span class="s2">"file_size"</span><span class="p">,</span>
+        <span class="s2">"file_attributes"</span><span class="p">,</span>
+        <span class="s2">"region_count"</span><span class="p">,</span>
+        <span class="s2">"region_id"</span><span class="p">,</span>
+        <span class="s2">"region_shape_attributes"</span><span class="p">,</span>
+        <span class="s2">"region_attributes"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="c1"># Get time values in frames</span>
-    <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">time_unit</span> <span class="o">==</span> <span class="s2">&quot;seconds&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">time_unit</span> <span class="o">==</span> <span class="s2">"seconds"</span><span class="p">:</span>
         <span class="n">time_in_frames</span> <span class="o">=</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">ds</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">time_in_frames</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span>
@@ -865,7 +865,7 @@
         <span class="n">ds</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
     <span class="p">)</span>  <span class="c1"># (time, individual)</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">csv_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="n">csv_writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
 
@@ -897,7 +897,7 @@
                 <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">confidence</span><span class="p">):</span>
                     <span class="n">confidence</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># pass as None if confidence is NaN</span>
 
-                <span class="c1"># Get track IDs from individuals&#39; names</span>
+                <span class="c1"># Get track IDs from individuals' names</span>
                 <span class="n">track_id</span> <span class="o">=</span> <span class="n">map_individual_to_track_id</span><span class="p">[</span><span class="n">indiv</span><span class="p">]</span>
 
                 <span class="c1"># Write row</span>
@@ -918,7 +918,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_write_single_row</span><span class="p">(</span>
-    <span class="n">writer</span><span class="p">:</span> <span class="s2">&quot;_csv._writer&quot;</span><span class="p">,</span>  <span class="c1"># requires a string literal type annotation</span>
+    <span class="n">writer</span><span class="p">:</span> <span class="s2">"_csv._writer"</span><span class="p">,</span>  <span class="c1"># requires a string literal type annotation</span>
     <span class="n">xy_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">wh_values</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">confidence</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
@@ -928,7 +928,7 @@
     <span class="n">img_filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">image_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a single row of a VIA tracks .csv file and return it as a tuple.</span>
+<span class="w">    </span><span class="sd">"""Write a single row of a VIA tracks .csv file and return it as a tuple.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -964,7 +964,7 @@
 <span class="sd">    The reference for the VIA tracks .csv file format is at</span>
 <span class="sd">    https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Calculate top-left coordinates of bounding box</span>
     <span class="n">x_center</span><span class="p">,</span> <span class="n">y_center</span> <span class="o">=</span> <span class="n">xy_values</span>
     <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">wh_values</span>
@@ -972,7 +972,7 @@
     <span class="n">y_top_left</span> <span class="o">=</span> <span class="n">y_center</span> <span class="o">-</span> <span class="n">height</span> <span class="o">/</span> <span class="mi">2</span>
 
     <span class="c1"># Define file attributes (placeholder value)</span>
-    <span class="n">file_attributes</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;shot&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+    <span class="n">file_attributes</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">"shot"</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
 
     <span class="c1"># Define region shape attributes</span>
     <span class="c1"># Note: float() converts float32 to float64,</span>
@@ -980,19 +980,19 @@
     <span class="n">n_decimals</span> <span class="o">=</span> <span class="mi">6</span>
     <span class="n">region_shape_attributes</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
         <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;rect&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x_top_left</span><span class="p">),</span> <span class="n">n_decimals</span><span class="p">),</span>
-            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">y_top_left</span><span class="p">),</span> <span class="n">n_decimals</span><span class="p">),</span>
-            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">width</span><span class="p">),</span> <span class="n">n_decimals</span><span class="p">),</span>
-            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">height</span><span class="p">),</span> <span class="n">n_decimals</span><span class="p">),</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"rect"</span><span class="p">,</span>
+            <span class="s2">"x"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x_top_left</span><span class="p">),</span> <span class="n">n_decimals</span><span class="p">),</span>
+            <span class="s2">"y"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">y_top_left</span><span class="p">),</span> <span class="n">n_decimals</span><span class="p">),</span>
+            <span class="s2">"width"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">width</span><span class="p">),</span> <span class="n">n_decimals</span><span class="p">),</span>
+            <span class="s2">"height"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">height</span><span class="p">),</span> <span class="n">n_decimals</span><span class="p">),</span>
         <span class="p">}</span>
     <span class="p">)</span>
 
     <span class="c1"># Define region attributes</span>
-    <span class="n">region_attributes_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;track&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">track_id</span><span class="p">)}</span>
+    <span class="n">region_attributes_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"track"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">track_id</span><span class="p">)}</span>
     <span class="k">if</span> <span class="n">confidence</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># convert to float to ensure it is json-serializable</span>
-        <span class="n">region_attributes_dict</span><span class="p">[</span><span class="s2">&quot;confidence&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span>
+        <span class="n">region_attributes_dict</span><span class="p">[</span><span class="s2">"confidence"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span>
             <span class="nb">float</span><span class="p">(</span><span class="n">confidence</span><span class="p">),</span> <span class="n">n_decimals</span>
         <span class="p">)</span>
     <span class="n">region_attributes</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">region_attributes_dict</span><span class="p">)</span>

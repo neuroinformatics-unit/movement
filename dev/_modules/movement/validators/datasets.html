@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.validators.datasets</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;``attrs`` classes for validating data structures.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""``attrs`` classes for validating data structures."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
@@ -497,11 +497,11 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_convert_to_list_of_str</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Try to coerce the value into a list of strings.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Try to coerce the value into a list of strings."""</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Expected a list of strings, but got a string (</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">). &quot;</span>
-            <span class="s2">&quot;Converting to a list of length 1.&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"Expected a list of strings, but got a string (</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">). "</span>
+            <span class="s2">"Converting to a list of length 1."</span><span class="p">,</span>
             <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
@@ -510,16 +510,16 @@
         <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid value (</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">). Expected a list of strings.&quot;</span><span class="p">)</span>
+            <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid value (</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">). Expected a list of strings."</span><span class="p">)</span>
         <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_convert_fps_to_none_if_invalid</span><span class="p">(</span><span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set fps to None if a non-positive float is passed.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Set fps to None if a non-positive float is passed."""</span>
     <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fps</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Invalid fps value (</span><span class="si">{</span><span class="n">fps</span><span class="si">}</span><span class="s2">). Expected a positive number. &quot;</span>
-            <span class="s2">&quot;Setting fps to None.&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">"Invalid fps value (</span><span class="si">{</span><span class="n">fps</span><span class="si">}</span><span class="s2">). Expected a positive number. "</span>
+            <span class="s2">"Setting fps to None."</span><span class="p">,</span>
             <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
@@ -529,7 +529,7 @@
 
 <span class="nd">@define</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">_BaseDatasetInputs</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for validating ``movement`` dataset inputs.</span>
+<span class="w">    </span><span class="sd">"""Abstract base class for validating ``movement`` dataset inputs.</span>
 
 <span class="sd">    This base class centralises shared fields, validators, and default</span>
 <span class="sd">    assignment logic for creating ``movement`` datasets</span>
@@ -539,32 +539,32 @@
 <span class="sd">    ``individual_names``.</span>
 <span class="sd">    Subclasses must implement ``to_dataset()`` and define class variables</span>
 <span class="sd">    ``DIM_NAMES``, ``VAR_NAMES``, and ``_ALLOWED_SPACE_DIM_SIZE``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># --- Required fields ---</span>
     <span class="n">position_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
     <span class="p">)</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array containing the position data.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Array containing the position data."""</span>
 
     <span class="c1"># --- Optional fields ---</span>
     <span class="n">confidence_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)),</span>
     <span class="p">)</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array containing confidence scores for the position data. The expected</span>
+<span class="w">    </span><span class="sd">"""Array containing confidence scores for the position data. The expected</span>
 <span class="sd">    shape depends on the subclass - see its class docstring for details. If</span>
-<span class="sd">    None (default), the confidence scores will be set to an array of NaNs.&quot;&quot;&quot;</span>
+<span class="sd">    None (default), the confidence scores will be set to an array of NaNs."""</span>
 
     <span class="n">individual_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">_convert_to_list_of_str</span><span class="p">),</span>
     <span class="p">)</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;List of unique names for the individuals in the video. The length of</span>
-<span class="sd">    this list should match the size of the &#39;individual&#39; dimension in the</span>
+<span class="w">    </span><span class="sd">"""List of unique names for the individuals in the video. The length of</span>
+<span class="sd">    this list should match the size of the 'individual' dimension in the</span>
 <span class="sd">    ``position_array``. If None (default), the names will be in the format of</span>
 <span class="sd">    ``id_&lt;N&gt;``, where &lt;N&gt; is an integer from 0 to the size of the</span>
-<span class="sd">    &#39;individual&#39; dimension minus 1.&quot;&quot;&quot;</span>
+<span class="sd">    'individual' dimension minus 1."""</span>
 
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -572,102 +572,102 @@
             <span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">_convert_fps_to_none_if_invalid</span>
         <span class="p">),</span>
     <span class="p">)</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Frames per second of the video. If None (default), time coordinates will</span>
+<span class="w">    </span><span class="sd">"""Frames per second of the video. If None (default), time coordinates will</span>
 <span class="sd">    be expressed in frames. If a non-positive value is provided, fps will be</span>
-<span class="sd">    set to None and a warning will be issued.&quot;&quot;&quot;</span>
+<span class="sd">    set to None and a warning will be issued."""</span>
 
     <span class="n">source_software</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="nb">str</span><span class="p">)),</span>
     <span class="p">)</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Name of the software from which the data were loaded. This is stored as</span>
-<span class="sd">    a dataset attribute in the resulting xarray.Dataset. Defaults to None.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Name of the software from which the data were loaded. This is stored as</span>
+<span class="sd">    a dataset attribute in the resulting xarray.Dataset. Defaults to None."""</span>
 
     <span class="c1"># --- Required class variables (to be defined by subclasses) ---</span>
     <span class="n">DIM_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Required dimension names for the dataset. The order of dimension names</span>
-<span class="sd">    must match the order of dimensions in the ``position_array``.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Required dimension names for the dataset. The order of dimension names</span>
+<span class="sd">    must match the order of dimensions in the ``position_array``."""</span>
 
     <span class="n">VAR_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Required variable names for the dataset.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Required variable names for the dataset."""</span>
 
     <span class="n">_ALLOWED_SPACE_DIM_SIZE</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
 
     <span class="c1"># --- Lifecycle hooks ---</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign default values to optional attributes (if None).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Assign default values to optional attributes (if None)."""</span>
         <span class="c1"># confidence_array default: array of NaNs with shape matching</span>
         <span class="c1"># position_array without the space dimension</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">confidence_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_confidence_expected_shapes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_confidence_expected_shapes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"float32"</span>
             <span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Confidence array was not provided.&quot;</span>
-                <span class="s2">&quot;Setting to an array of NaNs.&quot;</span>
+                <span class="s2">"Confidence array was not provided."</span>
+                <span class="s2">"Setting to an array of NaNs."</span>
             <span class="p">)</span>
         <span class="c1"># individual_names default: id_0, id_1, ...</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;individual&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">"individual"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="p">:</span>
             <span class="n">n_inds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;individual&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"individual"</span><span class="p">)</span>
             <span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;id_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_inds</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"id_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_inds</span><span class="p">)]</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Individual names were not provided. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Setting to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">"Individual names were not provided. "</span>
+                <span class="sa">f</span><span class="s2">"Setting to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
 
     <span class="c1"># --- Properties (derived attributes) ---</span>
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_confidence_expected_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of expected shapes for confidence_array.</span>
+<span class="w">        </span><span class="sd">"""Return list of expected shapes for confidence_array.</span>
 
 <span class="sd">        Default is the shape of position_array without the space dimension, but</span>
 <span class="sd">        can be overridden by subclasses if they allow for different confidence</span>
 <span class="sd">        array shapes (e.g. point-wise and individual-wise confidence).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="p">[</span>
             <span class="nb">tuple</span><span class="p">(</span>
                 <span class="n">s</span>
                 <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span>
                 <span class="p">)</span>
-                <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="s2">&quot;space&quot;</span>
+                <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="s2">"space"</span>
             <span class="p">)</span>
         <span class="p">]</span>
 
     <span class="c1"># --- Validators ---</span>
     <span class="nd">@position_array</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_position_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raise ValueError if array dimensions are unexpected.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Raise ValueError if array dimensions are unexpected."""</span>
         <span class="c1"># Check array dimensions match the number of DIM_NAMES</span>
         <span class="n">expected_ndim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">ndim</span> <span class="o">!=</span> <span class="n">expected_ndim</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Expected &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; to have &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">expected_ndim</span><span class="si">}</span><span class="s2"> dimensions, but got </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Expected '</span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' to have "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">expected_ndim</span><span class="si">}</span><span class="s2"> dimensions, but got </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
             <span class="p">)</span>
-        <span class="c1"># Check size of &#39;space&#39; dimension</span>
+        <span class="c1"># Check size of 'space' dimension</span>
         <span class="n">allowed_axis_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ALLOWED_SPACE_DIM_SIZE</span>
-        <span class="n">space_dim_size</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;space&quot;</span><span class="p">)]</span>
+        <span class="n">space_dim_size</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"space"</span><span class="p">)]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">allowed_axis_size</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
             <span class="n">allowed_axis_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">allowed_axis_size</span><span class="p">,)</span>
         <span class="k">if</span> <span class="n">space_dim_size</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_axis_size</span><span class="p">:</span>
-            <span class="n">allowed_dims_str</span> <span class="o">=</span> <span class="s2">&quot; or &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">allowed_dims_str</span> <span class="o">=</span> <span class="s2">" or "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">allowed_axis_size</span>
             <span class="p">)</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Expected &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; to have </span><span class="si">{</span><span class="n">allowed_dims_str</span><span class="si">}</span><span class="s2"> &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;spatial dimensions, but got </span><span class="si">{</span><span class="n">space_dim_size</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Expected '</span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' to have </span><span class="si">{</span><span class="n">allowed_dims_str</span><span class="si">}</span><span class="s2"> "</span>
+                    <span class="sa">f</span><span class="s2">"spatial dimensions, but got </span><span class="si">{</span><span class="n">space_dim_size</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
     <span class="nd">@confidence_array</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_confidence_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check confidence_array type and shape.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Check confidence_array type and shape."""</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_validate_array_shape</span><span class="p">(</span>
                 <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_confidence_expected_shapes</span>
@@ -675,9 +675,9 @@
 
     <span class="nd">@individual_names</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_individual_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate individual_names length and uniqueness.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Validate individual_names length and uniqueness."""</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">individual_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;individual&quot;</span><span class="p">)</span>
+            <span class="n">individual_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"individual"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_validate_list_length</span><span class="p">(</span>
                 <span class="n">attribute</span><span class="p">,</span>
                 <span class="n">value</span><span class="p">,</span>
@@ -692,14 +692,14 @@
         <span class="n">value</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
         <span class="n">expected_shape</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raise ValueError if the value does not have the expected shape.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Raise ValueError if the value does not have the expected shape."""</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expected_shape</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
             <span class="n">expected_shape</span> <span class="o">=</span> <span class="p">[</span><span class="n">expected_shape</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">shape</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">expected_shape</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Expected &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; to have shape &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">expected_shape</span><span class="si">}</span><span class="s2">, but got </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Expected '</span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' to have shape "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">expected_shape</span><span class="si">}</span><span class="s2">, but got </span><span class="si">{</span><span class="n">value</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
@@ -707,12 +707,12 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_list_length</span><span class="p">(</span>
         <span class="n">attribute</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">Attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">expected_length</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raise a ValueError if the list does not have the expected length.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Raise a ValueError if the list does not have the expected length."""</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="n">expected_length</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Expected &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; to have &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;length </span><span class="si">{</span><span class="n">expected_length</span><span class="si">}</span><span class="s2">, but got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Expected '</span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' to have "</span>
+                    <span class="sa">f</span><span class="s2">"length </span><span class="si">{</span><span class="n">expected_length</span><span class="si">}</span><span class="s2">, but got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
@@ -720,31 +720,31 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_list_uniqueness</span><span class="p">(</span>
         <span class="n">attribute</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">Attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Raise a ValueError if the list does not have unique elements.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Raise a ValueError if the list does not have unique elements."""</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Elements in &#39;</span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; are not unique. &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2"> elements in the list, but &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;only </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="si">}</span><span class="s2"> are unique.&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Elements in '</span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' are not unique. "</span>
+                    <span class="sa">f</span><span class="s2">"There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2"> elements in the list, but "</span>
+                    <span class="sa">f</span><span class="s2">"only </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">value</span><span class="p">))</span><span class="si">}</span><span class="s2"> are unique."</span>
                 <span class="p">)</span>
             <span class="p">)</span>
 
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert validated inputs to a ``movement`` xarray.Dataset.</span>
+<span class="w">        </span><span class="sd">"""Convert validated inputs to a ``movement`` xarray.Dataset.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        xarray.Dataset</span>
 <span class="sd">            ``movement`` dataset containing the validated data and metadata.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="o">...</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate that the dataset has the required variables and dimensions.</span>
+<span class="w">        </span><span class="sd">"""Validate that the dataset has the required variables and dimensions.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -759,18 +759,18 @@
 <span class="sd">            If the dataset is missing required data variables or dimensions</span>
 <span class="sd">            for a valid ``movement`` dataset.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected an xarray Dataset, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+                <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Expected an xarray Dataset, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
             <span class="p">)</span>
         <span class="n">missing_vars</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">VAR_NAMES</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Iterable[str]&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+            <span class="n">cast</span><span class="p">(</span><span class="s2">"Iterable[str]"</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">missing_vars</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Missing required data variables: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">missing_vars</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Missing required data variables: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">missing_vars</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="p">)</span>  <span class="c1"># sort for a reproducible error message</span>
         <span class="c1"># Ignore type error - ds.dims will soon return a set of dim names</span>
@@ -778,7 +778,7 @@
         <span class="k">if</span> <span class="n">missing_dims</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Missing required dimensions: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">missing_dims</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"Missing required dimensions: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">missing_dims</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="p">)</span>  <span class="c1"># sort for a reproducible error message</span>
 
@@ -787,7 +787,7 @@
 <a class="viewcode-back" href="../../../api/movement.validators.datasets.ValidPosesInputs.html#movement.validators.datasets.ValidPosesInputs">[docs]</a>
 <span class="nd">@define</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ValidPosesInputs</span><span class="p">(</span><span class="n">_BaseDatasetInputs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating input data for a ``movement poses`` dataset.</span>
+<span class="w">    </span><span class="sd">"""Class for validating input data for a ``movement poses`` dataset.</span>
 
 <span class="sd">    The validator ensures that within the ``movement poses`` dataset:</span>
 
@@ -814,68 +814,68 @@
 <span class="sd">        If the dataset does not meet the ``movement poses``</span>
 <span class="sd">        dataset requirements.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">keypoint_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">_convert_to_list_of_str</span><span class="p">),</span>
     <span class="p">)</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;List of unique names for the keypoints in the skeleton. If None</span>
-<span class="sd">    (default), the keypoints will be named &quot;keypoint_0&quot;, &quot;keypoint_1&quot;,</span>
-<span class="sd">    etc.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""List of unique names for the keypoints in the skeleton. If None</span>
+<span class="sd">    (default), the keypoints will be named "keypoint_0", "keypoint_1",</span>
+<span class="sd">    etc."""</span>
 
     <span class="n">DIM_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;time&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;space&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;individual&quot;</span><span class="p">,</span>
+        <span class="s2">"time"</span><span class="p">,</span>
+        <span class="s2">"space"</span><span class="p">,</span>
+        <span class="s2">"keypoint"</span><span class="p">,</span>
+        <span class="s2">"individual"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">VAR_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;position&quot;</span><span class="p">,</span> <span class="s2">&quot;confidence&quot;</span><span class="p">)</span>
+    <span class="n">VAR_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"position"</span><span class="p">,</span> <span class="s2">"confidence"</span><span class="p">)</span>
     <span class="n">_ALLOWED_SPACE_DIM_SIZE</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_confidence_expected_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return list of expected shapes for confidence_array.</span>
+<span class="w">        </span><span class="sd">"""Return list of expected shapes for confidence_array.</span>
 
 <span class="sd">        Overrides the base implementation to allow for two possible shapes:</span>
 <span class="sd">        - point-wise: (n_frames, n_keypoints, n_individuals)</span>
 <span class="sd">        - individual-wise: (n_frames, n_individuals)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">point_wise</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_confidence_expected_shapes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">individual_wise</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;individual&quot;</span><span class="p">)],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"individual"</span><span class="p">)],</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">point_wise</span><span class="p">,</span> <span class="n">individual_wise</span><span class="p">]</span>
 
     <span class="nd">@keypoint_names</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_keypoint_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate keypoint_names length and uniqueness.&quot;&quot;&quot;</span>
-        <span class="n">keypoint_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;keypoint&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Validate keypoint_names length and uniqueness."""</span>
+        <span class="n">keypoint_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"keypoint"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_list_length</span><span class="p">(</span>
             <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">keypoint_dim_index</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_list_uniqueness</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign default values to optional attributes (if None).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Assign default values to optional attributes (if None)."""</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__attrs_post_init__</span><span class="p">()</span>
         <span class="n">position_array_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span>
-        <span class="n">keypoint_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;keypoint&quot;</span><span class="p">)</span>
+        <span class="n">keypoint_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"keypoint"</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">keypoint_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">keypoint_names</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="sa">f</span><span class="s2">&quot;keypoint_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"keypoint_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span>
                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">position_array_shape</span><span class="p">[</span><span class="n">keypoint_dim_index</span><span class="p">])</span>
             <span class="p">]</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Keypoint names were not provided. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Setting to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">keypoint_names</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">"Keypoint names were not provided. "</span>
+                <span class="sa">f</span><span class="s2">"Setting to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">keypoint_names</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
 
 <div class="viewcode-block" id="ValidPosesInputs.to_dataset">
 <a class="viewcode-back" href="../../../api/movement.validators.datasets.ValidPosesInputs.html#movement.validators.datasets.ValidPosesInputs.to_dataset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert validated poses inputs to a ``movement poses`` dataset.</span>
+<span class="w">        </span><span class="sd">"""Convert validated poses inputs to a ``movement poses`` dataset.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -883,45 +883,45 @@
 <span class="sd">            ``movement`` dataset containing the pose tracks, confidence scores,</span>
 <span class="sd">            and associated metadata.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span>
-        <span class="n">n_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)]</span>
-        <span class="n">n_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;space&quot;</span><span class="p">)]</span>
+        <span class="n">n_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)]</span>
+        <span class="n">n_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"space"</span><span class="p">)]</span>
         <span class="n">dataset_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;source_software&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_software</span><span class="p">,</span>
-            <span class="s2">&quot;ds_type&quot;</span><span class="p">:</span> <span class="s2">&quot;poses&quot;</span><span class="p">,</span>
+            <span class="s2">"source_software"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_software</span><span class="p">,</span>
+            <span class="s2">"ds_type"</span><span class="p">:</span> <span class="s2">"poses"</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="c1"># Create the time coordinate, depending on the value of fps</span>
         <span class="n">time_coords</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">]</span>
-        <span class="n">time_unit</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;seconds&quot;</span><span class="p">,</span> <span class="s2">&quot;frames&quot;</span><span class="p">]</span>
+        <span class="n">time_unit</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"seconds"</span><span class="p">,</span> <span class="s2">"frames"</span><span class="p">]</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span>
-            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span>
-            <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">&quot;fps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span>
+            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">"seconds"</span>
+            <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">"fps"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;frames&quot;</span>
-        <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">&quot;time_unit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_unit</span>
+            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">"frames"</span>
+        <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">"time_unit"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_unit</span>
         <span class="c1"># confidence_array may be point-wise (all non-space dims) or</span>
         <span class="c1"># individual-wise (non-space and non-keypoint dims)</span>
-        <span class="n">confidence_dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">DIM_NAMES</span> <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="s2">&quot;space&quot;</span><span class="p">)</span>
+        <span class="n">confidence_dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">DIM_NAMES</span> <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="s2">"space"</span><span class="p">)</span>
         <span class="c1"># Ignore type error as ValidPosesInputs ensures</span>
         <span class="c1"># `confidence_array` is not None</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">confidence_array</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># type: ignore[union-attr]</span>
             <span class="n">confidence_dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
-                <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">confidence_dims</span> <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="s2">&quot;keypoint&quot;</span>
+                <span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">confidence_dims</span> <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="s2">"keypoint"</span>
             <span class="p">)</span>
         <span class="c1"># Convert data to an xarray.Dataset</span>
         <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
             <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
-                <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="s2">"position"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
+                <span class="s2">"confidence"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">confidence_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">confidence_dims</span>
                 <span class="p">),</span>
             <span class="p">},</span>
             <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
                 <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">time_coords</span><span class="p">,</span>
-                <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">][:</span><span class="n">n_space</span><span class="p">],</span>
+                <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">][:</span><span class="n">n_space</span><span class="p">],</span>
                 <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="bp">self</span><span class="o">.</span><span class="n">keypoint_names</span><span class="p">,</span>
                 <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">3</span><span class="p">]:</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span><span class="p">,</span>
             <span class="p">},</span>
@@ -935,7 +935,7 @@
 <a class="viewcode-back" href="../../../api/movement.validators.datasets.ValidBboxesInputs.html#movement.validators.datasets.ValidBboxesInputs">[docs]</a>
 <span class="nd">@define</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ValidBboxesInputs</span><span class="p">(</span><span class="n">_BaseDatasetInputs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for validating input data for a ``movement bboxes`` dataset.</span>
+<span class="w">    </span><span class="sd">"""Class for validating input data for a ``movement bboxes`` dataset.</span>
 
 <span class="sd">    The validator considers 2D bounding boxes only. It ensures that</span>
 <span class="sd">    within the ``movement bboxes`` dataset:</span>
@@ -966,33 +966,33 @@
 <span class="sd">        If the dataset does not meet the ``movement bboxes`` dataset</span>
 <span class="sd">        requirements.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">shape_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
     <span class="p">)</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array containing the shape of the bounding boxes. The shape of a</span>
+<span class="w">    </span><span class="sd">"""Array containing the shape of the bounding boxes. The shape of a</span>
 <span class="sd">    bounding box is its width (extent along the x-axis of the image) and height</span>
 <span class="sd">    (extent along the y-axis of the image). The shape_array must have the same</span>
-<span class="sd">    shape as the position_array.&quot;&quot;&quot;</span>
+<span class="sd">    shape as the position_array."""</span>
 
     <span class="n">frame_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)),</span>
     <span class="p">)</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Array containing the frame numbers for which bounding boxes are defined.</span>
+<span class="w">    </span><span class="sd">"""Array containing the frame numbers for which bounding boxes are defined.</span>
 <span class="sd">    The frame_array should be a column vector of shape (n_frames, 1) and should</span>
 <span class="sd">    be monotonically increasing. If None (default), frame numbers will be</span>
 <span class="sd">    assigned based on the first dimension of the position_array, starting from</span>
-<span class="sd">    0.&quot;&quot;&quot;</span>
+<span class="sd">    0."""</span>
 
-    <span class="n">DIM_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">)</span>
-    <span class="n">VAR_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;position&quot;</span><span class="p">,</span> <span class="s2">&quot;shape&quot;</span><span class="p">,</span> <span class="s2">&quot;confidence&quot;</span><span class="p">)</span>
+    <span class="n">DIM_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"space"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">)</span>
+    <span class="n">VAR_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"position"</span><span class="p">,</span> <span class="s2">"shape"</span><span class="p">,</span> <span class="s2">"confidence"</span><span class="p">)</span>
     <span class="n">_ALLOWED_SPACE_DIM_SIZE</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
 
     <span class="nd">@shape_array</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_shape_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate shape_array dimensions and shape.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Validate shape_array dimensions and shape."""</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_validate_position_array</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="c1"># Shape must match that of position_array</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_array_shape</span><span class="p">(</span>
@@ -1001,10 +1001,10 @@
 
     <span class="nd">@frame_array</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_frame_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate frame_array type, shape, and monotonicity.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Validate frame_array type, shape, and monotonicity."""</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># should be a column vector (n_frames, 1)</span>
-            <span class="n">time_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+            <span class="n">time_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_validate_array_shape</span><span class="p">(</span>
                 <span class="n">attribute</span><span class="p">,</span>
                 <span class="n">value</span><span class="p">,</span>
@@ -1014,28 +1014,28 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                     <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Frame numbers in </span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> are &quot;</span>
-                        <span class="s2">&quot;not monotonically increasing.&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Frame numbers in </span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> are "</span>
+                        <span class="s2">"not monotonically increasing."</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Assign default values to optional attributes (if None).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Assign default values to optional attributes (if None)."""</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__attrs_post_init__</span><span class="p">()</span>
         <span class="c1"># assign default frame_array</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">time_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+            <span class="n">time_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
             <span class="n">n_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_dim_index</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">frame_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;Frame numbers were not provided. &quot;</span>
-                <span class="s2">&quot;Setting to an array of 0-based integers.&quot;</span>
+                <span class="s2">"Frame numbers were not provided. "</span>
+                <span class="s2">"Setting to an array of 0-based integers."</span>
             <span class="p">)</span>
 
 <div class="viewcode-block" id="ValidBboxesInputs.to_dataset">
 <a class="viewcode-back" href="../../../api/movement.validators.datasets.ValidBboxesInputs.html#movement.validators.datasets.ValidBboxesInputs.to_dataset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert validated bboxes inputs to a ``movement bboxes`` dataset.</span>
+<span class="w">        </span><span class="sd">"""Convert validated bboxes inputs to a ``movement bboxes`` dataset.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1043,17 +1043,17 @@
 <span class="sd">            ``movement`` dataset containing the bounding boxes tracks,</span>
 <span class="sd">            shapes, confidence scores and associated metadata.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">dataset_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;source_software&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_software</span><span class="p">,</span>
-            <span class="s2">&quot;ds_type&quot;</span><span class="p">:</span> <span class="s2">&quot;bboxes&quot;</span><span class="p">,</span>
+            <span class="s2">"source_software"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_software</span><span class="p">,</span>
+            <span class="s2">"ds_type"</span><span class="p">:</span> <span class="s2">"bboxes"</span><span class="p">,</span>
         <span class="p">}</span>
         <span class="c1"># Ignore type error as ValidBboxesInputs ensures</span>
         <span class="c1"># `frame_array` is not None</span>
         <span class="n">time_coords</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">frame_array</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>  <span class="c1"># type: ignore[union-attr]</span>
         <span class="p">)</span>
-        <span class="n">time_unit</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;seconds&quot;</span><span class="p">,</span> <span class="s2">&quot;frames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;frames&quot;</span>
+        <span class="n">time_unit</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"seconds"</span><span class="p">,</span> <span class="s2">"frames"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"frames"</span>
         <span class="c1"># if fps is provided:</span>
         <span class="c1"># time_coords is expressed in seconds, with the time origin</span>
         <span class="c1"># set as frame 0 == time 0 seconds</span>
@@ -1061,24 +1061,24 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span><span class="p">:</span>
             <span class="c1"># Compute elapsed time from frame 0.</span>
             <span class="n">time_coords</span> <span class="o">=</span> <span class="n">time_coords</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span>
-            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">&quot;seconds&quot;</span>
-            <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">&quot;fps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span>
-        <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">&quot;time_unit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_unit</span>
+            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">"seconds"</span>
+            <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">"fps"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span>
+        <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">"time_unit"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_unit</span>
         <span class="c1"># Convert data to an xarray.Dataset</span>
-        <span class="c1"># with dimensions (&#39;time&#39;, &#39;space&#39;, &#39;individual&#39;)</span>
+        <span class="c1"># with dimensions ('time', 'space', 'individual')</span>
         <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span>
-        <span class="n">n_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;space&quot;</span><span class="p">)]</span>
+        <span class="n">n_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"space"</span><span class="p">)]</span>
         <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span>
             <span class="n">data_vars</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
-                <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
-                <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="s2">"position"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
+                <span class="s2">"shape"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shape_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">),</span>
+                <span class="s2">"confidence"</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">confidence_array</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">DIM_NAMES</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
                 <span class="p">),</span>
             <span class="p">},</span>
             <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
                 <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="n">time_coords</span><span class="p">,</span>
-                <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">][:</span><span class="n">n_space</span><span class="p">],</span>
+                <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">][:</span><span class="n">n_space</span><span class="p">],</span>
                 <span class="n">DIM_NAMES</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span> <span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span><span class="p">,</span>
             <span class="p">},</span>
             <span class="n">attrs</span><span class="o">=</span><span class="n">dataset_attrs</span><span class="p">,</span>

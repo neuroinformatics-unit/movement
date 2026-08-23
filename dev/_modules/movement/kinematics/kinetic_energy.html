@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.kinematics.kinetic_energy</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Compute kinetic energy from position data.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Compute kinetic energy from position data."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
@@ -496,9 +496,9 @@
     <span class="n">masses</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">decompose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute kinetic energy per individual.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Compute kinetic energy per individual.</span>
 
-<span class="sd">    We consider each individual&#39;s set of keypoints (pose) as a classical</span>
+<span class="sd">    We consider each individual's set of keypoints (pose) as a classical</span>
 <span class="sd">    system of particles in physics (see Notes).</span>
 
 <span class="sd">    Parameters</span>
@@ -511,11 +511,11 @@
 <span class="sd">        By default, all are used.</span>
 <span class="sd">    masses</span>
 <span class="sd">        A dictionary mapping keypoint names to masses, e.g.</span>
-<span class="sd">        {&quot;snout&quot;: 1.2, &quot;tail&quot;: 0.8}.</span>
+<span class="sd">        {"snout": 1.2, "tail": 0.8}.</span>
 <span class="sd">        By default, unit mass is assumed for all keypoints.</span>
 <span class="sd">    decompose</span>
-<span class="sd">        If True, the kinetic energy is decomposed into &quot;translational&quot; and</span>
-<span class="sd">        &quot;internal&quot; components (see Notes). This requires at least two keypoints</span>
+<span class="sd">        If True, the kinetic energy is decomposed into "translational" and</span>
+<span class="sd">        "internal" components (see Notes). This requires at least two keypoints</span>
 <span class="sd">        per individual, but more would be desirable for a meaningful</span>
 <span class="sd">        decomposition. The default is False, meaning the total kinetic energy</span>
 <span class="sd">        is returned.</span>
@@ -539,13 +539,13 @@
 <span class="sd">    where :math:`m_i` is the mass of the :math:`i`-th keypoint and</span>
 <span class="sd">    :math:`\mathbf{v}_i(t)` is its velocity at time :math:`t`.</span>
 
-<span class="sd">    From Samuel König&#39;s second theorem, we can decompose :math:`T_{total}`</span>
+<span class="sd">    From Samuel König's second theorem, we can decompose :math:`T_{total}`</span>
 <span class="sd">    into:</span>
 
-<span class="sd">    - Translational kinetic energy: the kinetic energy of the individual&#39;s</span>
+<span class="sd">    - Translational kinetic energy: the kinetic energy of the individual's</span>
 <span class="sd">      total mass :math:`M` moving with the centre of mass velocity;</span>
 <span class="sd">    - Internal kinetic energy: the kinetic energy of the keypoints moving</span>
-<span class="sd">      relative to the individual&#39;s centre of mass.</span>
+<span class="sd">      relative to the individual's centre of mass.</span>
 
 <span class="sd">    We compute translational kinetic energy :math:`T_{trans}` as follows:</span>
 
@@ -572,12 +572,12 @@
 <span class="sd">    &gt;&gt;&gt; position = xr.DataArray(</span>
 <span class="sd">    ...     np.random.rand(3, 2, 4, 2),</span>
 <span class="sd">    ...     coords={</span>
-<span class="sd">    ...         &quot;time&quot;: np.arange(3),</span>
-<span class="sd">    ...         &quot;individual&quot;: [&quot;id0&quot;, &quot;id1&quot;],</span>
-<span class="sd">    ...         &quot;keypoint&quot;: [&quot;snout&quot;, &quot;spine&quot;, &quot;tail_base&quot;, &quot;tail_tip&quot;],</span>
-<span class="sd">    ...         &quot;space&quot;: [&quot;x&quot;, &quot;y&quot;],</span>
+<span class="sd">    ...         "time": np.arange(3),</span>
+<span class="sd">    ...         "individual": ["id0", "id1"],</span>
+<span class="sd">    ...         "keypoint": ["snout", "spine", "tail_base", "tail_tip"],</span>
+<span class="sd">    ...         "space": ["x", "y"],</span>
 <span class="sd">    ...     },</span>
-<span class="sd">    ...     dims=[&quot;time&quot;, &quot;individual&quot;, &quot;keypoint&quot;, &quot;space&quot;],</span>
+<span class="sd">    ...     dims=["time", "individual", "keypoint", "space"],</span>
 <span class="sd">    ... )</span>
 
 <span class="sd">    &gt;&gt;&gt; kinetic_energy_total = compute_kinetic_energy(position)</span>
@@ -587,7 +587,7 @@
 <span class="sd">    0.6579 0.7394 0.1304 0.05152 0.2436 0.5719</span>
 <span class="sd">    Coordinates:</span>
 <span class="sd">    * time        (time) int64 24B 0 1 2</span>
-<span class="sd">    * individual  (individual) &lt;U3 24B &#39;id0&#39; &#39;id1&#39;</span>
+<span class="sd">    * individual  (individual) &lt;U3 24B 'id0' 'id1'</span>
 
 <span class="sd">    Compute kinetic energy decomposed into translational</span>
 <span class="sd">    and internal components:</span>
@@ -599,29 +599,29 @@
 <span class="sd">    0.0172 1.318 0.02069 0.6498 0.02933 ... 0.1716 0.07829 0.7942 0.06901 0.857</span>
 <span class="sd">    Coordinates:</span>
 <span class="sd">    * time        (time) int64 24B 0 1 2</span>
-<span class="sd">    * individual  (individual) &lt;U3 24B &#39;id0&#39; &#39;id1&#39;</span>
-<span class="sd">    * energy       (energy) &lt;U13 104B &#39;translational&#39; &#39;internal&#39;</span>
+<span class="sd">    * individual  (individual) &lt;U3 24B 'id0' 'id1'</span>
+<span class="sd">    * energy       (energy) &lt;U13 104B 'translational' 'internal'</span>
 
-<span class="sd">    Select the &#39;internal&#39; component:</span>
+<span class="sd">    Select the 'internal' component:</span>
 
-<span class="sd">    &gt;&gt;&gt; kinetic_energy_internal = kinetic_energy.sel(energy=&quot;internal&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; kinetic_energy_internal = kinetic_energy.sel(energy="internal")</span>
 
 <span class="sd">    Use unequal keypoint masses and exclude an unreliable keypoint</span>
-<span class="sd">    (e.g. &quot;tail_tip&quot;):</span>
+<span class="sd">    (e.g. "tail_tip"):</span>
 
-<span class="sd">    &gt;&gt;&gt; masses = {&quot;snout&quot;: 1.2, &quot;spine&quot;: 0.8, &quot;tail_base&quot;: 1.0}</span>
+<span class="sd">    &gt;&gt;&gt; masses = {"snout": 1.2, "spine": 0.8, "tail_base": 1.0}</span>
 
 <span class="sd">    &gt;&gt;&gt; kinetic_energy = compute_kinetic_energy(</span>
 <span class="sd">    ...     position,</span>
-<span class="sd">    ...     keypoints=[&quot;snout&quot;, &quot;spine&quot;, &quot;tail_base&quot;],</span>
+<span class="sd">    ...     keypoints=["snout", "spine", "tail_base"],</span>
 <span class="sd">    ...     masses=masses,</span>
 <span class="sd">    ...     decompose=True,</span>
 <span class="sd">    ... )</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Validate required dimensions and coordinate labels</span>
     <span class="n">validate_dims_coords</span><span class="p">(</span>
-        <span class="n">position</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="n">position</span><span class="p">,</span> <span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"space"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">],</span> <span class="s2">"keypoint"</span><span class="p">:</span> <span class="p">[]}</span>
     <span class="p">)</span>
 
     <span class="c1"># Subset keypoints if requested</span>
@@ -629,11 +629,11 @@
         <span class="n">position</span> <span class="o">=</span> <span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="n">keypoints</span><span class="p">)</span>
 
     <span class="c1"># Validate that at least 2 keypoints exist for decomposition</span>
-    <span class="k">if</span> <span class="n">decompose</span> <span class="ow">and</span> <span class="n">position</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">decompose</span> <span class="ow">and</span> <span class="n">position</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;At least 2 keypoints are required to decompose &quot;</span>
-                <span class="s2">&quot;kinetic energy into translational and internal components.&quot;</span>
+                <span class="s2">"At least 2 keypoints are required to decompose "</span>
+                <span class="s2">"kinetic energy into translational and internal components."</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
@@ -642,9 +642,9 @@
 
     <span class="c1"># Initialise unit weights</span>
     <span class="n">weights</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]),</span>
-        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">],</span>
-        <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;keypoint&quot;</span><span class="p">:</span> <span class="n">position</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]},</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">]),</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">],</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">"keypoint"</span><span class="p">:</span> <span class="n">position</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">]},</span>
     <span class="p">)</span>
 
     <span class="c1"># Update weights with keypoint masses, if provided</span>
@@ -654,14 +654,14 @@
 
     <span class="c1"># Compute total KE</span>
     <span class="n">weighted_ke</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">weights</span> <span class="o">*</span> <span class="p">(</span><span class="n">compute_norm</span><span class="p">(</span><span class="n">velocity</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">ke_total</span> <span class="o">=</span> <span class="n">weighted_ke</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">)</span>
+    <span class="n">ke_total</span> <span class="o">=</span> <span class="n">weighted_ke</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"keypoint"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">decompose</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ke_total</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Compute translational KE based on centre of mass velocity</span>
-        <span class="n">v_cm</span> <span class="o">=</span> <span class="p">(</span><span class="n">velocity</span> <span class="o">*</span> <span class="n">weights</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
-            <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span>
+        <span class="n">v_cm</span> <span class="o">=</span> <span class="p">(</span><span class="n">velocity</span> <span class="o">*</span> <span class="n">weights</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="n">dim</span><span class="o">=</span><span class="s2">"keypoint"</span>
         <span class="p">)</span> <span class="o">/</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
         <span class="n">ke_trans</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">v_cm</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
 
@@ -669,9 +669,9 @@
         <span class="n">ke_int</span> <span class="o">=</span> <span class="n">ke_total</span> <span class="o">-</span> <span class="n">ke_trans</span>
 
         <span class="c1"># Format output</span>
-        <span class="n">ke</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ke_trans</span><span class="p">,</span> <span class="n">ke_int</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;energy&quot;</span><span class="p">)</span>
-        <span class="n">ke</span> <span class="o">=</span> <span class="n">ke</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;translational&quot;</span><span class="p">,</span> <span class="s2">&quot;internal&quot;</span><span class="p">])</span>
-        <span class="n">ke</span> <span class="o">=</span> <span class="n">ke</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;energy&quot;</span><span class="p">)</span>
+        <span class="n">ke</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ke_trans</span><span class="p">,</span> <span class="n">ke_int</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="s2">"energy"</span><span class="p">)</span>
+        <span class="n">ke</span> <span class="o">=</span> <span class="n">ke</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="p">[</span><span class="s2">"translational"</span><span class="p">,</span> <span class="s2">"internal"</span><span class="p">])</span>
+        <span class="n">ke</span> <span class="o">=</span> <span class="n">ke</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="s2">"energy"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">ke</span></div>
 
 </pre></div>

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.napari.layer_styles</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Dataclasses containing layer styles for napari.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Dataclasses containing layer styles for napari."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 
@@ -487,24 +487,24 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">napari.utils.color</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColorValue</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">napari.utils.colormaps</span><span class="w"> </span><span class="kn">import</span> <span class="n">ensure_colormap</span>
 
-<span class="n">DEFAULT_COLORMAP</span> <span class="o">=</span> <span class="s2">&quot;turbo&quot;</span>
-<span class="n">EDITED_POINT_SYMBOL</span> <span class="o">=</span> <span class="s2">&quot;ring&quot;</span>
+<span class="n">DEFAULT_COLORMAP</span> <span class="o">=</span> <span class="s2">"turbo"</span>
+<span class="n">EDITED_POINT_SYMBOL</span> <span class="o">=</span> <span class="s2">"ring"</span>
 
 
 <div class="viewcode-block" id="LayerStyle">
 <a class="viewcode-back" href="../../../api/movement.napari.layer_styles.LayerStyle.html#movement.napari.layer_styles.LayerStyle">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">LayerStyle</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for napari layer styles.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Base class for napari layer styles."""</span>
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">visible</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">blending</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;translucent&quot;</span>
+    <span class="n">blending</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"translucent"</span>
 
 <div class="viewcode-block" id="LayerStyle.as_kwargs">
 <a class="viewcode-back" href="../../../api/movement.napari.layer_styles.LayerStyle.html#movement.napari.layer_styles.LayerStyle.as_kwargs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">as_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the style properties as a dictionary of kwargs.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the style properties as a dictionary of kwargs."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span></div>
 </div>
 
@@ -514,9 +514,9 @@
 <a class="viewcode-back" href="../../../api/movement.napari.layer_styles.PointsStyle.html#movement.napari.layer_styles.PointsStyle">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">PointsStyle</span><span class="p">(</span><span class="n">LayerStyle</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Style properties for a napari Points layer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Style properties for a napari Points layer."""</span>
 
-    <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;disc&quot;</span>
+    <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"disc"</span>
     <span class="n">size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
     <span class="n">border_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">face_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -524,11 +524,11 @@
     <span class="n">face_colormap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_COLORMAP</span>
     <span class="n">text</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="s2">&quot;lower_left&quot;</span><span class="p">,</span>
+            <span class="s2">"visible"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">"anchor"</span><span class="p">:</span> <span class="s2">"lower_left"</span><span class="p">,</span>
             <span class="c1"># it actually displays the text in the lower</span>
             <span class="c1"># _right_ corner of the marker</span>
-            <span class="s2">&quot;translation&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>  <span class="c1"># pixels</span>
+            <span class="s2">"translation"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>  <span class="c1"># pixels</span>
         <span class="p">}</span>
     <span class="p">)</span>
 
@@ -540,7 +540,7 @@
         <span class="n">properties_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Color markers and text by a column in the properties DataFrame.</span>
+<span class="w">        </span><span class="sd">"""Color markers and text by a column in the properties DataFrame.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -552,13 +552,13 @@
 <span class="sd">        cmap</span>
 <span class="sd">            The name of the colormap to use, otherwise use the face_colormap.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Set points and text to be colored by selected property</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">face_color</span> <span class="o">=</span> <span class="nb">property</span>
-        <span class="k">if</span> <span class="s2">&quot;color&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;feature&quot;</span><span class="p">:</span> <span class="nb">property</span><span class="p">})</span>
+        <span class="k">if</span> <span class="s2">"color"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">"color"</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">"feature"</span><span class="p">:</span> <span class="nb">property</span><span class="p">})</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;feature&quot;</span><span class="p">:</span> <span class="nb">property</span><span class="p">}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">"color"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"feature"</span><span class="p">:</span> <span class="nb">property</span><span class="p">}</span>
 
         <span class="c1"># Get color cycle</span>
         <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -568,21 +568,21 @@
 
         <span class="c1"># Set color cycle for points and text</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">face_color_cycle</span> <span class="o">=</span> <span class="n">color_cycle</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;colormap&quot;</span><span class="p">:</span> <span class="n">color_cycle</span><span class="p">})</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">"color"</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">"colormap"</span><span class="p">:</span> <span class="n">color_cycle</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="PointsStyle.set_text_by">
 <a class="viewcode-back" href="../../../api/movement.napari.layer_styles.PointsStyle.html#movement.napari.layer_styles.PointsStyle.set_text_by">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_text_by</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">property</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the text property for the points layer.</span>
+<span class="w">        </span><span class="sd">"""Set the text property for the points layer.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        property</span>
 <span class="sd">            The column name in the properties DataFrame to use for text.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">&quot;string&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">property</span></div>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">"string"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">property</span></div>
 </div>
 
 
@@ -591,11 +591,11 @@
 <a class="viewcode-back" href="../../../api/movement.napari.layer_styles.TracksStyle.html#movement.napari.layer_styles.TracksStyle">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">TracksStyle</span><span class="p">(</span><span class="n">LayerStyle</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Style properties for a napari Tracks layer.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Style properties for a napari Tracks layer."""</span>
 
-    <span class="n">blending</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;opaque&quot;</span>
+    <span class="n">blending</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"opaque"</span>
     <span class="n">colormap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_COLORMAP</span>
-    <span class="n">color_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;track_id&quot;</span>
+    <span class="n">color_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">"track_id"</span>
     <span class="n">head_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># frames</span>
     <span class="n">tail_length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span>  <span class="c1"># frames</span>
     <span class="n">tail_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span>
@@ -603,7 +603,7 @@
 <div class="viewcode-block" id="TracksStyle.set_color_by">
 <a class="viewcode-back" href="../../../api/movement.napari.layer_styles.TracksStyle.html#movement.napari.layer_styles.TracksStyle.set_color_by">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_color_by</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">property</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Color tracks by a column in the properties DataFrame.</span>
+<span class="w">        </span><span class="sd">"""Color tracks by a column in the properties DataFrame.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -614,7 +614,7 @@
 <span class="sd">            The name of the colormap to use. If not specified,</span>
 <span class="sd">            DEFAULT_COLORMAP is used.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">color_by</span> <span class="o">=</span> <span class="nb">property</span>
 
         <span class="c1"># Overwrite colormap if specified</span>
@@ -628,18 +628,18 @@
 <a class="viewcode-back" href="../../../api/movement.napari.layer_styles.BoxesStyle.html#movement.napari.layer_styles.BoxesStyle">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">BoxesStyle</span><span class="p">(</span><span class="n">LayerStyle</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Style properties for a napari Shapes layer containing bounding boxes.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Style properties for a napari Shapes layer containing bounding boxes."""</span>
 
     <span class="n">edge_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
     <span class="n">opacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
-    <span class="n">shape_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rectangle&quot;</span>
-    <span class="n">face_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;#FFFFFF00&quot;</span>  <span class="c1"># transparent face</span>
+    <span class="n">shape_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"rectangle"</span>
+    <span class="n">face_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"#FFFFFF00"</span>  <span class="c1"># transparent face</span>
     <span class="n">edge_colormap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_COLORMAP</span>
     <span class="n">text</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># default visible text for bboxes</span>
-            <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="s2">&quot;lower_left&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;translation&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>  <span class="c1"># pixels</span>
+            <span class="s2">"visible"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>  <span class="c1"># default visible text for bboxes</span>
+            <span class="s2">"anchor"</span><span class="p">:</span> <span class="s2">"lower_left"</span><span class="p">,</span>
+            <span class="s2">"translation"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>  <span class="c1"># pixels</span>
         <span class="p">}</span>
     <span class="p">)</span>
 
@@ -651,7 +651,7 @@
         <span class="n">properties_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
         <span class="n">cmap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Color boxes and text by chosen column in the properties DataFrame.</span>
+<span class="w">        </span><span class="sd">"""Color boxes and text by chosen column in the properties DataFrame.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -668,11 +668,11 @@
 <span class="sd">        -----</span>
 <span class="sd">        The input property is expected to be a column in the properties</span>
 <span class="sd">        dataframe and it is used to define the color of the text. A factorized</span>
-<span class="sd">        version of the property (&quot;&lt;property&gt;_factorized&quot;) is used to define the</span>
+<span class="sd">        version of the property ("&lt;property&gt;_factorized") is used to define the</span>
 <span class="sd">        edges color, and is also expected to be present in the properties</span>
 <span class="sd">        dataframe.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Compute color cycle based on property</span>
         <span class="k">if</span> <span class="n">cmap</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cmap</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_colormap</span>
@@ -680,24 +680,24 @@
         <span class="n">color_cycle</span> <span class="o">=</span> <span class="n">_sample_colormap</span><span class="p">(</span><span class="n">n_colors</span><span class="p">,</span> <span class="n">cmap</span><span class="p">)</span>
 
         <span class="c1"># Set color for edges and text</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">edge_color</span> <span class="o">=</span> <span class="nb">property</span> <span class="o">+</span> <span class="s2">&quot;_factorized&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edge_color</span> <span class="o">=</span> <span class="nb">property</span> <span class="o">+</span> <span class="s2">"_factorized"</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">edge_color_cycle</span> <span class="o">=</span> <span class="n">color_cycle</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;feature&quot;</span><span class="p">:</span> <span class="nb">property</span><span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;colormap&quot;</span><span class="p">:</span> <span class="n">color_cycle</span><span class="p">})</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">"color"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"feature"</span><span class="p">:</span> <span class="nb">property</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">"color"</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">"colormap"</span><span class="p">:</span> <span class="n">color_cycle</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="BoxesStyle.set_text_by">
 <a class="viewcode-back" href="../../../api/movement.napari.layer_styles.BoxesStyle.html#movement.napari.layer_styles.BoxesStyle.set_text_by">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_text_by</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">property</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the text property for the boxes layer.</span>
+<span class="w">        </span><span class="sd">"""Set the text property for the boxes layer.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        property</span>
 <span class="sd">            The column name in the properties DataFrame to use for text.</span>
 
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">&quot;string&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">property</span></div>
+<span class="sd">        """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">[</span><span class="s2">"string"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">property</span></div>
 </div>
 
 
@@ -706,34 +706,34 @@
 <a class="viewcode-back" href="../../../api/movement.napari.layer_styles.RegionsStyle.html#movement.napari.layer_styles.RegionsStyle">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">RegionsStyle</span><span class="p">(</span><span class="n">LayerStyle</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Style properties for a napari Shapes layer containing regions.</span>
+<span class="w">    </span><span class="sd">"""Style properties for a napari Shapes layer containing regions.</span>
 
 <span class="sd">    The same ``color`` is applied to faces, edges, and text.</span>
 <span class="sd">    The face color alpha is hardcoded to 0.25, while edges and text are</span>
 <span class="sd">    fully opaque. Overall layer opacity is set to 1.0.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Regions&quot;</span>
-    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="s2">&quot;red&quot;</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Regions"</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="s2">"red"</span>
     <span class="n">edge_width</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span>
     <span class="n">opacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>
     <span class="n">text</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="s2">&quot;anchor&quot;</span><span class="p">:</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="s2">"visible"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s2">"anchor"</span><span class="p">:</span> <span class="s2">"center"</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">face_color</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ColorValue</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the face color with transparency applied.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the face color with transparency applied."""</span>
         <span class="n">color</span> <span class="o">=</span> <span class="n">ColorValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">)</span>
         <span class="n">color</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.25</span>  <span class="c1"># this is hardcoded for now</span>
         <span class="k">return</span> <span class="n">color</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">edge_and_text_color</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ColorValue</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the opaque color for edges and text.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the opaque color for edges and text."""</span>
         <span class="n">color</span> <span class="o">=</span> <span class="n">ColorValue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">)</span>
         <span class="n">color</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
         <span class="k">return</span> <span class="n">color</span>
@@ -741,10 +741,10 @@
 <div class="viewcode-block" id="RegionsStyle.set_style_for_new_shapes">
 <a class="viewcode-back" href="../../../api/movement.napari.layer_styles.RegionsStyle.html#movement.napari.layer_styles.RegionsStyle.set_style_for_new_shapes">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_style_for_new_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">Shapes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the style that napari will apply to newly drawn shapes.</span>
+<span class="w">        </span><span class="sd">"""Set the style that napari will apply to newly drawn shapes.</span>
 
 <span class="sd">        napari uses current_* properties to style shapes as they are drawn.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">layer</span><span class="o">.</span><span class="n">current_face_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">face_color</span>
         <span class="n">layer</span><span class="o">.</span><span class="n">current_edge_color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_and_text_color</span>
         <span class="n">layer</span><span class="o">.</span><span class="n">current_edge_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">edge_width</span></div>
@@ -753,7 +753,7 @@
 <div class="viewcode-block" id="RegionsStyle.set_color_all_shapes">
 <a class="viewcode-back" href="../../../api/movement.napari.layer_styles.RegionsStyle.html#movement.napari.layer_styles.RegionsStyle.set_color_all_shapes">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_color_all_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layer</span><span class="p">:</span> <span class="n">Shapes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set colors on all existing shapes in a napari Shapes layer.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Set colors on all existing shapes in a napari Shapes layer."""</span>
         <span class="c1"># Configure text appearance</span>
         <span class="n">text_dict</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
         <span class="n">text_dict</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
@@ -767,7 +767,7 @@
             <span class="n">layer</span><span class="o">.</span><span class="n">face_color</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">face_color</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_shapes</span>
             <span class="n">layer</span><span class="o">.</span><span class="n">edge_color</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_and_text_color</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_shapes</span>
             <span class="n">layer</span><span class="o">.</span><span class="n">edge_width</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_width</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_shapes</span>
-            <span class="n">layer</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{name}</span><span class="s2">&quot;</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="s2">"</span><span class="si">{name}</span><span class="s2">"</span>
             <span class="n">layer</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">refresh</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_style_for_new_shapes</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span></div>
@@ -776,10 +776,10 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_sample_colormap</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">cmap_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sample n equally-spaced colors from a napari colormap.</span>
+<span class="w">    </span><span class="sd">"""Sample n equally-spaced colors from a napari colormap.</span>
 
 <span class="sd">    This includes the endpoints of the colormap.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">cmap</span> <span class="o">=</span> <span class="n">ensure_colormap</span><span class="p">(</span><span class="n">cmap_name</span><span class="p">)</span>
     <span class="n">samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">cmap</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">]</span>

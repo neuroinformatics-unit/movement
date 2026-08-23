@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -731,23 +731,23 @@ containing the computed distances for that pair.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">position</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
 <span class="gp">... </span>    <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
-<span class="gp">... </span>        <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
-<span class="gp">... </span>        <span class="s2">&quot;individual&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;ind1&quot;</span><span class="p">,</span> <span class="s2">&quot;ind2&quot;</span><span class="p">,</span> <span class="s2">&quot;ind3&quot;</span><span class="p">],</span>
-<span class="gp">... </span>        <span class="s2">&quot;keypoint&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;key1&quot;</span><span class="p">,</span> <span class="s2">&quot;key2&quot;</span><span class="p">,</span> <span class="s2">&quot;key3&quot;</span><span class="p">],</span>
-<span class="gp">... </span>        <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"time"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+<span class="gp">... </span>        <span class="s2">"individual"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"ind1"</span><span class="p">,</span> <span class="s2">"ind2"</span><span class="p">,</span> <span class="s2">"ind3"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"keypoint"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"key1"</span><span class="p">,</span> <span class="s2">"key2"</span><span class="p">,</span> <span class="s2">"key3"</span><span class="p">],</span>
+<span class="gp">... </span>        <span class="s2">"space"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="p">},</span>
-<span class="gp">... </span>    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"space"</span><span class="p">],</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dist_ind1_ind2</span> <span class="o">=</span> <span class="n">compute_pairwise_distances</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">position</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;ind1&quot;</span><span class="p">:</span> <span class="s2">&quot;ind2&quot;</span><span class="p">}</span>
+<span class="gp">... </span>    <span class="n">position</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"ind1"</span><span class="p">:</span> <span class="s2">"ind2"</span><span class="p">}</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dist_ind1_ind2</span>
 <span class="go">&lt;xarray.DataArray (time: 2, ind1: 3, ind2: 3)&gt; Size: 144B</span>
 <span class="go">8.485 11.31 14.14 5.657 8.485 11.31 ... 5.657 8.485 11.31 2.828 5.657 8.485</span>
 <span class="go">Coordinates:</span>
 <span class="go">* time     (time) int64 16B 0 1</span>
-<span class="go">* ind1     (ind1) &lt;U4 48B &#39;key1&#39; &#39;key2&#39; &#39;key3&#39;</span>
-<span class="go">* ind2     (ind2) &lt;U4 48B &#39;key1&#39; &#39;key2&#39; &#39;key3&#39;</span>
+<span class="go">* ind1     (ind1) &lt;U4 48B 'key1' 'key2' 'key3'</span>
+<span class="go">* ind2     (ind2) &lt;U4 48B 'key1' 'key2' 'key3'</span>
 </pre></div>
 </div>
 <p>The resulting <code class="docutils literal notranslate"><span class="pre">dist_ind1_ind2</span></code> is a DataArray containing the computed
@@ -755,45 +755,45 @@ distances between <code class="docutils literal notranslate"><span class="pre">i
 at each time point.</p>
 <p>To obtain the distances between <code class="docutils literal notranslate"><span class="pre">key1</span></code> of <code class="docutils literal notranslate"><span class="pre">ind1</span></code> and
 <code class="docutils literal notranslate"><span class="pre">key2</span></code> of <code class="docutils literal notranslate"><span class="pre">ind2</span></code>:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dist_ind1_ind2</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">ind1</span><span class="o">=</span><span class="s2">&quot;key1&quot;</span><span class="p">,</span> <span class="n">ind2</span><span class="o">=</span><span class="s2">&quot;key2&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dist_ind1_ind2</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">ind1</span><span class="o">=</span><span class="s2">"key1"</span><span class="p">,</span> <span class="n">ind2</span><span class="o">=</span><span class="s2">"key2"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Compute the Euclidean distance (default) between <code class="docutils literal notranslate"><span class="pre">key1</span></code> and <code class="docutils literal notranslate"><span class="pre">key2</span></code>
 (i.e. interkeypoint distance), for all possible pairs of individuals.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dist_key1_key2</span> <span class="o">=</span> <span class="n">compute_pairwise_distances</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">position</span><span class="p">,</span> <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;key1&quot;</span><span class="p">:</span> <span class="s2">&quot;key2&quot;</span><span class="p">}</span>
+<span class="gp">... </span>    <span class="n">position</span><span class="p">,</span> <span class="s2">"keypoint"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"key1"</span><span class="p">:</span> <span class="s2">"key2"</span><span class="p">}</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dist_key1_key2</span>
 <span class="go">&lt;xarray.DataArray (time: 2, key1: 3, key2: 3)&gt; Size: 144B</span>
 <span class="go">2.828 11.31 19.8 5.657 2.828 11.31 14.14 ... 2.828 11.31 14.14 5.657 2.828</span>
 <span class="go">Coordinates:</span>
 <span class="go">* time     (time) int64 16B 0 1</span>
-<span class="go">* key1     (key1) &lt;U4 48B &#39;ind1&#39; &#39;ind2&#39; &#39;ind3&#39;</span>
-<span class="go">* key2     (key2) &lt;U4 48B &#39;ind1&#39; &#39;ind2&#39; &#39;ind3&#39;</span>
+<span class="go">* key1     (key1) &lt;U4 48B 'ind1' 'ind2' 'ind3'</span>
+<span class="go">* key2     (key2) &lt;U4 48B 'ind1' 'ind2' 'ind3'</span>
 </pre></div>
 </div>
 <p>The resulting <code class="docutils literal notranslate"><span class="pre">dist_key1_key2</span></code> is a DataArray containing the computed
 distances between <code class="docutils literal notranslate"><span class="pre">key1</span></code> and <code class="docutils literal notranslate"><span class="pre">key2</span></code> for all individuals
 at each time point.</p>
 <p>To obtain the distances between <code class="docutils literal notranslate"><span class="pre">key1</span></code> and <code class="docutils literal notranslate"><span class="pre">key2</span></code> within <code class="docutils literal notranslate"><span class="pre">ind1</span></code>:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dist_key1_key2</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">key1</span><span class="o">=</span><span class="s2">&quot;ind1&quot;</span><span class="p">,</span> <span class="n">key2</span><span class="o">=</span><span class="s2">&quot;ind1&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dist_key1_key2</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">key1</span><span class="o">=</span><span class="s2">"ind1"</span><span class="p">,</span> <span class="n">key2</span><span class="o">=</span><span class="s2">"ind1"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To obtain the distances between <code class="docutils literal notranslate"><span class="pre">key1</span></code> of <code class="docutils literal notranslate"><span class="pre">ind1</span></code> and
 <code class="docutils literal notranslate"><span class="pre">key2</span></code> of <code class="docutils literal notranslate"><span class="pre">ind2</span></code>:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dist_key1_key2</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">key1</span><span class="o">=</span><span class="s2">&quot;ind1&quot;</span><span class="p">,</span> <span class="n">key2</span><span class="o">=</span><span class="s2">&quot;ind2&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dist_key1_key2</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">key1</span><span class="o">=</span><span class="s2">"ind1"</span><span class="p">,</span> <span class="n">key2</span><span class="o">=</span><span class="s2">"ind2"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Compute the city block or Manhattan distance for multiple pairs of
 keypoints using <code class="docutils literal notranslate"><span class="pre">position</span></code>:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">key_dists</span> <span class="o">=</span> <span class="n">compute_pairwise_distances</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">position</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="s2">&quot;keypoint&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="p">{</span><span class="s2">&quot;key1&quot;</span><span class="p">:</span> <span class="s2">&quot;key2&quot;</span><span class="p">,</span> <span class="s2">&quot;key3&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;key1&quot;</span><span class="p">,</span> <span class="s2">&quot;key2&quot;</span><span class="p">]},</span>
-<span class="gp">... </span>    <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cityblock&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"keypoint"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="p">{</span><span class="s2">"key1"</span><span class="p">:</span> <span class="s2">"key2"</span><span class="p">,</span> <span class="s2">"key3"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"key1"</span><span class="p">,</span> <span class="s2">"key2"</span><span class="p">]},</span>
+<span class="gp">... </span>    <span class="n">metric</span><span class="o">=</span><span class="s2">"cityblock"</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">key_dists</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-<span class="go">dict_keys([&#39;dist_key1_key2&#39;, &#39;dist_key3_key1&#39;, &#39;dist_key3_key2&#39;])</span>
+<span class="go">dict_keys(['dist_key1_key2', 'dist_key3_key1', 'dist_key3_key2'])</span>
 </pre></div>
 </div>
 <p>As multiple pairs of keypoints are specified,
@@ -803,12 +803,12 @@ of computed distances for each pair of keypoints.</p>
 individuals using <code class="docutils literal notranslate"><span class="pre">position</span></code>:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ind_dists</span> <span class="o">=</span> <span class="n">compute_pairwise_distances</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">position</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="s2">&quot;individual&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="s2">&quot;all&quot;</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;cityblock&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"individual"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">"all"</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">metric</span><span class="o">=</span><span class="s2">"cityblock"</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ind_dists</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-<span class="go">dict_keys([&#39;dist_ind1_ind2&#39;, &#39;dist_ind1_ind3&#39;, &#39;dist_ind2_ind3&#39;])</span>
+<span class="go">dict_keys(['dist_ind1_ind2', 'dist_ind1_ind3', 'dist_ind2_ind3'])</span>
 </pre></div>
 </div>
 <div class="admonition seealso">

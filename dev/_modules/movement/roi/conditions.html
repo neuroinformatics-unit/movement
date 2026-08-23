@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.roi.conditions</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Functions for computing condition arrays involving RoIs.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Functions for computing condition arrays involving RoIs."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 
@@ -493,14 +493,14 @@
     <span class="n">data</span><span class="p">,</span>
     <span class="n">regions</span><span class="p">:</span> <span class="n">ROICollection</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return a condition array indicating if points were inside regions.</span>
+<span class="w">    </span><span class="sd">"""Return a condition array indicating if points were inside regions.</span>
 
 <span class="sd">    The function returns a boolean DataArray where each element indicates</span>
 <span class="sd">    whether a point in the input ``data`` lies within the corresponding RoIs</span>
 <span class="sd">    in ``regions``. The original dimensions of ``data`` are preserved, except</span>
 <span class="sd">    for the ``space`` dimension which is replaced by the ``region``</span>
 <span class="sd">    dimension. The ``region`` dimension has a number of elements equal to</span>
-<span class="sd">    the number of RoIs in the ``regions`` argument and it&#39;s coordinate names</span>
+<span class="sd">    the number of RoIs in the ``regions`` argument and it's coordinate names</span>
 <span class="sd">    correspond to the names of the given RoIs.</span>
 
 <span class="sd">    Parameters</span>
@@ -524,34 +524,34 @@
 <span class="sd">    &gt;&gt;&gt; import xarray as xr</span>
 <span class="sd">    &gt;&gt;&gt; from movement.roi import PolygonOfInterest, compute_region_occupancy</span>
 <span class="sd">    &gt;&gt;&gt; square = PolygonOfInterest(</span>
-<span class="sd">    ...     [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)], name=&quot;square&quot;</span>
+<span class="sd">    ...     [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0)], name="square"</span>
 <span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; triangle = PolygonOfInterest(</span>
-<span class="sd">    ...     [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0)], name=&quot;triangle&quot;</span>
+<span class="sd">    ...     [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0)], name="triangle"</span>
 <span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; data = xr.DataArray(</span>
 <span class="sd">    ...     data=np.array([[0.25, 0.25], [0.75, 0.75]]),</span>
-<span class="sd">    ...     dims=[&quot;time&quot;, &quot;space&quot;],</span>
-<span class="sd">    ...     coords={&quot;space&quot;: [&quot;x&quot;, &quot;y&quot;]},</span>
+<span class="sd">    ...     dims=["time", "space"],</span>
+<span class="sd">    ...     coords={"space": ["x", "y"]},</span>
 <span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; occupancies = compute_region_occupancy(data, [square, triangle])</span>
-<span class="sd">    &gt;&gt;&gt; occupancies.sel(region=&quot;square&quot;).values</span>
+<span class="sd">    &gt;&gt;&gt; occupancies.sel(region="square").values</span>
 <span class="sd">    np.array([True, True])</span>
-<span class="sd">    &gt;&gt;&gt; occupancies.sel(region=&quot;triangle&quot;).values</span>
+<span class="sd">    &gt;&gt;&gt; occupancies.sel(region="triangle").values</span>
 <span class="sd">    np.array([True, False])</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    When RoIs in ``regions`` have identical names, a suffix</span>
-<span class="sd">    will be appended to their name in the form of &quot;_X&quot;, where &quot;X&quot; is a number</span>
+<span class="sd">    will be appended to their name in the form of "_X", where "X" is a number</span>
 <span class="sd">    starting from 0. These numbers are zero-padded depending on the maximum</span>
 <span class="sd">    number of regions with identical names (e.g. if there are 100 RoIs with the</span>
-<span class="sd">    same name, &quot;00&quot; will be appended to the first of them)</span>
+<span class="sd">    same name, "00" will be appended to the first of them)</span>
 
 <span class="sd">    Regions with unique names will retain their original name as their</span>
 <span class="sd">    corresponding coordinate name.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">number_of_times_name_appears</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">regions</span><span class="p">:</span>
         <span class="n">number_of_times_name_appears</span><span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -571,10 +571,10 @@
                 <span class="n">duplicate_names_max_chars</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
             <span class="p">)</span>
             <span class="n">duplicate_names_used</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name_suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name_suffix</span><span class="si">}</span><span class="s2">"</span>
         <span class="n">occupancies</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">contains_point</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">occupancies</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
+    <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">occupancies</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">dim</span><span class="o">=</span><span class="s2">"region"</span><span class="p">)</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
         <span class="n">region</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">occupancies</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
     <span class="p">)</span></div>
 

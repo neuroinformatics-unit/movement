@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.kinematics.orientation</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Compute orientations as vectors and angles.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Compute orientations as vectors and angles."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hashable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
@@ -500,9 +500,9 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">left_keypoint</span><span class="p">:</span> <span class="n">Hashable</span><span class="p">,</span>
     <span class="n">right_keypoint</span><span class="p">:</span> <span class="n">Hashable</span><span class="p">,</span>
-    <span class="n">camera_view</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;top_down&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom_up&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;top_down&quot;</span><span class="p">,</span>
+    <span class="n">camera_view</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"top_down"</span><span class="p">,</span> <span class="s2">"bottom_up"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"top_down"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a 2D forward vector given two left-right symmetric keypoints.</span>
+<span class="w">    </span><span class="sd">"""Compute a 2D forward vector given two left-right symmetric keypoints.</span>
 
 <span class="sd">    The forward vector is computed as a vector perpendicular to the</span>
 <span class="sd">    line connecting two symmetrical keypoints on either side of the body</span>
@@ -517,15 +517,15 @@
 <span class="sd">        the two symmetrical keypoints located on the left and</span>
 <span class="sd">        right sides of the body, respectively.</span>
 <span class="sd">    left_keypoint</span>
-<span class="sd">        Name of the left keypoint, e.g., &quot;left_ear&quot;</span>
+<span class="sd">        Name of the left keypoint, e.g., "left_ear"</span>
 <span class="sd">    right_keypoint</span>
-<span class="sd">        Name of the right keypoint, e.g., &quot;right_ear&quot;</span>
+<span class="sd">        Name of the right keypoint, e.g., "right_ear"</span>
 <span class="sd">    camera_view</span>
 <span class="sd">        The camera viewing angle, used to determine the upwards</span>
-<span class="sd">        direction of the animal. Can be either ``&quot;top_down&quot;`` (where the</span>
-<span class="sd">        upwards direction is [0, 0, -1]), or ``&quot;bottom_up&quot;`` (where the</span>
+<span class="sd">        direction of the animal. Can be either ``"top_down"`` (where the</span>
+<span class="sd">        upwards direction is [0, 0, -1]), or ``"bottom_up"`` (where the</span>
 <span class="sd">        upwards direction is [0, 0, 1]). If left unspecified, the camera</span>
-<span class="sd">        view is assumed to be ``&quot;top_down&quot;``.</span>
+<span class="sd">        view is assumed to be ``"top_down"``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -540,10 +540,10 @@
 <span class="sd">    (1) the right-to-left direction of the animal and (2) its upward direction.</span>
 <span class="sd">    We determine the right-to-left direction via the input left and right</span>
 <span class="sd">    keypoints. The upwards direction, in turn, can be determined by passing the</span>
-<span class="sd">    ``camera_view`` argument with either ``&quot;top_down&quot;`` or ``&quot;bottom_up&quot;``. If</span>
-<span class="sd">    the camera view is specified as being ``&quot;top_down&quot;``, or if no additional</span>
+<span class="sd">    ``camera_view`` argument with either ``"top_down"`` or ``"bottom_up"``. If</span>
+<span class="sd">    the camera view is specified as being ``"top_down"``, or if no additional</span>
 <span class="sd">    information is provided, we assume that the upwards direction matches that</span>
-<span class="sd">    of the vector ``[0, 0, -1]``. If the camera view is ``&quot;bottom_up&quot;``, the</span>
+<span class="sd">    of the vector ``[0, 0, -1]``. If the camera view is ``"bottom_up"``, the</span>
 <span class="sd">    upwards direction is assumed to be given by ``[0, 0, 1]``. For both cases,</span>
 <span class="sd">    we assume that position values are expressed in the image coordinate</span>
 <span class="sd">    system (where the positive X-axis is oriented to the right, the positive</span>
@@ -554,28 +554,28 @@
 <span class="sd">    the left keypoint is not visible), then the computed head direction vector</span>
 <span class="sd">    is set to NaN.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Validate input data</span>
     <span class="n">_validate_type_data_array</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">validate_dims_coords</span><span class="p">(</span>
         <span class="n">data</span><span class="p">,</span>
         <span class="p">{</span>
-            <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span>
-            <span class="s2">&quot;keypoint&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">left_keypoint</span><span class="p">,</span> <span class="n">right_keypoint</span><span class="p">],</span>
-            <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">"time"</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">"keypoint"</span><span class="p">:</span> <span class="p">[</span><span class="n">left_keypoint</span><span class="p">,</span> <span class="n">right_keypoint</span><span class="p">],</span>
+            <span class="s2">"space"</span><span class="p">:</span> <span class="p">[],</span>
         <span class="p">},</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">space</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Input data must have exactly 2 spatial dimensions, but &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;currently has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">space</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">"Input data must have exactly 2 spatial dimensions, but "</span>
+                <span class="sa">f</span><span class="s2">"currently has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">space</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="c1"># Validate input keypoints</span>
     <span class="k">if</span> <span class="n">left_keypoint</span> <span class="o">==</span> <span class="n">right_keypoint</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The left and right keypoints may not be identical.&quot;</span><span class="p">)</span>
+            <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The left and right keypoints may not be identical."</span><span class="p">)</span>
         <span class="p">)</span>
     <span class="c1"># Define right-to-left vector</span>
     <span class="n">right_to_left_vector</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
@@ -585,27 +585,27 @@
     <span class="c1"># default: negative z direction in the image coordinate system</span>
     <span class="n">upward_vector_arr</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">camera_view</span> <span class="o">==</span> <span class="s2">&quot;top_down&quot;</span>
+        <span class="k">if</span> <span class="n">camera_view</span> <span class="o">==</span> <span class="s2">"top_down"</span>
         <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
     <span class="p">)</span>
     <span class="n">upward_vector</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">upward_vector_arr</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">time</span><span class="p">),</span> <span class="mi">1</span><span class="p">]),</span>
-        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">],</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"space"</span><span class="p">],</span>
         <span class="n">coords</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">],</span>
+            <span class="s2">"space"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">],</span>
         <span class="p">},</span>
     <span class="p">)</span>
     <span class="c1"># Compute forward direction as the cross product</span>
     <span class="c1"># (right-to-left) cross (forward) = up</span>
     <span class="n">forward_vector</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
-        <span class="s2">&quot;xr.DataArray&quot;</span><span class="p">,</span>
-        <span class="n">xr</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">right_to_left_vector</span><span class="p">,</span> <span class="n">upward_vector</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">),</span>
+        <span class="s2">"xr.DataArray"</span><span class="p">,</span>
+        <span class="n">xr</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">right_to_left_vector</span><span class="p">,</span> <span class="n">upward_vector</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="s2">"space"</span><span class="p">),</span>
     <span class="p">)</span><span class="o">.</span><span class="n">drop_sel</span><span class="p">(</span>
-        <span class="n">space</span><span class="o">=</span><span class="s2">&quot;z&quot;</span>
+        <span class="n">space</span><span class="o">=</span><span class="s2">"z"</span>
     <span class="p">)</span>  <span class="c1"># keep only the first 2 spatal dimensions of the result</span>
     <span class="c1"># Return unit vector</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">convert_to_unit</span><span class="p">(</span><span class="n">forward_vector</span><span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;forward_vector&quot;</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"forward_vector"</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
 
@@ -616,9 +616,9 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">left_keypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">right_keypoint</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-    <span class="n">camera_view</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;top_down&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom_up&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;top_down&quot;</span><span class="p">,</span>
+    <span class="n">camera_view</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"top_down"</span><span class="p">,</span> <span class="s2">"bottom_up"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"top_down"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the 2D head direction vector given two keypoints on the head.</span>
+<span class="w">    </span><span class="sd">"""Compute the 2D head direction vector given two keypoints on the head.</span>
 
 <span class="sd">    This function is an alias for :func:`compute_forward_vector()\</span>
 <span class="sd">    &lt;movement.kinematics.compute_forward_vector&gt;`. For more</span>
@@ -632,15 +632,15 @@
 <span class="sd">        the two chosen keypoints corresponding to the left and</span>
 <span class="sd">        right of the head.</span>
 <span class="sd">    left_keypoint</span>
-<span class="sd">        Name of the left keypoint, e.g., &quot;left_ear&quot;</span>
+<span class="sd">        Name of the left keypoint, e.g., "left_ear"</span>
 <span class="sd">    right_keypoint</span>
-<span class="sd">        Name of the right keypoint, e.g., &quot;right_ear&quot;</span>
+<span class="sd">        Name of the right keypoint, e.g., "right_ear"</span>
 <span class="sd">    camera_view</span>
 <span class="sd">        The camera viewing angle, used to determine the upwards</span>
-<span class="sd">        direction of the animal. Can be either ``&quot;top_down&quot;`` (where the</span>
-<span class="sd">        upwards direction is [0, 0, -1]), or ``&quot;bottom_up&quot;`` (where the</span>
+<span class="sd">        direction of the animal. Can be either ``"top_down"`` (where the</span>
+<span class="sd">        upwards direction is [0, 0, -1]), or ``"bottom_up"`` (where the</span>
 <span class="sd">        upwards direction is [0, 0, 1]). If left unspecified, the camera</span>
-<span class="sd">        view is assumed to be ``&quot;top_down&quot;``.</span>
+<span class="sd">        view is assumed to be ``"top_down"``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -649,11 +649,11 @@
 <span class="sd">        dimensions matching the input data array, but without the</span>
 <span class="sd">        ``keypoint`` dimension.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">compute_forward_vector</span><span class="p">(</span>
         <span class="n">data</span><span class="p">,</span> <span class="n">left_keypoint</span><span class="p">,</span> <span class="n">right_keypoint</span><span class="p">,</span> <span class="n">camera_view</span><span class="o">=</span><span class="n">camera_view</span>
     <span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;head_direction_vector&quot;</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"head_direction_vector"</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
 
@@ -665,14 +665,14 @@
     <span class="n">left_keypoint</span><span class="p">:</span> <span class="n">Hashable</span><span class="p">,</span>
     <span class="n">right_keypoint</span><span class="p">:</span> <span class="n">Hashable</span><span class="p">,</span>
     <span class="n">reference_vector</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">ArrayLike</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-    <span class="n">camera_view</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;top_down&quot;</span><span class="p">,</span> <span class="s2">&quot;bottom_up&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;top_down&quot;</span><span class="p">,</span>
+    <span class="n">camera_view</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"top_down"</span><span class="p">,</span> <span class="s2">"bottom_up"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"top_down"</span><span class="p">,</span>
     <span class="n">in_degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the signed angle between a reference and a forward vector.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Compute the signed angle between a reference and a forward vector.</span>
 
 <span class="sd">    Forward vector angle is the :func:`signed angle\</span>
 <span class="sd">    &lt;movement.utils.vector.compute_signed_angle_2d&gt;`</span>
-<span class="sd">    between the reference vector and the animal&#39;s :func:`forward vector\</span>
+<span class="sd">    between the reference vector and the animal's :func:`forward vector\</span>
 <span class="sd">    &lt;movement.kinematics.compute_forward_vector&gt;`.</span>
 <span class="sd">    The returned angles are in radians, spanning the range :math:`(-\pi, \pi]`,</span>
 <span class="sd">    unless ``in_degrees`` is set to ``True``.</span>
@@ -684,10 +684,10 @@
 <span class="sd">        the two symmetrical keypoints located on the left and</span>
 <span class="sd">        right sides of the body, respectively.</span>
 <span class="sd">    left_keypoint</span>
-<span class="sd">        Name of the left keypoint, e.g., &quot;left_ear&quot;, used to compute the</span>
+<span class="sd">        Name of the left keypoint, e.g., "left_ear", used to compute the</span>
 <span class="sd">        forward vector.</span>
 <span class="sd">    right_keypoint</span>
-<span class="sd">        Name of the right keypoint, e.g., &quot;right_ear&quot;, used to compute the</span>
+<span class="sd">        Name of the right keypoint, e.g., "right_ear", used to compute the</span>
 <span class="sd">        forward vector.</span>
 <span class="sd">    reference_vector</span>
 <span class="sd">        The reference vector against which the ``forward_vector`` is</span>
@@ -698,10 +698,10 @@
 <span class="sd">        default.</span>
 <span class="sd">    camera_view</span>
 <span class="sd">        The camera viewing angle, used to determine the upwards</span>
-<span class="sd">        direction of the animal. Can be either ``&quot;top_down&quot;`` (where the</span>
-<span class="sd">        upwards direction is [0, 0, -1]), or ``&quot;bottom_up&quot;`` (where the</span>
+<span class="sd">        direction of the animal. Can be either ``"top_down"`` (where the</span>
+<span class="sd">        upwards direction is [0, 0, -1]), or ``"bottom_up"`` (where the</span>
 <span class="sd">        upwards direction is [0, 0, 1]). If left unspecified, the camera</span>
-<span class="sd">        view is assumed to be ``&quot;top_down&quot;``.</span>
+<span class="sd">        view is assumed to be ``"top_down"``.</span>
 <span class="sd">    in_degrees</span>
 <span class="sd">        If ``True``, the returned heading array is given in degrees.</span>
 <span class="sd">        Otherwise, the array is given in radians. Default ``False``.</span>
@@ -722,7 +722,7 @@
 <span class="sd">    movement.kinematics.compute_forward_vector :</span>
 <span class="sd">        The function used to compute the forward vector.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Convert reference vector to np.array if not already a valid array</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reference_vector</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
         <span class="n">reference_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">reference_vector</span><span class="p">)</span>
@@ -739,15 +739,15 @@
 
     <span class="c1"># Convert to degrees</span>
     <span class="k">if</span> <span class="n">in_degrees</span><span class="p">:</span>
-        <span class="n">heading_array</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;xr.DataArray&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">heading_array</span><span class="p">))</span>
+        <span class="n">heading_array</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"xr.DataArray"</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">heading_array</span><span class="p">))</span>
 
-    <span class="n">heading_array</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;forward_vector_angle&quot;</span>
+    <span class="n">heading_array</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"forward_vector_angle"</span>
     <span class="k">return</span> <span class="n">heading_array</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_validate_type_data_array</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate the input data is an xarray DataArray.</span>
+<span class="w">    </span><span class="sd">"""Validate the input data is an xarray DataArray.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -759,12 +759,12 @@
 <span class="sd">    ValueError</span>
 <span class="sd">        If the input data is not an xarray DataArray.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s2">&quot;Input data must be an xarray.DataArray, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">"Input data must be an xarray.DataArray, "</span>
+                <span class="sa">f</span><span class="s2">"but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="p">)</span>
 </pre></div>

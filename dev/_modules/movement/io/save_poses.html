@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.io.save_poses</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Save pose tracking data from ``movement`` to various file formats.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Save pose tracking data from ``movement`` to various file formats."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
@@ -501,7 +501,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_ds_to_dlc_style_df</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a ``movement`` dataset to a DeepLabCut-style DataFrame.</span>
+<span class="w">    </span><span class="sd">"""Convert a ``movement`` dataset to a DeepLabCut-style DataFrame.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -515,24 +515,24 @@
 <span class="sd">    -------</span>
 <span class="sd">    pandas.DataFrame</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># DLC stores confidence scores per keypoint. If confidence is provided</span>
     <span class="c1"># per individual, expand it across all keypoints before export.</span>
     <span class="n">confidence</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">data</span>
-    <span class="k">if</span> <span class="s2">&quot;keypoint&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"keypoint"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="s2">&quot;Dataset contains individual-wise confidence scores. &quot;</span>
-            <span class="s2">&quot;DLC-style formats only supports keypoint-wise confidence scores, &quot;</span>
-            <span class="s2">&quot;so confidence values will be expanded to all keypoints.&quot;</span>
+            <span class="s2">"Dataset contains individual-wise confidence scores. "</span>
+            <span class="s2">"DLC-style formats only supports keypoint-wise confidence scores, "</span>
+            <span class="s2">"so confidence values will be expanded to all keypoints."</span>
         <span class="p">)</span>
         <span class="n">confidence</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">confidence</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">confidence</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
         <span class="p">)</span>
-    <span class="c1"># Keep position data as is, if data is 3D (i.e. contains &#39;z&#39; coordinate)</span>
+    <span class="c1"># Keep position data as is, if data is 3D (i.e. contains 'z' coordinate)</span>
     <span class="c1"># Otherwise, concatenate position and confidence scores into one array</span>
     <span class="n">tracks</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">data</span>
-        <span class="k">if</span> <span class="s2">&quot;z&quot;</span> <span class="ow">in</span> <span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;coords&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"z"</span> <span class="ow">in</span> <span class="n">columns</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"coords"</span><span class="p">)</span>
         <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
             <span class="p">(</span>
                 <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
@@ -546,8 +546,8 @@
     <span class="n">tracks</span> <span class="o">=</span> <span class="n">tracks</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">transpose_order</span><span class="p">)</span>
     <span class="c1"># Create DataFrame with multi-index columns</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-        <span class="n">data</span><span class="o">=</span><span class="n">tracks</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
-        <span class="n">index</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">tracks</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">],</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">),</span>
         <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
         <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
     <span class="p">)</span>
@@ -555,13 +555,13 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_auto_split_individuals</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True if there is only one individual in the dataset.&quot;&quot;&quot;</span>
-    <span class="n">n_individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">"""Return True if there is only one individual in the dataset."""</span>
+    <span class="n">n_individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"individual"</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">n_individuals</span> <span class="o">==</span> <span class="mi">1</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_save_dlc_df</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save the dataframe as either a .h5 or .csv depending on the file path.</span>
+<span class="w">    </span><span class="sd">"""Save the dataframe as either a .h5 or .csv depending on the file path.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -571,11 +571,11 @@
 <span class="sd">    df</span>
 <span class="sd">        Pandas Dataframe to save</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.csv&quot;</span><span class="p">:</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">".csv"</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">","</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>  <span class="c1"># at this point it can only be .h5 (because of validation)</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;df_with_missing&quot;</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">"df_with_missing"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="to_dlc_style_df">
@@ -583,7 +583,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">to_dlc_style_df</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">split_individuals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a ``movement`` dataset to DeepLabCut-style DataFrame(s).</span>
+<span class="w">    </span><span class="sd">"""Convert a ``movement`` dataset to DeepLabCut-style DataFrame(s).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -603,54 +603,54 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    The DataFrame(s) will have a multi-index column with the following levels:</span>
-<span class="sd">    &quot;scorer&quot;, &quot;bodyparts&quot;, &quot;coords&quot; (if split_individuals is True),</span>
-<span class="sd">    or &quot;scorer&quot;, &quot;individuals&quot;, &quot;bodyparts&quot;, &quot;coords&quot;</span>
+<span class="sd">    "scorer", "bodyparts", "coords" (if split_individuals is True),</span>
+<span class="sd">    or "scorer", "individuals", "bodyparts", "coords"</span>
 <span class="sd">    (if split_individuals is False).</span>
 
 <span class="sd">    For 2D data, regardless of the provenance of the points-wise confidence</span>
-<span class="sd">    scores, they will be referred to as &quot;likelihood&quot;, and stored in</span>
-<span class="sd">    the &quot;coords&quot; level as DeepLabCut expects.</span>
+<span class="sd">    scores, they will be referred to as "likelihood", and stored in</span>
+<span class="sd">    the "coords" level as DeepLabCut expects.</span>
 
-<span class="sd">    For 3D data, the &quot;coords&quot; level will only contain &quot;x&quot;, &quot;y&quot;, and &quot;z&quot;,</span>
+<span class="sd">    For 3D data, the "coords" level will only contain "x", "y", and "z",</span>
 <span class="sd">    as DeepLabCut does not currently provide 3D likelihoods.</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
 <span class="sd">    to_dlc_file : Save dataset directly to a DeepLabCut-style .h5 or .csv file.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">ValidPosesInputs</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-    <span class="n">scorer</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;movement&quot;</span><span class="p">]</span>
-    <span class="n">bodyparts</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="n">base_coords</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;space&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">scorer</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"movement"</span><span class="p">]</span>
+    <span class="n">bodyparts</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">base_coords</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"space"</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="n">coords</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">base_coords</span>
-        <span class="k">if</span> <span class="s2">&quot;z&quot;</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;space&quot;</span><span class="p">]</span>
-        <span class="k">else</span> <span class="n">base_coords</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;likelihood&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">"z"</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"space"</span><span class="p">]</span>
+        <span class="k">else</span> <span class="n">base_coords</span> <span class="o">+</span> <span class="p">[</span><span class="s2">"likelihood"</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;individual&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"individual"</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">split_individuals</span><span class="p">:</span>
         <span class="n">df_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">individual</span> <span class="ow">in</span> <span class="n">individuals</span><span class="p">:</span>
             <span class="n">individual_data</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individual</span><span class="o">=</span><span class="n">individual</span><span class="p">)</span>
-            <span class="n">index_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scorer&quot;</span><span class="p">,</span> <span class="s2">&quot;bodyparts&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
+            <span class="n">index_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"scorer"</span><span class="p">,</span> <span class="s2">"bodyparts"</span><span class="p">,</span> <span class="s2">"coords"</span><span class="p">]</span>
             <span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
                 <span class="p">[</span><span class="n">scorer</span><span class="p">,</span> <span class="n">bodyparts</span><span class="p">,</span> <span class="n">coords</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">index_levels</span>
             <span class="p">)</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">_ds_to_dlc_style_df</span><span class="p">(</span><span class="n">individual_data</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
             <span class="n">df_dict</span><span class="p">[</span><span class="n">individual</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="s2">&quot;Converted poses dataset to DeepLabCut-style DataFrames &quot;</span>
-            <span class="s2">&quot;per individual.&quot;</span>
+            <span class="s2">"Converted poses dataset to DeepLabCut-style DataFrames "</span>
+            <span class="s2">"per individual."</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">df_dict</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">index_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;scorer&quot;</span><span class="p">,</span> <span class="s2">&quot;individuals&quot;</span><span class="p">,</span> <span class="s2">&quot;bodyparts&quot;</span><span class="p">,</span> <span class="s2">&quot;coords&quot;</span><span class="p">]</span>
+        <span class="n">index_levels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"scorer"</span><span class="p">,</span> <span class="s2">"individuals"</span><span class="p">,</span> <span class="s2">"bodyparts"</span><span class="p">,</span> <span class="s2">"coords"</span><span class="p">]</span>
         <span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
             <span class="p">[</span><span class="n">scorer</span><span class="p">,</span> <span class="n">individuals</span><span class="p">,</span> <span class="n">bodyparts</span><span class="p">,</span> <span class="n">coords</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">index_levels</span>
         <span class="p">)</span>
         <span class="n">df_all</span> <span class="o">=</span> <span class="n">_ds_to_dlc_style_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Converted poses dataset to DeepLabCut-style DataFrame.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">"Converted poses dataset to DeepLabCut-style DataFrame."</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df_all</span></div>
 
 
@@ -660,9 +660,9 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">to_dlc_file</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
-    <span class="n">split_individuals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;auto&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+    <span class="n">split_individuals</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"auto"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"auto"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a ``movement`` dataset to DeepLabCut file(s).</span>
+<span class="w">    </span><span class="sd">"""Save a ``movement`` dataset to DeepLabCut file(s).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -674,18 +674,18 @@
 <span class="sd">        must be either .h5 (recommended) or .csv.</span>
 <span class="sd">    split_individuals</span>
 <span class="sd">        Whether to save individuals to separate files or to the same file</span>
-<span class="sd">        (see Notes). Defaults to &quot;auto&quot;.</span>
+<span class="sd">        (see Notes). Defaults to "auto".</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    If ``split_individuals`` is True, each individual will be saved to a</span>
 <span class="sd">    separate file, formatted as in a single-animal DeepLabCut project</span>
-<span class="sd">    (without the &quot;individuals&quot; column level). The individual&#39;s name will be</span>
+<span class="sd">    (without the "individuals" column level). The individual's name will be</span>
 <span class="sd">    appended to the file path, just before the file extension, e.g.</span>
-<span class="sd">    &quot;/path/to/filename_individual1.h5&quot;. If False, all individuals will be</span>
+<span class="sd">    "/path/to/filename_individual1.h5". If False, all individuals will be</span>
 <span class="sd">    saved to the same file, formatted as in a multi-animal DeepLabCut project</span>
-<span class="sd">    (with the &quot;individuals&quot; column level). The file path will not be modified.</span>
-<span class="sd">    If &quot;auto&quot;, the argument&#39;s value is determined based on the number of</span>
+<span class="sd">    (with the "individuals" column level). The file path will not be modified.</span>
+<span class="sd">    If "auto", the argument's value is determined based on the number of</span>
 <span class="sd">    individuals in the dataset: True if there is only one, False otherwise.</span>
 
 <span class="sd">    See Also</span>
@@ -695,23 +695,23 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; from movement.io import save_poses, load_poses</span>
-<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_sleap_file(&quot;/path/to/file_sleap.analysis.h5&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; save_poses.to_dlc_file(ds, &quot;/path/to/file_dlc.h5&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_sleap_file("/path/to/file_sleap.analysis.h5")</span>
+<span class="sd">    &gt;&gt;&gt; save_poses.to_dlc_file(ds, "/path/to/file_dlc.h5")</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">valid_path</span> <span class="o">=</span> <span class="n">validate_file_path</span><span class="p">(</span>
-        <span class="n">file_path</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;.h5&quot;</span><span class="p">}</span>
+        <span class="n">file_path</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">{</span><span class="s2">".csv"</span><span class="p">,</span> <span class="s2">".h5"</span><span class="p">}</span>
     <span class="p">)</span>
 
     <span class="c1"># Sets default behaviour for the function</span>
-    <span class="k">if</span> <span class="n">split_individuals</span> <span class="o">==</span> <span class="s2">&quot;auto&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">split_individuals</span> <span class="o">==</span> <span class="s2">"auto"</span><span class="p">:</span>
         <span class="n">split_individuals</span> <span class="o">=</span> <span class="n">_auto_split_individuals</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 
     <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">split_individuals</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Expected &#39;split_individuals&#39; to be a boolean or &#39;auto&#39;, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">split_individuals</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">"Expected 'split_individuals' to be a boolean or 'auto', "</span>
+                <span class="sa">f</span><span class="s2">"but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">split_individuals</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
@@ -720,17 +720,17 @@
         <span class="n">df_dict</span> <span class="o">=</span> <span class="n">to_dlc_style_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">df_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="c1"># the key is the individual&#39;s name</span>
-            <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">valid_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">key</span><span class="si">}{</span><span class="n">valid_path</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="c1"># the key is the individual's name</span>
+            <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">valid_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">key</span><span class="si">}{</span><span class="n">valid_path</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">"</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
                 <span class="n">_save_dlc_df</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">),</span> <span class="n">df</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved poses for individual </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">valid_path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved poses for individual </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">valid_path</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># convert the dataset to a single dataframe for all individuals</span>
         <span class="n">df_all</span> <span class="o">=</span> <span class="n">to_dlc_style_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
             <span class="n">_save_dlc_df</span><span class="p">(</span><span class="n">valid_path</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved poses dataset to </span><span class="si">{</span><span class="n">valid_path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved poses dataset to </span><span class="si">{</span><span class="n">valid_path</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span></div>
 
 
 
@@ -740,7 +740,7 @@
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
     <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a ``movement`` dataset to a LightningPose file.</span>
+<span class="w">    </span><span class="sd">"""Save a ``movement`` dataset to a LightningPose file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -756,17 +756,17 @@
 <span class="sd">    format as single-animal DeepLabCut projects. Therefore, under the hood,</span>
 <span class="sd">    this function calls :func:`movement.io.save_poses.to_dlc_file`</span>
 <span class="sd">    with ``split_individuals=True``. This setting means that each individual</span>
-<span class="sd">    is saved to a separate file, with the individual&#39;s name appended to the</span>
+<span class="sd">    is saved to a separate file, with the individual's name appended to the</span>
 <span class="sd">    file path, just before the file extension,</span>
-<span class="sd">    i.e. &quot;/path/to/filename_individual1.csv&quot;.</span>
+<span class="sd">    i.e. "/path/to/filename_individual1.csv".</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
 <span class="sd">    to_dlc_file : Save dataset to a DeepLabCut-style .h5 or .csv file.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">valid_path</span> <span class="o">=</span> <span class="n">validate_file_path</span><span class="p">(</span>
-        <span class="n">file_path</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;.csv&quot;</span><span class="p">}</span>
+        <span class="n">file_path</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">{</span><span class="s2">".csv"</span><span class="p">}</span>
     <span class="p">)</span>
     <span class="n">ValidPosesInputs</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">valid_path</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
@@ -776,7 +776,7 @@
 <div class="viewcode-block" id="to_sleap_analysis_file">
 <a class="viewcode-back" href="../../../api/movement.io.save_poses.to_sleap_analysis_file.html#movement.io.save_poses.to_sleap_analysis_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">to_sleap_analysis_file</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a ``movement`` dataset to a SLEAP analysis file.</span>
+<span class="w">    </span><span class="sd">"""Save a ``movement`` dataset to a SLEAP analysis file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -790,12 +790,12 @@
 <span class="sd">    -----</span>
 <span class="sd">    The output file will contain the following keys (as in SLEAP .h5 analysis</span>
 <span class="sd">    files):</span>
-<span class="sd">    &quot;track_names&quot;, &quot;node_names&quot;, &quot;tracks&quot;, &quot;track_occupancy&quot;, &quot;point_scores&quot;,</span>
-<span class="sd">    &quot;instance_scores&quot;, &quot;tracking_scores&quot;, &quot;labels_path&quot;, &quot;edge_names&quot;,</span>
-<span class="sd">    &quot;edge_inds&quot;, &quot;video_path&quot;, &quot;video_ind&quot;, &quot;provenance&quot; [1]_.</span>
-<span class="sd">    However, only &quot;track_names&quot;, &quot;node_names&quot;, &quot;tracks&quot;, &quot;track_occupancy&quot;</span>
-<span class="sd">    and &quot;point_scores&quot; will contain data extracted from the input dataset.</span>
-<span class="sd">    &quot;labels_path&quot; will contain the path to the input file only if the source</span>
+<span class="sd">    "track_names", "node_names", "tracks", "track_occupancy", "point_scores",</span>
+<span class="sd">    "instance_scores", "tracking_scores", "labels_path", "edge_names",</span>
+<span class="sd">    "edge_inds", "video_path", "video_ind", "provenance" [1]_.</span>
+<span class="sd">    However, only "track_names", "node_names", "tracks", "track_occupancy"</span>
+<span class="sd">    and "point_scores" will contain data extracted from the input dataset.</span>
+<span class="sd">    "labels_path" will contain the path to the input file only if the source</span>
 <span class="sd">    file of the dataset is a SLEAP .slp file. Otherwise, it will be an empty</span>
 <span class="sd">    string.</span>
 <span class="sd">    The other attributes and data variables that are not present in the input</span>
@@ -808,35 +808,35 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; from movement.io import save_poses, load_poses</span>
-<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_dlc_file(&quot;path/to/file.h5&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_dlc_file("path/to/file.h5")</span>
 <span class="sd">    &gt;&gt;&gt; save_poses.to_sleap_analysis_file(</span>
-<span class="sd">    ...     ds, &quot;/path/to/file_sleap.analysis.h5&quot;</span>
+<span class="sd">    ...     ds, "/path/to/file_sleap.analysis.h5"</span>
 <span class="sd">    ... )</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">valid_path</span> <span class="o">=</span> <span class="n">validate_file_path</span><span class="p">(</span>
-        <span class="n">file_path</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;.h5&quot;</span><span class="p">}</span>
+        <span class="n">file_path</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">{</span><span class="s2">".h5"</span><span class="p">}</span>
     <span class="p">)</span>
     <span class="n">ValidPosesInputs</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">_remove_unoccupied_tracks</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="c1"># Target shapes:</span>
-    <span class="c1"># &quot;track_occupancy&quot;     n_frames * n_individuals</span>
-    <span class="c1"># &quot;tracks&quot;              n_individuals * n_space * n_keypoints * n_frames</span>
-    <span class="c1"># &quot;track_names&quot;         n_individuals</span>
-    <span class="c1"># &quot;point_scores&quot;        n_individuals * n_keypoints * n_frames</span>
-    <span class="c1"># &quot;instance_scores&quot;     n_individuals * n_frames</span>
-    <span class="c1"># &quot;tracking_scores&quot;     n_individuals * n_frames</span>
+    <span class="c1"># "track_occupancy"     n_frames * n_individuals</span>
+    <span class="c1"># "tracks"              n_individuals * n_space * n_keypoints * n_frames</span>
+    <span class="c1"># "track_names"         n_individuals</span>
+    <span class="c1"># "point_scores"        n_individuals * n_keypoints * n_frames</span>
+    <span class="c1"># "instance_scores"     n_individuals * n_frames</span>
+    <span class="c1"># "tracking_scores"     n_individuals * n_frames</span>
     <span class="n">individual_names</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">individual</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="n">n_individuals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">individual_names</span><span class="p">)</span>
     <span class="n">keypoint_names</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">keypoint</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="c1"># Compute frame indices from fps, if set</span>
-    <span class="n">fps</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;fps&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">fps</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"fps"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">frame_idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rint</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">fps</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">frame_idxs</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="n">n_frames</span> <span class="o">=</span> <span class="n">frame_idxs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">frame_idxs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="n">pos_x</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">pos_x</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="s2">"x"</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
     <span class="c1"># Mask denoting which individuals are present in each frame</span>
     <span class="n">track_occupancy</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">pos_x</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
     <span class="n">tracks</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -844,11 +844,11 @@
     <span class="n">instance_scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_individuals</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">tracking_scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_individuals</span><span class="p">,</span> <span class="n">n_frames</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
-    <span class="n">source_file</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;source_file&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">source_file</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"source_file"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
     <span class="n">labels_path</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">source_file</span>
-        <span class="k">if</span> <span class="n">source_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">source_file</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.slp&quot;</span>
-        <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">source_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">source_file</span><span class="p">)</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">".slp"</span>
+        <span class="k">else</span> <span class="s2">""</span>
     <span class="p">)</span>
     <span class="n">data_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
         <span class="n">track_names</span><span class="o">=</span><span class="n">individual_names</span><span class="p">,</span>
@@ -861,22 +861,22 @@
         <span class="n">labels_path</span><span class="o">=</span><span class="n">labels_path</span><span class="p">,</span>
         <span class="n">edge_names</span><span class="o">=</span><span class="p">[],</span>
         <span class="n">edge_inds</span><span class="o">=</span><span class="p">[],</span>
-        <span class="n">video_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">video_path</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
         <span class="n">video_ind</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">provenance</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">provenance</span><span class="o">=</span><span class="s2">"</span><span class="si">{}</span><span class="s2">"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">valid_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">h5py</span><span class="o">.</span><span class="n">File</span><span class="p">(</span><span class="n">valid_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span>
                     <span class="n">key</span><span class="p">,</span>
                     <span class="n">data</span><span class="o">=</span><span class="n">val</span><span class="p">,</span>
-                    <span class="n">compression</span><span class="o">=</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span>
+                    <span class="n">compression</span><span class="o">=</span><span class="s2">"gzip"</span><span class="p">,</span>
                     <span class="n">compression_opts</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">create_dataset</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">val</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved poses dataset to </span><span class="si">{</span><span class="n">valid_path</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved poses dataset to </span><span class="si">{</span><span class="n">valid_path</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span></div>
 
 
 
@@ -885,10 +885,10 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">to_nwb_file</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">NWBFileSaveConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">pynwb</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">NWBFile</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a ``movement`` dataset to one or more NWBFile objects.</span>
+<span class="w">    </span><span class="sd">"""Save a ``movement`` dataset to one or more NWBFile objects.</span>
 
 <span class="sd">    The data will be written to :class:`pynwb.file.NWBFile` object(s)</span>
-<span class="sd">    in the &quot;behavior&quot; processing module, formatted according to the</span>
+<span class="sd">    in the "behavior" processing module, formatted according to the</span>
 <span class="sd">    ``ndx-pose`` NWB extension [1]_.</span>
 <span class="sd">    Each individual in the dataset will be written to a separate NWBFile,</span>
 <span class="sd">    as required by the NWB format.</span>
@@ -924,10 +924,10 @@
 <span class="sd">    &gt;&gt;&gt; from movement.sample_data import fetch_dataset</span>
 <span class="sd">    &gt;&gt;&gt; from movement.io import save_poses</span>
 <span class="sd">    &gt;&gt;&gt; from pynwb import NWBHDF5IO</span>
-<span class="sd">    &gt;&gt;&gt; ds = fetch_dataset(&quot;DLC_two-mice.predictions.csv&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; ds = fetch_dataset("DLC_two-mice.predictions.csv")</span>
 <span class="sd">    &gt;&gt;&gt; nwb_files = save_poses.to_nwb_file(ds)</span>
 <span class="sd">    &gt;&gt;&gt; for file in nwb_files:</span>
-<span class="sd">    ...     with NWBHDF5IO(f&quot;{file.identifier}.nwb&quot;, &quot;w&quot;) as io:</span>
+<span class="sd">    ...     with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:</span>
 <span class="sd">    ...         io.write(file)</span>
 
 <span class="sd">    Create NWBFiles with custom metadata shared across individuals.</span>
@@ -938,9 +938,9 @@
 
 <span class="sd">    &gt;&gt;&gt; from movement.io.nwb import NWBFileSaveConfig</span>
 <span class="sd">    &gt;&gt;&gt; config = NWBFileSaveConfig(</span>
-<span class="sd">    ...     nwbfile_kwargs={&quot;session_description&quot;: &quot;test session&quot;},</span>
-<span class="sd">    ...     processing_module_kwargs={&quot;description&quot;: &quot;processed behav data&quot;},</span>
-<span class="sd">    ...     subject_kwargs={&quot;age&quot;: &quot;P90D&quot;, &quot;species&quot;: &quot;Mus musculus&quot;},</span>
+<span class="sd">    ...     nwbfile_kwargs={"session_description": "test session"},</span>
+<span class="sd">    ...     processing_module_kwargs={"description": "processed behav data"},</span>
+<span class="sd">    ...     subject_kwargs={"age": "P90D", "species": "Mus musculus"},</span>
 <span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; nwb_files = save_poses.to_nwb_file(ds, config)</span>
 
@@ -950,18 +950,18 @@
 
 <span class="sd">    &gt;&gt;&gt; config = NWBFileSaveConfig(</span>
 <span class="sd">    ...     nwbfile_kwargs={</span>
-<span class="sd">    ...         &quot;individual1&quot;: {</span>
-<span class="sd">    ...             &quot;experimenter&quot;: &quot;experimenter1&quot;,</span>
-<span class="sd">    ...             &quot;session_description&quot;: &quot;subj1 session&quot;,</span>
+<span class="sd">    ...         "individual1": {</span>
+<span class="sd">    ...             "experimenter": "experimenter1",</span>
+<span class="sd">    ...             "session_description": "subj1 session",</span>
 <span class="sd">    ...         },</span>
-<span class="sd">    ...         &quot;individual2&quot;: {</span>
-<span class="sd">    ...             &quot;experimenter&quot;: &quot;experimenter2&quot;,</span>
-<span class="sd">    ...             &quot;session_description&quot;: &quot;subj2 session&quot;,</span>
+<span class="sd">    ...         "individual2": {</span>
+<span class="sd">    ...             "experimenter": "experimenter2",</span>
+<span class="sd">    ...             "session_description": "subj2 session",</span>
 <span class="sd">    ...         },</span>
 <span class="sd">    ...     },</span>
 <span class="sd">    ...     subject_kwargs={</span>
-<span class="sd">    ...         &quot;individual1&quot;: {&quot;age&quot;: &quot;P90D&quot;, &quot;sex&quot;: &quot;M&quot;},</span>
-<span class="sd">    ...         &quot;individual2&quot;: {&quot;age&quot;: &quot;P91D&quot;, &quot;sex&quot;: &quot;F&quot;},</span>
+<span class="sd">    ...         "individual1": {"age": "P90D", "sex": "M"},</span>
+<span class="sd">    ...         "individual2": {"age": "P91D", "sex": "F"},</span>
 <span class="sd">    ...     },</span>
 <span class="sd">    ... )</span>
 <span class="sd">    &gt;&gt;&gt; nwb_files = save_poses.to_nwb_file(ds, config)</span>
@@ -971,11 +971,11 @@
 
 <span class="sd">    &gt;&gt;&gt; config = NWBFileSaveConfig(</span>
 <span class="sd">    ...     pose_estimation_series_kwargs={</span>
-<span class="sd">    ...         &quot;leftear&quot;: {</span>
-<span class="sd">    ...             &quot;description&quot;: &quot;left ear&quot;,</span>
+<span class="sd">    ...         "leftear": {</span>
+<span class="sd">    ...             "description": "left ear",</span>
 <span class="sd">    ...         },</span>
-<span class="sd">    ...         &quot;rightear&quot;: {</span>
-<span class="sd">    ...             &quot;description&quot;: &quot;right ear&quot;,</span>
+<span class="sd">    ...         "rightear": {</span>
+<span class="sd">    ...             "description": "right ear",</span>
 <span class="sd">    ...         },</span>
 <span class="sd">    ...     },</span>
 <span class="sd">    ... )</span>
@@ -986,7 +986,7 @@
 <span class="sd">    movement.io.nwb.NWBFileSaveConfig :</span>
 <span class="sd">        For further details on the configuration object and its parameters.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">NWBFileSaveConfig</span><span class="p">()</span>
     <span class="n">individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">individual</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">individuals</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -1008,7 +1008,7 @@
     <span class="n">pose_estimation_skeletons</span> <span class="o">=</span> <span class="p">{</span>
         <span class="nb">id</span><span class="p">:</span> <span class="n">_ds_to_pose_and_skeletons</span><span class="p">(</span>
             <span class="n">ds</span>
-            <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;individual&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"individual"</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
             <span class="k">else</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individual</span><span class="o">=</span><span class="nb">id</span><span class="p">),</span>
             <span class="n">config</span><span class="p">,</span>
             <span class="n">subjects</span><span class="p">[</span><span class="nb">id</span><span class="p">],</span>
@@ -1027,7 +1027,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_remove_unoccupied_tracks</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove tracks that are completely unoccupied from the dataset.</span>
+<span class="w">    </span><span class="sd">"""Remove tracks that are completely unoccupied from the dataset.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1040,8 +1040,8 @@
 <span class="sd">    xarray.Dataset</span>
 <span class="sd">        The input dataset without the unoccupied tracks.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">all_nan</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">])</span>
+<span class="sd">    """</span>
+    <span class="n">all_nan</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">[</span><span class="s2">"keypoint"</span><span class="p">,</span> <span class="s2">"space"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">ds</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">all_nan</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 <div class="section ablog__blog_comments">

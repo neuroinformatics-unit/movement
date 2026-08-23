@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,13 +477,13 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.sample_data</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Fetch and load sample datasets.</span>
+<span></span><span class="sd">"""Fetch and load sample datasets.</span>
 
 <span class="sd">This module provides functions for fetching and loading sample data used in</span>
 <span class="sd">tests, examples, and tutorials. The data are stored in a remote repository</span>
-<span class="sd">on GIN and are downloaded to the user&#39;s local machine the first time they</span>
+<span class="sd">on GIN and are downloaded to the user's local machine the first time they</span>
 <span class="sd">are used.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
@@ -500,26 +500,24 @@
 
 <span class="c1"># URL to the remote data repository on GIN</span>
 <span class="c1"># noinspection PyInterpreter</span>
-<span class="n">DATA_URL</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;https://gin.g-node.org/neuroinformatics/movement-test-data/raw/master&quot;</span>
-<span class="p">)</span>
+<span class="n">DATA_URL</span> <span class="o">=</span> <span class="s2">"https://gin.swc.ucl.ac.uk/neuroinformatics/movement-sample-data/raw/master"</span>
 
 <span class="c1"># Save data in ~/.movement/data</span>
-<span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">,</span> <span class="s2">&quot;.movement&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
-<span class="c1"># Create the folder if it doesn&#39;t exist</span>
+<span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"~"</span><span class="p">,</span> <span class="s2">".movement"</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+<span class="c1"># Create the folder if it doesn't exist</span>
 <span class="n">DATA_DIR</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># File name for the .yaml file in DATA_URL containing dataset metadata</span>
-<span class="n">METADATA_FILE</span> <span class="o">=</span> <span class="s2">&quot;metadata.yaml&quot;</span>
+<span class="n">METADATA_FILE</span> <span class="o">=</span> <span class="s2">"metadata.yaml"</span>
 
 
 <span class="nd">@contextmanager</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_hide_pooch_hash_logs</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Hide SHA256 hash printouts from ``pooch.retrieve``.</span>
+<span class="w">    </span><span class="sd">"""Hide SHA256 hash printouts from ``pooch.retrieve``.</span>
 
 <span class="sd">    This context manager temporarily suppresses SHA256 hash messages</span>
 <span class="sd">    when downloading files with Pooch.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">HashFilter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Filter</span><span class="p">):</span>
@@ -527,8 +525,8 @@
             <span class="n">msg</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">getMessage</span><span class="p">()</span>
             <span class="c1"># Suppress only hash display lines</span>
             <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span>
-                <span class="s2">&quot;SHA256 hash of downloaded file&quot;</span> <span class="ow">in</span> <span class="n">msg</span>
-                <span class="ow">or</span> <span class="s2">&quot;Use this value as the &#39;known_hash&#39;&quot;</span> <span class="ow">in</span> <span class="n">msg</span>
+                <span class="s2">"SHA256 hash of downloaded file"</span> <span class="ow">in</span> <span class="n">msg</span>
+                <span class="ow">or</span> <span class="s2">"Use this value as the 'known_hash'"</span> <span class="ow">in</span> <span class="n">msg</span>
             <span class="p">)</span>
 
     <span class="n">flt</span> <span class="o">=</span> <span class="n">HashFilter</span><span class="p">()</span>
@@ -540,7 +538,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_download_metadata_file</span><span class="p">(</span><span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">DATA_DIR</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download the metadata yaml file.</span>
+<span class="w">    </span><span class="sd">"""Download the metadata yaml file.</span>
 
 <span class="sd">    This function downloads the yaml file containing sample metadata from</span>
 <span class="sd">    the ``movement`` data repository and saves it in the specified directory</span>
@@ -560,19 +558,19 @@
 <span class="sd">    path : pathlib.Path</span>
 <span class="sd">        Path to the downloaded file.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">with</span> <span class="n">_hide_pooch_hash_logs</span><span class="p">():</span>
         <span class="n">local_file_path</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
-            <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DATA_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">DATA_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">known_hash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">path</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span>
-            <span class="n">fname</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;temp_</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">fname</span><span class="o">=</span><span class="sa">f</span><span class="s2">"temp_</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">progressbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Successfully downloaded sample metadata file </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;from </span><span class="si">{</span><span class="n">DATA_URL</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">data_dir</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">"Successfully downloaded sample metadata file </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> "</span>
+        <span class="sa">f</span><span class="s2">"from </span><span class="si">{</span><span class="n">DATA_URL</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">data_dir</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">local_file_path</span><span class="p">)</span>
 
@@ -580,7 +578,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_fetch_metadata</span><span class="p">(</span>
     <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">DATA_DIR</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download the metadata yaml file and load it as a dictionary.</span>
+<span class="w">    </span><span class="sd">"""Download the metadata yaml file and load it as a dictionary.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -596,9 +594,9 @@
 <span class="sd">        A dictionary containing metadata for each sample dataset, with the</span>
 <span class="sd">        dataset file name as the key.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">local_file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_dir</span> <span class="o">/</span> <span class="n">file_name</span><span class="p">)</span>
-    <span class="n">failed_msg</span> <span class="o">=</span> <span class="s2">&quot;Failed to download the newest sample metadata file.&quot;</span>
+    <span class="n">failed_msg</span> <span class="o">=</span> <span class="s2">"Failed to download the newest sample metadata file."</span>
 
     <span class="c1"># try downloading the newest metadata file</span>
     <span class="k">try</span><span class="p">:</span>
@@ -610,7 +608,7 @@
     <span class="k">except</span> <span class="n">RequestException</span> <span class="k">as</span> <span class="n">exc_info</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">local_file_path</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">failed_msg</span><span class="si">}</span><span class="s2"> Will use the existing local version instead.&quot;</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">failed_msg</span><span class="si">}</span><span class="s2"> Will use the existing local version instead."</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">RequestException</span><span class="p">(</span><span class="n">failed_msg</span><span class="p">))</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc_info</span>
@@ -621,7 +619,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_generate_file_registry</span><span class="p">(</span><span class="n">metadata</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate a file registry based on the contents of the metadata.</span>
+<span class="w">    </span><span class="sd">"""Generate a file registry based on the contents of the metadata.</span>
 
 <span class="sd">    This includes files containing poses, frames, videos, or bounding boxes</span>
 <span class="sd">    data.</span>
@@ -636,14 +634,14 @@
 <span class="sd">    dict</span>
 <span class="sd">        Dictionary mapping file paths to their SHA-256 checksums.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">file_registry</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">ds</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">metadata</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">file_registry</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">val</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ds</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="s2">&quot;sha256sum&quot;</span><span class="p">]</span>
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">,</span> <span class="s2">&quot;frame&quot;</span><span class="p">]:</span>
-            <span class="n">file_name</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span>
+        <span class="n">file_registry</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">val</span><span class="p">[</span><span class="s1">'type'</span><span class="p">]</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">ds</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="s2">"sha256sum"</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"video"</span><span class="p">,</span> <span class="s2">"frame"</span><span class="p">]:</span>
+            <span class="n">file_name</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">"file_name"</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">file_name</span><span class="p">:</span>
-                <span class="n">file_registry</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">s/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;sha256sum&quot;</span><span class="p">]</span>
+                <span class="n">file_registry</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">s/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">"sha256sum"</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">file_registry</span>
 
 
@@ -652,7 +650,7 @@
 <span class="n">file_registry</span> <span class="o">=</span> <span class="n">_generate_file_registry</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
 <span class="n">SAMPLE_DATA</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
     <span class="n">path</span><span class="o">=</span><span class="n">DATA_DIR</span><span class="p">,</span>
-    <span class="n">base_url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DATA_URL</span><span class="si">}</span><span class="s2">/&quot;</span><span class="p">,</span>
+    <span class="n">base_url</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">DATA_URL</span><span class="si">}</span><span class="s2">/"</span><span class="p">,</span>
     <span class="n">retry_if_failed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="n">registry</span><span class="o">=</span><span class="n">file_registry</span><span class="p">,</span>
 <span class="p">)</span>
@@ -661,14 +659,14 @@
 <div class="viewcode-block" id="list_datasets">
 <a class="viewcode-back" href="../../api/movement.sample_data.list_datasets.html#movement.sample_data.list_datasets">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">list_datasets</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;List available sample datasets.</span>
+<span class="w">    </span><span class="sd">"""List available sample datasets.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    filenames : list of str</span>
 <span class="sd">        List of filenames for available sample datasets.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
 
 
@@ -676,9 +674,9 @@
 <div class="viewcode-block" id="fetch_dataset_paths">
 <a class="viewcode-back" href="../../api/movement.sample_data.fetch_dataset_paths.html#movement.sample_data.fetch_dataset_paths">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fetch_dataset_paths</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">with_video</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get paths to sample dataset and any associated frames or videos.</span>
+<span class="w">    </span><span class="sd">"""Get paths to sample dataset and any associated frames or videos.</span>
 
-<span class="sd">    The data are downloaded from the ``movement`` data repository to the user&#39;s</span>
+<span class="sd">    The data are downloaded from the ``movement`` data repository to the user's</span>
 <span class="sd">    local machine upon first use and are stored in a local cache directory.</span>
 <span class="sd">    The function stores the paths to the downloaded files in a dictionary.</span>
 
@@ -688,15 +686,15 @@
 <span class="sd">        Name of the sample data file to fetch.</span>
 <span class="sd">    with_video</span>
 <span class="sd">        Whether to download the associated video file (if available). If set</span>
-<span class="sd">        to False, the &quot;video&quot; entry in the returned dictionary will be None.</span>
+<span class="sd">        to False, the "video" entry in the returned dictionary will be None.</span>
 <span class="sd">        Defaults to False.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    paths : dict</span>
 <span class="sd">        Dictionary mapping file types to their respective paths. The possible</span>
-<span class="sd">        file types are: &quot;poses&quot; or &quot;bboxes&quot; (depending on tracking type),</span>
-<span class="sd">        &quot;frame&quot;, &quot;video&quot;. A None value for &quot;frame&quot; or &quot;video&quot; indicates that</span>
+<span class="sd">        file types are: "poses" or "bboxes" (depending on tracking type),</span>
+<span class="sd">        "frame", "video". A None value for "frame" or "video" indicates that</span>
 <span class="sd">        the file is either not available or not requested</span>
 <span class="sd">        (if ``with_video=False``).</span>
 
@@ -707,57 +705,57 @@
 
 <span class="sd">    &gt;&gt;&gt; from movement.sample_data import fetch_dataset_paths</span>
 <span class="sd">    &gt;&gt;&gt; paths = fetch_dataset_paths(</span>
-<span class="sd">    ...     &quot;DLC_single-mouse_EPM.predictions.h5&quot;, with_video=True</span>
+<span class="sd">    ...     "DLC_single-mouse_EPM.predictions.h5", with_video=True</span>
 <span class="sd">    ... )</span>
-<span class="sd">    &gt;&gt;&gt; poses_path = paths[&quot;poses&quot;]</span>
-<span class="sd">    &gt;&gt;&gt; frame_path = paths[&quot;frame&quot;]</span>
-<span class="sd">    &gt;&gt;&gt; video_path = paths[&quot;video&quot;]</span>
+<span class="sd">    &gt;&gt;&gt; poses_path = paths["poses"]</span>
+<span class="sd">    &gt;&gt;&gt; frame_path = paths["frame"]</span>
+<span class="sd">    &gt;&gt;&gt; video_path = paths["video"]</span>
 
 <span class="sd">    If the sample dataset contains bounding boxes instead of</span>
-<span class="sd">    poses, use ``paths[&quot;bboxes&quot;]`` instead of ``paths[&quot;poses&quot;]``:</span>
+<span class="sd">    poses, use ``paths["bboxes"]`` instead of ``paths["poses"]``:</span>
 
-<span class="sd">    &gt;&gt;&gt; paths = fetch_dataset_paths(&quot;VIA_multiple-crabs_5-frames_labels.csv&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; bboxes_path = paths[&quot;bboxes&quot;]</span>
+<span class="sd">    &gt;&gt;&gt; paths = fetch_dataset_paths("VIA_multiple-crabs_5-frames_labels.csv")</span>
+<span class="sd">    &gt;&gt;&gt; bboxes_path = paths["bboxes"]</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
 <span class="sd">    fetch_dataset</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">available_data_files</span> <span class="o">=</span> <span class="n">list_datasets</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">filename</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_data_files</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;File &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39; is not in the registry. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Valid filenames are: </span><span class="si">{</span><span class="n">available_data_files</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"File '</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">' is not in the registry. "</span>
+                <span class="sa">f</span><span class="s2">"Valid filenames are: </span><span class="si">{</span><span class="n">available_data_files</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
-    <span class="n">frame_file_name</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;frame&quot;</span><span class="p">][</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span>
-    <span class="n">video_file_name</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;video&quot;</span><span class="p">][</span><span class="s2">&quot;file_name&quot;</span><span class="p">]</span>
+    <span class="n">frame_file_name</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">"frame"</span><span class="p">][</span><span class="s2">"file_name"</span><span class="p">]</span>
+    <span class="n">video_file_name</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">"video"</span><span class="p">][</span><span class="s2">"file_name"</span><span class="p">]</span>
     <span class="n">paths_dict</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;frame&quot;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="s2">"frame"</span><span class="p">:</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">frame_file_name</span>
         <span class="k">else</span> <span class="n">Path</span><span class="p">(</span>
-            <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;frames/</span><span class="si">{</span><span class="n">frame_file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">"frames/</span><span class="si">{</span><span class="n">frame_file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">),</span>
-        <span class="s2">&quot;video&quot;</span><span class="p">:</span> <span class="kc">None</span>
+        <span class="s2">"video"</span><span class="p">:</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">video_file_name</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="n">with_video</span><span class="p">)</span>
         <span class="k">else</span> <span class="n">Path</span><span class="p">(</span>
-            <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;videos/</span><span class="si">{</span><span class="n">video_file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">"videos/</span><span class="si">{</span><span class="n">video_file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">),</span>
     <span class="p">}</span>
 
-    <span class="c1"># Assume &quot;poses&quot; if not of type &quot;bboxes&quot;</span>
-    <span class="n">data_type</span> <span class="o">=</span> <span class="s2">&quot;bboxes&quot;</span> <span class="k">if</span> <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;bboxes&quot;</span> <span class="k">else</span> <span class="s2">&quot;poses&quot;</span>
+    <span class="c1"># Assume "poses" if not of type "bboxes"</span>
+    <span class="n">data_type</span> <span class="o">=</span> <span class="s2">"bboxes"</span> <span class="k">if</span> <span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">"type"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"bboxes"</span> <span class="k">else</span> <span class="s2">"poses"</span>
 
-    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.zip&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".zip"</span><span class="p">):</span>
         <span class="c1"># Store the path to the unzipped folder containing multiple files</span>
         <span class="n">paths_dict</span><span class="p">[</span><span class="n">data_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">_fetch_and_unzip</span><span class="p">(</span><span class="n">data_type</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Store the path to a single downloaded file</span>
         <span class="n">paths_dict</span><span class="p">[</span><span class="n">data_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
-            <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">paths_dict</span></div>
 
@@ -769,9 +767,9 @@
     <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">with_video</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xarray</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load a sample dataset.</span>
+<span class="w">    </span><span class="sd">"""Load a sample dataset.</span>
 
-<span class="sd">    The data are downloaded from the ``movement`` data repository to the user&#39;s</span>
+<span class="sd">    The data are downloaded from the ``movement`` data repository to the user's</span>
 <span class="sd">    local machine upon first use and are stored in a local cache directory.</span>
 <span class="sd">    This function returns the data as an xarray Dataset.</span>
 <span class="sd">    If there are any associated frames or videos, these files are also</span>
@@ -783,7 +781,7 @@
 <span class="sd">        Name of the file to fetch.</span>
 <span class="sd">    with_video</span>
 <span class="sd">        Whether to download the associated video file (if available). If set</span>
-<span class="sd">        to False, the &quot;video&quot; entry in the returned dictionary will be None.</span>
+<span class="sd">        to False, the "video" entry in the returned dictionary will be None.</span>
 <span class="sd">        Defaults to False.</span>
 
 <span class="sd">    Returns</span>
@@ -798,7 +796,7 @@
 
 <span class="sd">    &gt;&gt;&gt; from movement.sample_data import fetch_dataset</span>
 <span class="sd">    &gt;&gt;&gt; ds = fetch_dataset(</span>
-<span class="sd">        &quot;DLC_single-mouse_EPM.predictions.h5&quot;, with_video=True</span>
+<span class="sd">        "DLC_single-mouse_EPM.predictions.h5", with_video=True</span>
 <span class="sd">    )</span>
 <span class="sd">    &gt;&gt;&gt; frame_path = ds.frame_path</span>
 <span class="sd">    &gt;&gt;&gt; video_path = ds.video_path</span>
@@ -807,52 +805,52 @@
 <span class="sd">    --------</span>
 <span class="sd">    fetch_dataset_paths</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># If the filename start with &quot;TRex&quot;, raise an NotImplementedError</span>
-    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;TRex&quot;</span><span class="p">):</span>
+<span class="sd">    """</span>
+    <span class="c1"># If the filename start with "TRex", raise an NotImplementedError</span>
+    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"TRex"</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">NotImplementedError</span><span class="p">(</span>
-                <span class="s2">&quot;The loading of TRex datasets is not implemented yet.&quot;</span>
+                <span class="s2">"The loading of TRex datasets is not implemented yet."</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
     <span class="n">file_paths</span> <span class="o">=</span> <span class="n">fetch_dataset_paths</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">with_video</span><span class="o">=</span><span class="n">with_video</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;poses&quot;</span><span class="p">,</span> <span class="s2">&quot;bboxes&quot;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"poses"</span><span class="p">,</span> <span class="s2">"bboxes"</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">file_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span>
                 <span class="n">file_paths</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
-                <span class="n">source_software</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;source_software&quot;</span><span class="p">],</span>
-                <span class="n">fps</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">&quot;fps&quot;</span><span class="p">],</span>
+                <span class="n">source_software</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">"source_software"</span><span class="p">],</span>
+                <span class="n">fps</span><span class="o">=</span><span class="n">metadata</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="s2">"fps"</span><span class="p">],</span>
             <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">file_paths</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]:</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;frame_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">file_paths</span><span class="p">[</span><span class="s2">"frame"</span><span class="p">]:</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"frame_path"</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="s2">"frame"</span><span class="p">]</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">file_paths</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]:</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;video_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">file_paths</span><span class="p">[</span><span class="s2">"video"</span><span class="p">]:</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"video_path"</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_paths</span><span class="p">[</span><span class="s2">"video"</span><span class="p">]</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">ds</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_fetch_and_unzip</span><span class="p">(</span><span class="n">data_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download and extract a zipped archive and return the folder path.</span>
+<span class="w">    </span><span class="sd">"""Download and extract a zipped archive and return the folder path.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data_type</span>
-<span class="sd">        Type of data to fetch, e.g. &quot;poses&quot;, &quot;bboxes&quot;.</span>
+<span class="sd">        Type of data to fetch, e.g. "poses", "bboxes".</span>
 <span class="sd">    file_name</span>
-<span class="sd">        Name of the .zip file to fetch, e.g. &quot;TRex_five-locusts.zip&quot;</span>
+<span class="sd">        Name of the .zip file to fetch, e.g. "TRex_five-locusts.zip"</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    Path</span>
 <span class="sd">        Path to the folder containing the unarchived file(s),</span>
-<span class="sd">        e.g. &quot;/path/to/TRex_five-locusts/&quot;</span>
+<span class="sd">        e.g. "/path/to/TRex_five-locusts/"</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_type</span><span class="p">)</span> <span class="o">/</span> <span class="n">file_name</span>
     <span class="n">raw_paths</span> <span class="o">=</span> <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span>
         <span class="n">file_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span>
@@ -862,8 +860,8 @@
     <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">raw_paths</span><span class="p">]</span>  <span class="c1"># convert to Path objects</span>
 
     <span class="c1"># Filter data files</span>
-    <span class="n">UNWANTED_FILES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;.DS_Store&quot;</span><span class="p">,</span> <span class="s2">&quot;Thumbs.db&quot;</span><span class="p">,</span> <span class="s2">&quot;desktop.ini&quot;</span><span class="p">}</span>
-    <span class="n">UNWANTED_DIRS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;__MACOSX&quot;</span><span class="p">}</span>
+    <span class="n">UNWANTED_FILES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">".DS_Store"</span><span class="p">,</span> <span class="s2">"Thumbs.db"</span><span class="p">,</span> <span class="s2">"desktop.ini"</span><span class="p">}</span>
+    <span class="n">UNWANTED_DIRS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"__MACOSX"</span><span class="p">}</span>
     <span class="n">valid_paths</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">path</span>
         <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span>
@@ -872,8 +870,8 @@
     <span class="p">]</span>
 
     <span class="c1"># Copy files to a new destination directory</span>
-    <span class="n">extract_dir_name</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
-    <span class="n">extract_dir</span> <span class="o">=</span> <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="n">data_type</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">.unzip&quot;</span>
+    <span class="n">extract_dir_name</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">extract_dir</span> <span class="o">=</span> <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="n">data_type</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">.unzip"</span>
     <span class="n">dest_dir</span> <span class="o">=</span> <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">path</span> <span class="o">/</span> <span class="n">data_type</span> <span class="o">/</span> <span class="n">extract_dir_name</span>
     <span class="n">dest_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -885,8 +883,8 @@
             <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span> <span class="n">dest_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">())</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Failed to copy files from </span><span class="si">{</span><span class="n">extract_dir</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s2">. &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Using the original path instead: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Failed to copy files from </span><span class="si">{</span><span class="n">extract_dir</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">dest_dir</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="sa">f</span><span class="s2">"Using the original path instead: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">dest_dir</span><span class="p">)</span>  <span class="c1"># remove the dest_dir</span>
         <span class="k">return</span> <span class="n">valid_paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span>  <span class="c1"># return the original path</span>
@@ -895,7 +893,7 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">extract_dir</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to remove unzip dir </span><span class="si">{</span><span class="n">extract_dir</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Failed to remove unzip dir </span><span class="si">{</span><span class="n">extract_dir</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dest_dir</span>
 </pre></div>
 <div class="section ablog__blog_comments">

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.plots.occupancy</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Wrappers for plotting occupancy data of select individuals.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Wrappers for plotting occupancy data of select individuals."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hashable</span><span class="p">,</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
@@ -488,9 +488,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.axes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Axes</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.figure</span><span class="w"> </span><span class="kn">import</span> <span class="n">Figure</span><span class="p">,</span> <span class="n">SubFigure</span>
 
-<span class="nb">type</span> <span class="n">HistInfoKeys</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="s2">&quot;xedges&quot;</span><span class="p">,</span> <span class="s2">&quot;yedges&quot;</span><span class="p">]</span>
+<span class="nb">type</span> <span class="n">HistInfoKeys</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"h"</span><span class="p">,</span> <span class="s2">"xedges"</span><span class="p">,</span> <span class="s2">"yedges"</span><span class="p">]</span>
 
-<span class="n">DEFAULT_HIST_ARGS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">&quot;bins&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;cmap&quot;</span><span class="p">:</span> <span class="s2">&quot;viridis&quot;</span><span class="p">}</span>
+<span class="n">DEFAULT_HIST_ARGS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="s2">"bins"</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">"cmap"</span><span class="p">:</span> <span class="s2">"viridis"</span><span class="p">}</span>
 
 
 <div class="viewcode-block" id="plot_occupancy">
@@ -502,7 +502,7 @@
     <span class="n">ax</span><span class="p">:</span> <span class="n">Axes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Figure</span> <span class="o">|</span> <span class="n">SubFigure</span><span class="p">,</span> <span class="n">Axes</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="n">HistInfoKeys</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a 2D occupancy histogram.</span>
+<span class="w">    </span><span class="sd">"""Create a 2D occupancy histogram.</span>
 
 <span class="sd">    - If there are multiple keypoints selected, the occupancy of the centroid</span>
 <span class="sd">      of these keypoints is computed.</span>
@@ -541,7 +541,7 @@
 <span class="sd">    ax : matplotlib.axes.Axes</span>
 <span class="sd">        Axes on which the histogram was drawn. If ``ax`` is supplied,</span>
 <span class="sd">        the input will be directly modified and returned in this value.</span>
-<span class="sd">    hist2d_info : dict[Literal[&#39;h&#39;, &#39;xedges&#39;, &#39;yedges&#39;], np.ndarray]</span>
+<span class="sd">    hist2d_info : dict[Literal['h', 'xedges', 'yedges'], np.ndarray]</span>
 <span class="sd">        Dictionary containing the ``h``, ``xedges``, and ``yedges`` outputs</span>
 <span class="sd">        from :meth:`matplotlib.axes.Axes.hist2d` that would otherwise be lost</span>
 <span class="sd">        if only the figure and axes handles were returned.</span>
@@ -554,20 +554,20 @@
 <span class="sd">    &gt;&gt;&gt; from movement import sample_data</span>
 <span class="sd">    &gt;&gt;&gt; from movement.plots import plot_occupancy</span>
 <span class="sd">    &gt;&gt;&gt; positions = sample_data.fetch_dataset(</span>
-<span class="sd">    ...     &quot;DLC_two-mice.predictions.csv&quot;</span>
+<span class="sd">    ...     "DLC_two-mice.predictions.csv"</span>
 <span class="sd">    ... ).position</span>
 <span class="sd">    &gt;&gt;&gt; plot_occupancy(positions)</span>
 
 <span class="sd">    However, one can restrict the histogram to only counting the positions of</span>
 <span class="sd">    (the centroid of) certain keypoints and/or individuals.</span>
 
-<span class="sd">    &gt;&gt;&gt; print(&quot;Available individuals:&quot;, positions[&quot;individual&quot;])</span>
+<span class="sd">    &gt;&gt;&gt; print("Available individuals:", positions["individual"])</span>
 <span class="sd">    &gt;&gt;&gt; plot_occupancy(</span>
 <span class="sd">    ...     positions,</span>
 <span class="sd">    ...     # plot the centroid of keypoints located on the head</span>
-<span class="sd">    ...     keypoints=[&quot;snout&quot;, &quot;leftear&quot;, &quot;rightear&quot;],</span>
+<span class="sd">    ...     keypoints=["snout", "leftear", "rightear"],</span>
 <span class="sd">    ...     # only plot data for 1 individual</span>
-<span class="sd">    ...     individuals=&quot;individual1&quot;,</span>
+<span class="sd">    ...     individuals="individual1",</span>
 <span class="sd">    ... )</span>
 
 <span class="sd">    ``kwargs`` are passed to the ``matplotlib`` backend as keyword-arguments to</span>
@@ -576,9 +576,9 @@
 <span class="sd">    &gt;&gt;&gt; plot_occupancy(</span>
 <span class="sd">    ...     positions,</span>
 <span class="sd">    ...     # plot the centroid of keypoints located on the head</span>
-<span class="sd">    ...     keypoints=[&quot;snout&quot;, &quot;leftear&quot;, &quot;rightear&quot;],</span>
+<span class="sd">    ...     keypoints=["snout", "leftear", "rightear"],</span>
 <span class="sd">    ...     # only plot data for 1 individual</span>
-<span class="sd">    ...     individuals=&quot;individual1&quot;,</span>
+<span class="sd">    ...     individuals="individual1",</span>
 <span class="sd">    ...     # fix the number of bins to use</span>
 <span class="sd">    ...     bins=[30, 20],</span>
 <span class="sd">    ...     # set the minimum count (bins with a lower count show as 0 count).</span>
@@ -586,44 +586,44 @@
 <span class="sd">    ...     # twice.</span>
 <span class="sd">    ...     cmin=1,</span>
 <span class="sd">    ...     # Normalise the plot, scaling the counts to [0, 1]</span>
-<span class="sd">    ...     norm=&quot;log&quot;,</span>
+<span class="sd">    ...     norm="log",</span>
 <span class="sd">    ... )</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
 <span class="sd">    :meth:`matplotlib.axes.Axes.hist2d` : The underlying plotting function.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Collapse dimensions if necessary</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="s2">&quot;keypoint&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"keypoint"</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">keypoints</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="n">keypoints</span><span class="p">)</span>
         <span class="c1"># A selection of just one keypoint automatically drops the keypoint</span>
         <span class="c1"># dimension, hence the need to re-check this here</span>
-        <span class="k">if</span> <span class="s2">&quot;keypoint&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;keypoint&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">if</span> <span class="s2">&quot;individual&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">individuals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">"keypoint"</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"keypoint"</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s2">"individual"</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span> <span class="ow">and</span> <span class="n">individuals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individual</span><span class="o">=</span><span class="n">individuals</span><span class="p">)</span>
 
-    <span class="c1"># We need to remove NaN values from each individual, but we can&#39;t do this</span>
+    <span class="c1"># We need to remove NaN values from each individual, but we can't do this</span>
     <span class="c1"># right now because we still potentially have a (time, space, individual)</span>
     <span class="c1"># array and so dropping NaNs along any axis may remove valid points for</span>
     <span class="c1"># other times / individuals.</span>
     <span class="c1"># Since we only care about a count, we can just unravel the individual</span>
-    <span class="c1"># dimension and create a &quot;long&quot; array of points. For example, a (10, 2, 5)</span>
+    <span class="c1"># dimension and create a "long" array of points. For example, a (10, 2, 5)</span>
     <span class="c1"># time-space-individual DataArray becomes (50, 2).</span>
-    <span class="k">if</span> <span class="s2">&quot;individual&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"individual"</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;new&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;individual&quot;</span><span class="p">)},</span> <span class="n">create_index</span><span class="o">=</span><span class="kc">False</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">&quot;new&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">})</span>
+            <span class="p">{</span><span class="s2">"new"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">)},</span> <span class="n">create_index</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">swap_dims</span><span class="p">({</span><span class="s2">"new"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">})</span>
     <span class="c1"># We should now have just the relevant time-space data,</span>
     <span class="c1"># so we can remove time-points with NaN values.</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;any&quot;</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"any"</span><span class="p">)</span>
 
     <span class="c1"># This makes us agnostic to the planar coordinate system.</span>
-    <span class="n">x_coord</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;space&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">y_coord</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;space&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">x_coord</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"space"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">y_coord</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"space"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="c1"># Inherit our defaults if not otherwise provided</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">DEFAULT_HIST_ARGS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -638,9 +638,9 @@
         <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="n">x_coord</span><span class="p">),</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">space</span><span class="o">=</span><span class="n">y_coord</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">)</span>
     <span class="n">hist2d_info</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">HistInfoKeys</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="n">h</span><span class="p">,</span>
-        <span class="s2">&quot;xedges&quot;</span><span class="p">:</span> <span class="n">xedges</span><span class="p">,</span>
-        <span class="s2">&quot;yedges&quot;</span><span class="p">:</span> <span class="n">yedges</span><span class="p">,</span>
+        <span class="s2">"h"</span><span class="p">:</span> <span class="n">h</span><span class="p">,</span>
+        <span class="s2">"xedges"</span><span class="p">:</span> <span class="n">xedges</span><span class="p">,</span>
+        <span class="s2">"yedges"</span><span class="p">:</span> <span class="n">yedges</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="n">cbar</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">hist_image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">cbar</span><span class="o">.</span><span class="n">solids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

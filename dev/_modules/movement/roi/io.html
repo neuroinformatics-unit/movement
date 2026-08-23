@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.roi.io</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;I/O functions for saving and loading collections of regions of interest.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""I/O functions for saving and loading collections of regions of interest."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -509,7 +509,7 @@
     <span class="n">rois</span><span class="p">:</span> <span class="n">ROICollection</span><span class="p">,</span>
     <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save a collection of regions of interest (RoIs) to a GeoJSON file.</span>
+<span class="w">    </span><span class="sd">"""Save a collection of regions of interest (RoIs) to a GeoJSON file.</span>
 
 <span class="sd">    The RoIs are saved as a GeoJSON FeatureCollection, with each RoI</span>
 <span class="sd">    represented as a Feature containing its geometry and properties</span>
@@ -533,34 +533,34 @@
 
 <span class="sd">    &gt;&gt;&gt; from movement.roi import LineOfInterest, PolygonOfInterest, save_rois</span>
 <span class="sd">    &gt;&gt;&gt; square = PolygonOfInterest(</span>
-<span class="sd">    ...     [(0, 0), (1, 0), (1, 1), (0, 1)], name=&quot;square&quot;</span>
+<span class="sd">    ...     [(0, 0), (1, 0), (1, 1), (0, 1)], name="square"</span>
 <span class="sd">    ... )</span>
-<span class="sd">    &gt;&gt;&gt; diagonal = LineOfInterest([(0, 0), (1, 1)], name=&quot;diagonal&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; save_rois([square, diagonal], &quot;/path/to/rois.geojson&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; diagonal = LineOfInterest([(0, 0), (1, 1)], name="diagonal")</span>
+<span class="sd">    &gt;&gt;&gt; save_rois([square, diagonal], "/path/to/rois.geojson")</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">valid_path</span> <span class="o">=</span> <span class="n">validate_file_path</span><span class="p">(</span>
-        <span class="n">file</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">ValidROICollectionGeoJSON</span><span class="o">.</span><span class="n">suffixes</span>
+        <span class="n">file</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">ValidROICollectionGeoJSON</span><span class="o">.</span><span class="n">suffixes</span>
     <span class="p">)</span>
 
     <span class="n">features</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">{</span>
-            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Feature&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">shapely</span><span class="o">.</span><span class="n">to_geojson</span><span class="p">(</span><span class="n">roi</span><span class="o">.</span><span class="n">region</span><span class="p">)),</span>
-            <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
-                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">roi</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                <span class="s2">&quot;roi_type&quot;</span><span class="p">:</span> <span class="n">roi</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"Feature"</span><span class="p">,</span>
+            <span class="s2">"geometry"</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">shapely</span><span class="o">.</span><span class="n">to_geojson</span><span class="p">(</span><span class="n">roi</span><span class="o">.</span><span class="n">region</span><span class="p">)),</span>
+            <span class="s2">"properties"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"name"</span><span class="p">:</span> <span class="n">roi</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">"roi_type"</span><span class="p">:</span> <span class="n">roi</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
             <span class="p">},</span>
         <span class="p">}</span>
         <span class="k">for</span> <span class="n">roi</span> <span class="ow">in</span> <span class="n">rois</span>
     <span class="p">]</span>
 
     <span class="n">feature_collection</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;FeatureCollection&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;features&quot;</span><span class="p">:</span> <span class="n">features</span><span class="p">,</span>
+        <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"FeatureCollection"</span><span class="p">,</span>
+        <span class="s2">"features"</span><span class="p">:</span> <span class="n">features</span><span class="p">,</span>
     <span class="p">}</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">valid_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">valid_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">feature_collection</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span></div>
 
 
@@ -568,7 +568,7 @@
 <div class="viewcode-block" id="load_rois">
 <a class="viewcode-back" href="../../../api/movement.roi.load_rois.html#movement.roi.load_rois">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_rois</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">LineOfInterest</span> <span class="o">|</span> <span class="n">PolygonOfInterest</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load a collection of regions of interest (RoIs) from a GeoJSON file.</span>
+<span class="w">    </span><span class="sd">"""Load a collection of regions of interest (RoIs) from a GeoJSON file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -589,15 +589,15 @@
 <span class="sd">    Load a collection of RoIs from a GeoJSON file and inspect their names:</span>
 
 <span class="sd">    &gt;&gt;&gt; from movement.roi import load_rois</span>
-<span class="sd">    &gt;&gt;&gt; rois = load_rois(&quot;/path/to/rois.geojson&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; rois = load_rois("/path/to/rois.geojson")</span>
 <span class="sd">    &gt;&gt;&gt; # rois is a list of RoI objects</span>
 <span class="sd">    &gt;&gt;&gt; [roi.name for roi in rois]</span>
-<span class="sd">    [&quot;square&quot;, &quot;diagonal&quot;]</span>
+<span class="sd">    ["square", "diagonal"]</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">validated_file</span> <span class="o">=</span> <span class="n">ValidROICollectionGeoJSON</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">[</span>
-        <span class="n">_feature_to_roi</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">validated_file</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;features&quot;</span><span class="p">]</span>
+        <span class="n">_feature_to_roi</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">validated_file</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">"features"</span><span class="p">]</span>
     <span class="p">]</span></div>
 
 
@@ -605,9 +605,9 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_feature_to_roi</span><span class="p">(</span>
     <span class="n">feature</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LineOfInterest</span> <span class="o">|</span> <span class="n">PolygonOfInterest</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a validated GeoJSON feature to an RoI object.&quot;&quot;&quot;</span>
-    <span class="n">geometry</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">from_geojson</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">feature</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]))</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;properties&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Convert a validated GeoJSON feature to an RoI object."""</span>
+    <span class="n">geometry</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">from_geojson</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">feature</span><span class="p">[</span><span class="s2">"geometry"</span><span class="p">]))</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="p">(</span><span class="n">feature</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"properties"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"name"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">shapely</span><span class="o">.</span><span class="n">Polygon</span><span class="p">):</span>
         <span class="n">holes</span> <span class="o">=</span> <span class="p">[</span><span class="n">interior</span><span class="o">.</span><span class="n">coords</span> <span class="k">for</span> <span class="n">interior</span> <span class="ow">in</span> <span class="n">geometry</span><span class="o">.</span><span class="n">interiors</span><span class="p">]</span>

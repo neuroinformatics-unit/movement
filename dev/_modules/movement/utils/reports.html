@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.utils.reports</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Utility functions for reporting missing data.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Utility functions for reporting missing data."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
 
@@ -494,7 +494,7 @@
 <div class="viewcode-block" id="report_nan_values">
 <a class="viewcode-back" href="../../../api/movement.utils.reports.report_nan_values.html#movement.utils.reports.report_nan_values">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">report_nan_values</span><span class="p">(</span><span class="n">da</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Report the number and percentage of data points that are NaN.</span>
+<span class="w">    </span><span class="sd">"""Report the number and percentage of data points that are NaN.</span>
 
 <span class="sd">    The number of NaNs are counted for each element along the required</span>
 <span class="sd">    ``time`` dimension.</span>
@@ -510,32 +510,32 @@
 <span class="sd">    label</span>
 <span class="sd">        Label to identify the data in the report. If not provided,</span>
 <span class="sd">        the name of the DataArray is used. If the DataArray has no</span>
-<span class="sd">        name, &quot;data&quot; is used as the label.</span>
+<span class="sd">        name, "data" is used as the label.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    str</span>
 <span class="sd">        A string containing the report.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[]})</span>
-    <span class="n">resolved_label</span><span class="p">:</span> <span class="n">Hashable</span> <span class="o">=</span> <span class="n">label</span> <span class="ow">or</span> <span class="n">da</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;data&quot;</span>
-    <span class="n">nan_report</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Missing points (marked as NaN) in </span><span class="si">{</span><span class="n">resolved_label</span><span class="si">}</span><span class="s2">:&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">da</span><span class="p">,</span> <span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="p">[]})</span>
+    <span class="n">resolved_label</span><span class="p">:</span> <span class="n">Hashable</span> <span class="o">=</span> <span class="n">label</span> <span class="ow">or</span> <span class="n">da</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">"data"</span>
+    <span class="n">nan_report</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Missing points (marked as NaN) in </span><span class="si">{</span><span class="n">resolved_label</span><span class="si">}</span><span class="s2">:"</span>
     <span class="n">nan_count</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">da</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="s2">&quot;space&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;space&quot;</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span>
-        <span class="k">else</span> <span class="n">da</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+        <span class="n">da</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="s2">"space"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"space"</span> <span class="ow">in</span> <span class="n">da</span><span class="o">.</span><span class="n">dims</span>
+        <span class="k">else</span> <span class="n">da</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="c1"># Drop coord labels without NaNs</span>
     <span class="n">nan_count</span> <span class="o">=</span> <span class="n">nan_count</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">nan_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">other</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">nan_count</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">nan_count</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;No missing points (marked as NaN) in </span><span class="si">{</span><span class="n">resolved_label</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"No missing points (marked as NaN) in </span><span class="si">{</span><span class="n">resolved_label</span><span class="si">}</span><span class="s2">."</span>
     <span class="n">total_count</span> <span class="o">=</span> <span class="n">da</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">size</span>
     <span class="n">nan_count_str</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">nan_count</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">total_count</span><span class="si">}</span><span class="s2"> (&quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">"/</span><span class="si">{</span><span class="n">total_count</span><span class="si">}</span><span class="s2"> ("</span>
         <span class="o">+</span> <span class="p">(</span><span class="n">nan_count</span> <span class="o">/</span> <span class="n">total_count</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="o">+</span> <span class="s2">&quot;%)&quot;</span>
+        <span class="o">+</span> <span class="s2">"%)"</span>
     <span class="p">)</span>
     <span class="c1"># Stack all dimensions except for the last</span>
     <span class="n">nan_count_df</span> <span class="o">=</span> <span class="p">(</span>
@@ -548,7 +548,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nan_count_df</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
         <span class="k">else</span> <span class="n">nan_count_df</span>
     <span class="p">)</span>
-    <span class="n">nan_report</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{</span><span class="n">nan_count_df</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">nan_report</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n\n</span><span class="si">{</span><span class="n">nan_count_df</span><span class="si">}</span><span class="s2">"</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">nan_report</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">nan_report</span></div>
 

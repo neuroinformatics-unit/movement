@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -699,17 +699,17 @@ the file is either not available or not requested
 predicted poses, as well as the associated frame and video files:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.sample_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_dataset_paths</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">fetch_dataset_paths</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="s2">&quot;DLC_single-mouse_EPM.predictions.h5&quot;</span><span class="p">,</span> <span class="n">with_video</span><span class="o">=</span><span class="kc">True</span>
+<span class="gp">... </span>    <span class="s2">"DLC_single-mouse_EPM.predictions.h5"</span><span class="p">,</span> <span class="n">with_video</span><span class="o">=</span><span class="kc">True</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">poses_path</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="s2">&quot;poses&quot;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">frame_path</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">video_path</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">poses_path</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="s2">"poses"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">frame_path</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="s2">"frame"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">video_path</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="s2">"video"</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>If the sample dataset contains bounding boxes instead of
 poses, use <code class="docutils literal notranslate"><span class="pre">paths[&quot;bboxes&quot;]</span></code> instead of <code class="docutils literal notranslate"><span class="pre">paths[&quot;poses&quot;]</span></code>:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">fetch_dataset_paths</span><span class="p">(</span><span class="s2">&quot;VIA_multiple-crabs_5-frames_labels.csv&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">bboxes_path</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="s2">&quot;bboxes&quot;</span><span class="p">]</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">paths</span> <span class="o">=</span> <span class="n">fetch_dataset_paths</span><span class="p">(</span><span class="s2">"VIA_multiple-crabs_5-frames_labels.csv"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">bboxes_path</span> <span class="o">=</span> <span class="n">paths</span><span class="p">[</span><span class="s2">"bboxes"</span><span class="p">]</span>
 </pre></div>
 </div>
 <div class="admonition seealso">

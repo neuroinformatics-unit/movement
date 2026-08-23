@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -734,7 +734,7 @@ of <code class="docutils literal notranslate"><span class="pre">f</span></code> 
 <p class="rubric">Examples</p>
 <p>Make a standalone function broadcast along the <code class="docutils literal notranslate"><span class="pre">&quot;space&quot;</span></code> axis of an
 <code class="docutils literal notranslate"><span class="pre">xarray.DataArray</span></code>.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@make_broadcastable</span><span class="p">(</span><span class="n">is_classmethod</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">only_broadcast_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nd">@make_broadcastable</span><span class="p">(</span><span class="n">is_classmethod</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">only_broadcast_along</span><span class="o">=</span><span class="s2">"space"</span><span class="p">)</span>
 <span class="gp">... </span><span class="k">def</span><span class="w"> </span><span class="nf">my_function</span><span class="p">(</span><span class="n">xyz_data</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 <span class="gp">...</span>
 <span class="gp">... </span><span class="c1"># Call via the usual arguments, replacing the xyz_data argument with</span>
@@ -755,7 +755,7 @@ of <code class="docutils literal notranslate"><span class="pre">f</span></code> 
 <span class="gp">... </span>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor</span> <span class="o">*</span> <span class="nb">sum</span><span class="p">(</span><span class="n">xyz_values</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">(</span><span class="n">factor</span><span class="o">=</span><span class="mf">5.9</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m</span><span class="o">.</span><span class="n">manipulate_values</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">data_array</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">broadcast_dimension</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="gp">... </span>    <span class="n">data_array</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">broadcast_dimension</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
 </div>

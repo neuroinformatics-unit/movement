@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -710,10 +710,10 @@ a <code class="docutils literal notranslate"><span class="pre">movement</span></
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.sample_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_dataset</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_poses</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pynwb</span><span class="w"> </span><span class="kn">import</span> <span class="n">NWBHDF5IO</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">fetch_dataset</span><span class="p">(</span><span class="s2">&quot;DLC_two-mice.predictions.csv&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">fetch_dataset</span><span class="p">(</span><span class="s2">"DLC_two-mice.predictions.csv"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">nwb_files</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="k">with</span> <span class="n">NWBHDF5IO</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">.nwb&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">io</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">with</span> <span class="n">NWBHDF5IO</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">.nwb"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">io</span><span class="p">:</span>
 <span class="gp">... </span>        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -724,9 +724,9 @@ via the <a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.ht
 object.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io.nwb</span><span class="w"> </span><span class="kn">import</span> <span class="n">NWBFileSaveConfig</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">NWBFileSaveConfig</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">nwbfile_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;session_description&quot;</span><span class="p">:</span> <span class="s2">&quot;test session&quot;</span><span class="p">},</span>
-<span class="gp">... </span>    <span class="n">processing_module_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;processed behav data&quot;</span><span class="p">},</span>
-<span class="gp">... </span>    <span class="n">subject_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="s2">&quot;P90D&quot;</span><span class="p">,</span> <span class="s2">&quot;species&quot;</span><span class="p">:</span> <span class="s2">&quot;Mus musculus&quot;</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="n">nwbfile_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"session_description"</span><span class="p">:</span> <span class="s2">"test session"</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="n">processing_module_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"description"</span><span class="p">:</span> <span class="s2">"processed behav data"</span><span class="p">},</span>
+<span class="gp">... </span>    <span class="n">subject_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="s2">"P90D"</span><span class="p">,</span> <span class="s2">"species"</span><span class="p">:</span> <span class="s2">"Mus musculus"</span><span class="p">},</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </pre></div>
@@ -736,18 +736,18 @@ and <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/p
 (e.g. <code class="docutils literal notranslate"><span class="pre">individual1</span></code>, <code class="docutils literal notranslate"><span class="pre">individual2</span></code>) in the dataset:</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">NWBFileSaveConfig</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">nwbfile_kwargs</span><span class="o">=</span><span class="p">{</span>
-<span class="gp">... </span>        <span class="s2">&quot;individual1&quot;</span><span class="p">:</span> <span class="p">{</span>
-<span class="gp">... </span>            <span class="s2">&quot;experimenter&quot;</span><span class="p">:</span> <span class="s2">&quot;experimenter1&quot;</span><span class="p">,</span>
-<span class="gp">... </span>            <span class="s2">&quot;session_description&quot;</span><span class="p">:</span> <span class="s2">&quot;subj1 session&quot;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">"individual1"</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>            <span class="s2">"experimenter"</span><span class="p">:</span> <span class="s2">"experimenter1"</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="s2">"session_description"</span><span class="p">:</span> <span class="s2">"subj1 session"</span><span class="p">,</span>
 <span class="gp">... </span>        <span class="p">},</span>
-<span class="gp">... </span>        <span class="s2">&quot;individual2&quot;</span><span class="p">:</span> <span class="p">{</span>
-<span class="gp">... </span>            <span class="s2">&quot;experimenter&quot;</span><span class="p">:</span> <span class="s2">&quot;experimenter2&quot;</span><span class="p">,</span>
-<span class="gp">... </span>            <span class="s2">&quot;session_description&quot;</span><span class="p">:</span> <span class="s2">&quot;subj2 session&quot;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">"individual2"</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>            <span class="s2">"experimenter"</span><span class="p">:</span> <span class="s2">"experimenter2"</span><span class="p">,</span>
+<span class="gp">... </span>            <span class="s2">"session_description"</span><span class="p">:</span> <span class="s2">"subj2 session"</span><span class="p">,</span>
 <span class="gp">... </span>        <span class="p">},</span>
 <span class="gp">... </span>    <span class="p">},</span>
 <span class="gp">... </span>    <span class="n">subject_kwargs</span><span class="o">=</span><span class="p">{</span>
-<span class="gp">... </span>        <span class="s2">&quot;individual1&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="s2">&quot;P90D&quot;</span><span class="p">,</span> <span class="s2">&quot;sex&quot;</span><span class="p">:</span> <span class="s2">&quot;M&quot;</span><span class="p">},</span>
-<span class="gp">... </span>        <span class="s2">&quot;individual2&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="s2">&quot;P91D&quot;</span><span class="p">,</span> <span class="s2">&quot;sex&quot;</span><span class="p">:</span> <span class="s2">&quot;F&quot;</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="s2">"individual1"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="s2">"P90D"</span><span class="p">,</span> <span class="s2">"sex"</span><span class="p">:</span> <span class="s2">"M"</span><span class="p">},</span>
+<span class="gp">... </span>        <span class="s2">"individual2"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="s2">"P91D"</span><span class="p">,</span> <span class="s2">"sex"</span><span class="p">:</span> <span class="s2">"F"</span><span class="p">},</span>
 <span class="gp">... </span>    <span class="p">},</span>
 <span class="gp">... </span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
@@ -757,11 +757,11 @@ and <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/p
 metadata for different keypoints (e.g. <code class="docutils literal notranslate"><span class="pre">leftear</span></code>, <code class="docutils literal notranslate"><span class="pre">rightear</span></code>):</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">NWBFileSaveConfig</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">pose_estimation_series_kwargs</span><span class="o">=</span><span class="p">{</span>
-<span class="gp">... </span>        <span class="s2">&quot;leftear&quot;</span><span class="p">:</span> <span class="p">{</span>
-<span class="gp">... </span>            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;left ear&quot;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">"leftear"</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>            <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"left ear"</span><span class="p">,</span>
 <span class="gp">... </span>        <span class="p">},</span>
-<span class="gp">... </span>        <span class="s2">&quot;rightear&quot;</span><span class="p">:</span> <span class="p">{</span>
-<span class="gp">... </span>            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;right ear&quot;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="s2">"rightear"</span><span class="p">:</span> <span class="p">{</span>
+<span class="gp">... </span>            <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"right ear"</span><span class="p">,</span>
 <span class="gp">... </span>        <span class="p">},</span>
 <span class="gp">... </span>    <span class="p">},</span>
 <span class="gp">... </span><span class="p">)</span>

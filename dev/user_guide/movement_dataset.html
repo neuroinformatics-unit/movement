@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -534,7 +534,7 @@ Poses dataset</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
 
 <span class="n">ds</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset</span><span class="p">(</span>
-    <span class="s2">&quot;SLEAP_three-mice_Aeon_proofread.analysis.h5&quot;</span><span class="p">,</span>
+    <span class="s2">"SLEAP_three-mice_Aeon_proofread.analysis.h5"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 </pre></div>
@@ -544,9 +544,9 @@ Poses dataset</label><div class="sd-tab-content docutils">
 <span class="n">Dimensions</span><span class="p">:</span>      <span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="mi">601</span><span class="p">,</span> <span class="n">space</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="n">keypoint</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="n">individual</span><span class="p">:</span> <span class="mi">3</span><span class="p">)</span>
 <span class="n">Coordinates</span><span class="p">:</span>
   <span class="o">*</span> <span class="n">time</span>         <span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">5</span><span class="n">kB</span> <span class="mf">0.0</span> <span class="mf">0.02</span> <span class="mf">0.04</span> <span class="mf">0.06</span> <span class="o">...</span> <span class="mf">11.96</span> <span class="mf">11.98</span> <span class="mf">12.0</span>
-  <span class="o">*</span> <span class="n">space</span>        <span class="p">(</span><span class="n">space</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U1</span> <span class="mi">8</span><span class="n">B</span> <span class="s1">&#39;x&#39;</span> <span class="s1">&#39;y&#39;</span>
-  <span class="o">*</span> <span class="n">keypoint</span>     <span class="p">(</span><span class="n">keypoint</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U8</span> <span class="mi">32</span><span class="n">B</span> <span class="s1">&#39;centroid&#39;</span>
-  <span class="o">*</span> <span class="n">individual</span>   <span class="p">(</span><span class="n">individual</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U10</span> <span class="mi">120</span><span class="n">B</span> <span class="s1">&#39;AEON3B_NTP&#39;</span> <span class="s1">&#39;AEON3B_TP1&#39;</span> <span class="s1">&#39;AEON3B_TP2&#39;</span>
+  <span class="o">*</span> <span class="n">space</span>        <span class="p">(</span><span class="n">space</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U1</span> <span class="mi">8</span><span class="n">B</span> <span class="s1">'x'</span> <span class="s1">'y'</span>
+  <span class="o">*</span> <span class="n">keypoint</span>     <span class="p">(</span><span class="n">keypoint</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U8</span> <span class="mi">32</span><span class="n">B</span> <span class="s1">'centroid'</span>
+  <span class="o">*</span> <span class="n">individual</span>   <span class="p">(</span><span class="n">individual</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U10</span> <span class="mi">120</span><span class="n">B</span> <span class="s1">'AEON3B_NTP'</span> <span class="s1">'AEON3B_TP1'</span> <span class="s1">'AEON3B_TP2'</span>
 <span class="n">Data</span> <span class="n">variables</span><span class="p">:</span>
     <span class="n">position</span>     <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">keypoint</span><span class="p">,</span> <span class="n">individual</span><span class="p">)</span> <span class="n">float32</span> <span class="mi">14</span><span class="n">kB</span> <span class="mf">770.3</span> <span class="o">......</span>
     <span class="n">confidence</span>   <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">keypoint</span><span class="p">,</span> <span class="n">individual</span><span class="p">)</span> <span class="n">float32</span> <span class="mi">7</span><span class="n">kB</span> <span class="n">nan</span> <span class="n">nan</span> <span class="o">...</span> <span class="n">nan</span> <span class="n">nan</span>
@@ -567,7 +567,7 @@ Bounding boxes dataset</label><div class="sd-tab-content docutils">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
 
 <span class="n">ds</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset</span><span class="p">(</span>
-    <span class="s2">&quot;VIA_multiple-crabs_5-frames_labels.csv&quot;</span><span class="p">,</span>
+    <span class="s2">"VIA_multiple-crabs_5-frames_labels.csv"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 </pre></div>
@@ -577,8 +577,8 @@ Bounding boxes dataset</label><div class="sd-tab-content docutils">
 <span class="n">Dimensions</span><span class="p">:</span>      <span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="n">space</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="n">individual</span><span class="p">:</span> <span class="mi">86</span><span class="p">)</span>
 <span class="n">Coordinates</span><span class="p">:</span>
   <span class="o">*</span> <span class="n">time</span>         <span class="p">(</span><span class="n">time</span><span class="p">)</span> <span class="n">int64</span> <span class="mi">40</span><span class="n">B</span> <span class="mi">0</span> <span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span>
-  <span class="o">*</span> <span class="n">space</span>        <span class="p">(</span><span class="n">space</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U1</span> <span class="mi">8</span><span class="n">B</span> <span class="s1">&#39;x&#39;</span> <span class="s1">&#39;y&#39;</span>
-  <span class="o">*</span> <span class="n">individual</span>   <span class="p">(</span><span class="n">individual</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U5</span> <span class="mi">2</span><span class="n">kB</span> <span class="s1">&#39;id_1&#39;</span> <span class="s1">&#39;id_2&#39;</span> <span class="s1">&#39;id_3&#39;</span> <span class="o">...</span> <span class="s1">&#39;id_89&#39;</span> <span class="s1">&#39;id_90&#39;</span>
+  <span class="o">*</span> <span class="n">space</span>        <span class="p">(</span><span class="n">space</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U1</span> <span class="mi">8</span><span class="n">B</span> <span class="s1">'x'</span> <span class="s1">'y'</span>
+  <span class="o">*</span> <span class="n">individual</span>   <span class="p">(</span><span class="n">individual</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">U5</span> <span class="mi">2</span><span class="n">kB</span> <span class="s1">'id_1'</span> <span class="s1">'id_2'</span> <span class="s1">'id_3'</span> <span class="o">...</span> <span class="s1">'id_89'</span> <span class="s1">'id_90'</span>
 <span class="n">Data</span> <span class="n">variables</span><span class="p">:</span>
     <span class="n">position</span>     <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">individual</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">7</span><span class="n">kB</span> <span class="mf">901.8</span> <span class="o">...</span> <span class="mf">923.3</span>
     <span class="n">shape</span>        <span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">space</span><span class="p">,</span> <span class="n">individual</span><span class="p">)</span> <span class="n">float64</span> <span class="mi">7</span><span class="n">kB</span> <span class="mf">60.0</span> <span class="mf">30.0</span> <span class="o">...</span> <span class="mf">72.0</span> <span class="mf">36.0</span>
@@ -695,7 +695,7 @@ their values are of <a class="reference internal" href="#target-attrs-data-type-
 For example, if you would like to record the frame of the full video at which
 the loaded tracking data starts, you could add a <code class="docutils literal notranslate"><span class="pre">frame_offset</span></code> variable
 to the attributes of the dataset:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;frame_offset&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">142</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"frame_offset"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">142</span>
 </pre></div>
 </div>
 </section>
@@ -723,22 +723,22 @@ data:</p>
 <span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
 
 <span class="c1"># select specific individuals or keypoints</span>
-<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individual</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span> <span class="s2">&quot;individual2&quot;</span><span class="p">])</span>
-<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span><span class="p">)</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">individual</span><span class="o">=</span><span class="p">[</span><span class="s2">"individual1"</span><span class="p">,</span> <span class="s2">"individual2"</span><span class="p">])</span>
+<span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="s2">"snout"</span><span class="p">)</span>
 
 <span class="c1"># combine selections</span>
 <span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
     <span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
-    <span class="n">individual</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span> <span class="s2">&quot;individual2&quot;</span><span class="p">],</span>
-    <span class="n">keypoint</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span>
+    <span class="n">individual</span><span class="o">=</span><span class="p">[</span><span class="s2">"individual1"</span><span class="p">,</span> <span class="s2">"individual2"</span><span class="p">],</span>
+    <span class="n">keypoint</span><span class="o">=</span><span class="s2">"snout"</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>The same selections can be applied to the <strong>data variables</strong> inside a dataset. In that case the selection operations will
 return an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> rather than an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">position</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
-    <span class="n">individual</span><span class="o">=</span><span class="s2">&quot;individual1&quot;</span><span class="p">,</span>
-    <span class="n">keypoint</span><span class="o">=</span><span class="s2">&quot;snout&quot;</span>
+    <span class="n">individual</span><span class="o">=</span><span class="s2">"individual1"</span><span class="p">,</span>
+    <span class="n">keypoint</span><span class="o">=</span><span class="s2">"snout"</span>
 <span class="p">)</span>  <span class="c1"># the output is a data array</span>
 </pre></div>
 </div>
@@ -754,10 +754,10 @@ points and store the results within the same dataset, for convenience.</p>
 <span class="c1"># compute velocity from position</span>
 <span class="n">velocity</span> <span class="o">=</span> <span class="n">compute_velocity</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
 <span class="c1"># add it to the dataset as a new data variable</span>
-<span class="n">ds</span><span class="p">[</span><span class="s2">&quot;velocity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">velocity</span>
+<span class="n">ds</span><span class="p">[</span><span class="s2">"velocity"</span><span class="p">]</span> <span class="o">=</span> <span class="n">velocity</span>
 
 <span class="c1"># we could have also done both steps in a single line</span>
-<span class="n">ds</span><span class="p">[</span><span class="s2">&quot;velocity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_velocity</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+<span class="n">ds</span><span class="p">[</span><span class="s2">"velocity"</span><span class="p">]</span> <span class="o">=</span> <span class="n">compute_velocity</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
 
 <span class="c1"># we can now access velocity like any other data variable</span>
 <span class="n">ds</span><span class="o">.</span><span class="n">velocity</span>
@@ -768,11 +768,11 @@ with the same <strong>dimensions</strong> as the original <code class="docutils 
 so adding it to the existing <code class="docutils literal notranslate"><span class="pre">ds</span></code> makes sense and works seamlessly.</p>
 <p>We can also update existing <strong>data variables</strong> in-place, using <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="(in xarray v2026.7.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.update()</span></code></a>. For example, if we wanted to update the <code class="docutils literal notranslate"><span class="pre">position</span></code>
 and <code class="docutils literal notranslate"><span class="pre">velocity</span></code> arrays in our dataset, we could do:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="n">position_filtered</span><span class="p">,</span> <span class="s2">&quot;velocity&quot;</span><span class="p">:</span> <span class="n">velocity_filtered</span><span class="p">})</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">"position"</span><span class="p">:</span> <span class="n">position_filtered</span><span class="p">,</span> <span class="s2">"velocity"</span><span class="p">:</span> <span class="n">velocity_filtered</span><span class="p">})</span>
 </pre></div>
 </div>
 <p>Custom <strong>attributes</strong> can be added to the dataset with:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;my_custom_attribute&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;my_custom_value&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"my_custom_attribute"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"my_custom_value"</span>
 
 <span class="c1"># we can now access this value using dot notation on the dataset</span>
 <span class="n">ds</span><span class="o">.</span><span class="n">my_custom_attribute</span>

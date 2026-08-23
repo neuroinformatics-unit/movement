@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,12 +477,12 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.kinematics.path</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Compute metrics related to the length, straightness and complexity of paths.</span>
+<span></span><span class="sd">"""Compute metrics related to the length, straightness and complexity of paths.</span>
 
-<span class="sd">By &#39;path&#39; we refer to the spatial trajectory of an individual over the</span>
+<span class="sd">By 'path' we refer to the spatial trajectory of an individual over the</span>
 <span class="sd">time span of the data. While these metrics can be computed based on any</span>
 <span class="sd">set of keypoints, they are most meaningful when applied to a single</span>
-<span class="sd">keypoint representing the individual&#39;s overall position (e.g., centroid).</span>
+<span class="sd">keypoint representing the individual's overall position (e.g., centroid).</span>
 
 <span class="sd">When adding a new path metric, follow this convention for the</span>
 <span class="sd">``nan_warn_threshold`` parameter: expose it only if the metric returns a</span>
@@ -493,7 +493,7 @@
 <span class="sd">time-varying quantity (e.g. ``compute_directional_change`` and</span>
 <span class="sd">``compute_path_deviation``), where missing values remain visible per</span>
 <span class="sd">time step and propagate on their own.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
@@ -512,10 +512,10 @@
 <a class="viewcode-back" href="../../../api/movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_path_length</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">nan_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;ffill&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ffill&quot;</span><span class="p">,</span>
+    <span class="n">nan_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"ffill"</span><span class="p">,</span> <span class="s2">"scale"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"ffill"</span><span class="p">,</span>
     <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the length of a path travelled.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Compute the length of a path travelled.</span>
 
 <span class="sd">    The path length is defined as the sum of the norms (magnitudes) of the</span>
 <span class="sd">    displacement vectors between consecutive time points in the data.</span>
@@ -526,8 +526,8 @@
 <span class="sd">        The input data containing position information, with ``time``</span>
 <span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
 <span class="sd">    nan_policy</span>
-<span class="sd">        Policy to handle NaN (missing) values. Can be one of the ``&quot;ffill&quot;``</span>
-<span class="sd">        or ``&quot;scale&quot;``. Defaults to ``&quot;ffill&quot;`` (forward fill).</span>
+<span class="sd">        Policy to handle NaN (missing) values. Can be one of the ``"ffill"``</span>
+<span class="sd">        or ``"scale"``. Defaults to ``"ffill"`` (forward fill).</span>
 <span class="sd">        See Notes for more details on the two policies.</span>
 <span class="sd">    nan_warn_threshold</span>
 <span class="sd">        If any point track in the data has at least (:math:`\ge`)</span>
@@ -543,7 +543,7 @@
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    Choosing ``nan_policy=&quot;ffill&quot;`` will use :meth:`xarray.DataArray.ffill`</span>
+<span class="sd">    Choosing ``nan_policy="ffill"`` will use :meth:`xarray.DataArray.ffill`</span>
 <span class="sd">    to forward-fill missing segments (NaN values) across time.</span>
 <span class="sd">    This equates to assuming that a track remains stationary for</span>
 <span class="sd">    the duration of the missing segment and then instantaneously moves to</span>
@@ -551,14 +551,14 @@
 <span class="sd">    to underestimate the path length, and the error increases with the number</span>
 <span class="sd">    of missing values.</span>
 
-<span class="sd">    Choosing ``nan_policy=&quot;scale&quot;`` will adjust the path length based on the</span>
+<span class="sd">    Choosing ``nan_policy="scale"`` will adjust the path length based on the</span>
 <span class="sd">    the proportion of valid segments per point track. For example, if only</span>
 <span class="sd">    80% of segments are present, the path length will be computed based on</span>
 <span class="sd">    these and the result will be divided by 0.8. This approach assumes</span>
 <span class="sd">    that motion dynamics are similar across observed and missing time</span>
 <span class="sd">    segments, which may not accurately reflect actual conditions.</span>
 
-<span class="sd">    **Sampling rate sensitivity (&#39;coastline paradox&#39;):**</span>
+<span class="sd">    **Sampling rate sensitivity ('coastline paradox'):**</span>
 <span class="sd">    The measured path length is sensitive to the temporal sampling rate</span>
 <span class="sd">    (i.e., frames per second) of the tracking data. Higher sampling rates</span>
 <span class="sd">    capture finer micro-movements and tracking jitter, which inherently</span>
@@ -577,7 +577,7 @@
 <span class="sd">    Compute the path length from the centroid trajectory of a poses</span>
 <span class="sd">    dataset ``ds``:</span>
 
-<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoint&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim="keypoint")</span>
 <span class="sd">    &gt;&gt;&gt; length = compute_path_length(centroid)</span>
 
 <span class="sd">    Compute path length over a specific time window:</span>
@@ -586,10 +586,10 @@
 
 <span class="sd">    Use the scale policy to handle missing values:</span>
 
-<span class="sd">    &gt;&gt;&gt; length = compute_path_length(centroid, nan_policy=&quot;scale&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; length = compute_path_length(centroid, nan_policy="scale")</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;path length&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"path length"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">_path_length</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nan_policy</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">)</span></div>
 
 
@@ -598,10 +598,10 @@
 <a class="viewcode-back" href="../../../api/movement.kinematics.compute_path_straightness.html#movement.kinematics.compute_path_straightness">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_path_straightness</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">nan_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;ffill&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;ffill&quot;</span><span class="p">,</span>
+    <span class="n">nan_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"ffill"</span><span class="p">,</span> <span class="s2">"scale"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"ffill"</span><span class="p">,</span>
     <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the straightness index of a path :math:`(D/L)`.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Compute the straightness index of a path :math:`(D/L)`.</span>
 
 <span class="sd">    The straightness index is the ratio of the Euclidean distance :math:`D`</span>
 <span class="sd">    between the first and last valid positions of a trajectory to the</span>
@@ -616,7 +616,7 @@
 <span class="sd">        and ``space`` (in Cartesian coordinates) as required dimensions.</span>
 <span class="sd">    nan_policy</span>
 <span class="sd">        Policy to handle NaN (missing) values for the path length computation.</span>
-<span class="sd">        Can be one of ``&quot;ffill&quot;`` or ``&quot;scale&quot;``. Defaults to ``&quot;ffill&quot;``</span>
+<span class="sd">        Can be one of ``"ffill"`` or ``"scale"``. Defaults to ``"ffill"``</span>
 <span class="sd">        (forward fill). See :func:`compute_path_length` for more details on</span>
 <span class="sd">        the two policies.</span>
 <span class="sd">    nan_warn_threshold</span>
@@ -633,8 +633,8 @@
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    The Euclidean distance :math:`D`, also known as the &quot;straight-line&quot; or</span>
-<span class="sd">    &quot;beeline&quot; distance, is calculated using the first and last valid (non-NaN)</span>
+<span class="sd">    The Euclidean distance :math:`D`, also known as the "straight-line" or</span>
+<span class="sd">    "beeline" distance, is calculated using the first and last valid (non-NaN)</span>
 <span class="sd">    spatial coordinates in the data. This ensures that missing data at the</span>
 <span class="sd">    first or last time points do not nullify the result, provided there are</span>
 <span class="sd">    valid observed positions in between.</span>
@@ -661,20 +661,20 @@
 <span class="sd">    Compute the straightness index from the centroid trajectory of a</span>
 <span class="sd">    poses dataset ``ds``:</span>
 
-<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoint&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim="keypoint")</span>
 <span class="sd">    &gt;&gt;&gt; si = compute_path_straightness(centroid)</span>
 
 <span class="sd">    Compute straightness over a specific time window:</span>
 
 <span class="sd">    &gt;&gt;&gt; si = compute_path_straightness(centroid.sel(time=slice(0, 100)))</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;path straightness&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"path straightness"</span><span class="p">)</span>
     <span class="n">path_length</span> <span class="o">=</span> <span class="n">_path_length</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nan_policy</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">)</span>
     <span class="c1"># Compute D/L ratio, avoiding division by zero</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">_path_distance</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">/</span> <span class="n">path_length</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">path_length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;straightness_index&quot;</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Path Straightness Index&quot;</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"straightness_index"</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"long_name"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Path Straightness Index"</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
 
@@ -686,7 +686,7 @@
     <span class="n">in_degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">min_step_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the turning angles between consecutive steps in a path.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Compute the turning angles between consecutive steps in a path.</span>
 
 <span class="sd">    The turning angle at time ``t`` is the :func:`signed angle\</span>
 <span class="sd">    &lt;movement.utils.vector.compute_signed_angle_2d&gt;` between two</span>
@@ -701,7 +701,7 @@
 <span class="sd">    data</span>
 <span class="sd">        The input position data. Must contain ``time`` and ``space``</span>
 <span class="sd">        dimensions. The ``space`` dimension must contain exactly the</span>
-<span class="sd">        coordinates ``[&quot;x&quot;, &quot;y&quot;]`` (2D spatial data only).</span>
+<span class="sd">        coordinates ``["x", "y"]`` (2D spatial data only).</span>
 <span class="sd">    in_degrees</span>
 <span class="sd">        If ``True``, return turning angles in degrees. Default is</span>
 <span class="sd">        ``False`` (radians).</span>
@@ -734,7 +734,7 @@
 <span class="sd">       (``min_step_length=0.0``), these tiny, noisy movements will</span>
 <span class="sd">       produce spurious, meaningless turning angles. It is highly</span>
 <span class="sd">       recommended to set ``min_step_length`` to an appropriate threshold</span>
-<span class="sd">       based on the tracking resolution and the animal&#39;s size in the scene.</span>
+<span class="sd">       based on the tracking resolution and the animal's size in the scene.</span>
 <span class="sd">       The value should be in the same units as the input position data</span>
 <span class="sd">       (e.g. pixels, mm, etc.). Pre-smoothing the trajectory</span>
 <span class="sd">       can also help reduce positional jitter.</span>
@@ -760,7 +760,7 @@
 <span class="sd">    Compute turning angles from the centroid trajectory of a poses</span>
 <span class="sd">    dataset ``ds``:</span>
 
-<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoint&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim="keypoint")</span>
 <span class="sd">    &gt;&gt;&gt; angles = compute_turning_angle(centroid)</span>
 
 <span class="sd">    Compute in degrees, with a minimum step length of 3 pixels to filter out</span>
@@ -770,9 +770,9 @@
 <span class="sd">    ...     centroid, in_degrees=True, min_step_length=3</span>
 <span class="sd">    ... )</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">validate_dims_coords</span><span class="p">(</span>
-        <span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">]},</span> <span class="n">exact_coords</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"space"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">]},</span> <span class="n">exact_coords</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
 
     <span class="c1"># Displacement arriving at each time step t.</span>
@@ -788,13 +788,13 @@
     <span class="p">)</span>
     <span class="n">turning</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">invalid_steps</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">turning</span><span class="p">)</span>
 
-    <span class="n">turning</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;radians&quot;</span>
+    <span class="n">turning</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"radians"</span>
 
     <span class="k">if</span> <span class="n">in_degrees</span><span class="p">:</span>
         <span class="n">turning</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">turning</span><span class="p">)</span>
-        <span class="n">turning</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;degrees&quot;</span>
+        <span class="n">turning</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"degrees"</span>
 
-    <span class="n">turning</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;turning_angle&quot;</span>
+    <span class="n">turning</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"turning_angle"</span>
 
     <span class="k">return</span> <span class="n">turning</span></div>
 
@@ -806,7 +806,7 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the sinuosity of a path.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Compute the sinuosity of a path.</span>
 
 <span class="sd">    Sinuosity (S) quantifies the tortuosity of a path by combining</span>
 <span class="sd">    turning angle statistics with step-length variability. Higher</span>
@@ -871,7 +871,7 @@
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
 <span class="sd">    .. [1] Benhamou, S. (2004). How to reliably estimate the tortuosity</span>
-<span class="sd">       of an animal&#39;s path: straightness, sinuosity, or fractal dimension?</span>
+<span class="sd">       of an animal's path: straightness, sinuosity, or fractal dimension?</span>
 <span class="sd">       *Journal of Theoretical Biology*, 229(2), 209-220.</span>
 <span class="sd">       https://doi.org/10.1016/j.jtbi.2004.03.016</span>
 
@@ -881,16 +881,16 @@
 
 <span class="sd">    Compute sinuosity for the centroid trajectory of a poses dataset ``ds``:</span>
 
-<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoint&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim="keypoint")</span>
 <span class="sd">    &gt;&gt;&gt; sinuosity = compute_path_sinuosity(centroid)</span>
 
 <span class="sd">    Compute sinuosity over a specific time window:</span>
 
 <span class="sd">    &gt;&gt;&gt; sinuosity = compute_path_sinuosity(centroid.sel(time=slice(0, 100)))</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span>
-        <span class="n">data</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;path sinuosity&quot;</span><span class="p">,</span> <span class="n">min_points</span><span class="o">=</span><span class="mi">3</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">"path sinuosity"</span><span class="p">,</span> <span class="n">min_points</span><span class="o">=</span><span class="mi">3</span>
     <span class="p">)</span>
 
     <span class="n">_warn_about_nan_proportion</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">)</span>
@@ -899,10 +899,10 @@
     <span class="n">theta</span> <span class="o">=</span> <span class="n">compute_turning_angle</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
     <span class="c1"># Summary statistics (NaN-aware)</span>
-    <span class="n">mean_step_length</span> <span class="o">=</span> <span class="n">step_lengths</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">mean_cosine</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mean_step_length</span> <span class="o">=</span> <span class="n">step_lengths</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mean_cosine</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">step_length_cv</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">step_lengths</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">/</span> <span class="n">mean_step_length</span>
+        <span class="n">step_lengths</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">/</span> <span class="n">mean_step_length</span>
     <span class="p">)</span>
 
     <span class="c1"># Benhamou 2004 Eq. 8</span>
@@ -911,8 +911,8 @@
         <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">mean_step_length</span> <span class="o">*</span> <span class="p">(</span><span class="n">angular_term</span> <span class="o">+</span> <span class="n">step_length_cv</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span> <span class="o">**</span> <span class="o">-</span><span class="mf">0.5</span>
     <span class="p">)</span>
 
-    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;sinuosity&quot;</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Path Sinuosity&quot;</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"sinuosity"</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"long_name"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Path Sinuosity"</span>
 
     <span class="k">return</span> <span class="n">result</span></div>
 
@@ -925,7 +925,7 @@
     <span class="n">in_degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">min_step_length</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the directional change (DC) per time step.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Compute the directional change (DC) per time step.</span>
 
 <span class="sd">    The directional change at step :math:`i` is the absolute turning</span>
 <span class="sd">    angle divided by the temporal interval spanning the two steps that</span>
@@ -990,7 +990,7 @@
 <span class="sd">    Compute directional change from the centroid trajectory of a</span>
 <span class="sd">    poses dataset ``ds``:</span>
 
-<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoint&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim="keypoint")</span>
 <span class="sd">    &gt;&gt;&gt; dc = compute_directional_change(centroid)</span>
 
 <span class="sd">    Compute over a specific time window:</span>
@@ -1001,21 +1001,21 @@
 
 <span class="sd">    &gt;&gt;&gt; dc = compute_directional_change(centroid, min_step_length=3)</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;directional change&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"directional change"</span><span class="p">)</span>
 
     <span class="n">theta</span> <span class="o">=</span> <span class="n">compute_turning_angle</span><span class="p">(</span>
         <span class="n">data</span><span class="p">,</span> <span class="n">in_degrees</span><span class="o">=</span><span class="n">in_degrees</span><span class="p">,</span> <span class="n">min_step_length</span><span class="o">=</span><span class="n">min_step_length</span>
     <span class="p">)</span>
 
-    <span class="n">time_coord</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
+    <span class="n">time_coord</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span>
     <span class="c1"># Span the two steps that define theta_i (positions i-2..i), matching</span>
-    <span class="c1"># compute_turning_angle&#39;s support so DC is correct for non-uniform time.</span>
+    <span class="c1"># compute_turning_angle's support so DC is correct for non-uniform time.</span>
     <span class="n">dt</span> <span class="o">=</span> <span class="n">time_coord</span> <span class="o">-</span> <span class="n">time_coord</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="n">dc</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span>
-    <span class="n">dc</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;directional_change&quot;</span>
-    <span class="n">dc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Directional Change&quot;</span>
+    <span class="n">dc</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"directional_change"</span>
+    <span class="n">dc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"long_name"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Directional Change"</span>
     <span class="k">return</span> <span class="n">dc</span></div>
 
 
@@ -1027,7 +1027,7 @@
     <span class="n">in_spatial_units</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute the maximum expected displacement (:math:`E_{\max}`).</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Compute the maximum expected displacement (:math:`E_{\max}`).</span>
 
 <span class="sd">    :math:`E_{\max}` is a straightness measure that captures the</span>
 <span class="sd">    directional persistence of a path. Intuitively, it is the maximum</span>
@@ -1120,7 +1120,7 @@
 
 <span class="sd">    Compute E_max from the centroid trajectory of a poses dataset ``ds``:</span>
 
-<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoint&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim="keypoint")</span>
 <span class="sd">    &gt;&gt;&gt; emax = compute_path_emax(centroid)</span>
 
 <span class="sd">    Return the dimensionless variant instead:</span>
@@ -1131,23 +1131,23 @@
 
 <span class="sd">    &gt;&gt;&gt; emax = compute_path_emax(centroid.sel(time=slice(0, 100)))</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span>
-        <span class="n">data</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">&quot;maximum expected displacement&quot;</span><span class="p">,</span> <span class="n">min_points</span><span class="o">=</span><span class="mi">3</span>
+        <span class="n">data</span><span class="p">,</span> <span class="n">metric_name</span><span class="o">=</span><span class="s2">"maximum expected displacement"</span><span class="p">,</span> <span class="n">min_points</span><span class="o">=</span><span class="mi">3</span>
     <span class="p">)</span>
 
     <span class="n">_warn_about_nan_proportion</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">)</span>
 
     <span class="n">theta</span> <span class="o">=</span> <span class="n">compute_turning_angle</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">mean_cosine</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mean_cosine</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span> <span class="n">theta</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">emax</span> <span class="o">=</span> <span class="n">mean_cosine</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mean_cosine</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">in_spatial_units</span><span class="p">:</span>
-        <span class="n">emax</span> <span class="o">=</span> <span class="n">emax</span> <span class="o">*</span> <span class="n">_segment_lengths</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">emax</span> <span class="o">=</span> <span class="n">emax</span> <span class="o">*</span> <span class="n">_segment_lengths</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">emax</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;maximum_expected_displacement&quot;</span>
-    <span class="n">emax</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Maximum Expected Displacement&quot;</span>
+    <span class="n">emax</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"maximum_expected_displacement"</span>
+    <span class="n">emax</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"long_name"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Maximum Expected Displacement"</span>
     <span class="k">return</span> <span class="n">emax</span></div>
 
 
@@ -1157,7 +1157,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_path_deviation</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Compute deviation from the straight-line path at each time point.</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">"""Compute deviation from the straight-line path at each time point.</span>
 
 <span class="sd">    For each time point :math:`t`, the path deviation is the perpendicular</span>
 <span class="sd">    (unsigned) distance between the position :math:`P(t)` and the infinite</span>
@@ -1217,23 +1217,23 @@
 <span class="sd">    Compute per-frame path deviation from the centroid trajectory of a</span>
 <span class="sd">    poses dataset ``ds``:</span>
 
-<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim=&quot;keypoint&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; centroid = ds.position.mean(dim="keypoint")</span>
 <span class="sd">    &gt;&gt;&gt; deviation = compute_path_deviation(centroid)</span>
 
 <span class="sd">    Compute the maximum lateral excursion over the trajectory:</span>
 
-<span class="sd">    &gt;&gt;&gt; max_deviation = deviation.max(dim=&quot;time&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; max_deviation = deviation.max(dim="time")</span>
 
 <span class="sd">    Compute the mean deviation over a specific time window:</span>
 
 <span class="sd">    &gt;&gt;&gt; mean_deviation = compute_path_deviation(</span>
 <span class="sd">    ...     centroid.sel(time=slice(10, 50))</span>
-<span class="sd">    ... ).mean(dim=&quot;time&quot;)</span>
+<span class="sd">    ... ).mean(dim="time")</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;path deviation&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_validate_time_points</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"path deviation"</span><span class="p">)</span>
 
-    <span class="n">anchored</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">bfill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="n">anchored</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span><span class="o">.</span><span class="n">bfill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span>
     <span class="n">A</span> <span class="o">=</span> <span class="n">anchored</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">B</span> <span class="o">=</span> <span class="n">anchored</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
 
@@ -1244,30 +1244,30 @@
     <span class="k">if</span> <span class="n">degenerate</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;Path deviation is undefined because the start and end &quot;</span>
-                <span class="s2">&quot;positions are identical for all tracks.&quot;</span>
+                <span class="s2">"Path deviation is undefined because the start and end "</span>
+                <span class="s2">"positions are identical for all tracks."</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">degenerate</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
         <span class="n">stacked</span> <span class="o">=</span> <span class="n">degenerate</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">degenerate</span><span class="o">.</span><span class="n">dims</span><span class="p">))</span>
-        <span class="n">bad_tracks</span> <span class="o">=</span> <span class="n">stacked</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">stacked</span><span class="p">)</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;tracks&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">bad_tracks</span> <span class="o">=</span> <span class="n">stacked</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">stacked</span><span class="p">)</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">"tracks"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;Path deviation is undefined for tracks where the start and end &quot;</span>
-            <span class="s2">&quot;positions are identical. The following tracks will return NaN: &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bad_tracks</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Path deviation is undefined for tracks where the start and end "</span>
+            <span class="s2">"positions are identical. The following tracks will return NaN: "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">bad_tracks</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
             <span class="ne">UserWarning</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="n">chord_unit</span> <span class="o">=</span> <span class="n">chord</span> <span class="o">/</span> <span class="n">chord_length</span>
     <span class="n">p_minus_a</span> <span class="o">=</span> <span class="n">data</span> <span class="o">-</span> <span class="n">A</span>
-    <span class="n">scalar_proj</span> <span class="o">=</span> <span class="p">(</span><span class="n">p_minus_a</span> <span class="o">*</span> <span class="n">chord_unit</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span>
+    <span class="n">scalar_proj</span> <span class="o">=</span> <span class="p">(</span><span class="n">p_minus_a</span> <span class="o">*</span> <span class="n">chord_unit</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"space"</span><span class="p">)</span>
     <span class="n">vector_proj</span> <span class="o">=</span> <span class="n">scalar_proj</span> <span class="o">*</span> <span class="n">chord_unit</span>
     <span class="n">rejection</span> <span class="o">=</span> <span class="n">p_minus_a</span> <span class="o">-</span> <span class="n">vector_proj</span>
 
     <span class="n">deviation</span> <span class="o">=</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">rejection</span><span class="p">)</span>
-    <span class="n">deviation</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;path_deviation&quot;</span>
-    <span class="n">deviation</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Path Deviation&quot;</span>
+    <span class="n">deviation</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"path_deviation"</span>
+    <span class="n">deviation</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"long_name"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Path Deviation"</span>
     <span class="k">return</span> <span class="n">deviation</span></div>
 
 
@@ -1277,7 +1277,7 @@
     <span class="n">metric_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">min_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate dims/coords and require at least ``min_points`` time points.</span>
+<span class="w">    </span><span class="sd">"""Validate dims/coords and require at least ``min_points`` time points.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1294,39 +1294,39 @@
 <span class="sd">    xarray.DataArray</span>
 <span class="sd">        The validated data.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[]})</span>
-    <span class="n">n_time</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
+<span class="sd">    """</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"space"</span><span class="p">:</span> <span class="p">[]})</span>
+    <span class="n">n_time</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">n_time</span> <span class="o">&lt;</span> <span class="n">min_points</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;At least </span><span class="si">{</span><span class="n">min_points</span><span class="si">}</span><span class="s2"> time points are required to compute &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2">, but </span><span class="si">{</span><span class="n">n_time</span><span class="si">}</span><span class="s2"> were found.&quot;</span>
+                <span class="sa">f</span><span class="s2">"At least </span><span class="si">{</span><span class="n">min_points</span><span class="si">}</span><span class="s2"> time points are required to compute "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">metric_name</span><span class="si">}</span><span class="s2">, but </span><span class="si">{</span><span class="n">n_time</span><span class="si">}</span><span class="s2"> were found."</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">data</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_segment_lengths</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute Euclidean distances between consecutive time points.</span>
+<span class="w">    </span><span class="sd">"""Compute Euclidean distances between consecutive time points.</span>
 
 <span class="sd">    The first entry of backward displacement is always zero (no previous</span>
 <span class="sd">    point), so it is dropped before computing the norm.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">segments</span> <span class="o">=</span> <span class="n">compute_backward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_path_distance</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute Euclidean distance between the first and last valid positions.</span>
+<span class="w">    </span><span class="sd">"""Compute Euclidean distance between the first and last valid positions.</span>
 
-<span class="sd">    Also known as the &quot;straight-line&quot; or &quot;beeline&quot; distance.</span>
+<span class="sd">    Also known as the "straight-line" or "beeline" distance.</span>
 <span class="sd">    Uses forward and backward filling along the time dimension to ensure</span>
 <span class="sd">    the distance is calculated between the first and last observed locations,</span>
 <span class="sd">    preventing NaNs at the first or last time points from nullifying the</span>
 <span class="sd">    entire calculation.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">anchored_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">bfill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">anchored_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span><span class="o">.</span><span class="n">bfill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span>
     <span class="n">distance</span> <span class="o">=</span> <span class="n">compute_norm</span><span class="p">(</span>
         <span class="n">anchored_data</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">anchored_data</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="p">)</span>
@@ -1335,39 +1335,39 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_path_length</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">nan_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;ffill&quot;</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">],</span>
+    <span class="n">nan_policy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"ffill"</span><span class="p">,</span> <span class="s2">"scale"</span><span class="p">],</span>
     <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute path length on already-validated data.</span>
+<span class="w">    </span><span class="sd">"""Compute path length on already-validated data.</span>
 
 <span class="sd">    See :func:`compute_path_length` for parameter details.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">_warn_about_nan_proportion</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">nan_policy</span> <span class="o">==</span> <span class="s2">&quot;ffill&quot;</span><span class="p">:</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">_segment_lengths</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
-            <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">1</span>
+    <span class="k">if</span> <span class="n">nan_policy</span> <span class="o">==</span> <span class="s2">"ffill"</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_segment_lengths</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span>
+            <span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">min_count</span><span class="o">=</span><span class="mi">1</span>
         <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">nan_policy</span> <span class="o">==</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">nan_policy</span> <span class="o">==</span> <span class="s2">"scale"</span><span class="p">:</span>
         <span class="n">lengths</span> <span class="o">=</span> <span class="n">_segment_lengths</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="n">valid_segments</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">lengths</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
-        <span class="n">valid_proportion</span> <span class="o">=</span> <span class="n">valid_segments</span> <span class="o">/</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">lengths</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">valid_proportion</span>
+        <span class="n">valid_segments</span> <span class="o">=</span> <span class="p">(</span><span class="o">~</span><span class="n">lengths</span><span class="o">.</span><span class="n">isnull</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span>
+        <span class="n">valid_proportion</span> <span class="o">=</span> <span class="n">valid_segments</span> <span class="o">/</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">lengths</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span> <span class="o">/</span> <span class="n">valid_proportion</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid value for nan_policy: </span><span class="si">{</span><span class="n">nan_policy</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="s2">&quot;Must be one of &#39;ffill&#39; or &#39;scale&#39;.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Invalid value for nan_policy: </span><span class="si">{</span><span class="n">nan_policy</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="s2">"Must be one of 'ffill' or 'scale'."</span>
             <span class="p">)</span>
         <span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;path_length&quot;</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;long_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Path Length&quot;</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"path_length"</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"long_name"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"Path Length"</span>
     <span class="k">return</span> <span class="n">result</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_warn_about_nan_proportion</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">nan_warn_threshold</span><span class="p">:</span> <span class="nb">float</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Issue warning if the proportion of NaN values exceeds a threshold.</span>
+<span class="w">    </span><span class="sd">"""Issue warning if the proportion of NaN values exceeds a threshold.</span>
 
 <span class="sd">    The NaN proportion is evaluated per point track, and a given point is</span>
 <span class="sd">    considered NaN if any of its ``space`` coordinates are NaN. The warning</span>
@@ -1382,25 +1382,25 @@
 <span class="sd">        The threshold for the proportion of NaN values. Must be a number</span>
 <span class="sd">        between 0 and 1.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">nan_warn_threshold</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">nan_warn_threshold</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">nan_warn_threshold</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;nan_warn_threshold must be between 0 and 1.&quot;</span><span class="p">)</span>
+            <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"nan_warn_threshold must be between 0 and 1."</span><span class="p">)</span>
         <span class="p">)</span>
-    <span class="n">n_nans</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
-    <span class="n">exceeds_threshold</span> <span class="o">=</span> <span class="n">n_nans</span> <span class="o">&gt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">nan_warn_threshold</span>
+    <span class="n">n_nans</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"space"</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span>
+    <span class="n">exceeds_threshold</span> <span class="o">=</span> <span class="n">n_nans</span> <span class="o">&gt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span> <span class="o">*</span> <span class="n">nan_warn_threshold</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">exceeds_threshold</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
         <span class="k">return</span>
-    <span class="n">track_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">)]</span>
+    <span class="n">track_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">dims</span> <span class="k">if</span> <span class="n">d</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"space"</span><span class="p">)]</span>
     <span class="n">stacked</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">track_dims</span><span class="p">)</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">exceeds_threshold</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">track_dims</span><span class="p">)</span>
-    <span class="n">data_to_warn_about</span> <span class="o">=</span> <span class="n">stacked</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="s2">&quot;tracks&quot;</span><span class="p">)</span>
+    <span class="n">data_to_warn_about</span> <span class="o">=</span> <span class="n">stacked</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">tracks</span><span class="o">=</span><span class="n">mask</span><span class="p">)</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="s2">"tracks"</span><span class="p">)</span>
     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-        <span class="s2">&quot;The result may be unreliable for point tracks with many &quot;</span>
-        <span class="s2">&quot;missing values. The following tracks have at least &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">nan_warn_threshold</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.3</span><span class="si">}</span><span class="s2"> % NaN values:</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_to_warn_about</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">"The result may be unreliable for point tracks with many "</span>
+        <span class="s2">"missing values. The following tracks have at least "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nan_warn_threshold</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.3</span><span class="si">}</span><span class="s2"> % NaN values:</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_to_warn_about</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
         <span class="ne">UserWarning</span><span class="p">,</span>
         <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
     <span class="p">)</span>

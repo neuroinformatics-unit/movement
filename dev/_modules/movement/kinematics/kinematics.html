@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,16 +477,16 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.kinematics.kinematics</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Compute core kinematic variables such as time derivatives of position.</span>
+<span></span><span class="sd">"""Compute core kinematic variables such as time derivatives of position.</span>
 
 <span class="sd">This module provides functions for computing fundamental kinematic properties</span>
 <span class="sd">such as forward &amp; backward displacement, velocity, acceleration, and speed.</span>
 <span class="sd">The ``movement.kinematics`` subpackage encompasses a broader range of</span>
 <span class="sd">functionality (e.g., orientations and distances ), but this file is</span>
-<span class="sd">intended to isolate &#39;true&#39; kinematics for clarity. In a future release, the</span>
+<span class="sd">intended to isolate 'true' kinematics for clarity. In a future release, the</span>
 <span class="sd">public API may be revised to reflect this distinction more explicitly.</span>
 
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
@@ -498,7 +498,7 @@
 <div class="viewcode-block" id="compute_time_derivative">
 <a class="viewcode-back" href="../../../api/movement.kinematics.compute_time_derivative.html#movement.kinematics.compute_time_derivative">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_time_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the time-derivative of an array using numerical differentiation.</span>
+<span class="w">    </span><span class="sd">"""Compute the time-derivative of an array using numerical differentiation.</span>
 
 <span class="sd">    This function uses :meth:`xarray.DataArray.differentiate`,</span>
 <span class="sd">    which differentiates the array with the second-order</span>
@@ -522,30 +522,30 @@
 <span class="sd">    --------</span>
 <span class="sd">    :meth:`xarray.DataArray.differentiate` : The underlying method used.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Order must be an integer, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">order</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Order must be an integer, but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">order</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
         <span class="p">)</span>
     <span class="k">if</span> <span class="n">order</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Order must be a positive integer.&quot;</span><span class="p">))</span>
-    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Order must be a positive integer."</span><span class="p">))</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="p">[]})</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">data</span>
     <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">differentiate</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">differentiate</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_compute_forward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute forward displacement vectors in Cartesian coordinates.</span>
+<span class="w">    </span><span class="sd">"""Compute forward displacement vectors in Cartesian coordinates.</span>
 
 <span class="sd">    The displacement vectors have origin at the position at time t,</span>
 <span class="sd">    pointing to the position at time t+1.</span>
 <span class="sd">    The last vector is of magnitude=0.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[]})</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;lower&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">"space"</span><span class="p">:</span> <span class="p">[]})</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"lower"</span><span class="p">)</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">reindex_like</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span>
 
@@ -553,7 +553,7 @@
 <div class="viewcode-block" id="compute_forward_displacement">
 <a class="viewcode-back" href="../../../api/movement.kinematics.compute_forward_displacement.html#movement.kinematics.compute_forward_displacement">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_forward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute forward displacement array in Cartesian coordinates.</span>
+<span class="w">    </span><span class="sd">"""Compute forward displacement array in Cartesian coordinates.</span>
 
 <span class="sd">    The forward displacement array is defined as the difference between the</span>
 <span class="sd">    position array at time point ``t+1`` and the position array at time point</span>
@@ -589,9 +589,9 @@
 <span class="sd">    ``forward_displacement`` array will hold vectors with the change in width</span>
 <span class="sd">    and height per bounding box, between consecutive time points.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">_compute_forward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;forward_displacement&quot;</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"forward_displacement"</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
 
@@ -599,7 +599,7 @@
 <div class="viewcode-block" id="compute_backward_displacement">
 <a class="viewcode-back" href="../../../api/movement.kinematics.compute_backward_displacement.html#movement.kinematics.compute_backward_displacement">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_backward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute backward displacement array in Cartesian coordinates.</span>
+<span class="w">    </span><span class="sd">"""Compute backward displacement array in Cartesian coordinates.</span>
 
 <span class="sd">    The backward displacement array is defined as the difference between the</span>
 <span class="sd">    position array at time point ``t-1`` and the position array at time point</span>
@@ -635,10 +635,10 @@
 <span class="sd">    ``backward_displacement`` array will hold vectors with the change in width</span>
 <span class="sd">    and height per bounding box, between consecutive time points.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">fwd_displacement</span> <span class="o">=</span> <span class="n">_compute_forward_displacement</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="n">backward_displacement</span> <span class="o">=</span> <span class="o">-</span><span class="n">fwd_displacement</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">backward_displacement</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;backward_displacement&quot;</span>
+    <span class="n">backward_displacement</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"backward_displacement"</span>
     <span class="k">return</span> <span class="n">backward_displacement</span></div>
 
 
@@ -646,7 +646,7 @@
 <div class="viewcode-block" id="compute_velocity">
 <a class="viewcode-back" href="../../../api/movement.kinematics.compute_velocity.html#movement.kinematics.compute_velocity">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_velocity</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute velocity array in Cartesian coordinates.</span>
+<span class="w">    </span><span class="sd">"""Compute velocity array in Cartesian coordinates.</span>
 
 <span class="sd">    The velocity array is the first time-derivative of the position</span>
 <span class="sd">    array. It is computed by applying the second-order accurate central</span>
@@ -677,12 +677,12 @@
 <span class="sd">    --------</span>
 <span class="sd">    compute_time_derivative : The underlying function used.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># validate only presence of Cartesian space dimension</span>
     <span class="c1"># (presence of time dimension will be checked in compute_time_derivative)</span>
-    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">"space"</span><span class="p">:</span> <span class="p">[]})</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">compute_time_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;velocity&quot;</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"velocity"</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
 
@@ -690,7 +690,7 @@
 <div class="viewcode-block" id="compute_acceleration">
 <a class="viewcode-back" href="../../../api/movement.kinematics.compute_acceleration.html#movement.kinematics.compute_acceleration">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_acceleration</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute acceleration array in Cartesian coordinates.</span>
+<span class="w">    </span><span class="sd">"""Compute acceleration array in Cartesian coordinates.</span>
 
 <span class="sd">    The acceleration array is the second time-derivative of the</span>
 <span class="sd">    position array. It is computed by applying the second-order accurate</span>
@@ -722,12 +722,12 @@
 <span class="sd">    --------</span>
 <span class="sd">    compute_time_derivative : The underlying function used.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># validate only presence of Cartesian space dimension</span>
     <span class="c1"># (presence of time dimension will be checked in compute_time_derivative)</span>
-    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="p">[]})</span>
+    <span class="n">validate_dims_coords</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="s2">"space"</span><span class="p">:</span> <span class="p">[]})</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">compute_time_derivative</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;acceleration&quot;</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"acceleration"</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
 
@@ -735,7 +735,7 @@
 <div class="viewcode-block" id="compute_speed">
 <a class="viewcode-back" href="../../../api/movement.kinematics.compute_speed.html#movement.kinematics.compute_speed">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">compute_speed</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute instantaneous speed at each time point.</span>
+<span class="w">    </span><span class="sd">"""Compute instantaneous speed at each time point.</span>
 
 <span class="sd">    Speed is a scalar quantity computed as the Euclidean norm (magnitude)</span>
 <span class="sd">    of the velocity vector at each time point.</span>
@@ -754,9 +754,9 @@
 <span class="sd">        with dimensions matching those of the input data,</span>
 <span class="sd">        except ``space`` is removed.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">compute_norm</span><span class="p">(</span><span class="n">compute_velocity</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;speed&quot;</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"speed"</span>
     <span class="k">return</span> <span class="n">result</span></div>
 
 </pre></div>

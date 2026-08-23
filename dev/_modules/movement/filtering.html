@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.filtering</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Filter and interpolate tracks in ``movement`` datasets.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Filter and interpolate tracks in ``movement`` datasets."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
 
@@ -499,7 +499,7 @@
     <span class="n">keep_points_with_nan_confidence</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop data points below a certain confidence threshold.</span>
+<span class="w">    </span><span class="sd">"""Drop data points below a certain confidence threshold.</span>
 
 <span class="sd">    Data points with an associated confidence value below the threshold are</span>
 <span class="sd">    converted to NaN. Data points with a missing (NaN) confidence value are</span>
@@ -546,14 +546,14 @@
 <span class="sd">    by default. Set ``keep_points_with_nan_confidence=False`` to drop them</span>
 <span class="sd">    instead.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">keep</span> <span class="o">=</span> <span class="n">confidence</span> <span class="o">&gt;=</span> <span class="n">threshold</span>
     <span class="k">if</span> <span class="n">keep_points_with_nan_confidence</span><span class="p">:</span>
         <span class="n">keep</span> <span class="o">=</span> <span class="n">keep</span> <span class="o">|</span> <span class="n">confidence</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span>
     <span class="n">data_filtered</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">keep</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_filtered</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"input"</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_filtered</span><span class="p">,</span> <span class="s2">"output"</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">data_filtered</span></div>
 
 
@@ -563,12 +563,12 @@
 <span class="nd">@log_to_attrs</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">interpolate_over_time</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
-    <span class="n">method</span><span class="p">:</span> <span class="n">InterpOptions</span> <span class="o">=</span> <span class="s2">&quot;linear&quot;</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="n">InterpOptions</span> <span class="o">=</span> <span class="s2">"linear"</span><span class="p">,</span>
     <span class="n">max_gap</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill in NaN values by interpolating over the ``time`` dimension.</span>
+<span class="w">    </span><span class="sd">"""Fill in NaN values by interpolating over the ``time`` dimension.</span>
 
 <span class="sd">    This function calls :meth:`xarray.DataArray.interpolate_na` and can pass</span>
 <span class="sd">    additional keyword arguments to it, depending on the chosen ``method``.</span>
@@ -608,17 +608,17 @@
 <span class="sd">    is defined as the difference between the ``time`` coordinate values</span>
 <span class="sd">    at the first data point after a gap and the last value before a gap.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">data_interpolated</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">interpolate_na</span><span class="p">(</span>
-        <span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span>
+        <span class="n">dim</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span>
         <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
         <span class="n">use_coordinate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">max_gap</span><span class="o">=</span><span class="n">max_gap</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">max_gap</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_interpolated</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"input"</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_interpolated</span><span class="p">,</span> <span class="s2">"output"</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">data_interpolated</span></div>
 
 
@@ -629,11 +629,11 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">rolling_filter</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
     <span class="n">window</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-    <span class="n">statistic</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span>
+    <span class="n">statistic</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"median"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"median"</span><span class="p">,</span>
     <span class="n">min_periods</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a rolling window filter across time.</span>
+<span class="w">    </span><span class="sd">"""Apply a rolling window filter across time.</span>
 
 <span class="sd">    This function uses :meth:`xarray.DataArray.rolling` to apply a rolling</span>
 <span class="sd">    window filter across the ``time`` dimension of the input data and computes</span>
@@ -678,21 +678,21 @@
 <span class="sd">    only when all values in the window are NaN, since 1 non-NaN value</span>
 <span class="sd">    is sufficient to compute the result.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">half_window</span> <span class="o">=</span> <span class="n">window</span> <span class="o">//</span> <span class="mi">2</span>
     <span class="n">data_windows</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>  <span class="c1"># Pad the edges to avoid NaNs</span>
-        <span class="n">time</span><span class="o">=</span><span class="n">half_window</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;reflect&quot;</span>
+        <span class="n">time</span><span class="o">=</span><span class="n">half_window</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"reflect"</span>
     <span class="p">)</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span>  <span class="c1"># Take rolling windows across time</span>
         <span class="n">time</span><span class="o">=</span><span class="n">window</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="n">min_periods</span>
     <span class="p">)</span>
 
     <span class="c1"># Compute the statistic over each window</span>
-    <span class="n">allowed_statistics</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">,</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="s2">&quot;min&quot;</span><span class="p">]</span>
+    <span class="n">allowed_statistics</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"median"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">statistic</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_statistics</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid statistic &#39;</span><span class="si">{</span><span class="n">statistic</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Must be one of </span><span class="si">{</span><span class="n">allowed_statistics</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Invalid statistic '</span><span class="si">{</span><span class="n">statistic</span><span class="si">}</span><span class="s2">'. "</span>
+                <span class="sa">f</span><span class="s2">"Must be one of </span><span class="si">{</span><span class="n">allowed_statistics</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="p">)</span>
 
@@ -703,8 +703,8 @@
 
     <span class="c1"># Optional: Print NaN report</span>
     <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_rolled</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"input"</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_rolled</span><span class="p">,</span> <span class="s2">"output"</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="n">data_rolled</span></div>
 
@@ -720,7 +720,7 @@
     <span class="n">print_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Smooth data by applying a Savitzky-Golay filter over time.</span>
+<span class="w">    </span><span class="sd">"""Smooth data by applying a Savitzky-Golay filter over time.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -763,17 +763,17 @@
 <span class="sd">    :func:`movement.filtering.rolling_filter`, there is no ``min_periods``</span>
 <span class="sd">    option to control this behaviour.</span>
 
-<span class="sd">    The function raises a ``ValueError`` if NaNs are found within the signal&#39;s</span>
+<span class="sd">    The function raises a ``ValueError`` if NaNs are found within the signal's</span>
 <span class="sd">    edge windows. To avoid this, fill any edge NaNs before filtering, or switch</span>
-<span class="sd">    from the default ``mode=&#39;interp&#39;`` to an alternative edge handling</span>
-<span class="sd">    mode (e.g., ``mode=&#39;nearest&#39;`` or ``mode=&#39;mirror&#39;``).</span>
+<span class="sd">    from the default ``mode='interp'`` to an alternative edge handling</span>
+<span class="sd">    mode (e.g., ``mode='nearest'`` or ``mode='mirror'``).</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;axis&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"axis"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The &#39;axis&#39; argument may not be overridden.&quot;</span><span class="p">)</span>
+            <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"The 'axis' argument may not be overridden."</span><span class="p">)</span>
         <span class="p">)</span>
-    <span class="n">time_axis</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get_axis_num</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+    <span class="n">time_axis</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get_axis_num</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
     <span class="n">data_smoothed</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">data_smoothed</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">signal</span><span class="o">.</span><span class="n">savgol_filter</span><span class="p">(</span>
@@ -784,18 +784,18 @@
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;array must not contain infs or NaNs&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">"array must not contain infs or NaNs"</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;mode=&#39;interp&#39; does not support NaNs in edge windows &quot;</span>
-                    <span class="s2">&quot;with SciPy &gt;= 1.17; use mode=&#39;nearest&#39;/&#39;mirror&#39; or &quot;</span>
-                    <span class="s2">&quot;fill edge NaNs before filtering.&quot;</span>
+                    <span class="s2">"mode='interp' does not support NaNs in edge windows "</span>
+                    <span class="s2">"with SciPy &gt;= 1.17; use mode='nearest'/'mirror' or "</span>
+                    <span class="s2">"fill edge NaNs before filtering."</span>
                 <span class="p">)</span>
             <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
         <span class="k">raise</span>  <span class="c1"># Re-raise any other ValueError unchanged</span>
     <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;input&quot;</span><span class="p">))</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_smoothed</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">"input"</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">report_nan_values</span><span class="p">(</span><span class="n">data_smoothed</span><span class="p">,</span> <span class="s2">"output"</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">data_smoothed</span></div>
 
 </pre></div>

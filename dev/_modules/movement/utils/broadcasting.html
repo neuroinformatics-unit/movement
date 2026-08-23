@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.utils.broadcasting</h1><div class="highlight"><pre>
-<span></span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Broadcasting operations across ``xarray.DataArray`` dimensions.</span>
+<span></span><span class="sa">r</span><span class="sd">"""Broadcasting operations across ``xarray.DataArray`` dimensions.</span>
 
 <span class="sd">This module essentially provides an equivalent functionality to</span>
 <span class="sd">:func:`numpy.apply_along_axis`, but for ``xarray.DataArray`` objects.</span>
@@ -518,7 +518,7 @@
 <span class="sd">which will perform the action of ``my_function`` along the ``dimension`` given.</span>
 <span class="sd">The ``*args`` and ``**kwargs`` retain their original interpretations from</span>
 <span class="sd">``my_function`` too.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
@@ -534,9 +534,9 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArrayLike</span>
 
-<span class="n">ScalarOr1D</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;ScalarOr1D&quot;</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">)</span>
-<span class="n">Self</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Self&quot;</span><span class="p">)</span>
-<span class="n">P</span> <span class="o">=</span> <span class="n">ParamSpec</span><span class="p">(</span><span class="s2">&quot;P&quot;</span><span class="p">)</span>
+<span class="n">ScalarOr1D</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"ScalarOr1D"</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">)</span>
+<span class="n">Self</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"Self"</span><span class="p">)</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">ParamSpec</span><span class="p">(</span><span class="s2">"P"</span><span class="p">)</span>
 <span class="nb">type</span> <span class="n">ClsMethod1DTo1D</span><span class="p">[</span><span class="n">_Self</span><span class="p">,</span> <span class="o">**</span><span class="n">_P</span><span class="p">,</span> <span class="n">_S</span><span class="p">:</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">Callable</span><span class="p">[</span><span class="n">Concatenate</span><span class="p">[</span><span class="n">_Self</span><span class="p">,</span> <span class="n">ArrayLike</span><span class="p">,</span> <span class="n">_P</span><span class="p">],</span> <span class="n">_S</span><span class="p">]</span>
 <span class="p">)</span>
@@ -559,7 +559,7 @@
     <span class="n">dimension</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a function ``f`` across ``dimension`` of ``data``.</span>
+<span class="w">    </span><span class="sd">"""Apply a function ``f`` across ``dimension`` of ``data``.</span>
 
 <span class="sd">    ``f`` should be callable as ``f(input_1d)`` where ``input_1d`` is a</span>
 <span class="sd">    one-dimensional :data:`numpy.typing.ArrayLike` object. It should return</span>
@@ -577,7 +577,7 @@
 <span class="sd">    new_dimension_name</span>
 <span class="sd">        If ``f`` returns non-scalar values, the dimension in the output that</span>
 <span class="sd">        these values are returned along is given the name</span>
-<span class="sd">        ``new_dimension_name``. Defaults to ``&quot;result&quot;``.</span>
+<span class="sd">        ``new_dimension_name``. Defaults to ``"result"``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -593,7 +593,7 @@
 <span class="sd">          ``new_dimension_name``, containing the output of the application of</span>
 <span class="sd">          ``f``.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">output</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">apply_ufunc</span><span class="p">(</span>
         <span class="k">lambda</span> <span class="n">input_1d</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">input_1d</span><span class="p">)),</span>
         <span class="n">data</span><span class="p">,</span>
@@ -607,7 +607,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Rename the non-1D output dimension according to request</span>
         <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-            <span class="p">{</span><span class="n">dimension</span><span class="p">:</span> <span class="n">new_dimension_name</span> <span class="k">if</span> <span class="n">new_dimension_name</span> <span class="k">else</span> <span class="s2">&quot;result&quot;</span><span class="p">}</span>
+            <span class="p">{</span><span class="n">dimension</span><span class="p">:</span> <span class="n">new_dimension_name</span> <span class="k">if</span> <span class="n">new_dimension_name</span> <span class="k">else</span> <span class="s2">"result"</span><span class="p">}</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">output</span></div>
 
@@ -646,7 +646,7 @@
     <span class="n">only_broadcastable_along</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a decorator that allows a function to be broadcast.</span>
+<span class="w">    </span><span class="sd">"""Create a decorator that allows a function to be broadcast.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -671,7 +671,7 @@
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    The returned decorator (the &quot;``r_decorator``&quot;) extends a function that</span>
+<span class="sd">    The returned decorator (the "``r_decorator``") extends a function that</span>
 <span class="sd">    acts on a 1D sequence of values, allowing it to be broadcast along the</span>
 <span class="sd">    axes of an input ``xarray.DataArray``.</span>
 
@@ -700,14 +700,14 @@
 <span class="sd">    --------</span>
 <span class="sd">    broadcastable_method : Convenience alias for ``is_classmethod = True``.</span>
 <span class="sd">    space_broadcastable : Convenience alias for</span>
-<span class="sd">        ``only_broadcastable_along = &quot;space&quot;``.</span>
+<span class="sd">        ``only_broadcastable_along = "space"``.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    Make a standalone function broadcast along the ``&quot;space&quot;`` axis of an</span>
+<span class="sd">    Make a standalone function broadcast along the ``"space"`` axis of an</span>
 <span class="sd">    ``xarray.DataArray``.</span>
 
-<span class="sd">    &gt;&gt;&gt; @make_broadcastable(is_classmethod=False, only_broadcast_along=&quot;space&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; @make_broadcastable(is_classmethod=False, only_broadcast_along="space")</span>
 <span class="sd">    ... def my_function(xyz_data, *args, **kwargs)</span>
 <span class="sd">    ...</span>
 <span class="sd">    ... # Call via the usual arguments, replacing the xyz_data argument with</span>
@@ -728,10 +728,10 @@
 <span class="sd">    ...         return self.factor * sum(xyz_values) + self.offset</span>
 <span class="sd">    &gt;&gt;&gt; m = MyClass(factor=5.9, offset=1.0)</span>
 <span class="sd">    &gt;&gt;&gt; m.manipulate_values(</span>
-<span class="sd">    ...     data_array, *args, broadcast_dimension=&quot;time&quot;, **kwargs</span>
+<span class="sd">    ...     data_array, *args, broadcast_dimension="time", **kwargs</span>
 <span class="sd">    ... )</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
         <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -753,7 +753,7 @@
             <span class="n">broadcast_dimension</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">only_broadcastable_along</span>
                 <span class="k">if</span> <span class="n">only_broadcastable_along</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="k">else</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;broadcast_dimension&quot;</span><span class="p">,</span> <span class="s2">&quot;space&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"broadcast_dimension"</span><span class="p">,</span> <span class="s2">"space"</span><span class="p">)</span>
             <span class="p">)</span>
             <span class="k">return</span> <span class="n">apply_along_da_axis</span><span class="p">(</span>
                 <span class="n">call_f</span><span class="p">,</span>
@@ -775,12 +775,12 @@
     <span class="n">is_classmethod</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">new_dimension_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">FunctionDaToDa</span><span class="p">[</span><span class="n">P</span><span class="p">]</span> <span class="o">|</span> <span class="n">ClsMethodDaToDa</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">P</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Broadcast a 1D function along the &#39;space&#39; dimension.</span>
+<span class="w">    </span><span class="sd">"""Broadcast a 1D function along the 'space' dimension.</span>
 
 <span class="sd">    This is a convenience wrapper for</span>
-<span class="sd">    ``make_broadcastable(only_broadcastable_along=&#39;space&#39;)``,</span>
+<span class="sd">    ``make_broadcastable(only_broadcastable_along='space')``,</span>
 <span class="sd">    and is primarily useful when we want to write a function that acts on</span>
-<span class="sd">    coordinates, that can only be cast across the &#39;space&#39; dimension of an</span>
+<span class="sd">    coordinates, that can only be cast across the 'space' dimension of an</span>
 <span class="sd">    ``xarray.DataArray``.</span>
 
 <span class="sd">    Returns</span>
@@ -796,10 +796,10 @@
 <span class="sd">    --------</span>
 <span class="sd">    make_broadcastable : The aliased decorator function.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">make_broadcastable</span><span class="p">(</span>
         <span class="n">is_classmethod</span><span class="o">=</span><span class="n">is_classmethod</span><span class="p">,</span>
-        <span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">&quot;space&quot;</span><span class="p">,</span>
+        <span class="n">only_broadcastable_along</span><span class="o">=</span><span class="s2">"space"</span><span class="p">,</span>
         <span class="n">new_dimension_name</span><span class="o">=</span><span class="n">new_dimension_name</span><span class="p">,</span>
     <span class="p">)</span></div>
 
@@ -813,7 +813,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span>
     <span class="p">[</span><span class="n">ClsMethod1DTo1D</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span> <span class="n">ScalarOr1D</span><span class="p">]],</span> <span class="n">ClsMethodDaToDa</span><span class="p">[</span><span class="n">Self</span><span class="p">,</span> <span class="n">P</span><span class="p">]</span>
 <span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Broadcast a class method along a ``xarray.DataArray`` dimension.</span>
+<span class="w">    </span><span class="sd">"""Broadcast a class method along a ``xarray.DataArray`` dimension.</span>
 
 <span class="sd">    This is a convenience wrapper for</span>
 <span class="sd">    ``make_broadcastable(is_classmethod = True)``,</span>
@@ -833,7 +833,7 @@
 <span class="sd">    --------</span>
 <span class="sd">    make_broadcastable : The aliased decorator function.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">make_broadcastable</span><span class="p">(</span>
         <span class="n">is_classmethod</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">only_broadcastable_along</span><span class="o">=</span><span class="n">only_broadcastable_along</span><span class="p">,</span>

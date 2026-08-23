@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -708,16 +708,16 @@ parameters used, as well as the datetime of the function call.</p></li>
 estimated resolution of 10 pixels per cm. We can scale down
 position data by a factor of 1/10 to express it in cm units.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">scale</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">],</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="n">space_unit</span><span class="o">=</span><span class="s2">&quot;cm&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">space_unit</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="p">[</span><span class="s2">"position"</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"position"</span><span class="p">],</span> <span class="n">factor</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="n">space_unit</span><span class="o">=</span><span class="s2">"cm"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"position"</span><span class="p">]</span><span class="o">.</span><span class="n">space_unit</span><span class="p">)</span>
 <span class="go">cm</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">log</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"position"</span><span class="p">]</span><span class="o">.</span><span class="n">log</span><span class="p">)</span>
 <span class="go">[</span>
 <span class="go">    {</span>
-<span class="go">        &quot;operation&quot;: &quot;scale&quot;,</span>
-<span class="go">        &quot;datetime&quot;: &quot;2025-06-05 15:08:16.919947&quot;,</span>
-<span class="go">        &quot;factor&quot;: &quot;0.1&quot;,</span>
-<span class="go">        &quot;space_unit&quot;: &quot;&#39;cm&#39;&quot;</span>
+<span class="go">        "operation": "scale",</span>
+<span class="go">        "datetime": "2025-06-05 15:08:16.919947",</span>
+<span class="go">        "factor": "0.1",</span>
+<span class="go">        "space_unit": "'cm'"</span>
 <span class="go">    }</span>
 <span class="go">]</span>
 </pre></div>
@@ -726,14 +726,14 @@ position data by a factor of 1/10 to express it in cm units.</p>
 <code class="docutils literal notranslate"><span class="pre">space_unit</span></code> as well as a <code class="docutils literal notranslate"><span class="pre">log</span></code> entry with the arguments passed to
 the function.</p>
 <p>We can also scale the two spatial dimensions by different factors.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">],</span> <span class="n">factor</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="p">[</span><span class="s2">"position"</span><span class="p">]</span> <span class="o">=</span> <span class="n">scale</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s2">"position"</span><span class="p">],</span> <span class="n">factor</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">])</span>
 </pre></div>
 </div>
 <p>The second scale operation restored the x axis to its original scale,
 and scaled up the y axis to twice its original size.
 The log will now contain two entries, but the <code class="docutils literal notranslate"><span class="pre">space_unit</span></code> attribute
 has been removed, as it was not provided in the second function call.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="s2">&quot;space_unit&quot;</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="s2">"space_unit"</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">[</span><span class="s2">"position"</span><span class="p">]</span><span class="o">.</span><span class="n">attrs</span>
 <span class="go">False</span>
 </pre></div>
 </div>

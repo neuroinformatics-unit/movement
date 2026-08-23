@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=93d14191"></script>
+    <script src="../../../_static/documentation_options.js?v=dfb3664a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev26</p>
+    <p class="title logo__title">movement v0.17.1.dev28</p>
   
 </a></div>
     
@@ -477,7 +477,7 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                    <h1>Source code for movement.io.load_bboxes</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Load bounding boxes tracking data into ``movement``.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Load bounding boxes tracking data into ``movement``."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span>
@@ -502,7 +502,7 @@
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source_software</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` bounding boxes dataset from NumPy arrays.</span>
+<span class="w">    </span><span class="sd">"""Create a ``movement`` bounding boxes dataset from NumPy arrays.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -510,24 +510,24 @@
 <span class="sd">        Array of shape (n_frames, n_space, n_individuals)</span>
 <span class="sd">        containing the tracks of the bounding box centroids.</span>
 <span class="sd">        It will be converted to a :class:`xarray.DataArray` object</span>
-<span class="sd">        named &quot;position&quot;.</span>
+<span class="sd">        named "position".</span>
 <span class="sd">    shape_array</span>
 <span class="sd">        Array of shape (n_frames, n_space, n_individuals)</span>
 <span class="sd">        containing the shape of the bounding boxes. The shape of a bounding</span>
 <span class="sd">        box is its width (extent along the x-axis of the image) and height</span>
 <span class="sd">        (extent along the y-axis of the image). It will be converted to a</span>
-<span class="sd">        :class:`xarray.DataArray` object named &quot;shape&quot;.</span>
+<span class="sd">        :class:`xarray.DataArray` object named "shape".</span>
 <span class="sd">    confidence_array</span>
 <span class="sd">        Array of shape (n_frames, n_individuals) containing</span>
 <span class="sd">        the confidence scores of the bounding boxes. If None (default), the</span>
 <span class="sd">        confidence scores are set to an array of NaNs. It will be converted</span>
-<span class="sd">        to a :class:`xarray.DataArray` object named &quot;confidence&quot;.</span>
+<span class="sd">        to a :class:`xarray.DataArray` object named "confidence".</span>
 <span class="sd">    individual_names</span>
 <span class="sd">        List of individual names for the tracked bounding boxes in the video.</span>
 <span class="sd">        If None (default), bounding boxes are assigned names based on the size</span>
 <span class="sd">        of the ``position_array``. The names will be in the format of</span>
 <span class="sd">        ``id_&lt;N&gt;``, where &lt;N&gt;  is an integer from 0 to</span>
-<span class="sd">        ``position_array.shape[-1]-1`` (i.e., &quot;id_0&quot;, &quot;id_1&quot;...).</span>
+<span class="sd">        ``position_array.shape[-1]-1`` (i.e., "id_0", "id_1"...).</span>
 <span class="sd">    frame_array</span>
 <span class="sd">        Array of shape (n_frames, 1) containing the frame numbers for which</span>
 <span class="sd">        bounding boxes are defined. If None (default), frame numbers will</span>
@@ -565,7 +565,7 @@
 <span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
 <span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
 <span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
-<span class="sd">    ...     individual_names=[&quot;id_0&quot;, &quot;id_1&quot;],</span>
+<span class="sd">    ...     individual_names=["id_0", "id_1"],</span>
 <span class="sd">    ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),</span>
 <span class="sd">    ... )</span>
 
@@ -580,7 +580,7 @@
 <span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
 <span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
 <span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
-<span class="sd">    ...     individual_names=[&quot;id_0&quot;, &quot;id_1&quot;],</span>
+<span class="sd">    ...     individual_names=["id_0", "id_1"],</span>
 <span class="sd">    ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),</span>
 <span class="sd">    ...     fps=60,</span>
 <span class="sd">    ... )</span>
@@ -593,7 +593,7 @@
 <span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
 <span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
 <span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
-<span class="sd">    ...     individual_names=[&quot;id_0&quot;, &quot;id_1&quot;],</span>
+<span class="sd">    ...     individual_names=["id_0", "id_1"],</span>
 <span class="sd">    ... )</span>
 
 <span class="sd">    Create a dataset with the same data as above, but express the time</span>
@@ -605,11 +605,11 @@
 <span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
 <span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
 <span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
-<span class="sd">    ...     individual_names=[&quot;id_0&quot;, &quot;id_1&quot;],</span>
+<span class="sd">    ...     individual_names=["id_0", "id_1"],</span>
 <span class="sd">    ...     fps=60,</span>
 <span class="sd">    ... )</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">valid_bboxes_inputs</span> <span class="o">=</span> <span class="n">ValidBboxesInputs</span><span class="p">(</span>
         <span class="n">position_array</span><span class="o">=</span><span class="n">position_array</span><span class="p">,</span>
         <span class="n">shape_array</span><span class="o">=</span><span class="n">shape_array</span><span class="p">,</span>
@@ -625,14 +625,14 @@
 
 <div class="viewcode-block" id="from_via_tracks_file">
 <a class="viewcode-back" href="../../../api/movement.io.load_bboxes.from_via_tracks_file.html#movement.io.load_bboxes.from_via_tracks_file">[docs]</a>
-<span class="nd">@register_loader</span><span class="p">(</span><span class="s2">&quot;VIA-tracks&quot;</span><span class="p">,</span> <span class="n">file_validators</span><span class="o">=</span><span class="p">[</span><span class="n">ValidVIATracksCSV</span><span class="p">])</span>
+<span class="nd">@register_loader</span><span class="p">(</span><span class="s2">"VIA-tracks"</span><span class="p">,</span> <span class="n">file_validators</span><span class="o">=</span><span class="p">[</span><span class="n">ValidVIATracksCSV</span><span class="p">])</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">from_via_tracks_file</span><span class="p">(</span>
     <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">use_frame_numbers_from_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">frame_regexp</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_FRAME_REGEXP</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a ``movement`` dataset from a VIA tracks .csv file.</span>
+<span class="w">    </span><span class="sd">"""Create a ``movement`` dataset from a VIA tracks .csv file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -674,7 +674,7 @@
 <span class="sd">    corresponding ``movement`` dataset holds in its ``position`` array the</span>
 <span class="sd">    centroid of each bounding box.</span>
 
-<span class="sd">    Additionally, the bounding boxes IDs specified in the &quot;track&quot; field of</span>
+<span class="sd">    Additionally, the bounding boxes IDs specified in the "track" field of</span>
 <span class="sd">    the VIA tracks .csv file are mapped to the ``individual`` dimension in the</span>
 <span class="sd">    ``movement`` dataset. The individual names follow the format ``id_&lt;N&gt;``,</span>
 <span class="sd">    with N being the bounding box ID.</span>
@@ -685,75 +685,75 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    Create a dataset from the VIA tracks .csv file at &quot;path/to/file.csv&quot;, with</span>
+<span class="sd">    Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with</span>
 <span class="sd">    the time coordinates in frames, and setting the first tracked frame in the</span>
 <span class="sd">    file as frame 0.</span>
 
 <span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
 <span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_via_tracks_file(</span>
-<span class="sd">    ...     &quot;path/to/file.csv&quot;,</span>
+<span class="sd">    ...     "path/to/file.csv",</span>
 <span class="sd">    ... )</span>
 
-<span class="sd">    Create a dataset from the VIA tracks .csv file at &quot;path/to/file.csv&quot;, with</span>
+<span class="sd">    Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with</span>
 <span class="sd">    the time coordinates in seconds, and assuming t = 0 seconds corresponds to</span>
 <span class="sd">    the first tracked frame in the file.</span>
 
 <span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
 <span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_via_tracks_file(</span>
-<span class="sd">    ...     &quot;path/to/file.csv&quot;,</span>
+<span class="sd">    ...     "path/to/file.csv",</span>
 <span class="sd">    ...     fps=30,</span>
 <span class="sd">    ... )</span>
 
-<span class="sd">    Create a dataset from the VIA tracks .csv file at &quot;path/to/file.csv&quot;, with</span>
+<span class="sd">    Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with</span>
 <span class="sd">    the time coordinates in frames, and using the same frame numbers as</span>
 <span class="sd">    in the VIA tracks .csv file.</span>
 
 <span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
 <span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_via_tracks_file(</span>
-<span class="sd">    ...     &quot;path/to/file.csv&quot;,</span>
+<span class="sd">    ...     "path/to/file.csv",</span>
 <span class="sd">    ...     use_frame_numbers_from_file=True.</span>
 <span class="sd">    ... )</span>
 
-<span class="sd">    Create a dataset from the VIA tracks .csv file at &quot;path/to/file.csv&quot;, with</span>
+<span class="sd">    Create a dataset from the VIA tracks .csv file at "path/to/file.csv", with</span>
 <span class="sd">    the time coordinates in seconds, and assuming t = 0 seconds corresponds to</span>
 <span class="sd">    the 0th frame in the full video.</span>
 
 <span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
 <span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_via_tracks_file(</span>
-<span class="sd">    ...     &quot;path/to/file.csv&quot;,</span>
+<span class="sd">    ...     "path/to/file.csv",</span>
 <span class="sd">    ...     fps=30,</span>
 <span class="sd">    ...     use_frame_numbers_from_file=True,</span>
 <span class="sd">    ... )</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Note: the @register_loader decorator has already validated</span>
     <span class="c1"># `file` as a ValidVIATracksCSV, and forwarded `frame_regexp`</span>
     <span class="c1"># to it via _get_validator_kwargs.</span>
-    <span class="n">valid_file</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;ValidVIATracksCSV&quot;</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+    <span class="n">valid_file</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"ValidVIATracksCSV"</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
 
     <span class="c1"># Create an xarray.Dataset from the data</span>
     <span class="n">bboxes_arrays</span> <span class="o">=</span> <span class="n">_numpy_arrays_from_valid_via_object</span><span class="p">(</span><span class="n">valid_file</span><span class="p">)</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">from_numpy</span><span class="p">(</span>
-        <span class="n">position_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;position_array&quot;</span><span class="p">],</span>
-        <span class="n">shape_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;shape_array&quot;</span><span class="p">],</span>
-        <span class="n">confidence_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;confidence_array&quot;</span><span class="p">],</span>
+        <span class="n">position_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">"position_array"</span><span class="p">],</span>
+        <span class="n">shape_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">"shape_array"</span><span class="p">],</span>
+        <span class="n">confidence_array</span><span class="o">=</span><span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">"confidence_array"</span><span class="p">],</span>
         <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span>
-            <span class="sa">f</span><span class="s2">&quot;id_</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;ID_array&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="sa">f</span><span class="s2">"id_</span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">"ID_array"</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="p">],</span>
         <span class="n">frame_array</span><span class="o">=</span><span class="p">(</span>
-            <span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">&quot;frame_array&quot;</span><span class="p">]</span>
+            <span class="n">bboxes_arrays</span><span class="p">[</span><span class="s2">"frame_array"</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">use_frame_numbers_from_file</span>
             <span class="k">else</span> <span class="kc">None</span>
         <span class="p">),</span>
         <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
-        <span class="n">source_software</span><span class="o">=</span><span class="s2">&quot;VIA-tracks&quot;</span><span class="p">,</span>
+        <span class="n">source_software</span><span class="o">=</span><span class="s2">"VIA-tracks"</span><span class="p">,</span>
     <span class="p">)</span>  <span class="c1"># it validates the dataset via ValidBboxesInputs</span>
 
     <span class="c1"># Add metadata as attributes</span>
     <span class="n">file_path</span> <span class="o">=</span> <span class="n">valid_file</span><span class="o">.</span><span class="n">file</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source_software&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;VIA-tracks&quot;</span>
-    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source_file&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded bounding boxes tracks from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">ds</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"source_software"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"VIA-tracks"</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"source_file"</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loaded bounding boxes tracks from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">ds</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ds</span></div>
 
 
@@ -761,7 +761,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_numpy_arrays_from_valid_via_object</span><span class="p">(</span>
     <span class="n">valid_via_file</span><span class="p">:</span> <span class="n">ValidVIATracksCSV</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract numpy arrays from VIA tracks file object.</span>
+<span class="w">    </span><span class="sd">"""Extract numpy arrays from VIA tracks file object.</span>
 
 <span class="sd">    The extracted numpy arrays are returned in a dictionary with the following</span>
 <span class="sd">    keys:</span>
@@ -788,7 +788,7 @@
 <span class="sd">    dict</span>
 <span class="sd">        The validated bounding boxes arrays.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Get 1D data from the validator</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">valid_via_file</span><span class="o">.</span><span class="n">x</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">valid_via_file</span><span class="o">.</span><span class="n">y</span>
@@ -802,7 +802,7 @@
     <span class="n">unique_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
     <span class="n">unique_frames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">frame_numbers</span><span class="p">)</span>
 
-    <span class="c1"># Map each observation&#39;s ID and frame to an index in the output arrays</span>
+    <span class="c1"># Map each observation's ID and frame to an index in the output arrays</span>
     <span class="n">id_indices_per_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">unique_ids</span><span class="p">,</span> <span class="n">ids</span><span class="p">)</span>
     <span class="n">frame_indices_per_obs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">unique_frames</span><span class="p">,</span> <span class="n">frame_numbers</span><span class="p">)</span>
 
@@ -828,11 +828,11 @@
     <span class="n">confidence_array</span><span class="p">[</span><span class="n">frame_indices_per_obs</span><span class="p">,</span> <span class="n">id_indices_per_obs</span><span class="p">]</span> <span class="o">=</span> <span class="n">confidence</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;position_array&quot;</span><span class="p">:</span> <span class="n">position_array</span><span class="p">,</span>
-        <span class="s2">&quot;shape_array&quot;</span><span class="p">:</span> <span class="n">shape_array</span><span class="p">,</span>
-        <span class="s2">&quot;confidence_array&quot;</span><span class="p">:</span> <span class="n">confidence_array</span><span class="p">,</span>
-        <span class="s2">&quot;ID_array&quot;</span><span class="p">:</span> <span class="n">unique_ids</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-        <span class="s2">&quot;frame_array&quot;</span><span class="p">:</span> <span class="n">unique_frames</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="s2">"position_array"</span><span class="p">:</span> <span class="n">position_array</span><span class="p">,</span>
+        <span class="s2">"shape_array"</span><span class="p">:</span> <span class="n">shape_array</span><span class="p">,</span>
+        <span class="s2">"confidence_array"</span><span class="p">:</span> <span class="n">confidence_array</span><span class="p">,</span>
+        <span class="s2">"ID_array"</span><span class="p">:</span> <span class="n">unique_ids</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="s2">"frame_array"</span><span class="p">:</span> <span class="n">unique_frames</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
     <span class="p">}</span>
 </pre></div>
 <div class="section ablog__blog_comments">

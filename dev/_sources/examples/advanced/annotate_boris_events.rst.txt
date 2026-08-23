@@ -114,7 +114,7 @@ annotate gait phase events in BORIS.
     vid_name = "single-mouse_DBTravelator_video.avi"
     video_path = pooch.retrieve(
         url=(
-            f"https://gin.g-node.org/neuroinformatics/movement-test-data/raw"
+            f"https://gin.swc.ucl.ac.uk/neuroinformatics/movement-sample-data/raw"
             f"/master/videos/{vid_name}"
         ),
         known_hash=None,
@@ -1132,7 +1132,7 @@ plot the mean trajectory alongside individual strides.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.857 seconds)
+   **Total running time of the script:** (0 minutes 0.605 seconds)
 
 
 .. _sphx_glr_download_examples_advanced_annotate_boris_events.py:
