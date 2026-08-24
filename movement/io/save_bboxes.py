@@ -436,7 +436,7 @@ def _write_via_tracks_csv(
 
 
 def _write_single_row(
-    writer: "_csv._writer",  # requires a string literal type annotation
+    writer: "_csv.Writer",
     xy_values: np.ndarray,
     wh_values: np.ndarray,
     confidence: float | None,

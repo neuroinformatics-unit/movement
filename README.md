@@ -35,7 +35,7 @@ conda activate movement-env
 Deep learning methods for motion tracking have revolutionised a range of
 scientific disciplines, from neuroscience and biomechanics, to conservation
 and ethology. Tools such as
-[DeepLabCut](https://www.mackenziemathislab.org/deeplabcut) and
+[DeepLabCut](https://mlabofai.org/deeplabcut/) and
 [SLEAP](https://sleap.ai/) now allow researchers to track animal movements
 in videos with remarkable accuracy, without requiring physical markers.
 However, there is still a need for standardised, easy-to-use methods

@@ -225,29 +225,37 @@ linkcheck_anchors_ignore_for_url = [
 ]
 # A list of regular expressions that match URIs that should not be checked
 linkcheck_ignore = [
-    "https://pubs.acs.org/doi/*",  # Checking dois is forbidden here
-    "https://opensource.org/license/bsd-3-clause/",  # 403 error
-    "https://www.sainsburywellcome.org/",  # ConnectTimeoutError
+    "https://pubs.acs.org/doi/",  # Checking dois is forbidden here
     "https://www.robots.ox.ac.uk/",  # 404 error
     "https://silvalab.codeberg.page/BraiAn/",  # SSLError despite working link
-    "https://www.g-node.org/",  # frequent timeouts
-    "https://www.contributor-covenant.org/*",  # frequent timeouts
-    "https://docutils.sourceforge.io/*",  # 403 error
-    "https://www.iso.org/",  # 403 error
-    "https://www.ffmpeg.org/",  # 403 error
     # Checking zenodo redirects (from concept doi to record) takes a long time
-    "https://zenodo.org/doi/*",
-    "https://zenodo.org/records/*",
+    "https://zenodo.org/doi/",
+    "https://zenodo.org/records/",
     # DOI resolvers often rate-limit or return 403/429 in CI
-    "https://doi.org/*",
-    "https://abide.ics.ulisboa.pt/*",  # flaky
+    "https://doi.org/",
+    "https://abide.ics.ulisboa.pt/",
     "https://docs.unidata.ucar.edu/nug/current/",
+    "https://docutils.sourceforge.io/",
+    "https://www.iso.org/",
+    "https://www.ffmpeg.org/",
+    "https://gis.stackexchange.com/",
+    "https://www.g-node.org/",
+    "https://www.contributor-covenant.org/",
+    "https://opensource.org/license/bsd-3-clause/",
+    "https://www.sainsburywellcome.org/",
+    "https://en.wikipedia.org/wiki/",
 ]
 # Add request headers for specific domains (e.g. to avoid rate-limiting)
 linkcheck_request_headers = {
     "https://github.com": {
         "Authorization": f"Bearer {os.environ.get('GITHUB_TOKEN', '')}",
     },
+}
+# Allow redirects for URIs that require authentication
+linkcheck_allowed_redirects = {
+    "https://github.com/neuroinformatics-unit/movement/releases/new": (
+        r"https://github\.com/login\?return_to=.*"
+    ),
 }
 
 
@@ -261,8 +269,9 @@ myst_url_schemes = {
     "movement-community-calls": "https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Community.20Calls",
     "movement-releases": "https://neuroinformatics.zulipchat.com/#narrow/channel/406001-Movement/topic/Releases/with/601196586",
     "conda": "https://docs.conda.io/projects/conda/en/latest/{{path}}#{{fragment}}",
-    "dlc": "https://www.mackenziemathislab.org/deeplabcut/",
+    "dlc": "https://mlabofai.org/deeplabcut/",
     "gin": "https://gin.g-node.org/{{path}}#{{fragment}}",
+    "swc-gin": "https://gin.swc.ucl.ac.uk/{{path}}#{{fragment}}",
     "github-docs": "https://docs.github.com/en/{{path}}#{{fragment}}",
     "myst-parser": "https://myst-parser.readthedocs.io/en/latest/{{path}}#{{fragment}}",
     "napari": "https://napari.org/stable/{{path}}",
