@@ -1036,6 +1036,45 @@ def test_on_points_data_changed_ignores_non_move_events(
     )
 
 
+def test_on_points_data_changed_syncs_tracks_layer(
+    valid_poses_path_and_ds, loaded_data_loader, move_point
+):
+    """Test that dragging a point updates the corresponding Tracks layer.
+
+    Verifies that :meth:`DataLoader._on_points_data_changed` writes a
+    moved point's new (frame, y, x) to the same row in the Tracks
+    layer, and leaves every other row untouched.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+
+    original_tracks_data = loader.tracks_layer.data.copy()
+
+    move_point(
+        loader,
+        frame=5,
+        keypoint="centroid",
+        individual="id_0",
+        new_y=100,
+        new_x=200,
+    )
+
+    # `edited` flags exactly the dragged row; use it to partition rows
+    # instead of assuming which index is "the previous frame".
+    edited = loader.points_layer.properties["edited"]
+    moved_index = int(np.flatnonzero(edited)[0])
+    new_position = loader.points_layer.data[moved_index]
+
+    # The dragged row is updated to the new position in the Tracks layer...
+    np.testing.assert_array_equal(
+        loader.tracks_layer.data[moved_index, 1:], new_position
+    )
+    # ...while every non-edited row is untouched.
+    np.testing.assert_array_equal(
+        loader.tracks_layer.data[~edited], original_tracks_data[~edited]
+    )
+
+
 def test_on_points_data_changed_second_drag_extends_edited(
     valid_poses_path_and_ds, loaded_data_loader
 ):
