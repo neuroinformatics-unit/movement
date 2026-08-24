@@ -43,7 +43,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](gith
 2. Clone your fork to your local machine and navigate to the repository folder:
 
     ```sh
-    git clone [https://github.com/](https://github.com/)<your-github-username>/movement.git
+    git clone https://github.com/<your-github-username>/movement.git
     cd movement
     ```
 
@@ -51,7 +51,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](gith
    This links your local copy to the original project so you can pull the latest changes.
 
     ```sh
-    git remote add upstream [https://github.com/neuroinformatics-unit/movement.git](https://github.com/neuroinformatics-unit/movement.git)
+    git remote add upstream https://github.com/neuroinformatics-unit/movement.git
     ```
 
     :::{note}
@@ -971,7 +971,6 @@ If the linkcheck step incorrectly marks links with valid anchors as broken, you 
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs
 linkcheck_anchors_ignore_for_url = [
-    "https://gin.g-node.org/G-Node/Info/wiki/",
     "https://neuroinformatics.zulipchat.com/",
 ]
 ```

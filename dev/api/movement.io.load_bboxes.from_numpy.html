@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=7bcbe253"></script>
+    <script src="../_static/documentation_options.js?v=0b6f8b72"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev29</p>
+    <p class="title logo__title">movement v0.17.1.dev32</p>
   
 </a></div>
     
@@ -715,19 +715,37 @@ scores of the tracked bounding boxes, and any associated metadata.</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<p>Create random position data for two bounding boxes, <code class="docutils literal notranslate"><span class="pre">id_0</span></code> and <code class="docutils literal notranslate"><span class="pre">id_1</span></code>,
-with the same width (40 pixels) and height (30 pixels). These are tracked
-in 2D space for 100 frames, which are numbered from the start frame 1200
-to the end frame 1299. The confidence score for all bounding boxes is set
-to 0.5.</p>
+<p>Create random position and shape data for two bounding boxes, tracked
+in 2D space for 100 frames. Confidence scores are omitted, so they
+default to NaN, and individuals are auto-named (“id_0”, “id_1”). Time
+coordinates default to consecutive 0-based frame numbers.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bboxes</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
 <span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
 <span class="gp">... </span>    <span class="n">shape_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create a dataset with the same data as above, but name the individuals
+<code class="docutils literal notranslate"><span class="pre">Alice</span></code> and <code class="docutils literal notranslate"><span class="pre">Bob</span></code>, and set all confidence scores to 0.5.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+<span class="gp">... </span>    <span class="n">shape_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">confidence_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"id_0"</span><span class="p">,</span> <span class="s2">"id_1"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"Alice"</span><span class="p">,</span> <span class="s2">"Bob"</span><span class="p">],</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Create a dataset with the same data as above, but specify that the
+100 frames are numbered from the start frame 1200 to the end frame
+1299, instead of defaulting to 0-based frame numbers.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
+<span class="gp">... </span>    <span class="n">shape_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">confidence_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"Alice"</span><span class="p">,</span> <span class="s2">"Bob"</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">frame_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1200</span><span class="p">,</span> <span class="mi">1300</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>
@@ -742,32 +760,8 @@ the corresponding time coordinates in seconds will be 20, 20.0167,
 <span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
 <span class="gp">... </span>    <span class="n">shape_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">confidence_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"id_0"</span><span class="p">,</span> <span class="s2">"id_1"</span><span class="p">],</span>
+<span class="gp">... </span>    <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"Alice"</span><span class="p">,</span> <span class="s2">"Bob"</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">frame_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1200</span><span class="p">,</span> <span class="mi">1300</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-<span class="gp">... </span>    <span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
-<span class="gp">... </span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Create a dataset with the same data as above, but express the time
-coordinate in frames, and assume the first tracked frame is frame 0.
-To do this, we simply omit the <code class="docutils literal notranslate"><span class="pre">frame_array</span></code> input argument.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
-<span class="gp">... </span>    <span class="n">shape_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="n">confidence_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"id_0"</span><span class="p">,</span> <span class="s2">"id_1"</span><span class="p">],</span>
-<span class="gp">... </span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Create a dataset with the same data as above, but express the time
-coordinate in seconds, and assume the first tracked frame is captured
-at time = 0 seconds. To do this, we omit the <code class="docutils literal notranslate"><span class="pre">frame_array</span></code> input argument
-and pass an <code class="docutils literal notranslate"><span class="pre">fps</span></code> value.</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">position_array</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
-<span class="gp">... </span>    <span class="n">shape_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
-<span class="gp">... </span>    <span class="n">confidence_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
-<span class="gp">... </span>    <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"id_0"</span><span class="p">,</span> <span class="s2">"id_1"</span><span class="p">],</span>
 <span class="gp">... </span>    <span class="n">fps</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
 <span class="gp">... </span><span class="p">)</span>
 </pre></div>

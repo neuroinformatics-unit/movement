@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=7bcbe253"></script>
+    <script src="../_static/documentation_options.js?v=0b6f8b72"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev29</p>
+    <p class="title logo__title">movement v0.17.1.dev32</p>
   
 </a></div>
     
@@ -543,14 +543,14 @@ Once you’ve made your changes in your copy, you can submit them as a pull requ
 <li><p>Fork the <a class="reference external" href="https://github.com/neuroinformatics-unit/movement/">repository</a> on GitHub.
 You can read more about <a class="reference external" href="https://docs.github.com/en/pull-requests/how-tos/work-with-forks/fork-a-repo#">forking in the GitHub docs</a>.</p></li>
 <li><p>Clone your fork to your local machine and navigate to the repository folder:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span><span class="o">[</span>https://github.com/<span class="o">](</span>https://github.com/<span class="o">)</span>&lt;your-github-username&gt;/movement.git
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/&lt;your-github-username&gt;/movement.git
 <span class="nb">cd</span><span class="w"> </span>movement
 </pre></div>
 </div>
 </li>
 <li><p>Set the upstream remote to the base <code class="docutils literal notranslate"><span class="pre">movement</span></code> repository:
 This links your local copy to the original project so you can pull the latest changes.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>upstream<span class="w"> </span><span class="o">[</span>https://github.com/neuroinformatics-unit/movement.git<span class="o">](</span>https://github.com/neuroinformatics-unit/movement.git<span class="o">)</span>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>upstream<span class="w"> </span>https://github.com/neuroinformatics-unit/movement.git
 </pre></div>
 </div>
 <div class="admonition note">
@@ -1476,7 +1476,6 @@ It will then re-build the documentation:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The linkcheck builder will skip verifying that anchors exist when checking</span>
 <span class="c1"># these URLs</span>
 <span class="n">linkcheck_anchors_ignore_for_url</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"https://gin.g-node.org/G-Node/Info/wiki/"</span><span class="p">,</span>
     <span class="s2">"https://neuroinformatics.zulipchat.com/"</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>

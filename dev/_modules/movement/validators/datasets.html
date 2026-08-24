@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=7bcbe253"></script>
+    <script src="../../../_static/documentation_options.js?v=0b6f8b72"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev29</p>
+    <p class="title logo__title">movement v0.17.1.dev32</p>
   
 </a></div>
     
@@ -482,7 +482,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterable</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">ClassVar</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">attrs</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -491,9 +491,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
-
-<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">numpy.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NDArray</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_convert_to_list_of_str</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -535,8 +532,8 @@
 <span class="sd">    assignment logic for creating ``movement`` datasets</span>
 <span class="sd">    (e.g. poses, bounding boxes).</span>
 <span class="sd">    It registers the attrs validators for required fields like</span>
-<span class="sd">    ``position_array`` and optional fields like ``confidence_array`` and</span>
-<span class="sd">    ``individual_names``.</span>
+<span class="sd">    ``position_array`` and optional fields like ``confidence_array``,</span>
+<span class="sd">    ``individual_names``, and ``frame_array``.</span>
 <span class="sd">    Subclasses must implement ``to_dataset()`` and define class variables</span>
 <span class="sd">    ``DIM_NAMES``, ``VAR_NAMES``, and ``_ALLOWED_SPACE_DIM_SIZE``.</span>
 <span class="sd">    """</span>
@@ -565,6 +562,16 @@
 <span class="sd">    ``position_array``. If None (default), the names will be in the format of</span>
 <span class="sd">    ``id_&lt;N&gt;``, where &lt;N&gt; is an integer from 0 to the size of the</span>
 <span class="sd">    'individual' dimension minus 1."""</span>
+
+    <span class="n">frame_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)),</span>
+    <span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Array containing the frame numbers corresponding to the data.</span>
+<span class="sd">    The frame_array must be a column vector of shape (n_frames, 1)</span>
+<span class="sd">    and values must be monotonically increasing. If None (default),</span>
+<span class="sd">    frame numbers are assigned as consecutive 0-based integers.</span>
+<span class="sd">    """</span>
 
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -615,6 +622,15 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="s2">"Individual names were not provided. "</span>
                 <span class="sa">f</span><span class="s2">"Setting to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">individual_names</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
+        <span class="c1"># frame_array default: 0-based integers up to n_frames - 1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">time_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
+            <span class="n">n_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_dim_index</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">"Frame numbers were not provided. "</span>
+                <span class="s2">"Setting to an array of 0-based integers."</span>
             <span class="p">)</span>
 
     <span class="c1"># --- Properties (derived attributes) ---</span>
@@ -673,6 +689,26 @@
                 <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_confidence_expected_shapes</span>
             <span class="p">)</span>
 
+    <span class="nd">@frame_array</span><span class="o">.</span><span class="n">validator</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_frame_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Validate frame_array type, shape, and monotonicity."""</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># should be a column vector (n_frames, 1)</span>
+            <span class="n">time_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_array_shape</span><span class="p">(</span>
+                <span class="n">attribute</span><span class="p">,</span>
+                <span class="n">value</span><span class="p">,</span>
+                <span class="n">expected_shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_dim_index</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="c1"># check frames are monotonically increasing</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">"Frame numbers in '</span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">' are "</span>
+                        <span class="s2">"not monotonically increasing."</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
     <span class="nd">@individual_names</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_individual_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Validate individual_names length and uniqueness."""</span>
@@ -686,6 +722,30 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_validate_list_uniqueness</span><span class="p">(</span><span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
     <span class="c1"># --- Utility methods ---</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_time_coords_and_attrs</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">],</span> <span class="nb">dict</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Return time coordinate values and associated dataset attrs.</span>
+
+<span class="sd">        If ``fps`` is provided, time is expressed in seconds (elapsed</span>
+<span class="sd">        from frame 0); otherwise, it is expressed in frames.</span>
+<span class="sd">        """</span>
+        <span class="c1"># Ignore type error as __attrs_post_init__ ensures</span>
+        <span class="c1"># `frame_array` is not None</span>
+        <span class="n">time_coords</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame_array</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>  <span class="c1"># type: ignore[union-attr]</span>
+        <span class="p">)</span>
+        <span class="n">dataset_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"source_software"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_software</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">time_unit</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"seconds"</span><span class="p">,</span> <span class="s2">"frames"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"frames"</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span><span class="p">:</span>
+            <span class="n">time_coords</span> <span class="o">=</span> <span class="n">time_coords</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span>
+            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">"seconds"</span>
+            <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">"fps"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span>
+        <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">"time_unit"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_unit</span>
+        <span class="k">return</span> <span class="n">time_coords</span><span class="p">,</span> <span class="n">dataset_attrs</span>
+
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_validate_array_shape</span><span class="p">(</span>
         <span class="n">attribute</span><span class="p">:</span> <span class="n">attrs</span><span class="o">.</span><span class="n">Attribute</span><span class="p">,</span>
@@ -804,6 +864,9 @@
 <span class="sd">      if provided, is a list of unique names for the individuals and keypoints,</span>
 <span class="sd">      with lengths matching the number of individuals and keypoints</span>
 <span class="sd">      in the dataset, respectively; otherwise, default names are assigned.</span>
+<span class="sd">    - The optional ``frame_array``, if provided, is a column vector</span>
+<span class="sd">      with the frame numbers; otherwise, it defaults to an array of</span>
+<span class="sd">      consecutive 0-based integers.</span>
 <span class="sd">    - The optional ``fps`` is a positive float; otherwise, it defaults to None.</span>
 <span class="sd">    - The optional ``source_software`` is a string; otherwise,</span>
 <span class="sd">      it defaults to None.</span>
@@ -885,23 +948,10 @@
 
 <span class="sd">        """</span>
         <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span>
-        <span class="n">n_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)]</span>
         <span class="n">n_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"space"</span><span class="p">)]</span>
-        <span class="n">dataset_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">"source_software"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_software</span><span class="p">,</span>
-            <span class="s2">"ds_type"</span><span class="p">:</span> <span class="s2">"poses"</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="c1"># Create the time coordinate, depending on the value of fps</span>
-        <span class="n">time_coords</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">]</span>
-        <span class="n">time_unit</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"seconds"</span><span class="p">,</span> <span class="s2">"frames"</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span>
-            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">"seconds"</span>
-            <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">"fps"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">time_coords</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
-            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">"frames"</span>
-        <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">"time_unit"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_unit</span>
+        <span class="n">time_coords</span><span class="p">,</span> <span class="n">dataset_attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_coords_and_attrs</span><span class="p">()</span>
+        <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">"ds_type"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"poses"</span>
+
         <span class="c1"># confidence_array may be point-wise (all non-space dims) or</span>
         <span class="c1"># individual-wise (non-space and non-keypoint dims)</span>
         <span class="n">confidence_dims</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">d</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">DIM_NAMES</span> <span class="k">if</span> <span class="n">d</span> <span class="o">!=</span> <span class="s2">"space"</span><span class="p">)</span>
@@ -955,7 +1005,7 @@
 <span class="sd">      individuals in the dataset; otherwise, default names are assigned.</span>
 <span class="sd">    - The optional ``frame_array``, if provided, is a column vector</span>
 <span class="sd">      with the frame numbers; otherwise, it defaults to an array of</span>
-<span class="sd">      0-based integers.</span>
+<span class="sd">      consecutive 0-based integers.</span>
 <span class="sd">    - The optional ``fps`` is a positive float; otherwise, it defaults to None.</span>
 <span class="sd">    - The optional ``source_software`` is a string; otherwise, it defaults to</span>
 <span class="sd">      None.</span>
@@ -976,16 +1026,6 @@
 <span class="sd">    (extent along the y-axis of the image). The shape_array must have the same</span>
 <span class="sd">    shape as the position_array."""</span>
 
-    <span class="n">frame_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">validators</span><span class="o">.</span><span class="n">instance_of</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)),</span>
-    <span class="p">)</span>
-<span class="w">    </span><span class="sd">"""Array containing the frame numbers for which bounding boxes are defined.</span>
-<span class="sd">    The frame_array should be a column vector of shape (n_frames, 1) and should</span>
-<span class="sd">    be monotonically increasing. If None (default), frame numbers will be</span>
-<span class="sd">    assigned based on the first dimension of the position_array, starting from</span>
-<span class="sd">    0."""</span>
-
     <span class="n">DIM_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"space"</span><span class="p">,</span> <span class="s2">"individual"</span><span class="p">)</span>
     <span class="n">VAR_NAMES</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"position"</span><span class="p">,</span> <span class="s2">"shape"</span><span class="p">,</span> <span class="s2">"confidence"</span><span class="p">)</span>
     <span class="n">_ALLOWED_SPACE_DIM_SIZE</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
@@ -999,39 +1039,6 @@
             <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">expected_shape</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span>
         <span class="p">)</span>
 
-    <span class="nd">@frame_array</span><span class="o">.</span><span class="n">validator</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_frame_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Validate frame_array type, shape, and monotonicity."""</span>
-        <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># should be a column vector (n_frames, 1)</span>
-            <span class="n">time_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_validate_array_shape</span><span class="p">(</span>
-                <span class="n">attribute</span><span class="p">,</span>
-                <span class="n">value</span><span class="p">,</span>
-                <span class="n">expected_shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_dim_index</span><span class="p">],</span> <span class="mi">1</span><span class="p">),</span>
-            <span class="p">)</span>
-            <span class="c1"># check frames are monotonically increasing</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                    <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">"Frame numbers in </span><span class="si">{</span><span class="n">attribute</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> are "</span>
-                        <span class="s2">"not monotonically increasing."</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Assign default values to optional attributes (if None)."""</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__attrs_post_init__</span><span class="p">()</span>
-        <span class="c1"># assign default frame_array</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">frame_array</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">time_dim_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span>
-            <span class="n">n_frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="n">time_dim_index</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">frame_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_frames</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">"Frame numbers were not provided. "</span>
-                <span class="s2">"Setting to an array of 0-based integers."</span>
-            <span class="p">)</span>
-
 <div class="viewcode-block" id="ValidBboxesInputs.to_dataset">
 <a class="viewcode-back" href="../../../api/movement.validators.datasets.ValidBboxesInputs.html#movement.validators.datasets.ValidBboxesInputs.to_dataset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
@@ -1044,26 +1051,8 @@
 <span class="sd">            shapes, confidence scores and associated metadata.</span>
 
 <span class="sd">        """</span>
-        <span class="n">dataset_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">"source_software"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_software</span><span class="p">,</span>
-            <span class="s2">"ds_type"</span><span class="p">:</span> <span class="s2">"bboxes"</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="c1"># Ignore type error as ValidBboxesInputs ensures</span>
-        <span class="c1"># `frame_array` is not None</span>
-        <span class="n">time_coords</span><span class="p">:</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">floating</span><span class="p">]</span> <span class="o">|</span> <span class="n">NDArray</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">integer</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">frame_array</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>  <span class="c1"># type: ignore[union-attr]</span>
-        <span class="p">)</span>
-        <span class="n">time_unit</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"seconds"</span><span class="p">,</span> <span class="s2">"frames"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"frames"</span>
-        <span class="c1"># if fps is provided:</span>
-        <span class="c1"># time_coords is expressed in seconds, with the time origin</span>
-        <span class="c1"># set as frame 0 == time 0 seconds</span>
-        <span class="c1"># Store fps as a dataset attribute</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span><span class="p">:</span>
-            <span class="c1"># Compute elapsed time from frame 0.</span>
-            <span class="n">time_coords</span> <span class="o">=</span> <span class="n">time_coords</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span>
-            <span class="n">time_unit</span> <span class="o">=</span> <span class="s2">"seconds"</span>
-            <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">"fps"</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fps</span>
-        <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">"time_unit"</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_unit</span>
+        <span class="n">time_coords</span><span class="p">,</span> <span class="n">dataset_attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_coords_and_attrs</span><span class="p">()</span>
+        <span class="n">dataset_attrs</span><span class="p">[</span><span class="s2">"ds_type"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"bboxes"</span>
         <span class="c1"># Convert data to an xarray.Dataset</span>
         <span class="c1"># with dimensions ('time', 'space', 'individual')</span>
         <span class="n">DIM_NAMES</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">DIM_NAMES</span>

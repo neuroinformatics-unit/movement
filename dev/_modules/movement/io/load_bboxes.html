@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=7bcbe253"></script>
+    <script src="../../../_static/documentation_options.js?v=0b6f8b72"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev29</p>
+    <p class="title logo__title">movement v0.17.1.dev32</p>
   
 </a></div>
     
@@ -552,11 +552,10 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    Create random position data for two bounding boxes, ``id_0`` and ``id_1``,</span>
-<span class="sd">    with the same width (40 pixels) and height (30 pixels). These are tracked</span>
-<span class="sd">    in 2D space for 100 frames, which are numbered from the start frame 1200</span>
-<span class="sd">    to the end frame 1299. The confidence score for all bounding boxes is set</span>
-<span class="sd">    to 0.5.</span>
+<span class="sd">    Create random position and shape data for two bounding boxes, tracked</span>
+<span class="sd">    in 2D space for 100 frames. Confidence scores are omitted, so they</span>
+<span class="sd">    default to NaN, and individuals are auto-named ("id_0", "id_1"). Time</span>
+<span class="sd">    coordinates default to consecutive 0-based frame numbers.</span>
 
 <span class="sd">    &gt;&gt;&gt; import numpy as np</span>
 <span class="sd">    &gt;&gt;&gt; from movement.io import load_bboxes</span>
@@ -564,8 +563,27 @@
 <span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_numpy(</span>
 <span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
 <span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a dataset with the same data as above, but name the individuals</span>
+<span class="sd">    ``Alice`` and ``Bob``, and set all confidence scores to 0.5.</span>
+
+<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_numpy(</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
+<span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
 <span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
-<span class="sd">    ...     individual_names=["id_0", "id_1"],</span>
+<span class="sd">    ...     individual_names=["Alice", "Bob"],</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a dataset with the same data as above, but specify that the</span>
+<span class="sd">    100 frames are numbered from the start frame 1200 to the end frame</span>
+<span class="sd">    1299, instead of defaulting to 0-based frame numbers.</span>
+
+<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_numpy(</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
+<span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
+<span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
+<span class="sd">    ...     individual_names=["Alice", "Bob"],</span>
 <span class="sd">    ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),</span>
 <span class="sd">    ... )</span>
 
@@ -580,32 +598,8 @@
 <span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
 <span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
 <span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
-<span class="sd">    ...     individual_names=["id_0", "id_1"],</span>
+<span class="sd">    ...     individual_names=["Alice", "Bob"],</span>
 <span class="sd">    ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),</span>
-<span class="sd">    ...     fps=60,</span>
-<span class="sd">    ... )</span>
-
-<span class="sd">    Create a dataset with the same data as above, but express the time</span>
-<span class="sd">    coordinate in frames, and assume the first tracked frame is frame 0.</span>
-<span class="sd">    To do this, we simply omit the ``frame_array`` input argument.</span>
-
-<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_numpy(</span>
-<span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
-<span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
-<span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
-<span class="sd">    ...     individual_names=["id_0", "id_1"],</span>
-<span class="sd">    ... )</span>
-
-<span class="sd">    Create a dataset with the same data as above, but express the time</span>
-<span class="sd">    coordinate in seconds, and assume the first tracked frame is captured</span>
-<span class="sd">    at time = 0 seconds. To do this, we omit the ``frame_array`` input argument</span>
-<span class="sd">    and pass an ``fps`` value.</span>
-
-<span class="sd">    &gt;&gt;&gt; ds = load_bboxes.from_numpy(</span>
-<span class="sd">    ...     position_array=rng.random((100, 2, 2)),</span>
-<span class="sd">    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],</span>
-<span class="sd">    ...     confidence_array=np.ones((100, 2)) * 0.5,</span>
-<span class="sd">    ...     individual_names=["id_0", "id_1"],</span>
 <span class="sd">    ...     fps=60,</span>
 <span class="sd">    ... )</span>
 

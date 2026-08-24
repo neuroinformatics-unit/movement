@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../../../_static/documentation_options.js?v=7bcbe253"></script>
+    <script src="../../../_static/documentation_options.js?v=0b6f8b72"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev29</p>
+    <p class="title logo__title">movement v0.17.1.dev32</p>
   
 </a></div>
     
@@ -511,6 +511,7 @@
     <span class="n">confidence_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">individual_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">keypoint_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">frame_array</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">source_software</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
@@ -534,6 +535,11 @@
 <span class="sd">        List of unique names for the keypoints in the skeleton. If None</span>
 <span class="sd">        (default), the keypoints will be named "keypoint_0", "keypoint_1",</span>
 <span class="sd">        etc.</span>
+<span class="sd">    frame_array</span>
+<span class="sd">        Array containing the frame numbers corresponding to the data.</span>
+<span class="sd">        It must be a column vector of shape (n_frames, 1) and values</span>
+<span class="sd">        must be monotonically increasing. If None (default), frame</span>
+<span class="sd">        numbers are assigned as consecutive 0-based integers.</span>
 <span class="sd">    fps</span>
 <span class="sd">        Frames per second of the video. Defaults to None, in which case</span>
 <span class="sd">        the time coordinates will be in frame numbers.</span>
@@ -549,19 +555,55 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    Create random position data for two individuals, ``Alice`` and ``Bob``,</span>
-<span class="sd">    with three keypoints each: ``snout``, ``centre``, and ``tail_base``.</span>
-<span class="sd">    These are tracked in 2D space over 100 frames, at 30 fps.</span>
-<span class="sd">    The confidence scores are set to 1 for all points.</span>
+<span class="sd">    Create random position data for two individuals with three keypoints</span>
+<span class="sd">    each, tracked in 2D space for 100 frames. As confidence scores are omitted,</span>
+<span class="sd">    they default to NaN, and individuals/keypoints are auto-named</span>
+<span class="sd">    ("id_0", "id_1", ... and "keypoint_0", "keypoint_1", ...). Time</span>
+<span class="sd">    coordinates default to consecutive 0-based frame numbers.</span>
 
 <span class="sd">    &gt;&gt;&gt; import numpy as np</span>
 <span class="sd">    &gt;&gt;&gt; from movement.io import load_poses</span>
 <span class="sd">    &gt;&gt;&gt; rng = np.random.default_rng(seed=42)</span>
 <span class="sd">    &gt;&gt;&gt; ds = load_poses.from_numpy(</span>
 <span class="sd">    ...     position_array=rng.random((100, 2, 3, 2)),</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a dataset with the same data as above, but name the individuals</span>
+<span class="sd">    ``Alice`` and ``Bob``, the keypoints ``snout``, ``centre``, and</span>
+<span class="sd">    ``tail_base``, and set all confidence scores to 1.</span>
+
+<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_numpy(</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 3, 2)),</span>
 <span class="sd">    ...     confidence_array=np.ones((100, 3, 2)),</span>
 <span class="sd">    ...     individual_names=["Alice", "Bob"],</span>
 <span class="sd">    ...     keypoint_names=["snout", "centre", "tail_base"],</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a dataset with the same data as above, but specify that the</span>
+<span class="sd">    100 frames are numbered from the start frame 1200 to the end frame</span>
+<span class="sd">    1299, instead of defaulting to 0-based frame numbers.</span>
+
+<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_numpy(</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 3, 2)),</span>
+<span class="sd">    ...     confidence_array=np.ones((100, 3, 2)),</span>
+<span class="sd">    ...     individual_names=["Alice", "Bob"],</span>
+<span class="sd">    ...     keypoint_names=["snout", "centre", "tail_base"],</span>
+<span class="sd">    ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a dataset with the same data as above, but with the time</span>
+<span class="sd">    coordinates in seconds. We use a video sampling rate of 30 fps. The time</span>
+<span class="sd">    coordinates in the resulting dataset will indicate the elapsed time from</span>
+<span class="sd">    the capture of the 0th frame. So for the frames 1200, 1201, 1202, ...</span>
+<span class="sd">    1299 the corresponding time coordinates in seconds will be</span>
+<span class="sd">    40.0, 40.033..., 40.067..., ... 43.3 s.</span>
+
+<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_numpy(</span>
+<span class="sd">    ...     position_array=rng.random((100, 2, 3, 2)),</span>
+<span class="sd">    ...     confidence_array=np.ones((100, 3, 2)),</span>
+<span class="sd">    ...     individual_names=["Alice", "Bob"],</span>
+<span class="sd">    ...     keypoint_names=["snout", "centre", "tail_base"],</span>
+<span class="sd">    ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),</span>
 <span class="sd">    ...     fps=30,</span>
 <span class="sd">    ... )</span>
 
@@ -571,6 +613,7 @@
         <span class="n">confidence_array</span><span class="o">=</span><span class="n">confidence_array</span><span class="p">,</span>
         <span class="n">individual_names</span><span class="o">=</span><span class="n">individual_names</span><span class="p">,</span>
         <span class="n">keypoint_names</span><span class="o">=</span><span class="n">keypoint_names</span><span class="p">,</span>
+        <span class="n">frame_array</span><span class="o">=</span><span class="n">frame_array</span><span class="p">,</span>
         <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
         <span class="n">source_software</span><span class="o">=</span><span class="n">source_software</span><span class="p">,</span>
     <span class="p">)</span>

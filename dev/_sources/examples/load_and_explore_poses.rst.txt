@@ -127,9 +127,9 @@ Load the data into movement
         confidence  (time, keypoint, individual) float32 7kB nan nan nan ... nan nan
     Attributes:
         source_software:  SLEAP
-        ds_type:          poses
         fps:              50.0
         time_unit:        seconds
+        ds_type:          poses
         source_file:      /home/runner/.movement/data/poses/SLEAP_three-mice_Aeon...
 
 
@@ -215,7 +215,7 @@ using ``xarray``'s built-in plotting methods:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fb7cbeb2a50>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7efbc5eca900>
 
 
 
@@ -246,7 +246,7 @@ for all individuals:
  .. code-block:: none
 
 
-    <xarray.plot.facetgrid.FacetGrid object at 0x7fb7cc011bd0>
+    <xarray.plot.facetgrid.FacetGrid object at 0x7efbc5cd1950>
 
 
 
@@ -282,7 +282,7 @@ visualisations, like :func:`plot_centroid_trajectory()\
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.755 seconds)
+   **Total running time of the script:** (0 minutes 0.449 seconds)
 
 
 .. _sphx_glr_download_examples_load_and_explore_poses.py:

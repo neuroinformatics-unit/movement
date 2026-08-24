@@ -92,9 +92,9 @@ In this tutorial, we will use a sample dataset with a single individual
         confidence  (time, keypoint, individual) float64 1MB 0.0002829 ... 0.9978
     Attributes:
         source_software:  DeepLabCut
-        ds_type:          poses
         fps:              30.0
         time_unit:        seconds
+        ds_type:          poses
         source_file:      /home/runner/.movement/data/poses/DLC_single-mouse_EPM....
         frame_path:       /home/runner/.movement/data/frames/single-mouse_EPM_fra...
     -----------------------------
@@ -316,7 +316,7 @@ We will do this for a small time window to make the plot more readable.
  .. code-block:: none
 
 
-    <matplotlib.legend.Legend object at 0x7fb7c813d950>
+    <matplotlib.legend.Legend object at 0x7efbadc216d0>
 
 
 
@@ -694,7 +694,7 @@ differ less than 20 degrees (2 histogram bins).
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.888 seconds)
+   **Total running time of the script:** (0 minutes 0.571 seconds)
 
 
 .. _sphx_glr_download_examples_compute_head_direction.py:

@@ -86,9 +86,9 @@ display of the dataset's contents.
         confidence  (time, keypoint, individual) float64 17kB 0.05305 ... 0.0
     Attributes:
         source_software:  DeepLabCut
-        ds_type:          poses
         fps:              40.0
         time_unit:        seconds
+        ds_type:          poses
         source_file:      /home/runner/.movement/data/poses/DLC_single-wasp.predi...
         frame_path:       /home/runner/.movement/data/frames/single-wasp_frame-10...
 
@@ -318,9 +318,9 @@ dataset that contains missing values.
         confidence  (time, keypoint, individual) float32 444kB nan nan ... 0.7607
     Attributes:
         source_software:  SLEAP
-        ds_type:          poses
         fps:              30.0
         time_unit:        seconds
+        ds_type:          poses
         source_file:      /home/runner/.movement/data/poses/SLEAP_single-mouse_EP...
         frame_path:       /home/runner/.movement/data/frames/single-mouse_EPM_fra...
 
@@ -769,7 +769,7 @@ what we've done.
     [
       {
         "operation": "rolling_filter",
-        "datetime": "2026-08-24 07:15:32.502043",
+        "datetime": "2026-08-24 10:03:34.365320",
         "window": "3",
         "statistic": "'median'",
         "min_periods": "2",
@@ -777,14 +777,14 @@ what we've done.
       },
       {
         "operation": "interpolate_over_time",
-        "datetime": "2026-08-24 07:15:32.524869",
+        "datetime": "2026-08-24 10:03:34.381152",
         "method": "'linear'",
         "max_gap": "30",
         "print_report": "False"
       },
       {
         "operation": "savgol_filter",
-        "datetime": "2026-08-24 07:15:32.528717",
+        "datetime": "2026-08-24 10:03:34.383703",
         "window": "12",
         "polyorder": "2",
         "print_report": "False",
@@ -839,7 +839,7 @@ also look at other keypoints and time ranges.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.644 seconds)
+   **Total running time of the script:** (0 minutes 0.991 seconds)
 
 
 .. _sphx_glr_download_examples_smooth.py:

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=7bcbe253"></script>
+    <script src="../_static/documentation_options.js?v=0b6f8b72"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev29</p>
+    <p class="title logo__title">movement v0.17.1.dev32</p>
   
 </a></div>
     
@@ -669,7 +669,7 @@
 <h1>ValidBboxesInputs<a class="headerlink" href="#validbboxesinputs" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">movement.validators.datasets.</span></span><span class="sig-name descname"><span class="pre">ValidBboxesInputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_software</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/datasets.html#ValidBboxesInputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs" title="Link to this definition">#</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">movement.validators.datasets.</span></span><span class="sig-name descname"><span class="pre">ValidBboxesInputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">position_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">confidence_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">individual_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame_array</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_software</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape_array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/validators/datasets.html#ValidBboxesInputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_BaseDatasetInputs</span></code></p>
 <p>Class for validating input data for a <code class="docutils literal notranslate"><span class="pre">movement</span> <span class="pre">bboxes</span></code> dataset.</p>
 <p>The validator considers 2D bounding boxes only. It ensures that
@@ -690,7 +690,7 @@ names for the individuals, with length matching the number of
 individuals in the dataset; otherwise, default names are assigned.</p></li>
 <li><p>The optional <code class="docutils literal notranslate"><span class="pre">frame_array</span></code>, if provided, is a column vector
 with the frame numbers; otherwise, it defaults to an array of
-0-based integers.</p></li>
+consecutive 0-based integers.</p></li>
 <li><p>The optional <code class="docutils literal notranslate"><span class="pre">fps</span></code> is a positive float; otherwise, it defaults to None.</p></li>
 <li><p>The optional <code class="docutils literal notranslate"><span class="pre">source_software</span></code> is a string; otherwise, it defaults to
 None.</p></li>
@@ -781,11 +781,10 @@ set to None and a warning will be issued.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="movement.validators.datasets.ValidBboxesInputs.frame_array">
 <span class="sig-name descname"><span class="pre">frame_array</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><span class="pre">ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><a class="headerlink" href="#movement.validators.datasets.ValidBboxesInputs.frame_array" title="Link to this definition">#</a></dt>
-<dd><p>Array containing the frame numbers for which bounding boxes are defined.
-The frame_array should be a column vector of shape (n_frames, 1) and should
-be monotonically increasing. If None (default), frame numbers will be
-assigned based on the first dimension of the position_array, starting from
-0.</p>
+<dd><p>Array containing the frame numbers corresponding to the data.
+The frame_array must be a column vector of shape (n_frames, 1)
+and values must be monotonically increasing. If None (default),
+frame numbers are assigned as consecutive 0-based integers.</p>
 </dd></dl>
 
 <dl class="py attribute">
