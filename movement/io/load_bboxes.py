@@ -71,11 +71,10 @@ def from_numpy(
 
     Examples
     --------
-    Create random position data for two bounding boxes, ``id_0`` and ``id_1``,
-    with the same width (40 pixels) and height (30 pixels). These are tracked
-    in 2D space for 100 frames, which are numbered from the start frame 1200
-    to the end frame 1299. The confidence score for all bounding boxes is set
-    to 0.5.
+    Create random position and shape data for two bounding boxes, tracked
+    in 2D space for 100 frames. Confidence scores are omitted, so they
+    default to NaN, and individuals are auto-named ("id_0", "id_1"). Time
+    coordinates default to consecutive 0-based frame numbers.
 
     >>> import numpy as np
     >>> from movement.io import load_bboxes
@@ -83,8 +82,27 @@ def from_numpy(
     >>> ds = load_bboxes.from_numpy(
     ...     position_array=rng.random((100, 2, 2)),
     ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
+    ... )
+
+    Create a dataset with the same data as above, but name the individuals
+    ``Alice`` and ``Bob``, and set all confidence scores to 0.5.
+
+    >>> ds = load_bboxes.from_numpy(
+    ...     position_array=rng.random((100, 2, 2)),
+    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
     ...     confidence_array=np.ones((100, 2)) * 0.5,
-    ...     individual_names=["id_0", "id_1"],
+    ...     individual_names=["Alice", "Bob"],
+    ... )
+
+    Create a dataset with the same data as above, but specify that the
+    100 frames are numbered from the start frame 1200 to the end frame
+    1299, instead of defaulting to 0-based frame numbers.
+
+    >>> ds = load_bboxes.from_numpy(
+    ...     position_array=rng.random((100, 2, 2)),
+    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
+    ...     confidence_array=np.ones((100, 2)) * 0.5,
+    ...     individual_names=["Alice", "Bob"],
     ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),
     ... )
 
@@ -99,32 +117,8 @@ def from_numpy(
     ...     position_array=rng.random((100, 2, 2)),
     ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
     ...     confidence_array=np.ones((100, 2)) * 0.5,
-    ...     individual_names=["id_0", "id_1"],
+    ...     individual_names=["Alice", "Bob"],
     ...     frame_array=np.arange(1200, 1300).reshape(-1, 1),
-    ...     fps=60,
-    ... )
-
-    Create a dataset with the same data as above, but express the time
-    coordinate in frames, and assume the first tracked frame is frame 0.
-    To do this, we simply omit the ``frame_array`` input argument.
-
-    >>> ds = load_bboxes.from_numpy(
-    ...     position_array=rng.random((100, 2, 2)),
-    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
-    ...     confidence_array=np.ones((100, 2)) * 0.5,
-    ...     individual_names=["id_0", "id_1"],
-    ... )
-
-    Create a dataset with the same data as above, but express the time
-    coordinate in seconds, and assume the first tracked frame is captured
-    at time = 0 seconds. To do this, we omit the ``frame_array`` input argument
-    and pass an ``fps`` value.
-
-    >>> ds = load_bboxes.from_numpy(
-    ...     position_array=rng.random((100, 2, 2)),
-    ...     shape_array=np.ones((100, 2, 2)) * [40, 30],
-    ...     confidence_array=np.ones((100, 2)) * 0.5,
-    ...     individual_names=["id_0", "id_1"],
     ...     fps=60,
     ... )
 
