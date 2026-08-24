@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:01.944** total execution time for 2 files **from examples/advanced**:
+**00:01.582** total execution time for 2 files **from examples/advanced**:
 
 .. container::
 
@@ -33,8 +33,8 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_examples_advanced_broadcasting_your_own_methods.py` (``broadcasting_your_own_methods.py``)
-     - 00:01.109
+     - 00:00.854
      - 0.0
    * - :ref:`sphx_glr_examples_advanced_annotate_boris_events.py` (``annotate_boris_events.py``)
-     - 00:00.835
+     - 00:00.728
      - 0.0
