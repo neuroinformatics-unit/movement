@@ -43,7 +43,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](gith
 2. Clone your fork to your local machine and navigate to the repository folder:
 
     ```sh
-    git clone [https://github.com/](https://github.com/)<your-github-username>/movement.git
+    git clone https://github.com/<your-github-username>/movement.git
     cd movement
     ```
 
@@ -51,7 +51,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](gith
    This links your local copy to the original project so you can pull the latest changes.
 
     ```sh
-    git remote add upstream [https://github.com/neuroinformatics-unit/movement.git](https://github.com/neuroinformatics-unit/movement.git)
+    git remote add upstream https://github.com/neuroinformatics-unit/movement.git
     ```
 
     :::{note}
