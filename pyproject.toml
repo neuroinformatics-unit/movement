@@ -221,5 +221,5 @@ passenv =
 dependency_groups =
     dev
 commands =
-    pytest -v --color=yes --cov=movement --cov-report=xml
+    pytest -v --color=yes --cov=movement --cov-report=xml -m "" --benchmark-disable
 """
