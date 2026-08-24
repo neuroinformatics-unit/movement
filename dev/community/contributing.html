@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
 
-    <script src="../_static/documentation_options.js?v=0b6f8b72"></script>
+    <script src="../_static/documentation_options.js?v=af170f6b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev32</p>
+    <p class="title logo__title">movement v0.17.1.dev33</p>
   
 </a></div>
     
@@ -705,13 +705,16 @@ These datasets are accessible through the <code class="docutils literal notransl
 Avoid including large data files directly in the GitHub repository.</p>
 <section id="running-benchmark-tests">
 <h4>Running benchmark tests<a class="headerlink" href="#running-benchmark-tests" title="Link to this heading">#</a></h4>
-<p>Some tests are marked as <code class="docutils literal notranslate"><span class="pre">benchmark</span></code> because we use them along with <a class="reference external" href="https://pytest-benchmark.readthedocs.io/en/latest/#">pytest-benchmark</a> to measure the performance of a section of the code. These tests are excluded from the default test run to keep CI and local test running fast.
-This applies to all ways of running <code class="docutils literal notranslate"><span class="pre">pytest</span></code> (via command line, IDE, tox or CI).</p>
+<p>Some tests are marked as <code class="docutils literal notranslate"><span class="pre">benchmark</span></code> because we use them with <a class="reference external" href="https://pytest-benchmark.readthedocs.io/en/latest/#">pytest-benchmark</a> to measure the performance of specific code paths.
+These tests are excluded from the default test run to keep the suite fast.
+This applies to any direct <code class="docutils literal notranslate"><span class="pre">pytest</span></code> invocation (command line or IDE).
+Our <code class="docutils literal notranslate"><span class="pre">tox</span></code> environment—used in CI—runs the full test suite, including the benchmark tests, but with benchmarking disabled (<code class="docutils literal notranslate"><span class="pre">--benchmark-disable</span></code>).
+This acts as a smoke check: no timing or statistics are collected; it simply verifies that the benchmarked code still executes correctly.</p>
 <p>To run only the benchmark tests locally:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>-m<span class="w"> </span>benchmark
 </pre></div>
 </div>
-<p>To run all tests, including those marked as <code class="docutils literal notranslate"><span class="pre">benchmark</span></code>:</p>
+<p>To run the full test suite, including tests marked as <code class="docutils literal notranslate"><span class="pre">benchmark</span></code>:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pytest<span class="w"> </span>-m<span class="w"> </span><span class="s2">""</span>
 </pre></div>
 </div>
