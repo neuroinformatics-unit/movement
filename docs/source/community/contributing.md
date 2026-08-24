@@ -971,7 +971,6 @@ If the linkcheck step incorrectly marks links with valid anchors as broken, you 
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs
 linkcheck_anchors_ignore_for_url = [
-    "https://gin.g-node.org/G-Node/Info/wiki/",
     "https://neuroinformatics.zulipchat.com/",
 ]
 ```

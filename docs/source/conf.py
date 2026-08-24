@@ -219,7 +219,6 @@ linkcheck_retries = 3  # default is 1
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs (because they are generated dynamically)
 linkcheck_anchors_ignore_for_url = [
-    "https://gin.g-node.org/G-Node/Info/wiki/",
     "https://neuroinformatics.zulipchat.com/",
     "https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py",
 ]
@@ -239,7 +238,7 @@ linkcheck_ignore = [
     "https://www.iso.org/",
     "https://www.ffmpeg.org/",
     "https://gis.stackexchange.com/",
-    "https://www.g-node.org/",
+    "https?://([\w-]+\.)*g-node\.org(/\S*)?",
     "https://www.contributor-covenant.org/",
     "https://opensource.org/license/bsd-3-clause/",
     "https://www.sainsburywellcome.org/",
