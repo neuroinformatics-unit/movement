@@ -1,7 +1,7 @@
 """Save pose tracking data from ``movement`` to various file formats."""
 
 from pathlib import Path
-from typing import Literal
+from typing import Literal, overload
 
 import h5py
 import numpy as np
@@ -75,12 +75,6 @@ def _ds_to_dlc_style_df(
     return df
 
 
-def _auto_split_individuals(ds: xr.Dataset) -> bool:
-    """Return True if there is only one individual in the dataset."""
-    n_individuals = ds.sizes["individual"]
-    return n_individuals == 1
-
-
 def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
     """Save the dataframe as either a .h5 or .csv depending on the file path.
 
@@ -99,6 +93,18 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
         df.to_hdf(filepath, key="df_with_missing")
 
 
+@overload
+def to_dlc_style_df(
+    ds: xr.Dataset, split_individuals: Literal[False] = False
+) -> pd.DataFrame: ...
+@overload
+def to_dlc_style_df(
+    ds: xr.Dataset, split_individuals: Literal[True]
+) -> dict[str, pd.DataFrame]: ...
+@overload
+def to_dlc_style_df(
+    ds: xr.Dataset, split_individuals: bool
+) -> pd.DataFrame | dict[str, pd.DataFrame]: ...
 def to_dlc_style_df(
     ds: xr.Dataset, split_individuals: bool = False
 ) -> pd.DataFrame | dict[str, pd.DataFrame]:
@@ -223,8 +229,7 @@ def to_dlc_file(
 
     # Sets default behaviour for the function
     if split_individuals == "auto":
-        split_individuals = _auto_split_individuals(ds)
-
+        split_individuals = ds.individual.size == 1
     elif not isinstance(split_individuals, bool):
         raise logger.error(
             ValueError(
@@ -232,29 +237,22 @@ def to_dlc_file(
                 f"but got {type(split_individuals)}."
             )
         )
-
-    if split_individuals:
-        # split the dataset into a dictionary of dataframes per individual
-        df_dict = to_dlc_style_df(ds, split_individuals=True)
-        # only disambiguate the file paths if there is more than one file
-        append_name = len(df_dict) > 1
-
-        for key, df in df_dict.items():
-            # the key is the individual's name
-            filepath = (
-                Path(f"{valid_path.with_suffix('')}_{key}{valid_path.suffix}")
-                if append_name
-                else valid_path
+    assert isinstance(split_individuals, bool)
+    df_all = to_dlc_style_df(ds, split_individuals=split_individuals)
+    if isinstance(df_all, pd.DataFrame):
+        df_all = {"": df_all}
+    for individual, df in df_all.items():
+        # a single individual is always saved to the given path as is;
+        # multiple individuals get their name appended to the path
+        filepath = (
+            valid_path
+            if len(df_all) == 1
+            else Path(
+                f"{valid_path.with_suffix('')}_{individual}{valid_path.suffix}"
             )
-            if isinstance(df, pd.DataFrame):
-                _save_dlc_df(filepath, df)
-            logger.info(f"Saved poses for individual {key} to {filepath}.")
-    else:
-        # convert the dataset to a single dataframe for all individuals
-        df_all = to_dlc_style_df(ds, split_individuals=False)
-        if isinstance(df_all, pd.DataFrame):
-            _save_dlc_df(valid_path, df_all)
-        logger.info(f"Saved poses dataset to {valid_path}.")
+        )
+        _save_dlc_df(filepath, df)
+        logger.info(f"Saved poses dataset to {filepath}.")
 
 
 def to_lp_file(
