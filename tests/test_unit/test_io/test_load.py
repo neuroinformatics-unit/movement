@@ -34,12 +34,8 @@ class StubValidFile:
     "file_validators, expected_file_type",
     [(None, str), (StubValidFile, StubValidFile)],
 )
-def test_register_loader_decorator(
-    file_validators, expected_file_type, mocker
-):
+def test_register_loader_decorator(file_validators, expected_file_type):
     """Test register_loader with and without file validators."""
-    mocker.patch.dict("movement.io.load._LOADER_REGISTRY")
-    mocker.patch.dict("movement.io.load._LOADER_VALIDATORS_REGISTRY")
 
     @load.register_loader("StubSoftware", file_validators=file_validators)
     def stub_loader_fn(
