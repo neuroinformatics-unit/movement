@@ -3,11 +3,6 @@
 Adapted from a pattern for docking a ``matplotlib`` canvas in napari and
 syncing it to the current frame via ``viewer.dims.events.current_step``:
 https://gist.github.com/jni/a0ae9793a0ca43868dd7dce7ea21df79
-
-Instantiated by :class:`~movement.napari.meta_widget.MovementMetaWidget`,
-which docks it at the bottom of the viewer (rather than nesting it as a
-collapsible section) since it's a wide timeline, not a compact control
-panel.
 """
 
 import numpy as np
@@ -19,8 +14,8 @@ from napari.layers import Points
 from napari.layers.base import ActionType
 from napari.utils.theme import get_theme
 from napari.viewer import Viewer
-from qtpy.QtCore import QTimer
-from qtpy.QtWidgets import QCheckBox, QVBoxLayout, QWidget
+from qtpy.QtCore import QTimer, Signal
+from qtpy.QtWidgets import QCheckBox, QLabel, QVBoxLayout, QWidget
 
 from movement.napari.loader_widgets import (
     POINTS_LAYER_KEY,
@@ -43,6 +38,37 @@ ZOOM_OUT_FACTOR = 1.25
 DRAG_THRESHOLD_PIXELS = 3
 
 
+class EditControlsWidget(QWidget):
+    """Sidebar controls for the edited-frames timeline.
+
+    Placed in :class:`~movement.napari.meta_widget.MovementMetaWidget`'s
+    "Edited track Data" collapsible section, which just toggles whether
+    the (separately docked) :class:`EditWidget` timeline is shown.
+    """
+
+    show_individuals_toggled = Signal(bool)
+
+    def __init__(self, parent=None):
+        """Initialise the instructions label and display checkbox."""
+        super().__init__(parent=parent)
+        instructions = QLabel(
+            "Drag a point in the viewer to move it, or select it and "
+            "press Delete/Backspace to remove it. Edited frames are "
+            "flagged on the timeline below."
+        )
+        instructions.setWordWrap(True)
+
+        self.show_individuals_checkbox = QCheckBox("Display individuals")
+        self.show_individuals_checkbox.toggled.connect(
+            self.show_individuals_toggled
+        )
+
+        layout = QVBoxLayout()
+        layout.addWidget(instructions)
+        layout.addWidget(self.show_individuals_checkbox)
+        self.setLayout(layout)
+
+
 class EditWidget(QWidget):
     """Dock widget flagging frames with edited points.
 
@@ -51,7 +77,8 @@ class EditWidget(QWidget):
     Points layer. Bars are coloured to match that point's colour in the
     Points/Tracks layers. A playhead line marks the frame currently
     shown in the viewer. Scroll to zoom in/out on the timeline, and
-    click a bar to jump to that frame.
+    click a bar to jump to that frame. Whether lanes are split per
+    individual is controlled externally via :meth:`set_show_individuals`.
     """
 
     def __init__(self, napari_viewer: Viewer, parent=None):
@@ -75,18 +102,13 @@ class EditWidget(QWidget):
         self.canvas.setMinimumHeight(200)
         self.ax = self.figure.subplots()
         self._style_axes()
-        self.playhead = self.ax.axvline(0, color=PLAYHEAD_COLOR, linewidth=1)
-        self._apply_theme()
-
-        self.show_individuals_checkbox = QCheckBox("Display individuals")
-        self.show_individuals_checkbox.setChecked(self._show_individuals)
-        self.show_individuals_checkbox.toggled.connect(
-            self._on_show_individuals_toggled
+        self.playhead = self.ax.axvline(
+            0, color=PLAYHEAD_COLOR, linewidth=2, linestyle="--"
         )
+        self._apply_theme()
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.show_individuals_checkbox)
         layout.addWidget(self.canvas)
         self.setLayout(layout)
 
@@ -151,8 +173,13 @@ class EditWidget(QWidget):
             self._removed_points = []
             self._redraw_bars()
 
-    def _on_show_individuals_toggled(self, checked):
-        """Switch between one shared lane and one lane per individual."""
+    def set_show_individuals(self, checked: bool) -> None:
+        """Switch between one shared lane and one lane per individual.
+
+        Called by the "Display individuals" checkbox that
+        :class:`~movement.napari.meta_widget.MovementMetaWidget` places
+        in its "Edited track Data" section.
+        """
         self._show_individuals = checked
         self._redraw_bars()
 
