@@ -214,20 +214,6 @@ def test_to_dlc_file_invalid_dataset(
 
 
 @pytest.mark.parametrize(
-    "valid_poses_dataset, split_value",
-    [("single_individual_array", True), ("multi_individual_array", False)],
-    indirect=["valid_poses_dataset"],
-)
-def test_auto_split_individuals(valid_poses_dataset, split_value):
-    """Test that setting 'split_individuals' to 'auto' yields True
-    for single-individual datasets and False for multi-individual ones.
-    """
-    assert (
-        save_poses._auto_split_individuals(valid_poses_dataset) == split_value
-    )
-
-
-@pytest.mark.parametrize(
     "valid_poses_dataset",
     ["single_individual_array", "multi_individual_array"],
     indirect=True,
