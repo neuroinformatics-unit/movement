@@ -39,10 +39,6 @@ from movement.napari.loader_widgets import (
     DataLoader,
 )
 
-pytestmark = pytest.mark.filterwarnings(
-    "ignore:.*Previous color_by key.*:UserWarning"
-)
-
 
 # ------------------- tests for widget instantiation--------------------------#
 def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
@@ -1002,21 +998,22 @@ def test_on_points_data_changed_ignores_tracks_layer(
     "action_type",
     [
         ActionType.ADDED,
-        ActionType.REMOVED,
         ActionType.ADDING,
         ActionType.REMOVING,
         ActionType.CHANGING,
     ],
 )
-def test_on_points_data_changed_ignores_non_move_events(
+def test_on_points_data_changed_ignores_unhandled_action_types(
     action_type, valid_poses_path_and_ds, loaded_data_loader
 ):
-    """Test that the callback leaves confidence untouched for non-drag events.
+    """Test that the callback leaves confidence untouched for other events.
 
-    Verifies that :meth:`DataLoader._on_points_data_changed` only acts on
-    ``ActionType.CHANGED`` (completed drag) and ignores all other action types,
-    including ``ADDING``, ``ADDED``, ``REMOVING``, ``REMOVED``, and
-    ``CHANGING`` (in-progress drag).
+    Verifies that :meth:`DataLoader._on_points_data_changed` leaves
+    ``confidence`` untouched for action types it does not act on:
+    ``ADDING``, ``ADDED``, ``REMOVING``, and ``CHANGING``
+    (in-progress drag). The two action types it does handle,
+    ``ActionType.CHANGED`` (completed drag) and ``ActionType.REMOVED``
+    (completed removal), are covered elsewhere.
     """
     filepath, ds_loaded = valid_poses_path_and_ds
     loader = loaded_data_loader(filepath, ds_loaded)
@@ -1060,7 +1057,6 @@ def test_on_points_data_changed_syncs_tracks_layer(
     )
 
     # `edited` flags exactly the dragged row; use it to partition rows
-    # instead of assuming which index is "the previous frame".
     edited = loader.points_layer.properties["edited"]
     moved_index = int(np.flatnonzero(edited)[0])
     new_position = loader.points_layer.data[moved_index]
@@ -1073,6 +1069,161 @@ def test_on_points_data_changed_syncs_tracks_layer(
     np.testing.assert_array_equal(
         loader.tracks_layer.data[~edited], original_tracks_data[~edited]
     )
+
+
+def test_on_points_data_changed_preserves_tracks_color_by(
+    valid_poses_path_and_ds, loaded_data_loader, move_point
+):
+    """Test that dragging a point leaves the Tracks layer's colouring intact.
+
+    Regression test for GH issue #573: setting ``Tracks.data`` resets
+    the layer's features to empty, which transiently invalidates
+    ``color_by`` and triggers a spurious "Previous color_by key ...
+    not present in features" warning. ``DataLoader._set_tracks_layer_data``
+    restores ``color_by`` and the ``*_factorized`` property right after,
+    so both should be unchanged once a drag completes.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+
+    color_by = loader.tracks_layer.color_by
+    original_factorized = loader.tracks_layer.properties[color_by].copy()
+
+    move_point(
+        loader,
+        frame=5,
+        keypoint="centroid",
+        individual="id_0",
+        new_y=100,
+        new_x=200,
+    )
+
+    assert loader.tracks_layer.color_by == color_by
+    np.testing.assert_array_equal(
+        loader.tracks_layer.properties[color_by], original_factorized
+    )
+
+
+def test_on_points_data_removes_tracks_layer_row(
+    valid_poses_path_and_ds, loaded_data_loader, remove_point
+):
+    """Test that deleting a point removes the matching row from Tracks.
+
+    Verifies that `DataLoader._on_points_data_changed` reacts to
+    the real ``ActionType.REMOVED`` event fired by napari's own
+    ``Points.remove`` by dropping the same row from the companion
+    Tracks layer, leaving every other row untouched.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+
+    original_tracks = loader.tracks_layer.data.copy()
+
+    edit_idx = remove_point(
+        loader, frame=5, keypoint="centroid", individual="id_0"
+    )
+    assert len(loader.tracks_layer.data) == len(original_tracks) - 1
+
+    # Rows before the deleted one are untouched; rows after it have
+    # shifted up by one position, as ``np.delete`` does.
+    np.testing.assert_array_equal(
+        loader.tracks_layer.data[:edit_idx],
+        original_tracks[:edit_idx],
+    )  # is everything before the deleted row identical?
+    np.testing.assert_array_equal(
+        loader.tracks_layer.data[edit_idx:],
+        original_tracks[edit_idx + 1 :],
+    )  # did everything survive after the deleted row and shifted
+    # down by exactly one index to fill the gap?
+
+
+@pytest.mark.parametrize(
+    "sequence", ["drag_delete_drag", "delete_drag_delete"]
+)
+def test_on_points_data_changed_consecutive_edits(
+    valid_poses_path_and_ds,
+    loaded_data_loader,
+    move_point,
+    remove_point,
+    sequence,
+):
+    """Test that interleaved drags and deletes keep tracks layer in sync.
+
+    Regression test for the Points and Tracks layers falling out of
+    sync after a mix of edit types in the same session. Each sequence
+    touches three distinct points, so row-index shifts caused by an
+    earlier deletion don't affect later lookups (both fixtures look
+    points up by frame/keypoint/individual, not raw row index).
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+    n_original = len(loader.tracks_layer.data)
+
+    point_a = {"frame": 1, "keypoint": "centroid", "individual": "id_0"}
+    point_b = {"frame": 4, "keypoint": "left", "individual": "id_1"}
+    point_c = {"frame": 7, "keypoint": "right", "individual": "id_0"}
+
+    if sequence == "drag_delete_drag":
+        move_point(loader, **point_a, new_y=111, new_x=222)
+        remove_point(loader, **point_b)
+        move_point(loader, **point_c, new_y=333, new_x=444)
+        last_moved, new_y, new_x = point_c, 333, 444
+        n_expected = n_original - 1
+    else:
+        remove_point(loader, **point_a)
+        move_point(loader, **point_b, new_y=111, new_x=222)
+        remove_point(loader, **point_c)
+        last_moved, new_y, new_x = point_b, 111, 222
+        n_expected = n_original - 2
+
+    assert len(loader.points_layer.data) == n_expected
+    assert len(loader.tracks_layer.data) == n_expected
+
+    live_props = loader.points_layer.properties
+    idx = int(
+        np.flatnonzero(
+            (live_props["time"] == last_moved["frame"])
+            & (live_props["keypoint"] == last_moved["keypoint"])
+            & (live_props["individual"] == last_moved["individual"])
+        )[0]
+    )
+    np.testing.assert_array_equal(
+        loader.tracks_layer.data[idx, 1:],
+        [last_moved["frame"], new_y, new_x],
+    )
+
+
+def test_update_points_layers_editable_toggles_with_axis_order(
+    valid_poses_path_and_ds, loaded_data_loader
+):
+    """Test that ``editable`` follows whether frame is the sliced axis.
+
+    Rolling the displayed axes, or switching to a 3D view, means a
+    point drag could touch a different frame (see
+    ``DataLoader._frame_axis_is_sliced``), so the Points layer should
+    become non-editable; restoring the default order/2D view should
+    make it editable again.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+
+    assert loader.points_layer.editable
+
+    # Roll the axes so frame is no longer the sliced axis.
+    loader.viewer.dims.order = (1, 0, 2)
+    assert not loader.points_layer.editable
+
+    # Restore the default order.
+    loader.viewer.dims.order = (0, 1, 2)
+    assert loader.points_layer.editable
+
+    # Switch to a 3D view.
+    loader.viewer.dims.ndisplay = 3
+    assert not loader.points_layer.editable
+
+    # Back to the default 2D view.
+    loader.viewer.dims.ndisplay = 2
+    assert loader.points_layer.editable
 
 
 def test_on_points_data_changed_second_drag_extends_edited(
