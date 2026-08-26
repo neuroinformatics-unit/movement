@@ -27,8 +27,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=634eab24" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
@@ -39,12 +39,12 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=f71e91d5"></script>
+    <script src="../_static/documentation_options.js?v=536615cc"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -52,7 +52,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/scale';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.20.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev36</p>
+    <p class="title logo__title">movement v0.17.1.dev37</p>
   
 </a></div>
     
@@ -945,7 +945,7 @@ Log:
 [
   {
     "operation": "filter_by_confidence",
-    "datetime": "2026-08-24 15:25:33.404420",
+    "datetime": "2026-08-26 13:54:05.054778",
     "confidence": "&lt;xarray.DataArray 'confidence' (time: 418, keypoint: 43)&gt; Size: 144kB\n0.02365 0.01434 0.01821 0.02692 0.05129 ... 0.004628 0.007376 0.003921 0.005941\nCoordinates:\n  * time        (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688\n  * keypoint    (keypoint) &lt;U15 3kB 'Nose' 'EarL' ... 'HindpawKneeL'\n    individual  &lt;U12 48B 'individual_0'",
     "threshold": "0.9",
     "keep_points_with_nan_confidence": "True",
@@ -953,14 +953,14 @@ Log:
   },
   {
     "operation": "interpolate_over_time",
-    "datetime": "2026-08-24 15:25:33.416706",
+    "datetime": "2026-08-26 13:54:05.068962",
     "method": "'linear'",
     "max_gap": "40",
     "print_report": "False"
   },
   {
     "operation": "rolling_filter",
-    "datetime": "2026-08-24 15:25:33.419629",
+    "datetime": "2026-08-26 13:54:05.072365",
     "window": "6",
     "statistic": "'median'",
     "min_periods": "2",
@@ -968,7 +968,7 @@ Log:
   },
   {
     "operation": "scale",
-    "datetime": "2026-08-24 15:25:33.614977",
+    "datetime": "2026-08-26 13:54:05.301099",
     "factor": "np.float64(0.03440766330229682)",
     "space_unit": "'cm'"
   }
@@ -1163,7 +1163,7 @@ this difference grows more than tenfold, reflecting the gait adjustments
 the mouse makes to accommodate the speed differential between belts.</p>
 <p>Having the data in real-world units makes these quantitative comparisons
 possible.</p>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.604 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.761 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-scale-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/scale.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
@@ -1265,8 +1265,8 @@ possible.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1280,7 +1280,7 @@ possible.</p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.20.0.
+    0.21.0.
     </p></div>
       
     </div>

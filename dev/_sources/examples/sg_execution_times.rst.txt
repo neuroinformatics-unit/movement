@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:18.273** total execution time for 11 files **from examples**:
+**00:19.901** total execution time for 11 files **from examples**:
 
 .. container::
 
@@ -33,35 +33,35 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_examples_load_and_upsample_bboxes.py` (``load_and_upsample_bboxes.py``)
-     - 00:03.640
+     - 00:03.911
      - 0.0
    * - :ref:`sphx_glr_examples_mouse_eye_movements.py` (``mouse_eye_movements.py``)
-     - 00:03.309
+     - 00:03.524
      - 0.0
    * - :ref:`sphx_glr_examples_compute_kinematics.py` (``compute_kinematics.py``)
-     - 00:02.138
+     - 00:02.353
      - 0.0
    * - :ref:`sphx_glr_examples_filter_and_interpolate.py` (``filter_and_interpolate.py``)
-     - 00:01.687
+     - 00:01.872
      - 0.0
    * - :ref:`sphx_glr_examples_scale.py` (``scale.py``)
-     - 00:01.604
+     - 00:01.761
      - 0.0
    * - :ref:`sphx_glr_examples_smooth.py` (``smooth.py``)
-     - 00:01.544
+     - 00:01.723
      - 0.0
    * - :ref:`sphx_glr_examples_boundary_angles.py` (``boundary_angles.py``)
-     - 00:01.366
+     - 00:01.555
      - 0.0
    * - :ref:`sphx_glr_examples_load_freemocap_data.py` (``load_freemocap_data.py``)
-     - 00:01.060
+     - 00:01.127
      - 0.0
    * - :ref:`sphx_glr_examples_compute_head_direction.py` (``compute_head_direction.py``)
-     - 00:00.851
+     - 00:00.922
      - 0.0
    * - :ref:`sphx_glr_examples_load_and_explore_poses.py` (``load_and_explore_poses.py``)
-     - 00:00.710
+     - 00:00.784
      - 0.0
    * - :ref:`sphx_glr_examples_convert_file_formats.py` (``convert_file_formats.py``)
-     - 00:00.366
+     - 00:00.369
      - 0.0
