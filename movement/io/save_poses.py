@@ -87,6 +87,7 @@ def _save_dlc_df(filepath: Path, df: pd.DataFrame) -> None:
         Pandas Dataframe to save
 
     """
+    validate_file_path(filepath, permission="w", suffixes={".csv", ".h5"})
     if filepath.suffix == ".csv":
         df.to_csv(filepath, sep=",")
     else:  # at this point it can only be .h5 (because of validation)
