@@ -228,7 +228,7 @@ def test_to_dlc_style_df_split_individuals(
     df = save_poses.to_dlc_style_df(valid_poses_dataset, split_individuals)
     # Get the names of the individuals in the dataset
     ind_names = valid_poses_dataset.individual.values
-    if split_individuals is False:
+    if not split_individuals:
         # this should produce a single df in multi-animal DLC format
         assert isinstance(df, pd.DataFrame)
         assert df.columns.names == [
@@ -241,7 +241,7 @@ def test_to_dlc_style_df_split_individuals(
             [ind in df.columns.get_level_values("individuals")]
             for ind in ind_names
         )
-    elif split_individuals is True:
+    else:
         # this should produce a dict of dfs in single-animal DLC format
         assert isinstance(df, dict)
         for ind in ind_names:
@@ -294,26 +294,11 @@ def test_to_dlc_file_split_individuals(
         else:
             # this should save a single file, at the given file path
             assert new_h5_file.is_file()
+            for ind in ind_names:
+                assert not Path(
+                    f"{new_h5_file.with_suffix('')}_{ind}.h5"
+                ).is_file()
             new_h5_file.unlink()
-
-
-@pytest.mark.parametrize(
-    "valid_poses_dataset", ["single_individual_array"], indirect=True
-)
-@pytest.mark.parametrize("split_individuals", [True, "auto"])
-def test_to_dlc_file_single_individual_keeps_file_path(
-    valid_poses_dataset, split_individuals, tmp_path
-):
-    """Test that a single-individual dataset is saved to the given file
-    path, without the individual's name appended to it.
-    """
-    file_path = tmp_path / "x.h5"
-    save_poses.to_dlc_file(valid_poses_dataset, file_path, split_individuals)
-    ind_name = valid_poses_dataset.individual.values[0]
-    assert file_path.is_file()
-    assert not (tmp_path / f"x_{ind_name}.h5").is_file()
-    # no other files should have been created
-    assert [path.name for path in tmp_path.iterdir()] == ["x.h5"]
 
 
 def test_to_lp_file_valid_dataset(
