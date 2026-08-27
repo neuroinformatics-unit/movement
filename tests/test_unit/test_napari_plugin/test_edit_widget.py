@@ -1,8 +1,10 @@
 """Test the napari plugin edit widget."""
 
+from unittest.mock import Mock
+
 import pytest
 
-from movement.napari.edit_widget import EditWidget
+from movement.napari.edit_widget import MIN_VISIBLE_FRAMES, EditWidget
 
 
 @pytest.mark.parametrize(
@@ -31,3 +33,88 @@ def test_click_on_timeline_jumps_only_within_tolerance(
 
     expected_frame = edited_frame if expect_jump else 0
     assert viewer.dims.current_step[0] == expected_frame
+
+
+def test_scroll_up_zooms_in_and_down_zooms_out(loader_with_edited_point):
+    """Scrolling up shrinks the visible frame range; down grows it."""
+    viewer = loader_with_edited_point.viewer
+    edit_widget = EditWidget(viewer)
+    xmin, xmax = edit_widget.ax.get_xlim()
+    cursor = (xmin + xmax) / 2
+
+    edit_widget._on_scroll(
+        Mock(inaxes=edit_widget.ax, xdata=cursor, button="up")
+    )
+    zoomed_in_xmin, zoomed_in_xmax = edit_widget.ax.get_xlim()
+    zoomed_in_span = zoomed_in_xmax - zoomed_in_xmin
+    assert zoomed_in_span < (xmax - xmin)
+
+    edit_widget._on_scroll(
+        Mock(inaxes=edit_widget.ax, xdata=cursor, button="down")
+    )
+    zoomed_out_xmin, zoomed_out_xmax = edit_widget.ax.get_xlim()
+    zoomed_out_span = zoomed_out_xmax - zoomed_out_xmin
+    assert zoomed_out_span > zoomed_in_span
+
+
+@pytest.mark.parametrize(
+    "button",
+    [
+        pytest.param("up", id="zoom_in_floor"),
+        pytest.param("down", id="zoom_out_ceiling"),
+    ],
+)
+def test_scroll_repeatedly_clamps_at_span_limit(
+    loader_with_edited_point, button
+):
+    """Scrolling repeatedly in one direction clamps at that span's limit.
+
+    Zooms in a few times first, so the "zoom out" case has room to
+    actually grow back towards the ceiling -- the timeline opens
+    already fully zoomed out (``_reset_xlim`` runs on construction),
+    so without this, scrolling down would trivially no-op from the
+    start instead of exercising the ceiling clamp.
+    """
+    viewer = loader_with_edited_point.viewer
+    edit_widget = EditWidget(viewer)
+    cursor = sum(edit_widget.ax.get_xlim()) / 2
+
+    def scroll(direction):
+        edit_widget._on_scroll(
+            Mock(inaxes=edit_widget.ax, xdata=cursor, button=direction)
+        )
+
+    for _ in range(3):
+        scroll("up")
+
+    for _ in range(50):  # far more scrolls than needed to hit the limit
+        scroll(button)
+
+    xmin, xmax = edit_widget.ax.get_xlim()
+    expected_span = (
+        MIN_VISIBLE_FRAMES
+        if button == "up"
+        else max(edit_widget._max_frame, 1)
+    )
+    assert xmax - xmin == pytest.approx(expected_span)
+
+
+@pytest.mark.parametrize(
+    "event_kwargs",
+    [
+        pytest.param({"inaxes": None, "xdata": 5}, id="outside_axes"),
+        pytest.param({"xdata": None}, id="no_xdata"),
+    ],
+)
+def test_scroll_outside_axes_or_without_xdata_is_a_noop(
+    loader_with_edited_point, event_kwargs
+):
+    """A scroll event outside the timeline, or with no xdata, is ignored."""
+    viewer = loader_with_edited_point.viewer
+    edit_widget = EditWidget(viewer)
+    event_kwargs.setdefault("inaxes", edit_widget.ax)
+    before = edit_widget.ax.get_xlim()
+
+    edit_widget._on_scroll(Mock(button="up", **event_kwargs))
+
+    assert edit_widget.ax.get_xlim() == before
