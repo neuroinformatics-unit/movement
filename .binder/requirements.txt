@@ -1,3 +1,4 @@
 .   # movement itself
 networkx
+pynapple
 sphinx-gallery
