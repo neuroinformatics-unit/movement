@@ -17,6 +17,7 @@ from movement.io.nwb import (
 from movement.io.save import register_writer
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
+from movement.validators.files import validate_file_path
 
 
 def _ds_to_dlc_style_df(
@@ -547,6 +548,9 @@ def _write_nwb_file(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
         for nwb_file in nwb_files:
             individual_path = valid_path.with_name(
                 f"{valid_path.stem}_{nwb_file.identifier}{valid_path.suffix}"
+            )
+            individual_path = validate_file_path(
+                individual_path, permission="w", suffixes={".nwb"}
             )
             _write_nwb_to_disk(nwb_file, individual_path)
 
