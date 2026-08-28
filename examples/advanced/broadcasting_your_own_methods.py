@@ -12,7 +12,7 @@ to efficiently apply functions across any data dimension.
 #   This example was originally contributed by `Will Graham
 #   <https://github.com/willGraham01>`_, as part of a collaboration between the
 #   `UCL Advanced Research Computing Centre
-#   <https://www.ucl.ac.uk/advanced-research-computing>`_
+#   <https://www.ucl.ac.uk/research-innovation/advanced-research-computing>`_
 #   and the `Keshavarzi Laboratory <https://www.keshavarzilab.com/>`_ at the
 #   University of Cambridge.
 
