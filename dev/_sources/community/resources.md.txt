@@ -86,7 +86,7 @@ A selection of talks, posters, and blogposts about `movement`.
 | Talk  | [TheBehaviourForum](https://www.thebehaviourforum.org) Virtual Workshop | Apr 2026 | [Video on YouTube](https://www.youtube.com/watch?v=RUDhXB1ZZIg) |
 | Talk  | [FOSDEM 2026](https://fosdem.org/2026/schedule/) | Jan 2026 | [Video on fosdem.org](https://fosdem.org/2026/schedule/event/9VLSXV-movement-tracks-python/) |
 | Talk  | [CBIAS 2025](https://www.crick.ac.uk/whats-on/crick-bioimage-analysis-symposium-2025) | Nov 2025 | [Slides](https://neuroinformatics.dev/slides-movement-cbias2025/) |
-| Blogpost  | [UCL-ARC Showcase](https://www.ucl.ac.uk/advanced-research-computing/arc-showcase) | May 2025 | [URL](https://www.ucl.ac.uk/advanced-research-computing/case-studies/2025/may/movement-python-package-simplifies-analysis-animals-motion) |
+| Blogpost  | [UCL-ARC Life Sciences Collaborations](https://www.ucl.ac.uk/research-innovation/advanced-research-computing/collaborations-and-consultancy/life-sciences-collaborations) | May 2025 | [Blogpost](https://www.ucl.ac.uk/research-innovation/case-studies/2025/may/movement-python-package-simplifies-analysis-animals-motion) |
 | Talk  | [ABIDE](https://abide.ics.ulisboa.pt/en/) Seminar | Feb 2025 | [Video on YouTube](https://www.youtube.com/watch?v=GXBQsqqZZTg) |
 
 

@@ -31,7 +31,7 @@ boundary angles relative to regions of interest (RoIs).
   This example was originally contributed by `Will Graham
   <https://github.com/willGraham01>`_, as part of a collaboration between the
   `UCL Advanced Research Computing Centre
-  <https://www.ucl.ac.uk/advanced-research-computing>`_
+  <https://www.ucl.ac.uk/research-innovation/advanced-research-computing>`_
   and the `Keshavarzi Laboratory <https://www.keshavarzilab.com/>`_ at the
   University of Cambridge.
 
@@ -767,7 +767,7 @@ other.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.555 seconds)
+   **Total running time of the script:** (0 minutes 1.356 seconds)
 
 
 .. _sphx_glr_download_examples_boundary_angles.py:
