@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=bb7cb60e"></script>
+    <script src="../_static/documentation_options.js?v=1f043217"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev38</p>
+    <p class="title logo__title">movement v0.17.1.dev39</p>
   
 </a></div>
     
@@ -689,9 +689,11 @@ must be either .h5 (recommended) or .csv.</p></li>
 <p class="rubric">Notes</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">split_individuals</span></code> is True, each individual will be saved to a
 separate file, formatted as in a single-animal DeepLabCut project
-(without the “individuals” column level). The individual’s name will be
-appended to the file path, just before the file extension, e.g.
-“/path/to/filename_individual1.h5”. If False, all individuals will be
+(without the “individuals” column level). If the dataset contains more
+than one individual, the individual’s name will be appended to the file
+path, just before the file extension, e.g.
+“/path/to/filename_individual1.h5”. If it contains only one individual,
+the given file path is used as is. If False, all individuals will be
 saved to the same file, formatted as in a multi-animal DeepLabCut project
 (with the “individuals” column level). The file path will not be modified.
 If “auto”, the argument’s value is determined based on the number of

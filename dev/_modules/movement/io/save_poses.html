@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=bb7cb60e"></script>
+    <script src="../../../_static/documentation_options.js?v=1f043217"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev38</p>
+    <p class="title logo__title">movement v0.17.1.dev39</p>
   
 </a></div>
     
@@ -480,7 +480,7 @@
 <span></span><span class="sd">"""Save pose tracking data from ``movement`` to various file formats."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">h5py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -554,12 +554,6 @@
     <span class="k">return</span> <span class="n">df</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_auto_split_individuals</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Return True if there is only one individual in the dataset."""</span>
-    <span class="n">n_individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"individual"</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">n_individuals</span> <span class="o">==</span> <span class="mi">1</span>
-
-
 <span class="k">def</span><span class="w"> </span><span class="nf">_save_dlc_df</span><span class="p">(</span><span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Save the dataframe as either a .h5 or .csv depending on the file path.</span>
 
@@ -572,12 +566,25 @@
 <span class="sd">        Pandas Dataframe to save</span>
 
 <span class="sd">    """</span>
+    <span class="n">validate_file_path</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">{</span><span class="s2">".csv"</span><span class="p">,</span> <span class="s2">".h5"</span><span class="p">})</span>
     <span class="k">if</span> <span class="n">filepath</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">".csv"</span><span class="p">:</span>
         <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">","</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>  <span class="c1"># at this point it can only be .h5 (because of validation)</span>
         <span class="n">df</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">"df_with_missing"</span><span class="p">)</span>
 
 
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_dlc_style_df</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">split_individuals</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span> <span class="o">...</span>
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_dlc_style_df</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">split_individuals</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span> <span class="o">...</span>
+<span class="nd">@overload</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_dlc_style_df</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">split_individuals</span><span class="p">:</span> <span class="nb">bool</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span> <span class="o">...</span>
 <div class="viewcode-block" id="to_dlc_style_df">
 <a class="viewcode-back" href="../../../api/movement.io.save_poses.to_dlc_style_df.html#movement.io.save_poses.to_dlc_style_df">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">to_dlc_style_df</span><span class="p">(</span>
@@ -680,9 +687,11 @@
 <span class="sd">    -----</span>
 <span class="sd">    If ``split_individuals`` is True, each individual will be saved to a</span>
 <span class="sd">    separate file, formatted as in a single-animal DeepLabCut project</span>
-<span class="sd">    (without the "individuals" column level). The individual's name will be</span>
-<span class="sd">    appended to the file path, just before the file extension, e.g.</span>
-<span class="sd">    "/path/to/filename_individual1.h5". If False, all individuals will be</span>
+<span class="sd">    (without the "individuals" column level). If the dataset contains more</span>
+<span class="sd">    than one individual, the individual's name will be appended to the file</span>
+<span class="sd">    path, just before the file extension, e.g.</span>
+<span class="sd">    "/path/to/filename_individual1.h5". If it contains only one individual,</span>
+<span class="sd">    the given file path is used as is. If False, all individuals will be</span>
 <span class="sd">    saved to the same file, formatted as in a multi-animal DeepLabCut project</span>
 <span class="sd">    (with the "individuals" column level). The file path will not be modified.</span>
 <span class="sd">    If "auto", the argument's value is determined based on the number of</span>
@@ -705,8 +714,7 @@
 
     <span class="c1"># Sets default behaviour for the function</span>
     <span class="k">if</span> <span class="n">split_individuals</span> <span class="o">==</span> <span class="s2">"auto"</span><span class="p">:</span>
-        <span class="n">split_individuals</span> <span class="o">=</span> <span class="n">_auto_split_individuals</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-
+        <span class="n">split_individuals</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">individual</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">1</span>
     <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">split_individuals</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
             <span class="ne">ValueError</span><span class="p">(</span>
@@ -714,23 +722,22 @@
                 <span class="sa">f</span><span class="s2">"but got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">split_individuals</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
             <span class="p">)</span>
         <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">split_individuals</span><span class="p">:</span>
-        <span class="c1"># split the dataset into a dictionary of dataframes per individual</span>
-        <span class="n">df_dict</span> <span class="o">=</span> <span class="n">to_dlc_style_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">df_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="c1"># the key is the individual's name</span>
-            <span class="n">filepath</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">valid_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">key</span><span class="si">}{</span><span class="n">valid_path</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">"</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-                <span class="n">_save_dlc_df</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">filepath</span><span class="p">),</span> <span class="n">df</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved poses for individual </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">valid_path</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c1"># convert the dataset to a single dataframe for all individuals</span>
-        <span class="n">df_all</span> <span class="o">=</span> <span class="n">to_dlc_style_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="n">_save_dlc_df</span><span class="p">(</span><span class="n">valid_path</span><span class="p">,</span> <span class="n">df_all</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved poses dataset to </span><span class="si">{</span><span class="n">valid_path</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span></div>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">split_individuals</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">df_all</span> <span class="o">=</span> <span class="n">to_dlc_style_df</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">split_individuals</span><span class="o">=</span><span class="n">split_individuals</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df_all</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="n">df_all</span> <span class="o">=</span> <span class="p">{</span><span class="s2">""</span><span class="p">:</span> <span class="n">df_all</span><span class="p">}</span>
+    <span class="k">for</span> <span class="n">individual</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">df_all</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># a single individual is always saved to the given path as is;</span>
+        <span class="c1"># multiple individuals get their name appended to the path</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">valid_path</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_all</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+            <span class="k">else</span> <span class="n">Path</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">valid_path</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">''</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">individual</span><span class="si">}{</span><span class="n">valid_path</span><span class="o">.</span><span class="n">suffix</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">_save_dlc_df</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved poses dataset to </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span></div>
 
 
 
@@ -756,9 +763,10 @@
 <span class="sd">    format as single-animal DeepLabCut projects. Therefore, under the hood,</span>
 <span class="sd">    this function calls :func:`movement.io.save_poses.to_dlc_file`</span>
 <span class="sd">    with ``split_individuals=True``. This setting means that each individual</span>
-<span class="sd">    is saved to a separate file, with the individual's name appended to the</span>
-<span class="sd">    file path, just before the file extension,</span>
-<span class="sd">    i.e. "/path/to/filename_individual1.csv".</span>
+<span class="sd">    is saved to a separate file. If the dataset contains more than one</span>
+<span class="sd">    individual, the individual's name is appended to the file path, just</span>
+<span class="sd">    before the file extension, i.e. "/path/to/filename_individual1.csv".</span>
+<span class="sd">    If it contains only one individual, the given file path is used as is.</span>
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>

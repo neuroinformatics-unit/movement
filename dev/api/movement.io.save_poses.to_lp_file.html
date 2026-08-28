@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=bb7cb60e"></script>
+    <script src="../_static/documentation_options.js?v=1f043217"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev38</p>
+    <p class="title logo__title">movement v0.17.1.dev39</p>
   
 </a></div>
     
@@ -688,9 +688,10 @@ and associated metadata.</p></li>
 format as single-animal DeepLabCut projects. Therefore, under the hood,
 this function calls <a class="reference internal" href="movement.io.save_poses.to_dlc_file.html#movement.io.save_poses.to_dlc_file" title="movement.io.save_poses.to_dlc_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.save_poses.to_dlc_file()</span></code></a>
 with <code class="docutils literal notranslate"><span class="pre">split_individuals=True</span></code>. This setting means that each individual
-is saved to a separate file, with the individual’s name appended to the
-file path, just before the file extension,
-i.e. “/path/to/filename_individual1.csv”.</p>
+is saved to a separate file. If the dataset contains more than one
+individual, the individual’s name is appended to the file path, just
+before the file extension, i.e. “/path/to/filename_individual1.csv”.
+If it contains only one individual, the given file path is used as is.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">

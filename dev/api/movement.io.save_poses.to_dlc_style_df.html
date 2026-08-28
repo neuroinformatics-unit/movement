@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=bb7cb60e"></script>
+    <script src="../_static/documentation_options.js?v=1f043217"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev38</p>
+    <p class="title logo__title">movement v0.17.1.dev39</p>
   
 </a></div>
     
@@ -672,8 +672,15 @@
 <span class="sig-prename descclassname"><span class="pre">movement.io.save_poses.</span></span><span class="sig-name descname"><span class="pre">to_dlc_style_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_individuals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/save_poses.html#to_dlc_style_df"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.save_poses.to_dlc_style_df" title="Link to this definition">#</a></dt>
 <dd><p>Convert a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to DeepLabCut-style DataFrame(s).</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dt class="field-odd">Overloads<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>ds</strong> (<span class="sphinx_autodoc_typehints-type">xr.Dataset</span>), <strong>split_individuals</strong> (<span class="sphinx_autodoc_typehints-type">Literal[False]</span>) → <span class="sphinx_autodoc_typehints-type">pd.DataFrame</span></p></li>
+<li><p><strong>ds</strong> (<span class="sphinx_autodoc_typehints-type">xr.Dataset</span>), <strong>split_individuals</strong> (<span class="sphinx_autodoc_typehints-type">Literal[True]</span>) → <span class="sphinx_autodoc_typehints-type">dict[str, pd.DataFrame]</span></p></li>
+<li><p><strong>ds</strong> (<span class="sphinx_autodoc_typehints-type">xr.Dataset</span>), <strong>split_individuals</strong> (<span class="sphinx_autodoc_typehints-type">bool</span>) → <span class="sphinx_autodoc_typehints-type">pd.DataFrame | dict[str, pd.DataFrame]</span></p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
 <li><p><strong>ds</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a></span>) – <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset containing pose tracks, confidence scores,
 and associated metadata.</p></li>
 <li><p><strong>split_individuals</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – If True, return a dictionary of DataFrames per individual, with
@@ -681,11 +688,11 @@ individual names as keys. If False (default), return a single
 DataFrame for all individuals (see Notes).</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>DeepLabCut-style pandas DataFrame or dictionary of DataFrames.</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DeepLabCut-style pandas DataFrame or dictionary of DataFrames.</p>
 </dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>]</span></p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)">pandas.DataFrame</a> or <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
