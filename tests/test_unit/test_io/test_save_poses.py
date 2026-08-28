@@ -176,7 +176,7 @@ def test_to_dlc_file_with_individual_confidence(
         tmp_path / "test.h5",
         split_individuals=split_individuals,
     )
-    if split_individuals:
+    if split_individuals and ds.sizes["individual"] > 1:
         for ind in ds.individual.values:
             assert (tmp_path / f"test_{ind}.h5").is_file()
     else:
@@ -214,20 +214,6 @@ def test_to_dlc_file_invalid_dataset(
 
 
 @pytest.mark.parametrize(
-    "valid_poses_dataset, split_value",
-    [("single_individual_array", True), ("multi_individual_array", False)],
-    indirect=["valid_poses_dataset"],
-)
-def test_auto_split_individuals(valid_poses_dataset, split_value):
-    """Test that setting 'split_individuals' to 'auto' yields True
-    for single-individual datasets and False for multi-individual ones.
-    """
-    assert (
-        save_poses._auto_split_individuals(valid_poses_dataset) == split_value
-    )
-
-
-@pytest.mark.parametrize(
     "valid_poses_dataset",
     ["single_individual_array", "multi_individual_array"],
     indirect=True,
@@ -242,7 +228,7 @@ def test_to_dlc_style_df_split_individuals(
     df = save_poses.to_dlc_style_df(valid_poses_dataset, split_individuals)
     # Get the names of the individuals in the dataset
     ind_names = valid_poses_dataset.individual.values
-    if split_individuals is False:
+    if not split_individuals:
         # this should produce a single df in multi-animal DLC format
         assert isinstance(df, pd.DataFrame)
         assert df.columns.names == [
@@ -255,7 +241,7 @@ def test_to_dlc_style_df_split_individuals(
             [ind in df.columns.get_level_values("individuals")]
             for ind in ind_names
         )
-    elif split_individuals is True:
+    else:
         # this should produce a dict of dfs in single-animal DLC format
         assert isinstance(df, dict)
         for ind in ind_names:
@@ -268,6 +254,11 @@ def test_to_dlc_style_df_split_individuals(
             ]
 
 
+@pytest.mark.parametrize(
+    "valid_poses_dataset",
+    ["single_individual_array", "multi_individual_array"],
+    indirect=True,
+)
 @pytest.mark.parametrize(
     "split_individuals, expected_exception",
     [
@@ -292,17 +283,22 @@ def test_to_dlc_file_split_individuals(
         )
         # Get the names of the individuals in the dataset
         ind_names = valid_poses_dataset.individual.values
-        # "auto" becomes False, default valid dataset is multi-individual
-        if split_individuals in [False, "auto"]:
-            # this should save only one file
-            assert new_h5_file.is_file()
-            new_h5_file.unlink()
-        elif split_individuals is True:
-            # this should save one file per individual
+        if split_individuals is True and len(ind_names) > 1:
+            # this should save one file per individual, with the
+            # individual's name appended to the file path
+            assert not new_h5_file.is_file()
             for ind in ind_names:
                 file_path_ind = Path(f"{new_h5_file.with_suffix('')}_{ind}.h5")
                 assert file_path_ind.is_file()
                 file_path_ind.unlink()
+        else:
+            # this should save a single file, at the given file path
+            assert new_h5_file.is_file()
+            for ind in ind_names:
+                assert not Path(
+                    f"{new_h5_file.with_suffix('')}_{ind}.h5"
+                ).is_file()
+            new_h5_file.unlink()
 
 
 def test_to_lp_file_valid_dataset(
@@ -349,8 +345,11 @@ def test_to_lp_file_with_individual_confidence(
     ds = valid_poses_dataset_with_individual_wise_confidence
     save_poses.to_lp_file(ds, tmp_path / "test.csv")
     assert "only supports keypoint-wise confidence scores" in caplog.text
-    for ind in ds.individual.values:
-        assert (tmp_path / f"test_{ind}.csv").is_file()
+    if ds.sizes["individual"] > 1:
+        for ind in ds.individual.values:
+            assert (tmp_path / f"test_{ind}.csv").is_file()
+    else:
+        assert (tmp_path / "test.csv").is_file()
 
 
 def test_to_sleap_analysis_file_valid_dataset(
