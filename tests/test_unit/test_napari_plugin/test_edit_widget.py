@@ -118,3 +118,61 @@ def test_scroll_outside_axes_or_without_xdata_is_a_noop(
     edit_widget._on_scroll(Mock(button="up", **event_kwargs))
 
     assert edit_widget.ax.get_xlim() == before
+
+
+def test_double_click_resets_zoomed_view(
+    loader_with_edited_point, click_on_timeline
+):
+    """Double-clicking the timeline resets it to the full frame range."""
+    viewer = loader_with_edited_point.viewer
+    edit_widget = EditWidget(viewer)
+    full_xlim = edit_widget.ax.get_xlim()
+    cursor = sum(full_xlim) / 2
+
+    edit_widget._on_scroll(
+        Mock(inaxes=edit_widget.ax, xdata=cursor, button="up")
+    )
+    assert edit_widget.ax.get_xlim() != full_xlim  # sanity: actually zoomed
+
+    click_on_timeline(edit_widget, dblclick=True)
+
+    assert edit_widget.ax.get_xlim() == full_xlim
+
+
+def test_redraw_bars_splits_lanes_by_individual(
+    valid_poses_path_and_ds, loaded_data_loader, move_point
+):
+    """``_redraw_bars`` draws one bar per frame, or one per individual.
+
+    Two individuals are edited on the same frame. With lanes collapsed
+    (the default), that's a single shared bar. With "Display
+    individuals" on, each individual gets its own lane and bar, even
+    though they share a frame.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+    move_point(
+        loader,
+        frame=2,
+        keypoint="centroid",
+        individual="id_0",
+        new_y=100,
+        new_x=200,
+    )
+    move_point(
+        loader,
+        frame=2,
+        keypoint="centroid",
+        individual="id_1",
+        new_y=150,
+        new_x=250,
+    )
+    edit_widget = EditWidget(loader.viewer)
+
+    assert len(edit_widget._bars) == 1
+    assert list(edit_widget.ax.get_yticks()) == []
+
+    edit_widget.set_show_individuals(True)
+
+    assert len(edit_widget._bars) == 2
+    assert len(edit_widget.ax.get_yticks()) == 2

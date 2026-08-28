@@ -290,12 +290,14 @@ def loader_with_edited_point(
 
 @pytest.fixture
 def click_on_timeline():
-    """Return a factory that simulates a (non-double) click on an
+    """Return a factory that simulates a click on an
     :class:`~movement.napari.edit_widget.EditWidget` timeline, at the
-    given x (frame) position.
+    given x (frame) position. Pass ``dblclick=True`` to simulate a
+    double-click instead (``xdata`` is then unused, matching
+    ``_handle_click``'s own early return for that case).
     """
 
-    def _click_on_timeline(edit_widget, xdata):
-        edit_widget._handle_click(Mock(dblclick=False, xdata=xdata))
+    def _click_on_timeline(edit_widget, xdata=None, dblclick=False):
+        edit_widget._handle_click(Mock(dblclick=dblclick, xdata=xdata))
 
     return _click_on_timeline
