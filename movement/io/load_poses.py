@@ -187,21 +187,21 @@ def from_dlc_style_df(
 
     """
     # Read names of individuals and keypoints from the DataFrame
-    if "individuals" in df.columns.names:
-        individual_names = (
-            df.columns.get_level_values("individuals").unique().to_list()
-        )
-    else:
-        individual_names = ["individual_0"]
+    individual_names = (
+        df.columns.get_level_values("individuals").unique().to_list()
+        if "individuals" in df.columns.names
+        else None
+    )
     keypoint_names = (
         df.columns.get_level_values("bodyparts").unique().to_list()
     )
     # Extract position (and confidence if present)
     coord_names = df.columns.get_level_values("coords").unique().to_list()
     n_coords = len(coord_names)
+    n_individuals = len(individual_names) if individual_names else 1
     tracks = (
         df.to_numpy()
-        .reshape((-1, len(individual_names), len(keypoint_names), n_coords))
+        .reshape((-1, n_individuals, len(keypoint_names), n_coords))
         .transpose(0, 3, 2, 1)
     )
     if "likelihood" in coord_names:  # Coords: ['x', 'y', 'likelihood']
