@@ -49,7 +49,7 @@ class EditControlsWidget(QWidget):
     """Sidebar controls for the edited-frames timeline.
 
     Placed in :class:`~movement.napari.meta_widget.MovementMetaWidget`'s
-    "Edited track Data" collapsible section, which just toggles whether
+    "Edit tracked data" collapsible section, which just toggles whether
     the (separately docked) :class:`EditWidget` timeline is shown.
     """
 
@@ -86,11 +86,11 @@ class EditWidget(QWidget):
     on the currently active ``movement`` Points layer. By default all
     bars share one lane and are drawn in a single colour
     (:data:`EDIT_BAR_COLOR`). With :meth:`set_show_individuals` on, bars
-    are split into one lane per individual and coloured per individual
-    using the same colormap (:data:`DEFAULT_COLORMAP`) as the
-    Points/Tracks layers. A playhead line marks the frame currently
-    shown in the viewer. Scroll to zoom in/out on the timeline, and
-    click a bar to jump to that frame.
+    are split into one lane per individual (separated by thin horizontal
+    rules) and coloured per individual using the same colormap
+    (:data:`DEFAULT_COLORMAP`) as the Points/Tracks layers. A playhead
+    line marks the frame currently shown in the viewer. Scroll to zoom
+    in/out on the timeline, and click a bar to jump to that frame.
     """
 
     def __init__(self, napari_viewer: Viewer, parent=None):
@@ -100,6 +100,8 @@ class EditWidget(QWidget):
         self.active_layer: Points | None = None
         self._show_individuals = False
         self._bars: list = []
+        self._lane_dividers: list = []
+        self._foreground = "#808080"  # overwritten by _apply_theme
         self._edited_frames = np.array([])
         self._removed_points: list = []
         self._max_frame = 0
@@ -157,6 +159,7 @@ class EditWidget(QWidget):
         theme = get_theme(self.viewer.theme)
         background = theme.background.as_hex()
         foreground = theme.text.as_hex()
+        self._foreground = foreground
 
         self.figure.set_facecolor(background)
         self.ax.set_facecolor(background)
@@ -165,6 +168,8 @@ class EditWidget(QWidget):
         self.ax.tick_params(axis="both", colors=foreground)
         for spine in self.ax.spines.values():
             spine.set_color(foreground)
+        for divider in self._lane_dividers:
+            divider.set_color(foreground)
 
         self.canvas.draw_idle()
 
@@ -190,7 +195,7 @@ class EditWidget(QWidget):
 
         Called by the "Display individuals" checkbox that
         :class:`~movement.napari.meta_widget.MovementMetaWidget` places
-        in its "Edited track Data" section.
+        in its "Edit tracked data" section.
         """
         self._show_individuals = checked
         self._redraw_bars()
@@ -299,9 +304,10 @@ class EditWidget(QWidget):
 
     def _redraw_bars(self):
         """Redraw the per-individual lanes of edited-frame bars."""
-        for artist in self._bars:
+        for artist in (*self._bars, *self._lane_dividers):
             artist.remove()
         self._bars = []
+        self._lane_dividers = []
         self._edited_frames = np.array([])
 
         if self.active_layer is None:
@@ -322,6 +328,17 @@ class EditWidget(QWidget):
             lane_of = {ind: i for i, ind in enumerate(unique_individuals)}
             self.ax.set_yticks([(i + 0.5) / n_lanes for i in range(n_lanes)])
             self.ax.set_yticklabels(unique_individuals, fontsize="small")
+            # Thin horizontal rules separating each individual's lane.
+            for i in range(1, n_lanes):
+                self._lane_dividers.append(
+                    self.ax.axhline(
+                        i / n_lanes,
+                        color=self._foreground,
+                        linewidth=0.5,
+                        alpha=0.3,
+                        zorder=1,
+                    )
+                )
         else:
             # A single shared lane: one bar per edited frame, regardless
             # of how many (or which) individuals were edited on it.
