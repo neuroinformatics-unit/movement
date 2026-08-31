@@ -17,6 +17,7 @@ from napari.viewer import Viewer
 from qtpy.QtCore import QTimer, Signal
 from qtpy.QtWidgets import QCheckBox, QLabel, QVBoxLayout, QWidget
 
+from movement.napari.layer_styles import DEFAULT_COLORMAP, _sample_colormap
 from movement.napari.loader_widgets import (
     POINTS_LAYER_KEY,
     POINTS_PROPERTIES_KEY,
@@ -24,6 +25,12 @@ from movement.napari.loader_widgets import (
 
 PLAYHEAD_COLOR = "#55606E"  # bar indicating current frame
 # this is same color as napari slidebar.
+
+# Colour for every edited-frame bar while lanes are collapsed (i.e.
+# "Display individuals" unchecked). When individuals are displayed, bars
+# are instead coloured per individual, using the same colormap
+# (DEFAULT_COLORMAP) as the Points/Tracks layers.
+EDIT_BAR_COLOR = "#006ab3"
 
 # A click never lands exactly on a frame (e.g. 42.3, not 42), so treat
 # any click within this fraction of the visible frame range as a hit.
@@ -58,6 +65,9 @@ class EditControlsWidget(QWidget):
         )
         instructions.setWordWrap(True)
 
+        # Unchecked: one shared lane, every bar in EDIT_BAR_COLOR.
+        # Checked: one lane per individual, bars coloured per individual.
+        # Disabled by MovementMetaWidget for single-individual datasets.
         self.show_individuals_checkbox = QCheckBox("Display individuals")
         self.show_individuals_checkbox.toggled.connect(
             self.show_individuals_toggled
@@ -72,13 +82,15 @@ class EditControlsWidget(QWidget):
 class EditWidget(QWidget):
     """Dock widget flagging frames with edited points.
 
-    Draws one lane per individual, with a vertical bar for every frame
-    that contains an edited point on the currently active ``movement``
-    Points layer. Bars are coloured to match that point's colour in the
+    Draws a vertical bar for every frame that contains an edited point
+    on the currently active ``movement`` Points layer. By default all
+    bars share one lane and are drawn in a single colour
+    (:data:`EDIT_BAR_COLOR`). With :meth:`set_show_individuals` on, bars
+    are split into one lane per individual and coloured per individual
+    using the same colormap (:data:`DEFAULT_COLORMAP`) as the
     Points/Tracks layers. A playhead line marks the frame currently
     shown in the viewer. Scroll to zoom in/out on the timeline, and
-    click a bar to jump to that frame. Whether lanes are split per
-    individual is controlled externally via :meth:`set_show_individuals`.
+    click a bar to jump to that frame.
     """
 
     def __init__(self, napari_viewer: Viewer, parent=None):
@@ -234,17 +246,9 @@ class EditWidget(QWidget):
         ]
         if previously_removed.empty:
             return []
-        individual_colors = dict(
-            zip(
-                layer.properties["individual"],
-                layer.face_color,
-                strict=False,
-            )
-        )
         return [
-            (row.time, row.individual, individual_colors[row.individual])
+            (row.time, row.individual)
             for row in previously_removed.itertuples()
-            if row.individual in individual_colors
         ]
 
     def _on_layer_data_changed(self, event):
@@ -281,11 +285,8 @@ class EditWidget(QWidget):
         layer = event.source
         frames = layer.data[:, 0]
         individuals = layer.properties["individual"]
-        colors = layer.face_color
         for idx in event.data_indices:
-            self._removed_points.append(
-                (frames[idx], individuals[idx], colors[idx])
-            )
+            self._removed_points.append((frames[idx], individuals[idx]))
 
     def _on_step_changed(self, event=None):
         """Move the playhead line to the current frame."""
@@ -309,7 +310,7 @@ class EditWidget(QWidget):
             return
 
         individuals = self.active_layer.properties["individual"]
-        removed_individuals = [ind for _, ind, _ in self._removed_points]
+        removed_individuals = [ind for _, ind in self._removed_points]
         # Union with removed individuals so a lane survives even if an
         # individual's last remaining point has just been removed.
         unique_individuals = list(
@@ -329,15 +330,16 @@ class EditWidget(QWidget):
             self.ax.set_yticks([])
         lane_height = 1.0 / n_lanes
 
+        color_of = self._bar_color_lookup()
+
         # Combine moved (still-live) and removed points into one list of
-        # (frame, individual, colour) triples to draw as bars.
+        # (frame, individual) pairs to draw as bars.
         edited = self.active_layer.properties.get("edited")
         moved_points = []
         if edited is not None and edited.any():
             frames = self.active_layer.data[:, 0]
-            colors = self.active_layer.face_color
             moved_points = [
-                (frames[idx], individuals[idx], colors[idx])
+                (frames[idx], individuals[idx])
                 for idx in np.nonzero(edited)[0]
             ]
         all_points = moved_points + self._removed_points
@@ -348,7 +350,7 @@ class EditWidget(QWidget):
             # or, with lanes collapsed, one bar per frame regardless of
             # individual.
             seen = set()
-            for frame, individual, color in all_points:
+            for frame, individual in all_points:
                 key = (frame, individual) if self._show_individuals else frame
                 if key in seen:
                     continue
@@ -357,12 +359,46 @@ class EditWidget(QWidget):
                 y0, y1 = lane * lane_height, (lane + 1) * lane_height
                 self._bars.append(
                     self.ax.vlines(
-                        frame, y0, y1, colors=[color], linewidth=2, zorder=2
+                        frame,
+                        y0,
+                        y1,
+                        colors=[color_of(individual)],
+                        linewidth=2,
+                        zorder=2,
                     )
                 )
             self._edited_frames = np.unique([p[0] for p in all_points])
 
         self._on_step_changed()
+
+    def _bar_color_lookup(self):
+        """Return an ``individual -> bar colour`` function.
+
+        With lanes collapsed, every bar is the single
+        :data:`EDIT_BAR_COLOR`. With individuals displayed, each bar
+        takes its individual's colour, sampled from the same colormap
+        (:data:`DEFAULT_COLORMAP`) the Points/Tracks layers use. The
+        palette is keyed by all individuals in the layer, in order of
+        first appearance, so a bar's colour matches that individual's
+        colour in the viewer.
+        """
+        if not self._show_individuals or self.active_layer is None:
+            return lambda individual: EDIT_BAR_COLOR
+
+        individuals = self.active_layer.properties.get("individual")
+        if individuals is None:
+            return lambda individual: EDIT_BAR_COLOR
+
+        removed = [ind for _, ind in self._removed_points]
+        unique = list(dict.fromkeys([*individuals, *removed]))
+        palette = dict(
+            zip(
+                unique,
+                _sample_colormap(len(unique), DEFAULT_COLORMAP),
+                strict=False,
+            )
+        )
+        return lambda individual: palette.get(individual, EDIT_BAR_COLOR)
 
     def _reset_xlim(self):
         """Reset the visible frame range to the full extent."""
