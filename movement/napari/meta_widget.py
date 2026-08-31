@@ -49,7 +49,7 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         self.add_widget(
             self.edit_controls,
             collapsible=True,
-            widget_title="Edited track Data",
+            widget_title="Edit tracked data",
         )
         self._edit_collapsible = self.collapsible_widgets[-1]
         self._edit_collapsible.toggled.connect(self._on_edit_widget_toggled)
