@@ -184,7 +184,12 @@ class EditWidget(QWidget):
         self._redraw_bars()
 
     def _on_active_layer_changed(self, event=None):
-        """Switch to displaying edited frames for the active layer."""
+        """Switch to displaying edited frames for the active Points layer.
+
+        Selecting a non-movement-Points layer (e.g. the Tracks layer)
+        leaves the timeline as is, rather than blanking it. A removed
+        active layer is handled separately by ``_on_layer_removed``.
+        """
         # viewer.layers.selection.active is accessed through napari's
         # PublicOnlyProxy (wraps viewer access for plugin widgets), which
         # returns a fresh proxy wrapping the real layer on every access.
@@ -193,17 +198,13 @@ class EditWidget(QWidget):
         # emitted from inside the unwrapped layer/LayerList) succeed.
         active = self.viewer.layers.selection.active
         active = getattr(active, "__wrapped__", active)
-        self.active_layer = (
-            active
-            if isinstance(active, Points)
+        if not (
+            isinstance(active, Points)
             and active.metadata.get(POINTS_LAYER_KEY)
-            else None
-        )
-        self._max_frame = (
-            self.active_layer.metadata.get("max_frame_idx", 0)
-            if self.active_layer is not None
-            else 0
-        )
+        ):
+            return
+        self.active_layer = active
+        self._max_frame = self.active_layer.metadata.get("max_frame_idx", 0)
         self._removed_points = self._reconstruct_previously_removed_points(
             self.active_layer
         )
