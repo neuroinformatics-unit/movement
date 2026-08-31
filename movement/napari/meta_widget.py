@@ -70,6 +70,13 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         # so those edits are visible without an extra click.
         napari_viewer.layers.events.inserted.connect(self._on_layer_inserted)
 
+        # "Display individuals" is meaningless with a single individual;
+        # keep it disabled until a multi-individual layer is active.
+        self.edit_controls.show_individuals_checkbox.setEnabled(False)
+        napari_viewer.layers.selection.events.active.connect(
+            self._show_individuals_enabled
+        )
+
     @staticmethod
     def _is_movement_points(layer) -> bool:
         """Return ``True`` if ``layer`` is a movement-loaded Points layer."""
@@ -83,6 +90,7 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         layer = event.value
         if not self._is_movement_points(layer):
             return  # ignore any layer that is not a movement Points layer
+        self._show_individuals_enabled()
         edited = layer.properties.get("edited")
         if edited is not None and edited.any():
             self._edit_collapsible.expand()
@@ -115,14 +123,38 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         """
         if self._is_movement_points(self._viewer.layers.selection.active):
             return
-        for layer in reversed(
-            self._viewer.layers
-        ):  # get the last points layer
-            if self._is_movement_points(layer):
-                self._viewer.layers.selection.active = layer
-                return
+        layer = self._active_movement_points_layer()
+        if layer is not None:
+            self._viewer.layers.selection.active = layer
 
     def _on_show_individuals_toggled(self, checked: bool) -> None:
         """Forward the "Display individuals" checkbox to the timeline."""
         if self.edit_widget is not None:
             self.edit_widget.set_show_individuals(checked)
+
+    def _active_movement_points_layer(self):
+        """Return the active movement Points layer, or the last one."""
+        active = self._viewer.layers.selection.active
+        if self._is_movement_points(active):
+            return getattr(active, "__wrapped__", active)
+        for layer in reversed(self._viewer.layers):
+            if self._is_movement_points(layer):
+                return getattr(layer, "__wrapped__", layer)
+        return None
+
+    def _show_individuals_enabled(self, *_) -> None:
+        """Enable "Display individuals" only for multi-individual data.
+
+        With a single individual the checkbox does nothing useful, so it
+        is disabled (and unchecked, falling back to the single-colour
+        shared lane).
+        """
+        layer = self._active_movement_points_layer()
+        if layer is None:
+            return
+        individuals = layer.properties.get("individual")
+        multiple = individuals is not None and len(set(individuals)) > 1
+        checkbox = self.edit_controls.show_individuals_checkbox
+        checkbox.setEnabled(multiple)
+        if not multiple and checkbox.isChecked():
+            checkbox.setChecked(False)
