@@ -103,8 +103,8 @@ class EditWidget(QWidget):
         self.ax = self.figure.subplots()
         self._style_axes()
         self.playhead = self.ax.axvline(
-            0, color=PLAYHEAD_COLOR, linewidth=2, linestyle="--"
-        )
+            0, color=PLAYHEAD_COLOR, linewidth=2, linestyle="--", zorder=3
+        )  # higher order in matplotlib is drawn on top
         self._apply_theme()
 
         layout = QVBoxLayout()
@@ -356,7 +356,9 @@ class EditWidget(QWidget):
                 lane = lane_of[individual]
                 y0, y1 = lane * lane_height, (lane + 1) * lane_height
                 self._bars.append(
-                    self.ax.vlines(frame, y0, y1, colors=[color], linewidth=2)
+                    self.ax.vlines(
+                        frame, y0, y1, colors=[color], linewidth=2, zorder=2
+                    )
                 )
             self._edited_frames = np.unique([p[0] for p in all_points])
 
