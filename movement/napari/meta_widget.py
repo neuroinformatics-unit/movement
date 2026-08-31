@@ -1,5 +1,6 @@
 """The main napari widget for the ``movement`` package."""
 
+from napari.layers import Points
 from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 
@@ -69,11 +70,19 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         # so those edits are visible without an extra click.
         napari_viewer.layers.events.inserted.connect(self._on_layer_inserted)
 
+    @staticmethod
+    def _is_movement_points(layer) -> bool:
+        """Return ``True`` if ``layer`` is a movement-loaded Points layer."""
+        layer = getattr(layer, "__wrapped__", layer)
+        return isinstance(layer, Points) and bool(
+            layer.metadata.get(POINTS_LAYER_KEY)
+        )
+
     def _on_layer_inserted(self, event) -> None:
         """Show the edit section only for a layer with prior edits."""
         layer = event.value
-        if not layer.metadata.get(POINTS_LAYER_KEY):
-            return
+        if not self._is_movement_points(layer):
+            return  # ignore any layer that is not a movement Points layer
         edited = layer.properties.get("edited")
         if edited is not None and edited.any():
             self._edit_collapsible.expand()
@@ -86,6 +95,7 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             if self._edit_dock_widget is not None:
                 self._edit_dock_widget.hide()
             return
+        self._autoselect_points_layer()
         if self.edit_widget is None:
             self.edit_widget = EditWidget(self._viewer)
             self.edit_widget.set_show_individuals(
@@ -96,6 +106,21 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             )
         elif self._edit_dock_widget is not None:
             self._edit_dock_widget.show()
+
+    def _autoselect_points_layer(self) -> None:
+        """Make a movement Points layer active for the timeline.
+
+        Leave the active layer alone if it is already a movement Points
+        layer; otherwise select the last one in the layer list.
+        """
+        if self._is_movement_points(self._viewer.layers.selection.active):
+            return
+        for layer in reversed(
+            self._viewer.layers
+        ):  # get the last points layer
+            if self._is_movement_points(layer):
+                self._viewer.layers.selection.active = layer
+                return
 
     def _on_show_individuals_toggled(self, checked: bool) -> None:
         """Forward the "Display individuals" checkbox to the timeline."""
