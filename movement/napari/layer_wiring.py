@@ -1,9 +1,15 @@
-"""Callbacks keeping movement napari layers in sync.
+"""Layer callbacks that must outlive the widget connecting them.
 
-These are module-level functions rather than widget methods on purpose.
-A plain function (or a ``partial`` of one) is held strongly by
-napari's ``EventEmitter``, so the connection lives as long as the layer or
-viewer it acts on.
+Put a callback here if it should be active as long as the viewer
+or a layer exists, (rather than sharing lifetime with a widget that
+can be closed).
+
+Candidates are callbacks that change layer state (data, properties, symbols,
+``editable``), and that state should outlive the widget to be saved as a file.
+
+A callback that only refreshes a widget's own UI (a dropdown, a table, a
+button) can stay a method on that widget: once the widget is gone there is
+nothing left to update, which is fine.
 """
 
 import warnings
@@ -34,6 +40,7 @@ TRACKS_LAYER_KEY: str = "movement_tracks_layer"
 _WIRED_VIEWERS: WeakSet = WeakSet()
 
 
+# ---- Callbacks with viewer lifetime --------------------
 def connect_viewer_callbacks(viewer) -> None:
     """Wire the layer callbacks to a viewer, skipping if already wired.
 
@@ -142,6 +149,7 @@ def update_points_layers_editable(viewer, event=None):
             layer.editable = is_editable
 
 
+# ---- Callbacks with layer lifetime --------------------
 def set_point_symbol_by_edited(layer: Points) -> None:
     """Show points flagged as edited with a distinct marker symbol."""
     edited = layer.properties.get("edited")
