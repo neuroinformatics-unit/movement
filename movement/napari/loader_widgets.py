@@ -22,17 +22,13 @@ from qtpy.QtWidgets import (
 
 from movement.io.load import load_dataset, rename_legacy_dimensions
 from movement.napari.convert import ds_to_napari_layers
-from movement.napari.layer_styles import (
-    BoxesStyle,
-    PointsStyle,
-    TracksStyle,
-)
+from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.napari.layer_wiring import (
     DATASET_ATTRS_KEY,
     POINTS_LAYER_KEY,
     POINTS_PROPERTIES_KEY,
     TRACKS_LAYER_KEY,
-    ensure_layer_wiring,
+    connect_viewer_callbacks,
     frame_axis_is_sliced,
     on_points_data_changed,
     remove_from_tracks_layer,
@@ -84,7 +80,7 @@ class DataLoader(QWidget):
 
         # Subscribe the viewer to the movement layer callbacks. These
         # outlive this widget, so layers stay in sync after it is closed.
-        ensure_layer_wiring(self.viewer)
+        connect_viewer_callbacks(self.viewer)
         self._enable_layer_tooltips()
 
     def _create_source_software_widget(self):
