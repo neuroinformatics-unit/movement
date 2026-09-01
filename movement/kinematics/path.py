@@ -31,7 +31,7 @@ from movement.validators.arrays import validate_dims_coords
 
 def compute_path_length(
     data: xr.DataArray,
-    nan_policy: Literal["ffill", "omit"] = "omit",
+    nan_policy: Literal["interpolate", "omit"] = "interpolate",
     nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
     r"""Compute the length of a path travelled.
@@ -45,11 +45,11 @@ def compute_path_length(
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
     nan_policy
-        Policy for handling NaN (missing) values. By default (``"omit"``),
-        no gap-filling is performed, meaning missing positions are skipped.
-        If ``"ffill"``, missing positions are forward-filled across
-        time before path length is computed. See Notes for more
-        details on the two policies.
+        Policy for handling NaN (missing) values. By default
+        (``"interpolate"``), a missing segment is assumed to be travelled
+        in a straight line between the two valid positions flanking it.
+        If ``"omit"``, missing segments are instead skipped entirely.
+        See Notes for more details on the two policies.
     nan_warn_threshold
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
@@ -65,20 +65,21 @@ def compute_path_length(
     Notes
     -----
     1. **Handling missing values:**
-       By default (``nan_policy="omit"``), path length sums the lengths of the
-       segments between consecutive *valid* positions. A missing position
-       invalidates the two segments on either side of it (the arriving and
-       departing steps), which are omitted from the sum. Choosing
-       ``nan_policy="ffill"`` will use :meth:`xarray.DataArray.ffill` to
-       forward-fill missing positions across time before computing the segment
-       lengths. This equates to bridging the gaps with straight lines, i.e., it
-       gives the same result as linearly interpolating over the gaps prior to
-       computing the path length. Missing values at the beginning of a path
-       cannot be forward-filled and are still skipped. Both policies
-       underestimate the true path length in the presence of gaps, but
-       ``"ffill"`` less so. For more control over handling missing values,
-       use :func:`~movement.filtering.interpolate_over_time`
-       before calling this function.
+       By default (``nan_policy="interpolate"``), a missing segment is
+       assumed to be travelled in a straight line between the two valid
+       positions flanking it. This is implemented under the hood using
+       :meth:`xarray.DataArray.ffill` (forward-fill), which gives the
+       same segment-length sum as linearly interpolating over the gap.
+       Missing values at the beginning of a path cannot be forward-filled
+       and are still skipped. Choosing ``nan_policy="omit"`` makes no
+       such assumption: it sums the lengths of the segments between
+       consecutive *valid* positions only. A missing position invalidates
+       the two segments on either side of it (the arriving and departing
+       steps), which are omitted from the sum. Both policies underestimate
+       the true path length in the presence of gaps, but ``"interpolate"``
+       less so. For more control over handling missing values, use
+       :func:`~movement.filtering.interpolate_over_time` before calling
+       this function.
 
     2. **Sampling rate sensitivity ('coastline paradox'):**
        The measured path length is sensitive to the temporal sampling rate
@@ -107,9 +108,9 @@ def compute_path_length(
 
     >>> length = compute_path_length(centroid.sel(time=slice(0, 100)))
 
-    Forward-fill missing positions before computing the path length:
+    Skip (omit) missing positions instead of interpolating over them:
 
-    >>> length = compute_path_length(centroid, nan_policy="ffill")
+    >>> length = compute_path_length(centroid, nan_policy="omit")
 
     """
     data = _validate_time_points(data, "path length")
@@ -118,7 +119,7 @@ def compute_path_length(
 
 def compute_path_straightness(
     data: xr.DataArray,
-    nan_policy: Literal["ffill", "omit"] = "omit",
+    nan_policy: Literal["interpolate", "omit"] = "interpolate",
     nan_warn_threshold: float = 0.2,
 ) -> xr.DataArray:
     r"""Compute the straightness index of a path :math:`(D/L)`.
@@ -135,11 +136,11 @@ def compute_path_straightness(
         The input data containing position information, with ``time``
         and ``space`` (in Cartesian coordinates) as required dimensions.
     nan_policy
-        Policy for handling NaN (missing) values in the path length
-        computation. By default (``"omit"``), segments with a missing endpoint
-        are skipped. If ``"ffill"``, missing positions are forward-filled
-        first. See :func:`compute_path_length` for more details on the two
-        policies. Defaults to ``"omit"``.
+        Policy for handling NaN (missing) values when computing :math:`L`. By
+        default (``"interpolate"``), a missing segment is assumed to be
+        travelled in a straight line between the two valid positions flanking
+        it. If ``"omit"``, missing segments are instead skipped entirely.
+        See :func:`compute_path_length` for more details on the two policies.
     nan_warn_threshold
         If any point track in the data has at least (:math:`\ge`)
         this proportion of values missing, a warning will be emitted.
@@ -840,7 +841,7 @@ def _path_distance(data: xr.DataArray) -> xr.DataArray:
 
 def _path_length(
     data: xr.DataArray,
-    nan_policy: Literal["ffill", "omit"],
+    nan_policy: Literal["interpolate", "omit"],
     nan_warn_threshold: float,
 ) -> xr.DataArray:
     """Compute path length on already-validated data.
@@ -848,20 +849,22 @@ def _path_length(
     See :func:`compute_path_length` for parameter details.
     """
     _warn_about_nan_proportion(data, nan_warn_threshold)
-    if nan_policy == "omit":
+    if nan_policy == "interpolate":
+        # Forward-fill, which gives the same segment-length sum as linear
+        # interpolation over the gaps.
+        result = _segment_lengths(data.ffill(dim="time")).sum(
+            dim="time", min_count=1
+        )
+    elif nan_policy == "omit":
         # Sum the lengths of the segments between consecutive valid
         # positions. Segments touching a NaN are skipped; a track is only
         # NaN if all its segments are (hence min_count=1).
         result = _segment_lengths(data).sum(dim="time", min_count=1)
-    elif nan_policy == "ffill":
-        result = _segment_lengths(data.ffill(dim="time")).sum(
-            dim="time", min_count=1
-        )
     else:
         raise logger.error(
             ValueError(
                 f"Invalid value for nan_policy: {nan_policy!r}. "
-                "Must be 'omit' or 'ffill'."
+                "Must be 'interpolate' or 'omit'."
             )
         )
     result.name = "path_length"
