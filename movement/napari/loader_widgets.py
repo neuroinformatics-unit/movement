@@ -31,12 +31,7 @@ from movement.napari.layer_wiring import (
     connect_viewer_callbacks,
     frame_axis_is_sliced,
     on_points_data_changed,
-    remove_from_tracks_layer,
     set_point_symbol_by_edited,
-    set_tracks_layer_data,
-    sync_tracks_layer,
-    update_frame_slider_range,
-    update_points_layers_editable,
 )
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
@@ -366,43 +361,13 @@ class DataLoader(QWidget):
             **points_style.as_kwargs(),
         )
         self.points_layer.events.data.connect(on_points_data_changed)
-        self.points_layer.editable = self._frame_axis_is_sliced()
+        self.points_layer.editable = frame_axis_is_sliced(self.viewer)
 
         # If the loaded dataset already has an `edited` property
         # mark those points with the edited symbol.
-        self._set_point_symbol_by_edited(self.points_layer)
+        set_point_symbol_by_edited(self.points_layer)
 
         logger.info("Added tracked dataset as a napari Points layer.")
-
-    def _frame_axis_is_sliced(self) -> bool:
-        """Whether frame is the sliced axis in a 2D view."""
-        return frame_axis_is_sliced(self.viewer)
-
-    def _update_points_layers_editable(self, event=None):
-        """Disable point editing while the frame axis isn't sliced."""
-        update_points_layers_editable(self.viewer, event)
-
-    @staticmethod
-    def _set_point_symbol_by_edited(layer: Points) -> None:
-        """Show points flagged as edited with a distinct marker symbol."""
-        set_point_symbol_by_edited(layer)
-
-    def _on_points_data_changed(self, event):
-        """Keep the Tracks layer in sync with the Points layer."""
-        on_points_data_changed(event)
-
-    def _sync_tracks_layer(self, points_layer, moved_indices):
-        """Update the Tracks layer to match an edited point."""
-        sync_tracks_layer(points_layer, moved_indices)
-
-    def _remove_from_tracks_layer(self, points_layer, removed_indices):
-        """Remove the rows corresponding to deleted points."""
-        remove_from_tracks_layer(points_layer, removed_indices)
-
-    @staticmethod
-    def _set_tracks_layer_data(tracks_layer, data, properties):
-        """Set a Tracks layer's data and properties, preserving color_by."""
-        set_tracks_layer_data(tracks_layer, data, properties)
 
     def _add_tracks_layer(self):
         """Add the tracked data to the viewer as a Tracks layer."""
@@ -449,10 +414,6 @@ class DataLoader(QWidget):
             **bboxes_style.as_kwargs(),
         )
         logger.info("Added tracked dataset as a napari Shapes layer.")
-
-    def _update_frame_slider_range(self):
-        """Check the frame slider range and update it if necessary."""
-        update_frame_slider_range(self.viewer)
 
     @staticmethod
     def _enable_layer_tooltips():
