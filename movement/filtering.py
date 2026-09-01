@@ -191,6 +191,9 @@ def rolling_filter(
     only when all values in the window are NaN, since 1 non-NaN value
     is sufficient to compute the result.
 
+    A ``window`` of 1 is a valid edge case: the input data is returned
+    unchanged, since there is only one observation per window.
+
     """
     half_window = window // 2
     data_windows = data.pad(  # Pad the edges to avoid NaNs
