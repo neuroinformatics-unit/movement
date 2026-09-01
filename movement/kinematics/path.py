@@ -864,7 +864,8 @@ def _path_length(
         raise logger.error(
             ValueError(
                 f"Invalid value for nan_policy: {nan_policy!r}. "
-                "Must be 'interpolate' or 'omit'."
+                "Must be 'interpolate' or 'omit'. Note: 'ffill' was "
+                "renamed to 'interpolate' (identical behaviour)."
             )
         )
     result.name = "path_length"
