@@ -7,6 +7,7 @@ import pytest
 from napari.layers.base import ActionType
 
 from movement.io import save_poses
+from movement.napari.layer_wiring import on_points_data_changed
 from movement.napari.loader_widgets import DataLoader
 
 
@@ -221,7 +222,7 @@ def move_point():
         mock_event.source = loader.points_layer
         mock_event.action = ActionType.CHANGED
         mock_event.data_indices = (edit_idx,)
-        loader._on_points_data_changed(mock_event)
+        on_points_data_changed(mock_event)
 
     return _move_point
 
