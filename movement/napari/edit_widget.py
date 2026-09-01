@@ -312,6 +312,7 @@ class EditWidget(QWidget):
 
         if self.active_layer is None:
             self.ax.set_yticks([])
+            self.figure.tight_layout()
             self._on_step_changed()
             return
 
@@ -386,6 +387,7 @@ class EditWidget(QWidget):
                 )
             self._edited_frames = np.unique([p[0] for p in all_points])
 
+        self.figure.tight_layout()
         self._on_step_changed()
 
     def _bar_color_lookup(self):
