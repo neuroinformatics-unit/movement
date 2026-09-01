@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=ee71bcef"></script>
+    <script src="../_static/documentation_options.js?v=4a0938f6"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev42</p>
+    <p class="title logo__title">movement v0.17.1.dev43</p>
   
 </a></div>
     
@@ -710,6 +710,8 @@ non-NaN values required in the window to compute a result. For example,
 setting <code class="docutils literal notranslate"><span class="pre">min_periods=1</span></code> will result in the filter returning NaNs
 only when all values in the window are NaN, since 1 non-NaN value
 is sufficient to compute the result.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">window</span></code> of 1 is a valid edge case: the input data is returned
+unchanged, since there is only one observation per window.</p>
 </dd></dl>
 
 <section id="examples-using-rolling-filter">

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=ee71bcef"></script>
+    <script src="../../_static/documentation_options.js?v=4a0938f6"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev42</p>
+    <p class="title logo__title">movement v0.17.1.dev43</p>
   
 </a></div>
     
@@ -678,6 +678,9 @@
 <span class="sd">    only when all values in the window are NaN, since 1 non-NaN value</span>
 <span class="sd">    is sufficient to compute the result.</span>
 
+<span class="sd">    A ``window`` of 1 is a valid edge case: the input data is returned</span>
+<span class="sd">    unchanged, since there is only one observation per window.</span>
+
 <span class="sd">    """</span>
     <span class="n">half_window</span> <span class="o">=</span> <span class="n">window</span> <span class="o">//</span> <span class="mi">2</span>
     <span class="n">data_windows</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span>  <span class="c1"># Pad the edges to avoid NaNs</span>
@@ -699,7 +702,9 @@
     <span class="n">data_rolled</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">data_windows</span><span class="p">,</span> <span class="n">statistic</span><span class="p">)(</span><span class="n">skipna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1"># Remove the padded edges</span>
-    <span class="n">data_rolled</span> <span class="o">=</span> <span class="n">data_rolled</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">half_window</span><span class="p">,</span> <span class="o">-</span><span class="n">half_window</span><span class="p">))</span>
+    <span class="n">data_rolled</span> <span class="o">=</span> <span class="n">data_rolled</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span>
+        <span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="n">half_window</span><span class="p">,</span> <span class="n">data_rolled</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span> <span class="o">-</span> <span class="n">half_window</span><span class="p">)</span>
+    <span class="p">)</span>
 
     <span class="c1"># Optional: Print NaN report</span>
     <span class="k">if</span> <span class="n">print_report</span><span class="p">:</span>
