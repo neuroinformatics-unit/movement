@@ -1,6 +1,7 @@
 """The main napari widget for the ``movement`` package."""
 
 from napari.layers import Points
+from napari.layers.base import ActionType
 from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 
@@ -91,11 +92,18 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         if not self._is_movement_points(layer):
             return  # ignore any layer that is not a movement Points layer
         self._show_individuals_enabled()
+        # Open the edit section as soon as a point is edited on this layer.
+        layer.events.data.connect(self._on_points_edited)
         edited = layer.properties.get("edited")
         if edited is not None and edited.any():
             self._edit_collapsible.expand()
         else:
             self._edit_collapsible.collapse(False)
+
+    def _on_points_edited(self, event) -> None:
+        """Expand the edit section when a point is dragged or removed."""
+        if event.action in (ActionType.CHANGED, ActionType.REMOVING):
+            self._edit_collapsible.expand()
 
     def _on_edit_widget_toggled(self, expanded: bool) -> None:
         """Show/hide the edited-frames timeline docked at the bottom."""
