@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=4a0938f6"></script>
+    <script src="../_static/documentation_options.js?v=8180a83b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -146,7 +146,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev43</p>
+    <p class="title logo__title">movement v0.17.1.dev44</p>
   
 </a></div>
     
@@ -671,7 +671,7 @@
 <h1>compute_path_straightness<a class="headerlink" href="#compute-path-straightness" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.kinematics.compute_path_straightness">
-<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_path_straightness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ffill'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_warn_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/path.html#compute_path_straightness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_path_straightness" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_path_straightness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'interpolate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_warn_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/path.html#compute_path_straightness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_path_straightness" title="Link to this definition">#</a></dt>
 <dd><p>Compute the straightness index of a path <span class="math notranslate nohighlight">\((D/L)\)</span>.</p>
 <p>The straightness index is the ratio of the Euclidean distance <span class="math notranslate nohighlight">\(D\)</span>
 between the first and last valid positions of a trajectory to the
@@ -683,10 +683,11 @@ returned to its starting point. Returns NaN if the path length is zero.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input data containing position information, with <code class="docutils literal notranslate"><span class="pre">time</span></code>
 and <code class="docutils literal notranslate"><span class="pre">space</span></code> (in Cartesian coordinates) as required dimensions.</p></li>
-<li><p><strong>nan_policy</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'ffill'</span></code>, <code class="docutils literal notranslate"><span class="pre">'scale'</span></code>]</span>) – Policy to handle NaN (missing) values for the path length computation.
-Can be one of <code class="docutils literal notranslate"><span class="pre">&quot;ffill&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;scale&quot;</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;ffill&quot;</span></code>
-(forward fill). See <a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_path_length()</span></code></a> for more details on
-the two policies.</p></li>
+<li><p><strong>nan_policy</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'interpolate'</span></code>, <code class="docutils literal notranslate"><span class="pre">'omit'</span></code>]</span>) – Policy for handling NaN (missing) values when computing <span class="math notranslate nohighlight">\(L\)</span>. By
+default (<code class="docutils literal notranslate"><span class="pre">&quot;interpolate&quot;</span></code>), a missing segment is assumed to be
+travelled in a straight line between the two valid positions flanking
+it. If <code class="docutils literal notranslate"><span class="pre">&quot;omit&quot;</span></code>, missing segments are instead skipped entirely.
+See <a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_path_length()</span></code></a> for more details on the two policies.</p></li>
 <li><p><strong>nan_warn_threshold</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – If any point track in the data has at least (<span class="math notranslate nohighlight">\(\ge\)</span>)
 this proportion of values missing, a warning will be emitted.
 Defaults to 0.2 (20%). Directly passed to <a class="reference internal" href="movement.kinematics.compute_path_length.html#movement.kinematics.compute_path_length" title="movement.kinematics.compute_path_length"><code class="xref py py-func docutils literal notranslate"><span class="pre">compute_path_length()</span></code></a>.</p></li>

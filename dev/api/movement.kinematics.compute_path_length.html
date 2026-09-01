@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=4a0938f6"></script>
+    <script src="../_static/documentation_options.js?v=8180a83b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -146,7 +146,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev43</p>
+    <p class="title logo__title">movement v0.17.1.dev44</p>
   
 </a></div>
     
@@ -671,7 +671,7 @@
 <h1>compute_path_length<a class="headerlink" href="#compute-path-length" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.kinematics.compute_path_length">
-<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_path_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ffill'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_warn_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/path.html#compute_path_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_path_length" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">movement.kinematics.</span></span><span class="sig-name descname"><span class="pre">compute_path_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'interpolate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nan_warn_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/kinematics/path.html#compute_path_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.kinematics.compute_path_length" title="Link to this definition">#</a></dt>
 <dd><p>Compute the length of a path travelled.</p>
 <p>The path length is defined as the sum of the norms (magnitudes) of the
 displacement vectors between consecutive time points in the data.</p>
@@ -680,8 +680,10 @@ displacement vectors between consecutive time points in the data.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataArray</span></code></a></span>) – The input data containing position information, with <code class="docutils literal notranslate"><span class="pre">time</span></code>
 and <code class="docutils literal notranslate"><span class="pre">space</span></code> (in Cartesian coordinates) as required dimensions.</p></li>
-<li><p><strong>nan_policy</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'ffill'</span></code>, <code class="docutils literal notranslate"><span class="pre">'scale'</span></code>]</span>) – Policy to handle NaN (missing) values. Can be one of the <code class="docutils literal notranslate"><span class="pre">&quot;ffill&quot;</span></code>
-or <code class="docutils literal notranslate"><span class="pre">&quot;scale&quot;</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;ffill&quot;</span></code> (forward fill).
+<li><p><strong>nan_policy</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'interpolate'</span></code>, <code class="docutils literal notranslate"><span class="pre">'omit'</span></code>]</span>) – Policy for handling NaN (missing) values. By default
+(<code class="docutils literal notranslate"><span class="pre">&quot;interpolate&quot;</span></code>), a missing segment is assumed to be travelled
+in a straight line between the two valid positions flanking it.
+If <code class="docutils literal notranslate"><span class="pre">&quot;omit&quot;</span></code>, missing segments are instead skipped entirely.
 See Notes for more details on the two policies.</p></li>
 <li><p><strong>nan_warn_threshold</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a></span>) – If any point track in the data has at least (<span class="math notranslate nohighlight">\(\ge\)</span>)
 this proportion of values missing, a warning will be emitted.
@@ -698,25 +700,31 @@ except <code class="docutils literal notranslate"><span class="pre">time</span><
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Choosing <code class="docutils literal notranslate"><span class="pre">nan_policy=&quot;ffill&quot;</span></code> will use <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.ffill.html#xarray.DataArray.ffill" title="(in xarray v2026.7.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.ffill()</span></code></a>
-to forward-fill missing segments (NaN values) across time.
-This equates to assuming that a track remains stationary for
-the duration of the missing segment and then instantaneously moves to
-the next valid position, following a straight line. This approach tends
-to underestimate the path length, and the error increases with the number
-of missing values.</p>
-<p>Choosing <code class="docutils literal notranslate"><span class="pre">nan_policy=&quot;scale&quot;</span></code> will adjust the path length based on the
-the proportion of valid segments per point track. For example, if only
-80% of segments are present, the path length will be computed based on
-these and the result will be divided by 0.8. This approach assumes
-that motion dynamics are similar across observed and missing time
-segments, which may not accurately reflect actual conditions.</p>
-<p><strong>Sampling rate sensitivity (‘coastline paradox’):</strong>
+<ol class="arabic simple">
+<li><p><strong>Handling missing values:</strong>
+By default (<code class="docutils literal notranslate"><span class="pre">nan_policy=&quot;interpolate&quot;</span></code>), a missing segment is
+assumed to be travelled in a straight line between the two valid
+positions flanking it. This is implemented under the hood using
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.ffill.html#xarray.DataArray.ffill" title="(in xarray v2026.7.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.ffill()</span></code></a> (forward-fill), which gives the
+same segment-length sum as linearly interpolating over the gap.
+Missing values at the beginning of a path cannot be forward-filled
+and are still skipped. Choosing <code class="docutils literal notranslate"><span class="pre">nan_policy=&quot;omit&quot;</span></code> makes no
+such assumption: it sums the lengths of the segments between
+consecutive <em>valid</em> positions only. A missing position invalidates
+the two segments on either side of it (the arriving and departing
+steps), which are omitted from the sum. Both policies underestimate
+the true path length in the presence of gaps, but <code class="docutils literal notranslate"><span class="pre">&quot;interpolate&quot;</span></code>
+less so. For more control over handling missing values, use
+<a class="reference internal" href="movement.filtering.interpolate_over_time.html#movement.filtering.interpolate_over_time" title="movement.filtering.interpolate_over_time"><code class="xref py py-func docutils literal notranslate"><span class="pre">interpolate_over_time()</span></code></a> before calling
+this function.</p></li>
+<li><p><strong>Sampling rate sensitivity (‘coastline paradox’):</strong>
 The measured path length is sensitive to the temporal sampling rate
 (i.e., frames per second) of the tracking data. Higher sampling rates
 capture finer micro-movements and tracking jitter, which inherently
-increases the total measured path length. Exercise caution when comparing
-path lengths across datasets with different temporal resolutions.</p>
+increases the total measured path length. Exercise caution when
+comparing path lengths across datasets with different temporal
+resolutions.</p></li>
+</ol>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
@@ -738,8 +746,8 @@ dataset <code class="docutils literal notranslate"><span class="pre">ds</span></
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="n">compute_path_length</span><span class="p">(</span><span class="n">centroid</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">)))</span>
 </pre></div>
 </div>
-<p>Use the scale policy to handle missing values:</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="n">compute_path_length</span><span class="p">(</span><span class="n">centroid</span><span class="p">,</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s2">"scale"</span><span class="p">)</span>
+<p>Skip (omit) missing positions instead of interpolating over them:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">length</span> <span class="o">=</span> <span class="n">compute_path_length</span><span class="p">(</span><span class="n">centroid</span><span class="p">,</span> <span class="n">nan_policy</span><span class="o">=</span><span class="s2">"omit"</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>

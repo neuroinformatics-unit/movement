@@ -364,7 +364,7 @@ the ``dest_path`` variable to your liking.
 
  .. code-block:: none
 
-    Saved modified dataset to /tmp/tmpcg740mkz/SLEAP_single-mouse_EPM.analysis_dlc.csv.
+    Saved modified dataset to /tmp/tmp81eijfqp/SLEAP_single-mouse_EPM.analysis_dlc.csv.
 
 
 
