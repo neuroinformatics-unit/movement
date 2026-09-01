@@ -12,6 +12,8 @@ import numpy as np
 import pytest
 from napari.layers.base import ActionType
 
+from movement.napari.layer_wiring import connect_viewer_callbacks
+
 
 @pytest.fixture
 def orphaned_layers(valid_poses_path_and_ds, loaded_data_loader):
@@ -87,3 +89,24 @@ def test_editable_still_follows_axis_order_after_widget_is_gone(
 
     viewer.dims.order = (0, 1, 2)
     assert points_layer.editable
+
+
+def test_connect_viewer_callbacks_is_idempotent(make_napari_viewer_proxy):
+    """Test that wiring a viewer twice does not duplicate the callbacks."""
+    # Wire the viewer callbacks
+    viewer = make_napari_viewer_proxy()
+    connect_viewer_callbacks(viewer)
+
+    # Count callbacks linked to the viewer
+    # for the two events defined in `connect_viewer_callbacks`
+    # - n of callbacks linked to "inserted layers events"
+    # - n of callbacks linked to "dimensions order events"
+    n_inserted = len(viewer.layers.events.inserted.callbacks)
+    n_order = len(viewer.dims.events.order.callbacks)
+
+    # Connect the callbacks to the viewer again;
+    # the number of callbacks should not increase
+    connect_viewer_callbacks(viewer)
+
+    assert len(viewer.layers.events.inserted.callbacks) == n_inserted
+    assert len(viewer.dims.events.order.callbacks) == n_order
