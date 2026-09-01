@@ -196,30 +196,26 @@ skip = '.git,.tox,*.svg,docs/source/community/people.md'
 check-hidden = true
 
 [tool.tox]
-legacy_tox_ini = """
-[tox]
-requires =
-    tox>=4
-    tox-gh-actions
-envlist = py{312,313,314}
-isolated_build = True
+requires = ["tox>=4", "tox-gh-actions"]
+env_list = ["py312", "py313", "py314"]
 
-[gh-actions]
-python =
+[tool.tox.gh-actions]
+python = """
     3.12: py312
     3.13: py313
     3.14: py314
-
-[testenv]
-passenv =
-    CI
-    GITHUB_ACTIONS
-    DISPLAY
-    XAUTHORITY
-    NUMPY_EXPERIMENTAL_ARRAY_FUNCTION
-    PYVISTA_OFF_SCREEN
-dependency_groups =
-    dev
-commands =
-    pytest -v --color=yes --cov=movement --cov-report=xml
 """
+
+[tool.tox.env_run_base]
+pass_env = [
+    "CI",
+    "GITHUB_ACTIONS",
+    "DISPLAY",
+    "XAUTHORITY",
+    "NUMPY_EXPERIMENTAL_ARRAY_FUNCTION",
+    "PYVISTA_OFF_SCREEN",
+]
+dependency_groups = ["dev"]
+commands = [
+    ["pytest", "-v", "--color=yes", "--cov=movement", "--cov-report=xml", "-m", "", "--benchmark-disable"],
+]

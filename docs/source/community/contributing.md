@@ -33,17 +33,17 @@ If you want to contribute to `movement` and don't have permission to make change
 When you create your own copy (or "fork") of a project, it's like making a new workspace that shares code with the original project.
 Once you've made your changes in your copy, you can submit them as a pull request, which is a way to propose changes back to the main project.
 
-If you are not familiar with `git`, we recommend reading up on [this guide](https://docs.github.com/en/get-started/using-git/about-git#basic-git-commands).
+If you are not familiar with `git`, we recommend reading up on [this guide](github-docs:get-started/using-git/about-git#basic-git-commands).
 
 ### Forking the repository
 
 1. Fork the [repository](movement-github:) on GitHub.
-   You can read more about [forking in the GitHub docs](https://docs.github.com/en/get-started/quickstart/fork-a-repo).
+   You can read more about [forking in the GitHub docs](github-docs:pull-requests/how-tos/work-with-forks/fork-a-repo).
 
 2. Clone your fork to your local machine and navigate to the repository folder:
 
     ```sh
-    git clone [https://github.com/](https://github.com/)<your-github-username>/movement.git
+    git clone https://github.com/<your-github-username>/movement.git
     cd movement
     ```
 
@@ -51,11 +51,12 @@ If you are not familiar with `git`, we recommend reading up on [this guide](http
    This links your local copy to the original project so you can pull the latest changes.
 
     ```sh
-    git remote add upstream [https://github.com/neuroinformatics-unit/movement.git](https://github.com/neuroinformatics-unit/movement.git)
+    git remote add upstream https://github.com/neuroinformatics-unit/movement.git
     ```
 
     :::{note}
     Your repository now has two remotes: `origin` (your fork, where you push changes) and `upstream` (the main repository, where you pull updates from)
+    :::
 
 ### Creating a development environment
 
@@ -124,7 +125,7 @@ We recommend, and adhere, to the following conventions:
 - The maintainers triage PRs and assign suitable reviewers using the GitHub review system.
 - One approval of a PR (by a maintainer) is enough for it to be merged.
 - Unless someone approves the PR with optional comments, the PR is immediately merged by the approving reviewer.
-- PRs are preferably merged via the ["squash and merge"](github-docs:pull-requests/collaborating-with-pull-requests/incorporating-changes-from-a-pull-request/about-pull-request-merges#squash-and-merge-your-commits) option, to keep a clean commit history on the _main_ branch.
+- PRs are preferably merged via the ["squash and merge"](github-docs:pull-requests/reference/pull-request-merges) option, to keep a clean commit history on the _main_ branch.
 
 A typical PR workflow would be:
 * Create a new branch, make your changes, and stage them.
@@ -206,8 +207,11 @@ These datasets are accessible through the `pytest.DATA_PATHS` dictionary, popula
 Avoid including large data files directly in the GitHub repository.
 
 #### Running benchmark tests
-Some tests are marked as `benchmark` because we use them along with [pytest-benchmark](pytest-benchmark:) to measure the performance of a section of the code. These tests are excluded from the default test run to keep CI and local test running fast.
-This applies to all ways of running `pytest` (via command line, IDE, tox or CI).
+Some tests are marked as `benchmark` because we use them with [pytest-benchmark](pytest-benchmark:) to measure the performance of specific code paths.
+These tests are excluded from the default test run to keep the suite fast.
+This applies to any direct `pytest` invocation (command line or IDE).
+Our `tox` environment—used in CI—runs the full test suite, including the benchmark tests, but with benchmarking disabled (`--benchmark-disable`).
+This acts as a smoke check: no timing or statistics are collected; it simply verifies that the benchmarked code still executes correctly.
 
 To run only the benchmark tests locally:
 
@@ -215,7 +219,7 @@ To run only the benchmark tests locally:
 pytest -m benchmark
 ```
 
-To run all tests, including those marked as `benchmark`:
+To run the full test suite, including tests marked as `benchmark`:
 
 ```sh
 pytest -m ""
@@ -970,7 +974,6 @@ If the linkcheck step incorrectly marks links with valid anchors as broken, you 
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs
 linkcheck_anchors_ignore_for_url = [
-    "https://gin.g-node.org/G-Node/Info/wiki/",
     "https://neuroinformatics.zulipchat.com/",
 ]
 ```
@@ -984,19 +987,24 @@ make clean html linkcheck
 :::
 
 ### Previewing the documentation in continuous integration
-We use [artifact.ci](https://www.artifact.ci/) to preview the documentation that is built as part of our GitHub Actions workflow. To do so:
+We use [artifact.ci](https://artifact.ci/) to preview the documentation that is built as part of our GitHub Actions workflow. To do so:
 1. Go to the "Checks" tab in the GitHub PR.
 2. Click on the "Docs" section on the left.
 3. If the "Build Sphinx Docs" action is successful, a summary section will appear under the block diagram with a link to preview the built documentation.
 4. Click on the link and wait for the files to be uploaded (it may take a while the first time). You may be asked to sign in to GitHub.
 5. Once the upload is complete, look for `docs/build/html/index.html` under the "Detected Entrypoints" section.
 
+:::{note}
+[artifact.ci](https://artifact.ci/) provides a limited number of preview builds per account.
+If the limit is reached, previews may temporarily be unavailable until the quota resets.
+:::
+
 (target-contributing-sample-data)=
 ## Sample data
 We maintain some sample datasets to be used for testing, examples and tutorials on an
-[external data repository](gin:neuroinformatics/movement-test-data).
-Our hosting platform of choice is called [GIN](gin:) and is maintained
-by the [German Neuroinformatics Node](https://www.g-node.org/).
+[external data repository](swc-gin:neuroinformatics/movement-sample-data).
+Our hosting platform of choice is called [GIN](gin:), based on the
+software maintained by the [German Neuroinformatics Node](https://www.g-node.org/).
 GIN has a GitHub-like interface and git-like
 [CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) functionalities.
 
@@ -1035,13 +1043,13 @@ Only core `movement` developers may add new files to the external data repositor
 Make sure to run the following procedure on a UNIX-like system, as we have observed some weird behaviour on Windows (some sha256sums may end up being different).
 To add a new file, you will need to:
 
-1. Create a [GIN](gin:) account.
-2. Request collaborator access to the [movement data repository](gin:neuroinformatics/movement-test-data) if you don't already have it.
-3. Install and configure the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) by running `gin login` in a terminal with your GIN credentials.
-4. Clone the `movement` data repository to your local machine using `gin get neuroinformatics/movement-test-data`, then run `gin download --content` to download all the files.
+1. Create a [GIN](swc-gin:) account on our self-hosted instance.
+2. Request collaborator access to the [movement data repository](swc-gin:neuroinformatics/movement-sample-data) if you don't already have it.
+3. Install the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart), then log in by running `gin login --server https://gin.swc.ucl.ac.uk` and following the instructions to authenticate with your GIN account.
+4. Clone the `movement` data repository to your local machine using `gin get neuroinformatics/movement-sample-data`, then run `gin download --content` to download all the files.
 5. Add your new files to the appropriate folders (`poses`, `bboxes`, `videos`, and/or `frames`) following the existing file naming conventions.
 6. Add metadata for your new files to `metadata.yaml` using the [example entry below](target-metadata-yaml) as a template. You can leave all `sha256sum` values as `null` for now.
-7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](gin:neuroinformatics/movement-test-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with `movement` installed](#creating-a-development-environment).
+7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](swc-gin:neuroinformatics/movement-sample-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with `movement` installed](#creating-a-development-environment).
 8. Commit your changes using `gin commit -m <message> <filename>` for specific files or `gin commit -m <message> .` for all changes.
 9. Upload your committed changes to the GIN repository with `gin upload`. Use `gin download` to pull the latest changes or `gin sync` to synchronise changes bidirectionally.
 10. [Verify](target-verify-sample-data) the new files can be fetched and loaded correctly using the {mod}`movement.sample_data` module.

@@ -1,5 +1,6 @@
 """Widgets for loading movement datasets from file."""
 
+import warnings
 from pathlib import Path
 
 import numpy as np
@@ -55,15 +56,15 @@ SUPPORTED_DATA_FILES = {
 }
 
 # Metadata keys stored on the movement Points layer.
-# Set in _add_points_layer (where the layer is created);
-# read in save_widget.py (where the layer is saved).
 # - POINTS_LAYER_KEY marks the layer as movement-created.
 # - POINTS_PROPERTIES_KEY holds the full properties df, incl. the NaN rows
 #   dropped from the live layer, needed to reconstruct the dataset.
 # - DATASET_ATTRS_KEY holds the source dataset's attrs (source_software, fps…).
+# - TRACKS_LAYER_KEY holds a reference to the companion Tracks layer.
 POINTS_LAYER_KEY: str = "movement_points_layer"
 POINTS_PROPERTIES_KEY: str = "movement_points_properties"
 DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
+TRACKS_LAYER_KEY: str = "movement_tracks_layer"
 
 
 class DataLoader(QWidget):
@@ -87,6 +88,17 @@ class DataLoader(QWidget):
                 self._update_frame_slider_range,
             )
         self._enable_layer_tooltips()
+
+        # Point drags are only guaranteed to stay within their own frame
+        # when frame is the sliced (non-displayed) axis in a 2D view. If
+        # axes are rolled or a 3D view is used, disable editing rather
+        # than risk a drag moving a point onto a different frame.
+        self.viewer.dims.events.order.connect(
+            self._update_points_layers_editable
+        )
+        self.viewer.dims.events.ndisplay.connect(
+            self._update_points_layers_editable
+        )
 
     def _create_source_software_widget(self):
         """Create a combo box for selecting the source software."""
@@ -244,6 +256,9 @@ class DataLoader(QWidget):
 
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)
+        # Record which points had a NaN position originally as a property
+        # This is used to reconstruct a dataset on save
+        self.properties["position_is_nan"] = ~self.data_not_nan
         return True
 
     def _load_third_party_file(self) -> xr.Dataset:
@@ -348,10 +363,13 @@ class DataLoader(QWidget):
             properties_df=self.properties,
         )
 
-        # Filter out columns ending in _factorized (used internally for
-        # Tracks/Shapes coloring but not needed in Points layer tooltips)
+        # Filter out columns used internally (for Tracks/Shapes coloring,
+        # or for reconstructing the dataset on save) but not needed in
+        # Points layer tooltips: _factorized columns and position_is_nan.
         points_properties = self.properties.loc[
-            :, ~self.properties.columns.str.endswith("_factorized")
+            :,
+            ~self.properties.columns.str.endswith("_factorized")
+            & (self.properties.columns != "position_is_nan"),
         ]
         self.points_layer = self.viewer.add_points(
             self.data[self.data_not_nan, 1:],
@@ -365,12 +383,44 @@ class DataLoader(QWidget):
             **points_style.as_kwargs(),
         )
         self.points_layer.events.data.connect(self._on_points_data_changed)
+        self.points_layer.editable = self._frame_axis_is_sliced()
 
         # If the loaded dataset already has an `edited` property
         # mark those points with the edited symbol.
         self._set_point_symbol_by_edited(self.points_layer)
 
         logger.info("Added tracked dataset as a napari Points layer.")
+
+    def _frame_axis_is_sliced(self) -> bool:
+        """Whether frame is the sliced axis in a 2D view.
+
+        A point drag only ever touches the currently *displayed* axes
+        (see ``Points._move`` in napari). When frame is the sliced
+        axis, that means x/y -- everything is safe to edit. If axes
+        have been rolled so frame is displayed instead, or a 3D view
+        is active, a drag could move a point onto a different frame.
+        """
+        return (
+            self.viewer.dims.ndisplay == 2 and self.viewer.dims.order[0] == 0
+        )
+
+    def _update_points_layers_editable(self, event=None):
+        """Disable point editing while the frame axis isn't sliced.
+
+        Connected to ``viewer.dims.events.order``/``ndisplay``.
+        In the default view, the frame axis is the slider, so
+        dragging a point can only change its x/y position. Rolling
+        the axes or switching to 3D makes frame draggable too, which
+        would let a drag move a point to another frame. Disable
+        editing on every movement Points layer while that is the
+        case; napari greys out the select/add/delete controls.
+        """
+        frame_axis_is_sliced = self._frame_axis_is_sliced()
+        for layer in self.viewer.layers:
+            if isinstance(layer, Points) and layer.metadata.get(
+                POINTS_LAYER_KEY
+            ):
+                layer.editable = frame_axis_is_sliced
 
     @staticmethod
     def _set_point_symbol_by_edited(layer: Points) -> None:
@@ -383,31 +433,106 @@ class DataLoader(QWidget):
         layer.symbol = symbols
 
     def _on_points_data_changed(self, event):
-        """Set confidence to NaN and flag as edited for moved points.
+        """Keep the corresponding Tracks layer in sync with the Points layer.
 
-        Connected to ``points_layer.events.data``. Fires on
-        ``ActionType.CHANGED`` (i.e., when the data array values
-        change) and sets the confidence score of moved (dragged)
-        points to NaN, marks them as edited, and changes their
-        marker symbol to ``EDITED_POINT_SYMBOL`` so edited points are
-        visually distinguishable.
+        Connected to ``points_layer.events.data``. Handles two actions:
+
+        - ``ActionType.CHANGED`` (a point was dragged): sets the
+          confidence score of moved points to NaN, marks them as
+          edited, and changes their marker symbol to
+          ``EDITED_POINT_SYMBOL`` so edited points are visually
+          distinguishable. The Tracks layer row is updated in place
+          via `_sync_tracks_layer`.
+        - ``ActionType.REMOVED`` (one or more points were deleted):
+          removes the corresponding rows from
+          the Tracks layer via `_remove_from_tracks_layer`.
         """
         layer = event.source
         if not isinstance(layer, Points):
             return
-        if event.action != ActionType.CHANGED:
-            return
-        moved_indices = list(event.data_indices)
-        props = layer.properties
-        props["confidence"] = props["confidence"].copy()
-        props["confidence"][moved_indices] = float("nan")
-        if "edited" in props:
-            props["edited"] = props["edited"].copy()
-        else:
-            props["edited"] = np.full(len(props["confidence"]), False)
-        props["edited"][moved_indices] = True
-        layer.properties = props
-        self._set_point_symbol_by_edited(layer)
+
+        if event.action == ActionType.CHANGED:
+            moved_indices = list(event.data_indices)
+            props = layer.properties
+            props["confidence"] = props["confidence"].copy()
+            props["confidence"][moved_indices] = float("nan")
+            if "edited" in props:
+                props["edited"] = props["edited"].copy()
+            else:
+                props["edited"] = np.full(len(props["confidence"]), False)
+            props["edited"][moved_indices] = True
+            layer.properties = props
+            self._set_point_symbol_by_edited(layer)
+            self._sync_tracks_layer(layer, moved_indices)
+
+        elif event.action == ActionType.REMOVED:
+            removed_indices = list(event.data_indices)
+            self._remove_from_tracks_layer(layer, removed_indices)
+
+    def _sync_tracks_layer(self, points_layer, moved_indices):
+        """Update the corresponding Tracks layer to match an edited point.
+
+        A moved point's new (frame, y, x) is written to the same row
+        in the Tracks layer, so the track segment connecting the
+        previous frame to this one terminates at the dragged position.
+        """
+        tracks_layer = points_layer.metadata[TRACKS_LAYER_KEY]
+
+        # Points and Tracks layers are built from the same NaN-filtered
+        # array in the same row order (see _add_points_layer/
+        # _add_tracks_layer). The Tracks layer only has an extra
+        # leading track_id column.
+        tracks_data = tracks_layer.data
+        tracks_data[moved_indices, 1:] = points_layer.data[moved_indices]
+
+        self._set_tracks_layer_data(
+            tracks_layer, tracks_data, tracks_layer.properties
+        )
+
+    def _remove_from_tracks_layer(self, points_layer, removed_indices):
+        """Remove the rows corresponding to deleted points.
+
+        Users edit the Points layer directly, either dragging points
+        or removing inaccurate predictions. The Tracks layer has no
+        interactive editing of its own, so it must be kept in sync
+        with the Points layer instead.
+
+        ``removed_indices`` are indices in the Points layer which line
+        up with rows in the Tracks layer, the same way
+        :meth:`_sync_tracks_layer` relies on for edits.
+        """
+        tracks_layer = points_layer.metadata[TRACKS_LAYER_KEY]
+
+        tracks_data = np.delete(tracks_layer.data, removed_indices, axis=0)
+        tracks_properties = {
+            key: np.delete(np.asarray(values), removed_indices, axis=0)
+            for key, values in tracks_layer.properties.items()
+        }
+
+        self._set_tracks_layer_data(
+            tracks_layer, tracks_data, tracks_properties
+        )
+
+    @staticmethod
+    def _set_tracks_layer_data(tracks_layer, data, properties):
+        """Set a Tracks layer's data and properties, preserving color_by.
+
+        Setting ``.data`` on a napari Tracks layer resets its internal
+        features to empty, which transiently invalidates ``color_by``
+        (napari warns and falls back to "track_id") even though we
+        restore the same properties and colour-by property right
+        after. Suppress that spurious warning around the sequence.
+        """
+        color_by = tracks_layer.color_by
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message=".*Previous color_by key.*",
+                category=UserWarning,
+            )
+            tracks_layer.data = data
+            tracks_layer.properties = properties
+            tracks_layer.color_by = color_by
 
     def _add_tracks_layer(self):
         """Add the tracked data to the viewer as a Tracks layer."""
@@ -424,12 +549,14 @@ class DataLoader(QWidget):
         tracks_style.set_color_by(property=self.color_property_factorized)
 
         # Add data as a tracks layer
-        self.viewer.add_tracks(
+        self.tracks_layer = self.viewer.add_tracks(
             self.data[self.data_not_nan, :],
             properties=self.properties.iloc[self.data_not_nan, :],
             metadata={"max_frame_idx": max(self.data[:, 1])},
             **tracks_style.as_kwargs(),
         )
+        # Let the Points layer's callback find its companion Tracks layer
+        self.points_layer.metadata[TRACKS_LAYER_KEY] = self.tracks_layer
         logger.info("Added tracked dataset as a napari Tracks layer.")
 
     def _add_boxes_layer(self):
