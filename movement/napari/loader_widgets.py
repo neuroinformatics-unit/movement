@@ -32,6 +32,7 @@ from movement.napari.layer_wiring import (
     POINTS_LAYER_KEY,
     POINTS_PROPERTIES_KEY,
     TRACKS_LAYER_KEY,
+    ensure_layer_wiring,
     frame_axis_is_sliced,
     on_points_data_changed,
     remove_from_tracks_layer,
@@ -81,23 +82,10 @@ class DataLoader(QWidget):
         self._create_file_path_widget()
         self._create_load_button()
 
-        # Connect frame slider range update to layer events
-        for action_str in ["inserted", "removed"]:
-            getattr(self.viewer.layers.events, action_str).connect(
-                self._update_frame_slider_range,
-            )
+        # Subscribe the viewer to the movement layer callbacks. These
+        # outlive this widget, so layers stay in sync after it is closed.
+        ensure_layer_wiring(self.viewer)
         self._enable_layer_tooltips()
-
-        # Point drags are only guaranteed to stay within their own frame
-        # when frame is the sliced (non-displayed) axis in a 2D view. If
-        # axes are rolled or a 3D view is used, disable editing rather
-        # than risk a drag moving a point onto a different frame.
-        self.viewer.dims.events.order.connect(
-            self._update_points_layers_editable
-        )
-        self.viewer.dims.events.ndisplay.connect(
-            self._update_points_layers_editable
-        )
 
     def _create_source_software_widget(self):
         """Create a combo box for selecting the source software."""
@@ -381,7 +369,7 @@ class DataLoader(QWidget):
             },
             **points_style.as_kwargs(),
         )
-        self.points_layer.events.data.connect(self._on_points_data_changed)
+        self.points_layer.events.data.connect(on_points_data_changed)
         self.points_layer.editable = self._frame_axis_is_sliced()
 
         # If the loaded dataset already has an `edited` property

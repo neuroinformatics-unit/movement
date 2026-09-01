@@ -6,6 +6,7 @@ instantiated (the methods would have already been connected to signals).
 """
 
 from contextlib import nullcontext as does_not_raise
+from functools import partial
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -34,6 +35,7 @@ from qtpy.QtWidgets import (
     QPushButton,
 )
 
+from movement.napari.layer_wiring import update_frame_slider_range
 from movement.napari.loader_widgets import (
     SUPPORTED_BBOXES_FILES,
     DataLoader,
@@ -65,19 +67,17 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     # Make sure that layer tooltips are enabled
     assert get_settings().appearance.layer_tooltip_visibility is True
 
-    # Test methods are connected to layer events
+    # Test the frame slider update is connected to layer events, as a
+    # partial (not a bound method, which napari would hold weakly).
     assert all(
-        [
-            data_loader_widget._update_frame_slider_range.__name__
-            in [
-                cb[1]
-                for cb in event.callbacks
-                if not isinstance(cb, EmitterGroup)
-            ]
-            for event in [
-                data_loader_widget.viewer.layers.events.inserted,
-                data_loader_widget.viewer.layers.events.removed,
-            ]
+        any(
+            isinstance(cb, partial) and cb.func is update_frame_slider_range
+            for cb in event.callbacks
+            if not isinstance(cb, EmitterGroup)
+        )
+        for event in [
+            data_loader_widget.viewer.layers.events.inserted,
+            data_loader_widget.viewer.layers.events.removed,
         ]
     )
 
@@ -123,13 +123,13 @@ def test_on_layer_added_and_deleted(
     layer_type, sample_layer_data, make_napari_viewer_proxy, mocker
 ):
     """Test the frame slider update is called when a layer is added/removed."""
+    # Mock the frame slider check function (before the widget connects it)
+    mock_frame_slider_check = mocker.patch(
+        "movement.napari.layer_wiring.update_frame_slider_range"
+    )
+
     # Create a mock napari viewer
     data_loader_widget = DataLoader(make_napari_viewer_proxy())
-
-    # Mock the frame slider check method
-    mock_frame_slider_check = mocker.patch(
-        "movement.napari.loader_widgets.DataLoader._update_frame_slider_range"
-    )
 
     # Add a sample layer to the viewer
     mock_layer = layer_type(
