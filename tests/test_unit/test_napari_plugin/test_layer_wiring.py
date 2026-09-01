@@ -13,16 +13,6 @@ import pytest
 from napari.layers.base import ActionType
 
 
-def _emit_data_event(points_layer, action, data_indices):
-    """Emit a data change on the Points layer, as napari does on an edit."""
-    points_layer.events.data(
-        value=points_layer.data,
-        action=action,
-        data_indices=tuple(data_indices),
-        vertex_indices=((),),
-    )
-
-
 @pytest.fixture
 def orphaned_layers(valid_poses_path_and_ds, loaded_data_loader):
     """Return the layers of a loaded dataset whose widget is gone.
@@ -47,7 +37,13 @@ def test_point_edit_syncs_tracks_layer_after_widget_is_gone(orphaned_layers):
 
     edit_idx = 5
     points_layer.data[edit_idx, 1:] = [100, 200]
-    _emit_data_event(points_layer, ActionType.CHANGED, (edit_idx,))
+
+    points_layer.events.data(
+        value=points_layer.data,
+        action=ActionType.CHANGED,
+        data_indices=(edit_idx,),
+        vertex_indices=((),),
+    )
 
     assert points_layer.properties["edited"][edit_idx]
     np.testing.assert_array_equal(
@@ -65,7 +61,13 @@ def test_point_removal_syncs_tracks_layer_after_widget_is_gone(
     removed_idx = 5
     expected_next_row = tracks_layer.data[removed_idx + 1].copy()
     points_layer.data = np.delete(points_layer.data, removed_idx, axis=0)
-    _emit_data_event(points_layer, ActionType.REMOVED, (removed_idx,))
+
+    points_layer.events.data(
+        value=points_layer.data,
+        action=ActionType.REMOVED,
+        data_indices=(removed_idx,),
+        vertex_indices=((),),
+    )
 
     assert tracks_layer.data.shape[0] == n_rows - 1
     np.testing.assert_array_equal(
@@ -78,7 +80,6 @@ def test_editable_still_follows_axis_order_after_widget_is_gone(
 ):
     """Test that rolling the axes still disables point editing."""
     viewer, points_layer, _ = orphaned_layers
-
     assert points_layer.editable
 
     viewer.dims.order = (1, 0, 2)
