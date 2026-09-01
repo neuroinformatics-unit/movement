@@ -34,9 +34,9 @@ POINTS_PROPERTIES_KEY: str = "movement_points_properties"
 DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
 TRACKS_LAYER_KEY: str = "movement_tracks_layer"
 
-# Viewers already wired by connect_viewer_callbacks,
-# so we don't wire them twice.
-# A WeakSet, so membership here never keeps a closed viewer alive.
+# Keep a set of viewers already wired by connect_viewer_callbacks,
+# so we don't wire them twice. We use a WeakSet, so that counts to the
+# set elements never keep a viewer alive.
 _WIRED_VIEWERS: WeakSet = WeakSet()
 
 
