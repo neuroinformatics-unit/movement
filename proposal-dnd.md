@@ -16,9 +16,13 @@ For videos an images, users can already drag-and-drop the file on the canvas, wh
 
 Since PR [#920](https://github.com/neuroinformatics-unit/movement/pull/920) the backend can already infer the `source_software` given a file without asking the user. So maybe we are well positioned to implement this feature now.
 
+**References**
+* This PR proposes an implementation that addresses [#960](https://github.com/neuroinformatics-unit/movement/issues/960)
+* Relates indirectly to [#959](https://github.com/neuroinformatics-unit/movement/issues/959) (netCDF via `load_dataset`)
+* Relates indirectly to [#896](https://github.com/neuroinformatics-unit/movement/pull/896) (dynamic loader UI exposing relevant kwargs).
 
 
-## Overview of suggested approach
+## Key aspects of suggested implementation
 
 ### napari Reader Contribution
 We will need to implement a napari [Contribution](https://napari.org/stable/plugins/technical_references/contributions.html) of type `reader`.
@@ -32,6 +36,8 @@ The reader function returned by `napari_get_reader()` should take the path(s) an
 On conflicts (i.e. when the filename patterns from several plugin readers match a single file), napari presents a reader-choice dialog with a "remember this choice" option that gets written to user settings.
 
 Note that we can restrict what passes to `napari_get_reader()` by file suffix, but not by source software. This is because the mapping suffix to software isn't 1:1 (e.g. there are multiple source software that produce `.csv` files, see [the guide](https://movement.neuroinformatics.dev/latest/user_guide/input_output.html#supported-third-party-formats)).
+
+napari docs provide a [Readers Contribution guide](https://napari.org/stable/plugins/building_a_plugin/guides.html#readers-contribution-guide).
 
 ### Layer wiring
 
@@ -78,7 +84,19 @@ Everything else rides along in the layer tuple's `metadata`. For a more detailed
 There is an additional function worth running manually too for parity with the Load button: `_set_initial_state` ([loader_widgets.py:322](movement/napari/loader_widgets.py#L322)), which puts the slider at frame 0 and makes the Points layer active.
 
 
+### What files are drag-and-droppable?
 
+We rely on `load_dataset` for the drag-and-drop, so what is droppable is what the loader registry supports, which is not the same as what the widget's combo box offers:
+
+|                             | `load_dataset` | combobox |
+|---|---|---|
+| DLC, LP, SLEAP, VIA-tracks  | ✅ | ✅ |
+| Anipose, NWB                | ✅ | ❌ |
+| movement `.nc`              | ❌ (until #959) | ✅ |
+
+* So Anipose and NWB files will be droppable, but not selectable through the
+  form widget yet.
+* ROI `.geojson`/`.json` drops are out of scope.
 
 
 
@@ -112,6 +130,8 @@ There is an additional function worth running manually too for parity with the L
       return ds_to_layer_data_tuples(ds, Path(path).name)
    ```
    - `load_dataset_from_nc` won't be needed after PR #959, so maybe it can be defined in the same file as `read_dataset`.
+   - **`fps=None`** for dropped files. Users that need the data to show in seconds can use the form widget.
+   - **Loader kwargs are not settable on drop**: default values are used. Exposed kwargs can be edited by the users in the widget form (autopopulating that form from the dropped file is future work, see below).
 
 3. Define `ds_to_layer_data_tuples`
    - Can be factored out from existing implementation
@@ -132,59 +152,18 @@ There is an additional function worth running manually too for parity with the L
          filename_patterns: ["*.h5", "*.csv", "*.slp", "*.nwb", "*.nc"]
          accepts_directories: false
    ```
-   - Question: can we avoid the duplication in filename_patterns? I think no, because npe2 manifests are static, so the patterns are hard-coded. We can add a test asserting the list is equal to `get_supported_source_software()` union `{".nc"}` so the two can't silently diverge
+   - Question: can we avoid the duplication in filename_patterns? I think no, because npe2 manifests are static, so the patterns are hard-coded — and suffix alone cannot separate a DLC `.h5` from a SLEAP one, so the patterns have to come from `get_supported_source_software()` rather than from the source software. We can add a test asserting the list is equal to `get_supported_source_software()` union `{".nc"}` so the two can't silently diverge
 
-7. Tests
-   Can we check that all current functionality works if the data is loaded via drag-and-drop?
+6. Tests
+   - Can we check that all current functionality works if the data is loaded via drag-and-drop?
 
 7. Documentation updates
-   The drag-and-drop functionality should be mentioned in the `movement` guide.
-
-### `napari_get_reader()` function
-
-We rely on `load_dataset`, with a branch for loading `.nc` files. This branch can be eliminated once the work described in #959 is implemented. Extracting the reader's patterns from `get_supported_source_software` is the only option that works, because suffix-level filtering cannot separate an DLC `.h5` from a SLEAP one
-
-Note that:
-|                             | load_dataset	| combobox|
-| --| --| --|
-|DLC, LP, SLEAP, VIA-tracks	|✅|	✅|
-|Anipose, NWB	               |✅|	❌|
-|movement `.nc`              |❌ (until #959)	✅|
-
-
-* Note that this means that Anipose and NWB will be droppable but they won't be selectable through the form widget yet.
-* This may introduce some confusion for users, but we think the right move to make all consistent is to make the combobox match the registry, rather than force the drag-and-drop to rely on the combobox list which is already stale. #896 does this for Anipose and NWB by adding them to the dropdown by hand; a follow-up could derive the list from get_supported_source_software() so it cannot drift again.
+   - The drag-and-drop functionality should be mentioned in the `movement` guide.
 
 
 
 
-ROI geojson/json drops are out of scope.
 
-
-* **`fps=None`**
-For now, we assume `fps=None` when drag-and-dropping a file. Users that need the data to show in seconds can use the form widget.
-
-* **setting kwargs not supported**
-Default values are used for kwargs. Exposed kwargs can be edited by the users in the widget form, on which the data will be autopopulated
-
-
-
-
-## References
-* This PR proposes an implementation that addresses [#960](https://github.com/neuroinformatics-unit/movement/issues/960)
-* Relates indirectly to [#959](https://github.com/neuroinformatics-unit/movement/issues/959) (netCDF via `load_dataset`) and [#896](https://github.com/neuroinformatics-unit/movement/pull/896) (dynamic loader UI exposing relevant kwargs).
-* napari docs also provide a [Readers Contribution guide](https://napari.org/stable/plugins/building_a_plugin/guides.html#readers-contribution-guide).
-
-
-## How will this implementation be tested?
-
-## Does this proposal suggest a breaking change?
-
-## Does this proposal require an update to the documentation?
-No.
-
-
-## Points to discuss
 
 
 --------
@@ -410,10 +389,28 @@ No known limitation left here: with the reader calling
 widget is ever opened, and they stay wired after it is closed. See discussion
 point 2.
 
-## Step 5 — Autopopulate the form widget from a dropped file
+## Step 5 — Deliberately *not* touching the widget's suffix dicts
 
-So that a user who dropped a file can then tweak `fps` (or, post-#896, loader
-kwargs) without re-entering the path and source software by hand.
+`SUPPORTED_POSES_FILES` / `SUPPORTED_BBOXES_FILES`
+([:37-56](movement/napari/loader_widgets.py#L37-L56)) duplicate
+`get_supported_source_software()` and already drift from it (Anipose and NWB are
+registered in the backend but missing from the combo box). **Open PR #896 fixes
+exactly this** — it adds Anipose and NWB to the dropdown and changes the form's
+`rowCount()` — so deriving these dicts from the registry here would collide.
+
+Leave them alone in this PR; note in the PR description that once #896 merges,
+replacing the hard-coded dicts with a `get_supported_source_software()`-derived
+mapping (plus the manual netCDF entry) is a small, safe follow-up. Also worth a
+rebase check: #896 rewrites `_on_source_software_changed` and the form layout,
+which are adjacent to but not overlapping Steps 1 and 4.
+
+
+## Future work — autopopulating the form widget from a dropped file
+
+**Not part of this PR.** Sketched here because it is the natural next step and
+because it constrains nothing in the plan above: a user who dropped a file could
+then tweak `fps` (or, post-#896, loader kwargs) without re-entering the path and
+source software by hand. What follows is one possible shape for it.
 
 No reader→widget coupling is needed: the information rides on the layer
 metadata, exactly as `POINTS_LAYER_KEY` and `DATASET_ATTRS_KEY` already do, and
@@ -487,7 +484,7 @@ user edit to the form. Note it deliberately does **not** add the item to the
 combo: `_on_browse_clicked` indexes `SUPPORTED_DATA_FILES[currentText()]`
 ([:176-181](movement/napari/loader_widgets.py#L176-L181)) and would raise
 `KeyError` for a software missing from that dict — extending the dict is #896's
-job, see Step 6.
+job, see Step 5.
 
 **Other edge cases:**
 
@@ -503,21 +500,6 @@ so the test keeps passing as the combo grows, and gets stricter for free.
 See discussion point 3 for the UX question this raises about what **Load** then
 does.
 
-## Step 6 — Deliberately *not* touching the widget's suffix dicts
-
-`SUPPORTED_POSES_FILES` / `SUPPORTED_BBOXES_FILES`
-([:37-56](movement/napari/loader_widgets.py#L37-L56)) duplicate
-`get_supported_source_software()` and already drift from it (Anipose and NWB are
-registered in the backend but missing from the combo box). **Open PR #896 fixes
-exactly this** — it adds Anipose and NWB to the dropdown and changes the form's
-`rowCount()` — so deriving these dicts from the registry here would collide.
-
-Leave them alone in this PR; note in the PR description that once #896 merges,
-replacing the hard-coded dicts with a `get_supported_source_software()`-derived
-mapping (plus the manual netCDF entry) is a small, safe follow-up. Also worth a
-rebase check: #896 rewrites `_on_source_software_changed` and the form layout,
-which are adjacent to but not overlapping Steps 1 and 4.
-
 
 ## Files changed
 
@@ -527,12 +509,12 @@ which are adjacent to but not overlapping Steps 1 and 4.
 | `movement/napari/reader.py` | **new** — `napari_get_reader` |
 | `movement/napari/napari.yaml` | add `movement.get_reader` command + `readers` contribution |
 | `movement/napari/layer_wiring.py` | add `wire_movement_layers` (connected in `connect_viewer_callbacks`) and `TRACKS_LAYER_NAME_KEY`; optionally absorb `set_initial_state` |
-| `movement/napari/loader_widgets.py` | delegate to the new module; add `_populate_form_from_layer` and `SOURCE_FILE_KEY`; `_load_netcdf_file` becomes a thin `show_error` wrapper |
+| `movement/napari/loader_widgets.py` | delegate to the new module; `_load_netcdf_file` becomes a thin `show_error` wrapper |
 | `docs/source/user_guide/gui.md` | document drag-and-drop of tracked data (§ *Load the tracked dataset*, ~line 122): the reader-choice dialog, the fps-in-frames caveat, and "use the widget for loader kwargs" |
 | `docs/source/api_index.rst` | add `movement.napari.reader` / `layers` next to `convert`/`convert_roi` (lines 26-28) |
 | `tests/test_unit/test_napari_plugin/test_reader.py` | **new** |
 | `tests/test_unit/test_napari_plugin/test_layer_wiring.py` | add `wire_movement_layers` tests, alongside the existing widget-lifetime ones |
-| `tests/test_unit/test_napari_plugin/test_data_loader_widget.py` | adapt to the refactor; add form-autopopulation tests |
+| `tests/test_unit/test_napari_plugin/test_data_loader_widget.py` | adapt to the refactor |
 
 
 ## Overview of tests to write
@@ -564,9 +546,7 @@ which are adjacent to but not overlapping Steps 1 and 4.
    the Tracks layer in sync. Add a fourth case mirroring
    `test_point_edit_syncs_tracks_layer_after_widget_is_gone`
    ([test_layer_wiring.py:36](tests/test_unit/test_napari_plugin/test_layer_wiring.py#L36)):
-   drop, open then close the widget, edit, sync still holds. Autopopulation
-   (Step 5) is a separate widget-level assertion: path filled, combo showing the
-   inferred software, fps handled per file type.
+   drop, open then close the widget, edit, sync still holds.
 4. **Integration**: drop → edit → `DataSaver` save → re-open round trip, since
    [save_widget.py](movement/napari/save_widget.py) reads `POINTS_PROPERTIES_KEY`
    and `DATASET_ATTRS_KEY` off reader-created layers.
@@ -623,8 +603,9 @@ which are adjacent to but not overlapping Steps 1 and 4.
    Worth noting @TimMonko offered napari-side help in #960 — the underlying gap
    ("reader plugins can't attach behaviour to the layers they create") is still
    worth raising upstream, since every plugin has to hand-roll this.
-3. **What should "Load" do after the form is autopopulated (Step 5)?** This is
-   the real design decision behind Step 5, not the code. As things stand,
+3. **What should "Load" do after the form is autopopulated?** Only relevant if
+   the future-work section is taken up, but it is the real design decision
+   there, not the code. As things stand,
    drop → change fps to 30 → **Load** adds a *second* set of layers and leaves
    the user to delete the first. Options: (a) accept it — it matches today's
    behaviour when you load the same file twice; (b) detect that the form still
@@ -649,15 +630,16 @@ which are adjacent to but not overlapping Steps 1 and 4.
 7. **Order of #960 vs #896.** #896 rewrites the same widget's dropdown and form
    layout. Whichever merges second eats a rebase. Given #896 is already open, it
    probably should go first — but Step 1's extraction is mostly in methods #896
-   doesn't touch, so a concurrent merge is survivable. Step 5 is written to
-   extend automatically when #896 lands (it queries the combo via `findText`
-   rather than naming any software), so neither PR needs to know about the
-   other beyond a rebase.
+   doesn't touch, so a concurrent merge is survivable. The future-work sketch is
+   written to extend automatically when #896 lands (it queries the combo via
+   `findText` rather than naming any software), so neither PR needs to know
+   about the other beyond a rebase.
 8. **`ds.attrs["source_file"]` is inconsistent.** It is set by the DLC/LP, SLEAP,
    VIA-tracks and NWB loaders but *not* by `from_anipose_file`
    ([load_poses.py:677-711](movement/io/load_poses.py#L677-L711)), and it
-   survives a netCDF round trip pointing at the original third-party file. Step 5
-   sidesteps this with its own metadata key, but should the backend guarantee
+   survives a netCDF round trip pointing at the original third-party file. The
+   future-work sketch sidesteps this with its own metadata key, but should the
+   backend guarantee
    `source_file` on every loaded dataset? Separate issue if so.
 9. **ROI `.geojson`/`.json` drops** (out of scope here): `RegionsWidget` owns
    region layers plus a Qt table model, so a dropped Shapes layer needs its own
@@ -669,7 +651,5 @@ When implemented, drag-and-dropping any of the third-party file supported via th
 
 * How should we document the drag-and-drop functionality?
 
-* Follow-up:  Autopopulating widget form
-   We would like the form widget to get autopopulated when possible with the data from a dropped file, to facilitate users editing inputs.
-   *  For now, clicking load on an autopopulated widget form will create new Points, Tracks and if relevant Shape layers.
-   * If the drag-and-dropped file is not one listed in the combobox (i.e. with Anipose and NWB), the form shows partly-disabled fields. Step 5's findText fallback already handles "inferred software has no combobox entry" gracefully, and stops firing once #896 lands
+
+* Thoughts on autopopulation
