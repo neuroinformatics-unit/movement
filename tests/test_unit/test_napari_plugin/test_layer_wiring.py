@@ -118,21 +118,29 @@ def test_rolling_axes_disables_editing_after_widget_closed(
     assert points_layer.editable
 
 
-def test_connect_viewer_callbacks_is_idempotent(make_napari_viewer_proxy):
+def test_connect_viewer_callbacks_twice_does_not_duplicate(
+    make_napari_viewer_proxy,
+):
     """Test that wiring a viewer twice does not duplicate the callbacks."""
     # Wire the viewer callbacks once
     viewer = make_napari_viewer_proxy()
     connect_viewer_callbacks(viewer)
 
-    # Count callbacks linked to the viewer.
-    # (callbacks are linked to two events in `connect_viewer_callbacks`:
-    # "inserted layers events" and "dimensions order events").
-    n_inserted_callbacks = len(viewer.layers.events.inserted.callbacks)
-    n_order_callbacks = len(viewer.dims.events.order.callbacks)
+    # Count callbacks linked to the viewer, for each of the four events
+    # `connect_viewer_callbacks` wires: layers "inserted" and "removed",
+    # and dimensions "order" and "ndisplay".
+    emitters = [
+        viewer.layers.events.inserted,
+        viewer.layers.events.removed,
+        viewer.dims.events.order,
+        viewer.dims.events.ndisplay,
+    ]
+    n_callbacks_per_emitter = [len(emitter.callbacks) for emitter in emitters]
 
     # Connect the callbacks to the viewer again
     connect_viewer_callbacks(viewer)
 
     # The number of callbacks should not increase
-    assert len(viewer.layers.events.inserted.callbacks) == n_inserted_callbacks
-    assert len(viewer.dims.events.order.callbacks) == n_order_callbacks
+    assert [
+        len(emitter.callbacks) for emitter in emitters
+    ] == n_callbacks_per_emitter
