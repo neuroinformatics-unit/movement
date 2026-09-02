@@ -73,9 +73,11 @@ class DataLoader(QWidget):
         self._create_file_path_widget()
         self._create_load_button()
 
-        # Subscribe the viewer to the movement layer callbacks. These
-        # outlive this widget, so layers stay in sync after it is closed.
+        # Connect the viewer to the movement layer callbacks. These
+        # outlive this widget, so layers stay in sync if the movement
+        # meta-widget is closed
         connect_viewer_callbacks(self.viewer)
+
         self._enable_layer_tooltips()
 
     def _create_source_software_widget(self):
