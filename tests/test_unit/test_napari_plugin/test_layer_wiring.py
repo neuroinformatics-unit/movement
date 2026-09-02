@@ -14,9 +14,10 @@ import pytest
 from napari.layers.base import ActionType
 
 from movement.napari.layer_wiring import connect_viewer_callbacks
+from movement.napari.loader_widgets import DataLoader
+from movement.napari.meta_widget import MovementMetaWidget
 
 
-# TODO: add bboxes?
 @pytest.fixture
 def orphan_viewer_and_layers(valid_poses_path_and_ds, loaded_data_loader):
     """Return viewer and layers of a loaded dataset whose widget is gc-ed."""
@@ -46,6 +47,17 @@ def orphan_viewer_and_layers(valid_poses_path_and_ds, loaded_data_loader):
     return viewer, points_layer, tracks_layer
 
 
+def simulate_point_drag(points_layer, edit_idx, new_position):
+    """Move a point and emit the event napari emits after a drag."""
+    points_layer.data[edit_idx, 1:] = new_position
+    points_layer.events.data(
+        value=points_layer.data,
+        action=ActionType.CHANGED,
+        data_indices=(edit_idx,),
+        vertex_indices=((),),
+    )
+
+
 def test_point_edit_syncs_tracks_layer_after_widget_closed(
     orphan_viewer_and_layers,
 ):
@@ -56,13 +68,7 @@ def test_point_edit_syncs_tracks_layer_after_widget_closed(
     # Simulate point dragging
     edit_idx = 5
     edit_array = [100, 200]
-    points_layer.data[edit_idx, 1:] = edit_array
-    points_layer.events.data(
-        value=points_layer.data,
-        action=ActionType.CHANGED,
-        data_indices=(edit_idx,),
-        vertex_indices=((),),
-    )
+    simulate_point_drag(points_layer, edit_idx, edit_array)
 
     # Check the edited boolean for the dragged point
     assert points_layer.properties["edited"][edit_idx]
@@ -137,6 +143,55 @@ def test_3d_view_disables_editing_after_widget_closed(
     # Back to the default 2D view
     viewer.dims.ndisplay = 2
     assert points_layer.editable
+
+
+def test_layer_wiring_survives_closing_metawidget(
+    make_napari_viewer_proxy,
+    valid_poses_path_and_ds,
+    loaded_data_loader,
+):
+    """Test the layer wiring survives closing the movement panel.
+
+    Unlike the tests above, which drop the ``DataLoader`` directly, this
+    exercises the teardown path the napari GUI actually takes: clicking
+    the panel's "x" calls ``QtViewerDockWidget.destroyOnClose``, which
+    calls ``viewer.window.remove_dock_widget``.
+    """
+    # Instantiate and dock meta-widget
+    viewer = make_napari_viewer_proxy()
+    meta_widget = MovementMetaWidget(viewer)
+    dock_widget = viewer.window.add_dock_widget(meta_widget, name="movement")
+
+    # Get loader in meta_widget with data loaded
+    loader = loaded_data_loader(
+        *valid_poses_path_and_ds,
+        loader=meta_widget.findChild(DataLoader),
+    )
+
+    # Get weak reference to the loader widget
+    loader_ref = weakref.ref(loader)
+
+    # Get layers
+    points_layer, tracks_layer = loader.points_layer, loader.tracks_layer
+
+    # Close the movement panel, as clicking its "x" does
+    viewer.window.remove_dock_widget(dock_widget)
+    del meta_widget, dock_widget, loader
+
+    # Ensure the loader is gc-ed before asserting
+    # (`remove_dock_widget` re-parents the meta-widget to None,
+    # so the loader is reclaimed by ordinary Python gc once the
+    # last reference to it is dropped).
+    gc.collect()
+    assert loader_ref() is None, "DataLoader was not garbage collected"
+
+    # Check a point drag still syncs the Tracks layer
+    edit_idx = 5
+    edit_array = [100, 200]
+    simulate_point_drag(points_layer, edit_idx, edit_array)
+
+    assert points_layer.properties["edited"][edit_idx]
+    np.testing.assert_array_equal(tracks_layer.data[edit_idx, 2:], edit_array)
 
 
 def test_connect_viewer_callbacks_twice_does_not_duplicate(
