@@ -118,6 +118,28 @@ def test_rolling_axes_disables_editing_after_widget_closed(
     assert points_layer.editable
 
 
+def test_3d_view_disables_editing_after_widget_closed(
+    orphan_viewer_and_layers,
+):
+    """Test that switching to a 3D view still disables point editing.
+
+    ``connect_viewer_callbacks`` wires ``update_points_layers_editable``
+    to the ``ndisplay`` event as well as to ``order``.
+    """
+    # Check points layer is editable after widget is gc-ed
+    viewer, points_layer, _ = orphan_viewer_and_layers
+    assert points_layer.editable
+
+    # Switch to a 3D view, where a drag could move a point to another frame
+    viewer.dims.ndisplay = 3
+    assert not points_layer.editable
+
+    # Back to the default 2D view
+    viewer.dims.ndisplay = 2
+    assert points_layer.editable
+
+
+
 def test_connect_viewer_callbacks_twice_does_not_duplicate(
     make_napari_viewer_proxy,
 ):
