@@ -1,15 +1,15 @@
 """Layer callbacks that must outlive the widget connecting them.
 
 Put a callback here if it should be active as long as the viewer
-or a layer exists, (rather than sharing lifetime with a widget that
+or a layer exists (rather than sharing lifetime with a widget that
 can be closed).
+- Typical candidates are callbacks that mutate layer state (data, properties,
+  symbols, ``editable``): that state is part of the user's work and may be
+  saved to a file later, so it must survive the widget being closed.
+- A callback that only refreshes a widget's own UI (a dropdown, a table, a
+  button) can stay a method on that widget: once the widget is gone there is
+  nothing left to update, which is fine.
 
-Candidates are callbacks that change layer state (data, properties, symbols,
-``editable``), and that state should outlive the widget to be saved as a file.
-
-A callback that only refreshes a widget's own UI (a dropdown, a table, a
-button) can stay a method on that widget: once the widget is gone there is
-nothing left to update, which is fine.
 """
 
 import warnings
@@ -36,7 +36,7 @@ TRACKS_LAYER_KEY: str = "movement_tracks_layer"
 
 # Keep a set of viewers already wired by connect_viewer_callbacks,
 # so we don't wire them twice. We use a WeakSet, so that counts to the
-# set elements never keep a viewer alive.
+# elements inside the set never keep a viewer alive.
 _WIRED_VIEWERS: WeakSet = WeakSet()
 
 
@@ -52,7 +52,7 @@ def connect_viewer_callbacks(viewer) -> None:
     if viewer in _WIRED_VIEWERS:
         return
 
-    # ---- Connect relevant layer callbacks to the viewer -----
+    # Connect relevant layer callbacks to the viewer.
     # Connect frame slider range update to layer events
     for action in ("inserted", "removed"):
         getattr(viewer.layers.events, action).connect(
