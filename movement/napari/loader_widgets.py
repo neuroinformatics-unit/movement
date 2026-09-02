@@ -342,7 +342,12 @@ class DataLoader(QWidget):
         self.text_property = text_property
 
     def _set_initial_state(self):
-        """Set slider at first frame and last points layer as active."""
+        """Set axis labels, slider position and last points layer as active."""
+        # Label the axes of our layers' data as "t", "y", "x"
+        self.viewer.dims.set_axis_label(
+            axis=(-3, -2, -1), label=("t", "y", "x")
+        )
+
         # Set slider to first frame so that first view is not cluttered
         # with tracks
         default_current_step = self.viewer.dims.current_step
