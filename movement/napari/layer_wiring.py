@@ -3,6 +3,7 @@
 Put a callback here if it should be active as long as the viewer
 or a layer exists (rather than sharing lifetime with a widget that
 can be closed).
+
 - Typical candidates are callbacks that mutate layer state (data, properties,
   symbols, ``editable``): that state is part of the user's work and may be
   saved to a file later, so it must survive the widget being closed.
@@ -54,7 +55,10 @@ def connect_viewer_callbacks(viewer) -> None:
 
     # Connect relevant layer callbacks to the viewer.
     # Connect frame slider range update to layer events
-    for action in ("inserted", "removed"):
+    for action in (
+        "inserted",
+        "removed",
+    ):
         getattr(viewer.layers.events, action).connect(
             partial(update_frame_slider_range, viewer)
         )
@@ -63,7 +67,10 @@ def connect_viewer_callbacks(viewer) -> None:
     # when frame is the sliced (non-displayed) axis in a 2D view. If
     # axes are rolled or a 3D view is used in the viewer, disable editing
     # rather than risk a drag moving a point onto a different frame.
-    for event in (viewer.dims.events.order, viewer.dims.events.ndisplay):
+    for event in (
+        viewer.dims.events.order,
+        viewer.dims.events.ndisplay,
+    ):
         event.connect(partial(update_points_layers_editable, viewer))
 
     # Update set
