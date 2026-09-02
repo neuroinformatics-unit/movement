@@ -71,8 +71,9 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     # Make sure that layer tooltips are enabled
     assert get_settings().appearance.layer_tooltip_visibility is True
 
-    # Test the frame slider update is connected to layer events, as a
-    # partial (not a bound method, which napari would hold weakly).
+    # Test the frame slider update is connected to layer events as a
+    # partial (which napari holds as a strong reference and therefore
+    # outlives the widget).
     assert all(
         any(
             isinstance(cb, partial) and cb.func is update_frame_slider_range
@@ -127,12 +128,16 @@ def test_on_layer_added_and_deleted(
     layer_type, sample_layer_data, make_napari_viewer_proxy, mocker
 ):
     """Test the frame slider update is called when a layer is added/removed."""
-    # Mock the frame slider check function (before the widget connects it)
+    # Mock the frame slider check function.
+    # We need to mock the function before the widget connects it. This is
+    # because the connection is a `partial`, which holds a
+    # direct reference to the function object, rather than looking it up
+    # by its name. Patching only swaps what the module attribute points to.
     mock_frame_slider_check = mocker.patch(
         "movement.napari.layer_wiring.update_frame_slider_range"
     )
 
-    # Create a mock napari viewer
+    # Create a mock napari viewer and wire the mocked callback
     data_loader_widget = DataLoader(make_napari_viewer_proxy())
 
     # Add a sample layer to the viewer
