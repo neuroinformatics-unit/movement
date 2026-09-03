@@ -17,7 +17,6 @@ from napari.viewer import Viewer
 from qtpy.QtCore import QTimer, Signal
 from qtpy.QtWidgets import QCheckBox, QLabel, QVBoxLayout, QWidget
 
-from movement.napari.layer_styles import DEFAULT_COLORMAP, _sample_colormap
 from movement.napari.loader_widgets import (
     POINTS_LAYER_KEY,
     POINTS_PROPERTIES_KEY,
