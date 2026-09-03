@@ -268,3 +268,36 @@ def loaded_data_loader(make_napari_viewer_proxy):
         return loader
 
     return _loaded_data_loader
+
+
+@pytest.fixture
+def loader_with_edited_point(
+    valid_poses_path_and_ds, loaded_data_loader, move_point
+):
+    """Return a loaded ``DataLoader`` with one point dragged (edited)."""
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+    move_point(
+        loader,
+        frame=2,
+        keypoint="centroid",
+        individual="id_0",
+        new_y=100,
+        new_x=200,
+    )
+    return loader
+
+
+@pytest.fixture
+def click_on_timeline():
+    """Return a factory that simulates a click on an
+    :class:`~movement.napari.edit_widget.EditWidget` timeline, at the
+    given x (frame) position. Pass ``dblclick=True`` to simulate a
+    double-click instead (``xdata`` is then unused, matching
+    ``_handle_click``'s own early return for that case).
+    """
+
+    def _click_on_timeline(edit_widget, xdata=None, dblclick=False):
+        edit_widget._handle_click(Mock(dblclick=dblclick, xdata=xdata))
+
+    return _click_on_timeline
