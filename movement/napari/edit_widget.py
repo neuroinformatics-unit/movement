@@ -219,6 +219,10 @@ class EditWidget(QWidget):
             and active.metadata.get(POINTS_LAYER_KEY)
         ):
             return
+        if active is self.active_layer:
+            # Re-selecting the layer already shown (e.g. after clicking
+            # away to the Tracks layer and back), return doing nothing.
+            return
         self.active_layer = active
         self._max_frame = self.active_layer.metadata.get("max_frame_idx", 0)
         self._removed_points = self._reconstruct_previously_removed_points(
