@@ -394,13 +394,11 @@ class EditWidget(QWidget):
     def _bar_color_lookup(self):
         """Return an ``individual -> bar colour`` function.
 
-        With lanes collapsed, every bar is the single
-        :data:`EDIT_BAR_COLOR`. With individuals displayed, each bar
-        takes its individual's colour, sampled from the same colormap
-        (:data:`DEFAULT_COLORMAP`) the Points/Tracks layers use. The
-        palette is keyed by all individuals in the layer, in order of
-        first appearance, so a bar's colour matches that individual's
-        colour in the viewer.
+        With lanes collapsed, every bar is the single :data:`EDIT_BAR_COLOR`.
+        With individuals displayed, each bar takes its individual's colour read
+        straight from the Points layer's ``face_color``, so bars match the
+        viewer exactly. An individual with no live point left to read a colour
+        from falls back to EDIT_BAR_COLOR.
         """
         if not self._show_individuals or self.active_layer is None:
             return lambda individual: EDIT_BAR_COLOR
@@ -409,15 +407,11 @@ class EditWidget(QWidget):
         if individuals is None:
             return lambda individual: EDIT_BAR_COLOR
 
-        removed = [ind for _, ind in self._removed_points]
-        unique = list(dict.fromkeys([*individuals, *removed]))
-        palette = dict(
-            zip(
-                unique,
-                _sample_colormap(len(unique), DEFAULT_COLORMAP),
-                strict=False,
-            )
-        )
+        palette: dict = {}
+        for ind, color in zip(
+            individuals, self.active_layer.face_color, strict=False
+        ):
+            palette.setdefault(ind, tuple(color))
         return lambda individual: palette.get(individual, EDIT_BAR_COLOR)
 
     def _reset_xlim(self):
