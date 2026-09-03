@@ -251,8 +251,9 @@ class EditWidget(QWidget):
         ]
         if previously_removed.empty:
             return []
+        frame_times = np.sort(full_properties["time"].unique())
         return [
-            (row.time, row.individual)
+            (int(np.searchsorted(frame_times, row.time)), row.individual)
             for row in previously_removed.itertuples()
         ]
 
