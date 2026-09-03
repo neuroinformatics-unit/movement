@@ -34,7 +34,7 @@ dependencies = [
   "ndx-pose>=0.2.1",
   "jsonschema",
   "orjson",
-  "typer>=0.9.0"
+  "typer>=0.9.0",
 ]
 
 classifiers = [
@@ -60,6 +60,7 @@ entry-points."napari.manifest".movement = "movement.napari:napari.yaml"
 
 [project.optional-dependencies]
 napari = ["napari[all]>=0.6.0"]
+aniframe = ["pyarrow", "rdata"]
 
 [dependency-groups]
 dev = [
@@ -83,10 +84,10 @@ dev = [
   "scipy-stubs",
   "types-shapely",
   "types-jsonschema",
-  "movement[napari]",
+  "movement[napari,aniframe]",
 ]
 docs = [
-  "movement[napari]",
+  "movement[napari,aniframe]",
   "ablog>=0.11.13",
   "linkify-it-py",
   "myst-parser",
@@ -143,6 +144,7 @@ exclude = ["tests/", "docs/", "examples/"]
 module = [
   "pooch.*",
   "h5py.*",
+  "rdata.*",
   "sleap_io.*",
   "ndx_pose.*",
   "pynwb.*",

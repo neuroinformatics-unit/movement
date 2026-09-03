@@ -209,6 +209,48 @@ def _hdf5_validator(
     return _validator
 
 
+def _parquet_validator() -> Callable[[Any, Any, Path], None]:
+    """Return a validator for Parquet files.
+
+    The validator ensures that the file's Parquet schema can be read.
+    Format-specific checks (e.g. required schema metadata keys) belong
+    in the calling validator class.
+
+    ``pyarrow`` is part of the optional ``aniframe`` extra; if it is not
+    installed, the validator raises ``ImportError`` with install
+    instructions instead of falling through to a confusing module-level
+    import failure.
+
+    Raises
+    ------
+    ImportError
+        If ``pyarrow`` is not installed.
+    ValueError
+        If the file cannot be opened as a Parquet file.
+
+    """
+
+    def _validator(_, __, value: Path) -> None:
+        try:
+            import pyarrow.parquet as pq
+        except ImportError as e:
+            from movement.io.aniframe import _ANIFRAME_DEPS_INSTALL_HINT
+
+            raise ImportError(_ANIFRAME_DEPS_INSTALL_HINT) from e
+        try:
+            pq.read_schema(value)
+        except Exception as e:
+            raise logger.error(
+                ValueError(
+                    f"Could not read Parquet schema from {value}. "
+                    f"Make sure that the file is a valid Parquet file. "
+                    f"Error: {e}"
+                )
+            ) from e
+
+    return _validator
+
+
 def _json_validator(
     schema: Mapping[str, Any] | None = None,
     custom_checks: tuple[Callable[[Mapping[str, Any]], None], ...] = (),
@@ -921,6 +963,63 @@ class ValidNWBFile:
         ),
     )
     """Path to the NWB file on disk (ending in ".nwb") or an NWBFile object."""
+
+
+@define
+class ValidAniframeParquet:
+    """Class for validating aniframe Parquet files.
+
+    The validator ensures that the file:
+
+    - is a readable ``.parquet`` file with a parseable Parquet schema,
+    - contains the aniframe metadata key (``"r"``) in the Parquet
+      file-level schema metadata, which is written by the R
+      ``arrow`` package when saving an aniframe object, and
+    - has decoded metadata containing the required ``variables_what``,
+      ``variables_when``, and ``variables_where`` fields that classify
+      every DataFrame column into an identity, temporal, or coordinate
+      role.
+
+    Raises
+    ------
+    ValueError
+        If the file is not a readable Parquet file, does not contain the
+        aniframe metadata key, or is missing any required metadata field.
+
+    """
+
+    suffixes: ClassVar[set[str]] = {".parquet"}
+    """Expected suffix(es) for the file."""
+
+    file: Path = field(
+        converter=Path,
+        validator=validators.and_(
+            _file_validator(permission="r", suffixes=suffixes),
+            _parquet_validator(),
+        ),
+    )
+    """Path to the aniframe Parquet file to validate."""
+
+    @file.validator
+    def _file_is_valid_aniframe_parquet(self, attribute, value):
+        """Ensure aniframe metadata is present with the required fields."""
+        # Imported lazily so module-level imports remain free of the
+        # rdata / pyarrow.parquet decode dependency chain (which is part
+        # of the optional 'aniframe' extra). _decode_aniframe_metadata
+        # raises on missing 'r' key or undecodable R blob.
+        from movement.io.aniframe import _decode_aniframe_metadata
+
+        meta = _decode_aniframe_metadata(value)
+        required = ("variables_what", "variables_when", "variables_where")
+        missing = [k for k in required if meta.get(k) is None]
+        if missing:
+            raise logger.error(
+                ValueError(
+                    f"aniframe metadata in {value.name} is missing required "
+                    f"field(s): {missing}. "
+                    "These fields are needed to classify DataFrame columns."
+                )
+            )
 
 
 def _check_roi_type_matches_geometry(data: Mapping[str, Any]) -> None:

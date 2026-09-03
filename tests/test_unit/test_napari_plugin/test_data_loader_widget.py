@@ -222,6 +222,7 @@ def test_on_browse_clicked(file_path, make_napari_viewer_proxy, mocker):
         ("DeepLabCut", "*.h5 *.csv"),
         ("SLEAP", "*.h5 *.slp"),
         ("LightningPose", "*.csv"),
+        ("aniframe", "*.parquet"),
         ("VIA-tracks", "*.csv"),
         ("movement (netCDF)", "*.nc"),
     ],
