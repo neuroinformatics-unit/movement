@@ -22,15 +22,6 @@ from movement.napari.loader_widgets import (
     POINTS_PROPERTIES_KEY,
 )
 
-PLAYHEAD_COLOR = "#55606E"  # bar indicating current frame
-# this is same color as napari slidebar.
-
-# Colour for every edited-frame bar while lanes are collapsed (i.e.
-# "Display individuals" unchecked). When individuals are displayed, bars
-# are instead coloured per individual, using the same colormap
-# (DEFAULT_COLORMAP) as the Points/Tracks layers.
-EDIT_BAR_COLOR = "#006ab3"
-
 # A click never lands exactly on a frame (e.g. 42.3, not 42), so treat
 # any click within this fraction of the visible frame range as a hit.
 CLICK_TOLERANCE_FRACTION = 0.02
@@ -64,8 +55,9 @@ class EditControlsWidget(QWidget):
         )
         instructions.setWordWrap(True)
 
-        # Unchecked: one shared lane, every bar in EDIT_BAR_COLOR.
-        # Checked: one lane per individual, bars coloured per individual.
+        # Unchecked: one shared line, every bar in the theme's "current"
+        # colour. Checked: one line per individual, bars coloured per
+        # individual.
         # Disabled by MovementMetaWidget for single-individual datasets.
         self.show_individuals_checkbox = QCheckBox("Display individuals")
         self.show_individuals_checkbox.toggled.connect(
@@ -83,8 +75,8 @@ class EditWidget(QWidget):
 
     Draws a vertical bar for every frame that contains an edited point
     on the currently active ``movement`` Points layer. By default all
-    bars share one lane and are drawn in a single colour
-    (:data:`EDIT_BAR_COLOR`). With :meth:`set_show_individuals` on, bars
+    bars share one lane and are drawn in a single colour (the napari
+    theme's ``current`` colour). With :meth:`set_show_individuals` on, bars
     are split into one lane per individual (separated by thin horizontal
     rules) and coloured per individual using the same colormap
     (:data:`DEFAULT_COLORMAP`) as the Points/Tracks layers. A playhead
@@ -101,6 +93,7 @@ class EditWidget(QWidget):
         self._bars: list = []
         self._lane_dividers: list = []
         self._foreground = "#808080"  # overwritten by _apply_theme
+        self._edit_bar_color = "#808080"  # overwritten by _apply_theme
         self._edited_frames = np.array([])
         self._removed_points: list = []
         self._max_frame = 0
@@ -116,8 +109,8 @@ class EditWidget(QWidget):
         self.ax = self.figure.subplots()
         self._style_axes()
         self.playhead = self.ax.axvline(
-            0, color=PLAYHEAD_COLOR, linewidth=2, linestyle="--", zorder=3
-        )  # higher order in matplotlib is drawn on top
+            0, linewidth=2, linestyle="--", zorder=3
+        )  # higher order in matplotlib is drawn on top; colour set below
         self._apply_theme()
 
         layout = QVBoxLayout()
@@ -159,6 +152,7 @@ class EditWidget(QWidget):
         background = theme.background.as_hex()
         foreground = theme.text.as_hex()
         self._foreground = foreground
+        self._edit_bar_color = theme.current.as_hex()
 
         self.figure.set_facecolor(background)
         self.ax.set_facecolor(background)
@@ -167,8 +161,10 @@ class EditWidget(QWidget):
         self.ax.tick_params(axis="both", colors=foreground)
         for spine in self.ax.spines.values():
             spine.set_color(foreground)
-        for divider in self._lane_dividers:
-            divider.set_color(foreground)
+        self.playhead.set_color(theme.secondary.as_hex())
+        # Recreate bars and lane dividers so they pick up the new
+        # foreground/edit-bar colours too.
+        self._redraw_bars()
 
         self.canvas.draw_idle()
 
@@ -397,25 +393,26 @@ class EditWidget(QWidget):
     def _bar_color_lookup(self):
         """Return an ``individual -> bar colour`` function.
 
-        With lanes collapsed, every bar is the single :data:`EDIT_BAR_COLOR`.
-        With individuals displayed, each bar takes its individual's colour read
-        straight from the Points layer's ``face_color``, so bars match the
-        viewer exactly. An individual with no live point left to read a colour
-        from falls back to EDIT_BAR_COLOR.
+        With lanes collapsed, every bar is the single ``self._edit_bar_color``
+        (the napari theme's ``current`` colour). With individuals displayed,
+        each bar takes its individual's colour read straight from the Points
+        layer's ``face_color``, so bars match the viewer exactly. An
+        individual with no live point left to read a colour from falls back
+        to ``self._edit_bar_color``.
         """
         if not self._show_individuals or self.active_layer is None:
-            return lambda individual: EDIT_BAR_COLOR
+            return lambda individual: self._edit_bar_color
 
         individuals = self.active_layer.properties.get("individual")
         if individuals is None:
-            return lambda individual: EDIT_BAR_COLOR
+            return lambda individual: self._edit_bar_color
 
         palette: dict = {}
         for ind, color in zip(
             individuals, self.active_layer.face_color, strict=False
         ):
             palette.setdefault(ind, tuple(color))
-        return lambda individual: palette.get(individual, EDIT_BAR_COLOR)
+        return lambda individual: palette.get(individual, self._edit_bar_color)
 
     def _reset_xlim(self):
         """Reset the visible frame range to the full extent."""
