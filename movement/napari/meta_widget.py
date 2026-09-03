@@ -120,7 +120,7 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             self._edit_dock_widget = self._viewer.window.add_dock_widget(
                 self.edit_widget, area="bottom", name="edited frames"
             )
-            # Handle closing the dock via its title-bar "X" 
+            # Handle closing the dock via its title-bar "X"
             self._edit_dock_widget.destroyed.connect(self._on_edit_dock_gone)
         elif self._edit_dock_widget is not None:
             self._edit_dock_widget.show()
