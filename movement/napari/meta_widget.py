@@ -120,8 +120,17 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             self._edit_dock_widget = self._viewer.window.add_dock_widget(
                 self.edit_widget, area="bottom", name="edited frames"
             )
+            # Handle closing the dock via its title-bar "X" 
+            self._edit_dock_widget.destroyed.connect(self._on_edit_dock_gone)
         elif self._edit_dock_widget is not None:
             self._edit_dock_widget.show()
+
+    def _on_edit_dock_gone(self, _=None) -> None:
+        """Reset state after the docked timeline is closed via its X."""
+        self.edit_widget = None
+        self._edit_dock_widget = None
+        # Collapse the edit controls, in line with the now-missing dock.
+        self._edit_collapsible.collapse(False)
 
     def _autoselect_points_layer(self) -> None:
         """Make a movement Points layer active for the timeline.
