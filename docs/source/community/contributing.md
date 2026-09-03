@@ -302,11 +302,11 @@ Implementing a new loader to support additional [file formats](target-supported-
 Besides allowing users to get early feedback on file issues, this also makes it easier to reuse validation logic across different loaders that may support the same file format.
 
 All file validators are [`attrs`](attrs:)-based classes and live in {mod}`movement.validators.files`.
-They define the rules an input file must satisfy before it can be loaded, and they conform to the {class}`ValidFile<movement.validators.files.ValidFile>` protocol.
+They define the rules an input file must satisfy before it can be loaded, and they conform to the {class}`~movement.validators.files.ValidFile` protocol.
 At minimum, this requires defining:
 
 - `suffixes`: The expected file extensions for the format.
-- `file`: The path to the file or an {class}`NWBFile<pynwb.file.NWBFile>` object, depending on the loader.
+- `file`: The path to the file or an {class}`~pynwb.file.NWBFile` object, depending on the loader.
 
 Additional attributes can also be defined to store pre-parsed information that the loader may need later.
 
@@ -350,11 +350,11 @@ If a suffix check is not required, this can be set to an empty set (`set()`).
 In the `ValidMySoftwareCSV` example, only files with a `.csv` extension are accepted.
 
 ##### Normalise input file and apply reusable validators
-An `attrs` {ref}`converter<attrs:converters>` is typically used to normalise input files into {class}`Path<pathlib.Path>` objects, along with one or more validators to ensure the file meets the expected criteria.
+An `attrs` {ref}`converter<attrs:converters>` is typically used to normalise input files into {class}`~pathlib.Path` objects, along with one or more validators to ensure the file meets the expected criteria.
 
-In addition to the built-in `attrs` {mod}`validators<attrs.validators>`, `movement` provides several reusable file-specific validators (as callables) in {mod}`movement.validators.files`:
+In addition to the built-in `attrs` {mod}`~attrs.validators`, `movement` provides several reusable file-specific validators (as callables) in {mod}`movement.validators.files`:
 
-- `_file_validator`: A composite validator that ensures `file` is a {class}`Path<pathlib.Path>`, is not a directory, is accessible with the required permission, and has one of the expected `suffixes` (if any).
+- `_file_validator`: A composite validator that ensures `file` is a {class}`~pathlib.Path`, is not a directory, is accessible with the required permission, and has one of the expected `suffixes` (if any).
 - `_hdf5_validator`: Checks that an HDF5 `file` contains the expected dataset(s).
 - `_json_validator`: Checks that a `file` contains valid JSON and optionally validates it against a [JSON Schema](https://json-schema.org/). Schemas are defined as Python dicts in `movement/validators/_json_schemas.py`. Custom validation checks and an optional attribute name for storing the parsed data can also be provided.
 - `_if_instance_of`: Conditionally applies a validator only when `file` is an instance of a given class.
@@ -365,8 +365,8 @@ In the current example, the `_file_validator` is used to ensure that the input `
 :color: success
 :icon: light-bulb
 
-Reusable validators can be combined using either {func}`attrs.validators.and_` or by passing a list of validators to the `validator` parameter of {func}`field()<attrs.field>`.
-The `file` attribute in {class}`ValidDeepLabCutH5<movement.validators.files.ValidDeepLabCutH5>` combines both `_file_validator` and `_hdf5_validator` to ensure the input file is a readable HDF5 file containing the expected dataset `df_with_missing`:
+Reusable validators can be combined using either {func}`attrs.validators.and_` or by passing a list of validators to the `validator` parameter of {func}`~attrs.field`.
+The `file` attribute in {class}`~movement.validators.files.ValidDeepLabCutH5` combines both `_file_validator` and `_hdf5_validator` to ensure the input file is a readable HDF5 file containing the expected dataset `df_with_missing`:
 
 ```python
 @define
@@ -394,7 +394,7 @@ In the current example, the `_file_contains_expected_header` method uses the `fi
 :::
 
 #### Implement loader function
-Once the file validator is defined, the next step is to implement the loader function that reads the validated file and constructs the movement dataset.
+Once the file validator is defined, the next step is to implement the loader function that reads the validated file and constructs the `movement` dataset.
 Continuing from the hypothetical "MySoftware" example, the loader function `from_mysoftware_file` would look like this:
 
 ```python
@@ -424,15 +424,17 @@ def from_mysoftware_file(file: str | Path) -> xr.Dataset:
 
 Loader functions live in {mod}`movement.io.load_poses` or {mod}`movement.io.load_bboxes`, depending on the data type (poses or bounding boxes).
 
-A loader function must conform to the {class}`LoaderProtocol<movement.io.load.LoaderProtocol>`, which requires the loader to:
+A loader function must conform to the {class}`~movement.io.load.LoaderProtocol`, which requires the loader to:
 
 - Accept `file` as its first parameter, which may be:
-    - A `str` or a {class}`Path<pathlib.Path>`.
-    - An {class}`NWBFile<pynwb.file.NWBFile>` object (for NWB-based formats).
-- Return an {class}`xarray.Dataset<xarray.Dataset>` object containing the [movement dataset](target-poses-and-bboxes-dataset).
+    - A `str` or a {class}`~pathlib.Path`.
+    - An {class}`~pynwb.file.NWBFile` object (for NWB-based formats).
+- Return an {class}`xarray.Dataset` object containing the [`movement` dataset](target-poses-and-bboxes-dataset).
+
+Additional format-specific positional and keyword arguments (e.g. `fps`) are also allowed.
 
 ##### Decorate the loader with `@register_loader`
-The {func}`@register_loader()<movement.io.load.register_loader>` decorator associates a loader function with a `source_software` name so that users can load files from that software via the unified {func}`load_dataset()<movement.io.load.load_dataset>` interface:
+The {func}`@register_loader()<movement.io.load.register_loader>` decorator associates a loader function with a `source_software` name so that users can load files from that software via the unified {func}`~movement.io.load.load_dataset` interface:
 ```python
 from movement.io import load_dataset
 ds = load_dataset("path/to/mysoftware_output.csv", source_software="MySoftware")
@@ -447,7 +449,7 @@ ds = from_mysoftware_file("path/to/mysoftware_output.csv")
 If a `file_validators` argument is supplied to the {func}`@register_loader()<movement.io.load.register_loader>` decorator, the decorator selects the appropriate validator—based on its declared `suffixes`—and uses it to normalise and validate the input `file` before invoking the loader.
 As a result, the loader receives the validated file object instead of the raw path or handle.
 
-Providing `file_validators` also enables **automatic source software inference**: when users call {func}`load_dataset()<movement.io.load.load_dataset>` with `source_software="auto"` (the default), `movement` probes the registered validators to determine which loader to use.
+Providing `file_validators` also enables **automatic source software inference**: when users call {func}`~movement.io.load.load_dataset` with `source_software="auto"` (the default), `movement` probes the registered validators to determine which loader to use.
 A new loader with validators will therefore be picked up by auto-inference automatically, without any additional changes.
 If no validator is provided, the auto-inference will not be able to detect that file format.
 
@@ -472,21 +474,96 @@ def from_mysoftware_file(file: str | Path) -> xr.Dataset:
 :::
 
 ##### Construct the dataset
-After parsing the input file, the loader function should construct the movement dataset using:
+After parsing the input file, the loader function should construct the `movement` dataset using:
 
 - {func}`movement.io.load_poses.from_numpy` for pose tracks.
 - {func}`movement.io.load_bboxes.from_numpy` for bounding box tracks.
 
-These helper functions create the {class}`xarray.Dataset<xarray.Dataset>` object from numpy arrays and metadata, ensuring that the dataset conforms to the [movement dataset specification](target-poses-and-bboxes-dataset).
+These helper functions create the {class}`~xarray.Dataset` object from numpy arrays and metadata, ensuring that the dataset conforms to the [`movement` dataset specification](target-poses-and-bboxes-dataset).
 
 #### Update SourceSoftware type alias
 The `SourceSoftware` type alias is defined in {mod}`movement.io.load` as a `Literal` containing all supported source software names.
 When adding a new loader, update this type alias to include the new software name to maintain type safety across the codebase:
 
 ```python
-SourceSoftware: TypeAlias = Literal[
+type SourceSoftware = Literal[
     "DeepLabCut",
     "SLEAP",
+    ...,
+    "MySoftware",  # Newly added software
+]
+```
+
+### Implementing new writers
+Implementing a new writer to support additional [file formats](target-supported-formats) in `movement` involves the following steps:
+
+1. Implement the writer function.
+2. Update the `TargetSoftware` type alias.
+
+#### Implement writer function
+Using a hypothetical "MySoftware" example that saves pose tracks to a CSV file, a writer `to_mysoftware_file` would look like this:
+
+```python
+@register_writer("MySoftware", ds_type="poses", suffixes={".csv"})
+def to_mysoftware_file(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
+    """Save a ``movement`` dataset to a MySoftware file."""
+    # The _format_* function is pseudocode
+    df = _format_as_mysoftware_df(ds)
+    df.to_csv(file)
+    logger.info(f"Saved poses dataset to {file}.")
+```
+
+Writer functions live in {mod}`movement.io.save_poses` or {mod}`movement.io.save_bboxes`, depending on the data type (poses or bounding boxes).
+
+A writer function must conform to the {class}`WriterProtocol<movement.io.save.WriterProtocol>`, which requires the function to:
+
+- Accept `ds`, an {class}`xarray.Dataset` representing the [`movement` dataset](target-poses-and-bboxes-dataset), as its first parameter
+- Accept `file` (`str` or {class}`Path<pathlib.Path>`) to which the dataset should be saved, as its second parameter.
+- Save `ds` directly to `file` on disk.
+- Return `None`.
+
+Additional format-specific keyword arguments are also allowed.
+
+##### Decorate the writer with `@register_writer`
+The {func}`@register_writer()<movement.io.save.register_writer>` decorator associates a writer function with a `target_software` name so that users can save to that format via the unified {func}`~movement.io.save.save_dataset` interface:
+
+```python
+from movement.io import save_dataset
+save_dataset(ds, "/path/to/output.csv", target_software="MySoftware")
+```
+
+which is equivalent to calling the writer function directly:
+
+```python
+from movement.io.save_poses import to_mysoftware_file
+to_mysoftware_file(ds, "/path/to/output.csv")
+```
+
+The {func}`@register_writer()<movement.io.save.register_writer>` decorator also validates `ds` and `file` before calling the writer:
+
+- The optional `ds_type` argument (`"poses"`, `"bboxes"`, or `None`) tells the decorator which kind of [`movement` dataset](target-poses-and-bboxes-dataset) the format is compatible with.
+  It selects the corresponding {mod}`dataset validator<movement.validators.datasets>`, so a clear error is raised if a bounding boxes dataset is passed to a poses-only writer (or vice versa).
+  Pass `ds_type=None` (the default) only for formats compatible with any dataset type, such as `movement`'s native netCDF format.
+  In that case, the decorator will select the appropriate validator based on the `ds_type` attribute of the dataset (i.e. `ds.attrs["ds_type"]`).
+- The optional `suffixes` argument (e.g. `{".csv"}`) tells the decorator which file extensions are valid for the format.
+  It is passed to {func}`~movement.validators.files.validate_file_path`, which checks that `file` has one of the specified suffixes (or skips that check if `suffixes=None`, the default), always checks that `file` is writable, and returns `file` as a validated {class}`~pathlib.Path`, which is what the writer actually receives.
+
+::::{dropdown} Type checkers and the validated `file` path
+:color: success
+:icon: light-bulb
+
+Because the writer's signature declares `str | Path`, type checkers may not recognise that `file` is already a {class}`~pathlib.Path` inside the writer body.
+If you call a function that requires a {class}`~pathlib.Path` and the type checker complains, simply reassign `file = Path(file)` — a no-op at runtime that satisfies static typing.
+::::
+
+#### Update TargetSoftware type alias
+The `TargetSoftware` type alias is defined in {mod}`movement.io.save` as a `Literal` containing all supported save target names.
+When adding a new writer, update this type alias to include the new software name to maintain type safety across the codebase:
+
+```python
+type TargetSoftware = Literal[
+    "netCDF",
+    "DeepLabCut",
     ...,
     "MySoftware",  # Newly added software
 ]
