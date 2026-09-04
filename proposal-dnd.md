@@ -245,18 +245,47 @@ We rely on `load_dataset` for the drag-and-drop, so what is droppable is what th
 
 ## Detailed implementation
 
-In outline — each item is spelled out in the correspondingly numbered section below.
+### At a glance
 
-1. **Extract layer construction into a viewer-free function** — `ds_to_layer_data_tuples(ds, name_suffix)` in a new `movement/napari/layers.py`, absorbing the parts of `DataLoader` that don't need a viewer, so that the reader and the Load button build their layers the same way. *(Step 1)*
-2. **Extract the netCDF loading path** — `load_movement_netcdf(path)`: the body of `DataLoader._load_netcdf_file` made module-level, raising instead of calling `show_error`. Deleted once #959 lands. *(Step 2)*
-3. **Add the reader contribution** — `napari_get_reader` in a new `movement/napari/reader.py`, plus the `commands` and `readers` entries in `napari.yaml`. Suffix matching only in the hook; loading, `source_software` inference and error reporting all happen in the reader function it returns. *(Step 3)*
-4. **Wire up the layers the reader created** — `wire_unwired_points_layers(viewer, event)` in `layer_wiring.py`, connected to `viewer.layers.events.inserted` by `connect_viewer_callbacks`, which the reader calls itself so it works with the widget open or closed. It also applies `set_initial_state`. *(Step 4, and § Layer wiring above)*
-5. **Leave the widget's suffix dicts alone** — they duplicate `get_supported_source_software()`, but open PR #896 is already fixing exactly that. *(Step 5)*
-6. **Tests** — see § *Overview of tests to write*. The load-bearing one is parity: a dropped file must produce the same layers as the Load button.
-7. **Docs** — document drag-and-drop in `docs/source/user_guide/gui.md`; see § *Files changed*.
+Both paths — the Load button and a canvas drop — converge on one pure function
+(`ds_to_layer_data_tuples`), and both get their live behaviour from one insert
+handler (`wire_unwired_points_layers`). ✨ = new in this PR.
 
+```mermaid
+flowchart TD
+    drop["🖱️ drop file on canvas"] --> yaml["napari.yaml<br/>filename_patterns ✨"]
+    yaml --> hook["napari_get_reader(path) ✨<br/>suffix check only"]
+    hook --> rf["read_dataset(path) ✨"]
+    btn["🔘 Load button<br/>loader_widgets.py"] --> load
 
-## Step 1 — Extract layer construction into a reusable, viewer-free function
+    rf --> load["load_dataset(..., source_software='auto')<br/>· or ·<br/>load_movement_netcdf(path) ✨"]
+    load --> tup["ds_to_layer_data_tuples(ds, name) ✨<br/>(data, meta, layer_type) × 2 or 3"]
+    tup --> add["viewer adds layers<br/>one at a time"]
+    add -- "layers.events.inserted" --> wire["wire_unwired_points_layers(viewer, event) ✨<br/>+ set_initial_state(viewer)"]
+    rf -. "connect_viewer_callbacks(current_viewer())" .-> wire
+
+    style tup fill:#e8f5e9,stroke:#2e7d32
+    style wire fill:#e3f2fd,stroke:#1565c0
+```
+
+### The seven changes
+
+| # | Change | Signature / diff |
+|---|---|---|
+| 1 | **Extract layer construction** into a viewer-free function, so the reader and the Load button build layers identically | <pre># new movement/napari/layers.py<br>def ds_to_layer_data_tuples(<br>    ds, name_suffix<br>) -> list[FullLayerData]: ...</pre> |
+| 2 | **Extract the netCDF path** — the body of `DataLoader._load_netcdf_file`, raising instead of `show_error`. Deleted once #959 lands | <pre># movement/napari/layers.py<br>def load_movement_netcdf(path) -> xr.Dataset: ...</pre> |
+| 3 | **Add the reader contribution** — suffix matching in the hook; loading, inference and error reporting in the reader function it returns | <pre># new movement/napari/reader.py<br>def napari_get_reader(path) -> ReaderFunction \| None: ...</pre> plus `commands` + `readers` in `napari.yaml` |
+| 4 | **Wire up the layers the reader created** — a full rescan on every insert, also applying `set_initial_state` | <pre># layer_wiring.py<br>def wire_unwired_points_layers(viewer, event=None): ...<br><br> def connect_viewer_callbacks(viewer):<br>+    viewer.layers.events.inserted.connect(<br>+        partial(wire_unwired_points_layers, viewer)<br>+    )</pre> |
+| 5 | **Leave the widget's suffix dicts alone** — they duplicate `get_supported_source_software()`, but open PR #896 is already fixing exactly that | *(no code)* |
+| 6 | **Tests** — see § *Overview of tests to write*. The load-bearing one is parity: a dropped file must produce the same layers as the Load button | *(see below)* |
+| 7 | **Docs** — drag-and-drop in `docs/source/user_guide/gui.md`; see § *Files changed* | *(see below)* |
+
+### Steps in detail
+
+Each step below expands to the full argument.
+
+<details>
+<summary><b>Step 1 — Extract layer construction into a reusable, viewer-free function</b></summary>
 
 **New file: `movement/napari/layers.py`** (could also fold into `convert.py`).
 
@@ -297,7 +326,10 @@ calls `ds_to_layer_data_tuples`, and adds each via
 `self.viewer.add_layer(Layer.create(*tup))` (`napari.layers.Layer.create` is
 public API).
 
-## Step 2 — Extract the netCDF loading path so the reader can use it
+</details>
+
+<details>
+<summary><b>Step 2 — Extract the netCDF loading path so the reader can use it</b></summary>
 
 `load_dataset` cannot open `.nc` files — there is no registered loader for it (that is #959) — so the reader needs a netCDF branch. The widget
 already has one, in `DataLoader._load_netcdf_file`
@@ -330,7 +362,10 @@ should nevertheless be enforced at the conversion layer, for every dataset, is a
 #959 design question rather than something this PR needs to settle — see
 discussion point 1.
 
-## Step 3 — The reader contribution
+</details>
+
+<details>
+<summary><b>Step 3 — The reader contribution</b></summary>
 
 **New file: `movement/napari/reader.py`**
 
@@ -389,7 +424,10 @@ silently diverge (this also becomes the tripwire when a new loader is registered
 No packaging change needed: `MANIFEST.in` ships `napari.yaml` and the entry point
 already exists ([pyproject.toml:52](pyproject.toml#L52)).
 
-## Step 4 — Wire up layers created by the reader
+</details>
+
+<details>
+<summary><b>Step 4 — Wire up layers created by the reader</b></summary>
 
 **Why this is needed.** A reader can only hand napari *static* data —
 `(data, attributes, layer_type)`. It cannot attach behaviour. But a movement
@@ -462,7 +500,10 @@ No known limitation left here: with the reader calling
 widget is ever opened, and they stay wired after it is closed. See discussion
 point 2.
 
-## Step 5 — Deliberately *not* touching the widget's suffix dicts
+</details>
+
+<details>
+<summary><b>Step 5 — Deliberately *not* touching the widget's suffix dicts</b></summary>
 
 `SUPPORTED_POSES_FILES` / `SUPPORTED_BBOXES_FILES`
 ([:37-56](movement/napari/loader_widgets.py#L37-L56)) duplicate
@@ -477,6 +518,7 @@ mapping (plus the manual netCDF entry) is a small, safe follow-up. Also worth a
 rebase check: #896 rewrites `_on_source_software_changed` and the form layout,
 which are adjacent to but not overlapping Steps 1 and 4.
 
+</details>
 
 
 ## Files changed
