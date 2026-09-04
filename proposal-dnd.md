@@ -294,73 +294,76 @@ def ds_to_layer_data_tuples(
     ds: xr.Dataset, name_suffix: str
 ) -> list[FullLayerData]:
     """Build napari (data, meta, layer_type) tuples from a movement dataset."""
+    # ds_to_napari_layers → data_not_nan mask → position_is_nan property
+    # → color/text properties → <Style>.as_kwargs() + metadata dict
+    return [(points_data, points_meta, "points"),
+            (tracks_data, tracks_meta, "tracks"),
+            # + (boxes_data, boxes_meta, "shapes") for bboxes datasets
+            ]
 ```
 
-It absorbs, near-verbatim, the viewer-free parts of:
+**Absorbed near-verbatim from `DataLoader`** (viewer-free parts only):
 
-- `DataLoader._format_data_for_layers` ([:238-262](movement/napari/loader_widgets.py#L238-L262)) —
-  `ds_to_napari_layers`, the `data_not_nan` mask, the `position_is_nan` property.
-- `_set_common_color_property` ([:315](movement/napari/loader_widgets.py#L315))
-  and `_set_text_property` ([:334](movement/napari/loader_widgets.py#L334)).
-- The style/kwargs assembly in `_add_points_layer` ([:356](movement/napari/loader_widgets.py#L356)),
-  `_add_tracks_layer` ([:537](movement/napari/loader_widgets.py#L537)),
-  `_add_boxes_layer` ([:562](movement/napari/loader_widgets.py#L562)) — the
-  existing `PointsStyle`/`TracksStyle`/`BoxesStyle` `.as_kwargs()` calls and the
-  `metadata` dicts, unchanged apart from the new `MOVEMENT_LAYER_KEY: True`
-  added to all three (see Step 4).
+| from | what |
+|---|---|
+| `_format_data_for_layers` ([:238-262](movement/napari/loader_widgets.py#L238-L262)) | `ds_to_napari_layers`, `data_not_nan` mask, `position_is_nan` property |
+| `_set_common_color_property` ([:315](movement/napari/loader_widgets.py#L315)), `_set_text_property` ([:334](movement/napari/loader_widgets.py#L334)) | properties dicts |
+| `_add_points_layer` ([:356](movement/napari/loader_widgets.py#L356)), `_add_tracks_layer` ([:537](movement/napari/loader_widgets.py#L537)), `_add_boxes_layer` ([:562](movement/napari/loader_widgets.py#L562)) | the `PointsStyle`/`TracksStyle`/`BoxesStyle` `.as_kwargs()` calls and the `metadata` dicts — unchanged except `MOVEMENT_LAYER_KEY: True` added to all three (Step 4) |
 
-Two changes make the metadata expressible before layers exist:
+**Two changes make the metadata expressible before the layers exist:**
 
-1. `TRACKS_LAYER_KEY` currently holds a *layer object*, set in `_add_tracks_layer`
-   ([:559](movement/napari/loader_widgets.py#L559)). Add
-   `TRACKS_LAYER_NAME_KEY = "movement_tracks_layer_name"` which the pure function
-   can set (`f"tracks: {name_suffix}"`). Step 4's wiring resolves it to the
-   object under the existing `TRACKS_LAYER_KEY`, so `_sync_tracks_layer` and
-   `_remove_from_tracks_layer` are untouched.
-2. `editable` is **not** a `Points.__init__` kwarg (verified against the pinned
-   napari 0.6.6), so it stays a post-creation assignment in Step 4. Same for
-   `_set_point_symbol_by_edited` ([:426](movement/napari/loader_widgets.py#L426)).
+| # | today | in the tuple |
+|---|---|---|
+| 1 | `TRACKS_LAYER_KEY` holds a *layer object*, set in `_add_tracks_layer` ([:559](movement/napari/loader_widgets.py#L559)) | new `TRACKS_LAYER_NAME_KEY = "movement_tracks_layer_name"`, set to `f"tracks: {name_suffix}"`; Step 4 resolves it to the object under the existing `TRACKS_LAYER_KEY`, so `_sync_tracks_layer` / `_remove_from_tracks_layer` are untouched |
+| 2 | `editable` — **not** a `Points.__init__` kwarg (verified against pinned napari 0.6.6). Same for `_set_point_symbol_by_edited` ([:426](movement/napari/loader_widgets.py#L426)) | stays a post-creation assignment, done in Step 4 |
 
-`DataLoader._on_load_clicked` then loads the dataset (branching unchanged),
-calls `ds_to_layer_data_tuples`, and adds each via
-`self.viewer.add_layer(Layer.create(*tup))` (`napari.layers.Layer.create` is
-public API).
+**Load button then goes through the same tuples** (dataset branching unchanged):
+
+```diff
+ # loader_widgets.py — DataLoader._on_load_clicked
+-        self._add_points_layer()
+-        self._add_tracks_layer()
++        for tup in ds_to_layer_data_tuples(ds, file_name):
++            self.viewer.add_layer(Layer.create(*tup))   # public napari API
+```
 
 </details>
 
 <details>
 <summary><b>Step 2 — Extract the netCDF loading path so the reader can use it</b></summary>
 
-`load_dataset` cannot open `.nc` files — there is no registered loader for it (that is #959) — so the reader needs a netCDF branch. The widget
-already has one, in `DataLoader._load_netcdf_file`
-([:272-313](movement/napari/loader_widgets.py#L272-L313)). Move its body to a
-module-level function in `movement/napari/layers.py`:
+`load_dataset` has no registered `.nc` loader (that is #959), so the reader needs
+a netCDF branch. The widget already has one — move the body of
+`DataLoader._load_netcdf_file` ([:272-313](movement/napari/loader_widgets.py#L272-L313))
+to `movement/napari/layers.py`:
 
 ```python
 def load_movement_netcdf(path) -> xr.Dataset:
     """Open a movement netCDF file, raising ValueError if unusable."""
+    # xr.open_dataset → rename_legacy_dimensions
+    # → ds_type must be "poses" or "bboxes"
+    # → ValidPosesInputs.validate / ValidBboxesInputs.validate
 ```
 
-The logic is unchanged — `xr.open_dataset` → `rename_legacy_dimensions` →
-`ds_type` must be `poses` or `bboxes` → `ValidPosesInputs.validate` /
-`ValidBboxesInputs.validate` — with one difference: it **raises** instead of
-`show_error(...); return None`, leaving the caller to decide how to report.
-The widget wraps it and calls `show_error` with the same messages, so its
-user-facing behaviour and `test_data_loader_widget.py`'s netCDF error cases are
-untouched; the reader reports through its own error path (Step 3).
+Logic unchanged; the one difference is who reports the error:
 
-This one function is also the seam that disappears when #959 lands: the reader's
-`.nc` branch collapses to a plain `load_dataset(path)` call and the helper is
-deleted.
+```diff
+-        show_error(msg)
+-        return None
++        raise ValueError(msg)
+```
 
-Note this deliberately does *not* validate third-party datasets. Those come out
-of `load_dataset` already built through `ValidPosesInputs` / `ValidBboxesInputs`
-(which is where `ds_type` is set,
-[datasets.py:470](movement/validators/datasets.py#L470)), so re-checking them
-would be a no-op. Whether the GUI's stricter-than-`load_dataset` requirements
-should nevertheless be enforced at the conversion layer, for every dataset, is a
-#959 design question rather than something this PR needs to settle — see
-discussion point 1.
+- **Widget** wraps it and calls `show_error` with the same messages → user-facing
+  behaviour and `test_data_loader_widget.py`'s netCDF error cases untouched.
+- **Reader** reports through its own error path (Step 3).
+- **After #959** this whole helper is deleted and the reader's `.nc` branch
+  collapses to `load_dataset(path)`.
+- **Third-party datasets are deliberately not re-validated** — they come out of
+  `load_dataset` already built through `ValidPosesInputs`/`ValidBboxesInputs`
+  (where `ds_type` is set, [datasets.py:470](movement/validators/datasets.py#L470)),
+  so a re-check is a no-op. Whether the GUI's stricter rules should be enforced
+  at the conversion layer for *every* dataset is a #959 question → discussion
+  point 1.
 
 </details>
 
@@ -374,35 +377,38 @@ SUPPORTED_SUFFIXES = set().union(*get_supported_source_software().values()) | {"
 
 def napari_get_reader(path: str | list[str]) -> ReaderFunction | None:
     """Return a reader for movement-supported files, else None."""
+    paths = [path] if isinstance(path, str) else path
+    if any(Path(p).suffix not in SUPPORTED_SUFFIXES for p in paths):
+        return None                     # mixed multi-file drop only
+    return read_dataset
+
+def read_dataset(path) -> list[FullLayerData]:
+    layer_data = []
+    for p in ([path] if isinstance(path, str) else path):
+        try:
+            ds = (load_movement_netcdf(p) if Path(p).suffix == ".nc"   # Step 2
+                  else load_dataset(p, source_software="auto", fps=None))
+        except (ValueError, OSError) as e:
+            show_error(f"{Path(p).name}: {e}  — use the movement widget to "
+                       "select the source software explicitly.")
+            continue                    # skip this file, keep the others
+        layer_data += ds_to_layer_data_tuples(ds, Path(p).name)   # Step 1
+    connect_viewer_callbacks(napari.current_viewer())             # Step 4
+    return layer_data or [(None,)]      # napari's "no layers" sentinel
 ```
 
-- Normalise `path` to a list and return a reader function in essentially every
-  case. The manifest's `filename_patterns` already gate on exactly
-  `SUPPORTED_SUFFIXES`, so a second suffix check here is almost dead code — the
-  only case it catches is a *mixed* multi-file drop, where napari passes a list
-  in which some paths match the patterns and some don't; return `None` for that.
-  Deliberately do **not** use `None` as a general "can't read this" signal:
-  inside napari it is not a graceful fall-through. For npe2 plugins the
+- **Suffix matching only in the hook.** No content validation: it runs for every
+  candidate drop and `ValidVIATracksCSV` does a full `pd.read_csv`. Inference
+  happens in the reader function.
+- **`None` is not a graceful "can't read this".** For npe2 plugins the
   reader-choice dialog is built from `filename_patterns` alone
   (`get_potential_readers` → `pm.iter_compatible_readers`), *before* the hook
-  runs, so declining neither hides us from the dialog nor hands off to another
-  plugin — if the user picked movement, they get a `ReaderPluginError`
-  ("was selected to open …, but returned no data") instead of our own message.
-  Everything we can't load is therefore handled *inside* the reader function,
-  via `show_error` plus the `[(None,)]` sentinel (see the error bullet below).
-- Do **not** validate content in `napari_get_reader`. It runs for every candidate
-  drop and `ValidVIATracksCSV` does a full `pd.read_csv`. Suffix matching only;
-  inference happens in the reader function.
-- Reader function, per path: `.nc` → `load_movement_netcdf(path)` (Step 2;
-  becomes `load_dataset(path)` after #959), otherwise
-  `load_dataset(path, source_software="auto", fps=None)`. Then
-  `ds_to_layer_data_tuples(ds, Path(path).name)`. Concatenate across paths so a
-  multi-file drop yields one set of layers per file.
-- Per-file errors (`ValueError`/`OSError`, including `infer_source_software`'s
-  "Could not infer source_software…" and `load_movement_netcdf`'s messages) →
-  `show_error` naming the file and pointing at the movement widget for explicit
-  source-software selection and loader kwargs; skip that file. If nothing loads,
-  return `[(None,)]` (napari's "no layers" sentinel) rather than raising.
+  runs — so declining neither hides us from the dialog nor hands off to another
+  plugin. If the user picked movement they get a `ReaderPluginError` ("was
+  selected to open …, but returned no data") instead of our message. Hence
+  everything unloadable is handled *inside* `read_dataset`, via `show_error` +
+  the `[(None,)]` sentinel.
+- **Multi-file drops** concatenate, so one set of layers per file.
 
 **Manifest** — [movement/napari/napari.yaml](movement/napari/napari.yaml) gains:
 
@@ -417,22 +423,20 @@ def napari_get_reader(path: str | list[str]) -> ReaderFunction | None:
       accepts_directories: false
 ```
 
-npe2 manifests are static, so the patterns are hard-coded — add a test asserting
-they equal `get_supported_source_software()` ∪ `{".nc"}` so the two can't
-silently diverge (this also becomes the tripwire when a new loader is registered).
-
-No packaging change needed: `MANIFEST.in` ships `napari.yaml` and the entry point
-already exists ([pyproject.toml:52](pyproject.toml#L52)).
+- npe2 manifests are static → patterns hard-coded → add a test asserting they
+  equal `get_supported_source_software()` ∪ `{".nc"}`, so the two can't silently
+  diverge (also the tripwire when a new loader is registered).
+- No packaging change: `MANIFEST.in` ships `napari.yaml`, entry point already
+  exists ([pyproject.toml:52](pyproject.toml#L52)).
 
 </details>
 
 <details>
 <summary><b>Step 4 — Wire up layers created by the reader</b></summary>
 
-**Why this is needed.** A reader can only hand napari *static* data —
-`(data, attributes, layer_type)`. It cannot attach behaviour. But a movement
-Points layer is not just data: `DataLoader` wires three live things onto it
-after creation, none of which survive a `LayerDataTuple`.
+**Why.** A reader hands napari *static* `(data, attributes, layer_type)` — it
+cannot attach behaviour. But `DataLoader` wires three live things onto a Points
+layer after creation, none of which survive a `LayerDataTuple`:
 
 | wiring | today | what it does |
 |---|---|---|
@@ -440,83 +444,78 @@ after creation, none of which survive a `LayerDataTuple`.
 | `editable = frame_axis_is_sliced(viewer)` | [loader_widgets.py:364](movement/napari/loader_widgets.py#L364) | blocks editing when frame isn't the slider axis, so a drag can't move a point to another frame |
 | `metadata[TRACKS_LAYER_KEY] = self.tracks_layer` | [loader_widgets.py:394](movement/napari/loader_widgets.py#L394) | the Points→Tracks object reference `sync_tracks_layer` needs |
 
-Without this step the failure is not cosmetic: a user drags a point on a dropped
-layer, the Points layer moves, the Tracks layer doesn't, and they silently
-diverge — after which `DataSaver` writes that inconsistent state to `.nc`. Nor
-can we dodge it by shipping dropped layers read-only: `editable` is not a
-`Points.__init__` kwarg (see Step 1), so the reader cannot set it. Some
-post-creation step is unavoidable.
+Skipping this is not cosmetic: drag a point on a dropped layer → Points moves,
+Tracks doesn't → they silently diverge → `DataSaver` writes that state to `.nc`.
+Shipping dropped layers read-only doesn't dodge it either: `editable` is not a
+`Points.__init__` kwarg (Step 1). **Some post-creation step is unavoidable.**
 
-**The function.** `wire_unwired_points_layers`, written out in § *Layer wiring*
-above. Since `fix/layer-wiring-lifetime` it belongs in `layer_wiring.py`, not on
-the widget — it changes layer state that must outlive the dock, which is exactly
-the rule in that module's docstring.
+**The function** — `wire_unwired_points_layers`, written out in § *Layer wiring*
+above. It lives in `layer_wiring.py`, not on the widget: it changes layer state
+that must outlive the dock, which is that module's stated rule.
 
-**When it runs — and an ordering trap.** Connect it to
-`viewer.layers.events.inserted` from inside `connect_viewer_callbacks`
-([:57-60](movement/napari/layer_wiring.py#L57-L60)), alongside the existing
-`update_frame_slider_range` wiring, using the same
-`partial(wire_unwired_points_layers, viewer)` pattern. Two paths reach it, and both
-are covered by that one connection:
+**When it runs.** One connection inside `connect_viewer_callbacks`
+([:57-60](movement/napari/layer_wiring.py#L57-L60)) covers both entry paths:
 
-1. The widget is already open — `DataLoader.__init__` called
-   `connect_viewer_callbacks` ([loader_widgets.py:78](movement/napari/loader_widgets.py#L78)),
-   so the drop's `inserted` events fire the handler.
-2. The widget was never opened — the reader calls `connect_viewer_callbacks`
-   itself before returning its tuples, so the connection is in place by the time
-   napari inserts them.
+```
+widget opened first  ──> DataLoader.__init__ → connect_viewer_callbacks ──┐
+                                                                          ├─> inserted → handler
+drop, widget never opened ──> read_dataset → connect_viewer_callbacks ────┘
+```
 
-No "once at the end of `__init__`" pass is needed any more: on `main` that
-existed to catch layers dropped before the widget was opened, but the reader now
-wires the viewer itself. (`connect_viewer_callbacks`'s `_WIRED_VIEWERS` guard
-makes the double call harmless, and
-`test_connect_viewer_callbacks_is_idempotent`
-([tests/test_unit/test_napari_plugin/test_layer_wiring.py:94](tests/test_unit/test_napari_plugin/test_layer_wiring.py#L94))
-already pins that.)
+- `_WIRED_VIEWERS` guard makes the double call harmless — pinned by
+  `test_connect_viewer_callbacks_is_idempotent`
+  ([test_layer_wiring.py:94](tests/test_unit/test_napari_plugin/test_layer_wiring.py#L94)).
+- The "once at the end of `__init__`" pass on `main` is no longer needed: it
+  existed to catch layers dropped before the widget was opened, and the reader
+  now wires the viewer itself.
 
-The trap: napari adds a reader's layers **one at a time**
-(`_add_layers_with_plugins` loops over the returned tuples calling
-`_add_layer_from_data` for each), so `inserted` fires separately per layer. When
-the *Points* layer's event fires, the *Tracks* layer does not exist yet, and
-resolving `TRACKS_LAYER_NAME_KEY` will fail. "Not added yet" is therefore the
-common case, not an edge case — and it fails quietly: the connection and
-`editable` get set, the Tracks reference doesn't, and drag-sync stays broken.
+**The ordering trap.** napari adds a reader's layers **one at a time**
+(`_add_layers_with_plugins` → `_add_layer_from_data` per tuple), so `inserted`
+fires per layer:
 
-So the handler must be **idempotent and scan `viewer.layers` in full on
-every insert**, never just `event.value`. The Points insert wires what it can and
-leaves the reference unresolved; the Tracks insert re-scans and completes it. The
-"no `TRACKS_LAYER_KEY` yet" condition is what keeps repeated scans cheap and
-safe. Two alternatives are worse: returning the tracks tuple first is fragile
-(it depends on napari preserving order and on nobody reordering the list later),
-and deferring via a single-shot timer adds async behaviour that is awkward to
-test.
+```
+insert "points: file.h5"  ──> handler: connect events.data ✅
+                                       set editable        ✅
+                                       resolve TRACKS_LAYER_KEY ❌  (tracks doesn't exist yet)
+insert "tracks: file.h5"  ──> handler rescans all layers:
+                                       resolve TRACKS_LAYER_KEY ✅
+```
 
-The same handler also applies `set_initial_state`, so a drop gets the Load
-button's "slider to frame 0, points layer active" behaviour — including the new
-`MOVEMENT_LAYER_KEY` that its guard needs. See § *Set initial state* above.
+"Not added yet" is the **common** case, and it fails *quietly*. So the handler
+must be **idempotent and rescan `viewer.layers` in full on every insert**, never
+just `event.value`; the "no `TRACKS_LAYER_KEY` yet" check keeps repeated scans
+cheap.
 
-No known limitation left here: with the reader calling
-`connect_viewer_callbacks`, dropped layers are fully wired whether or not the
-widget is ever opened, and they stay wired after it is closed. See discussion
-point 2.
+| alternative | why worse |
+|---|---|
+| return the tracks tuple first | depends on napari preserving order and nobody reordering the list later |
+| defer via a single-shot timer | adds async behaviour that is awkward to test |
+
+**Also applies `set_initial_state`** (§ *Set initial state* above), so a drop
+gets the Load button's "slider to frame 0, Points layer active" — this is what
+needs the new `MOVEMENT_LAYER_KEY`.
+
+No known limitation left: dropped layers are fully wired whether or not the
+widget is ever opened, and stay wired after it is closed → discussion point 2.
 
 </details>
 
 <details>
-<summary><b>Step 5 — Deliberately *not* touching the widget's suffix dicts</b></summary>
+<summary><b>Step 5 — Deliberately <i>not</i> touching the widget's suffix dicts</b></summary>
 
 `SUPPORTED_POSES_FILES` / `SUPPORTED_BBOXES_FILES`
 ([:37-56](movement/napari/loader_widgets.py#L37-L56)) duplicate
 `get_supported_source_software()` and already drift from it (Anipose and NWB are
-registered in the backend but missing from the combo box). **Open PR #896 fixes
-exactly this** — it adds Anipose and NWB to the dropdown and changes the form's
-`rowCount()` — so deriving these dicts from the registry here would collide.
+registered in the backend but missing from the combo box).
 
-Leave them alone in this PR; note in the PR description that once #896 merges,
-replacing the hard-coded dicts with a `get_supported_source_software()`-derived
-mapping (plus the manual netCDF entry) is a small, safe follow-up. Also worth a
-rebase check: #896 rewrites `_on_source_software_changed` and the form layout,
-which are adjacent to but not overlapping Steps 1 and 4.
+- **Open PR #896 fixes exactly this** — adds Anipose and NWB to the dropdown and
+  changes the form's `rowCount()`. Deriving these dicts from the registry here
+  would collide.
+- **This PR:** leave them alone. Note in the PR description that once #896
+  merges, replacing them with a `get_supported_source_software()`-derived mapping
+  (plus the manual netCDF entry) is a small, safe follow-up.
+- **Rebase check:** #896 rewrites `_on_source_software_changed` and the form
+  layout — adjacent to, but not overlapping, Steps 1 and 4.
 
 </details>
 
