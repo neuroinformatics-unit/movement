@@ -135,7 +135,8 @@ def wire_unwired_points_layers(viewer, event=None):
 The full of the layers rescan matters: napari inserts a reader's layers one at a time, so when
 the Points layer's `inserted` fires, the Tracks layer does not exist yet. The
 Points insert event wires what it can, and the Tracks insert re-scans and resolves
-`TRACKS_LAYER_KEY`.
+`TRACKS_LAYER_KEY`. Step 4 has the full argument, including the two alternatives
+to a rescan and why they are worse.
 
 The `wire_unwired_points_layers` function would be connected to `viewer.layers.events.inserted` from inside `connect_viewer_callbacks`.
 ```diff
@@ -244,70 +245,15 @@ We rely on `load_dataset` for the drag-and-drop, so what is droppable is what th
 
 ## Detailed implementation
 
-1. Define `napari_get_reader` in XXXX.py :
-   ```python
-   def napari_get_reader(path: str | list[str]) -> ReaderFunction | None:
-    """Return a reader for movement-supported files, else None."""
-    IF FILE IN LIST_SUPPORTED_FILES:
-      return read_dataset
-   ELSE:
-      None
+In outline — each item is spelled out in the correspondingly numbered section below.
 
-   ```
-   - Do **not** validate content in `napari_get_reader`. It runs for every candidate drop  and should be very lightweight.
-
-2. Define readers in XXXX.py that return `(data, attributes, layer_type)`:
-   A reader loads a validated movement dataset, and transforms it to the data that napari needs.
-   ```python
-   def read_dataset(..):
-      """load a validated movement dataset, and transform it to the data that napari needs."""
-      IF FILE_EXTENSION IS .NC:
-          # load ds from nc file
-         ds = load_dataset_from_nc(..)
-         # validate ds from nc
-         ds = validate(ds,...)
-      ELSE:
-         ds = load_dataset(..)
-      return ds_to_layer_data_tuples(ds, Path(path).name)
-   ```
-   - `load_dataset_from_nc` won't be needed after PR #959, so maybe it can be defined in the same file as `read_dataset`.
-   - **`fps=None`** for dropped files. Users that need the data to show in seconds can use the form widget.
-   - **Loader kwargs are not settable on drop**: default values are used. Exposed kwargs can be edited by the users in the widget form (autopopulating that form from the dropped file is future work, see below).
-
-3. Define `ds_to_layer_data_tuples`
-   - Can be factored out from existing implementation
-   - Returns `(data, attributes, layer_type)`
-
-4. Wire up the layers
-   The reader function returns the data required by napari to build the layers, but their syncing logic is not implemented. We need a `wire_unwired_points_layers(viewer, event)` in `layer_wiring.py`, connected to `viewer.layers.events.inserted` by `connect_viewer_callbacks` — which the reader calls itself, so it works with the widget open or closed.
-
-5. Add reader Contribution to
-   [movement/napari/napari.yaml](movement/napari/napari.yaml). Set filename pattern as `["*.h5", "*.csv", "*.slp", "*.nwb", "*.nc"]`
-   ```yaml
-   commands:
-      - id: movement.get_reader
-         python_name: movement.napari.reader:napari_get_reader
-         title: Open tracked data with movement
-   readers:
-      - command: movement.get_reader
-         filename_patterns: ["*.h5", "*.csv", "*.slp", "*.nwb", "*.nc"]
-         accepts_directories: false
-   ```
-   - Question: can we avoid the duplication in filename_patterns? I think no, because npe2 manifests are static, so the patterns are hard-coded — and suffix alone cannot separate a DLC `.h5` from a SLEAP one, so the patterns have to come from `get_supported_source_software()` rather than from the source software. We can add a test asserting the list is equal to `get_supported_source_software()` union `{".nc"}` so the two can't silently diverge
-
-6. Tests
-   - Can we check that all current functionality works if the data is loaded via drag-and-drop?
-
-7. Documentation updates
-   - The drag-and-drop functionality should be mentioned in the `movement` guide.
-
-
-
-
-
-
-
---------
+1. **Extract layer construction into a viewer-free function** — `ds_to_layer_data_tuples(ds, name_suffix)` in a new `movement/napari/layers.py`, absorbing the parts of `DataLoader` that don't need a viewer, so that the reader and the Load button build their layers the same way. *(Step 1)*
+2. **Extract the netCDF loading path** — `load_movement_netcdf(path)`: the body of `DataLoader._load_netcdf_file` made module-level, raising instead of calling `show_error`. Deleted once #959 lands. *(Step 2)*
+3. **Add the reader contribution** — `napari_get_reader` in a new `movement/napari/reader.py`, plus the `commands` and `readers` entries in `napari.yaml`. Suffix matching only in the hook; loading, `source_software` inference and error reporting all happen in the reader function it returns. *(Step 3)*
+4. **Wire up the layers the reader created** — `wire_unwired_points_layers(viewer, event)` in `layer_wiring.py`, connected to `viewer.layers.events.inserted` by `connect_viewer_callbacks`, which the reader calls itself so it works with the widget open or closed. It also applies `set_initial_state`. *(Step 4, and § Layer wiring above)*
+5. **Leave the widget's suffix dicts alone** — they duplicate `get_supported_source_software()`, but open PR #896 is already fixing exactly that. *(Step 5)*
+6. **Tests** — see § *Overview of tests to write*. The load-bearing one is parity: a dropped file must produce the same layers as the Load button.
+7. **Docs** — document drag-and-drop in `docs/source/user_guide/gui.md`; see § *Files changed*.
 
 
 ## Step 1 — Extract layer construction into a reusable, viewer-free function
@@ -463,21 +409,10 @@ can we dodge it by shipping dropped layers read-only: `editable` is not a
 `Points.__init__` kwarg (see Step 1), so the reader cannot set it. Some
 post-creation step is unavoidable.
 
-**The function.** Since `fix/layer-wiring-lifetime` this belongs in
-`layer_wiring.py`, not on the widget — it changes layer state that must outlive
-the dock, which is exactly the rule in that module's docstring:
-
-```python
-def wire_unwired_points_layers(viewer, event=None):
-    """Wire up any movement Points layers that aren't wired up yet."""
-```
-
-For each `Points` layer with `metadata[POINTS_LAYER_KEY]` and no
-`TRACKS_LAYER_KEY` yet: resolve `TRACKS_LAYER_NAME_KEY` to the `Tracks` object
-(skip if renamed or deleted), connect
-`layer.events.data` → `on_points_data_changed`, set
-`layer.editable = frame_axis_is_sliced(viewer)`, and call
-`set_point_symbol_by_edited(layer)`.
+**The function.** `wire_unwired_points_layers`, written out in § *Layer wiring*
+above. Since `fix/layer-wiring-lifetime` it belongs in `layer_wiring.py`, not on
+the widget — it changes layer state that must outlive the dock, which is exactly
+the rule in that module's docstring.
 
 **When it runs — and an ordering trap.** Connect it to
 `viewer.layers.events.inserted` from inside `connect_viewer_callbacks`
@@ -518,21 +453,9 @@ safe. Two alternatives are worse: returning the tracks tuple first is fragile
 and deferring via a single-shot timer adds async behaviour that is awkward to
 test.
 
-Also apply `_set_initial_state`'s effect
-([loader_widgets.py:322](movement/napari/loader_widgets.py#L322)) from the
-insert handler, so a drop gets the same "slider to frame 0, points layer active"
-behaviour as the Load button. It touches viewer state only, so it can move to
-`layer_wiring.py` as `set_initial_state(viewer)` and be called from both the
-widget and the insert handler.
-
-Two guards on it, for the reasons spelled out in § *Set initial state* above:
-it must run on the *Tracks* insert too (napari selects each layer as it inserts
-it, so a Points-only call is clobbered by the Tracks layer arriving), and it must
-fire only when the inserted layer is a movement layer (`event.value.metadata`
-carrying the new `MOVEMENT_LAYER_KEY`) — otherwise dropping an image into a
-viewer that already holds movement layers would yank the slider back to frame 0.
-That key is new: today only the Points layer is marked, so a movement Tracks or
-Shapes layer is not currently recognisable as ours.
+The same handler also applies `set_initial_state`, so a drop gets the Load
+button's "slider to frame 0, points layer active" behaviour — including the new
+`MOVEMENT_LAYER_KEY` that its guard needs. See § *Set initial state* above.
 
 No known limitation left here: with the reader calling
 `connect_viewer_callbacks`, dropped layers are fully wired whether or not the
