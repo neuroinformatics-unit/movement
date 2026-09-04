@@ -541,77 +541,45 @@ which are adjacent to but not overlapping Steps 1 and 4.
 
 ## Points to discuss
 
-1. **Sequencing against #959, and where GUI-strict validation should live.**
-   Step 2 is written so the reader doesn't care when #959 lands, but the team may
-   prefer to land #959 first and skip `load_movement_netcdf` entirely.
-
-   The larger question is #959's, not this PR's, but this PR is what surfaces it.
-   @niksirbi suggested there that `load_dataset` should validate netCDF only
-   *minimally*, with the GUI's stricter requirements enforced instead at the
-   movement→napari conversion layer. If that's adopted, the natural shape is a
-   `validate_ds_for_napari(ds)` called at the top of `ds_to_layer_data_tuples`
-   and applied to **every** dataset entering the conversion — which would give
-   the GUI-compatibility rules a single home, and let the
-   `netCDF files compatible with the GUI` dropdown in `gui.md` point at one
-   function instead of restating them.
-
-   This proposal deliberately stops short of that, for two reasons. It isn't
-   needed for drag-and-drop: third-party datasets are valid by construction
-   (see Step 2), so the check would be a no-op for everything but `.nc`. And it
-   is a behaviour change — a DLC file that somehow lacked `confidence` would
-   start failing at conversion rather than producing odd layers. Defensible, but
-   it should be decided in #959 alongside the minimal-validation question, not
-   smuggled in here.
-2. **What happens when the widget isn't open?** *Largely settled by
-   `fix/layer-wiring-lifetime`.* The original options were: (a) accept and
-   document that drops without the widget give display-only layers; (b) have the
-   reader call
-   `napari.current_viewer().window.add_plugin_dock_widget("movement")` so the
-   widget auto-opens on a movement drop; (c) move the sync logic off the widget
-   onto something with viewer/layer lifetime. `fix/layer-wiring-lifetime` does
-   (c) — `layer_wiring.py`'s callbacks are module-level functions and
-   `connect_viewer_callbacks` binds them to the viewer, not the dock — so this
-   plan now assumes (c) and neither (a)'s limitation nor (b)'s workaround
-   applies.
-
-   What remains open is smaller: the reader must remember to call
-   `connect_viewer_callbacks(napari.current_viewer())`, and it depends on
-   `current_viewer()` being non-`None` inside a reader hook (true for a drop on
-   the canvas; worth an explicit guard for the headless/`viewer.open` case).
-   Worth noting @TimMonko offered napari-side help in #960 — the underlying gap
-   ("reader plugins can't attach behaviour to the layers they create") is still
-   worth raising upstream, since every plugin has to hand-roll this.
-3. **fps consistency.** `fps=None` for drops is settled, but it means dropped
-   data shows frame indices while the widget defaults to `1.0`. Should the widget
-   default to frames too? Or should there be a way to set fps on an
-   already-loaded layer instead of re-loading? Note that option (b) in the
-   autopopulation note below would largely answer this.
+1. **Sequencing against #959.** Step 2's `load_movement_netcdf` is deleted the
+   moment #959 lands, so the team may prefer to land #959 first. Related, and
+   #959's call rather than this PR's: @niksirbi suggested there that
+   `load_dataset` validate netCDF only *minimally*, with the GUI's stricter
+   requirements enforced at the conversion layer instead — a
+   `validate_ds_for_napari(ds)` at the top of `ds_to_layer_data_tuples`, giving
+   the GUI-compatibility rules a single home that `gui.md` could point at. Not
+   needed for drag-and-drop (third-party datasets are valid by construction) and
+   a behaviour change, so it is deliberately left out here.
+2. **The reader's dependency on `current_viewer()`.** The reader must call
+   `connect_viewer_callbacks(napari.current_viewer())`, which assumes a non-`None`
+   viewer — true for a canvas drop, worth an explicit guard for the
+   headless/`viewer.open` case. The underlying gap ("reader plugins can't attach
+   behaviour to the layers they create") is worth raising upstream; @TimMonko
+   offered napari-side help in #960.
+3. **fps consistency.** Drops use `fps=None` and so show frame indices, while the
+   widget defaults to `1.0`. Should the widget default to frames too, or should
+   fps be settable on an already-loaded layer instead of re-loading? Option (b)
+   in the autopopulation note below would largely answer this.
 4. **Validation cost on inference.** `infer_source_software` probes every `.csv`
    validator and `ValidVIATracksCSV` parses the whole file, so dropping a large
-   non-VIA `.csv` pays that cost before falling through. A cheap header-only
-   pre-check in `ValidVIATracksCSV` would help; separate backend issue.
+   non-VIA `.csv` pays that cost before falling through. A header-only pre-check
+   in `ValidVIATracksCSV` would help; separate backend issue.
 5. **Ambiguous `.h5`.** A file matching both DLC and SLEAP validators makes
-   `infer_source_software` raise (only the DLC/LP pair is whitelisted). On drop
+   `infer_source_software` raise (only the DLC/LP pair is whitelisted), so on drop
    we can only error and redirect to the widget. Should napari get a
-   disambiguation prompt, or should the backend expose the candidate list rather
-   than collapsing to a `ValueError`?
+   disambiguation prompt, or the backend expose the candidate list?
 6. **Order of #960 vs #896.** #896 rewrites the same widget's dropdown and form
-   layout. Whichever merges second eats a rebase. Given #896 is already open, it
-   probably should go first — but Step 1's extraction is mostly in methods #896
-   doesn't touch, so a concurrent merge is survivable. Autopopulation, if we ever
-   add it, extends automatically when #896 lands provided it queries the combo
-   via `findText` rather than naming any software — so neither PR needs to know
-   about the other beyond a rebase.
-7. **`ds.attrs["source_file"]` is inconsistent.** It is set by the DLC/LP, SLEAP,
-   VIA-tracks and NWB loaders but *not* by `from_anipose_file`
-   ([load_poses.py:677-711](movement/io/load_poses.py#L677-L711)), and it
-   survives a netCDF round trip pointing at the original third-party file. So
-   autopopulation can't use it to fill the path field, but more generally:
-   should the backend guarantee `source_file` on every loaded dataset?
-   Separate issue if so.
+   layout, so whichever merges second eats a rebase; #896 is already open and
+   probably goes first. Step 1's extraction is mostly in methods #896 doesn't
+   touch, so a concurrent merge is survivable.
+7. **`ds.attrs["source_file"]` is inconsistent.** Set by the DLC/LP, SLEAP,
+   VIA-tracks and NWB loaders but not by `from_anipose_file`
+   ([load_poses.py:677-711](movement/io/load_poses.py#L677-L711)), and it survives
+   a netCDF round trip still pointing at the original file. Should the backend
+   guarantee it on every loaded dataset? Separate issue if so.
 8. **ROI `.geojson`/`.json` drops** (out of scope here): `RegionsWidget` owns
-   region layers plus a Qt table model, so a dropped Shapes layer needs its own
-   wiring path of its own. Follow-up issue — including whether `*.json` is too greedy a
+   region layers plus a Qt table model, so a dropped Shapes layer needs a wiring
+   path of its own. Follow-up issue — including whether `*.json` is too greedy a
    pattern for movement to claim.
 
 * How can Claude verify a correct implementation?
