@@ -63,3 +63,69 @@ ROI_COLLECTION_SCHEMA: Mapping[str, Any] = {
         },
     },
 }
+
+COCO_RESULTS_SCHEMA: Mapping[str, Any] = {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "COCO Keypoint Results",
+    "description": ("Schema for validating COCO keypoint results JSON files"),
+    "type": "array",
+    "items": {
+        "type": "object",
+        "required": [
+            "image_id",
+            "category_id",
+            "keypoints",
+            "score",
+        ],
+        "properties": {
+            "image_id": {
+                "type": "integer",
+            },
+            "category_id": {
+                "type": "integer",
+            },
+            "keypoints": {
+                "type": "array",
+                "items": {
+                    "type": "number",
+                },
+            },
+            "score": {
+                "type": "number",
+            },
+        },
+    },
+}
+
+COCO_ANNOTATIONS_SCHEMA: Mapping[str, Any] = {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "COCO Keypoint Annotations",
+    "description": (
+        "Schema for validating COCO keypoint annotations JSON files"
+    ),
+    "type": "object",
+    "required": ["categories"],
+    "properties": {
+        "categories": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["id", "name", "keypoints"],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                    },
+                    "name": {
+                        "type": "string",
+                    },
+                    "keypoints": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                        },
+                    },
+                },
+            },
+        },
+    },
+}
