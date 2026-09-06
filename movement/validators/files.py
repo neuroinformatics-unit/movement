@@ -17,6 +17,8 @@ from pynwb import NWBFile
 
 from movement.utils.logging import logger
 from movement.validators._json_schemas import (
+    COCO_ANNOTATIONS_SCHEMA,
+    COCO_RESULTS_SCHEMA,
     ROI_COLLECTION_SCHEMA,
     ROI_TYPE_TO_GEOMETRY,
 )
@@ -921,6 +923,60 @@ class ValidNWBFile:
         ),
     )
     """Path to the NWB file on disk (ending in ".nwb") or an NWBFile object."""
+
+
+@define
+class ValidCocoResults:
+    """Class for validating COCO results files.
+
+    The validator ensures that the file is a valid JSON file and that it
+    contains a list of dictionaries, each with the required keys for COCO
+    results.
+    """
+
+    suffixes: ClassVar[set[str]] = {".json"}
+    """Expected suffix(es) for the file."""
+
+    schema: ClassVar[Mapping[str, Any]] = COCO_RESULTS_SCHEMA
+    """JSON schema for validating the structure of the COCO results file."""
+
+    file: Path = field(
+        converter=Path,
+        validator=validators.and_(
+            _file_validator(permission="r", suffixes=suffixes),
+            _json_validator(schema=schema, data_attr="data"),
+        ),
+    )
+    """Path to the COCO results JSON file to validate."""
+
+    data: list[dict[str, Any]] = field(init=False)
+
+
+@define
+class ValidCocoAnnotations:
+    """Class for validating COCO annotations files.
+
+    The validator ensures that the file is a valid JSON file and that it
+    contains a dictionary with the required keys for COCO annotations.
+    """
+
+    suffixes: ClassVar[set[str]] = {".json"}
+    """Expected suffix(es) for the file."""
+
+    schema: ClassVar[Mapping[str, Any]] = COCO_ANNOTATIONS_SCHEMA
+    """JSON schema for validating the structure of the COCO
+    annotations file."""
+
+    file: Path = field(
+        converter=Path,
+        validator=validators.and_(
+            _file_validator(permission="r", suffixes=suffixes),
+            _json_validator(schema=schema, data_attr="data"),
+        ),
+    )
+    """Path to the COCO annotations JSON file to validate."""
+
+    data: dict[str, Any] = field(init=False)
 
 
 def _check_roi_type_matches_geometry(data: Mapping[str, Any]) -> None:
