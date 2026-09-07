@@ -162,7 +162,7 @@ ds_new = ds_orig.copy()
 # Apply some processing to the position data variable.
 # e.g. a rolling median filter
 ds_new["position"] = rolling_filter(
-  ds_orig["position"], window=5, statistic="median"
+    ds_orig["position"], window=5, statistic="median"
 )
 
 # Save the processed dataset to a netCDF file
