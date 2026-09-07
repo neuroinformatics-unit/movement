@@ -472,7 +472,7 @@ def load_multiview_dataset(
     Notes
     -----
     The attributes of the resulting dataset will be taken from the first
-    dataset specified in ``file_path_dict``. This is the default
+    dataset specified in ``file_dict``. This is the default
     behaviour of :func:`xarray.concat` used under the hood.
 
     All input views must share identical ``time`` coordinates. If they
