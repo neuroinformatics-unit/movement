@@ -139,7 +139,6 @@ def test_3d_view_disables_editing_after_widget_closed(
     assert points_layer.editable
 
 
-
 def test_connect_viewer_callbacks_twice_does_not_duplicate(
     make_napari_viewer_proxy,
 ):
