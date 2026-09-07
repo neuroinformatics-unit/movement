@@ -199,9 +199,19 @@ connection it makes is to a *viewer-level* emitter (`viewer.layers.events`,
  # reader.py
  def read_dataset(path):
      ds = load_dataset(path, ...)
-+    connect_viewer_callbacks(napari.current_viewer())
++    viewer = napari.current_viewer()
++    if viewer is not None:                    # None if no active Qt window
++        connect_viewer_callbacks(viewer)
      return ds_to_layer_data_tuples(ds, Path(path).name)
 ```
+
+`napari.current_viewer()` returns `None` whenever there is no active Qt main
+window ([viewer.py:300-307](https://github.com/napari/napari/blob/v0.6.6/napari/viewer.py#L300-L307)
+→ [qt_main_window.py:275-277](https://github.com/napari/napari/blob/v0.6.6/napari/_qt/qt_main_window.py#L275-L277)),
+hence the guard. Without it the reader would raise `AttributeError`, which
+napari surfaces to the user as a `ReaderPluginError` — and the "reader as a pure
+function" tests below, which call `read_dataset` with no viewer at all, would
+fail.
 
 
 ### Set initial state
@@ -371,7 +381,8 @@ def napari_get_reader(path) -> ReaderFunction | None:
 def read_dataset(paths) -> list[tuple[Any, dict, str]]:
     ds = load_dataset(path, source_software="auto")
     # branch for netcdf would use load_movement_netcdf
-    connect_viewer_callbacks(napari.current_viewer())
+    if (viewer := napari.current_viewer()) is not None:
+        connect_viewer_callbacks(viewer)
     return ds_to_layer_data_tuples(ds, Path(path).name)
 ```
 
@@ -551,7 +562,8 @@ def read_dataset(path) -> list[tuple[Any, dict, str]]:
                        "select the source software explicitly.")
             continue                    # skip this file, keep the others
         layer_data += ds_to_layer_data_tuples(ds, Path(p).name)   # Step 1
-    connect_viewer_callbacks(napari.current_viewer())             # Step 4
+    if (viewer := napari.current_viewer()) is not None:           # Step 4
+        connect_viewer_callbacks(viewer)
     return layer_data or [(None,)]      # napari's "no layers" sentinel
 ```
 
@@ -567,6 +579,9 @@ def read_dataset(path) -> list[tuple[Any, dict, str]]:
   everything unloadable is handled *inside* `read_dataset`, via `show_error` +
   the `[(None,)]` sentinel.
 - **Multi-file drops** concatenate, so one set of layers per file.
+- **`current_viewer()` is guarded**, since it is `None` when there is no active
+  Qt main window (see § *Layer wiring*, Step 3). A canvas drop always has one; a
+  headless call — including the pure-function reader tests — does not.
 
 **Manifest** — [movement/napari/napari.yaml](movement/napari/napari.yaml) gains:
 
@@ -751,77 +766,95 @@ registered in the backend but missing from the combo box).
    reader-choice dialog), a `.slp`, a VIA `.csv` and a movement `.nc` — with the
    widget open and closed, and several files at once. Confirm layer names,
    colours, tooltips and slider match the Load-button result.
+
+   Most of these files can be fetched from the sample datasets module, which
+   downloads them to a local cache and returns their paths:
+
+   ```python
+   from movement import sample_data
+
+   sample_data.list_datasets()  # 37 files currently
+   sample_data.fetch_dataset_paths("DLC_single-wasp.predictions.h5")["poses"]
+   ```
+
+   The registry covers every format the reader claims except `.nwb` and
+   movement `.nc`: DLC (`.h5` and `.csv`), LP (`.csv`), SLEAP (`.slp` and
+   `.analysis.h5`), VIA-tracks (`.csv`) and Anipose
+   (`anipose_mouse-paw_anipose-paper.triangulation.csv`). For the `.nc` case,
+   save a dataset from the widget's `DataSaver` first; the `.nwb` case needs a
+   file of our own or the `tests/fixtures/files.py` fixtures.
+
 * `pytest tests/test_unit/test_napari_plugin tests/test_unit/test_io` and
    `pre-commit run --all-files`.
 
 
 ## Points to discuss
 
-1. **Sequencing against [#959](https://github.com/neuroinformatics-unit/movement/issues/959).** Step 2's `load_movement_netcdf` is deleted the
-   moment [#959](https://github.com/neuroinformatics-unit/movement/issues/959) lands, so the team may prefer to land [#959](https://github.com/neuroinformatics-unit/movement/issues/959) first. Related, and
-   [#959](https://github.com/neuroinformatics-unit/movement/issues/959)'s call rather than this PR's: @niksirbi suggested there that
-   `load_dataset` validate netCDF only *minimally*, with the GUI's stricter
-   requirements enforced at the conversion layer instead — a
+1. **Relation to [#959](https://github.com/neuroinformatics-unit/movement/issues/959).** Step 2's `load_movement_netcdf` would be deleted if [#959](https://github.com/neuroinformatics-unit/movement/issues/959) is merged, so the team may prefer to land [#959](https://github.com/neuroinformatics-unit/movement/issues/959) first.
+
+2. **GUI-specific validation**
+   In [#959](https://github.com/neuroinformatics-unit/movement/issues/959), @niksirbi suggested that
+   `load_dataset` could validate netCDF only *minimally*, with the GUI's stricter
+   requirements enforced at the conversion layer instead. This could be a
    `validate_ds_for_napari(ds)` at the top of `ds_to_layer_data_tuples`, giving
    the GUI-compatibility rules a single home that `gui.md` could point at. Not
    needed for drag-and-drop (third-party datasets are valid by construction) and
    a behaviour change, so it is deliberately left out here.
-2. **The reader's dependency on `current_viewer()`.** The reader must call
-   `connect_viewer_callbacks(napari.current_viewer())`, which assumes a non-`None`
-   viewer — true for a canvas drop, worth an explicit guard for the
-   headless/`viewer.open` case. The underlying gap ("reader plugins can't attach
-   behaviour to the layers they create") is worth raising upstream; @TimMonko
-   offered napari-side help in [#960](https://github.com/neuroinformatics-unit/movement/issues/960).
-3. **fps consistency.** Drops use `fps=None` and so show frame indices, while the
-   widget defaults to `1.0`. Should the widget default to frames too, or should
-   fps be settable on an already-loaded layer instead of re-loading? Option (b)
-   in the autopopulation note below would largely answer this.
-4. **Validation cost on inference.** `infer_source_software` probes every `.csv`
+
+3. **The reader's dependency on `current_viewer()`.** The guard itself is
+   settled (Step 3), but the gap underneath is not: a reader plugin gets no
+   handle on the viewer its layers are going into, and has to reach for a
+   global. A knock-on is that `current_viewer()` gives the *active* window's
+   viewer, so with two viewers open the reader could in principle wire the wrong
+   one — in practice the drop target is the active window. This is a napari limitation at the moment though.
+
+4. **fps consistency.** Drops use `fps=None` and thus show frame indices, while the
+   widget defaults to `1.0`. Should these be made consistent?
+
+5. **VIA tracks validation cost.** `infer_source_software` probes every `.csv`
    validator and `ValidVIATracksCSV` parses the whole file, so dropping a large
    non-VIA `.csv` pays that cost before falling through. A header-only pre-check
-   in `ValidVIATracksCSV` would help; separate backend issue.
-5. **Ambiguous `.h5`.** A file matching both DLC and SLEAP validators makes
+   in `ValidVIATracksCSV` would help. Should this be part of this PR?
+
+6. **Ambiguous `.h5`.** A file matching both DLC and SLEAP validators makes
    `infer_source_software` raise (only the DLC/LP pair is whitelisted), so on drop
    we can only error and redirect to the widget. Should napari get a
    disambiguation prompt, or the backend expose the candidate list?
-6. **Order of [#960](https://github.com/neuroinformatics-unit/movement/issues/960) vs [#896](https://github.com/neuroinformatics-unit/movement/pull/896).** [#896](https://github.com/neuroinformatics-unit/movement/pull/896) rewrites the same widget's dropdown and form
+
+7. **Relation to [#896](https://github.com/neuroinformatics-unit/movement/pull/896).** [#896](https://github.com/neuroinformatics-unit/movement/pull/896) rewrites the same widget's dropdown and form
    layout, so whichever merges second eats a rebase; [#896](https://github.com/neuroinformatics-unit/movement/pull/896) is already open and
-   probably goes first. Step 1's extraction is mostly in methods [#896](https://github.com/neuroinformatics-unit/movement/pull/896) doesn't
+   probably goes first. Step 1's extraction is mostly in methods that [#896](https://github.com/neuroinformatics-unit/movement/pull/896) doesn't
    touch, so a concurrent merge is survivable.
-7. **`ds.attrs["source_file"]` is inconsistent.** Set by the DLC/LP, SLEAP,
+
+8. **`ds.attrs["source_file"]` is inconsistent.** Set by the DLC/LP, SLEAP,
    VIA-tracks and NWB loaders but not by `from_anipose_file`
-   ([load_poses.py:677-711](movement/io/load_poses.py#L677-L711)), and it survives
-   a netCDF round trip still pointing at the original file. Should the backend
-   guarantee it on every loaded dataset? Separate issue if so.
-8. **ROI `.geojson`/`.json` drops** (out of scope here): `RegionsWidget` owns
-   region layers plus a Qt table model, so a dropped Shapes layer needs a wiring
-   path of its own. Follow-up issue — including whether `*.json` is too greedy a
-   pattern for movement to claim.
+   ([load_poses.py:677-711](movement/io/load_poses.py#L677-L711)). Additionally,
+   a netCDF round trip still points at the original file. Should the backend
+   guarantee a `source_file` defined on every loaded dataset? Separate issue if so.
 
-* How can Claude verify a correct implementation?
-When implemented, drag-and-dropping any of the third-party file supported via the widget (DLC `.h5`, DLC `.csv`, SLEAP analysis `.h5` or `.slp`, Anipose `.csv`, LP `.csv`, VIA `.csv` or `.nwb`) should produce produce the same Points, Tracks (and if loading bounding boxes data, Shapes layers) as the widget would produce today when loading those files via the file path input and selecting the corresponding source software.
 
-* How should we document the drag-and-drop functionality?
+9. **Potential follow-up: autopopulate loader widget form after drag-and-dropping.**
 
-* Thoughts on autopopulation of widget form after drag-and-dropping
    - It would let a user who dropped a file tweak `fps` (or, post-[#896](https://github.com/neuroinformatics-unit/movement/pull/896), loader
      kwargs) without re-typing the path and source software.
+
    - It needs no reader→widget coupling: the source software and `ds.attrs`
      already ride on the layer metadata, and `wire_unwired_points_layers` runs for
      every inserted movement layer, so the widget can fill its own fields from a
      wired layer. It can therefore be added later without revisiting the reader.
-   - **What does Load do?** As things stand, drop → change fps to 30 → **Load**
+
+   - **What would the Load button do?** As things stand, drop → change fps to 30 → **Load**
      adds a *second* set of layers and leaves the user to delete the first.
-     Options: (a) accept it — it matches today's behaviour when you load the
+     Options: (a) accept it this, it matches today's behaviour when you load the
      same file twice; (b) detect that the form still describes an existing
-     movement layer and offer to replace it in place; (c) add a distinct
-     "Reload" affordance that appears once a layer is wired up. I (SM) think (a)
+     `movement` layer and offer to replace it in place; (c) add a distinct
+     "Reload" affordance that appears once a layer is wired up. I (@sfmig) think (a)
      would be fine for a first version. Claude suggests "(b) is arguably
-     what a user expects after the form has been filled in *for* them. This is
-     the real design decision, not the code."
-   - Anipose and NWB have no combo entry (see the table above), and
+     what a user expects after the form has been filled in *for* them."
+
+   - Anipose and NWB have no combo entry, and
      `setCurrentText` on a non-editable `QComboBox` silently keeps the previous
-     selection — so a dropped Anipose file would show its path next to
+     selection. So a dropped Anipose file would show its path next to
      `DeepLabCut` and **Load** would attempt the wrong load. Autopopulation
      would need an explicit "can't configure this one here" state rather than a
      silent no-op. Stops mattering once [#896](https://github.com/neuroinformatics-unit/movement/pull/896) is merged.
