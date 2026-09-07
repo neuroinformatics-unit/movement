@@ -31,12 +31,12 @@ repos:
           - id: rst-directive-colons
           - id: rst-inline-touching-normal
     - repo: https://github.com/astral-sh/ruff-pre-commit
-      rev: v0.16.1
+      rev: v0.16.6
       hooks:
           - id: ruff
           - id: ruff-format
     - repo: https://github.com/pre-commit/mirrors-mypy
-      rev: v2.3.0
+      rev: v2.3.1
       hooks:
           - id: mypy
             exclude: ^(tests|docs|examples)/
