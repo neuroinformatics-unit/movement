@@ -696,37 +696,54 @@ registered in the backend but missing from the combo box).
 
 ## Overview of tests to write
 
-1. **Unit — reader as a pure function** (no viewer needed, a first for this test
-   package): `napari_get_reader` returns a callable for `dlc_h5_file`,
+1. **Unit tests with reader as a pure function** (no viewer needed, a first for this test
+   package). Test should verify that:
+
+   * `napari_get_reader` returns a callable for `dlc_h5_file`,
    `dlc_csv_file`, `lp_csv_file`, `sleap_slp_file`, `sleap_analysis_file`,
    `anipose_csv_file`, `via_tracks_csv`, `valid_netcdf_file`
-   ([tests/fixtures/files.py](tests/fixtures/files.py)) and `None` for
-   `wrong_extension_file`, `directory`, `nonexistent_file`. Reader function
-   returns 2 tuples for poses, 3 for bboxes, with layer types
+   ([tests/fixtures/files.py](tests/fixtures/files.py)).
+   * `napari_get_reader` returns `None` for
+   `wrong_extension_file`, `directory`, `nonexistent_file`.
+   * Reader function returns 2 tuples for poses, 3 for bboxes, with layer types
    `("points","tracks"[,"shapes"])` and `meta["metadata"][POINTS_LAYER_KEY] is True`.
-   Bad content (`readable_csv_file`, `invalid_dstype_netcdf_file`,
+   * If bad content is passed (`readable_csv_file`, `invalid_dstype_netcdf_file`,
    `unopenable_netcdf_file`, `invalid_netcdf_file_missing_confidence`) →
-   `show_error` called, `[(None,)]` returned. Manifest patterns equal
-   `get_supported_source_software()` ∪ `{".nc"}`; `npe2.PluginManifest` validates
+   `show_error` is called and `[(None,)]` is returned.
+   * Plugin manifest patterns equal `get_supported_source_software()` ∪ `{".nc"}` and `npe2.PluginManifest` validates
    the YAML.
-2. **Unit — parity with the widget**: for a sample file, the layer
-   data/properties/metadata from `ds_to_layer_data_tuples` are identical to what
+
+2. **Unit tests checking parity with the widget**: for a sample file, the layer
+   data, properties and metadata returned from `ds_to_layer_data_tuples` are identical to what
    the `loaded_data_loader` fixture ([tests/fixtures/napari.py](tests/fixtures/napari.py))
-   produces via the Load button. This is the key regression guard for the refactor.
-3. **Unit — layer wiring**: with `make_napari_viewer_proxy`, three cases —
-   widget then `viewer.open(path, plugin="movement")`, open-then-widget, and
-   **open with the widget never instantiated at all** (the case
-   `fix/layer-wiring-lifetime` makes work; it is the one that would silently
-   regress if the reader forgot its `connect_viewer_callbacks` call). Assert
-   `TRACKS_LAYER_KEY` resolved, `editable is True`, the frame slider range
-   correct, and that the existing `move_point`/`remove_point` fixtures still keep
-   the Tracks layer in sync. Add a fourth case mirroring
+   produces via the Load button. This is the regression guard for the refactor.
+
+3. **Unit tests checking layer wiring**, using the `make_napari_viewer_proxy`
+   fixture. Each test opens a file via the reader
+   (`viewer.open(path, plugin="movement")`) in one of four scenarios:
+
+   * widget instantiated first, then open;
+   * open first, then widget instantiated;
+   * **open with the widget never instantiated at all** — the scenario that
+   `fix/layer-wiring-lifetime` makes work, and the one that would silently
+   regress if the reader forgot its `connect_viewer_callbacks` call;
+   * open, then widget instantiated and closed — mirroring
    `test_point_edit_syncs_tracks_layer_after_widget_is_gone`
-   ([test_layer_wiring.py:36](tests/test_unit/test_napari_plugin/test_layer_wiring.py#L36)):
-   drop, open then close the widget, edit, sync still holds.
-4. **Integration**: drop → edit → `DataSaver` save → re-open round trip, since
-   [save_widget.py](movement/napari/save_widget.py) reads `POINTS_PROPERTIES_KEY`
-   and `DATASET_ATTRS_KEY` off reader-created layers.
+   ([test_layer_wiring.py:36](tests/test_unit/test_napari_plugin/test_layer_wiring.py#L36)).
+
+   In every scenario, the tests should verify that:
+
+   * `TRACKS_LAYER_KEY` is resolved to the Tracks layer object;
+   * the Points layer has `editable is True`;
+   * the frame slider range is correct;
+   * editing a point (with the existing `move_point`/`remove_point` fixtures)
+   keeps the Tracks layer in sync.
+
+4. **Integration test** of the full drag-and-drop round trip: open a file via
+   the reader → edit a point → save with `DataSaver` → re-open the saved `.nc`.
+   This checks that [save_widget.py](movement/napari/save_widget.py), which
+   reads `POINTS_PROPERTIES_KEY` and `DATASET_ATTRS_KEY` off the layers, works
+   on reader-created layers too.
 
 
 ## Verifications for agent to run
