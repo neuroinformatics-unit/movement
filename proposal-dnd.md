@@ -4,19 +4,19 @@
 
 **What is this PR?**
 
-This PR is a detailed plan on how to implement the drag-and-drop functionality requested in [#960](https://github.com/neuroinformatics-unit/movement/issues/960).
+This PR is a detailed plan on how to implement the drag-and-drop functionality in our napari widget ([#960](https://github.com/neuroinformatics-unit/movement/issues/960)).
 
-The plan has been generated discussing with Claude Code but is meant to be read by humans. The idea is to present the suggested implementation in detail,so that we can discuss it with @neuroinformatics-unit/movement-active-devs before we implement it.
+The plan has been generated discussing with Claude Code but is meant to be read by humans. The idea is to present the suggested implementation in detail, so that we can discuss it with @neuroinformatics-unit/movement-active-devs before we implement it.
 
-This is an attempt at exploring different ways in which we can implement AI in our workflows, motivated by the idea that generating AI-aided code is now faster, but the discussion is the bottleneck
+This is an attempt at exploring different ways in which we can implement AI in our workflows, motivated by the idea that generating AI-aided code is now faster, but the discussion is the bottleneck (see https://githubnext.com/projects/chopin/ for a description of the problem).
 
 **Why is the proposed feature needed?**
 
-Getting tracked data into the viewer today requires opening the movement widget, picking the source software from a combo box, setting fps and browsing for a file ([movement/napari/loader_widgets.py](movement/napari/loader_widgets.py)). The issue is discussed in detail in [#960](https://github.com/neuroinformatics-unit/movement/issues/960).
+Getting pose tracks into the napari viewer today requires launching the `movement` widget, picking the source software from a combo box, setting fps and browsing for a file.
 
-For videos an images, users can already drag-and-drop the file on the canvas, which is super convenient ([docs/source/user_guide/gui.md:43](docs/source/user_guide/gui.md#L43)). It would be great if we supported the same for pose track files too.
+For videos an images, users can already drag-and-drop the file on the napari canvas, which is very convenient. It would be great if we supported the same for pose track files too.
 
-Since PR [#920](https://github.com/neuroinformatics-unit/movement/pull/920) the backend can already infer the `source_software` given a file without asking the user. So maybe we are well positioned to implement this feature now.
+Since PR [#920](https://github.com/neuroinformatics-unit/movement/pull/920) the backend can already infer the `source_software` given a file. So maybe we are well positioned to implement the drag-and-drop feature now.
 
 **References**
 * This PR proposes an implementation that addresses [#960](https://github.com/neuroinformatics-unit/movement/issues/960)
@@ -29,9 +29,11 @@ Since PR [#920](https://github.com/neuroinformatics-unit/movement/pull/920) the 
 ### napari Reader Contribution
 We will need to implement a napari [Contribution](https://napari.org/stable/plugins/technical_references/contributions.html) of type `reader`.
 
-A Contribution allows us to extend napari functionality. The `reader` type allows us to extend the file reading functionalities specifically. Contributions are defined in the plugin manifest (the `movement/napari/napari.yaml` file).
+A Contribution allows us to extend napari functionality. The `reader` type allows us to extend the file reading functionalities specifically. Contributions are defined in the plugin manifest (the `movement/napari/napari.yaml` file; see reference [here](https://napari.org/stable/plugins/technical_references/contributions.html#readercontribution)).
 
-For our specific case, the manifest currently only declares the meta widget. Adding a reader means adding a `commands` entry pointing at the hook function, plus a `readers` entry with the filename patterns that trigger it (see example [here](https://napari.org/stable/plugins/technical_references/contributions.html#readercontribution)):
+Our plugin manifest currently only declares the meta widget. Adding a reader would mean adding:
+* a `commands` entry pointing at the hook function, and
+* a `readers` entry with the filename patterns that trigger it.
 
 ```yaml
 name: movement
@@ -57,11 +59,23 @@ contributions:
    # ----------------------------------------------------
 ```
 
-For the filenames that survive the pattern test, napari will call the function returned by the `command` defined in the plugin manifest (which here points to a function called `napari_get_reader()`).
+For the filenames that survive the pattern test defined in the reader section, napari will call the function returned by the `command` entry (in the example above, a function called **`napari_get_reader()`**).
 
 `napari_get_reader()` returns a callable: a **reader function** for the given input path. The reader is meant to be cheap: the napari docs describe it as lightweight validation without loading the full file content (e.g. peeking at a header rather than loading fully). `napari_get_reader()` should return a reader function or `None` to decline (and then napari moves on to reader Contributions from other plugins).
 
-The reader function returned by `napari_get_reader()` should take the path(s) and return a list of `LayerData` tuples `(data, attributes, layer_type)` where `layer_type` is `'points'`, `'tracks'`, `'shapes'`, etc. (defaults to `'image'` if omitted).
+```python
+def napari_get_reader(path: str | list[str]) -> Callable | None:
+    """Return `read_dataset` below, or None to decline."""
+```
+
+The reader function returned by napari_get_reader() should take the path(s) and return a list of LayerData tuples (data, attributes, layer_type):.
+
+```python
+def read_dataset(path: str | list[str]) -> list[tuple[Any, dict, str]]:
+    """Return one (data, attributes, layer_type) tuple per layer."""
+```
+
+where `layer_type` is `'points'`, `'tracks'`, `'shapes'`, etc. (defaults to `'image'` if omitted).
 
 On conflicts (i.e. when the filename patterns from several plugin readers match a single file), napari presents a reader-choice dialog with a "remember this choice" option that gets written to user settings.
 
@@ -71,22 +85,32 @@ napari docs provide a [Readers Contribution guide](https://napari.org/stable/plu
 
 ### Layer wiring
 
-A reader contribution defined in `napari.yaml` is registered by npe2 at install time. This means it runs whether or not any `movement` widget has ever been instantiated.
+A reader contribution defined in `napari.yaml` is registered by the napari plugin engine, [npe2](https://github.com/napari/npe2), at install time. This means it runs whether or not any `movement` widget has ever been instantiated.
 
-The reader path returns `(data, attributes, layer_type)` tuples that napari turns into layers directly. This is different from the path of creation of `movement` napari layers through the form widget: in that case, they go through `DataLoader._add_points_layer` / `_add_tracks_layer`, which is where relevant wiring happens .
+The reader path returns `(data, attributes, layer_type)` tuples that napari turns into layers directly. This is different from the path of creation of `movement` napari layers through the form widget: in that case, they go through `DataLoader._add_points_layer` / `_add_tracks_layer`, which also do additional wirings to the layers after they are created.
+
+In `_add_points_layer`, these are the wirings that take place:
+
+* `self.points_layer.events.data.connect(on_points_data_changed)`: subscribes to the layer's event emitter so that dragging/deleting a point re-syncs the companion Tracks layer.
+* `self.points_layer.editable = frame_axis_is_sliced(self.viewer)`: `editable` is not a Points.__init__ kwarg, so it can only be assigned on the instance. It also needs the viewer, which the reader path doesn't have at tuple-build time.
+* `set_point_symbol_by_edited(self.points_layer)`: mutates `layer.symbol` per point. However, this one is expressible in the tuple (`symbol` is an __init__ kwarg), so it can be pre-computed into the tuple's attributes instead of being applied post-creation as they are today
+
+In `_add_tracks_layer`:
+
+* `self.points_layer.metadata[TRACKS_LAYER_KEY] = self.tracks_layer`: stores the Tracks layer object on the Points layer's metadata.
+
 
 > [!NOTE]
-> **The following assumes `fix/layer-wiring-lifetime`.**
-> That branch moves every sync callback out of `DataLoader` and into
+> **The following assumes that the codebase is as defined in `fix/layer-wiring-lifetime`.**
+> That branch moves every layer sync callback out of `DataLoader` and into
 > module-level functions in
 > [movement/napari/layer_wiring.py](movement/napari/layer_wiring.py), together
 > with the metadata keys ([:32-35](movement/napari/layer_wiring.py#L32-L35)).
 > The viewer-level connections are made by `connect_viewer_callbacks(viewer)`
 > ([:44](movement/napari/layer_wiring.py#L44)).
 
-The **per-layer** and **viewer-level** connections are defined in `movement/napari/layer_wiring.py`. These are the wirings that would need to be manually wired during drag-and-drop:
-* three things on the Points layer — connect `events.data`, set `editable`, and resolve `TRACKS_LAYER_KEY` to the companion Tracks object
-* the viewer wirings, that can be done with one `connect_viewer_callbacks` call.
+
+There are also viewer-level connections that are defined in `connect_viewer_callbacks` and called when the loader widget is instantiated. All wirings are are defined in `movement/napari/layer_wiring.py`, and would need to be manually wired during drag-and-drop.
 
 For a more detailed description, see the collapsed table below.
 
@@ -112,15 +136,15 @@ For a more detailed description, see the collapsed table below.
 
 #### How will the wiring be implemented?
 
-The reader would call `connect_viewer_callbacks` to set up the viewer connections.
+The reader function would call need to call `connect_viewer_callbacks` to set up the viewer connections. We do this in three steps.
 
-In `layer_wirings.py`, we capture the additionally required per-layer connections in a new `wire_unwired_points_layers` function.
+**Step 1:** In `layer_wirings.py`, we can collect the per-layer connections in a new `wire_unwired_points_layers` function.
 
 ```python
 # layer_wiring.py
 def wire_unwired_points_layers(viewer, event=None):
     """Wire up any movement Points layers that aren't wired up yet."""
-    FOR EACH Points layer IN viewer.layers:      # <---- full rescan, not event.value
+    FOR EACH Points layer IN viewer.layers:      # <---- full rescan, not triggered by event.value
         IF NOT metadata[POINTS_LAYER_KEY]:
             skip  # not a "movement" layer
         IF metadata HAS TRACKS_LAYER_KEY:
@@ -132,16 +156,23 @@ def wire_unwired_points_layers(viewer, event=None):
         set_point_symbol_by_edited(layer)
 ```
 
-The full of the layers rescan matters: napari inserts a reader's layers one at a time, so when
+The full rescan of the layers matters: napari inserts the layers defined by a reader one at a time, so when
 the Points layer's `inserted` fires, the Tracks layer does not exist yet. The
-Points insert event wires what it can, and the Tracks insert re-scans and resolves
-`TRACKS_LAYER_KEY`. Step 4 has the full argument, including the two alternatives
-to a rescan and why they are worse.
+Points insert event wires what it can, and the subsequent Tracks insert event re-scans and resolves
+`TRACKS_LAYER_KEY`.
 
-The `wire_unwired_points_layers` function would be connected to `viewer.layers.events.inserted` from inside `connect_viewer_callbacks`.
+**Step 2:** The `wire_unwired_points_layers` function would then be called from `connect_viewer_callbacks`, and connected to `viewer.layers.events.inserted`.
 ```diff
  # layer_wiring.py
  def connect_viewer_callbacks(viewer) -> None:
+     """Wire the layer callbacks to a viewer, skipping if already wired.
+
+     These wirings last as long as the viewer, no matter which widget requested
+     them.
++
++    Includes the insert handler that wires the per-layer callbacks onto
++    movement Points layers as they appear in the viewer.
+     """
      for action in ("inserted", "removed"):
          getattr(viewer.layers.events, action).connect(
              partial(update_frame_slider_range, viewer)
@@ -151,7 +182,19 @@ The `wire_unwired_points_layers` function would be connected to `viewer.layers.e
 +    )
 ```
 
-The reader would then call `connect_viewer_callbacks`, so the connection is in place whether or not the widget was ever opened.
+> [!NOTE]
+> **Handler** is the function attached to an event trigger. E.g. `.connect(f)` registers
+> `f` on an emitter, and napari then calls `f(event)` every time that event
+> fires, passing an event object describing what happened (for
+> `viewer.layers.events.inserted`, it passes `event.index` and `event.value`).
+> So "the insert handler" in the docstring is `wire_unwired_points_layers` in its
+> role as the function that triggers when the `inserted` event fires.
+
+The name `connect_viewer_callbacks` still fits after this addition: every
+connection it makes is to a *viewer-level* emitter (`viewer.layers.events`,
+`viewer.dims.events`), made once per viewer and outliving any widget.
+
+**Step 3:** The reader function (returned by `napari_get_reader`) would then call `connect_viewer_callbacks`, so the connection is in place whether or not the widget was ever opened.
 ```diff
  # reader.py
  def read_dataset(path):
@@ -160,12 +203,11 @@ The reader would then call `connect_viewer_callbacks`, so the connection is in p
      return ds_to_layer_data_tuples(ds, Path(path).name)
 ```
 
-Note that `read_dataset` is the reader function returned by `napari_get_reader`.
 
 ### Set initial state
-There is an additional function worth running manually too for parity with the Load button: `_set_initial_state` ([loader_widgets.py:322](movement/napari/loader_widgets.py#L322)), which puts the slider at frame 0 and makes the Points layer active.
+There is an additional function worth running manually too for parity with the Load button: `_set_initial_state`, which puts the frame slider at frame 0 and sets the Points layer as active.
 
-`_set_initial_state` only touches `viewer.dims` and `viewer.layers.selection`, so it can move to `layer_wiring.py` as `set_initial_state(viewer)`, with two additions to the original:
+This function was not moved to `layer_wiring.py` as part of the work in `fix/layer-wiring-lifetime`. However, `_set_initial_state` only touches `viewer.dims` and `viewer.layers.selection`, so it can move to `layer_wiring.py` as `set_initial_state(viewer)`, with two additions to the original:
 
 ```python
 # layer_wiring.py
@@ -182,21 +224,19 @@ def set_initial_state(viewer):
     viewer.layers.selection.active = points_layers[-1]
 ```
 
-The two additions are the `POINTS_LAYER_KEY` filter (the original selects the
-last `Points` layer of any origin, [loader_widgets.py:332-334](movement/napari/loader_widgets.py#L332-L334))
-and the empty-list guard, which is now *required*: as an insert handler this can
-fire in a viewer that holds no movement layers at all, where the original's
-`[...][-1]` would raise `IndexError`.
+The two additions are:
+* the `POINTS_LAYER_KEY` filter (the original selects the last `Points` layer of any origin, the additions selects the last movement-type Points layer), and
+* the empty-list guard, which is now *required*: as an insert handler this can fire in a viewer that holds no movement layers at all, where the original's `[...][-1]` would raise `IndexError`.
 
 
-Now the widget can call it as:
+Now the loader widget can call it as:
 ```diff
  # loader_widgets.py
 -        self._set_initial_state()
 +        set_initial_state(self.viewer)
 ```
 
-And in `layer_wiring.py` we edit `wire_unwired_points_layers` as:
+And `wire_unwired_points_layers` in `layer_wiring.py` can call it as:
 
 ```diff
  # layer_wiring.py
@@ -209,20 +249,20 @@ And in `layer_wiring.py` we edit `wire_unwired_points_layers` as:
 ```
 
 `event.value` is the layer napari just inserted (napari's `EventedList.inserted`
-emits `index` and `value`). The `event is None` branch keeps the function
-callable by hand — the module's other handlers, `update_frame_slider_range`
-([:80](movement/napari/layer_wiring.py#L80)) and
-`update_points_layers_editable` ([:142](movement/napari/layer_wiring.py#L142)),
-take `event=None` for the same reason, and tests will want it.
+emits `index` and `value`). The `event is None` branch is only there so the
+function stays callable as a plain function in tests without tripping over
+`event.value` — as the module's other handlers already are, e.g.
+`update_frame_slider_range(loader.viewer)` at
+[test_data_loader_widget.py:815](tests/test_unit/test_napari_plugin/test_data_loader_widget.py#L815).
 
-Note that we would need to add the "movement" key to all movement layers (right
-now only the Points layer is identifiable as ours). If not, the Points layer
-would be de-selected by the subsequent Tracks insert (and, for bboxes, the
+Note that the diff above implies all movement layers have a "movement" key (right
+now, only the Points layer is identifiable as ours). If not, the Points layer
+would be de-selected by the subsequent Tracks insert (and, for bboxes, the subsequent
 Shapes insert), since napari makes each newly inserted layer the active one.
-Only the selection is at stake here — the slider stays at frame 0 either way.
+Only the layer selection behaviour is at stake here — the slider stays at frame 0 either way.
 
-**Where do we add the keys?** In one place: the three `metadata` dicts that
-`ds_to_layer_data_tuples` assembles (Step 1). After that refactor, both
+**Where do we add the "movement" keys?** In one place: the three `metadata` dicts that
+`ds_to_layer_data_tuples` assembles (see Step 1 below). After that refactor, both
 the reader path *and* the Load button path build their layers from those tuples, so
 `_add_points_layer` / `_add_tracks_layer` / `_add_boxes_layer` stop writing
 metadata of their own and there is nothing to keep in sync.
@@ -237,19 +277,17 @@ We rely on `load_dataset` for the drag-and-drop, so what is droppable is what th
 | Anipose, NWB                | ✅ | ❌ |
 | movement `.nc`              | ❌ (until #959) | ✅ |
 
-* So Anipose and NWB files will be droppable, but not selectable through the
-  form widget yet.
-* ROI `.geojson`/`.json` drops are out of scope.
+So Anipose and NWB files will be droppable, but not selectable through the form widget yet. ROI `.geojson`/`.json` files are not pose track file so their drops are out of scope.
 
 
 
 ## Detailed implementation
 
-### At a glance
+With the proposed approach, both paths — the Load button and a canvas drop — converge on one pure function
+(`ds_to_layer_data_tuples`), and both get apply their wirings from one insert
+handler (`wire_unwired_points_layers`).
 
-Both paths — the Load button and a canvas drop — converge on one pure function
-(`ds_to_layer_data_tuples`), and both get their live behaviour from one insert
-handler (`wire_unwired_points_layers`). ✨ = new in this PR.
+The symbol ✨ represents "new in this PR".
 
 ```mermaid
 flowchart TD
@@ -270,15 +308,130 @@ flowchart TD
 
 ### The seven changes
 
-| # | Change | Signature / diff |
-|---|---|---|
-| 1 | **Extract layer construction** into a viewer-free function, so the reader and the Load button build layers identically | <pre># new movement/napari/layers.py<br>def ds_to_layer_data_tuples(<br>    ds, name_suffix<br>) -> list[FullLayerData]: ...</pre> |
-| 2 | **Extract the netCDF path** — the body of `DataLoader._load_netcdf_file`, raising instead of `show_error`. Deleted once #959 lands | <pre># movement/napari/layers.py<br>def load_movement_netcdf(path) -> xr.Dataset: ...</pre> |
-| 3 | **Add the reader contribution** — suffix matching in the hook; loading, inference and error reporting in the reader function it returns | <pre># new movement/napari/reader.py<br>def napari_get_reader(path) -> ReaderFunction \| None:<br>    if any suffix unsupported:      # mixed multi-file drop<br>        return None<br>    return read_dataset             # the reader function<br><br>def read_dataset(paths) -> list[FullLayerData]:<br>    ds = load_dataset(path, source_software="auto")<br>    connect_viewer_callbacks(napari.current_viewer())<br>    return ds_to_layer_data_tuples(ds, Path(path).name)</pre> plus `commands` + `readers` in `napari.yaml` |
-| 4 | **Wire up the layers the reader created** — a full rescan on every insert, also applying `set_initial_state` | <pre># layer_wiring.py<br>def wire_unwired_points_layers(viewer, event=None): ...<br><br> def connect_viewer_callbacks(viewer):<br>+    viewer.layers.events.inserted.connect(<br>+        partial(wire_unwired_points_layers, viewer)<br>+    )</pre> |
-| 5 | **Leave the widget's suffix dicts alone** — they duplicate `get_supported_source_software()`, but open PR #896 is already fixing exactly that | *(no code)* |
-| 6 | **Tests** — see § *Overview of tests to write*. The load-bearing one is parity: a dropped file must produce the same layers as the Load button | *(see below)* |
-| 7 | **Docs** — drag-and-drop in `docs/source/user_guide/gui.md`; see § *Files changed* | *(see below)* |
+<table>
+<thead>
+<tr><th>#</th><th>Change</th><th>Signature / diff</th></tr>
+</thead>
+<tbody>
+
+<tr>
+<td>1</td>
+<td>
+
+**Extract layer construction** into a viewer-free function, so the reader and the Load button build layers identically
+
+</td>
+<td>
+
+```python
+# new movement/napari/layers.py
+def ds_to_layer_data_tuples(
+    ds, name_suffix
+) -> list[tuple[Any, dict, str]]: ...
+```
+
+</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>
+
+**Extract the netCDF path** — the body of `DataLoader._load_netcdf_file`, raising instead of `show_error`. Deleted once #959 lands
+
+</td>
+<td>
+
+```python
+# movement/napari/layers.py
+def load_movement_netcdf(path) -> xr.Dataset: ...
+```
+
+</td>
+</tr>
+
+<tr>
+<td>3</td>
+<td>
+
+**Add the reader contribution** — suffix matching in the hook; loading, inference and error reporting in the reader function it returns
+
+</td>
+<td>
+
+```python
+# new movement/napari/reader.py
+def napari_get_reader(path) -> ReaderFunction | None:
+    if any suffix unsupported:      # mixed multi-file drop
+        return None
+    return read_dataset             # the reader function
+
+
+def read_dataset(paths) -> list[tuple[Any, dict, str]]:
+    ds = load_dataset(path, source_software="auto")
+    connect_viewer_callbacks(napari.current_viewer())
+    return ds_to_layer_data_tuples(ds, Path(path).name)
+```
+
+plus `commands` + `readers` in `napari.yaml`
+
+</td>
+</tr>
+
+<tr>
+<td>4</td>
+<td>
+
+**Wire up the layers the reader created** — a full rescan on every insert, also applying `set_initial_state`
+
+</td>
+<td>
+
+```diff
+ # layer_wiring.py
+ def wire_unwired_points_layers(viewer, event=None): ...
+
+ def connect_viewer_callbacks(viewer):
++    viewer.layers.events.inserted.connect(
++        partial(wire_unwired_points_layers, viewer)
++    )
+```
+
+</td>
+</tr>
+
+<tr>
+<td>5</td>
+<td>
+
+**Leave the widget's suffix dicts alone** — they duplicate `get_supported_source_software()`, but open PR #896 is already fixing exactly that
+
+</td>
+<td><i>(no code)</i></td>
+</tr>
+
+<tr>
+<td>6</td>
+<td>
+
+**Tests** — see § *Overview of tests to write*. The load-bearing one is parity: a dropped file must produce the same layers as the Load button
+
+</td>
+<td><i>(see below)</i></td>
+</tr>
+
+<tr>
+<td>7</td>
+<td>
+
+**Docs** — drag-and-drop in `docs/source/user_guide/gui.md`; see § *Files changed*
+
+</td>
+<td><i>(see below)</i></td>
+</tr>
+
+</tbody>
+</table>
 
 ### Steps in detail
 
@@ -292,7 +445,7 @@ Each step below expands to the full argument.
 ```python
 def ds_to_layer_data_tuples(
     ds: xr.Dataset, name_suffix: str
-) -> list[FullLayerData]:
+) -> list[tuple[Any, dict, str]]:
     """Build napari (data, meta, layer_type) tuples from a movement dataset."""
     # ds_to_napari_layers → data_not_nan mask → position_is_nan property
     # → color/text properties → <Style>.as_kwargs() + metadata dict
@@ -382,7 +535,7 @@ def napari_get_reader(path: str | list[str]) -> ReaderFunction | None:
         return None                     # mixed multi-file drop only
     return read_dataset
 
-def read_dataset(path) -> list[FullLayerData]:
+def read_dataset(path) -> list[tuple[Any, dict, str]]:
     layer_data = []
     for p in ([path] if isinstance(path, str) else path):
         try:
@@ -650,3 +803,6 @@ When implemented, drag-and-dropping any of the third-party file supported via th
      `DeepLabCut` and **Load** would attempt the wrong load. Autopopulation
      would need an explicit "can't configure this one here" state rather than a
      silent no-op. Stops mattering once #896 is merged.
+
+## Feedback on the format of this proposal
+Any comments on the sections and formatting of this proposal are more than welcome.
