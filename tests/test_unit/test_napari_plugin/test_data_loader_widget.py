@@ -528,7 +528,13 @@ def test_dimension_slider_with_nans(
     make_napari_viewer_proxy,
 ):
     """Test that the dimension slider is set to the total number of frames
-    when data layers with NaNs are loaded.
+    when data layers with NaNs are loaded, and stays there after a point edit.
+
+    napari recomputes ``dims.range`` from the live (NaN-filtered) layer extent
+    on every data edit, which would drop the padding for leading/trailing
+    all-NaN frames. ``update_frame_slider_range`` is wired to the Points
+    layer's ``events.data`` to re-pad it, so the range (and the playhead) must
+    not shift when a point is dragged.
     """
     # Get data with nans at the expected locations
     nan_location = {
@@ -571,9 +577,16 @@ def test_dimension_slider_with_nans(
     data_loader_widget._on_load_clicked()
 
     # Check the frame slider is set to the full range of frames
-    assert viewer.dims.range[0] == RangeTuple(
-        start=0.0, stop=ds.position.shape[0] - 1, step=1.0
-    )
+    full_range = RangeTuple(start=0.0, stop=ds.position.shape[0] - 1, step=1.0)
+    assert viewer.dims.range[0] == full_range
+
+    # Edit a point via the real .data setter (what a drag does under the
+    # hood): this makes napari recompute dims.range from the live extent.
+    # The range must still span the full frame count, NaN frames included.
+    new_data = data_loader_widget.points_layer.data.copy()
+    new_data[0, 1:] = [100, 200]
+    data_loader_widget.points_layer.data = new_data
+    assert viewer.dims.range[0] == full_range
 
 
 @pytest.mark.parametrize(

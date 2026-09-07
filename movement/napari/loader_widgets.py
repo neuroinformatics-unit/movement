@@ -1,5 +1,6 @@
 """Widgets for loading movement datasets from file."""
 
+from functools import partial
 from pathlib import Path
 
 import numpy as np
@@ -32,6 +33,7 @@ from movement.napari.layer_wiring import (
     frame_axis_is_sliced,
     on_points_data_changed,
     set_point_symbol_by_edited,
+    update_frame_slider_range,
 )
 from movement.utils.logging import logger
 from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
@@ -363,6 +365,10 @@ class DataLoader(QWidget):
             **points_style.as_kwargs(),
         )
         self.points_layer.events.data.connect(on_points_data_changed)
+        # Re-pad the frame slider range (if needed) after each point layer edit
+        self.points_layer.events.data.connect(
+            partial(update_frame_slider_range, self.viewer)
+        )
         self.points_layer.editable = frame_axis_is_sliced(self.viewer)
 
         # If the loaded dataset already has an `edited` property
