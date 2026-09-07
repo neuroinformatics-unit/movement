@@ -8,21 +8,6 @@ This PR is a detailed plan on how to implement the drag-and-drop functionality i
 
 The plan has been generated discussing with Claude Code but is meant to be read by humans. The idea is to present the suggested implementation in detail, so that we can discuss it with @neuroinformatics-unit/movement-active-devs before we implement it.
 
-This is an attempt at exploring different ways in which we can implement AI in our workflows, motivated by the idea that generating AI-aided code is now faster, but the discussion is the bottleneck (see https://githubnext.com/projects/chopin/ for a description of the problem).
-
-**Why is the proposed feature needed?**
-
-Getting pose tracks into the napari viewer today requires launching the `movement` widget, picking the source software from a combo box, setting fps and browsing for a file.
-
-For videos an images, users can already drag-and-drop the file on the napari canvas, which is very convenient. It would be great if we supported the same for pose track files too.
-
-Since PR [#920](https://github.com/neuroinformatics-unit/movement/pull/920) the backend can already infer the `source_software` given a file. So maybe we are well positioned to implement the drag-and-drop feature now.
-
-**References**
-* This PR proposes an implementation that addresses [#960](https://github.com/neuroinformatics-unit/movement/issues/960)
-* Relates indirectly to [#959](https://github.com/neuroinformatics-unit/movement/issues/959) (netCDF via `load_dataset`)
-* Relates indirectly to [#896](https://github.com/neuroinformatics-unit/movement/pull/896) (dynamic loader UI exposing relevant kwargs).
-
 
 ## Key aspects of suggested implementation
 
