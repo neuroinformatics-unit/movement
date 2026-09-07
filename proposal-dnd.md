@@ -275,7 +275,7 @@ We rely on `load_dataset` for the drag-and-drop, so what is droppable is what th
 |---|---|---|
 | DLC, LP, SLEAP, VIA-tracks  | ✅ | ✅ |
 | Anipose, NWB                | ✅ | ❌ |
-| movement `.nc`              | ❌ (until #959) | ✅ |
+| movement `.nc`              | ❌ (until [#959](https://github.com/neuroinformatics-unit/movement/issues/959)) | ✅ |
 
 So Anipose and NWB files will be droppable, but not selectable through the form widget yet. ROI `.geojson`/`.json` files are not pose track file so their drops are out of scope.
 
@@ -325,6 +325,7 @@ flowchart TD
 
 ```python
 # new movement/napari/layers.py
+# or could also fold into movement/napari/convert.py
 def ds_to_layer_data_tuples(
     ds, name_suffix
 ) -> list[tuple[Any, dict, str]]: ...
@@ -337,7 +338,7 @@ def ds_to_layer_data_tuples(
 <td>2</td>
 <td>
 
-**Extract the netCDF path** — the body of `DataLoader._load_netcdf_file`, raising instead of `show_error`. Deleted once #959 lands
+**Extract the netCDF path** — the body of `DataLoader._load_netcdf_file`, raising instead of `show_error`. Deleted once [#959](https://github.com/neuroinformatics-unit/movement/issues/959) is merged.
 
 </td>
 <td>
@@ -369,6 +370,7 @@ def napari_get_reader(path) -> ReaderFunction | None:
 
 def read_dataset(paths) -> list[tuple[Any, dict, str]]:
     ds = load_dataset(path, source_software="auto")
+    # branch for netcdf would use load_movement_netcdf
     connect_viewer_callbacks(napari.current_viewer())
     return ds_to_layer_data_tuples(ds, Path(path).name)
 ```
@@ -388,8 +390,11 @@ plus `commands` + `readers` in `napari.yaml`
 <td>
 
 ```diff
- # layer_wiring.py
- def wire_unwired_points_layers(viewer, event=None): ...
+ # In layer_wiring.py
++def wire_unwired_points_layers(viewer, event=None):
++    ...                      # per-layer wiring, then:
++    IF event is None OR event.value.metadata HAS MOVEMENT_LAYER_KEY:
++        set_initial_state(viewer)
 
  def connect_viewer_callbacks(viewer):
 +    viewer.layers.events.inserted.connect(
@@ -404,7 +409,7 @@ plus `commands` + `readers` in `napari.yaml`
 <td>5</td>
 <td>
 
-**Leave the widget's suffix dicts alone** — they duplicate `get_supported_source_software()`, but open PR #896 is already fixing exactly that
+**Leave the widget's suffix dicts alone** — they duplicate `get_supported_source_software()`, but open PR [#896](https://github.com/neuroinformatics-unit/movement/pull/896) is already dealing with that
 
 </td>
 <td><i>(no code)</i></td>
@@ -414,7 +419,7 @@ plus `commands` + `readers` in `napari.yaml`
 <td>6</td>
 <td>
 
-**Tests** — see § *Overview of tests to write*. The load-bearing one is parity: a dropped file must produce the same layers as the Load button
+**Tests** — see § *Overview of tests to write*. Tests include an integration one that refers to parity: a dropped file must produce the same layers as the Load button
 
 </td>
 <td><i>(see below)</i></td>
@@ -485,9 +490,9 @@ def ds_to_layer_data_tuples(
 <details>
 <summary><b>Step 2 — Extract the netCDF loading path so the reader can use it</b></summary>
 
-`load_dataset` has no registered `.nc` loader (that is #959), so the reader needs
+`load_dataset` has no registered `.nc` loader (that is [#959](https://github.com/neuroinformatics-unit/movement/issues/959)), so the reader needs
 a netCDF branch. The widget already has one — move the body of
-`DataLoader._load_netcdf_file` ([:272-313](movement/napari/loader_widgets.py#L272-L313))
+`DataLoader._load_netcdf_file` ([:252-293](movement/napari/loader_widgets.py#L252-L293))
 to `movement/napari/layers.py`:
 
 ```python
@@ -509,13 +514,13 @@ Logic unchanged; the one difference is who reports the error:
 - **Widget** wraps it and calls `show_error` with the same messages → user-facing
   behaviour and `test_data_loader_widget.py`'s netCDF error cases untouched.
 - **Reader** reports through its own error path (Step 3).
-- **After #959** this whole helper is deleted and the reader's `.nc` branch
+- **After [#959](https://github.com/neuroinformatics-unit/movement/issues/959)** this whole helper is deleted and the reader's `.nc` branch
   collapses to `load_dataset(path)`.
 - **Third-party datasets are deliberately not re-validated** — they come out of
   `load_dataset` already built through `ValidPosesInputs`/`ValidBboxesInputs`
   (where `ds_type` is set, [datasets.py:470](movement/validators/datasets.py#L470)),
   so a re-check is a no-op. Whether the GUI's stricter rules should be enforced
-  at the conversion layer for *every* dataset is a #959 question → discussion
+  at the conversion layer for *every* dataset is a [#959](https://github.com/neuroinformatics-unit/movement/issues/959) question → discussion
   point 1.
 
 </details>
@@ -661,13 +666,13 @@ widget is ever opened, and stay wired after it is closed → discussion point 2.
 `get_supported_source_software()` and already drift from it (Anipose and NWB are
 registered in the backend but missing from the combo box).
 
-- **Open PR #896 fixes exactly this** — adds Anipose and NWB to the dropdown and
+- **Open PR [#896](https://github.com/neuroinformatics-unit/movement/pull/896) fixes exactly this** — adds Anipose and NWB to the dropdown and
   changes the form's `rowCount()`. Deriving these dicts from the registry here
   would collide.
-- **This PR:** leave them alone. Note in the PR description that once #896
+- **This PR:** leave them alone. Note in the PR description that once [#896](https://github.com/neuroinformatics-unit/movement/pull/896)
   merges, replacing them with a `get_supported_source_software()`-derived mapping
   (plus the manual netCDF entry) is a small, safe follow-up.
-- **Rebase check:** #896 rewrites `_on_source_software_changed` and the form
+- **Rebase check:** [#896](https://github.com/neuroinformatics-unit/movement/pull/896) rewrites `_on_source_software_changed` and the form
   layout — adjacent to, but not overlapping, Steps 1 and 4.
 
 </details>
@@ -677,13 +682,13 @@ registered in the backend but missing from the combo box).
 
 | File | Change |
 |---|---|
-| `movement/napari/layers.py` | **new** — `ds_to_layer_data_tuples`, `load_movement_netcdf` |
+| `movement/napari/layers.py` | **new** — `ds_to_layer_data_tuples`, `load_movement_netcdf`. They could also fold into `movement/napari/convert.py` |
 | `movement/napari/reader.py` | **new** — `napari_get_reader` |
 | `movement/napari/napari.yaml` | add `movement.get_reader` command + `readers` contribution |
 | `movement/napari/layer_wiring.py` | add `wire_unwired_points_layers` (connected in `connect_viewer_callbacks`) , `TRACKS_LAYER_NAME_KEY` and `MOVEMENT_LAYER_KEY`; absorb `set_initial_state` |
 | `movement/napari/loader_widgets.py` | delegate to the new module; `_load_netcdf_file` becomes a thin `show_error` wrapper |
 | `docs/source/user_guide/gui.md` | document drag-and-drop of tracked data (§ *Load the tracked dataset*, ~line 122): the reader-choice dialog, the fps-in-frames caveat, and "use the widget for loader kwargs" |
-| `docs/source/api_index.rst` | add `movement.napari.reader` / `layers` next to `convert`/`convert_roi` (lines 26-28) |
+| `docs/source/api_index.rst` | add `movement.napari.reader` / `layers` to the API docs |
 | `tests/test_unit/test_napari_plugin/test_reader.py` | **new** |
 | `tests/test_unit/test_napari_plugin/test_layer_wiring.py` | add `wire_unwired_points_layers` tests, alongside the existing widget-lifetime ones |
 | `tests/test_unit/test_napari_plugin/test_data_loader_widget.py` | adapt to the refactor |
@@ -735,9 +740,9 @@ registered in the backend but missing from the combo box).
 
 ## Points to discuss
 
-1. **Sequencing against #959.** Step 2's `load_movement_netcdf` is deleted the
-   moment #959 lands, so the team may prefer to land #959 first. Related, and
-   #959's call rather than this PR's: @niksirbi suggested there that
+1. **Sequencing against [#959](https://github.com/neuroinformatics-unit/movement/issues/959).** Step 2's `load_movement_netcdf` is deleted the
+   moment [#959](https://github.com/neuroinformatics-unit/movement/issues/959) lands, so the team may prefer to land [#959](https://github.com/neuroinformatics-unit/movement/issues/959) first. Related, and
+   [#959](https://github.com/neuroinformatics-unit/movement/issues/959)'s call rather than this PR's: @niksirbi suggested there that
    `load_dataset` validate netCDF only *minimally*, with the GUI's stricter
    requirements enforced at the conversion layer instead — a
    `validate_ds_for_napari(ds)` at the top of `ds_to_layer_data_tuples`, giving
@@ -749,7 +754,7 @@ registered in the backend but missing from the combo box).
    viewer — true for a canvas drop, worth an explicit guard for the
    headless/`viewer.open` case. The underlying gap ("reader plugins can't attach
    behaviour to the layers they create") is worth raising upstream; @TimMonko
-   offered napari-side help in #960.
+   offered napari-side help in [#960](https://github.com/neuroinformatics-unit/movement/issues/960).
 3. **fps consistency.** Drops use `fps=None` and so show frame indices, while the
    widget defaults to `1.0`. Should the widget default to frames too, or should
    fps be settable on an already-loaded layer instead of re-loading? Option (b)
@@ -762,9 +767,9 @@ registered in the backend but missing from the combo box).
    `infer_source_software` raise (only the DLC/LP pair is whitelisted), so on drop
    we can only error and redirect to the widget. Should napari get a
    disambiguation prompt, or the backend expose the candidate list?
-6. **Order of #960 vs #896.** #896 rewrites the same widget's dropdown and form
-   layout, so whichever merges second eats a rebase; #896 is already open and
-   probably goes first. Step 1's extraction is mostly in methods #896 doesn't
+6. **Order of [#960](https://github.com/neuroinformatics-unit/movement/issues/960) vs [#896](https://github.com/neuroinformatics-unit/movement/pull/896).** [#896](https://github.com/neuroinformatics-unit/movement/pull/896) rewrites the same widget's dropdown and form
+   layout, so whichever merges second eats a rebase; [#896](https://github.com/neuroinformatics-unit/movement/pull/896) is already open and
+   probably goes first. Step 1's extraction is mostly in methods [#896](https://github.com/neuroinformatics-unit/movement/pull/896) doesn't
    touch, so a concurrent merge is survivable.
 7. **`ds.attrs["source_file"]` is inconsistent.** Set by the DLC/LP, SLEAP,
    VIA-tracks and NWB loaders but not by `from_anipose_file`
@@ -782,7 +787,7 @@ When implemented, drag-and-dropping any of the third-party file supported via th
 * How should we document the drag-and-drop functionality?
 
 * Thoughts on autopopulation of widget form after drag-and-dropping
-   - It would let a user who dropped a file tweak `fps` (or, post-#896, loader
+   - It would let a user who dropped a file tweak `fps` (or, post-[#896](https://github.com/neuroinformatics-unit/movement/pull/896), loader
      kwargs) without re-typing the path and source software.
    - It needs no reader→widget coupling: the source software and `ds.attrs`
      already ride on the layer metadata, and `wire_unwired_points_layers` runs for
@@ -802,7 +807,7 @@ When implemented, drag-and-dropping any of the third-party file supported via th
      selection — so a dropped Anipose file would show its path next to
      `DeepLabCut` and **Load** would attempt the wrong load. Autopopulation
      would need an explicit "can't configure this one here" state rather than a
-     silent no-op. Stops mattering once #896 is merged.
+     silent no-op. Stops mattering once [#896](https://github.com/neuroinformatics-unit/movement/pull/896) is merged.
 
 ## Feedback on the format of this proposal
 Any comments on the sections and formatting of this proposal are more than welcome.
