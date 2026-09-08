@@ -1,13 +1,17 @@
 """Compute and apply spatial transforms."""
 
 import itertools
+from functools import partial
+from typing import cast
 
 import cv2
 import numpy as np
 import xarray as xr
 from numpy.typing import ArrayLike
+from scipy.spatial.transform import Rotation
 
-from movement.utils.logging import log_to_attrs
+from movement.utils.logging import log_to_attrs, logger
+from movement.utils.vector import compute_signed_angle_2d
 from movement.validators.arrays import validate_dims_coords
 
 
@@ -255,7 +259,7 @@ def compute_homography_transform(
     This function estimates a 3x3 homography matrix using corresponding 2D
     point pairs from two images or planes. A homography describes a
     projective transformation suitable for **planar scenes** where
-    perspective effects are present — e.g., when the camera is tilted,
+    perspective effects are present - e.g., when the camera is tilted,
     moved closer, or rotated relative to the plane.
 
     The transformation preserves straight lines but not
@@ -384,3 +388,414 @@ def _is_collinear_set(points: np.ndarray, eps):
     _, s, _ = np.linalg.svd(pts)
     rank = np.sum(s > eps)
     return rank < 2
+
+
+def _rotation_matrix_2d_from_angle(
+    angle: xr.DataArray, space_coord
+) -> xr.DataArray:
+    """Build 2D rotation matrices with dims (..., space_rot, space).
+
+    `space_rot` indexes rows, `space` indexes columns
+    """
+    c = cast("xr.DataArray", np.cos(angle))
+    s = cast("xr.DataArray", np.sin(angle))
+
+    row_x = xr.concat([c, -s], dim="space").assign_coords(space=space_coord)
+    row_y = xr.concat([s, c], dim="space").assign_coords(space=space_coord)
+
+    return xr.concat([row_x, row_y], dim="space_rot").assign_coords(
+        space_rot=space_coord
+    )
+
+
+class EgocentricAligner2d:
+    """Align 2D pose tracks to an egocentric coordinate system.
+
+    For each frame and individual, computes a centroid (the origin of the
+    egocentric coordinate system) and a rotation angle (derived from the
+    heading of ``keypoint_to_align`` relative to the new origin). That
+    maps the input world coordinates onto a ego-centerically aligned
+    coordinates such that its heading points along ``align_to_vector``.
+
+    The fitted transform can be applied to position data via :meth:`align`,
+    and inverted via :meth:`inverse_align`.
+
+    Parameters
+    ----------
+    keypoint_to_align : str
+        Keypoint whose position (relative to the centroid) defines the
+        heading direction used to compute the rotation angle.
+    keypoint_to_center : str or None
+        Keypoint used to define the egocentric origin at each frame. If
+        ``None``, the centroid is the mean position over all keypoints.
+    align_to_vector : tuple of int, default (1, 0)
+        The 2D vector that ``keypoint_to_align``'s heading is rotated to
+        align with, expressed in (x, y) order. Defaults to the positive
+        x-axis.
+
+    Attributes
+    ----------
+    centroid_ : xarray.DataArray or None
+        The fitted per-frame, per-individual centroid position. Set by
+        :meth:`fit`; ``None`` before fitting.
+    rotation_ : xarray.DataArray or None
+        The fitted per-frame, per-individual 2D rotation matrices, with
+        dims ``(..., space_rot, space)`` where ``space`` is the axis
+        contracted over when applying the rotation. Set by :meth:`fit`;
+        ``None`` before fitting.
+
+    Notes
+    -----
+    This class borrows its ``fit``/``align``/``inverse_align`` structure from
+    the scikit-learn transformer convention (``fit``/``transform``/
+    ``inverse_transform``), even though ``fit`` is typically called on the
+    same data subsequently passed to ``align`` rather than on a separate
+    training set. Keeping the estimated transform as fitted state
+    (:attr:`centroid_`, :attr:`rotation_`) rather than returning it directly
+    means the same fitted transform can be reused later - e.g. applied to a
+    different set of keypoints than the ones used to estimate it.
+
+    """
+
+    def __init__(
+        self,
+        keypoint_to_align: str,
+        keypoint_to_center: str | None,
+        align_to_vector: tuple[float, float] = (1, 0),
+    ):
+        """Create a new instance."""
+        self.keypoint_to_align = keypoint_to_align
+        self.keypoint_to_center = keypoint_to_center
+        self.align_to_vector = np.asarray(align_to_vector)
+
+        self.centroid_: xr.DataArray | None = None
+        self.rotation_: xr.DataArray | None = (
+            None  # dims: (..., space, space_rot)
+        )
+
+    def fit(self, position: xr.DataArray) -> "EgocentricAligner2d":
+        """Compute the egocentric centroid and rotation matrix for each frame.
+
+        Parameters
+        ----------
+        position : xarray.DataArray
+            Position data with dims including ``space`` (with coordinates
+            ``"x"`` and ``"y"``) and ``keypoint``.
+
+        Returns
+        -------
+        EgocentricAligner2d
+            self, with :attr:`centroid_` and :attr:`rotation_` populated.
+
+        Raises
+        ------
+        ValueError
+            If ``ds`` is missing the expected ``space`` coordinates or
+            ``keypoint_to_align`` is not among ``ds``'s keypoints.
+
+        """
+        validate_dims_coords(position, {"space": ["x", "y"]})
+        validate_dims_coords(position, {"keypoint": [self.keypoint_to_align]})
+
+        if self.keypoint_to_center is None:
+            self.centroid_ = position.mean(dim="keypoint")
+        else:
+            self.centroid_ = position.sel(keypoint=self.keypoint_to_center)
+
+        centered = position - self.centroid_
+
+        angles = compute_signed_angle_2d(
+            centered.sel(keypoint=self.keypoint_to_align), self.align_to_vector
+        )
+
+        self.rotation_ = _rotation_matrix_2d_from_angle(
+            angles, position.coords["space"].values
+        )
+        return self
+
+    def _check_is_fitted(self):
+        if self.rotation_ is None or self.centroid_ is None:
+            raise RuntimeError(
+                "Call `.fit(position)` before using the aligner."
+            )
+
+    def align(self, position: xr.DataArray) -> xr.DataArray:
+        """Transform position data from world to egocentric coordinates.
+
+        Parameters
+        ----------
+        position : xarray.DataArray
+            Position data with a ``space`` dimension, sharing the
+            coordinates system with the data used in :meth:`fit`.
+
+        Returns
+        -------
+        xarray.DataArray
+            ``position`` re-centred on the fitted centroid and rotated so
+            that ``keypoint_to_align``'s heading points along
+            ``align_to_vector``. Same dims/shape as the input.
+
+        Raises
+        ------
+        RuntimeError
+            If called before :meth:`fit`.
+
+        """
+        self._check_is_fitted()
+        assert self.centroid_ is not None
+        assert self.rotation_ is not None
+
+        # Center
+        centered = position - self.centroid_
+
+        # Apply rotation
+        rotated = xr.dot(self.rotation_, centered, dim="space")
+
+        # Clean-up and transpose to original order
+        aligned = rotated.rename(space_rot="space").transpose(*position.dims)
+
+        return aligned
+
+    def inverse_align(self, position: xr.DataArray) -> xr.DataArray:
+        """Transform position data from egocentric back to world coordinates.
+
+        Applies the inverse of :meth:`align` - the transpose of the fitted
+        rotation followed by adding back the fitted centroid.
+
+        Parameters
+        ----------
+        position : xarray.DataArray
+            Position data in the egocentric frame produced by :meth:`align`.
+
+        Returns
+        -------
+        xarray.DataArray
+            ``position`` mapped back into world coordinates. Same dims/
+            shape as the input.
+
+        Raises
+        ------
+        RuntimeError
+            If called before :meth:`fit`.
+
+        """
+        self._check_is_fitted()
+        assert self.centroid_ is not None
+        assert self.rotation_ is not None
+
+        # Create inverse rotation by transposing the rotation matrices
+        rot_T = self.rotation_.rename(space="space_tmp").rename(
+            space_rot="space", space_tmp="space_rot"
+        )
+
+        # Apply inverse rotation
+        rotated = xr.dot(rot_T, position, dim="space")
+
+        # Clean-up and transpose to original order
+        rotated = rotated.rename(space_rot="space").transpose(*position.dims)
+
+        # Undo centering
+        inverse_aligned = rotated + self.centroid_
+
+        return inverse_aligned
+
+
+class EgocentricAligner3d:
+    """Align 3D pose tracks to an egocentric coordinate system.
+
+    Unlike :class:`EgocentricAligner2d`, which derives a single heading
+    angle from one keypoint, this aligner estimates a full 3D rotation by
+    solving Wahba's problem (via :meth:`scipy.spatial.transform.Rotation.
+    align_vectors`): given the centred positions of ``keypoints_to_align``
+    at each frame, it finds the rotation that best maps them, in a
+    weighted least-squares sense, onto the corresponding directions in
+    ``align_to_vectors``. The fitted transform is applied to full position
+    data via :meth:`align`, and inverted via :meth:`inverse_align`.
+
+    Parameters
+    ----------
+    keypoints_to_align : list of str
+        Keypoints whose (centered) positions define the orientation. At
+        least two (non-collinear) keypoints are needed to fully determine
+        the rotation; with only one, the rotation about that axis, defined
+        by that keypoint, is left undetermined (scipy returns a valid but
+        arbitrary solution along that axis).
+    align_to_vectors : list of tuple of float
+        Target (x, y, z) direction for each entry in ``keypoints_to_align``,
+        in the same order, that its centred position is rotated towards.
+        Must be the same length as ``keypoints_to_align``.
+    alignment_weights : list of float, optional
+        Per-keypoint weight in the least-squares rotation fit, in the same
+        order as ``keypoints_to_align``. Must be the same length as
+        ``keypoints_to_align`` if given. Defaults to equal weighting.
+    keypoint_to_center : str or None, default None
+        Keypoint used to define the egocentric origin at each frame. If
+        ``None``, the centroid is the mean position over all keypoints.
+
+    Attributes
+    ----------
+    centroid_ : xarray.DataArray or None
+        The fitted per-frame, per-individual centroid position. Set by
+        :meth:`fit`; ``None`` before fitting.
+    rotation_ : xarray.DataArray or None
+        Object-dtype array of :class:`scipy.spatial.transform.Rotation`,
+        one per frame/individual. Set by :meth:`fit`; ``None`` before
+        fitting.
+
+    Raises
+    ------
+    ValueError
+        If ``keypoints_to_align``, ``align_to_vectors``, and
+        ``alignment_weights`` do not all have the same length.
+
+    Notes
+    -----
+    This class borrows its ``fit``/``align``/``inverse_align`` structure from
+    the scikit-learn transformer convention (``fit``/``transform``/
+    ``inverse_transform``), see :class:`EgocentricAligner2d`
+
+    Both ``align_to_vectors`` and the observed per-frame keypoint vectors
+    (centred on the centroid) are normalized to unit length internally
+    before the rotation fit, so only their *directions* - not their
+    magnitudes - influence the estimated rotation. Relative importance
+    between keypoints is controlled solely via ``alignment_weights``.
+
+    """
+
+    def __init__(
+        self,
+        keypoints_to_align: list[str],
+        align_to_vectors: list[tuple[float, float, float]],
+        alignment_weights: list[float] | None = None,
+        keypoint_to_center: str | None = None,
+    ):
+        """Create a new instance and check alignment vector parameters."""
+        n_alignment_vectors = len(keypoints_to_align)
+
+        if n_alignment_vectors == 0:
+            raise ValueError(
+                "`keypoints_to_align` must have at least length one."
+            )
+
+        elif n_alignment_vectors == 1:
+            logger.warning(
+                "At least two (non-collinear) keypoints are needed to "
+                "fully determine the rotation; with only one, the "
+                "rotation about that axis, defined by that keypoint, "
+                "is left undetermined"
+            )
+
+        if alignment_weights is None:
+            alignment_weights = [1.0] * n_alignment_vectors
+
+        if (
+            len(align_to_vectors) != n_alignment_vectors
+            or len(alignment_weights) != n_alignment_vectors
+        ):
+            raise ValueError(
+                "`keypoints_to_align`, `align_to_vectors`, and "
+                "`alignment_weights` must all have the same length."
+            )
+
+        self.keypoints_to_align = keypoints_to_align
+
+        self.align_to_vectors = np.asarray(align_to_vectors)
+        norms = np.linalg.norm(self.align_to_vectors, axis=1, keepdims=True)
+        self.align_to_vectors = self.align_to_vectors / norms
+
+        self.alignment_weights = np.asarray(alignment_weights)
+        self.keypoint_to_center = keypoint_to_center
+
+        self.centroid_: xr.DataArray | None = None
+        self.rotation_: xr.DataArray | None = (
+            None  # object-dtype array of Rotation
+        )
+
+    def fit(self, position: xr.DataArray) -> "EgocentricAligner3d":
+        """Compute per-frame/individual centroid + rotation from da."""
+        validate_dims_coords(position, {"space": ["x", "y", "z"]})
+        validate_dims_coords(position, {"keypoint": self.keypoints_to_align})
+
+        if self.keypoint_to_center is None:
+            self.centroid_ = position.mean(dim="keypoint")
+        else:
+            self.centroid_ = position.sel(keypoint=self.keypoint_to_center)
+
+        centered_positions = position - self.centroid_
+
+        def estimate_rot_3d(v, ref_v):
+            v_unit = v / np.linalg.norm(v, axis=0, keepdims=True)
+            rot, _ = Rotation.align_vectors(
+                ref_v, v_unit.T, weights=self.alignment_weights
+            )
+            return rot
+
+        self.rotation_ = xr.apply_ufunc(
+            partial(estimate_rot_3d, ref_v=self.align_to_vectors),
+            centered_positions.sel(keypoint=self.keypoints_to_align),
+            input_core_dims=[["space", "keypoint"]],
+            output_core_dims=[[]],
+            vectorize=True,
+            output_dtypes=[Rotation],
+        )
+        return self
+
+    def align(self, position: xr.DataArray) -> xr.DataArray:
+        """World -> egocentric. Requires fit() first."""
+        self._check_is_fitted()
+        assert self.centroid_ is not None
+        assert self.rotation_ is not None
+
+        # Center
+        centered_positions = position - self.centroid_
+
+        # Apply rotation
+        def apply_rot(v, rot):
+            return rot.apply(v)
+
+        aligned = xr.apply_ufunc(
+            apply_rot,
+            centered_positions,
+            self.rotation_,
+            input_core_dims=[["space"], []],
+            output_core_dims=[["space"]],
+            vectorize=True,
+        )
+
+        # Clean-up and transpose to original order
+        aligned = aligned.transpose(*position.dims)
+
+        return aligned
+
+    def inverse_align(self, position: xr.DataArray) -> xr.DataArray:
+        """Egocentric -> world. Requires fit() first."""
+        self._check_is_fitted()
+        assert self.centroid_ is not None
+        assert self.rotation_ is not None
+
+        # Apply inverse rotation
+        def apply_inv_rot(v, rot):
+            return rot.inv().apply(v)
+
+        inverse_rotated = xr.apply_ufunc(
+            apply_inv_rot,
+            position,
+            self.rotation_,
+            input_core_dims=[["space"], []],
+            output_core_dims=[["space"]],
+            vectorize=True,
+        )
+
+        # Clean-up and transpose to original order
+        inverse_rotated = inverse_rotated.transpose(*position.dims)
+
+        # Undo centering
+        inverse_aligned = inverse_rotated + self.centroid_
+
+        return inverse_aligned
+
+    def _check_is_fitted(self):
+        if self.rotation_ is None or self.centroid_ is None:
+            raise RuntimeError(
+                "Call `.fit(position)` before using the aligner."
+            )
