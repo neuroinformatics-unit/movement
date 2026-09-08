@@ -8,6 +8,9 @@ import pytest
 import xarray as xr
 
 from movement.transforms import (
+    EgocentricAligner2d,
+    EgocentricAligner3d,
+    _rotation_matrix_2d_from_angle,
     compute_homography_transform,
     poses_to_bboxes,
     scale,
@@ -702,3 +705,160 @@ def test_poses_to_bboxes_invalid_padding(
     """Test that invalid padding values raise the expected errors."""
     with pytest.raises(expected_exception, match=expected_message):
         poses_to_bboxes(valid_poses_dataset.position, padding=padding)
+
+
+@pytest.mark.parametrize(
+    "angle, expected_rotation_matrix",
+    [
+        (0, [[1, 0], [0, 1]]),
+        (-np.pi / 2, [[0, 1], [-1, 0]]),
+        (np.pi / 4, [[0.70710678, -0.70710678], [0.70710678, 0.70710678]]),
+        (np.pi / 3, [[0.5, -0.8660254], [0.8660254, 0.5]]),
+    ],
+)
+def test_ego_centric_angles_to_rotation_matrix(
+    angle, expected_rotation_matrix
+):
+    """Test that the rotation matrices are computed correctly."""
+    angles_da = xr.DataArray([angle], dims="angles")
+
+    rot_mats = _rotation_matrix_2d_from_angle(angles_da, ["x", "y"])
+
+    xr.testing.assert_allclose(
+        rot_mats.isel(angles=0),
+        xr.DataArray(
+            expected_rotation_matrix,
+            dims=("space_rot", "space"),
+            coords={"space_rot": ["x", "y"], "space": ["x", "y"]},
+        ),
+    )
+
+
+@pytest.mark.parametrize(
+    "keypoint_to_align, align_to_vector",
+    [
+        ("left", (1, 0)),
+        ("left", (0, -1)),
+        ("right", (0, 1)),
+        ("right", (-1, 0)),
+        ("left", (0.70710678, 0.70710678)),
+        ("right", (-0.70710678, -0.70710678)),
+        ("left", (0.76818644, -0.64022620)),
+        ("right", (-0.54483743, -0.83854169)),
+    ],
+)
+def test_ego_centric_aligner_2d_centering(
+    valid_poses_dataset, keypoint_to_align, align_to_vector
+):
+    """Test that the ego-centric aligner correctly centers and rotates."""
+    ego_aligner = EgocentricAligner2d(
+        keypoint_to_center="centroid",
+        keypoint_to_align=keypoint_to_align,
+        align_to_vector=align_to_vector,
+    )
+
+    position = valid_poses_dataset.position
+
+    if keypoint_to_align == "left":
+        opposite_keypoint = "right"
+        opposite_target_vector = (
+            align_to_vector[1],
+            -align_to_vector[0],
+        )  # perpendicular, to the right (when keypoint_to_align is left)
+    elif keypoint_to_align == "right":
+        opposite_keypoint = "left"
+        opposite_target_vector = (
+            -align_to_vector[1],
+            align_to_vector[0],
+        )  # perpendicular, to the left (when keypoint_to_align is right)
+    else:
+        raise AssertionError(
+            "Invalid keypoint_to_align: "
+            f"{keypoint_to_align}. Must be 'left' or 'right'."
+        )
+
+    ego_aligner.fit(position)
+
+    aligned = ego_aligner.align(position)
+
+    # Test centering
+    centered_at_zero = aligned.sel(keypoint="centroid")
+
+    xr.testing.assert_allclose(
+        centered_at_zero, xr.zeros_like(centered_at_zero)
+    )
+
+    # Test aligmnent of keypoint
+    keypoint_aligned = aligned.sel(keypoint=keypoint_to_align)
+    keypoint_aligned_target = xr.DataArray(
+        np.array(align_to_vector), dims=["space"], coords={"space": ["x", "y"]}
+    )
+
+    diff = keypoint_aligned - keypoint_aligned_target
+    assert np.allclose(diff.values, 0)
+
+    # Test alignment of opposite keypoint
+    opposite_keypoint_aligned = aligned.sel(keypoint=opposite_keypoint)
+    opposite_keypoint_aligned_target = xr.DataArray(
+        np.array(opposite_target_vector),
+        dims=["space"],
+        coords={"space": ["x", "y"]},
+    )
+
+    diff = opposite_keypoint_aligned - opposite_keypoint_aligned_target
+
+    assert np.allclose(diff.values, 0)
+
+
+@pytest.mark.parametrize(
+    "keypoint_to_center, keypoint_to_align, align_to_vector",
+    [
+        ("centroid", "left", (1, 0)),
+        ("centroid", "right", (0, -1)),
+        ("left", "centroid", (0.76818644, -0.64022620)),
+        ("right", "left", (-0.54483743, -0.83854169)),
+    ],
+)
+def test_ego_centric_aligner_2d_inverse(
+    valid_poses_dataset,
+    keypoint_to_center,
+    keypoint_to_align,
+    align_to_vector,
+):
+    """Test that the ego-centric aligner correctly aligns inversly."""
+    ego_aligner = EgocentricAligner2d(
+        keypoint_to_center=keypoint_to_center,
+        keypoint_to_align=keypoint_to_align,
+        align_to_vector=align_to_vector,
+    )
+
+    position = valid_poses_dataset.position
+
+    ego_aligner.fit(position)
+
+    aligned = ego_aligner.align(position)
+
+    xr.testing.assert_allclose(ego_aligner.inverse_align(aligned), position)
+
+
+def test_ego_centric_aligner_3d_inverse(valid_poses_dataset):
+    position = valid_poses_dataset.position
+
+    pad_zeros = (
+        xr.zeros_like(position.sel(space="y"))
+        .expand_dims("space")
+        .assign_coords(space=["z"])
+    )
+    position_3d = xr.concat([position, pad_zeros], dim="space")
+
+    ego_aligner = EgocentricAligner3d(
+        keypoint_to_center="centroid",
+        keypoints_to_align=["left", "right"],
+        align_to_vectors=[[-1, 1, 0], [1, 1, 0]],
+    )
+
+    ego_aligner.fit(position_3d)
+
+    aligned = ego_aligner.align(position_3d)
+
+    xr.testing.assert_allclose(ego_aligner.inverse_align(aligned), position_3d)
