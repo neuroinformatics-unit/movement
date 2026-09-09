@@ -1,10 +1,15 @@
 """The main napari widget for the ``movement`` package."""
 
+from typing import TYPE_CHECKING
+
 from napari.layers import Points
 from napari.layers.base import ActionType
 from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
 from qtpy.QtCore import QTimer
+
+if TYPE_CHECKING:
+    from qtpy.QtWidgets import QWidget
 
 from movement.napari.edit_widget import EditControlsWidget, EditWidget
 from movement.napari.loader_widgets import POINTS_LAYER_KEY, DataLoader
@@ -24,7 +29,7 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         super().__init__()
         self._viewer = napari_viewer
         self.edit_widget: EditWidget | None = None
-        self._edit_dock_widget = None
+        self._edit_dock_widget: QWidget | None = None
 
         # Add the data loader widget
         self.add_widget(
