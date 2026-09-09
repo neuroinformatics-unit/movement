@@ -289,6 +289,32 @@ def loader_with_edited_point(
 
 
 @pytest.fixture
+def loader_with_two_edited_individuals(
+    valid_poses_path_and_ds, loaded_data_loader, move_point
+):
+    """Return a loaded ``DataLoader`` with three edited points across two
+    individuals: ``id_0`` and ``id_1`` both on frame 2 (a shared frame),
+    and ``id_1`` again on frame 5.
+
+    Enough to exercise both the "one bar per frame" (lanes collapsed)
+    and "one bar per (frame, individual)" (individuals displayed)
+    behaviours of :class:`~movement.napari.edit_widget.EditWidget`.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+    for individual, frame in (("id_0", 2), ("id_1", 2), ("id_1", 5)):
+        move_point(
+            loader,
+            frame=frame,
+            keypoint="centroid",
+            individual=individual,
+            new_y=100,
+            new_x=200,
+        )
+    return loader
+
+
+@pytest.fixture
 def click_on_timeline():
     """Return a factory that simulates a click on an
     :class:`~movement.napari.edit_widget.EditWidget` timeline, at the
