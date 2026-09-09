@@ -4,6 +4,7 @@ from napari.layers import Points
 from napari.layers.base import ActionType
 from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
+from qtpy.QtCore import QTimer
 
 from movement.napari.edit_widget import EditControlsWidget, EditWidget
 from movement.napari.loader_widgets import POINTS_LAYER_KEY, DataLoader
@@ -101,9 +102,16 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             self._edit_collapsible.collapse(False)
 
     def _on_points_edited(self, event) -> None:
-        """Expand the edit section when a point is dragged or removed."""
+        """Expand the edit section when a point is dragged or removed.
+
+        Expanding creates the timeline widget on first edit. We defer this
+        until the event loop is next free (via ``QTimer.singleShot``). This
+        allows the layer's ``edited`` property to be fully set before
+        the timeline widget reads it, and thus ensures the first edit
+        is not missed.
+        """
         if event.action in (ActionType.CHANGED, ActionType.REMOVING):
-            self._edit_collapsible.expand()
+            QTimer.singleShot(0, self._edit_collapsible.expand)
 
     def _on_edit_widget_toggled(self, expanded: bool) -> None:
         """Show/hide the edited-frames timeline docked at the bottom."""
