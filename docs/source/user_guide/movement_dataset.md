@@ -228,7 +228,7 @@ ds_sel = ds.sel(keypoint="snout")
 ds_sel = ds.sel(
     time=slice(0, 100),
     individual=["individual1", "individual2"],
-    keypoint="snout"
+    keypoint="snout",
 )
 ```
 The same selections can be applied to the **data variables** inside a dataset. In that case the selection operations will
@@ -236,8 +236,7 @@ return an {class}`xarray.DataArray` rather than an {class}`xarray.Dataset`:
 
 ```python
 position = ds.position.sel(
-    individual="individual1",
-    keypoint="snout"
+    individual="individual1", keypoint="snout"
 )  # the output is a data array
 ```
 
