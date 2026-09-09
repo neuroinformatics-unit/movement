@@ -2,9 +2,23 @@
 
 from unittest.mock import Mock
 
+import numpy as np
 import pytest
+from matplotlib.colors import to_rgba
+from napari.utils.theme import get_theme
 
-from movement.napari.edit_widget import MIN_VISIBLE_FRAMES, EditWidget
+from movement.napari.edit_widget import (
+    AXES_MARGIN_PIXELS,
+    LANE_HEIGHT_PIXELS,
+    MIN_CANVAS_HEIGHT_PIXELS,
+    MIN_VISIBLE_FRAMES,
+    EditWidget,
+)
+
+
+def _bar_colors(edit_widget):
+    """Return the RGBA colour of each drawn bar, as a list of tuples."""
+    return [tuple(bar.get_colors()[0]) for bar in edit_widget._bars]
 
 
 @pytest.mark.parametrize(
@@ -139,40 +153,160 @@ def test_double_click_resets_zoomed_view(
     assert edit_widget.ax.get_xlim() == full_xlim
 
 
-def test_redraw_bars_splits_lanes_by_individual(
-    valid_poses_path_and_ds, loaded_data_loader, move_point
-):
-    """``_redraw_bars`` draws one bar per frame, or one per individual.
+def test_selecting_non_points_layer_keeps_timeline(loader_with_edited_point):
+    """Selecting an unrelated layer must not blank the timeline.
 
-    Two individuals are edited on the same frame. With lanes collapsed
-    (the default), that's a single shared bar. With "Display
-    individuals" on, each individual gets its own lane and bar, even
-    though they share a frame.
+    Selecting e.g. an image layer previously reset ``active_layer`` to
+    ``None`` and collapsed the frame axis to 0-1; the timeline should
+    instead keep showing the last movement Points layer.
     """
-    filepath, ds = valid_poses_path_and_ds
-    loader = loaded_data_loader(filepath, ds)
-    move_point(
-        loader,
-        frame=2,
-        keypoint="centroid",
-        individual="id_0",
-        new_y=100,
-        new_x=200,
-    )
-    move_point(
-        loader,
-        frame=2,
-        keypoint="centroid",
-        individual="id_1",
-        new_y=150,
-        new_x=250,
-    )
-    edit_widget = EditWidget(loader.viewer)
+    viewer = loader_with_edited_point.viewer
+    edit_widget = EditWidget(viewer)
+    points_layer = edit_widget.active_layer
+    full_xlim = edit_widget.ax.get_xlim()
 
-    assert len(edit_widget._bars) == 1
+    other_layer = viewer.add_image(np.zeros((4, 4)))
+    viewer.layers.selection.active = other_layer
+
+    assert edit_widget.active_layer is points_layer
+    assert edit_widget.ax.get_xlim() == full_xlim
+
+
+def test_playhead_and_bars_follow_the_napari_theme(loader_with_edited_point):
+    """The playhead and edit-bar colours are taken from the napari theme.
+
+    The playhead is the theme's ``secondary`` colour and collapsed bars
+    the theme's ``current`` colour; switching the viewer theme re-styles
+    both live (``_apply_theme`` recreates the bars).
+    """
+    viewer = loader_with_edited_point.viewer
+    viewer.theme = "dark"
+    edit_widget = EditWidget(viewer)
+
+    dark = get_theme("dark")
+    assert to_rgba(edit_widget.playhead.get_color()) == to_rgba(
+        dark.secondary.as_hex()
+    )
+    assert edit_widget._edit_bar_color == dark.current.as_hex()
+    assert _bar_colors(edit_widget) == [to_rgba(dark.current.as_hex())]
+
+    viewer.theme = "light"
+    light = get_theme("light")
+    assert to_rgba(edit_widget.playhead.get_color()) == to_rgba(
+        light.secondary.as_hex()
+    )
+    assert edit_widget._edit_bar_color == light.current.as_hex()
+    assert _bar_colors(edit_widget) == [to_rgba(light.current.as_hex())]
+
+
+def test_lanes_collapse_by_frame_or_split_by_individual(
+    loader_with_two_edited_individuals,
+):
+    """Lane structure follows the "Display individuals" toggle.
+
+    Collapsed (the default): one bar per edited *frame* (individuals
+    sharing a frame merge into one bar), no y-ticks and no lane
+    dividers. Displaying individuals: one bar per (frame, individual),
+    one y-tick per individual, and a divider between each lane pair.
+    Toggling back collapses everything again.
+    """
+    edit_widget = EditWidget(loader_with_two_edited_individuals.viewer)
+    n_individuals = len(set(edit_widget.active_layer.properties["individual"]))
+
+    # Edits are on frames {2, 5}; frame 2 is shared by both individuals.
+    assert len(edit_widget._bars) == 2
     assert list(edit_widget.ax.get_yticks()) == []
+    assert edit_widget._lane_dividers == []
 
     edit_widget.set_show_individuals(True)
 
+    # (2, id_0), (2, id_1) and (5, id_1) -> three separate bars.
+    assert len(edit_widget._bars) == 3
+    assert len(edit_widget.ax.get_yticks()) == n_individuals
+    assert len(edit_widget._lane_dividers) == n_individuals - 1
+
+    edit_widget.set_show_individuals(False)
+
     assert len(edit_widget._bars) == 2
-    assert len(edit_widget.ax.get_yticks()) == 2
+    assert edit_widget._lane_dividers == []
+
+
+def test_bar_colours_follow_display_mode_not_edited_data(
+    loader_with_two_edited_individuals,
+):
+    """Bar colours depend on the display mode, not on what was edited.
+
+    Collapsed: every bar is the napari theme's edit-bar colour,
+    whatever mix of individuals or keypoints was edited. Displaying
+    individuals: each bar takes its individual's face colour, read
+    straight from the Points layer. Toggling the option off restores
+    the single colour.
+    """
+    edit_widget = EditWidget(loader_with_two_edited_individuals.viewer)
+    single = to_rgba(edit_widget._edit_bar_color)
+
+    assert _bar_colors(edit_widget) == [single, single]
+
+    edit_widget.set_show_individuals(True)
+    layer = edit_widget.active_layer
+    palette: dict = {}
+    for ind, color in zip(
+        layer.properties["individual"], layer.face_color, strict=False
+    ):
+        palette.setdefault(ind, tuple(color))
+    # One bar for id_0 (frame 2) and two for id_1 (frames 2 and 5);
+    # sorted so the assertion doesn't depend on bar draw order.
+    assert sorted(_bar_colors(edit_widget)) == pytest.approx(
+        sorted([palette["id_0"], palette["id_1"], palette["id_1"]])
+    )
+
+    edit_widget.set_show_individuals(False)
+    assert _bar_colors(edit_widget) == [single, single]
+
+
+def test_canvas_wrapped_in_vertical_scroll_area(loader_with_edited_point):
+    """The canvas lives in a width-tracking, vertically scrolling area.
+
+    The scroll area keeps the docked timeline at its usual height even
+    when the canvas inside it grows for many individuals, so the user
+    never has to resize the dock.
+    """
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+
+    assert edit_widget.scroll_area.widget() is edit_widget.canvas
+    assert edit_widget.scroll_area.widgetResizable()
+    assert edit_widget.scroll_area.minimumHeight() == MIN_CANVAS_HEIGHT_PIXELS
+
+    # Growing the canvas for many lanes must not grow the scroll area.
+    edit_widget._show_individuals = True
+    edit_widget._fit_canvas_height(40)
+    assert edit_widget.scroll_area.minimumHeight() == MIN_CANVAS_HEIGHT_PIXELS
+
+
+@pytest.mark.parametrize(
+    "show_individuals, n_lanes, expected",
+    [
+        pytest.param(False, 40, MIN_CANVAS_HEIGHT_PIXELS, id="collapsed"),
+        pytest.param(True, 2, MIN_CANVAS_HEIGHT_PIXELS, id="few_lanes"),
+        pytest.param(
+            True,
+            40,
+            40 * LANE_HEIGHT_PIXELS + AXES_MARGIN_PIXELS,
+            id="many_lanes_grow",
+        ),
+    ],
+)
+def test_fit_canvas_height_scales_with_lane_count(
+    loader_with_edited_point, show_individuals, n_lanes, expected
+):
+    """Many individual lanes grow the canvas; collapsed/few keep it at min.
+
+    A taller-than-dock canvas is what makes the enclosing scroll area
+    show a vertical scrollbar.
+    """
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    edit_widget._show_individuals = show_individuals
+
+    edit_widget._fit_canvas_height(n_lanes)
+
+    assert edit_widget.canvas.minimumHeight() == expected
