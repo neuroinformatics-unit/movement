@@ -14,8 +14,15 @@ from napari.layers import Points
 from napari.layers.base import ActionType
 from napari.utils.theme import get_theme
 from napari.viewer import Viewer
-from qtpy.QtCore import QTimer, Signal
-from qtpy.QtWidgets import QCheckBox, QLabel, QVBoxLayout, QWidget
+from qtpy.QtCore import Qt, QTimer, Signal
+from qtpy.QtWidgets import (
+    QCheckBox,
+    QFrame,
+    QLabel,
+    QScrollArea,
+    QVBoxLayout,
+    QWidget,
+)
 
 from movement.napari.loader_widgets import (
     POINTS_LAYER_KEY,
@@ -33,6 +40,16 @@ ZOOM_OUT_FACTOR = 1.25
 # Mouse movements below this many pixels are treated as a click, not
 # the start of a pan drag (avoids a shaky click being read as a pan).
 DRAG_THRESHOLD_PIXELS = 3
+
+# "Display individuals" gives each individual its own lane. Budget this
+# many canvas pixels per lane so its y-axis label stays legible; when the
+# lanes total more than the dock height, the timeline scrolls vertically.
+LANE_HEIGHT_PIXELS = 22
+# Canvas height reserved for the title and x-axis (label and ticks),
+# added on top of the per-lane budget.
+AXES_MARGIN_PIXELS = 70
+# Canvas height with lanes collapsed or few: just fill the dock.
+MIN_CANVAS_HEIGHT_PIXELS = 200
 
 
 class EditControlsWidget(QWidget):
@@ -105,7 +122,7 @@ class EditWidget(QWidget):
 
         self.figure = Figure(figsize=(6, 2.5))
         self.canvas = FigureCanvas(self.figure)
-        self.canvas.setMinimumHeight(200)
+        self.canvas.setMinimumHeight(MIN_CANVAS_HEIGHT_PIXELS)
         self.ax = self.figure.subplots()
         self._style_axes()
         self.playhead = self.ax.axvline(
@@ -113,9 +130,23 @@ class EditWidget(QWidget):
         )  # higher order in matplotlib is drawn on top; colour set below
         self._apply_theme()
 
+        # The canvas grows past the dock height when many individual
+        # lanes are shown; this scroll area adds a vertical scrollbar
+        # rather than cramming the lanes together. Its width still tracks
+        # the viewport, so the timeline never scrolls horizontally.
+        # Its own minimum height pins the docked timeline to the same
+        # size it always had -- only the canvas inside it grows, so the
+        # user never has to resize the dock to read the lanes.
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setFrameShape(QFrame.NoFrame)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setMinimumHeight(MIN_CANVAS_HEIGHT_PIXELS)
+        self.scroll_area.setWidget(self.canvas)
+
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.canvas)
+        layout.addWidget(self.scroll_area)
         self.setLayout(layout)
 
         self.viewer.dims.events.current_step.connect(self._on_step_changed)
@@ -312,6 +343,7 @@ class EditWidget(QWidget):
 
         if self.active_layer is None:
             self.ax.set_yticks([])
+            self._fit_canvas_height(1)
             self.figure.tight_layout()
             self._on_step_changed()
             return
@@ -346,6 +378,7 @@ class EditWidget(QWidget):
             n_lanes = 1
             lane_of = dict.fromkeys(unique_individuals, 0)
             self.ax.set_yticks([])
+        self._fit_canvas_height(n_lanes)
         lane_height = 1.0 / n_lanes
 
         color_of = self._bar_color_lookup()
@@ -389,6 +422,25 @@ class EditWidget(QWidget):
 
         self.figure.tight_layout()
         self._on_step_changed()
+
+    def _fit_canvas_height(self, n_lanes: int) -> None:
+        """Grow the canvas so every individual lane label has room.
+
+        With lanes collapsed (or only a few individuals) the canvas fills
+        the dock. With many individuals displayed it is grown to
+        ``LANE_HEIGHT_PIXELS`` per lane so the y-axis labels don't
+        overlap; the enclosing scroll area then shows a vertical
+        scrollbar.
+        """
+        if self._show_individuals and n_lanes > 1:
+            height = max(
+                MIN_CANVAS_HEIGHT_PIXELS,
+                n_lanes * LANE_HEIGHT_PIXELS + AXES_MARGIN_PIXELS,
+            )
+        else:
+            height = MIN_CANVAS_HEIGHT_PIXELS
+        if self.canvas.minimumHeight() != height:
+            self.canvas.setMinimumHeight(height)
 
     def _bar_color_lookup(self):
         """Return an ``individual -> bar colour`` function.
