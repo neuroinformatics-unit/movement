@@ -66,10 +66,10 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         loader_collapsible = self.collapsible_widgets[0]
         loader_collapsible.expand()  # expand the loader widget by default
 
-        # A freshly loaded dataset with no prior edits should keep the
-        # edit section collapsed (the default above); one loaded with
-        # previously edited points should instead open it right away
-        # so those edits are visible without an extra click.
+        # A newly loaded dataset keeps the edit section collapsed,
+        # whether or not it contains previously edited points. The
+        # section only opens once a point is actually edited in this
+        # session (see ``_on_points_edited``).
         napari_viewer.layers.events.inserted.connect(self._on_layer_inserted)
 
         # "Display individuals" is meaningless with a single individual;
@@ -88,18 +88,14 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         )
 
     def _on_layer_inserted(self, event) -> None:
-        """Show the edit section only for a layer with prior edits."""
+        """Keep the edit section collapsed until a point is edited."""
         layer = event.value
         if not self._is_movement_points(layer):
             return  # ignore any layer that is not a movement Points layer
         self._show_individuals_enabled()
         # Open the edit section as soon as a point is edited on this layer.
         layer.events.data.connect(self._on_points_edited)
-        edited = layer.properties.get("edited")
-        if edited is not None and edited.any():
-            self._edit_collapsible.expand()
-        else:
-            self._edit_collapsible.collapse(False)
+        self._edit_collapsible.collapse(False)
 
     def _on_points_edited(self, event) -> None:
         """Expand the edit section when a point is dragged or removed.
