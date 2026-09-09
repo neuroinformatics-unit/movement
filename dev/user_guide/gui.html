@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=25f82c22"></script>
+    <script src="../_static/documentation_options.js?v=1200a648"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev45</p>
+    <p class="title logo__title">movement v0.17.1.dev46</p>
   
 </a></div>
     
@@ -634,7 +634,7 @@ netCDF file with <code class="docutils literal notranslate"><span class="pre">mo
 <span class="c1"># Apply some processing to the position data variable.</span>
 <span class="c1"># e.g. a rolling median filter</span>
 <span class="n">ds_new</span><span class="p">[</span><span class="s2">"position"</span><span class="p">]</span> <span class="o">=</span> <span class="n">rolling_filter</span><span class="p">(</span>
-  <span class="n">ds_orig</span><span class="p">[</span><span class="s2">"position"</span><span class="p">],</span> <span class="n">window</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">statistic</span><span class="o">=</span><span class="s2">"median"</span>
+    <span class="n">ds_orig</span><span class="p">[</span><span class="s2">"position"</span><span class="p">],</span> <span class="n">window</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">statistic</span><span class="o">=</span><span class="s2">"median"</span>
 <span class="p">)</span>
 
 <span class="c1"># Save the processed dataset to a netCDF file</span>

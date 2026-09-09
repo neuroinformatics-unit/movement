@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=25f82c22"></script>
+    <script src="../_static/documentation_options.js?v=1200a648"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev45</p>
+    <p class="title logo__title">movement v0.17.1.dev46</p>
   
 </a></div>
     
@@ -771,7 +771,7 @@ The logger is configured to write logs to a rotating log file at the <code class
 <p>Both <a class="reference internal" href="../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.error" title="movement.utils.logging.MovementLogger.error"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.error()</span></code></a> and <a class="reference internal" href="../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.exception" title="movement.utils.logging.MovementLogger.exception"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.exception()</span></code></a> can be used to log <a class="reference external" href="https://docs.python.org/3/tutorial/errors.html#tut-errors" title="Python 3.14">Errors and Exceptions</a>, with the difference that the latter will include the traceback in the log message.
 As these methods will return the logged Exception, you can log and raise the Exception in a single line:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">"message"</span><span class="p">))</span>
-<span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">"message"</span><span class="p">))</span> <span class="c1"># with traceback</span>
+<span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">"message"</span><span class="p">))</span>  <span class="c1"># with traceback</span>
 </pre></div>
 </div>
 </section>
@@ -816,6 +816,7 @@ At minimum, this requires defining:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@define</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ValidMySoftwareCSV</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Validator for MySoftware .csv output files."""</span>
+
     <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">".csv"</span><span class="p">}</span>
     <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
         <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
@@ -825,8 +826,7 @@ At minimum, this requires defining:</p>
 
     <span class="nd">@file</span><span class="o">.</span><span class="n">validator</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_file_contains_expected_header</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">"""Ensure that the .csv file contains the expected header row.</span>
-<span class="sd">        """</span>
+<span class="w">        </span><span class="sd">"""Ensure that the .csv file contains the expected header row."""</span>
         <span class="n">expected_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"scorer"</span><span class="p">,</span> <span class="s2">"bodyparts"</span><span class="p">,</span> <span class="s2">"coords"</span><span class="p">]</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">col_names</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">","</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
@@ -908,7 +908,7 @@ Continuing from the hypothetical “MySoftware” example, the loader function <
     <span class="n">file_path</span> <span class="o">=</span> <span class="n">valid_file</span><span class="o">.</span><span class="n">file</span>  <span class="c1"># Path</span>
     <span class="c1"># The _parse_* functions are pseudocode</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_numpy</span><span class="p">(</span>
-        <span class="n">position_array</span><span class="o">=</span> <span class="n">_parse_positions</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span>
+        <span class="n">position_array</span><span class="o">=</span><span class="n">_parse_positions</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span>
         <span class="n">confidence_array</span><span class="o">=</span><span class="n">_parse_confidences</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span>
         <span class="n">individual_names</span><span class="o">=</span><span class="n">_parse_individual_names</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span>
         <span class="n">keypoint_names</span><span class="o">=</span><span class="n">_parse_keypoint_names</span><span class="p">(</span><span class="n">file_path</span><span class="p">),</span>
@@ -934,11 +934,15 @@ Continuing from the hypothetical “MySoftware” example, the loader function <
 <h5>Decorate the loader with <code class="docutils literal notranslate"><span class="pre">&#64;register_loader</span></code><a class="headerlink" href="#decorate-the-loader-with-register-loader" title="Link to this heading">#</a></h5>
 <p>The <a class="reference internal" href="../api/movement.io.load.register_loader.html#movement.io.load.register_loader" title="movement.io.load.register_loader"><code class="xref py py-func docutils literal notranslate"><span class="pre">&#64;register_loader()</span></code></a> decorator associates a loader function with a <code class="docutils literal notranslate"><span class="pre">source_software</span></code> name so that users can load files from that software via the unified <a class="reference internal" href="../api/movement.io.load.load_dataset.html#movement.io.load.load_dataset" title="movement.io.load.load_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_dataset()</span></code></a> interface:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span><span class="s2">"path/to/mysoftware_output.csv"</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">"MySoftware"</span><span class="p">)</span>
+
+<span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span>
+    <span class="s2">"path/to/mysoftware_output.csv"</span><span class="p">,</span> <span class="n">source_software</span><span class="o">=</span><span class="s2">"MySoftware"</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p>which is equivalent to calling the loader function directly:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io.load_poses</span><span class="w"> </span><span class="kn">import</span> <span class="n">from_mysoftware_file</span>
+
 <span class="n">ds</span> <span class="o">=</span> <span class="n">from_mysoftware_file</span><span class="p">(</span><span class="s2">"path/to/mysoftware_output.csv"</span><span class="p">)</span>
 </pre></div>
 </div>

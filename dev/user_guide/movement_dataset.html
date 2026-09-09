@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=25f82c22"></script>
+    <script src="../_static/documentation_options.js?v=1200a648"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev45</p>
+    <p class="title logo__title">movement v0.17.1.dev46</p>
   
 </a></div>
     
@@ -730,15 +730,14 @@ data:</p>
 <span class="n">ds_sel</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
     <span class="n">time</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span>
     <span class="n">individual</span><span class="o">=</span><span class="p">[</span><span class="s2">"individual1"</span><span class="p">,</span> <span class="s2">"individual2"</span><span class="p">],</span>
-    <span class="n">keypoint</span><span class="o">=</span><span class="s2">"snout"</span>
+    <span class="n">keypoint</span><span class="o">=</span><span class="s2">"snout"</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>The same selections can be applied to the <strong>data variables</strong> inside a dataset. In that case the selection operations will
 return an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> rather than an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">position</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
-    <span class="n">individual</span><span class="o">=</span><span class="s2">"individual1"</span><span class="p">,</span>
-    <span class="n">keypoint</span><span class="o">=</span><span class="s2">"snout"</span>
+    <span class="n">individual</span><span class="o">=</span><span class="s2">"individual1"</span><span class="p">,</span> <span class="n">keypoint</span><span class="o">=</span><span class="s2">"snout"</span>
 <span class="p">)</span>  <span class="c1"># the output is a data array</span>
 </pre></div>
 </div>

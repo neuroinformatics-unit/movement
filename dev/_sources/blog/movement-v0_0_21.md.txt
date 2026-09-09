@@ -56,7 +56,8 @@ because we've found the concept hard to convey to new users. All functions are h
   ```python
   # Indexing with dimension names (recommended, works always)
   position = ds.position.isel(
-      individuals=0, keypoints=-1     # first individual, last keypoint
+      individuals=0,
+      keypoints=-1,  # first individual, last keypoint
   )
 
   # Numpy-style indexing with the old dimension order (will no longer work)

@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=25f82c22"></script>
+    <script src="../_static/documentation_options.js?v=1200a648"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev45</p>
+    <p class="title logo__title">movement v0.17.1.dev46</p>
   
 </a></div>
     
@@ -713,9 +713,7 @@ Anipose</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 <p>You can also directly load any pandas DataFrame <code class="docutils literal notranslate"><span class="pre">df</span></code> that’s formatted in the Anipose triangulation style:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_anipose_style_df</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">individual_name</span><span class="o">=</span><span class="s2">"id_0"</span>
-<span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_anipose_style_df</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">individual_name</span><span class="o">=</span><span class="s2">"id_0"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -795,7 +793,7 @@ both with the same width (40 pixels) and height (30 pixels). These are tracked i
     <span class="n">position_array</span><span class="o">=</span><span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span>
     <span class="n">shape_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="p">[</span><span class="mi">40</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
     <span class="n">confidence_array</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">,</span>
-    <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"id_0"</span><span class="p">,</span> <span class="s2">"id_1"</span><span class="p">]</span>
+    <span class="n">individual_names</span><span class="o">=</span><span class="p">[</span><span class="s2">"id_0"</span><span class="p">,</span> <span class="s2">"id_1"</span><span class="p">],</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -908,16 +906,23 @@ Custom .csv file</label><div class="sd-tab-content docutils">
     <span class="n">writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 
     <span class="c1"># write the header</span>
-    <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="s2">"frame_idx"</span><span class="p">,</span> <span class="s2">"bbox_ID"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"width"</span><span class="p">,</span> <span class="s2">"height"</span><span class="p">,</span> <span class="s2">"confidence"</span><span class="p">])</span>
+    <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">"frame_idx"</span><span class="p">,</span> <span class="s2">"bbox_ID"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="s2">"width"</span><span class="p">,</span> <span class="s2">"height"</span><span class="p">,</span> <span class="s2">"confidence"</span><span class="p">]</span>
+    <span class="p">)</span>
 
     <span class="c1"># write the data</span>
     <span class="k">for</span> <span class="n">individual</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">individual</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
             <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">frame</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">individual</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
-            <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">frame</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">individual</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
-            <span class="n">confidence</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">frame</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">individual</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="n">frame</span><span class="p">,</span> <span class="n">individual</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">confidence</span><span class="p">])</span>
-
+            <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+                <span class="n">time</span><span class="o">=</span><span class="n">frame</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">individual</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">confidence</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span>
+                <span class="n">time</span><span class="o">=</span><span class="n">frame</span><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><span class="n">individual</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">data</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">frame</span><span class="p">,</span> <span class="n">individual</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">confidence</span><span class="p">]</span>
+            <span class="p">)</span>
 </pre></div>
 </div>
 <div class="note admonition">
@@ -1009,7 +1014,7 @@ various <a class="reference internal" href="#target-supported-formats"><span cla
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
 
 <span class="n">file_names</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">list_datasets</span><span class="p">()</span>
-<span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">file_names</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>  <span class="c1"># print each sample file in a separate line</span>
+<span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">file_names</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># print each sample file in a separate line</span>
 </pre></div>
 </div>
 <p>Each sample file is prefixed with the name (or abbreviation)
