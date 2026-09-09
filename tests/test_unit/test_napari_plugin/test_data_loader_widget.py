@@ -381,6 +381,9 @@ def test_on_load_clicked_with_valid_file_path(
     # Check the frame slider is set to the first frame
     assert viewer.dims.current_step[0] == 0
 
+    # Check the axes are labelled t, y, x
+    assert viewer.dims.axis_labels[-3:] == ("t", "y", "x")
+
     # Check that the expected log messages were emitted
     expected_log_messages = {
         "Converted dataset to a napari Tracks array.",
