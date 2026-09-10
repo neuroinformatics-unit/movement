@@ -1,7 +1,7 @@
 (target-governance)=
 # Governance
 
-`movement` is led by the [Neuroinformatics Unit](https://neuroinformatics.dev/) (NIU)
+`movement` is currently led by the [Neuroinformatics Unit](https://neuroinformatics.dev/) (NIU)
 at the [Sainsbury Wellcome Centre](https://www.sainsburywellcome.org/web/),
 but it's very much a community effort, and we're grateful to everyone who helps move
 it forward. The roles below describe the different ways people take part and the
@@ -66,7 +66,7 @@ They hold *Maintain* access on GitHub, which is why you'll sometimes see them ca
 Beyond everything a **trusted contributor** can do, **core developers** perform the following tasks:
 
 - manage the repository itself, including merging pull requests and making releases;
-- manage the community by moderating conversations on GitHub and Zulip, organising community calls, and posting on social media;
+- foster the community by moderating conversations on GitHub and Zulip, organising community calls, and posting on social media;
 - make decisions about the project's scope and roadmap, and prioritise features and bug fixes;
 - publicly represent the project in talks, workshops, and other events.
 
