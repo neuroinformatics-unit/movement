@@ -7,7 +7,7 @@
 [Adam Tyson](https://github.com/adamltyson).
 See [Governance](target-governance) for what the roles below mean and how to take them on.
 
-The current **active core development** team is composed of:
+The currently active **core developers** are:
 - [Niko Sirmpilatze](https://github.com/niksirbi)
 - [Chang Huan Lo](https://github.com/lochhh)
 - [Sofía Miñano](https://github.com/sfmig)
