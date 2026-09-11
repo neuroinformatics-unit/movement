@@ -533,6 +533,7 @@ The {func}`@register_writer()<movement.io.save.register_writer>` decorator assoc
 
 ```python
 from movement.io import save_dataset
+
 save_dataset(ds, "/path/to/output.csv", target_software="MySoftware")
 ```
 
@@ -540,6 +541,7 @@ which is equivalent to calling the writer function directly:
 
 ```python
 from movement.io.save_poses import to_mysoftware_file
+
 to_mysoftware_file(ds, "/path/to/output.csv")
 ```
 
