@@ -6,6 +6,7 @@ instantiated (the methods would have already been connected to signals).
 """
 
 from contextlib import nullcontext as does_not_raise
+from functools import partial
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -34,6 +35,11 @@ from qtpy.QtWidgets import (
     QPushButton,
 )
 
+from movement.napari.layer_wiring import (
+    on_points_data_changed,
+    set_point_symbol_by_edited,
+    update_frame_slider_range,
+)
 from movement.napari.loader_widgets import (
     SUPPORTED_BBOXES_FILES,
     DataLoader,
@@ -65,19 +71,18 @@ def test_data_loader_widget_instantiation(make_napari_viewer_proxy):
     # Make sure that layer tooltips are enabled
     assert get_settings().appearance.layer_tooltip_visibility is True
 
-    # Test methods are connected to layer events
+    # Test the frame slider update is connected to layer events as a
+    # partial (which napari holds as a strong reference and therefore
+    # outlives the widget).
     assert all(
-        [
-            data_loader_widget._update_frame_slider_range.__name__
-            in [
-                cb[1]
-                for cb in event.callbacks
-                if not isinstance(cb, EmitterGroup)
-            ]
-            for event in [
-                data_loader_widget.viewer.layers.events.inserted,
-                data_loader_widget.viewer.layers.events.removed,
-            ]
+        any(
+            isinstance(cb, partial) and cb.func is update_frame_slider_range
+            for cb in event.callbacks
+            if not isinstance(cb, EmitterGroup)
+        )
+        for event in [
+            data_loader_widget.viewer.layers.events.inserted,
+            data_loader_widget.viewer.layers.events.removed,
         ]
     )
 
@@ -123,13 +128,17 @@ def test_on_layer_added_and_deleted(
     layer_type, sample_layer_data, make_napari_viewer_proxy, mocker
 ):
     """Test the frame slider update is called when a layer is added/removed."""
-    # Create a mock napari viewer
-    data_loader_widget = DataLoader(make_napari_viewer_proxy())
-
-    # Mock the frame slider check method
+    # Mock the frame slider check function.
+    # We need to mock the function before the widget connects it. This is
+    # because the connection is a `partial`, which holds a
+    # direct reference to the function object, rather than looking it up
+    # by its name. Patching only swaps what the module attribute points to.
     mock_frame_slider_check = mocker.patch(
-        "movement.napari.loader_widgets.DataLoader._update_frame_slider_range"
+        "movement.napari.layer_wiring.update_frame_slider_range"
     )
+
+    # Create a mock napari viewer and wire the mocked callback
+    data_loader_widget = DataLoader(make_napari_viewer_proxy())
 
     # Add a sample layer to the viewer
     mock_layer = layer_type(
@@ -519,7 +528,13 @@ def test_dimension_slider_with_nans(
     make_napari_viewer_proxy,
 ):
     """Test that the dimension slider is set to the total number of frames
-    when data layers with NaNs are loaded.
+    when data layers with NaNs are loaded, and stays there after a point edit.
+
+    napari recomputes ``dims.range`` from the live (NaN-filtered) layer extent
+    on every data edit, which would drop the padding for leading/trailing
+    all-NaN frames. ``update_frame_slider_range`` is wired to the Points
+    layer's ``events.data`` to re-pad it, so the range (and the playhead) must
+    not shift when a point is dragged.
     """
     # Get data with nans at the expected locations
     nan_location = {
@@ -562,9 +577,16 @@ def test_dimension_slider_with_nans(
     data_loader_widget._on_load_clicked()
 
     # Check the frame slider is set to the full range of frames
-    assert viewer.dims.range[0] == RangeTuple(
-        start=0.0, stop=ds.position.shape[0] - 1, step=1.0
-    )
+    full_range = RangeTuple(start=0.0, stop=ds.position.shape[0] - 1, step=1.0)
+    assert viewer.dims.range[0] == full_range
+
+    # Edit a point via the real .data setter (what a drag does under the
+    # hood): this makes napari recompute dims.range from the live extent.
+    # The range must still span the full frame count, NaN frames included.
+    new_data = data_loader_widget.points_layer.data.copy()
+    new_data[0, 1:] = [100, 200]
+    data_loader_widget.points_layer.data = new_data
+    assert viewer.dims.range[0] == full_range
 
 
 @pytest.mark.parametrize(
@@ -803,7 +825,7 @@ def test_empty_layer_excluded_from_frame_slider_update(
     add_layer(viewer)
 
     with does_not_raise():
-        loader._update_frame_slider_range()
+        update_frame_slider_range(loader.viewer)
 
 
 # ------------------- tests for layers style ----------------------------#
@@ -952,7 +974,7 @@ def test_set_point_symbol_by_edited_no_edited_property_is_noop(
     loader = loaded_data_loader(filepath, ds)
 
     original_symbol = loader.points_layer.symbol.copy()
-    loader._set_point_symbol_by_edited(loader.points_layer)
+    set_point_symbol_by_edited(loader.points_layer)
 
     np.testing.assert_array_equal(loader.points_layer.symbol, original_symbol)
 
@@ -963,7 +985,7 @@ def test_on_points_data_changed_ignores_tracks_layer(
     """Test that the callback does not modify a layer's properties
     when the data change occurs on a non-Points layer.
 
-    Verifies that `DataLoader._on_points_data_changed` returns early
+    Verifies that `on_points_data_changed` returns early
     without modifying confidence when `event.source` is not a
     `napari.layers.Points` instance.
     """
@@ -985,7 +1007,7 @@ def test_on_points_data_changed_ignores_tracks_layer(
     mock_event.action = ActionType.CHANGED
     mock_event.data_indices = (0,)
 
-    loader._on_points_data_changed(mock_event)
+    on_points_data_changed(mock_event)
 
     # Check tracks layer properties are unchanged
     np.testing.assert_array_equal(
@@ -1008,7 +1030,7 @@ def test_on_points_data_changed_ignores_unhandled_action_types(
 ):
     """Test that the callback leaves confidence untouched for other events.
 
-    Verifies that :meth:`DataLoader._on_points_data_changed` leaves
+    Verifies that :func:`on_points_data_changed` leaves
     ``confidence`` untouched for action types it does not act on:
     ``ADDING``, ``ADDED``, ``REMOVING``, and ``CHANGING``
     (in-progress drag). The two action types it does handle,
@@ -1025,7 +1047,7 @@ def test_on_points_data_changed_ignores_unhandled_action_types(
     mock_event.action = action_type
     mock_event.data_indices = (0,)
 
-    loader._on_points_data_changed(mock_event)
+    on_points_data_changed(mock_event)
 
     pd.testing.assert_series_equal(
         loader.points_layer.features["confidence"],
@@ -1038,7 +1060,7 @@ def test_on_points_data_changed_syncs_tracks_layer(
 ):
     """Test that dragging a point updates the corresponding Tracks layer.
 
-    Verifies that :meth:`DataLoader._on_points_data_changed` writes a
+    Verifies that :func:`on_points_data_changed` writes a
     moved point's new (frame, y, x) to the same row in the Tracks
     layer, and leaves every other row untouched.
     """
@@ -1079,7 +1101,7 @@ def test_on_points_data_changed_preserves_tracks_color_by(
     Regression test for GH issue #573: setting ``Tracks.data`` resets
     the layer's features to empty, which transiently invalidates
     ``color_by`` and triggers a spurious "Previous color_by key ...
-    not present in features" warning. ``DataLoader._set_tracks_layer_data``
+    not present in features" warning. ``set_tracks_layer_data``
     restores ``color_by`` and the ``*_factorized`` property right after,
     so both should be unchanged once a drag completes.
     """
@@ -1109,7 +1131,7 @@ def test_on_points_data_removes_tracks_layer_row(
 ):
     """Test that deleting a point removes the matching row from Tracks.
 
-    Verifies that `DataLoader._on_points_data_changed` reacts to
+    Verifies that `on_points_data_changed` reacts to
     the real ``ActionType.REMOVED`` event fired by napari's own
     ``Points.remove`` by dropping the same row from the companion
     Tracks layer, leaving every other row untouched.
@@ -1200,7 +1222,7 @@ def test_update_points_layers_editable_toggles_with_axis_order(
 
     Rolling the displayed axes, or switching to a 3D view, means a
     point drag could touch a different frame (see
-    ``DataLoader._frame_axis_is_sliced``), so the Points layer should
+    ``frame_axis_is_sliced``), so the Points layer should
     become non-editable; restoring the default order/2D view should
     make it editable again.
     """
@@ -1246,7 +1268,7 @@ def test_on_points_data_changed_second_drag_extends_edited(
         mock_event.source = loader.points_layer
         mock_event.action = ActionType.CHANGED
         mock_event.data_indices = indices
-        loader._on_points_data_changed(mock_event)
+        on_points_data_changed(mock_event)
 
     # First drag: creates `edited` (the `else` branch), one point moved
     drag((0,))
