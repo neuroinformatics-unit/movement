@@ -387,16 +387,16 @@ save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 To convert a `movement` poses dataset to {class}`~pynwb.file.NWBFile` objects:
 
 ```python
-nwb_files = save_poses.to_nwb_file(ds)
+nwb_files = save_poses.to_nwb_file_object(ds)
 ```
 
-To allow adding additional data to NWB files before saving, {func}`~movement.io.save_poses.to_nwb_file` does not write to disk directly.
+To allow adding additional data to NWB files before saving, {func}`~movement.io.save_poses.to_nwb_file_object` does not write to disk directly.
 Instead, it returns a list of {class}`~pynwb.file.NWBFile` objects---one per individual in the dataset---since NWB files are designed to represent data from a single individual.
 
-The {func}`~movement.io.save_poses.to_nwb_file` function also accepts
+The {func}`~movement.io.save_poses.to_nwb_file_object` function also accepts
 a {class}`~movement.io.nwb.NWBFileSaveConfig` object as its `config` argument
 for customising metadata such as session or subject information in the resulting NWBFiles
-(see {func}`the API reference<movement.io.save_poses.to_nwb_file>` for examples).
+(see {func}`the API reference<movement.io.save_poses.to_nwb_file_object>` for examples).
 
 These {class}`~pynwb.file.NWBFile` objects can then be saved to disk as .nwb files using {class}`pynwb.NWBHDF5IO`:
 

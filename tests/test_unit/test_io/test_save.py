@@ -160,7 +160,7 @@ class TestSaveDataset:
                 for identifier in identifiers
             ]
         mocker.patch(
-            "movement.io.save_poses.to_nwb_file",
+            "movement.io.save_poses.to_nwb_file_object",
             return_value=to_nwb_file_return,
         )
         mock_write = mocker.patch("movement.io.save_poses._write_nwb_to_disk")

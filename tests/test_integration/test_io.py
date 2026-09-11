@@ -112,7 +112,7 @@ def test_save_and_load_to_nwb_file(valid_poses_dataset):
     """Test that saving pose tracks to NWBFile and then loading
     the file back in returns the same Dataset.
     """
-    nwb_files = save_poses.to_nwb_file(valid_poses_dataset)
+    nwb_files = save_poses.to_nwb_file_object(valid_poses_dataset)
     ds_singles = [load_poses.from_nwb_file(nwb_file) for nwb_file in nwb_files]
     ds = xr.merge(ds_singles, join="outer", compat="no_conflicts")
     # Change expected differences to match valid_poses_dataset

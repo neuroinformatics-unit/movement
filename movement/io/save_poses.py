@@ -1,5 +1,6 @@
 """Save pose tracking data from ``movement`` to various file formats."""
 
+import warnings
 from pathlib import Path
 from typing import Literal, overload
 
@@ -389,10 +390,10 @@ def to_sleap_analysis_file(ds: xr.Dataset, file: str | Path) -> None:
     logger.info(f"Saved poses dataset to {file}.")
 
 
-def to_nwb_file(
+def to_nwb_file_object(
     ds: xr.Dataset, config: NWBFileSaveConfig | None = None
 ) -> pynwb.file.NWBFile | list[pynwb.file.NWBFile]:
-    """Save a ``movement`` dataset to one or more NWBFile objects.
+    """Convert a ``movement`` dataset to one or more NWBFile objects.
 
     The data will be written to :class:`pynwb.file.NWBFile` object(s)
     in the "behavior" processing module, formatted according to the
@@ -432,7 +433,7 @@ def to_nwb_file(
     >>> from movement.io import save_poses
     >>> from pynwb import NWBHDF5IO
     >>> ds = fetch_dataset("DLC_two-mice.predictions.csv")
-    >>> nwb_files = save_poses.to_nwb_file(ds)
+    >>> nwb_files = save_poses.to_nwb_file_object(ds)
     >>> for file in nwb_files:
     ...     with NWBHDF5IO(f"{file.identifier}.nwb", "w") as io:
     ...         io.write(file)
@@ -449,7 +450,7 @@ def to_nwb_file(
     ...     processing_module_kwargs={"description": "processed behav data"},
     ...     subject_kwargs={"age": "P90D", "species": "Mus musculus"},
     ... )
-    >>> nwb_files = save_poses.to_nwb_file(ds, config)
+    >>> nwb_files = save_poses.to_nwb_file_object(ds, config)
 
     Create NWBFiles with different :class:`pynwb.file.NWBFile`
     and :class:`pynwb.file.Subject` metadata for each individual
@@ -471,7 +472,7 @@ def to_nwb_file(
     ...         "individual2": {"age": "P91D", "sex": "F"},
     ...     },
     ... )
-    >>> nwb_files = save_poses.to_nwb_file(ds, config)
+    >>> nwb_files = save_poses.to_nwb_file_object(ds, config)
 
     Create NWBFiles with different ``ndx_pose.PoseEstimationSeries``
     metadata for different keypoints (e.g. ``leftear``, ``rightear``):
@@ -486,7 +487,7 @@ def to_nwb_file(
     ...         },
     ...     },
     ... )
-    >>> nwb_files = save_poses.to_nwb_file(ds, config)
+    >>> nwb_files = save_poses.to_nwb_file_object(ds, config)
 
     See Also
     --------
@@ -532,16 +533,41 @@ def to_nwb_file(
     return nwb_files if is_multi_ind else nwb_files[0]
 
 
+def to_nwb_file(
+    ds: xr.Dataset, config: NWBFileSaveConfig | None = None
+) -> pynwb.file.NWBFile | list[pynwb.file.NWBFile]:
+    """Convert a ``movement`` dataset to one or more NWBFile objects.
+
+    .. deprecated:: 0.18.0
+        ``to_nwb_file`` has been renamed to :func:`to_nwb_file_object`
+        and is now deprecated. A future release will repurpose
+        ``to_nwb_file`` as a function that writes NWB file(s) directly
+        to disk. Use :func:`to_nwb_file_object` to create NWBFile object(s)
+        without writing to disk.
+    """
+    warnings.warn(
+        "`to_nwb_file` has been renamed to `to_nwb_file_object` and is now "
+        "deprecated. In a future release, `to_nwb_file` will write NWB files "
+        "directly to disk. Use `to_nwb_file_object` to create NWBFile "
+        "object(s) without writing to disk.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return to_nwb_file_object(ds, config)
+
+
 @register_writer("NWB", ds_type="poses", suffixes={".nwb"})
 def _write_nwb_file(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
     """Save a ``movement`` poses dataset to one or more NWB files.
 
-    :func:`to_nwb_file` builds the NWBFile object(s) but does not write them
-    to disk; this helper writes them. Multi-individual datasets yield one
-    file per individual, with the individual name appended to the file path.
+    :func:`to_nwb_file_object` builds the NWBFile object(s) but does not
+    write them to disk; this helper writes them. Multi-individual datasets
+    yield one file per individual, with the individual name appended to
+    the file path. This function will be promoted to public `to_nwb_file` in a
+    future release.
     """
     valid_path = Path(file)
-    nwb_files = to_nwb_file(ds, **kwargs)
+    nwb_files = to_nwb_file_object(ds, **kwargs)
     if isinstance(nwb_files, pynwb.file.NWBFile):
         _write_nwb_to_disk(nwb_files, valid_path)
     else:  # list of NWBFile objects for multi-individual datasets

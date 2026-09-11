@@ -517,7 +517,7 @@ def test_to_nwb_file_with_single_or_multi_ind_ds(
     ds = selection_fn(valid_poses_dataset)
     config = request.getfixturevalue(config) if config else config
     test_id = request.node.callspec.id
-    nwb_files = save_poses.to_nwb_file(ds, config)
+    nwb_files = save_poses.to_nwb_file_object(ds, config)
     if ds.individual.size == 1:
         nwb_files = [nwb_files]
     actual_nwbfile_kwargs = []
@@ -661,7 +661,7 @@ def test_to_nwb_file_with_single_or_multi_keypoint_ds(
     ds = selection_fn(valid_poses_dataset).isel(individual=0)
     test_id = request.node.callspec.id
     config = request.getfixturevalue(config) if config else config
-    nwb_file = save_poses.to_nwb_file(ds, config)
+    nwb_file = save_poses.to_nwb_file_object(ds, config)
     pose_estimation_name = (
         "PoseEstimation" if "default" in test_id else "subj0"
     )
