@@ -450,10 +450,11 @@ def ds_to_layer_data_tuples(
     """Build napari (data, meta, layer_type) tuples from a movement dataset."""
     # ds_to_napari_layers → data_not_nan mask → position_is_nan property
     # → color/text properties → <Style>.as_kwargs() + metadata dict
-    return [(points_data, points_meta, "points"),
-            (tracks_data, tracks_meta, "tracks"),
-            # + (boxes_data, boxes_meta, "shapes") for bboxes datasets
-            ]
+    return [
+        (points_data, points_meta, "points"),
+        (tracks_data, tracks_meta, "tracks"),
+        # + (boxes_data, boxes_meta, "shapes") for bboxes datasets
+    ]
 ```
 
 **Absorbed near-verbatim from `DataLoader`** (viewer-free parts only):
@@ -527,29 +528,38 @@ Logic unchanged; the one difference is who reports the error:
 **New file: `movement/napari/reader.py`**
 
 ```python
-SUPPORTED_SUFFIXES = set().union(*get_supported_source_software().values()) | {".nc"}
+SUPPORTED_SUFFIXES = set().union(*get_supported_source_software().values()) | {
+    ".nc"
+}
+
 
 def napari_get_reader(path: str | list[str]) -> ReaderFunction | None:
     """Return a reader for movement-supported files, else None."""
     paths = [path] if isinstance(path, str) else path
     if any(Path(p).suffix not in SUPPORTED_SUFFIXES for p in paths):
-        return None                     # mixed multi-file drop only
+        return None  # mixed multi-file drop only
     return read_dataset
+
 
 def read_dataset(path) -> list[tuple[Any, dict, str]]:
     layer_data = []
-    for p in ([path] if isinstance(path, str) else path):
+    for p in [path] if isinstance(path, str) else path:
         try:
-            ds = (load_movement_netcdf(p) if Path(p).suffix == ".nc"   # Step 2
-                  else load_dataset(p, source_software="auto", fps=None))
+            ds = (
+                load_movement_netcdf(p)
+                if Path(p).suffix == ".nc"  # Step 2
+                else load_dataset(p, source_software="auto", fps=None)
+            )
         except (ValueError, OSError) as e:
-            show_error(f"{Path(p).name}: {e}  — use the movement widget to "
-                       "select the source software explicitly.")
-            continue                    # skip this file, keep the others
-        layer_data += ds_to_layer_data_tuples(ds, Path(p).name)   # Step 1
-    if (viewer := napari.current_viewer()) is not None:           # Step 4
+            show_error(
+                f"{Path(p).name}: {e}  — use the movement widget to "
+                "select the source software explicitly."
+            )
+            continue  # skip this file, keep the others
+        layer_data += ds_to_layer_data_tuples(ds, Path(p).name)  # Step 1
+    if (viewer := napari.current_viewer()) is not None:  # Step 4
         connect_viewer_callbacks(viewer)
-    return layer_data or [(None,)]      # napari's "no layers" sentinel
+    return layer_data or [(None,)]  # napari's "no layers" sentinel
 ```
 
 - **Suffix matching only in the hook.** No content validation: it runs for every
