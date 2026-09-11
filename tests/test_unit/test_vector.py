@@ -198,6 +198,100 @@ class TestVector:
             xr.testing.assert_allclose(unit_pol, expected_unit_pol)
 
 
+class TestVector3D:
+    """Test suite for 3D (cylindrical) transforms in the vector module."""
+
+    @pytest.fixture
+    def cart_cyl_dataset(self):
+        """Return an xarray.Dataset with Cartesian and cylindrical
+        coordinates in 3D.
+        """
+        # Cartesian coordinates with unsigned zeros, as in the 2D case
+        x_vals = np.array([-0.0, -1.0, 0.0, 1.0, 1.0, 1.0, 0.0, -1.0, -10.0])
+        y_vals = np.array([-0.0, -1.0, -1.0, -1.0, 0.0, 1.0, 1.0, 1.0, 0.0])
+        z_vals = np.array([0.0, 1.0, -1.0, 2.5, -3.0, 0.0, 4.0, -0.5, 7.0])
+        time_coords = np.arange(len(x_vals))
+
+        # Expected cylindrical coordinates: rho spans the x-y plane only,
+        # phi is unchanged from the 2D case, and z passes through
+        rho = np.sqrt(x_vals**2 + y_vals**2)
+        phi = np.pi * np.array(
+            [0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
+        )
+        cart = xr.DataArray(
+            np.column_stack((x_vals, y_vals, z_vals)),
+            dims=["time", "space"],
+            coords={"time": time_coords, "space": ["x", "y", "z"]},
+        )
+        cyl = xr.DataArray(
+            np.column_stack((rho, phi, z_vals)),
+            dims=["time", "space_pol"],
+            coords={
+                "time": time_coords,
+                "space_pol": ["rho", "phi", "z"],
+            },
+        )
+        return xr.Dataset(data_vars={"cart": cart, "cyl": cyl})
+
+    @pytest.fixture
+    def cart_cyl_dataset_with_nan(self, cart_cyl_dataset):
+        """Return the 3D dataset with some values set to NaN."""
+        cart_cyl_dataset.cart.loc[{"time": slice(2, 3)}] = np.nan
+        cart_cyl_dataset.cyl.loc[{"time": slice(2, 3)}] = np.nan
+        return cart_cyl_dataset
+
+    def spatial_array(self, dim, coords):
+        """Return a data array with the given spatial dim and coords."""
+        return xr.DataArray(
+            np.ones((3, len(coords))),
+            dims=["time", dim],
+            coords={"time": np.arange(3), dim: coords},
+        )
+
+    @pytest.mark.parametrize(
+        "ds", ["cart_cyl_dataset", "cart_cyl_dataset_with_nan"]
+    )
+    def test_cart2pol_3d(self, ds, request):
+        """Test 3D Cartesian to cylindrical with known values."""
+        ds = request.getfixturevalue(ds)
+        result = vector.cart2pol(ds.cart)
+        xr.testing.assert_allclose(result, ds.cyl)
+
+    def test_cart2pol_3d_rho_excludes_z(self, cart_cyl_dataset):
+        """Test that rho is the x-y radius, not the spherical radius."""
+        cart = cart_cyl_dataset.cart
+        rho = vector.cart2pol(cart).sel(space_pol="rho", drop=True)
+        expected = np.sqrt(
+            cart.sel(space="x").values ** 2 + cart.sel(space="y").values ** 2
+        )
+        np.testing.assert_allclose(rho.values, expected)
+        # the spherical radius differs wherever z is non-zero
+        assert not np.allclose(rho.values, vector.compute_norm(cart).values)
+
+    @pytest.mark.parametrize(
+        "dim, coords",
+        [
+            ("space", ["x"]),
+            ("space", ["x", "y", "z", "w"]),
+        ],
+    )
+    def test_invalid_spatial_dim_length(self, dim, coords):
+        """Test that spatial dims of length other than 2 or 3 are rejected."""
+        data = self.spatial_array(dim, coords)
+        with pytest.raises(ValueError):
+            vector.cart2pol(data)
+
+    @pytest.mark.parametrize(
+        "dim, coords",
+        [("space", ["x", "y", "w"])],
+    )
+    def test_third_spatial_coord_must_be_z(self, dim, coords):
+        """Test that the third spatial coordinate must be named 'z'."""
+        data = self.spatial_array(dim, coords)
+        with pytest.raises(ValueError, match=re.escape("['z']")):
+            vector.cart2pol(data)
+
+
 class TestComputeSignedAngle:
     """Tests for the compute_signed_angle_2d method."""
 
