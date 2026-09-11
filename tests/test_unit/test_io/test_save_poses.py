@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
-from pytest import DATA_PATHS
 
 from movement.io import load_poses, save_poses
 
@@ -69,25 +68,25 @@ def output_file_params(request):
         (np.array([1, 2, 3]), pytest.raises(TypeError)),  # incorrect type
         (
             load_poses.from_dlc_file(
-                DATA_PATHS.get("DLC_single-wasp.predictions.h5")
+                pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5")
             ),
             does_not_raise(),
         ),  # valid dataset
         (
             load_poses.from_dlc_file(
-                DATA_PATHS.get("DLC_two-mice.predictions.csv")
+                pytest.DATA_PATHS.get("DLC_two-mice.predictions.csv")
             ),
             does_not_raise(),
         ),  # valid dataset
         (
             load_poses.from_sleap_file(
-                DATA_PATHS.get("SLEAP_single-mouse_EPM.analysis.h5")
+                pytest.DATA_PATHS.get("SLEAP_single-mouse_EPM.analysis.h5")
             ),
             does_not_raise(),
         ),  # valid dataset
         (
             load_poses.from_sleap_file(
-                DATA_PATHS.get(
+                pytest.DATA_PATHS.get(
                     "SLEAP_three-mice_Aeon_proofread.predictions.slp"
                 )
             ),
@@ -95,7 +94,7 @@ def output_file_params(request):
         ),  # valid dataset
         (
             load_poses.from_lp_file(
-                DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
+                pytest.DATA_PATHS.get("LP_mouse-face_AIND.predictions.csv")
             ),
             does_not_raise(),
         ),  # valid dataset
@@ -518,7 +517,7 @@ def test_to_nwb_file_with_single_or_multi_ind_ds(
     ds = selection_fn(valid_poses_dataset)
     config = request.getfixturevalue(config) if config else config
     test_id = request.node.callspec.id
-    nwb_files = save_poses.to_nwb_file(ds, config)
+    nwb_files = save_poses.to_nwb_file_object(ds, config)
     if ds.individual.size == 1:
         nwb_files = [nwb_files]
     actual_nwbfile_kwargs = []
@@ -662,7 +661,7 @@ def test_to_nwb_file_with_single_or_multi_keypoint_ds(
     ds = selection_fn(valid_poses_dataset).isel(individual=0)
     test_id = request.node.callspec.id
     config = request.getfixturevalue(config) if config else config
-    nwb_file = save_poses.to_nwb_file(ds, config)
+    nwb_file = save_poses.to_nwb_file_object(ds, config)
     pose_estimation_name = (
         "PoseEstimation" if "default" in test_id else "subj0"
     )

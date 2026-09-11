@@ -10,29 +10,29 @@ from typing import TYPE_CHECKING
 import numpy as np
 import xarray as xr
 
+from movement.io.save import register_writer
 from movement.utils.logging import logger
-from movement.validators.datasets import ValidBboxesInputs
-from movement.validators.files import validate_file_path
 
 if TYPE_CHECKING:
     import _csv
 
 
+@register_writer("VIA-tracks", ds_type="bboxes", suffixes={".csv"})
 def to_via_tracks_file(
     ds: xr.Dataset,
-    file_path: str | Path,
+    file: str | Path,
     track_ids_from_trailing_numbers: bool = True,
     frame_n_digits: int | None = None,
     image_file_prefix: str | None = None,
     image_file_suffix: str = ".png",
-) -> Path:
+) -> None:
     """Save a ``movement`` bounding boxes dataset to a VIA tracks .csv file.
 
     Parameters
     ----------
     ds
         The ``movement`` bounding boxes dataset to export.
-    file_path
+    file
         Path where the VIA tracks .csv file [1]_ will be saved.
     track_ids_from_trailing_numbers
         If True, extract track IDs from the numbers at the end of the
@@ -51,11 +51,6 @@ def to_via_tracks_file(
     image_file_suffix
         Suffix to add to every image filename holding the file extension.
         Strings with or without the dot are accepted. Default is '.png'.
-
-    Returns
-    -------
-    pathlib.Path
-        Path to the saved file.
 
     Notes
     -----
@@ -126,11 +121,6 @@ def to_via_tracks_file(
     ... )
 
     """
-    # Validate file path and dataset
-    valid_path = validate_file_path(
-        file_path, permission="w", suffixes={".csv"}
-    )
-    ValidBboxesInputs.validate(ds)
     # Check the number of digits required to represent the frame numbers
     frame_n_digits = _check_frame_required_digits(
         ds=ds, frame_n_digits=frame_n_digits
@@ -149,12 +139,11 @@ def to_via_tracks_file(
     # Write file
     _write_via_tracks_csv(
         ds,
-        valid_path,
+        file,
         map_individual_to_track_id,
         img_filename_template,
     )
-    logger.info(f"Saved bounding boxes dataset to {valid_path}.")
-    return valid_path
+    logger.info(f"Saved bounding boxes dataset to {file}.")
 
 
 def _get_image_filename_template(
@@ -343,7 +332,7 @@ def _extract_track_ids_from_individuals_names(
 
 def _write_via_tracks_csv(
     ds: xr.Dataset,
-    file_path: str | Path,
+    file: str | Path,
     map_individual_to_track_id: dict,
     img_filename_template: str,
 ) -> None:
@@ -353,7 +342,7 @@ def _write_via_tracks_csv(
     ----------
     ds
         A movement bounding boxes dataset.
-    file_path
+    file
         Path where the VIA tracks .csv file will be saved.
     map_individual_to_track_id
         Dictionary mapping individuals' names to track IDs.
@@ -383,7 +372,7 @@ def _write_via_tracks_csv(
         ds.shape.isnull(), axis=1
     )  # (time, individual)
 
-    with open(file_path, "w", newline="") as f:
+    with open(file, "w", newline="") as f:
         csv_writer = csv.writer(f)
         csv_writer.writerow(header)
 
