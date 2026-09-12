@@ -257,6 +257,15 @@ class TestVector3D:
         result = vector.cart2pol(ds.cart)
         xr.testing.assert_allclose(result, ds.cyl)
 
+    @pytest.mark.parametrize(
+        "ds", ["cart_cyl_dataset", "cart_cyl_dataset_with_nan"]
+    )
+    def test_pol2cart_3d(self, ds, request):
+        """Test cylindrical to 3D Cartesian with known values."""
+        ds = request.getfixturevalue(ds)
+        result = vector.pol2cart(ds.cyl)
+        xr.testing.assert_allclose(result, ds.cart)
+
     def test_cart2pol_3d_rho_excludes_z(self, cart_cyl_dataset):
         """Test that rho is the x-y radius, not the spherical radius."""
         cart = cart_cyl_dataset.cart
@@ -268,28 +277,43 @@ class TestVector3D:
         # the spherical radius differs wherever z is non-zero
         assert not np.allclose(rho.values, vector.compute_norm(cart).values)
 
+    def test_cart2pol_pol2cart_3d_roundtrip(self, cart_cyl_dataset):
+        """Test that the 3D roundtrip preserves z and the original vector."""
+        cart = cart_cyl_dataset.cart
+        roundtrip = vector.pol2cart(vector.cart2pol(cart))
+        assert roundtrip.dims == cart.dims
+        assert list(roundtrip.space.values) == ["x", "y", "z"]
+        xr.testing.assert_allclose(
+            roundtrip.sel(space="z"), cart.sel(space="z")
+        )
+        xr.testing.assert_allclose(roundtrip, cart)
+
     @pytest.mark.parametrize(
         "dim, coords",
         [
             ("space", ["x"]),
             ("space", ["x", "y", "z", "w"]),
+            ("space_pol", ["rho"]),
+            ("space_pol", ["rho", "phi", "z", "w"]),
         ],
     )
     def test_invalid_spatial_dim_length(self, dim, coords):
         """Test that spatial dims of length other than 2 or 3 are rejected."""
         data = self.spatial_array(dim, coords)
+        func = vector.cart2pol if dim == "space" else vector.pol2cart
         with pytest.raises(ValueError):
-            vector.cart2pol(data)
+            func(data)
 
     @pytest.mark.parametrize(
         "dim, coords",
-        [("space", ["x", "y", "w"])],
+        [("space", ["x", "y", "w"]), ("space_pol", ["rho", "phi", "w"])],
     )
     def test_third_spatial_coord_must_be_z(self, dim, coords):
         """Test that the third spatial coordinate must be named 'z'."""
         data = self.spatial_array(dim, coords)
+        func = vector.cart2pol if dim == "space" else vector.pol2cart
         with pytest.raises(ValueError, match=re.escape("['z']")):
-            vector.cart2pol(data)
+            func(data)
 
 
 class TestComputeSignedAngle:

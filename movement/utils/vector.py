@@ -170,23 +170,30 @@ def cart2pol(data: xr.DataArray) -> xr.DataArray:
 
 
 def pol2cart(data: xr.DataArray) -> xr.DataArray:
-    """Transform polar coordinates to Cartesian.
+    """Transform polar or cylindrical coordinates to Cartesian.
 
     Parameters
     ----------
     data
         The input data containing ``space_pol`` as a dimension,
-        with ``rho`` and ``phi`` in the dimension coordinate.
+        with ``rho`` and ``phi`` (and optionally ``z``) in the
+        dimension coordinate.
 
     Returns
     -------
     xarray.DataArray
         An xarray DataArray containing the Cartesian coordinates
         stored in the ``space`` dimension, with ``x`` and ``y``
-        in the dimension coordinate.
+        (plus ``z``, for 3D input) in the dimension coordinate.
+
+    Notes
+    -----
+    For 3D (cylindrical) input, ``x`` and ``y`` are computed from ``rho``
+    and ``phi`` as in the 2D case, and ``z`` is passed through unchanged.
+    This is the inverse of :func:`cart2pol`.
 
     """
-    validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
+    n_space_pol = _validate_spatial_dim(data, "space_pol", ["rho", "phi"])
     rho = data.sel(space_pol="rho")
     phi = data.sel(space_pol="phi")
     x = rho * np.cos(phi)
@@ -195,13 +202,15 @@ def pol2cart(data: xr.DataArray) -> xr.DataArray:
     # Replace space_pol dim with space
     dims = list(data.dims)
     dims[dims.index("space_pol")] = "space"
-    return xr.concat(
-        [
-            x.assign_coords({"space": "x"}),
-            y.assign_coords({"space": "y"}),
-        ],
-        dim="space",
-    ).transpose(*dims)
+    cart_coords = [
+        x.assign_coords({"space": "x"}),
+        y.assign_coords({"space": "y"}),
+    ]
+    if n_space_pol == 3:  # z passthrough
+        cart_coords.append(
+            data.sel(space_pol="z", drop=True).assign_coords({"space": "z"})
+        )
+    return xr.concat(cart_coords, dim="space").transpose(*dims)
 
 
 def compute_signed_angle_2d(
