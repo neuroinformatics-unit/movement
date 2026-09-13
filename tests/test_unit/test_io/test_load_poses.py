@@ -353,21 +353,21 @@ def test_from_coco_file(coco_results_file):
     assert np.isnan(ds.position.values[1, :, :, 1]).all()
 
     np.testing.assert_allclose(
-        ds.confidence.values[0, :, 0],
-        [0.9, 0.9],
+        ds.confidence.values[0, 0],
+        0.9,
     )
 
     np.testing.assert_allclose(
-        ds.confidence.values[0, :, 1],
-        [0.8, 0.8],
+        ds.confidence.values[0, 1],
+        0.8,
     )
 
     np.testing.assert_allclose(
-        ds.confidence.values[1, :, 0],
-        [0.7, 0.7],
+        ds.confidence.values[1, 0],
+        0.7,
     )
 
-    assert np.isnan(ds.confidence.values[1, :, 1]).all()
+    assert np.isnan(ds.confidence.values[1, 1])
 
 
 def test_from_coco_file_category_as_track(
@@ -449,6 +449,18 @@ def test_from_coco_file_category_as_track(
     )
 
     assert np.isnan(ds.position.values[0, :, :, 2]).all()
+
+    np.testing.assert_allclose(
+        ds.confidence.values[0, 0],
+        0.9,
+    )
+
+    np.testing.assert_allclose(
+        ds.confidence.values[0, 1],
+        0.8,
+    )
+
+    assert np.isnan(ds.confidence.values[0, 2])
 
 
 @pytest.mark.parametrize(
@@ -586,6 +598,6 @@ def test_from_coco_file_without_annotations(coco_results_file):
     )
 
     np.testing.assert_allclose(
-        ds.confidence.values[0, :, 0],
-        [0.9, 0.9],
+        ds.confidence.values[0, 0],
+        0.9,
     )

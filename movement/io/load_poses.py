@@ -16,7 +16,6 @@ from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import (
     ValidAniposeCSV,
-    ValidCocoAnnotations,
     ValidCocoResults,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
@@ -380,11 +379,8 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     )
 
 
-@register_loader(
-    "COCO",
-    file_validators=[ValidCocoResults],
-)
-def from_coco_file(  # noqa: C901
+@register_loader("COCO", file_validators=[ValidCocoResults])
+def from_coco_file(
     file: str | Path,
     fps: float | None = None,
     annotations_file: str | Path | None = None,
@@ -416,55 +412,18 @@ def from_coco_file(  # noqa: C901
     """
     valid_results = cast("ValidCocoResults", file)
     results = valid_results.data
-
-    annotations = None
-    if annotations_file is not None:
-        valid_annotations = ValidCocoAnnotations(file=annotations_file)
-        annotations = valid_annotations.data
+    categories = valid_results.categories
+    keypoint_names = valid_results.keypoint_names
 
     frame_ids = sorted({result["image_id"] for result in results})
     frame_index = {frame_id: i for i, frame_id in enumerate(frame_ids)}
 
     n_frames = len(frame_ids)
-    keypoint_names = None
-    if annotations is not None:
-        categories = {
-            category["id"]: category for category in annotations["categories"]
-        }
-        result_category_ids = {result["category_id"] for result in results}
-        missing_categories = result_category_ids - categories.keys()
-        if missing_categories:
-            raise logger.error(
-                ValueError(
-                    "The COCO results reference category IDs that are not "
-                    f"present in the annotations file: "
-                    f"{sorted(missing_categories)}"
-                )
-            )
-        keypoint_lists = {
-            tuple(categories[category_id]["keypoints"])
-            for category_id in result_category_ids
-        }
-
-        if len(keypoint_lists) > 1:
-            raise logger.error(
-                ValueError(
-                    "COCO results reference categories with different "
-                    "keypoint skeletons. movement currently requires a "
-                    "single skeleton shared by all individuals."
-                )
-            )
-
-        if keypoint_lists:
-            keypoint_names = list(next(iter(keypoint_lists)))
-
     n_keypoints = len(results[0]["keypoints"]) // 3
 
     if category_as_track:
-        if annotations is not None:
-            category_ids = sorted(
-                category["id"] for category in annotations["categories"]
-            )
+        if categories is not None:
+            category_ids = sorted(category["id"] for category in categories)
         else:
             category_ids = sorted(
                 {result["category_id"] for result in results}
@@ -472,10 +431,9 @@ def from_coco_file(  # noqa: C901
 
         n_individuals = len(category_ids)
 
-        if annotations is not None:
+        if categories is not None:
             categories_by_id = {
-                category["id"]: category
-                for category in annotations["categories"]
+                category["id"]: category for category in categories
             }
             individual_names = [
                 categories_by_id[category_id]["name"]
@@ -492,6 +450,7 @@ def from_coco_file(  # noqa: C901
 
     else:
         detections_per_frame: dict[int, int] = {}
+
         for result in results:
             image_id = result["image_id"]
             detections_per_frame[image_id] = (
@@ -515,7 +474,7 @@ def from_coco_file(  # noqa: C901
     )
 
     confidence_array = np.full(
-        (n_frames, n_keypoints, n_individuals),
+        (n_frames, n_individuals),
         np.nan,
         dtype=np.float32,
     )
@@ -529,7 +488,6 @@ def from_coco_file(  # noqa: C901
         score = result["score"]
 
         frame_idx = frame_index[image_id]
-
         keypoints = keypoints.reshape(n_keypoints, 3)
 
         if category_as_track:
@@ -549,8 +507,7 @@ def from_coco_file(  # noqa: C901
             next_individual[image_id] += 1
 
         position_array[frame_idx, :, :, individual_idx] = keypoints[:, :2].T
-
-        confidence_array[frame_idx, :, individual_idx] = score
+        confidence_array[frame_idx, individual_idx] = score
 
     frame_array = np.asarray(frame_ids).reshape(-1, 1)
 

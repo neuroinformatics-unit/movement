@@ -12,7 +12,7 @@ import jsonschema
 import numpy as np
 import orjson
 import pandas as pd
-from attrs import Attribute, define, field, validators
+from attrs import Attribute, converters, define, field, validators
 from pynwb import NWBFile
 
 from movement.utils.logging import logger
@@ -950,6 +950,65 @@ class ValidCocoResults:
     """Path to the COCO results JSON file to validate."""
 
     data: list[dict[str, Any]] = field(init=False)
+    """Parsed COCO results data."""
+
+    annotations_file: Path | None = field(
+        default=None,
+        converter=converters.optional(Path),
+    )
+    """Optional path to a COCO annotations JSON file."""
+
+    categories: list[dict[str, Any]] | None = field(
+        init=False,
+        default=None,
+    )
+    """COCO categories from the annotations file, if provided."""
+
+    keypoint_names: list[str] | None = field(
+        init=False,
+        default=None,
+    )
+    """Keypoint names from the annotations file, if provided."""
+
+    def __attrs_post_init__(self) -> None:
+        """Validate results against the annotations file, if provided."""
+        if self.annotations_file is None:
+            return
+
+        valid_annotations = ValidCocoAnnotations(file=self.annotations_file)
+        annotations = valid_annotations.data
+
+        self.categories = annotations["categories"]
+
+        categories_by_id = {
+            category["id"]: category for category in self.categories
+        }
+
+        result_category_ids = {result["category_id"] for result in self.data}
+
+        missing_categories = result_category_ids - categories_by_id.keys()
+
+        if missing_categories:
+            raise ValueError(
+                "The COCO results reference category IDs that are not "
+                "present in the annotations file: "
+                f"{sorted(missing_categories)}"
+            )
+
+        keypoint_lists = {
+            tuple(categories_by_id[category_id]["keypoints"])
+            for category_id in result_category_ids
+        }
+
+        if len(keypoint_lists) > 1:
+            raise ValueError(
+                "COCO results reference categories with different "
+                "keypoint skeletons. movement currently requires a "
+                "single skeleton shared by all individuals."
+            )
+
+        if keypoint_lists:
+            self.keypoint_names = list(next(iter(keypoint_lists)))
 
 
 @define
