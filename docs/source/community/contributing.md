@@ -279,7 +279,7 @@ Both {meth}`logger.error()<movement.utils.logging.MovementLogger.error>` and {me
 As these methods will return the logged Exception, you can log and raise the Exception in a single line:
 ```python
 raise logger.error(ValueError("message"))
-raise logger.exception(ValueError("message")) # with traceback
+raise logger.exception(ValueError("message"))  # with traceback
 ```
 
 #### When to use `print`, `warnings.warn`, `logger.warning` and `logger.info`
@@ -320,6 +320,7 @@ Using a hypothetical format "MySoftware" that produces CSV files containing the 
 @define
 class ValidMySoftwareCSV:
     """Validator for MySoftware .csv output files."""
+
     suffixes: ClassVar[set[str]] = {".csv"}
     file: Path = field(
         converter=Path,
@@ -329,8 +330,7 @@ class ValidMySoftwareCSV:
 
     @file.validator
     def _file_contains_expected_header(self, attribute, value):
-        """Ensure that the .csv file contains the expected header row.
-        """
+        """Ensure that the .csv file contains the expected header row."""
         expected_cols = ["scorer", "bodyparts", "coords"]
         with open(value) as f:
             col_names = f.readline().split(",")[:3]
@@ -411,7 +411,7 @@ def from_mysoftware_file(file: str | Path) -> xr.Dataset:
     file_path = valid_file.file  # Path
     # The _parse_* functions are pseudocode
     ds = load_poses.from_numpy(
-        position_array= _parse_positions(file_path),
+        position_array=_parse_positions(file_path),
         confidence_array=_parse_confidences(file_path),
         individual_names=_parse_individual_names(file_path),
         keypoint_names=_parse_keypoint_names(file_path),
@@ -435,12 +435,16 @@ A loader function must conform to the {class}`LoaderProtocol<movement.io.load.Lo
 The {func}`@register_loader()<movement.io.load.register_loader>` decorator associates a loader function with a `source_software` name so that users can load files from that software via the unified {func}`load_dataset()<movement.io.load.load_dataset>` interface:
 ```python
 from movement.io import load_dataset
-ds = load_dataset("path/to/mysoftware_output.csv", source_software="MySoftware")
+
+ds = load_dataset(
+    "path/to/mysoftware_output.csv", source_software="MySoftware"
+)
 ```
 
 which is equivalent to calling the loader function directly:
 ```python
 from movement.io.load_poses import from_mysoftware_file
+
 ds = from_mysoftware_file("path/to/mysoftware_output.csv")
 ```
 

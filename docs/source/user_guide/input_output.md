@@ -183,9 +183,7 @@ ds = load_poses.from_anipose_file(
 
 You can also directly load any pandas DataFrame `df` that's formatted in the Anipose triangulation style:
 ```python
-ds = load_poses.from_anipose_style_df(
-    df, fps=30, individual_name="id_0"
-)
+ds = load_poses.from_anipose_style_df(df, fps=30, individual_name="id_0")
 ```
 ::::
 
@@ -268,7 +266,7 @@ ds = load_bboxes.from_numpy(
     position_array=rng.random((100, 2, 2)),
     shape_array=np.ones((100, 2, 2)) * [40, 30],
     confidence_array=np.ones((100, 2)) * 0.5,
-    individual_names=["id_0", "id_1"]
+    individual_names=["id_0", "id_1"],
 )
 ```
 ::::
@@ -387,16 +385,23 @@ with open(filepath, mode="w", newline="") as file:
     writer = csv.writer(file)
 
     # write the header
-    writer.writerow(["frame_idx", "bbox_ID", "x", "y", "width", "height", "confidence"])
+    writer.writerow(
+        ["frame_idx", "bbox_ID", "x", "y", "width", "height", "confidence"]
+    )
 
     # write the data
     for individual in ds.individual.data:
         for frame in ds.time.data:
             x, y = ds.position.sel(time=frame, individual=individual).data
-            width, height = ds.shape.sel(time=frame, individual=individual).data
-            confidence = ds.confidence.sel(time=frame, individual=individual).data
-            writer.writerow([frame, individual, x, y, width, height, confidence])
-
+            width, height = ds.shape.sel(
+                time=frame, individual=individual
+            ).data
+            confidence = ds.confidence.sel(
+                time=frame, individual=individual
+            ).data
+            writer.writerow(
+                [frame, individual, x, y, width, height, confidence]
+            )
 ```
 :::{admonition} Using `pandas`
 :class: note
@@ -501,7 +506,7 @@ You can list the available sample data files using:
 from movement import sample_data
 
 file_names = sample_data.list_datasets()
-print(*file_names, sep='\n')  # print each sample file in a separate line
+print(*file_names, sep="\n")  # print each sample file in a separate line
 ```
 
 Each sample file is prefixed with the name (or abbreviation)

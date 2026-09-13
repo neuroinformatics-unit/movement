@@ -274,7 +274,7 @@ myst_url_schemes = {
     "github-docs": "https://docs.github.com/en/{{path}}#{{fragment}}",
     "myst-parser": "https://myst-parser.readthedocs.io/en/latest/{{path}}#{{fragment}}",
     "napari": "https://napari.org/stable/{{path}}",
-    "setuptools-scm": "https://setuptools-scm.readthedocs.io/en/latest/{{path}}#{{fragment}}",
+    "setuptools-scm": "https://setuptools-scm.readthedocs.io/latest/{{path}}#{{fragment}}",
     "sleap": "https://sleap.ai/{{path}}#{{fragment}}",
     "sleap-docs": "https://docs.sleap.ai/latest/{{path}}#{{fragment}}",
     "sphinx-doc": "https://www.sphinx-doc.org/en/master/usage/{{path}}#{{fragment}}",
