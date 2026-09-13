@@ -379,6 +379,56 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     )
 
 
+def _get_coco_individual_info(
+    results: list[dict],
+    categories: list[dict] | None,
+    category_as_track: bool,
+) -> tuple[int, list[str] | None, dict[int, int] | None]:
+    """Get individual information from COCO results."""
+    if category_as_track:
+        if categories is not None:
+            category_ids = sorted(category["id"] for category in categories)
+            categories_by_id = {
+                category["id"]: category for category in categories
+            }
+            individual_names = [
+                categories_by_id[category_id]["name"]
+                for category_id in category_ids
+            ]
+        else:
+            category_ids = sorted(
+                {result["category_id"] for result in results}
+            )
+            individual_names = [
+                str(category_id) for category_id in category_ids
+            ]
+
+        individual_index = {
+            category_id: i for i, category_id in enumerate(category_ids)
+        }
+
+        return len(category_ids), individual_names, individual_index
+
+    detections_per_frame: dict[int, int] = {}
+
+    for result in results:
+        image_id = result["image_id"]
+        detections_per_frame[image_id] = (
+            detections_per_frame.get(image_id, 0) + 1
+        )
+
+    n_individuals = max(detections_per_frame.values(), default=1)
+
+    if n_individuals > 1:
+        logger.warning(
+            "COCO results do not contain cross-frame track identities. "
+            "Individuals are assigned positionally within each frame, "
+            "so identity is not guaranteed to remain stable across frames."
+        )
+
+    return n_individuals, None, None
+
+
 @register_loader("COCO", file_validators=[ValidCocoResults])
 def from_coco_file(
     file: str | Path,
@@ -421,51 +471,13 @@ def from_coco_file(
     n_frames = len(frame_ids)
     n_keypoints = len(results[0]["keypoints"]) // 3
 
-    if category_as_track:
-        if categories is not None:
-            category_ids = sorted(category["id"] for category in categories)
-        else:
-            category_ids = sorted(
-                {result["category_id"] for result in results}
-            )
-
-        n_individuals = len(category_ids)
-
-        if categories is not None:
-            categories_by_id = {
-                category["id"]: category for category in categories
-            }
-            individual_names = [
-                categories_by_id[category_id]["name"]
-                for category_id in category_ids
-            ]
-        else:
-            individual_names = [
-                str(category_id) for category_id in category_ids
-            ]
-
-        individual_index = {
-            category_id: i for i, category_id in enumerate(category_ids)
-        }
-
-    else:
-        detections_per_frame: dict[int, int] = {}
-
-        for result in results:
-            image_id = result["image_id"]
-            detections_per_frame[image_id] = (
-                detections_per_frame.get(image_id, 0) + 1
-            )
-
-        n_individuals = max(detections_per_frame.values(), default=1)
-        individual_names = None
-
-        if n_individuals > 1:
-            logger.warning(
-                "COCO results do not contain cross-frame track identities. "
-                "Individuals are assigned positionally within each frame, "
-                "so identity is not guaranteed to remain stable across frames."
-            )
+    n_individuals, individual_names, individual_index = (
+        _get_coco_individual_info(
+            results,
+            categories,
+            category_as_track,
+        )
+    )
 
     position_array = np.full(
         (n_frames, 2, n_keypoints, n_individuals),
@@ -491,6 +503,7 @@ def from_coco_file(
         keypoints = keypoints.reshape(n_keypoints, 3)
 
         if category_as_track:
+            assert individual_index is not None
             individual_idx = individual_index[category_id]
 
             if not np.all(

@@ -561,7 +561,10 @@ def test_from_coco_file_errors(
         )
 
 
-def test_from_coco_file_without_annotations(coco_results_file):
+@pytest.mark.parametrize("category_as_track", [False, True])
+def test_from_coco_file_without_annotations(
+    coco_results_file, category_as_track
+):
     """Test loading COCO results without an annotations file."""
     results = [
         {
@@ -581,7 +584,7 @@ def test_from_coco_file_without_annotations(coco_results_file):
 
     file = coco_results_file(results)
 
-    ds = load_poses.from_coco_file(file)
+    ds = load_poses.from_coco_file(file, category_as_track=category_as_track)
 
     assert ds.sizes["time"] == 1
     assert ds.sizes["individual"] == 1

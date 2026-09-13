@@ -24,6 +24,7 @@ from movement.validators._json_schemas import (
 )
 
 DEFAULT_FRAME_REGEXP = r"(0\d*)\.\w+$"
+JSON_SUFFIX = ".json"
 
 
 class ValidFile(Protocol):
@@ -934,7 +935,7 @@ class ValidCocoResults:
     results.
     """
 
-    suffixes: ClassVar[set[str]] = {".json"}
+    suffixes: ClassVar[set[str]] = {JSON_SUFFIX}
     """Expected suffix(es) for the file."""
 
     schema: ClassVar[Mapping[str, Any]] = COCO_RESULTS_SCHEMA
@@ -1019,7 +1020,7 @@ class ValidCocoAnnotations:
     contains a dictionary with the required keys for COCO annotations.
     """
 
-    suffixes: ClassVar[set[str]] = {".json"}
+    suffixes: ClassVar[set[str]] = {JSON_SUFFIX}
     """Expected suffix(es) for the file."""
 
     schema: ClassVar[Mapping[str, Any]] = COCO_ANNOTATIONS_SCHEMA
@@ -1094,7 +1095,7 @@ class ValidROICollectionGeoJSON:
 
     """
 
-    suffixes: ClassVar[set[str]] = {".geojson", ".json"}
+    suffixes: ClassVar[set[str]] = {".geojson", JSON_SUFFIX}
     """Expected suffix(es) for the file."""
 
     schema: ClassVar[Mapping[str, Any]] = ROI_COLLECTION_SCHEMA

@@ -3,6 +3,9 @@
 from collections.abc import Mapping
 from typing import Any
 
+JSON_SCHEMA_KEY = "$schema"
+JSON_SCHEMA_URL = "https://json-schema.org/draft/2020-12/schema"
+
 # Mapping of RoI types to their corresponding valid GeoJSON geometry types.
 ROI_TYPE_TO_GEOMETRY: Mapping[str, tuple[str, ...]] = {
     "PolygonOfInterest": ("Polygon",),
@@ -11,7 +14,7 @@ ROI_TYPE_TO_GEOMETRY: Mapping[str, tuple[str, ...]] = {
 
 # JSON schema for movement-compatible RoI GeoJSON collections.
 ROI_COLLECTION_SCHEMA: Mapping[str, Any] = {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    JSON_SCHEMA_KEY: JSON_SCHEMA_URL,
     "title": "RoI Collection GeoJSON",
     "description": (
         "Schema for validating GeoJSON FeatureCollection files containing RoIs"
@@ -65,7 +68,7 @@ ROI_COLLECTION_SCHEMA: Mapping[str, Any] = {
 }
 
 COCO_RESULTS_SCHEMA: Mapping[str, Any] = {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    JSON_SCHEMA_KEY: JSON_SCHEMA_URL,
     "title": "COCO Keypoint Results",
     "description": ("Schema for validating COCO keypoint results JSON files"),
     "type": "array",
@@ -98,7 +101,7 @@ COCO_RESULTS_SCHEMA: Mapping[str, Any] = {
 }
 
 COCO_ANNOTATIONS_SCHEMA: Mapping[str, Any] = {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    JSON_SCHEMA_KEY: JSON_SCHEMA_URL,
     "title": "COCO Keypoint Annotations",
     "description": (
         "Schema for validating COCO keypoint annotations JSON files"
