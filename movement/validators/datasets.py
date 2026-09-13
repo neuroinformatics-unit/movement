@@ -254,7 +254,7 @@ class _BaseDatasetInputs(ABC):
         # Ignore type error as __attrs_post_init__ ensures
         # `frame_array` is not None
         time_coords: NDArray[np.floating] | NDArray[np.integer] = (
-            self.frame_array.squeeze()  # type: ignore[union-attr]
+            self.frame_array.squeeze(axis=1)  # type: ignore[union-attr]
         )
         dataset_attrs: dict[str, str | float | None] = {
             "source_software": self.source_software,
