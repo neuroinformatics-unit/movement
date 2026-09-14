@@ -495,7 +495,11 @@ def test_fps_and_time_coords(
             ds, expected_fps, frame_array=frame_array_from_file
         )
     else:
-        assert_time_coordinates(ds, expected_fps, start_frame=0)
+        assert_time_coordinates(
+            ds,
+            expected_fps,
+            frame_array=frame_array_from_file - frame_array_from_file.min(),
+        )
 
 
 @pytest.mark.benchmark
