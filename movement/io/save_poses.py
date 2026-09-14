@@ -182,7 +182,7 @@ def to_dlc_style_df(
         return df_all
 
 
-@register_writer("DeepLabCut", ds_type="poses", suffixes={".csv", ".h5"})
+@register_writer("DeepLabCut", ds_type="poses", suffixes={".h5", ".csv"})
 def to_dlc_file(
     ds: xr.Dataset,
     file: str | Path,
