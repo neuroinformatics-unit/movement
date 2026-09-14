@@ -170,6 +170,23 @@ class TestSaveDataset:
         written_paths = [call.args[1] for call in mock_write.call_args_list]
         assert written_paths == expected_paths
 
+    @pytest.mark.parametrize(
+        "dataset_fixture",
+        [
+            "missing_var_poses_dataset",
+            "missing_dim_poses_dataset",
+            "missing_var_bboxes_dataset",
+            "missing_dim_bboxes_dataset",
+        ],
+    )
+    def test_invalid_movement_dataset(self, dataset_fixture, request):
+        """Test saving invalid `movement` datasets (with missing required
+        vars/dims) fails.
+        """
+        ds = request.getfixturevalue(dataset_fixture)
+        with pytest.raises(ValueError):
+            save.save_dataset(ds, "out.nc")
+
 
 class TestRegisterWriterDecorator:
     """Tests for the register_writer decorator."""
