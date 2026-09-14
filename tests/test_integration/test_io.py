@@ -1,9 +1,11 @@
 import h5py
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
 
 from movement.io import load_dataset, load_poses, save_dataset, save_poses
+from movement.kinematics import compute_speed
 
 
 @pytest.fixture(params=["dlc.h5", "dlc.csv"])
@@ -12,10 +14,33 @@ def dlc_output_file(request, tmp_path):
     return tmp_path / request.param
 
 
+@pytest.fixture
+def dataset_with_extra_variable(valid_poses_dataset):
+    """Create a dataset with an additional variable non-essential to the
+    movement dataset structure.
+    """
+    ds = valid_poses_dataset.copy()
+    ds["speed"] = compute_speed(ds["position"])
+    return ds
+
+
+@pytest.fixture
+def dataset_with_datetime_index(valid_poses_dataset):
+    """Create a dataset with a pd.DateTimeIndex as the time coordinate."""
+    ds = valid_poses_dataset.copy()
+    timestamps = pd.date_range(
+        start=pd.Timestamp.now(),
+        periods=ds.sizes["time"],
+        freq=pd.Timedelta(seconds=1),
+    )
+    ds.assign_coords(time=timestamps)
+    return ds
+
+
 @pytest.mark.parametrize(
     "dlc_poses_df", ["valid_dlc_poses_df", "valid_dlc_3d_poses_df"]
 )
-def test_load_and_save_to_dlc_style_df(dlc_poses_df, request):
+def test_load_and_save_dlc_style_df(dlc_poses_df, request):
     """Test that loading pose tracks from a DLC-style DataFrame and
     converting back to a DataFrame returns the same data values.
     """
@@ -108,7 +133,7 @@ def test_to_sleap_analysis_file_source_file(file, new_h5_file):
             assert f["labels_path"][()].decode() == ""
 
 
-def test_save_and_load_to_nwb_file(valid_poses_dataset):
+def test_save_and_load_nwb_file(valid_poses_dataset):
     """Test that saving pose tracks to NWBFile and then loading
     the file back in returns the same Dataset.
     """
@@ -149,3 +174,32 @@ def test_save_dataset_and_load_dataset_roundtrip(
     save_dataset(ds, file_path, target_software=source_software)
     loaded = load_dataset(file_path, source_software=source_software)
     xr.testing.assert_allclose(loaded, ds)
+
+
+@pytest.mark.parametrize(
+    "dataset",
+    [
+        "valid_poses_dataset",
+        "valid_poses_dataset_with_nan",
+        "valid_bboxes_dataset",  # time unit is in frames
+        "valid_bboxes_dataset_in_seconds",
+        "valid_bboxes_dataset_with_nan",
+        "dataset_with_extra_variable",
+        "dataset_with_datetime_index",
+    ],
+)
+@pytest.mark.parametrize("engine", ["netcdf4", "scipy", "h5netcdf"])
+def test_save_and_load_netcdf(dataset, engine, tmp_path, request):
+    """Test that saving a movement dataset (via ``save_dataset``) to a
+    NetCDF file and then loading it back returns the same Dataset,
+    including any extra variables.
+
+    NetCDF has no registered ``load_dataset`` loader yet, so we load
+    back with ``xr.load_dataset``. We test across all 3 NetCDF engines
+    supported by xarray.
+    """
+    ds = request.getfixturevalue(dataset)
+    netcdf_file = tmp_path / "test_dataset.nc"
+    save_dataset(ds, netcdf_file, engine=engine)
+    loaded_ds = xr.load_dataset(netcdf_file)
+    xr.testing.assert_identical(loaded_ds, ds)
