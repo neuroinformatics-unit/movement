@@ -735,6 +735,35 @@ def test_ego_centric_angles_to_rotation_matrix(
 
 
 @pytest.mark.parametrize(
+    "keypoint_to_center",
+    ["centroid", "left", None],
+)
+def test_ego_centric_aligner_2d_centering(
+    valid_poses_dataset, keypoint_to_center
+):
+    """Test that the ego-centric aligner correctly centers and rotates."""
+    ego_aligner = EgocentricAligner2d(
+        keypoint_to_center=keypoint_to_center,
+        keypoint_to_align="right",
+        align_to_vector=(1, 0),
+    )
+
+    position = valid_poses_dataset.position
+
+    ego_aligner.fit(position)
+
+    aligned = ego_aligner.align(position)
+
+    # Test centering
+    if keypoint_to_center is None:
+        expected_zero = aligned.mean(dim="keypoint")
+    else:
+        expected_zero = aligned.sel(keypoint=keypoint_to_center)
+
+    xr.testing.assert_allclose(expected_zero, xr.zeros_like(expected_zero))
+
+
+@pytest.mark.parametrize(
     "keypoint_to_align, align_to_vector",
     [
         ("left", (1, 0)),
@@ -747,7 +776,7 @@ def test_ego_centric_angles_to_rotation_matrix(
         ("right", (-0.54483743, -0.83854169)),
     ],
 )
-def test_ego_centric_aligner_2d_centering(
+def test_ego_centric_aligner_2d_alignment(
     valid_poses_dataset, keypoint_to_align, align_to_vector
 ):
     """Test that the ego-centric aligner correctly centers and rotates."""
@@ -781,13 +810,6 @@ def test_ego_centric_aligner_2d_centering(
 
     aligned = ego_aligner.align(position)
 
-    # Test centering
-    centered_at_zero = aligned.sel(keypoint="centroid")
-
-    xr.testing.assert_allclose(
-        centered_at_zero, xr.zeros_like(centered_at_zero)
-    )
-
     # Test aligmnent of keypoint
     keypoint_aligned = aligned.sel(keypoint=keypoint_to_align)
     keypoint_aligned_target = xr.DataArray(
@@ -808,6 +830,46 @@ def test_ego_centric_aligner_2d_centering(
     diff = opposite_keypoint_aligned - opposite_keypoint_aligned_target
 
     assert np.allclose(diff.values, 0)
+
+
+def test_ego_centric_aligner_is_fitted(valid_poses_dataset):
+    position_2d = valid_poses_dataset.position
+
+    pad_zeros = (
+        xr.zeros_like(position_2d.sel(space="y"))
+        .expand_dims("space")
+        .assign_coords(space=["z"])
+    )
+    position_3d = xr.concat([position_2d, pad_zeros], dim="space")
+
+    # Test align without fit raises RuntimeError
+    with pytest.raises(RuntimeError):
+        ego_aligner = EgocentricAligner2d(
+            keypoint_to_align="left", keypoint_to_center=None
+        )
+        ego_aligner.align(position_2d)
+
+    with pytest.raises(RuntimeError):
+        ego_aligner = EgocentricAligner3d(
+            keypoints_to_align=["left", "right"],
+            align_to_vectors=[(-1, 0, 0), (1, 0, 0)],
+        )
+        ego_aligner.align(position_3d)
+
+    # Test 2D/3d fit confusion
+    with pytest.raises(ValueError):
+        ego_aligner_2d = EgocentricAligner2d(
+            keypoint_to_align="left", keypoint_to_center=None
+        )
+
+        ego_aligner_2d.fit(position_3d)
+
+    with pytest.raises(ValueError):
+        ego_aligner_3d = EgocentricAligner3d(
+            keypoints_to_align=["left", "right"],
+            align_to_vectors=[(-1, 0, 0), (1, 0, 0)],
+        )
+        ego_aligner_3d.fit(position_2d)
 
 
 @pytest.mark.parametrize(
@@ -839,6 +901,80 @@ def test_ego_centric_aligner_2d_inverse(
     aligned = ego_aligner.align(position)
 
     xr.testing.assert_allclose(ego_aligner.inverse_align(aligned), position)
+
+
+@pytest.mark.parametrize(
+    "keypoint_to_center",
+    ["centroid", None],
+)
+def test_ego_centric_aligner_3d_centering(
+    valid_poses_dataset, keypoint_to_center
+):
+    position = valid_poses_dataset.position
+
+    pad_zeros = (
+        xr.zeros_like(position.sel(space="y"))
+        .expand_dims("space")
+        .assign_coords(space=["z"])
+    )
+    position_3d = xr.concat([position, pad_zeros], dim="space")
+
+    ego_aligner = EgocentricAligner3d(
+        keypoint_to_center=keypoint_to_center,
+        keypoints_to_align=["left", "right"],
+        align_to_vectors=[[-1, 1, 0], [1, 1, 0]],
+    ).fit(position_3d)
+
+    aligned = ego_aligner.align(position_3d)
+
+    # Test centering
+    if keypoint_to_center is None:
+        expected_zero = aligned.mean(dim="keypoint")
+    else:
+        expected_zero = aligned.sel(keypoint=keypoint_to_center)
+
+    xr.testing.assert_allclose(expected_zero, xr.zeros_like(expected_zero))
+
+
+@pytest.mark.parametrize(
+    "keypoints_to_align, align_to_vectors, alignment_weights, expected_error",
+    [
+        [[], [], None, ValueError],
+        [
+            ["left", "right"],
+            [(-1, 0, 0), (1, 0, 0), (0, 0, 0)],
+            None,
+            ValueError,
+        ],
+        [
+            ["left", "right", "centroid"],
+            [
+                (-1, 0, 0),
+                (1, 0, 0),
+            ],
+            [1.0, 2.0],
+            ValueError,
+        ],
+        [
+            ["left", "right"],
+            [
+                (-1, 0, 0),
+                (1, 0, 0),
+            ],
+            [1.0, 2.0, 3.0],
+            ValueError,
+        ],
+    ],
+)
+def test_ego_centric_aligner_3d_init(
+    keypoints_to_align, align_to_vectors, alignment_weights, expected_error
+):
+    with pytest.raises(expected_error):
+        EgocentricAligner3d(
+            keypoints_to_align=keypoints_to_align,
+            align_to_vectors=align_to_vectors,
+            alignment_weights=alignment_weights,
+        )
 
 
 def test_ego_centric_aligner_3d_inverse(valid_poses_dataset):
