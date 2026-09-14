@@ -349,8 +349,9 @@ class TestVector3D:
         """Test that 3D cylindrical input is explicitly rejected, rather
         than silently treating rho as the norm of the vector.
         """
+        func_under_test = getattr(vector, func)
         with pytest.raises(ValueError, match="cylindrical"):
-            getattr(vector, func)(cart_cyl_dataset.cyl)
+            func_under_test(cart_cyl_dataset.cyl)
 
 
 class TestComputeSignedAngle:
