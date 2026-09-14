@@ -155,9 +155,10 @@ def from_via_tracks_file(
         of the resulting ``movement`` dataset will be in frame numbers. If
         ``fps`` is provided, the ``time`` coordinates  will be in seconds. The
         ``time`` coordinates in seconds indicate the elapsed time from the
-        frame that is taken as the time origin, which is the 0th frame of the
-        full video if ``use_frame_numbers_from_file`` is True, and the first
-        tracked frame in the file otherwise.
+        frame that is taken as the time origin, which is the 0th frame for
+        the frame numbers in the input file if
+        ``use_frame_numbers_from_file`` is True, and the first tracked frame
+        written in the file otherwise.
     use_frame_numbers_from_file
         If True, the frame numbers in the resulting dataset are
         the same as the ones in the VIA tracks .csv file. This may be useful if
@@ -172,9 +173,9 @@ def from_via_tracks_file(
         Regular expression pattern to extract the frame number from the frame
         filename. By default, the frame number is expected to be encoded in
         the filename as an integer number led by at least one zero, followed
-        by the file extension. The regular expression is applied regardless of
-        the value of ``use_frame_numbers_from_file``, because the original
-        frame numbers are always extracted from the file.
+        by the file extension. Note that the regular expression is applied
+        regardless of the value of ``use_frame_numbers_from_file``, because
+        the original frame numbers are always extracted from the file.
 
     Returns
     -------
