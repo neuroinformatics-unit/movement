@@ -11,7 +11,7 @@ from numpy.typing import ArrayLike
 from scipy.spatial.transform import Rotation
 
 from movement.utils.logging import log_to_attrs, logger
-from movement.utils.vector import compute_signed_angle_2d
+from movement.utils.vector import compute_signed_angle_2d, convert_to_unit
 from movement.validators.arrays import validate_dims_coords
 
 
@@ -494,7 +494,9 @@ class EgocentricAligner2d:
             ``keypoint_to_align`` is not among ``ds``'s keypoints.
 
         """
-        validate_dims_coords(position, {"space": ["x", "y"]})
+        validate_dims_coords(
+            position, {"space": ["x", "y"]}, exact_coords=True
+        )
         validate_dims_coords(position, {"keypoint": [self.keypoint_to_align]})
 
         if self.keypoint_to_center is None:
@@ -723,16 +725,17 @@ class EgocentricAligner3d:
 
         centered_positions = position - self.centroid_
 
+        centered_positions_unit_vecs = convert_to_unit(centered_positions)
+
         def estimate_rot_3d(v, ref_v):
-            v_unit = v / np.linalg.norm(v, axis=0, keepdims=True)
             rot, _ = Rotation.align_vectors(
-                ref_v, v_unit.T, weights=self.alignment_weights
+                ref_v, v.T, weights=self.alignment_weights
             )
             return rot
 
         self.rotation_ = xr.apply_ufunc(
             partial(estimate_rot_3d, ref_v=self.align_to_vectors),
-            centered_positions.sel(keypoint=self.keypoints_to_align),
+            centered_positions_unit_vecs.sel(keypoint=self.keypoints_to_align),
             input_core_dims=[["space", "keypoint"]],
             output_core_dims=[[]],
             vectorize=True,
