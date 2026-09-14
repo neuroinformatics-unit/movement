@@ -547,6 +547,10 @@ class EgocentricAligner2d:
         assert self.centroid_ is not None
         assert self.rotation_ is not None
 
+        validate_dims_coords(
+            position, {"space": ["x", "y"]}, exact_coords=True
+        )
+
         # Center
         centered = position - self.centroid_
 
@@ -584,6 +588,10 @@ class EgocentricAligner2d:
         self._check_is_fitted()
         assert self.centroid_ is not None
         assert self.rotation_ is not None
+
+        validate_dims_coords(
+            position, {"space": ["x", "y"]}, exact_coords=True
+        )
 
         # Create inverse rotation by transposing the rotation matrices
         rot_T = self.rotation_.rename(space="space_tmp").rename(
@@ -714,7 +722,26 @@ class EgocentricAligner3d:
         )
 
     def fit(self, position: xr.DataArray) -> "EgocentricAligner3d":
-        """Compute per-frame/individual centroid + rotation from da."""
+        """Compute the egocentric centroid and rotation for each frame.
+
+        Parameters
+        ----------
+        position : xarray.DataArray
+            Position data with dims including ``space`` (with coordinates
+            ``"x"``, ``"y"``, ``"z"``) and ``keypoint``.
+
+        Returns
+        -------
+        EgocentricAligner3d
+            self, with :attr:`centroid_` and :attr:`rotation_` populated.
+
+        Raises
+        ------
+        ValueError
+            If ``position`` is missing the expected ``space`` coordinates,
+            or any of ``keypoints_to_align`` is not among its keypoints.
+
+        """
         validate_dims_coords(position, {"space": ["x", "y", "z"]})
         validate_dims_coords(position, {"keypoint": self.keypoints_to_align})
 
@@ -744,10 +771,32 @@ class EgocentricAligner3d:
         return self
 
     def align(self, position: xr.DataArray) -> xr.DataArray:
-        """World -> egocentric. Requires fit() first."""
+        """Transform position data from world to egocentric coordinates.
+
+        Parameters
+        ----------
+        position : xarray.DataArray
+            Position data with a ``space`` dimension, sharing frame/
+            individual coordinates with the data used in :meth:`fit`.
+
+        Returns
+        -------
+        xarray.DataArray
+            ``position`` re-centred on the fitted centroid and rotated so
+            that ``keypoints_to_align`` best match ``align_to_vectors``.
+            Same dims/shape as the input.
+
+        Raises
+        ------
+        RuntimeError
+            If called before :meth:`fit`.
+
+        """
         self._check_is_fitted()
         assert self.centroid_ is not None
         assert self.rotation_ is not None
+
+        validate_dims_coords(position, {"space": ["x", "y", "z"]})
 
         # Center
         centered_positions = position - self.centroid_
@@ -771,10 +820,33 @@ class EgocentricAligner3d:
         return aligned
 
     def inverse_align(self, position: xr.DataArray) -> xr.DataArray:
-        """Egocentric -> world. Requires fit() first."""
+        """Transform position data from egocentric back to world coordinates.
+
+        Applies the inverse of :meth:`align` — the inverse of the fitted
+        rotation followed by adding back the fitted centroid.
+
+        Parameters
+        ----------
+        position : xarray.DataArray
+            Position data in the egocentric frame produced by :meth:`align`.
+
+        Returns
+        -------
+        xarray.DataArray
+            ``position`` mapped back into world coordinates. Same dims/
+            shape as the input.
+
+        Raises
+        ------
+        RuntimeError
+            If called before :meth:`fit`.
+
+        """
         self._check_is_fitted()
         assert self.centroid_ is not None
         assert self.rotation_ is not None
+
+        validate_dims_coords(position, {"space": ["x", "y", "z"]})
 
         # Apply inverse rotation
         def apply_inv_rot(v, rot):
