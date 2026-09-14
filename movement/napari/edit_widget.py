@@ -14,7 +14,7 @@ from napari.layers import Points
 from napari.layers.base import ActionType
 from napari.utils.theme import get_theme
 from napari.viewer import Viewer
-from qtpy.QtCore import Qt, QTimer, Signal
+from qtpy.QtCore import QCoreApplication, QEvent, Qt, QTimer, Signal
 from qtpy.QtWidgets import (
     QCheckBox,
     QFrame,
@@ -45,11 +45,14 @@ DRAG_THRESHOLD_PIXELS = 3
 # many canvas pixels per lane so its y-axis label stays legible; when the
 # lanes total more than the dock height, the timeline scrolls vertically.
 LANE_HEIGHT_PIXELS = 22
-# Canvas height reserved for the title and x-axis (label and ticks),
-# added on top of the per-lane budget.
-AXES_MARGIN_PIXELS = 70
 # Canvas height with lanes collapsed or few: just fill the dock.
 MIN_CANVAS_HEIGHT_PIXELS = 200
+
+# Height of the fixed strip below the scrollable lanes that shows the
+# frame-number ticks and frame label. Kept as a separate, non-scrolling
+# canvas so the frame axis stays readable no matter how far the lanes
+# above it are scrolled.
+AXIS_CANVAS_HEIGHT_PIXELS = 45
 
 
 class EditControlsWidget(QWidget):
@@ -97,8 +100,9 @@ class EditWidget(QWidget):
     are split into one lane per individual (separated by thin horizontal
     rules) and coloured per individual using the same colormap
     (:data:`DEFAULT_COLORMAP`) as the Points/Tracks layers. A playhead
-    line marks the frame currently shown in the viewer. Scroll to zoom
-    in/out on the timeline, and click a bar to jump to that frame.
+    line marks the frame currently shown in the viewer. Scroll to move
+    through the individual lanes. Hold Ctrl while scrolling to zoom in/out
+    on the timeline. Click a bar to jump to that frame.
     """
 
     def __init__(self, napari_viewer: Viewer, parent=None):
@@ -128,6 +132,24 @@ class EditWidget(QWidget):
         self.playhead = self.ax.axvline(
             0, linewidth=2, linestyle="--", zorder=3
         )  # higher order in matplotlib is drawn on top; colour set below
+
+        # A separate, fixed-height canvas for just the frame-number axis
+        # (ticks and frame label), kept outside the scroll area below
+        # so it never scrolls out of view. Unlike the lanes above it,
+        # whose height grows with the number of individuals shown. Its
+        # xlim is kept identical to self.ax's via _set_xlim.
+        self.axis_figure = Figure(figsize=(6, 0.6))
+        self.axis_canvas = FigureCanvas(self.axis_figure)
+        self.axis_canvas.setFixedHeight(AXIS_CANVAS_HEIGHT_PIXELS)
+        self.axis_ax = self.axis_figure.subplots()
+        self._style_axis_strip()
+
+        # The plot title as a plain label rather than a matplotlib title,
+        # so it stays fixed above the scroll area without needing a
+        # canvas (and layout) of its own.
+        self.title_label = QLabel("Edited frames")
+        self.title_label.setAlignment(Qt.AlignCenter)
+
         self._apply_theme()
 
         # The canvas grows past the dock height when many individual
@@ -146,7 +168,9 @@ class EditWidget(QWidget):
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.title_label)
         layout.addWidget(self.scroll_area)
+        layout.addWidget(self.axis_canvas)
         self.setLayout(layout)
 
         self.viewer.dims.events.current_step.connect(self._on_step_changed)
@@ -160,18 +184,46 @@ class EditWidget(QWidget):
         self.canvas.mpl_connect("motion_notify_event", self._on_mouse_motion)
         self.canvas.mpl_connect("button_release_event", self._on_mouse_release)
         self.canvas.mpl_connect("scroll_event", self._on_scroll)
+        # Plain wheel scrolling should move through the lanes, like
+        # dragging the scrollbar, not zoom the timeline. But the
+        # canvas swallows wheel events for the "scroll_event" above
+        # before the scroll area ever sees them. Intercept here and
+        # redirect plain scrolls to the scrollbar; Ctrl+scroll is left
+        # alone so it still reaches `_on_scroll` to zoom.
+        self.canvas.installEventFilter(self)
 
         for layer in self.viewer.layers:
             self._track_layer(layer)
         self._on_active_layer_changed()
 
     def _style_axes(self):
-        """Set the static appearance of the timeline axes."""
+        """Set the static appearance of the (scrollable) lanes axes.
+
+        The x-axis itself (ticks and "frame" label) is drawn separately
+        in :meth:`_style_axis_strip`, so it stays fixed regardless of how
+        many lanes are shown here.
+        """
         self.ax.set_yticks([])
         self.ax.set_ylim(0, 1)
-        self.ax.set_xlabel("frame")
-        self.ax.set_title("Edited frames", fontsize="small")
+        self.ax.tick_params(axis="x", bottom=False, labelbottom=False)
         self.figure.tight_layout()
+
+    def _style_axis_strip(self):
+        """Set the static appearance of the fixed frame-number axis.
+
+        Set out by hand rather than via ``tight_layout()``: the strip is
+        too short for matplotlib's automatic layout to fit the ticks and
+        "frame" label without warning, since it sizes for a typical
+        (much taller) figure.
+        """
+        self.axis_ax.set_yticks([])
+        self.axis_ax.set_ylim(0, 1)
+        for side in ("left", "right", "top"):
+            self.axis_ax.spines[side].set_visible(False)
+        self.axis_ax.set_xlabel("frame")
+        self.axis_figure.subplots_adjust(
+            left=0.02, right=0.98, top=0.95, bottom=0.55
+        )
 
     def _apply_theme(self, event=None):
         """Style the plot to match the current napari theme.
@@ -185,19 +237,24 @@ class EditWidget(QWidget):
         self._foreground = foreground
         self._edit_bar_color = theme.current.as_hex()
 
-        self.figure.set_facecolor(background)
-        self.ax.set_facecolor(background)
-        self.ax.xaxis.label.set_color(foreground)
-        self.ax.title.set_color(foreground)
-        self.ax.tick_params(axis="both", colors=foreground)
-        for spine in self.ax.spines.values():
-            spine.set_color(foreground)
+        for figure, ax in (
+            (self.figure, self.ax),
+            (self.axis_figure, self.axis_ax),
+        ):
+            figure.set_facecolor(background)
+            ax.set_facecolor(background)
+            ax.tick_params(axis="both", colors=foreground)
+            for spine in ax.spines.values():
+                spine.set_color(foreground)
+        self.axis_ax.xaxis.label.set_color(foreground)
+        self.title_label.setStyleSheet(f"color: {foreground};")
         self.playhead.set_color(theme.secondary.as_hex())
         # Recreate bars and lane dividers so they pick up the new
         # foreground/edit-bar colours too.
         self._redraw_bars()
 
         self.canvas.draw_idle()
+        self.axis_canvas.draw_idle()
 
     def _track_layer(self, layer):
         """Connect to a movement Points layer's data-change event."""
@@ -430,12 +487,12 @@ class EditWidget(QWidget):
         the dock. With many individuals displayed it is grown to
         ``LANE_HEIGHT_PIXELS`` per lane so the y-axis labels don't
         overlap; the enclosing scroll area then shows a vertical
-        scrollbar.
+        scrollbar. The frame-number axis lives in its own fixed-height
+        canvas (see :attr:`axis_canvas`), so it needs no budget here.
         """
         if self._show_individuals and n_lanes > 1:
             height = max(
-                MIN_CANVAS_HEIGHT_PIXELS,
-                n_lanes * LANE_HEIGHT_PIXELS + AXES_MARGIN_PIXELS,
+                MIN_CANVAS_HEIGHT_PIXELS, n_lanes * LANE_HEIGHT_PIXELS
             )
         else:
             height = MIN_CANVAS_HEIGHT_PIXELS
@@ -468,8 +525,39 @@ class EditWidget(QWidget):
 
     def _reset_xlim(self):
         """Reset the visible frame range to the full extent."""
-        self.ax.set_xlim(0, max(self._max_frame, 1))
+        self._set_xlim(0, max(self._max_frame, 1))
+
+    def _set_xlim(self, xmin, xmax):
+        """Set the visible frame range on both the lanes and axis strip.
+
+        The two live in separate figures (see :attr:`axis_canvas`), so
+        their x-limits have to be kept in sync explicitly rather than
+        via matplotlib's own ``sharex``.
+        """
+        self.ax.set_xlim(xmin, xmax)
+        self.axis_ax.set_xlim(xmin, xmax)
         self.canvas.draw_idle()
+        self.axis_canvas.draw_idle()
+
+    def eventFilter(self, obj, event):
+        """Redirect plain mouse-wheel scrolls to the vertical scrollbar.
+
+        Without this, scrolling the mouse wheel over the canvas always
+        zooms the timeline (via ``_on_scroll``), leaving no way to
+        scroll through lanes except by dragging the scrollbar itself.
+        Ctrl+scroll is passed through untouched so it still reaches
+        ``_on_scroll`` to zoom.
+        """
+        if (
+            obj is self.canvas
+            and event.type() == QEvent.Wheel
+            and not event.modifiers() & Qt.ControlModifier
+        ):
+            QCoreApplication.sendEvent(
+                self.scroll_area.verticalScrollBar(), event
+            )
+            return True
+        return False
 
     def _on_scroll(self, event):
         """Zoom the timeline in/out around the cursor position."""
@@ -484,8 +572,7 @@ class EditWidget(QWidget):
         frac = (event.xdata - xmin) / span if span else 0.5
         new_xmin = event.xdata - frac * new_span
         new_xmin = max(0, min(new_xmin, full_span - new_span))
-        self.ax.set_xlim(new_xmin, new_xmin + new_span)
-        self.canvas.draw_idle()
+        self._set_xlim(new_xmin, new_xmin + new_span)
 
     def _on_mouse_press(self, event):
         """Record the drag start point, in case this becomes a pan."""
@@ -524,8 +611,7 @@ class EditWidget(QWidget):
         span = xmax0 - xmin0
         full_span = max(self._max_frame, 1)
         new_xmin = max(0, min(xmin0 - data_dx, full_span - span))
-        self.ax.set_xlim(new_xmin, new_xmin + span)
-        self.canvas.draw_idle()
+        self._set_xlim(new_xmin, new_xmin + span)
 
     def _on_mouse_release(self, event):
         """Treat the gesture as a click if the mouse never really moved."""
