@@ -69,8 +69,39 @@ class _WriterEntry:
     """``movement`` dataset type the writer is restricted to, or None if
     unrestricted."""
 
+    suffixes: set[str] | None = field(default=None, kw_only=True)
+    """Set of valid file suffixes for the writer, or None if unrestricted."""
+
 
 _WRITER_REGISTRY: dict[TargetSoftware, _WriterEntry] = {}
+
+
+def get_supported_target_software() -> dict[TargetSoftware, set[str]]:
+    """Return the supported target software and file suffixes for saving data.
+
+    Returns a mapping of each registered target software name (i.e. a
+    format ``movement`` can save data *to*) to the set of file suffixes
+    it supports for that format. This is useful for downstream packages
+    that depend on ``movement`` for I/O and want to programmatically
+    discover supported saving formats.
+
+    Returns
+    -------
+    dict[TargetSoftware, set[str]]
+        Mapping of target software names to sets of supported file
+        suffixes (e.g. ``{".h5", ".csv"}``). Writers registered
+        without specific suffixes will have an empty set.
+
+    See Also
+    --------
+    movement.io.load.get_supported_source_software : Return the source
+        software names and file suffixes supported for *loading* data.
+
+    """
+    return {
+        sw: set(entry.suffixes) if entry.suffixes else set()
+        for sw, entry in _WRITER_REGISTRY.items()
+    }
 
 
 def register_writer(
@@ -138,7 +169,7 @@ def register_writer(
             return writer_fn(ds, valid_file, *args, **kwargs)
 
         _WRITER_REGISTRY[target_software] = _WriterEntry(
-            cast("WriterProtocol", wrapper), ds_type=ds_type
+            cast("WriterProtocol", wrapper), ds_type=ds_type, suffixes=suffixes
         )
         return wrapper
 

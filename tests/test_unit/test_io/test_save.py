@@ -249,10 +249,31 @@ class TestRegisterWriterDecorator:
         assert called_path == file_path
         assert self.mock_writer.call_args.kwargs == {"foo": "bar"}
 
+    @pytest.mark.parametrize("suffixes", [None, {".ext1", ".ext2"}])
     @pytest.mark.parametrize("ds_type", ["poses", "bboxes", None])
-    def test_populates_registries(self, ds_type):
-        """Test the wrapper and ds_type are recorded in the registry entry."""
-        to_stubsoftware_file = self._register(ds_type=ds_type)
+    def test_populates_registries(self, ds_type, suffixes):
+        """Test the wrapper, ds_type, and suffixes are recorded in the
+        registry entry.
+        """
+        to_stubsoftware_file = self._register(
+            ds_type=ds_type, suffixes=suffixes
+        )
         entry = save._WRITER_REGISTRY["StubSoftware"]
         assert entry.writer is to_stubsoftware_file
         assert entry.ds_type == ds_type
+        assert entry.suffixes == suffixes
+
+
+def test_get_supported_target_software():
+    """Test that get_supported_target_software returns a non-empty
+    mapping whose keys match the writer registry and whose values
+    are sets of file-suffix strings.
+    """
+    supported = save.get_supported_target_software()
+    assert isinstance(supported, dict)
+    assert set(supported) == set(save._WRITER_REGISTRY)
+    for sw, suffixes in supported.items():
+        registered_suffixes = save._WRITER_REGISTRY[sw].suffixes
+        assert suffixes == (
+            set(registered_suffixes) if registered_suffixes else set()
+        )

@@ -24,7 +24,7 @@ which are represented as [movement datasets](target-poses-and-bboxes-dataset)
 and can be [loaded from](target-loading-any-format) and [saved to](target-saving-any-format) various third-party formats.
 
 :::{tip}
-To programmatically query the supported source software names and their file suffixes, use {func}`~movement.io.load.get_supported_source_software`.
+Use {func}`~movement.io.load.get_supported_source_software` and {func}`~movement.io.save.get_supported_target_software` to list the software and file suffixes that `movement` supports **loading from** and **saving to**, respectively.
 :::
 
 | Source Software                                                             | Abbreviation | Source Format                                                                                                             | Dataset Type         | Supported Operations |
