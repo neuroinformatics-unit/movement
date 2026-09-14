@@ -14,7 +14,7 @@ The current active core development team is composed of:
 We are eager to explore collaboration opportunities with research labs and research software engineering teams.
 Our current and past collaborators include:
 - [Keshavarzi Laboratory](https://www.keshavarzilab.com/) at the University of Cambridge
-- [UCL Advanced Research Computing Centre](https://www.ucl.ac.uk/advanced-research-computing/advanced-research-computing-centre)
+- [UCL Advanced Research Computing Centre](https://www.ucl.ac.uk/research-innovation/advanced-research-computing)
 
 (target-contributors)=
 ## Contributors
@@ -72,10 +72,10 @@ This is automatically updated via GitHub Actions and should not be modified.
 		</tr>
 		<tr>
             <td align="center">
-                <a href="https://github.com/stellaprins">
-                    <img src="https://avatars.githubusercontent.com/u/30465823?v=4" width="100;" alt="stellaprins"/>
+                <a href="https://github.com/ishan372or">
+                    <img src="https://avatars.githubusercontent.com/u/181570708?v=4" width="100;" alt="ishan372or"/>
                     <br />
-                    <sub><b>Stella Prins</b></sub>
+                    <sub><b>ishan372or</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -86,24 +86,17 @@ This is automatically updated via GitHub Actions and should not be modified.
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/ishan372or">
-                    <img src="https://avatars.githubusercontent.com/u/181570708?v=4" width="100;" alt="ishan372or"/>
+                <a href="https://github.com/stellaprins">
+                    <img src="https://avatars.githubusercontent.com/u/30465823?v=4" width="100;" alt="stellaprins"/>
                     <br />
-                    <sub><b>ishan372or</b></sub>
+                    <sub><b>Stella Prins</b></sub>
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/isha822">
-                    <img src="https://avatars.githubusercontent.com/u/212369081?v=4" width="100;" alt="isha822"/>
+                <a href="https://github.com/b-peri">
+                    <img src="https://avatars.githubusercontent.com/u/77279592?v=4" width="100;" alt="b-peri"/>
                     <br />
-                    <sub><b>Sanjana soni</b></sub>
-                </a>
-            </td>
-            <td align="center">
-                <a href="https://github.com/Ishaan0132">
-                    <img src="https://avatars.githubusercontent.com/u/35690029?v=4" width="100;" alt="Ishaan0132"/>
-                    <br />
-                    <sub><b>Ishaan Shaikh</b></sub>
+                    <sub><b>Brandon Peri</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -113,13 +106,20 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Dhruv</b></sub>
                 </a>
             </td>
+            <td align="center">
+                <a href="https://github.com/Ishaan0132">
+                    <img src="https://avatars.githubusercontent.com/u/35690029?v=4" width="100;" alt="Ishaan0132"/>
+                    <br />
+                    <sub><b>Ishaan Shaikh</b></sub>
+                </a>
+            </td>
 		</tr>
 		<tr>
             <td align="center">
-                <a href="https://github.com/b-peri">
-                    <img src="https://avatars.githubusercontent.com/u/77279592?v=4" width="100;" alt="b-peri"/>
+                <a href="https://github.com/isha822">
+                    <img src="https://avatars.githubusercontent.com/u/212369081?v=4" width="100;" alt="isha822"/>
                     <br />
-                    <sub><b>Brandon Peri</b></sub>
+                    <sub><b>Sanjana soni</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -181,6 +181,13 @@ This is automatically updated via GitHub Actions and should not be modified.
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/Lauraschwarz">
+                    <img src="https://avatars.githubusercontent.com/u/104347948?v=4" width="100;" alt="Lauraschwarz"/>
+                    <br />
+                    <sub><b>Lauraschwarz</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/roaldarbol">
                     <img src="https://avatars.githubusercontent.com/u/25629697?v=4" width="100;" alt="roaldarbol"/>
                     <br />
@@ -194,6 +201,8 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Mohamed Reda</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/ParthChatupale">
                     <img src="https://avatars.githubusercontent.com/u/175731228?v=4" width="100;" alt="ParthChatupale"/>
@@ -201,8 +210,6 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>ParthChatupale</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/PP1703">
                     <img src="https://avatars.githubusercontent.com/u/183902662?v=4" width="100;" alt="PP1703"/>
@@ -238,6 +245,8 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>Yaroslav Halchenko</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/angkul07">
                     <img src="https://avatars.githubusercontent.com/u/129066458?v=4" width="100;" alt="angkul07"/>
@@ -245,8 +254,6 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <sub><b>angkul</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/bhanushaliparthhitesh">
                     <img src="https://avatars.githubusercontent.com/u/224357980?v=4" width="100;" alt="bhanushaliparthhitesh"/>
@@ -273,13 +280,6 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <img src="https://avatars.githubusercontent.com/u/252261817?v=4" width="100;" alt="yvonne0006"/>
                     <br />
                     <sub><b>yvonne0006</b></sub>
-                </a>
-            </td>
-            <td align="center">
-                <a href="https://github.com/Lauraschwarz">
-                    <img src="https://avatars.githubusercontent.com/u/104347948?v=4" width="100;" alt="Lauraschwarz"/>
-                    <br />
-                    <sub><b>Lauraschwarz</b></sub>
                 </a>
             </td>
             <td align="center">
@@ -361,6 +361,13 @@ This is automatically updated via GitHub Actions and should not be modified.
                     <img src="https://avatars.githubusercontent.com/u/185731034?v=4" width="100;" alt="DPWebster"/>
                     <br />
                     <sub><b>DPWebster</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/NoiceHax">
+                    <img src="https://avatars.githubusercontent.com/u/95340276?v=4" width="100;" alt="NoiceHax"/>
+                    <br />
+                    <sub><b>Chandan P</b></sub>
                 </a>
             </td>
             <td align="center">

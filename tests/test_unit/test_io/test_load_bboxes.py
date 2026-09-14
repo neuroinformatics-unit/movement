@@ -523,7 +523,9 @@ def test_benchmark_from_via_tracks_file(via_file_path, benchmark):
         # single individual present in 35 non-consecutive frames
     ],
 )
-def test_benchmark_df_from_valid_via_object(via_file_path, benchmark):
-    """Benchmark the `_df_from_valid_via_object` function."""
+def test_benchmark_numpy_arrays_from_valid_via_object(
+    via_file_path, benchmark
+):
+    """Benchmark the `_numpy_arrays_from_valid_via_object` function."""
     valid_via = ValidVIATracksCSV(via_file_path)
-    benchmark(load_bboxes._df_from_valid_via_object, valid_via)
+    benchmark(load_bboxes._numpy_arrays_from_valid_via_object, valid_via)

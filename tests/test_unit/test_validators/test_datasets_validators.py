@@ -164,6 +164,10 @@ class TestBaseDatasetInputs:
         np.testing.assert_allclose(
             data.confidence_array, expected_confidence, equal_nan=True
         )
+        np.testing.assert_array_equal(
+            data.frame_array,
+            np.arange(position_array.shape[0]).reshape(-1, 1),
+        )
         assert data.individual_names == expected_ind_names
         assert data.fps is None
         assert data.source_software is None
@@ -229,6 +233,103 @@ class TestBaseDatasetInputs:
             stub_dataset_inputs_class._validate_array_shape(
                 self.StubAttr(), val, expected_shape
             )
+
+    @pytest.mark.parametrize(
+        "frame_array, expected_context",
+        [
+            (
+                None,
+                does_not_raise(np.arange(5)[:, None]),
+            ),
+            (
+                np.arange(3, 8)[:, None],
+                does_not_raise(np.arange(3, 8)[:, None]),
+            ),
+            (
+                np.arange(3, 12, 2)[:, None],
+                does_not_raise(np.arange(3, 12, 2)[:, None]),
+            ),
+            (
+                np.arange(5)[::-1][:, None],
+                pytest.raises(
+                    ValueError,
+                    match="not monotonically increasing",
+                ),
+            ),
+            (
+                np.zeros((5, 2)),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape("have shape [(5, 1)], but got (5, 2)"),
+                ),
+            ),
+            (
+                np.zeros((7, 1)),
+                pytest.raises(
+                    ValueError,
+                    match=re.escape("have shape [(5, 1)], but got (7, 1)"),
+                ),
+            ),
+        ],
+        ids=[
+            "Not provided, use default",
+            "Consecutive monotonically increasing",
+            "Non-consecutive but monotonically increasing",
+            "Non-monotonically increasing frame numbers",
+            "Shape mismatch: not a column vector",
+            "Shape mismatch: frame number different from position_array",
+        ],
+    )
+    def test_frame_array(self, frame_array, expected_context):
+        """Test frame_array validation and default assignment."""
+        stub_dataset_inputs_class = self.make_stub_dataset_inputs_class(
+            dim_names=("time", "space")
+        )
+        position_array = np.zeros((5, 2))
+
+        with expected_context as expected_frame_array:
+            data = stub_dataset_inputs_class(
+                position_array=position_array,
+                frame_array=frame_array,
+            )
+            np.testing.assert_array_equal(
+                data.frame_array,
+                expected_frame_array,
+            )
+
+    @pytest.mark.parametrize(
+        "fps, expected_time_unit", [(None, "frames"), (2, "seconds")]
+    )
+    @pytest.mark.parametrize(
+        "frame_array, expected_time",
+        [
+            (np.arange(5)[:, None], np.arange(5)),
+            (np.arange(10, 15)[:, None], np.arange(10, 15)),
+        ],
+        ids=["zero-based frame numbers", "non-zero-based frame numbers"],
+    )
+    def test_time_coords_and_attrs(
+        self, frame_array, fps, expected_time, expected_time_unit
+    ):
+        """Test _time_coords_and_attrs time coords and unit assignment."""
+        stub_dataset_inputs_class = self.make_stub_dataset_inputs_class(
+            dim_names=("time", "space")
+        )
+        data = stub_dataset_inputs_class(
+            position_array=np.zeros((5, 2)),
+            frame_array=frame_array,
+            fps=fps,
+        )
+        expected_dataset_attrs = {
+            "source_software": None,
+            "time_unit": expected_time_unit,
+        }
+        time_coords, dataset_attrs = data._time_coords_and_attrs()
+        if fps is not None:
+            expected_time = expected_time / fps
+            expected_dataset_attrs["fps"] = fps
+        np.testing.assert_allclose(time_coords, expected_time)
+        assert dataset_attrs == expected_dataset_attrs
 
     @pytest.mark.parametrize(
         "val, expected_length, expected_exception",
@@ -346,7 +447,6 @@ class TestValidPosesInputs:
             )
             assert data.keypoint_names == expected_keypoint_names
 
-    @pytest.mark.parametrize("fps", [30, None])
     @pytest.mark.parametrize(
         "dataset_fixture",
         [
@@ -358,7 +458,7 @@ class TestValidPosesInputs:
             "Individual-wise confidence array",
         ],
     )
-    def test_to_dataset(self, fps, dataset_fixture, request):
+    def test_to_dataset(self, dataset_fixture, request):
         """Test to_dataset creates the expected poses dataset."""
         valid_poses_dataset = request.getfixturevalue(dataset_fixture)
         ds = ValidPosesInputs(
@@ -366,17 +466,9 @@ class TestValidPosesInputs:
             confidence_array=valid_poses_dataset.confidence.values,
             individual_names=valid_poses_dataset.individual.values,
             keypoint_names=valid_poses_dataset.keypoint.values,
-            fps=fps,
             source_software=valid_poses_dataset.attrs["source_software"],
         ).to_dataset()
-        if fps is None:
-            xr.testing.assert_equal(ds, valid_poses_dataset)
-        else:
-            expected_ds = valid_poses_dataset.assign_coords(
-                time=valid_poses_dataset.time.values / fps
-            )
-            expected_ds.time.attrs["units"] = "seconds"
-            xr.testing.assert_equal(ds, expected_ds)
+        xr.testing.assert_equal(ds, valid_poses_dataset)
 
     @pytest.mark.parametrize(
         "confidence_array, expected_context",
@@ -461,79 +553,13 @@ class TestValidBboxesInputs:
                 shape_array=shape_array,
             )
 
-    @pytest.mark.parametrize(
-        "frame_array, expected_context",
-        [
-            (None, does_not_raise(np.arange(5)[:, None])),
-            (
-                np.arange(3, 8)[:, None],
-                does_not_raise(np.arange(3, 8)[:, None]),
-            ),
-            (
-                np.arange(3, 12, 2)[:, None],
-                does_not_raise(np.arange(3, 12, 2)[:, None]),
-            ),
-            (
-                np.arange(5)[::-1][:, None],
-                pytest.raises(
-                    ValueError,
-                    match="not monotonically increasing",
-                ),
-            ),
-            (
-                np.zeros((5, 2)),
-                pytest.raises(
-                    ValueError,
-                    match=re.escape("have shape [(5, 1)], but got (5, 2)"),
-                ),
-            ),
-            (
-                np.zeros((7, 1)),
-                pytest.raises(
-                    ValueError,
-                    match=re.escape("have shape [(5, 1)], but got (7, 1)"),
-                ),
-            ),
-        ],
-        ids=[
-            "Not provided, use default",
-            "Consecutive monotonically increasing",
-            "Non-consecutive but monotonically increasing",
-            "Non-monotonically increasing frame numbers",
-            "Shape mismatch: not a column vector",
-            "Shape mismatch: frame number different from position_array",
-        ],
-    )
-    def test_frame_array(self, frame_array, expected_context):
-        """Test frame_array validation."""
-        position_array = np.zeros((5, 2, 3))  # time, space, individual
-        shape_array = np.zeros((5, 2, 3))
-        with expected_context as expected_frame_array:
-            data = ValidBboxesInputs(
-                position_array=position_array,
-                shape_array=shape_array,
-                frame_array=frame_array,
-            )
-            np.testing.assert_array_equal(
-                data.frame_array, expected_frame_array
-            )
-
-    @pytest.mark.parametrize("fps", [30, None])
-    def test_to_dataset(self, fps, valid_bboxes_dataset):
+    def test_to_dataset(self, valid_bboxes_dataset):
         """Test to_dataset creates the expected bboxes dataset."""
         ds = ValidBboxesInputs(
             position_array=valid_bboxes_dataset.position.values,
             shape_array=valid_bboxes_dataset.shape.values,
             confidence_array=valid_bboxes_dataset.confidence.values,
             individual_names=valid_bboxes_dataset.individual.values,
-            fps=fps,
             source_software=valid_bboxes_dataset.attrs["source_software"],
         ).to_dataset()
-        if fps is None:
-            xr.testing.assert_equal(ds, valid_bboxes_dataset)
-        else:
-            expected_ds = valid_bboxes_dataset.assign_coords(
-                time=valid_bboxes_dataset.time.values / fps
-            )
-            expected_ds.time.attrs["units"] = "seconds"
-            xr.testing.assert_equal(ds, expected_ds)
+        xr.testing.assert_equal(ds, valid_bboxes_dataset)

@@ -219,7 +219,6 @@ linkcheck_retries = 3  # default is 1
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs (because they are generated dynamically)
 linkcheck_anchors_ignore_for_url = [
-    "https://gin.g-node.org/G-Node/Info/wiki/",
     "https://neuroinformatics.zulipchat.com/",
     "https://github.com/talmolab/sleap/blob/v1.3.3/sleap/info/write_tracking_h5.py",
 ]
@@ -239,7 +238,7 @@ linkcheck_ignore = [
     "https://www.iso.org/",
     "https://www.ffmpeg.org/",
     "https://gis.stackexchange.com/",
-    "https://www.g-node.org/",
+    "https?://([\w-]+\.)*g-node\.org(/\S*)?",
     "https://www.contributor-covenant.org/",
     "https://opensource.org/license/bsd-3-clause/",
     "https://www.sainsburywellcome.org/",
@@ -271,10 +270,11 @@ myst_url_schemes = {
     "conda": "https://docs.conda.io/projects/conda/en/latest/{{path}}#{{fragment}}",
     "dlc": "https://mlabofai.org/deeplabcut/",
     "gin": "https://gin.g-node.org/{{path}}#{{fragment}}",
+    "swc-gin": "https://gin.swc.ucl.ac.uk/{{path}}#{{fragment}}",
     "github-docs": "https://docs.github.com/en/{{path}}#{{fragment}}",
     "myst-parser": "https://myst-parser.readthedocs.io/en/latest/{{path}}#{{fragment}}",
     "napari": "https://napari.org/stable/{{path}}",
-    "setuptools-scm": "https://setuptools-scm.readthedocs.io/en/latest/{{path}}#{{fragment}}",
+    "setuptools-scm": "https://setuptools-scm.readthedocs.io/latest/{{path}}#{{fragment}}",
     "sleap": "https://sleap.ai/{{path}}#{{fragment}}",
     "sleap-docs": "https://docs.sleap.ai/latest/{{path}}#{{fragment}}",
     "sphinx-doc": "https://www.sphinx-doc.org/en/master/usage/{{path}}#{{fragment}}",

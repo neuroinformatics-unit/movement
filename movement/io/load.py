@@ -14,9 +14,9 @@ from typing import (
     cast,
 )
 
-import attrs
 import pynwb
 import xarray as xr
+from attrs import field, fields, frozen, validators
 
 from movement.utils.logging import logger
 from movement.validators.files import ValidFile
@@ -79,11 +79,23 @@ class LoaderProtocol(Protocol):
         ...
 
 
-_LOADER_REGISTRY: dict[str, LoaderProtocol] = {}
-_LOADER_VALIDATORS_REGISTRY: dict[SourceSoftware, list[type[ValidFile]]] = {}
+@frozen
+class _LoaderEntry:
+    """Loader function and suffix-to-validator map for a source software."""
+
+    loader: LoaderProtocol = field(validator=validators.is_callable())
+    """Loader function for the source software."""
+
+    suffix_validator_map: dict[str, type[ValidFile]] = field(
+        factory=dict, kw_only=True
+    )
+    """Mapping of file suffixes to validator classes for the software."""
 
 
-def get_supported_source_software() -> dict[str, set[str]]:
+_LOADER_REGISTRY: dict[SourceSoftware, _LoaderEntry] = {}
+
+
+def get_supported_source_software() -> dict[SourceSoftware, set[str]]:
     """Return registered source software and supported file suffixes.
 
     Returns a mapping of each registered source software name to the
@@ -93,17 +105,15 @@ def get_supported_source_software() -> dict[str, set[str]]:
 
     Returns
     -------
-    dict[str, set[str]]
+    dict[SourceSoftware, set[str]]
         Mapping of source software names to sets of supported file
         suffixes (e.g. ``{".h5", ".csv"}``). Loaders registered
         without file validators will map to an empty set.
 
     """
     return {
-        sw: set().union(
-            *(validator_cls.suffixes for validator_cls in validators_list)
-        )
-        for sw, validators_list in _LOADER_VALIDATORS_REGISTRY.items()
+        sw: set(entry.suffix_validator_map)
+        for sw, entry in _LOADER_REGISTRY.items()
     }
 
 
@@ -147,24 +157,26 @@ def infer_source_software(
 
     # Try all registered validators and keep track of matching candidates
     candidates: list[SourceSoftware] = []
-
-    for source_sw, validators_list in _LOADER_VALIDATORS_REGISTRY.items():
-        suffix_map = _build_suffix_map(validators_list)
-        try:
-            # Temporarily disable the logger to avoid flooding the console
-            # with expected validation errors during candidate testing
-            logger.disable("movement")
-            _validate_file(
-                file_path,
-                suffix_map,
-                source_sw,
-                loader_kwargs=loader_kwargs,
-            )
-        except (OSError, TypeError, ValueError):
-            continue
-        finally:
-            logger.enable("movement")  # re-store logging
-        candidates.append(source_sw)
+    # Temporarily disable the logger to avoid flooding the console
+    # with expected validation errors during candidate testing
+    logger.disable("movement")
+    try:
+        for source_sw, entry in _LOADER_REGISTRY.items():
+            suffix_map = entry.suffix_validator_map
+            if file_path.suffix not in suffix_map:
+                continue
+            try:
+                _validate_file(
+                    file_path,
+                    suffix_map,
+                    source_sw,
+                    loader_kwargs=loader_kwargs,
+                )
+            except (OSError, TypeError, ValueError):
+                continue
+            candidates.append(source_sw)
+    finally:
+        logger.enable("movement")  # re-store logging
 
     # If exactly one candidate matches, return it.
     if len(candidates) == 1:
@@ -194,7 +206,7 @@ def _get_validator_kwargs(
     """Extract the relevant kwargs for a given validator class."""
     # Only extract fields that are used in the validator's __init__
     validator_fields = {
-        field.name for field in attrs.fields(validator_cls) if field.init
+        field.name for field in fields(validator_cls) if field.init
     }
     return {
         field_name: loader_kwargs[field_name]
@@ -319,7 +331,6 @@ def register_loader(
         and not isinstance(file_validators, list)
         else file_validators or []
     )
-    _LOADER_VALIDATORS_REGISTRY[source_software] = validators_list
     # Map suffixes to validator classes
     suffix_map = _build_suffix_map(validators_list)
 
@@ -328,7 +339,7 @@ def register_loader(
     ) -> Callable[Concatenate[TInputFile, P], xr.Dataset]:
         @wraps(loader_fn)
         def wrapper(file: TInputFile, *args, **kwargs) -> xr.Dataset:
-            if not validators_list:
+            if not suffix_map:
                 return loader_fn(file, *args, **kwargs)
 
             valid_file = _validate_file(
@@ -337,7 +348,9 @@ def register_loader(
             return loader_fn(valid_file, *args, **kwargs)  # type: ignore[arg-type]
 
         # Register the loader in the global registry
-        _LOADER_REGISTRY[source_software] = cast("LoaderProtocol", wrapper)
+        _LOADER_REGISTRY[source_software] = _LoaderEntry(
+            cast("LoaderProtocol", wrapper), suffix_validator_map=suffix_map
+        )
         return wrapper
 
     return decorator
@@ -401,7 +414,7 @@ def load_dataset(
         source_software = infer_source_software(file, **kwargs)
 
     if source_software == AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE:
-        ds = _LOADER_REGISTRY["DeepLabCut"](file, fps, **kwargs)
+        ds = _LOADER_REGISTRY["DeepLabCut"].loader(file, fps, **kwargs)
         ds.attrs["source_software"] = AMBIGUOUS_DLC_LP_SOURCE_SOFTWARE
         return ds
 
@@ -418,9 +431,9 @@ def load_dataset(
                 UserWarning,
                 stacklevel=2,
             )
-        return _LOADER_REGISTRY[source_software](file, **kwargs)
+        return _LOADER_REGISTRY[source_software].loader(file, **kwargs)
 
-    return _LOADER_REGISTRY[source_software](file, fps, **kwargs)
+    return _LOADER_REGISTRY[source_software].loader(file, fps, **kwargs)
 
 
 def load_multiview_dataset(

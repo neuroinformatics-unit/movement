@@ -21,9 +21,7 @@ from movement.utils.logging import logger
 
 # URL to the remote data repository on GIN
 # noinspection PyInterpreter
-DATA_URL = (
-    "https://gin.g-node.org/neuroinformatics/movement-test-data/raw/master"
-)
+DATA_URL = "https://gin.swc.ucl.ac.uk/neuroinformatics/movement-sample-data/raw/master"
 
 # Save data in ~/.movement/data
 DATA_DIR = Path("~", ".movement", "data").expanduser()

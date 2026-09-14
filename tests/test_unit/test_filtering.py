@@ -2,6 +2,7 @@ from contextlib import nullcontext as does_not_raise
 
 import numpy as np
 import pytest
+import xarray as xr
 
 from movement.filtering import (
     filter_by_confidence,
@@ -116,6 +117,15 @@ class TestFilteringValidDataset:
                 window=3,
                 statistic=statistic,
             )
+
+    def test_rolling_filter_window_1(self, valid_dataset, request):
+        """Test that a rolling filter with a window of 1 returns the
+        input data unchanged, instead of an empty array.
+        """
+        position = request.getfixturevalue(valid_dataset).position
+        position_filtered = rolling_filter(position, window=1)
+        assert position_filtered.sizes["time"] == position.sizes["time"]
+        xr.testing.assert_allclose(position_filtered, position)
 
 
 @pytest.mark.parametrize(

@@ -162,7 +162,7 @@ ds_new = ds_orig.copy()
 # Apply some processing to the position data variable.
 # e.g. a rolling median filter
 ds_new["position"] = rolling_filter(
-  ds_orig["position"], window=5, statistic="median"
+    ds_orig["position"], window=5, statistic="median"
 )
 
 # Save the processed dataset to a netCDF file
@@ -283,13 +283,6 @@ change the colormap of a selected tracks layer.
 - Currently there is no support in `napari` for fine control
 over the length of the tail and head tracks. However, we are
 working on a workaround, stay tuned!
-
-- You may occasionally see a warning message in the GUI upon loading a datafile, that says:
-  ```bash
-  UserWarning: Previous color_by key 'keypoint_factorized'
-  not present in features. Falling back to track_id!
-  ```
-  This is a known issue and can be safely ignored. It does not currently affect the functionality of the GUI.
 
 - Also note that currently the `show ID` checkbox in the [tracks layer](napari:howtos/layers/tracks.html) controls panel refers to
 an internal napari track ID, rather than the individual or the keypoint ID. This is a known issue and we are working on a fix or workaround.

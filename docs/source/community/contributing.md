@@ -43,7 +43,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](gith
 2. Clone your fork to your local machine and navigate to the repository folder:
 
     ```sh
-    git clone [https://github.com/](https://github.com/)<your-github-username>/movement.git
+    git clone https://github.com/<your-github-username>/movement.git
     cd movement
     ```
 
@@ -51,7 +51,7 @@ If you are not familiar with `git`, we recommend reading up on [this guide](gith
    This links your local copy to the original project so you can pull the latest changes.
 
     ```sh
-    git remote add upstream [https://github.com/neuroinformatics-unit/movement.git](https://github.com/neuroinformatics-unit/movement.git)
+    git remote add upstream https://github.com/neuroinformatics-unit/movement.git
     ```
 
     :::{note}
@@ -207,8 +207,11 @@ These datasets are accessible through the `pytest.DATA_PATHS` dictionary, popula
 Avoid including large data files directly in the GitHub repository.
 
 #### Running benchmark tests
-Some tests are marked as `benchmark` because we use them along with [pytest-benchmark](pytest-benchmark:) to measure the performance of a section of the code. These tests are excluded from the default test run to keep CI and local test running fast.
-This applies to all ways of running `pytest` (via command line, IDE, tox or CI).
+Some tests are marked as `benchmark` because we use them with [pytest-benchmark](pytest-benchmark:) to measure the performance of specific code paths.
+These tests are excluded from the default test run to keep the suite fast.
+This applies to any direct `pytest` invocation (command line or IDE).
+Our `tox` environment—used in CI—runs the full test suite, including the benchmark tests, but with benchmarking disabled (`--benchmark-disable`).
+This acts as a smoke check: no timing or statistics are collected; it simply verifies that the benchmarked code still executes correctly.
 
 To run only the benchmark tests locally:
 
@@ -216,7 +219,7 @@ To run only the benchmark tests locally:
 pytest -m benchmark
 ```
 
-To run all tests, including those marked as `benchmark`:
+To run the full test suite, including tests marked as `benchmark`:
 
 ```sh
 pytest -m ""
@@ -276,7 +279,7 @@ Both {meth}`logger.error()<movement.utils.logging.MovementLogger.error>` and {me
 As these methods will return the logged Exception, you can log and raise the Exception in a single line:
 ```python
 raise logger.error(ValueError("message"))
-raise logger.exception(ValueError("message")) # with traceback
+raise logger.exception(ValueError("message"))  # with traceback
 ```
 
 #### When to use `print`, `warnings.warn`, `logger.warning` and `logger.info`
@@ -317,6 +320,7 @@ Using a hypothetical format "MySoftware" that produces CSV files containing the 
 @define
 class ValidMySoftwareCSV:
     """Validator for MySoftware .csv output files."""
+
     suffixes: ClassVar[set[str]] = {".csv"}
     file: Path = field(
         converter=Path,
@@ -326,8 +330,7 @@ class ValidMySoftwareCSV:
 
     @file.validator
     def _file_contains_expected_header(self, attribute, value):
-        """Ensure that the .csv file contains the expected header row.
-        """
+        """Ensure that the .csv file contains the expected header row."""
         expected_cols = ["scorer", "bodyparts", "coords"]
         with open(value) as f:
             col_names = f.readline().split(",")[:3]
@@ -408,7 +411,7 @@ def from_mysoftware_file(file: str | Path) -> xr.Dataset:
     file_path = valid_file.file  # Path
     # The _parse_* functions are pseudocode
     ds = load_poses.from_numpy(
-        position_array= _parse_positions(file_path),
+        position_array=_parse_positions(file_path),
         confidence_array=_parse_confidences(file_path),
         individual_names=_parse_individual_names(file_path),
         keypoint_names=_parse_keypoint_names(file_path),
@@ -432,12 +435,16 @@ A loader function must conform to the {class}`LoaderProtocol<movement.io.load.Lo
 The {func}`@register_loader()<movement.io.load.register_loader>` decorator associates a loader function with a `source_software` name so that users can load files from that software via the unified {func}`load_dataset()<movement.io.load.load_dataset>` interface:
 ```python
 from movement.io import load_dataset
-ds = load_dataset("path/to/mysoftware_output.csv", source_software="MySoftware")
+
+ds = load_dataset(
+    "path/to/mysoftware_output.csv", source_software="MySoftware"
+)
 ```
 
 which is equivalent to calling the loader function directly:
 ```python
 from movement.io.load_poses import from_mysoftware_file
+
 ds = from_mysoftware_file("path/to/mysoftware_output.csv")
 ```
 
@@ -971,7 +978,6 @@ If the linkcheck step incorrectly marks links with valid anchors as broken, you 
 # The linkcheck builder will skip verifying that anchors exist when checking
 # these URLs
 linkcheck_anchors_ignore_for_url = [
-    "https://gin.g-node.org/G-Node/Info/wiki/",
     "https://neuroinformatics.zulipchat.com/",
 ]
 ```
@@ -1000,9 +1006,9 @@ If the limit is reached, previews may temporarily be unavailable until the quota
 (target-contributing-sample-data)=
 ## Sample data
 We maintain some sample datasets to be used for testing, examples and tutorials on an
-[external data repository](gin:neuroinformatics/movement-test-data).
-Our hosting platform of choice is called [GIN](gin:) and is maintained
-by the [German Neuroinformatics Node](https://www.g-node.org/).
+[external data repository](swc-gin:neuroinformatics/movement-sample-data).
+Our hosting platform of choice is called [GIN](gin:), based on the
+software maintained by the [German Neuroinformatics Node](https://www.g-node.org/).
 GIN has a GitHub-like interface and git-like
 [CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) functionalities.
 
@@ -1041,13 +1047,13 @@ Only core `movement` developers may add new files to the external data repositor
 Make sure to run the following procedure on a UNIX-like system, as we have observed some weird behaviour on Windows (some sha256sums may end up being different).
 To add a new file, you will need to:
 
-1. Create a [GIN](gin:) account.
-2. Request collaborator access to the [movement data repository](gin:neuroinformatics/movement-test-data) if you don't already have it.
-3. Install and configure the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart) by running `gin login` in a terminal with your GIN credentials.
-4. Clone the `movement` data repository to your local machine using `gin get neuroinformatics/movement-test-data`, then run `gin download --content` to download all the files.
+1. Create a [GIN](swc-gin:) account on our self-hosted instance.
+2. Request collaborator access to the [movement data repository](swc-gin:neuroinformatics/movement-sample-data) if you don't already have it.
+3. Install the [GIN CLI](gin:G-Node/Info/wiki/GIN+CLI+Setup#quickstart), then log in by running `gin login --server https://gin.swc.ucl.ac.uk` and following the instructions to authenticate with your GIN account.
+4. Clone the `movement` data repository to your local machine using `gin get neuroinformatics/movement-sample-data`, then run `gin download --content` to download all the files.
 5. Add your new files to the appropriate folders (`poses`, `bboxes`, `videos`, and/or `frames`) following the existing file naming conventions.
 6. Add metadata for your new files to `metadata.yaml` using the [example entry below](target-metadata-yaml) as a template. You can leave all `sha256sum` values as `null` for now.
-7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](gin:neuroinformatics/movement-test-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with `movement` installed](#creating-a-development-environment).
+7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](swc-gin:neuroinformatics/movement-sample-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with `movement` installed](#creating-a-development-environment).
 8. Commit your changes using `gin commit -m <message> <filename>` for specific files or `gin commit -m <message> .` for all changes.
 9. Upload your committed changes to the GIN repository with `gin upload`. Use `gin download` to pull the latest changes or `gin sync` to synchronise changes bidirectionally.
 10. [Verify](target-verify-sample-data) the new files can be fetched and loaded correctly using the {mod}`movement.sample_data` module.
