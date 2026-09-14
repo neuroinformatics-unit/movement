@@ -21,7 +21,9 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
     ----------
     data
         The input data array containing either ``space`` or ``space_pol``
-        as a dimension.
+        as a dimension. The ``space`` dimension may be 2D (``x``, ``y``)
+        or 3D (``x``, ``y``, ``z``), whereas ``space_pol`` must be 2D
+        (``rho``, ``phi``).
 
     Returns
     -------
@@ -39,10 +41,14 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
     vectors (i.e., the diagonal of the bounding box),
     for every individual and at every timestep.
 
+    For 3D Cartesian input, the norm is the full Euclidean magnitude
+    ``sqrt(x**2 + y**2 + z**2)``. Cylindrical input (a 3D ``space_pol``
+    dimension) is rejected, because there the radial coordinate ``rho``
+    only spans the x-y plane and is therefore not the vector's norm.
 
     """
     if "space" in data.dims:
-        validate_dims_coords(data, {"space": ["x", "y"]})
+        _validate_spatial_dim(data, "space", ["x", "y"])
         return xr.apply_ufunc(
             np.linalg.norm,
             data,
@@ -50,7 +56,8 @@ def compute_norm(data: xr.DataArray) -> xr.DataArray:
             kwargs={"axis": -1},
         )
     elif "space_pol" in data.dims:
-        validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
+        if _validate_spatial_dim(data, "space_pol", ["rho", "phi"]) == 3:
+            _raise_error_for_cylindrical_input()
         return data.sel(space_pol="rho", drop=True)
     else:
         _raise_error_for_missing_spatial_dim()
@@ -66,7 +73,9 @@ def convert_to_unit(data: xr.DataArray) -> xr.DataArray:
     ----------
     data
         The input data array containing either ``space`` or ``space_pol``
-        as a dimension.
+        as a dimension. The ``space`` dimension may be 2D (``x``, ``y``)
+        or 3D (``x``, ``y``, ``z``), whereas ``space_pol`` must be 2D
+        (``rho``, ``phi``).
 
     Returns
     -------
@@ -79,12 +88,16 @@ def convert_to_unit(data: xr.DataArray) -> xr.DataArray:
     Note that the unit vector for the null vector is undefined, since the null
     vector has 0 norm and no direction associated with it.
 
+    Cylindrical input (a 3D ``space_pol`` dimension) is rejected, for the
+    same reason as in :func:`compute_norm`.
+
     """
     if "space" in data.dims:
-        validate_dims_coords(data, {"space": ["x", "y"]})
+        _validate_spatial_dim(data, "space", ["x", "y"])
         return data / compute_norm(data)
     elif "space_pol" in data.dims:
-        validate_dims_coords(data, {"space_pol": ["rho", "phi"]})
+        if _validate_spatial_dim(data, "space_pol", ["rho", "phi"]) == 3:
+            _raise_error_for_cylindrical_input()
         # Set both rho and phi values to NaN at null vectors (where rho = 0)
         new_data = xr.where(data.sel(space_pol="rho") == 0, np.nan, data)
         # Set the rho values to 1 for non-null vectors (phi is preserved)
@@ -364,6 +377,18 @@ def _validate_spatial_dim(
     elif n_coords != 2:
         _raise_error_for_invalid_spatial_dim_length(dim, n_coords)
     return n_coords
+
+
+def _raise_error_for_cylindrical_input() -> NoReturn:
+    raise logger.error(
+        ValueError(
+            "This function does not support 3D cylindrical input, i.e. a "
+            "'space_pol' dimension holding 'rho', 'phi' and 'z', because "
+            "there 'rho' only spans the x-y plane and is therefore not the "
+            "norm of the vector. Convert the data to Cartesian coordinates "
+            "with pol2cart() first."
+        )
+    )
 
 
 def _raise_error_for_invalid_spatial_dim_length(

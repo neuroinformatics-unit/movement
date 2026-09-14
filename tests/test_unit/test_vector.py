@@ -288,6 +288,35 @@ class TestVector3D:
         )
         xr.testing.assert_allclose(roundtrip, cart)
 
+    def test_compute_norm_3d(self, cart_cyl_dataset):
+        """Test that the 3D norm includes z."""
+        cart = cart_cyl_dataset.cart
+        result = vector.compute_norm(cart)
+        expected = np.sqrt((cart**2).sum("space"))
+        xr.testing.assert_allclose(result, expected)
+        assert result.dims == ("time",)
+
+    def test_convert_to_unit_3d(self, cart_cyl_dataset):
+        """Test conversion of 3D vectors to unit vectors."""
+        cart = cart_cyl_dataset.cart
+        unit_cart = vector.convert_to_unit(cart)
+        assert unit_cart.dims == cart.dims
+        # null vectors have no direction, so they are set to NaN
+        is_null_vec = (cart == 0).all("space")
+        assert unit_cart.where(is_null_vec).isnull().all()
+        # all other vectors have norm 1 and the same direction as the input
+        expected_norms = xr.ones_like(is_null_vec, dtype=float)
+        xr.testing.assert_allclose(
+            vector.compute_norm(unit_cart).where(~is_null_vec),
+            expected_norms.where(~is_null_vec),
+        )
+        xr.testing.assert_allclose(
+            vector.cart2pol(unit_cart)
+            .sel(space_pol="phi")
+            .where(~is_null_vec),
+            vector.cart2pol(cart).sel(space_pol="phi").where(~is_null_vec),
+        )
+
     @pytest.mark.parametrize(
         "dim, coords",
         [
@@ -314,6 +343,14 @@ class TestVector3D:
         func = vector.cart2pol if dim == "space" else vector.pol2cart
         with pytest.raises(ValueError, match=re.escape("['z']")):
             func(data)
+
+    @pytest.mark.parametrize("func", ["compute_norm", "convert_to_unit"])
+    def test_cylindrical_input_rejected(self, func, cart_cyl_dataset):
+        """Test that 3D cylindrical input is explicitly rejected, rather
+        than silently treating rho as the norm of the vector.
+        """
+        with pytest.raises(ValueError, match="cylindrical"):
+            getattr(vector, func)(cart_cyl_dataset.cyl)
 
 
 class TestComputeSignedAngle:
