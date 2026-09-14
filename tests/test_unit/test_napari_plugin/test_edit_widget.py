@@ -49,6 +49,40 @@ def test_click_on_timeline_jumps_only_within_tolerance(
     assert viewer.dims.current_step[0] == expected_frame
 
 
+def test_drag_pans_the_timeline_and_keeps_axis_strip_in_sync(
+    loader_with_edited_point,
+):
+    """Dragging the timeline pans it, keeping the fixed axis strip synced.
+
+    The frame-number axis strip lives in its own figure (see
+    :attr:`EditWidget.axis_canvas`) so that it stays visible regardless
+    of how the lanes above it are scrolled; ``_set_xlim`` is what keeps
+    its x-limits identical to the lanes' as the view is panned.
+    """
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    # Zoom in first: fully zoomed out (the default) there's nowhere to
+    # pan to, since the full frame range is already in view.
+    edit_widget._on_scroll(
+        Mock(
+            inaxes=edit_widget.ax,
+            xdata=sum(edit_widget.ax.get_xlim()) / 2,
+            button="up",
+        )
+    )
+    xmin, xmax = edit_widget.ax.get_xlim()
+    cursor = (xmin + xmax) / 2
+
+    edit_widget._on_mouse_press(
+        Mock(inaxes=edit_widget.ax, xdata=cursor, x=100)
+    )
+    edit_widget._on_mouse_motion(Mock(x=50))  # dragged left by 50 pixels
+    edit_widget._on_mouse_release(Mock())
+
+    new_xlim = edit_widget.ax.get_xlim()
+    assert new_xlim != (xmin, xmax)
+    assert edit_widget.axis_ax.get_xlim() == new_xlim
+
+
 def test_scroll_up_zooms_in_and_down_zooms_out(loader_with_edited_point):
     """Scrolling up shrinks the visible frame range; down grows it."""
     viewer = loader_with_edited_point.viewer
@@ -121,7 +155,6 @@ def test_wheel_event_filter_ignores_other_widgets_and_events(
     send_event = mocker.patch(
         "movement.napari.edit_widget.QCoreApplication.sendEvent"
     )
-
     other_widget_event = Mock(
         **{
             "type.return_value": QEvent.Wheel,
@@ -129,7 +162,6 @@ def test_wheel_event_filter_ignores_other_widgets_and_events(
         }
     )
     edit_widget.eventFilter(Mock(), other_widget_event)
-
     non_wheel_event = Mock(
         **{
             "type.return_value": QEvent.MouseButtonPress,
@@ -137,7 +169,6 @@ def test_wheel_event_filter_ignores_other_widgets_and_events(
         }
     )
     edit_widget.eventFilter(edit_widget.canvas, non_wheel_event)
-
     send_event.assert_not_called()
 
 
