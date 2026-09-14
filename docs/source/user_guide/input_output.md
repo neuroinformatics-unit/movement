@@ -295,7 +295,7 @@ To import {func}`~movement.io.save.save_dataset`:
 from movement.io import save_dataset
 ```
 
-By default, `target_software` is `None`, which saves the dataset in `movement`'s native netCDF (`.nc`) format:
+By default, if `target_software` is not specified, the dataset is saved in `movement`'s native netCDF (`.nc`) format (equivalent to explicitly passing `target_software="movement"`):
 
 ```python
 save_dataset(ds, "/path/to/file.nc")

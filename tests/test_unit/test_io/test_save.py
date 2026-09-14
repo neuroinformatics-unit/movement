@@ -51,34 +51,34 @@ class TestSaveDataset:
                 pytest.raises(ValueError, match="Missing required"),
             ),
             (
-                None,
+                "movement",
                 "not_a_dataset",
                 None,
                 pytest.raises(TypeError, match="Expected an xarray Dataset"),
             ),
             (
-                "netCDF",
+                "movement",
                 "valid_bboxes_dataset",
                 lambda attrs: attrs.pop("ds_type", None),
                 pytest.raises(
-                    ValueError, match="Cannot save to 'netCDF'.*ds_type"
+                    ValueError, match="Cannot save to 'movement'.*ds_type"
                 ),
             ),
             (
-                "netCDF",
+                "movement",
                 "valid_bboxes_dataset",
                 lambda attrs: attrs.update(ds_type="bogus"),
                 pytest.raises(
-                    ValueError, match="Cannot save to 'netCDF'.*ds_type"
+                    ValueError, match="Cannot save to 'movement'.*ds_type"
                 ),
             ),
         ],
         ids=[
             "DeepLabCut: rejects bboxes dataset",
             "VIA-tracks: rejects poses dataset",
-            "netCDF: rejects non-xarray Dataset",
-            "netCDF: rejects xarray Dataset missing ds_type attr",
-            "netCDF: rejects xarray Dataset with invalid ds_type attr",
+            "movement: rejects non-xarray Dataset",
+            "movement: rejects xarray Dataset missing ds_type attr",
+            "movement: rejects xarray Dataset with invalid ds_type attr",
         ],
     )
     def test_rejects_mismatched_ds_type(
@@ -99,7 +99,6 @@ class TestSaveDataset:
         with expected_context:
             save.save_dataset(ds, "some_file", target_software=target_software)
 
-    @pytest.mark.parametrize("target_software", [None, "netCDF"])
     @pytest.mark.parametrize(
         "file, expected_context",
         [
@@ -111,19 +110,27 @@ class TestSaveDataset:
         ],
     )
     def test_save_netcdf(
-        self,
-        valid_poses_dataset,
-        target_software,
-        file,
-        expected_context,
-        tmp_path,
+        self, valid_poses_dataset, file, expected_context, tmp_path
     ):
-        """Test saving to netCDF (default/explicit) with valid and invalid
-        file suffixes. Indirectly tests _to_netcdf_file.
+        """Test saving to netCDF explicitly via ``target_software="movement"``
+        with valid and invalid file suffixes. Indirectly tests
+        _to_netcdf_file.
         """
         file_path = tmp_path / file
         with expected_context:
-            save.save_dataset(valid_poses_dataset, file_path, target_software)
+            save.save_dataset(
+                valid_poses_dataset, file_path, target_software="movement"
+            )
+
+    def test_save_netcdf_default_target_software(
+        self, valid_poses_dataset, tmp_path
+    ):
+        """Test that omitting ``target_software`` defaults to saving in
+        ``movement``'s native netCDF format.
+        """
+        file_path = tmp_path / "dataset.nc"
+        save.save_dataset(valid_poses_dataset, file_path)
+        assert file_path.exists()
 
     @pytest.mark.parametrize(
         "valid_poses_dataset, identifiers",

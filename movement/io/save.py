@@ -13,7 +13,7 @@ from movement.validators.datasets import DS_TYPE_VALIDATORS, DsType
 from movement.validators.files import validate_file_path
 
 type TargetSoftware = Literal[
-    "netCDF",
+    "movement",
     "DeepLabCut",
     "SLEAP",
     "LightningPose",
@@ -179,7 +179,7 @@ def register_writer(
 def save_dataset(
     ds: xr.Dataset,
     file: str | Path,
-    target_software: TargetSoftware | None = None,
+    target_software: TargetSoftware = "movement",
     **kwargs,
 ) -> None:
     """Save a ``movement`` dataset to a file in any supported format.
@@ -192,9 +192,10 @@ def save_dataset(
         Path to the file to save the dataset to. The required file extension
         depends on the target format.
     target_software
-        The format to save the dataset in. If None (default), the dataset is
-        saved in ``movement``'s native netCDF format (``.nc``). Otherwise, one
-        of the :ref:`supported third-party formats <target-supported-formats>`.
+        The format to save the dataset in. Defaults to ``"movement"``,
+        which saves the dataset in ``movement``'s native netCDF format
+        (``.nc``). Otherwise, one of the
+        :ref:`supported third-party formats <target-supported-formats>`.
     **kwargs
         Additional keyword arguments passed to the format-specific writer
         (e.g. ``split_individuals`` for DeepLabCut, ``config`` for NWB, or any
@@ -253,16 +254,15 @@ def save_dataset(
     ... )
 
     """
-    target = target_software if target_software is not None else "netCDF"
-    if target not in _WRITER_REGISTRY:
+    if target_software not in _WRITER_REGISTRY:
         supported = ", ".join(_WRITER_REGISTRY)
         raise logger.error(
             ValueError(
-                f"Unsupported target_software for saving: '{target}'. "
-                f"Supported values are: {supported}."
+                f"Unsupported target_software for saving: "
+                f"'{target_software}'. Supported values are: {supported}."
             )
         )
-    _WRITER_REGISTRY[target].writer(ds, file, **kwargs)
+    _WRITER_REGISTRY[target_software].writer(ds, file, **kwargs)
 
 
 def _validate_ds_type(ds: xr.Dataset, target: TargetSoftware) -> None:
@@ -273,11 +273,11 @@ def _validate_ds_type(ds: xr.Dataset, target: TargetSoftware) -> None:
     is used to check that ``ds`` has the required variables and dimensions
     for that type.
 
-    For targets compatible with either type (currently only netCDF), the
+    For targets compatible with either type (currently only "movement"), the
     expected type is inferred from ``ds.attrs["ds_type"]``.
     """
     expected = _WRITER_REGISTRY[target].ds_type
-    if expected is None:  # netCDF: determine the expected type from ds_type
+    if expected is None:  # movement: determine the expected type from ds_type
         try:
             expected = ds.attrs.get("ds_type")
         except AttributeError:
@@ -294,7 +294,7 @@ def _validate_ds_type(ds: xr.Dataset, target: TargetSoftware) -> None:
     DS_TYPE_VALIDATORS[expected].validate(ds)
 
 
-@register_writer("netCDF", suffixes={".nc"})
+@register_writer("movement", suffixes={".nc"})
 def _to_netcdf_file(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
     """Save a ``movement`` dataset to a netCDF (.nc) file."""
     ds.to_netcdf(file, **kwargs)
