@@ -429,7 +429,7 @@ A loader function must conform to the {class}`~movement.io.load.LoaderProtocol`,
 - Accept `file` as its first parameter, which may be:
     - A `str` or a {class}`~pathlib.Path`.
     - An {class}`~pynwb.file.NWBFile` object (for NWB-based formats).
-- Return an {class}`xarray.Dataset` object containing the [`movement` dataset](target-poses-and-bboxes-dataset).
+- Return an {class}`xarray.Dataset` object containing the [movement dataset](target-poses-and-bboxes-dataset).
 
 Additional format-specific positional and keyword arguments (e.g. `fps`) are also allowed.
 
@@ -483,7 +483,7 @@ After parsing the input file, the loader function should construct the `movement
 - {func}`movement.io.load_poses.from_numpy` for pose tracks.
 - {func}`movement.io.load_bboxes.from_numpy` for bounding box tracks.
 
-These helper functions create the {class}`~xarray.Dataset` object from numpy arrays and metadata, ensuring that the dataset conforms to the [`movement` dataset specification](target-poses-and-bboxes-dataset).
+These helper functions create the {class}`~xarray.Dataset` object from numpy arrays and metadata, ensuring that the dataset conforms to the [movement dataset specification](target-poses-and-bboxes-dataset).
 
 #### Update SourceSoftware type alias
 The `SourceSoftware` type alias is defined in {mod}`movement.io.load` as a `Literal` containing all supported source software names.
@@ -521,7 +521,7 @@ Writer functions live in {mod}`movement.io.save_poses` or {mod}`movement.io.save
 
 A writer function must conform to the {class}`WriterProtocol<movement.io.save.WriterProtocol>`, which requires the function to:
 
-- Accept `ds`, an {class}`xarray.Dataset` representing the [`movement` dataset](target-poses-and-bboxes-dataset), as its first parameter
+- Accept `ds`, an {class}`xarray.Dataset` representing the [movement dataset](target-poses-and-bboxes-dataset), as its first parameter
 - Accept `file` (`str` or {class}`Path<pathlib.Path>`) to which the dataset should be saved, as its second parameter.
 - Save `ds` directly to `file` on disk.
 - Return `None`.
@@ -547,7 +547,7 @@ to_mysoftware_file(ds, "/path/to/output.csv")
 
 The {func}`@register_writer()<movement.io.save.register_writer>` decorator also validates `ds` and `file` before calling the writer:
 
-- The optional `ds_type` argument (`"poses"`, `"bboxes"`, or `None`) tells the decorator which kind of [`movement` dataset](target-poses-and-bboxes-dataset) the format is compatible with.
+- The optional `ds_type` argument (`"poses"`, `"bboxes"`, or `None`) tells the decorator which kind of [movement dataset](target-poses-and-bboxes-dataset) the format is compatible with.
   It selects the corresponding {mod}`dataset validator<movement.validators.datasets>`, so a clear error is raised if a bounding boxes dataset is passed to a poses-only writer (or vice versa).
   Pass `ds_type=None` (the default) only for formats compatible with any dataset type, such as `movement`'s native netCDF format.
   In that case, the decorator will select the appropriate validator based on the `ds_type` attribute of the dataset (i.e. `ds.attrs["ds_type"]`).
@@ -1132,7 +1132,7 @@ To add a new file, you will need to:
 4. Clone the `movement` data repository to your local machine using `gin get neuroinformatics/movement-sample-data`, then run `gin download --content` to download all the files.
 5. Add your new files to the appropriate folders (`poses`, `bboxes`, `videos`, and/or `frames`) following the existing file naming conventions.
 6. Add metadata for your new files to `metadata.yaml` using the [example entry below](target-metadata-yaml) as a template. You can leave all `sha256sum` values as `null` for now.
-7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](swc-gin:neuroinformatics/movement-sample-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with `movement` installed](#creating-a-development-environment).
+7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](swc-gin:neuroinformatics/movement-sample-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with movement installed](#creating-a-development-environment).
 8. Commit your changes using `gin commit -m <message> <filename>` for specific files or `gin commit -m <message> .` for all changes.
 9. Upload your committed changes to the GIN repository with `gin upload`. Use `gin download` to pull the latest changes or `gin sync` to synchronise changes bidirectionally.
 10. [Verify](target-verify-sample-data) the new files can be fetched and loaded correctly using the {mod}`movement.sample_data` module.
