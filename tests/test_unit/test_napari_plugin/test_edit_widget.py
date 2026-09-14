@@ -6,9 +6,9 @@ import numpy as np
 import pytest
 from matplotlib.colors import to_rgba
 from napari.utils.theme import get_theme
+from qtpy.QtCore import QEvent, Qt
 
 from movement.napari.edit_widget import (
-    AXES_MARGIN_PIXELS,
     LANE_HEIGHT_PIXELS,
     MIN_CANVAS_HEIGHT_PIXELS,
     MIN_VISIBLE_FRAMES,
@@ -69,6 +69,76 @@ def test_scroll_up_zooms_in_and_down_zooms_out(loader_with_edited_point):
     zoomed_out_xmin, zoomed_out_xmax = edit_widget.ax.get_xlim()
     zoomed_out_span = zoomed_out_xmax - zoomed_out_xmin
     assert zoomed_out_span > zoomed_in_span
+
+
+@pytest.mark.parametrize(
+    "modifiers, expect_forwarded, expect_consumed",
+    [
+        pytest.param(Qt.NoModifier, True, True, id="plain_scroll"),
+        pytest.param(Qt.ControlModifier, False, False, id="ctrl_scroll"),
+    ],
+)
+def test_wheel_event_filter_routes_plain_scroll_to_scrollbar(
+    loader_with_edited_point,
+    mocker,
+    modifiers,
+    expect_forwarded,
+    expect_consumed,
+):
+    """Plain wheel scrolls move the scrollbar; Ctrl+scroll is left alone.
+
+    Without this, wheel events over the canvas always reach matplotlib's
+    ``scroll_event`` (zooming the timeline), leaving no way to scroll
+    through lanes except by dragging the scrollbar directly.
+    """
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    send_event = mocker.patch(
+        "movement.napari.edit_widget.QCoreApplication.sendEvent"
+    )
+    wheel_event = Mock(
+        **{
+            "type.return_value": QEvent.Wheel,
+            "modifiers.return_value": modifiers,
+        }
+    )
+
+    consumed = edit_widget.eventFilter(edit_widget.canvas, wheel_event)
+
+    assert consumed is expect_consumed
+    if expect_forwarded:
+        send_event.assert_called_once_with(
+            edit_widget.scroll_area.verticalScrollBar(), wheel_event
+        )
+    else:
+        send_event.assert_not_called()
+
+
+def test_wheel_event_filter_ignores_other_widgets_and_events(
+    loader_with_edited_point, mocker
+):
+    """Only wheel events on the canvas itself are intercepted."""
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    send_event = mocker.patch(
+        "movement.napari.edit_widget.QCoreApplication.sendEvent"
+    )
+
+    other_widget_event = Mock(
+        **{
+            "type.return_value": QEvent.Wheel,
+            "modifiers.return_value": Qt.NoModifier,
+        }
+    )
+    edit_widget.eventFilter(Mock(), other_widget_event)
+
+    non_wheel_event = Mock(
+        **{
+            "type.return_value": QEvent.MouseButtonPress,
+            "modifiers.return_value": Qt.NoModifier,
+        }
+    )
+    edit_widget.eventFilter(edit_widget.canvas, non_wheel_event)
+
+    send_event.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -291,7 +361,7 @@ def test_canvas_wrapped_in_vertical_scroll_area(loader_with_edited_point):
         pytest.param(
             True,
             40,
-            40 * LANE_HEIGHT_PIXELS + AXES_MARGIN_PIXELS,
+            40 * LANE_HEIGHT_PIXELS,
             id="many_lanes_grow",
         ),
     ],
