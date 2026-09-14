@@ -40,11 +40,10 @@ dataset_dict = sample_data.fetch_dataset_paths(
 file_path = dataset_dict["bboxes"]
 print(file_path)
 
-# We pass ``use_frame_numbers_from_file=True`` to keep the absolute frame
-# numbers of the video in the ``time`` dimension. Without it, the frame
-# numbers are offset so that the first tracked frame is frame 0. In both
-# cases the spacing between the tracked frames is preserved, so the gaps we
-# fill in below are visible either way.
+# We pass ``use_frame_numbers_from_file=True`` to keep the frame
+# numbers as specified in the input file in the ``time`` dimension. Without
+# it, the frame numbers are offset so that the first tracked frame is frame
+# 0. In both cases the spacing between the tracked frames is preserved.
 ds = load_bboxes.from_via_tracks_file(
     file_path, use_frame_numbers_from_file=True
 )

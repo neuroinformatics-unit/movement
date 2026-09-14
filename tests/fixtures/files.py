@@ -517,9 +517,9 @@ def via_non_consecutive_frame_numbers():
     """Return the content of a VIA tracks .csv file with a single
     individual tracked in frames 10, 15 and 20.
 
-    The frame numbers neither start at 0 nor are consecutive, so this
-    content exercises both the offset applied to the frame numbers and
-    the preservation of the gaps between them.
+    The frame numbers neither start at 0 nor are monotonically increasing.
+    As a result, this fixture allows us to test both the offset applied
+    to the frame numbers and the preservation of the gaps between them.
     """
     rows = [
         (

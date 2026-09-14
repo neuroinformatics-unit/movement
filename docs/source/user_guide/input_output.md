@@ -103,7 +103,9 @@ ds = load_dataset(
 )
 ```
 
-Or to load bounding box tracks from a VIA tracks .csv file while retaining the absolute frame numbers of the video, rather than offsetting them so that the first tracked frame is frame 0:
+Or to load bounding box tracks from a VIA tracks .csv file while retaining
+the original frame numbers from the file (rather than offsetting them so
+that the first tracked frame is frame 0):
 ```python
 ds = load_dataset(
     "/path/to/file.csv",
