@@ -49,7 +49,8 @@ Below, we explain how to load pose and bounding box tracks from these supported 
 ### Loading with `load_dataset()`
 
 The {func}`~movement.io.load.load_dataset` function provides a unified, format-agnostic way to load poses or bounding boxes from any of the [supported software formats](target-supported-formats).
-This function directly dispatches the loading task to the appropriate specialised function in the {mod}`movement.io.load_poses` or {mod}`movement.io.load_bboxes` module based on the `source_software` parameter.
+
+Internally, {func}`~movement.io.load.load_dataset` dispatches to the appropriate specialised function in the {mod}`movement.io.load_poses` or {mod}`movement.io.load_bboxes` module based on the `source_software` parameter.
 
 To import {func}`~movement.io.load.load_dataset`:
 ```python
@@ -279,8 +280,15 @@ For more information on the bounding boxes data structure, see the [movement dat
 (target-saving-any-format)=
 ### Saving with `save_dataset()`
 
-The {func}`~movement.io.save.save_dataset` function provides a unified, format-agnostic way to save poses or bounding boxes to any of the [supported software formats](target-supported-formats), or to `movement`'s native [netCDF](target-netcdf) format.
-This function directly dispatches the saving task to the appropriate specialised function in the {mod}`movement.io.save_poses` or {mod}`movement.io.save_bboxes` module based on the `target_software` parameter.
+The {func}`~movement.io.save.save_dataset` function provides a unified, format-agnostic way to save poses or bounding boxes to any of the [supported software formats](target-supported-formats), or to `movement`'s native [netCDF](target-netcdf) format, which preserves the complete state of your analysis.
+
+Internally, {func}`~movement.io.save.save_dataset` dispatches to the appropriate specialised function in the {mod}`movement.io.save_poses` or {mod}`movement.io.save_bboxes` module based on the `target_software` parameter.
+
+:::{note}
+Before writing, the saving functions validate the dataset to ensure it is a {mod}`valid movement dataset<movement.validators.datasets>` with the required dimensions and data variables, and that the file path is writable with the appropriate suffix for the chosen format.
+
+If you prefer to bypass this validation (e.g. for an arbitrary, non-`movement`-specific dataset), you can use `xarray`'s native [I/O methods](xarray:user-guide/io.html) such as {meth}`xarray.Dataset.to_netcdf`. Note that no `movement`‑specific validation will occur, and such files may not load in the GUI.
+:::
 
 To import {func}`~movement.io.save.save_dataset`:
 ```python
@@ -296,10 +304,10 @@ save_dataset(ds, "/path/to/file.nc")
 To save to a third-party format instead, set `target_software` explicitly:
 
 ```python
+# poses
 save_dataset(ds, "/path/to/file.h5", target_software="DeepLabCut")
-```
 
-```python
+# bounding boxes
 save_dataset(ds, "/path/to/file.csv", target_software="VIA-tracks")
 ```
 
@@ -329,6 +337,7 @@ save_dataset(
 ```
 
 ### Saving with software-specific functions
+
 For users who want direct access to the underlying saving functions, the dedicated writers remain available.
 
 (target-saving-pose-tracks)=
@@ -478,16 +487,15 @@ and netCDF files on disk directly correspond to {class}`xarray.Dataset` objects.
 
 Saving to netCDF is the recommended way to preserve the complete state of your analysis,
 including all variables, coordinates, and attributes.
+The simplest way to save a `movement` dataset to a netCDF file is via {func}`~movement.io.save.save_dataset`:
 
-The preferred way to save a `movement` dataset to a netCDF file is via
-{func}`~movement.io.save.save_dataset`, which wraps {meth}`xarray.Dataset.to_netcdf` while adding `movement`-specific validation (i.e. checking that the dataset is a valid `movement` dataset, and that the file path is writable with a `.nc` suffix):
 ```python
 from movement.io import save_dataset
 
 save_dataset(ds, "/path/to/my_data.nc")
 ```
 
-If you prefer to skip this validation, you can also call {meth}`xarray.Dataset.to_netcdf` directly:
+If you prefer to skip `movement`-specific validation (see [](target-saving-any-format) for details), you can also call {meth}`xarray.Dataset.to_netcdf` directly:
 ```python
 ds.to_netcdf("/path/to/my_data.nc")
 ```
