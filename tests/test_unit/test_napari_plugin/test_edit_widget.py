@@ -3,17 +3,21 @@
 from unittest.mock import Mock
 
 import numpy as np
+import pandas as pd
 import pytest
 from matplotlib.colors import to_rgba
+from napari.layers.base import ActionType
 from napari.utils.theme import get_theme
 from qtpy.QtCore import QEvent, Qt
 
 from movement.napari.edit_widget import (
+    DRAG_THRESHOLD_PIXELS,
     LANE_HEIGHT_PIXELS,
     MIN_CANVAS_HEIGHT_PIXELS,
     MIN_VISIBLE_FRAMES,
     EditWidget,
 )
+from movement.napari.loader_widgets import POINTS_PROPERTIES_KEY
 
 
 def _bar_colors(edit_widget):
@@ -81,6 +85,95 @@ def test_drag_pans_the_timeline_and_keeps_axis_strip_in_sync(
     new_xlim = edit_widget.ax.get_xlim()
     assert new_xlim != (xmin, xmax)
     assert edit_widget.axis_ax.get_xlim() == new_xlim
+
+
+def test_mouse_press_outside_axes_starts_no_drag(loader_with_edited_point):
+    """A press outside the timeline (or with no xdata) is ignored."""
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+
+    edit_widget._on_mouse_press(Mock(inaxes=None, xdata=1.0, x=100))
+
+    assert edit_widget._press_pixel_x is None
+
+
+def test_mouse_motion_without_a_prior_press_is_a_noop(
+    loader_with_edited_point,
+):
+    """Mouse motion before any press on the timeline pans nothing."""
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    xlim_before = edit_widget.ax.get_xlim()
+
+    edit_widget._on_mouse_motion(Mock(x=50))
+
+    assert edit_widget.ax.get_xlim() == xlim_before
+
+
+def test_small_mouse_movement_is_not_treated_as_a_drag(
+    loader_with_edited_point,
+):
+    """Movement below the drag threshold does not pan the timeline."""
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    cursor = sum(edit_widget.ax.get_xlim()) / 2
+    edit_widget._on_mouse_press(
+        Mock(inaxes=edit_widget.ax, xdata=cursor, x=100)
+    )
+    xlim_before = edit_widget.ax.get_xlim()
+
+    edit_widget._on_mouse_motion(Mock(x=100 + DRAG_THRESHOLD_PIXELS))
+
+    assert edit_widget.ax.get_xlim() == xlim_before
+    assert edit_widget._dragged is False
+
+
+def test_mouse_release_without_a_prior_press_is_a_noop(
+    loader_with_edited_point,
+):
+    """Releasing without a preceding press on the timeline does nothing."""
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+
+    edit_widget._on_mouse_release(Mock())  # should not raise
+
+
+def test_release_without_drag_jumps_to_the_clicked_frame(
+    loader_with_edited_point,
+):
+    """A press+release with no real movement in between is a click.
+
+    Exercises the real ``_on_mouse_press``/``_on_mouse_release`` flow,
+    unlike the ``click_on_timeline`` fixture, which calls
+    ``_handle_click`` directly and so never touches this "was it a
+    click or a drag?" bookkeeping.
+    """
+    viewer = loader_with_edited_point.viewer
+    edit_widget = EditWidget(viewer)
+    edited_frame = 2
+    viewer.dims.current_step = (0,) + viewer.dims.current_step[1:]
+
+    edit_widget._on_mouse_press(
+        Mock(
+            inaxes=edit_widget.ax,
+            xdata=edited_frame,
+            x=100,
+            dblclick=False,
+        )
+    )
+    edit_widget._on_mouse_release(Mock())
+
+    assert viewer.dims.current_step[0] == edited_frame
+
+
+def test_click_on_timeline_with_no_edited_frames_is_a_noop(
+    loader_with_edited_point, click_on_timeline
+):
+    """Clicking the timeline when nothing is flagged does nothing."""
+    viewer = loader_with_edited_point.viewer
+    edit_widget = EditWidget(viewer)
+    edit_widget._edited_frames = np.array([])
+    viewer.dims.current_step = (0,) + viewer.dims.current_step[1:]
+
+    click_on_timeline(edit_widget, xdata=2)
+
+    assert viewer.dims.current_step[0] == 0
 
 
 def test_scroll_up_zooms_in_and_down_zooms_out(loader_with_edited_point):
@@ -273,6 +366,130 @@ def test_selecting_non_points_layer_keeps_timeline(loader_with_edited_point):
     assert edit_widget.ax.get_xlim() == full_xlim
 
 
+def test_reselecting_the_active_layer_is_a_noop(
+    loader_with_edited_point, mocker
+):
+    """Re-selecting the layer already shown redraws nothing."""
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    redraw = mocker.spy(edit_widget, "_redraw_bars")
+
+    edit_widget._on_active_layer_changed()  # same active layer as before
+
+    redraw.assert_not_called()
+
+
+def test_reconstruct_previously_removed_points_without_a_layer():
+    """No layer means nothing to reconstruct."""
+    assert EditWidget._reconstruct_previously_removed_points(None) == []
+
+
+def test_reconstruct_previously_removed_points_recovers_saved_removals():
+    """A NaN + edited row from a saved session is reconstructed as removed.
+
+    A point removed and saved in an earlier session comes back as a NaN
+    row rather than a live one, so it can only be recovered from the
+    full properties table (including NaN rows) stashed in
+    ``POINTS_PROPERTIES_KEY`` at load time -- see
+    ``_reconstruct_previously_removed_points``.
+    """
+    properties = pd.DataFrame(
+        {
+            "time": [0, 1, 2],
+            "individual": ["id_0", "id_0", "id_0"],
+            "position_is_nan": [False, True, False],
+            "edited": [False, True, False],
+        }
+    )
+    layer = Mock(metadata={POINTS_PROPERTIES_KEY: properties})
+
+    result = EditWidget._reconstruct_previously_removed_points(layer)
+
+    assert result == [(1, "id_0")]
+
+
+def test_reconstruct_previously_removed_points_without_any_removed_ones():
+    """Edited points that were never removed leave nothing to reconstruct."""
+    properties = pd.DataFrame(
+        {
+            "time": [0, 1],
+            "individual": ["id_0", "id_0"],
+            "position_is_nan": [False, False],
+            "edited": [True, False],
+        }
+    )
+    layer = Mock(metadata={POINTS_PROPERTIES_KEY: properties})
+
+    assert EditWidget._reconstruct_previously_removed_points(layer) == []
+
+
+def test_layer_data_changed_ignores_other_layers(
+    loader_with_edited_point, mocker
+):
+    """Data changes on a layer other than the active one are ignored."""
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    redraw = mocker.spy(edit_widget, "_redraw_bars")
+
+    edit_widget._on_layer_data_changed(Mock(source=object()))
+
+    redraw.assert_not_called()
+
+
+def test_moving_a_point_defers_a_redraw(loader_with_edited_point, mocker):
+    """A live drag on the active layer redraws the bars once Qt catches up.
+
+    The redraw is deferred via ``QTimer.singleShot`` so that
+    ``DataLoader``'s own handler (which sets the ``edited`` property
+    this widget reads) runs first; run the callback synchronously here
+    so the test does not need to pump the Qt event loop.
+    """
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    mocker.patch(
+        "movement.napari.edit_widget.QTimer.singleShot",
+        side_effect=lambda _ms, cb: cb(),
+    )
+    redraw = mocker.spy(edit_widget, "_redraw_bars")
+
+    edit_widget._on_layer_data_changed(
+        Mock(source=edit_widget.active_layer, action=ActionType.CHANGED)
+    )
+
+    redraw.assert_called_once()
+
+
+def test_removing_a_point_captures_it_and_redraws(loader_with_edited_point):
+    """Removing a point on the active layer snapshots it, then redraws.
+
+    The row is about to be deleted from the layer entirely, so its
+    identity is captured while the data is still intact (``REMOVING``
+    fires before the removal actually happens).
+    """
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    assert edit_widget._removed_points == []
+
+    edit_widget._on_layer_data_changed(
+        Mock(
+            source=edit_widget.active_layer,
+            action=ActionType.REMOVING,
+            data_indices=(0,),
+        )
+    )
+
+    assert len(edit_widget._removed_points) == 1
+
+
+def test_step_changed_leaves_playhead_alone_without_a_current_step(
+    loader_with_edited_point,
+):
+    """No current step (e.g. dims not yet set up) leaves the playhead put."""
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    xdata_before = list(edit_widget.playhead.get_xdata())
+    edit_widget.viewer = Mock(dims=Mock(current_step=()))
+
+    edit_widget._on_step_changed()
+
+    assert list(edit_widget.playhead.get_xdata()) == xdata_before
+
+
 def test_playhead_and_bars_follow_the_napari_theme(loader_with_edited_point):
     """The playhead and edit-bar colours are taken from the napari theme.
 
@@ -363,6 +580,19 @@ def test_bar_colours_follow_display_mode_not_edited_data(
 
     edit_widget.set_show_individuals(False)
     assert _bar_colors(edit_widget) == [single, single]
+
+
+def test_bar_color_lookup_falls_back_without_individual_property(
+    loader_with_edited_point,
+):
+    """Falls back to the shared edit colour if there's no individual data."""
+    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    edit_widget._show_individuals = True
+    edit_widget.active_layer = Mock(properties={})
+
+    color_of = edit_widget._bar_color_lookup()
+
+    assert color_of("id_0") == edit_widget._edit_bar_color
 
 
 def test_canvas_wrapped_in_vertical_scroll_area(loader_with_edited_point):

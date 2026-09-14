@@ -54,6 +54,28 @@ def test_edit_widget_collapsable_roundtrip(
     assert not meta_widget._edit_dock_widget.isHidden()
 
 
+def test_closing_edit_dock_via_its_x_resets_state(make_napari_viewer_proxy):
+    """Closing the docked timeline via its title-bar "X" resets state.
+
+    ``_on_edit_dock_gone`` is connected to the dock widget's
+    ``destroyed`` signal (see ``MovementMetaWidget.__init__``), which
+    fires when napari tears the dock down after the user closes it that
+    way -- unlike collapsing the "Edit tracked data" section, which
+    only hides it (see ``test_edit_widget_collapsable_roundtrip``).
+    """
+    viewer = make_napari_viewer_proxy()
+    meta_widget = MovementMetaWidget(viewer)
+    edit_collapsible = meta_widget.collapsible_widgets[2]
+    edit_collapsible.expand(animate=False)
+    assert meta_widget.edit_widget is not None
+
+    meta_widget._on_edit_dock_gone()
+
+    assert meta_widget.edit_widget is None
+    assert meta_widget._edit_dock_widget is None
+    assert not edit_collapsible.isExpanded()
+
+
 def test_show_individuals_checkbox_edit_widget(
     make_napari_viewer_proxy,
 ):
@@ -99,6 +121,38 @@ def test_show_individuals_checkbox_enabled_only_for_multiple(
     viewer.layers.selection.active = layer
 
     assert checkbox.isEnabled() is expect_enabled
+
+
+def test_show_individuals_enabled_noop_without_a_movement_layer(
+    make_napari_viewer_proxy,
+):
+    """Selecting a non-movement layer leaves the checkbox state untouched.
+
+    ``_show_individuals_enabled`` fires on every active-layer change,
+    but with no movement Points layer left to check for individuals it
+    has nothing to enable/disable for and must return early -- without
+    that guard it would crash reading ``.properties`` off ``None``.
+    """
+    viewer = make_napari_viewer_proxy()
+    meta_widget = MovementMetaWidget(viewer)
+    checkbox = meta_widget.edit_controls.show_individuals_checkbox
+
+    multi = viewer.add_points(
+        np.zeros((2, 2)),
+        properties={
+            "edited": np.array([False, False]),
+            "individual": np.array(["id_0", "id_1"]),
+        },
+        metadata={POINTS_LAYER_KEY: True},
+    )
+    viewer.layers.selection.active = multi
+    assert checkbox.isEnabled()  # sanity: enabled for multi-individual data
+
+    viewer.layers.remove(multi)
+    other = viewer.add_points(np.zeros((1, 2)))  # not a movement layer
+    viewer.layers.selection.active = other
+
+    assert checkbox.isEnabled()  # unchanged: no movement layer to check
 
 
 def test_show_individuals_unchecked_when_switching_to_single(
