@@ -502,6 +502,33 @@ def test_fps_and_time_coords(
         )
 
 
+@pytest.mark.parametrize(
+    "use_frame_numbers_from_file, expected_frames",
+    [
+        (True, np.array([10, 15, 20])),
+        (False, np.array([0, 5, 10])),
+    ],
+)
+@pytest.mark.parametrize("fps", [None, 30])
+def test_time_coords_with_non_consecutive_frames(
+    via_tracks_csv_factory,
+    use_frame_numbers_from_file,
+    expected_frames,
+    fps,
+):
+    """Test that the gaps between non-consecutive frame numbers are
+    preserved, and that the frame numbers are offset by the first tracked
+    frame if ``use_frame_numbers_from_file`` is False.
+    """
+    file_path = via_tracks_csv_factory("via_non_consecutive_frame_numbers")
+    ds = load_bboxes.from_via_tracks_file(
+        file_path,
+        fps=fps,
+        use_frame_numbers_from_file=use_frame_numbers_from_file,
+    )
+    assert_time_coordinates(ds, fps, frame_array=expected_frames)
+
+
 @pytest.mark.benchmark
 @pytest.mark.parametrize(
     "via_file_path",
