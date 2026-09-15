@@ -26,7 +26,11 @@ from movement.napari.meta_widget import MovementMetaWidget
 
 @pytest.fixture
 def viewer_model():
-    """Return a headless napari viewer model (no Qt required)."""
+    """Return a headless napari viewer model.
+
+    Faster than make_napari_viewer_proxy because it does not
+    require Qt viewer construction and teardown.
+    """
     return ViewerModel()
 
 
@@ -243,15 +247,20 @@ def test_connect_viewer_callbacks_twice_does_not_duplicate(
 # back, and layers movement did not create keep the range napari gave them.
 
 
-def add_movement_points(viewer, n_frames=100, first_frame=51, **kwargs):
+def add_movement_points(
+    viewer, n_frames=100, first_frame=51, last_frame=None, **kwargs
+):
     """Add a Points layer mimicking a NaN-trimmed movement layer.
 
-    The layer holds points for ``first_frame..n_frames - 1`` only, as if the
-    leading frames were all-NaN and dropped, but declares the true last frame
-    index in its metadata the way ``DataLoader`` does.
+    The layer holds points for ``first_frame..last_frame`` only, as if the
+    remaining leading or trailing frames were all-NaN and dropped, but
+    declares the true last frame index (``n_frames - 1``) in its metadata
+    the way ``DataLoader`` does.
     """
+    if last_frame is None:
+        last_frame = n_frames - 1
     data = np.array(
-        [[t, 10.0, 10.0] for t in range(first_frame, n_frames)],
+        [[t, 10.0, 10.0] for t in range(first_frame, last_frame + 1)],
     )
     return viewer.add_points(
         data, metadata={MAX_FRAME_IDX_KEY: n_frames - 1}, **kwargs
@@ -366,6 +375,29 @@ def test_frame_slider_range_ignores_row_count_of_other_layers(
     viewer_model.add_points(
         np.column_stack((np.zeros(500), rng.random((500, 2))))
     )
+
+    update_frame_slider_range(viewer_model)
+
+    assert viewer_model.dims.range[0] == RangeTuple(0.0, 99.0, 1.0)
+
+
+def test_frame_slider_range_not_cut_short_by_a_shorter_layer(viewer_model):
+    """A shorter unrelated layer does not cut a trimmed range short.
+
+    The user typically opens the video themselves, so the Image layer
+    carries no movement metadata and napari accounts for its extent when it
+    recomputes the range. When neither the trimmed movement layer nor the
+    video reaches the last frame, the movement layer's declared span is
+    what has to set the end of the slider.
+    """
+    # Trailing frames were dropped: points stop at 49, true span is 0-99
+    add_movement_points(viewer_model, first_frame=0, last_frame=49)
+
+    # A video covering frames 0-69 only
+    viewer_model.add_image(np.zeros((70, 8, 8)))
+
+    # Neither layer reaches the last frame
+    assert viewer_model.dims.range[0] == RangeTuple(0.0, 69.0, 1.0)
 
     update_frame_slider_range(viewer_model)
 

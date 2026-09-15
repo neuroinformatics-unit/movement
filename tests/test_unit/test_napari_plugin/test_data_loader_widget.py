@@ -787,37 +787,6 @@ def test_dimension_slider_with_layer_types(
     )
 
 
-def test_dimension_slider_not_cut_short_by_a_shorter_video(
-    valid_poses_path_and_ds_nan_end, loaded_data_loader
-):
-    """Test a shorter video does not cut a NaN-trimmed slider short.
-
-    Unlike the sample datasets above, this one ends with an all-NaN frame,
-    so the live Points extent stops before the last frame. A video covering
-    only the first half cannot make up the difference, leaving napari's
-    recomputed range short of the real frame span. This is the case where
-    ``update_frame_slider_range`` has to widen the range itself rather than
-    inherit a range that is already correct.
-    """
-    file_path, ds = valid_poses_path_and_ds_nan_end
-    loader = loaded_data_loader(file_path, ds)
-    viewer = loader.viewer
-
-    n_frames_data = ds.sizes["time"] - 1
-
-    # Add a video covering only the first half of the tracked frames
-    viewer.add_layer(
-        Image(data=np.zeros((n_frames_data // 2, 8, 8)), name="video")
-    )
-
-    # Neither the trimmed Points layer nor the video reaches the last frame
-    assert viewer.layers.extent.world[1][0] < n_frames_data
-
-    assert viewer.dims.range[0] == RangeTuple(
-        start=0.0, stop=n_frames_data, step=1.0
-    )
-
-
 def test_deletion_all_layers(make_napari_viewer_proxy):
     """Test there are no errors when all layers are deleted."""
     # Load the data loader widget
