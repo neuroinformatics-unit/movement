@@ -128,14 +128,7 @@ def update_frame_slider_range(viewer, event=None):
 
 
 def frame_axis_is_sliced(viewer) -> bool:
-    """Whether frame is the sliced axis in a 2D view.
-
-    A point drag only ever touches the currently *displayed* axes
-    (see ``Points._move`` in napari). When frame is the sliced
-    axis, that means x/y -- everything is safe to edit. If axes
-    have been rolled so frame is displayed instead, or a 3D view
-    is active, a drag could move a point onto a different frame.
-    """
+    """Determine whether the frame axis is the sliced axis in a 2D view."""
     return viewer.dims.ndisplay == 2 and viewer.dims.order[0] == 0
 
 
@@ -143,12 +136,9 @@ def update_points_layers_editable(viewer, event=None):
     """Disable point editing while the frame axis isn't sliced.
 
     Connected to ``viewer.dims.events.order``/``ndisplay``.
-    In the default view, the frame axis is the slider, so
-    dragging a point can only change its x/y position. Rolling
-    the axes or switching to 3D makes frame draggable too, which
-    would let a drag move a point to another frame. Disable
-    editing on every movement Points layer while that is the
-    case; napari greys out the select/add/delete controls.
+    It disables editing on every movement Points layer if
+    the viewer axes are rolled or switched to 3D; napari greys
+    out the select/add/delete controls.
     """
     is_editable = frame_axis_is_sliced(viewer)
     for layer in viewer.layers:
