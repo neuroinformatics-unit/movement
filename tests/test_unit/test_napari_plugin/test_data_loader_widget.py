@@ -738,6 +738,7 @@ def test_dimension_slider_with_deletion(
     "layer_type",
     [
         Points,
+        Image,
         Tracks,
         Shapes,
     ],
@@ -756,17 +757,7 @@ def test_dimension_slider_with_layer_types(
     sample_layer_data,
     make_napari_viewer_proxy,
 ):
-    """Test the slider update attends to all the expected layer types.
-
-    None of these layer types declare a frame extent of their own (only
-    layers movement created carry ``MAX_FRAME_IDX_KEY``), so the range
-    napari derived from their true extent must stand. The sample data has
-    many more rows than the tracking data has frames, but all of those rows
-    fall within frames 0-1, so a layer's row count must not be mistaken for
-    a frame count and stretch the slider. The ``Image`` case is covered by
-    ``test_dimension_slider_with_a_video_layer``, where the first axis
-    really is time.
-    """
+    """Test the slider update attends to all the expected layer types."""
     # Create a mock napari viewer
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
@@ -789,10 +780,10 @@ def test_dimension_slider_with_layer_types(
 
     assert sample_layer_data["n_frames"] > n_frames_data
 
-    # Check the frame slider still spans the tracking data, rather than
-    # the mock layer's number of rows
+    # Check the frame slider is set to the max number of frames of the
+    # mock data
     assert viewer.dims.range[0] == RangeTuple(
-        start=0.0, stop=n_frames_data, step=1.0
+        start=0.0, stop=sample_layer_data["n_frames"] - 1, step=1.0
     )
 
 
