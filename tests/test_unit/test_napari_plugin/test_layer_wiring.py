@@ -316,16 +316,6 @@ def test_frame_slider_range_widens_without_disturbing_other_layers(
     assert viewer_model.dims.range[0] == RangeTuple(0.0, 1039.0, 1.0)
 
 
-def test_frame_slider_range_spans_longest_movement_layer(viewer_model):
-    """With several movement layers, the longest one sets the range."""
-    add_movement_points(viewer_model, n_frames=100)
-    add_movement_points(viewer_model, n_frames=40, first_frame=0)
-
-    update_frame_slider_range(viewer_model)
-
-    assert viewer_model.dims.range[0] == RangeTuple(0.0, 99.0, 1.0)
-
-
 def test_frame_slider_range_repadded_after_point_deletion(viewer_model):
     """Deleting points must not shrink the range below the true frame span.
 
@@ -358,3 +348,25 @@ def test_frame_slider_range_ignores_layers_without_frame_metadata(
     update_frame_slider_range(viewer_model)
 
     assert viewer_model.dims.range[0] == before
+
+
+def test_frame_slider_range_ignores_row_count_of_other_layers(
+    viewer_model, rng
+):
+    """A layer's row count must not be read as a frame count.
+
+    Only ``Image`` layers hold one frame per row of ``data``; in a Points,
+    Tracks or Shapes layer a row is one point or shape, and any number of
+    them can share a frame. Deriving a frame span from ``len(data)`` would
+    stretch the slider far past the frames such a layer occupies.
+    """
+    add_movement_points(viewer_model, n_frames=100, first_frame=0)
+
+    # 500 points, all of them within frame 0
+    viewer_model.add_points(
+        np.column_stack((np.zeros(500), rng.random((500, 2))))
+    )
+
+    update_frame_slider_range(viewer_model)
+
+    assert viewer_model.dims.range[0] == RangeTuple(0.0, 99.0, 1.0)

@@ -787,63 +787,6 @@ def test_dimension_slider_with_layer_types(
     )
 
 
-@pytest.mark.parametrize(
-    "video_is_longer",
-    [True, False],
-    ids=["longer_video", "shorter_video"],
-)
-@pytest.mark.parametrize(
-    "input_file, source_software",
-    [
-        ("VIA_single-crab_MOCA-crab-1.csv", "VIA-tracks"),
-        ("DLC_single-wasp.predictions.h5", "DeepLabCut"),
-    ],
-)
-def test_dimension_slider_with_a_video_layer(
-    video_is_longer,
-    input_file,
-    source_software,
-    sample_layer_data,
-    make_napari_viewer_proxy,
-):
-    """Test the slider spans both the video and the tracking data.
-
-    The user typically opens the video themselves rather than through
-    movement, so the Image layer carries no movement metadata and napari
-    is what accounts for its extent. Whichever of the two reaches further
-    sets the end of the slider: a longer video extends it beyond the
-    tracked frames, and a shorter one must not cut it short.
-    """
-    viewer = make_napari_viewer_proxy()
-    data_loader_widget = DataLoader(viewer)
-
-    # Load a sample dataset as a points layer
-    file_path = pytest.DATA_PATHS.get(input_file)
-    data_loader_widget.file_path_edit.setText(file_path.as_posix())
-    data_loader_widget.source_software_combo.setCurrentText(source_software)
-    data_loader_widget._on_load_clicked()
-
-    # Get number of frames in pose data
-    n_frames_data = viewer.layers[0].metadata[MAX_FRAME_IDX_KEY]
-
-    if video_is_longer:
-        # sample_layer_data has 2000 frames
-        video_data = sample_layer_data["Image"]
-        expected_stop = sample_layer_data["n_frames"] - 1
-    else:
-        # make a video that is half the pose data
-        video_data = np.zeros((int(n_frames_data) // 2, 8, 8))
-        expected_stop = n_frames_data
-    viewer.add_layer(Image(data=video_data, name="video"))
-
-    # Check the video is on the expected side of the tracking data
-    assert bool(video_data.shape[0] - 1 > n_frames_data) is video_is_longer
-
-    assert viewer.dims.range[0] == RangeTuple(
-        start=0.0, stop=expected_stop, step=1.0
-    )
-
-
 def test_dimension_slider_not_cut_short_by_a_shorter_video(
     valid_poses_path_and_ds_nan_end, loaded_data_loader
 ):
