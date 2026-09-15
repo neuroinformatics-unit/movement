@@ -31,7 +31,8 @@ from movement.napari.layer_styles import EDITED_POINT_SYMBOL
 # - DATASET_ATTRS_KEY holds the source dataset's attrs (source_software, fps…).
 # - TRACKS_LAYER_KEY holds a reference to the companion Tracks layer.
 # - MAX_FRAME_IDX_KEY holds the last frame index of the source data,
-#   including leading/trailing all-NaN frames dropped from the live layer.
+#   including leading/trailing all-NaN frames (which are dropped from the
+#   napari layer data array).
 POINTS_LAYER_KEY: str = "movement_points_layer"
 POINTS_PROPERTIES_KEY: str = "movement_points_properties"
 DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
