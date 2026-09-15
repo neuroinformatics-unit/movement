@@ -1,9 +1,9 @@
-"""Test movement layer wiring outlives the meta-widget.
+"""Test that movement layer wiring outlives the meta-widget.
 
-napari holds bound methods weakly, so callbacks owned by the
-``DataLoader`` widget went dead once the widget was garbage collected
-(e.g. after closing the movement panel), silently leaving the Points and
-Tracks layers out of sync. These tests force that collection.
+Layer and viewer callbacks should remain active independently of the
+``DataLoader`` widget lifetime, keeping the Points and Tracks layers in
+sync after the movement panel is closed. These tests verify
+that expectation.
 """
 
 import gc

@@ -36,8 +36,8 @@ DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
 TRACKS_LAYER_KEY: str = "movement_tracks_layer"
 
 # Keep a set of viewers already wired by connect_viewer_callbacks,
-# so we don't wire them twice. We use a WeakSet, so that counts to the
-# elements inside the set never keep a viewer alive.
+# so we don't wire them twice. We use a WeakSet so tracking a viewer here
+# does not prevent it from being garbage-collected when it is no longer used.
 _WIRED_VIEWERS: WeakSet = WeakSet()
 
 
