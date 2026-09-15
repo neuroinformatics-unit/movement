@@ -19,7 +19,7 @@ from weakref import WeakSet
 
 import numpy as np
 from napari.components.dims import RangeTuple
-from napari.layers import Image, Points, Shapes, Tracks
+from napari.layers import Points
 from napari.layers.base import ActionType
 
 from movement.napari.layer_styles import EDITED_POINT_SYMBOL
@@ -30,10 +30,14 @@ from movement.napari.layer_styles import EDITED_POINT_SYMBOL
 #   dropped from the live layer, needed to reconstruct the dataset.
 # - DATASET_ATTRS_KEY holds the source dataset's attrs (source_software, fps…).
 # - TRACKS_LAYER_KEY holds a reference to the companion Tracks layer.
+# - MAX_FRAME_IDX_KEY holds the last frame index of the source data,
+#   including leading/trailing all-NaN frames (which are dropped from the
+#   napari layer data array).
 POINTS_LAYER_KEY: str = "movement_points_layer"
 POINTS_PROPERTIES_KEY: str = "movement_points_properties"
 DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
 TRACKS_LAYER_KEY: str = "movement_tracks_layer"
+MAX_FRAME_IDX_KEY: str = "movement_max_frame_idx"
 
 # Keep a set of viewers already wired by connect_viewer_callbacks,
 # so we don't wire them twice. We use a WeakSet so tracking a viewer here
@@ -78,53 +82,35 @@ def connect_viewer_callbacks(viewer) -> None:
 
 
 def update_frame_slider_range(viewer, event=None):
-    """Check the frame slider range and update it if necessary.
+    """Widen the frame slider range to cover NaN-trimmed frames.
 
-    This is required because if the data loaded starts or ends
-    with all NaN values, the frame slider range will not reflect
-    the full range of frames.
+    napari derives ``viewer.dims.range`` from the world-coordinate union of
+    all layer extents, and it does so before this callback runs. Movement's
+    layers have their leading/trailing all-NaN rows dropped, so a dataset
+    that starts or ends with NaNs yields an extent — and therefore a slider
+    range — narrower than the real frame span.
+
+    Extend napari's range to cover the true span of every movement layer,
+    but never replace it: layers movement did not create (a video the user
+    opened, another plugin's layer) keep the range napari computed for them,
+    including any scale or translate they carry.
     """
-
-    def _layer_has_data(layer):
-        if isinstance(layer, Shapes):
-            return len(layer.data) > 0
-        return layer.data.shape[0] > 0
-
-    # Only update the frame slider range if there are layers
-    # that are Points, Tracks, Image or Shapes with data
-    list_layers = [
-        ly
+    max_frame_indices = [
+        ly.metadata[MAX_FRAME_IDX_KEY]
         for ly in viewer.layers
-        if isinstance(ly, Points | Tracks | Image | Shapes)
-        and _layer_has_data(ly)
+        if MAX_FRAME_IDX_KEY in getattr(ly, "metadata", {})
     ]
-    if len(list_layers) > 0:
-        # Get the maximum frame index from all candidate layers
-        max_frame_idx = max(
-            # For every layer, get max_frame_idx metadata if it exists,
-            # else deduce it from the data shape
-            [
-                getattr(ly, "metadata", {}).get(
-                    "max_frame_idx", ly.data.shape[0] - 1
-                )
-                if not isinstance(ly, Shapes)
-                # Napari stores shapes layer data as a list of 2D arrays
-                # instead of a 3D array, so we can't use data.shape here
-                else getattr(ly, "metadata", {}).get(
-                    "max_frame_idx", len(ly.data) - 1
-                )
-                for ly in list_layers
-            ]
-        )
+    if not max_frame_indices:
+        return
 
-        # If the frame slider range is not set to the full range of frames,
-        # update it.
-        if (viewer.dims.range[0].stop != max_frame_idx) or (
-            int(viewer.dims.range[0].start) != 0
-        ):
-            viewer.dims.range = (
-                RangeTuple(start=0.0, stop=max_frame_idx, step=1.0),
-            ) + viewer.dims.range[1:]
+    current = viewer.dims.range[0]
+    start = min(current.start, 0.0)
+    stop = max(current.stop, *max_frame_indices)
+
+    if (start, stop) != (current.start, current.stop):
+        viewer.dims.range = (
+            RangeTuple(start=start, stop=stop, step=current.step),
+        ) + viewer.dims.range[1:]
 
 
 def frame_axis_is_sliced(viewer) -> bool:

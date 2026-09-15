@@ -137,16 +137,31 @@ def valid_poses_path_and_ds_nan_end(
 def sample_layer_data(rng):
     """Return a dictionary of sample data for each napari layer type."""
     n_frames = 2000
-    sample_points_data = rng.random((n_frames, 3))
+    # One row per frame, holding the frame index in the layer's time column,
+    # so that every layer type below really spans ``n_frames`` frames. A row
+    # count is not a frame count: layers can hold many rows within a single
+    # frame, so the time column has to be set explicitly.
+    frame_idx = np.arange(n_frames)
+    sample_points_data = np.column_stack(
+        (frame_idx, rng.random((n_frames, 2)))
+    )
     sample_image_data = rng.random((n_frames, 200, 200))
-    sample_tracks_data = np.hstack(
+    sample_tracks_data = np.column_stack(
         (
-            np.tile([1, 2, 3, 4], (1, n_frames // 4)).T,
-            rng.random((n_frames, 3)),
+            np.tile([1, 2, 3, 4], n_frames // 4),
+            frame_idx,
+            rng.random((n_frames, 2)),
         )
     )
     sample_labels_data = rng.integers(0, 2, (200, 200))
-    sample_shapes_data = rng.random((n_frames, 4, 2))  # rectangles
+    # rectangles, with the 4 vertices of each one in the same frame
+    sample_shapes_data = np.concatenate(
+        (
+            np.repeat(frame_idx.reshape(n_frames, 1, 1), 4, axis=1),
+            rng.random((n_frames, 4, 2)),
+        ),
+        axis=2,
+    )
     sample_surface_data = (
         rng.random((4, 2)),  # vertices
         np.array([[0, 1, 2], [1, 2, 3]]),  # faces

@@ -1,9 +1,9 @@
-"""Test that movement layer wiring outlives the meta-widget.
+"""Test the callbacks in ``movement.napari.layer_wiring``.
 
 Layer and viewer callbacks should remain active independently of the
 ``DataLoader`` widget lifetime, keeping the Points and Tracks layers in
 sync after the movement panel is closed. These tests verify
-that expectation.
+that expectation, and that the viewer callbacks themselves behave.
 """
 
 import gc
@@ -11,11 +11,27 @@ import weakref
 
 import numpy as np
 import pytest
+from napari.components import ViewerModel
+from napari.components.dims import RangeTuple
 from napari.layers.base import ActionType
 
-from movement.napari.layer_wiring import connect_viewer_callbacks
+from movement.napari.layer_wiring import (
+    MAX_FRAME_IDX_KEY,
+    connect_viewer_callbacks,
+    update_frame_slider_range,
+)
 from movement.napari.loader_widgets import DataLoader
 from movement.napari.meta_widget import MovementMetaWidget
+
+
+@pytest.fixture
+def viewer_model():
+    """Return a headless napari viewer model.
+
+    Faster than make_napari_viewer_proxy because it does not
+    require Qt viewer construction and teardown.
+    """
+    return ViewerModel()
 
 
 @pytest.fixture
@@ -220,3 +236,134 @@ def test_connect_viewer_callbacks_twice_does_not_duplicate(
     assert [
         len(emitter.callbacks) for emitter in emitters
     ] == n_callbacks_per_emitter
+
+
+# ---- update_frame_slider_range ------------------------------------------
+# We ensure movement layers get their full frame span back, even if there are
+# frames with all nan data. Layers movement did not create should keep the
+# range napari sets.
+
+
+# The movement layers below all span 100 frames (indices 0 to 99);
+# what differs between tests is how many leading or trailing frames
+# NaN-trimming dropped.
+N_FRAMES = 100
+
+
+def get_viewer_with_trimmed_points(
+    viewer, first_frame_w_data, last_frame_w_data=None
+):
+    """Get a napari viewer with a movement-like NaN-trimmed Points layer.
+
+    The layer holds points for ``first_frame_w_data..last_frame_w_data`` only,
+    assuming the remaining leading or trailing frames are all-NaN and dropped.
+
+    It declares the true last frame index (``N_FRAMES - 1``) in its metadata
+    the way ``DataLoader`` does.
+    """
+    if last_frame_w_data is None:
+        last_frame_w_data = N_FRAMES - 1
+
+    frames = np.arange(first_frame_w_data, last_frame_w_data + 1)
+
+    return viewer.add_points(
+        # one point per frame, with columns (frame, y, x)
+        np.column_stack((frames, np.full((frames.size, 2), 10.0))),
+        metadata={MAX_FRAME_IDX_KEY: N_FRAMES - 1},
+    )
+
+
+@pytest.mark.parametrize(
+    "first_frame_w_data, last_frame_w_data",
+    [
+        pytest.param(
+            51,
+            N_FRAMES - 1,
+            id="leading_nans",
+        ),
+        pytest.param(
+            0,
+            49,
+            id="trailing_nans",
+        ),
+    ],
+)
+def test_frame_slider_range_covers_nan_trimmed_frames(
+    viewer_model,
+    first_frame_w_data,
+    last_frame_w_data,
+):
+    """Test frame slider update on a movement layer with all-NaN frames."""
+    # The layer holds data for first_frame_w_data..last_frame_w_data only,
+    # the remaining leading or trailing frames were dropped as all-NaN
+    get_viewer_with_trimmed_points(
+        viewer_model,
+        first_frame_w_data,
+        last_frame_w_data,
+    )
+
+    # check napari only sees the trimmed extent
+    assert viewer_model.dims.range[0] == RangeTuple(
+        first_frame_w_data, last_frame_w_data, 1.0
+    )
+
+    # call frame slider update
+    update_frame_slider_range(viewer_model)
+
+    # check the dropped frames are added back
+    assert viewer_model.dims.range[0] == RangeTuple(0.0, N_FRAMES - 1, 1.0)
+
+
+@pytest.mark.parametrize(
+    "n_frames_video, expected_frame_range",
+    [
+        pytest.param(
+            200,
+            RangeTuple(0.0, 199.0, 1.0),  # matches video range
+            id="video_longer_than_data",
+        ),
+        pytest.param(
+            70,
+            RangeTuple(0.0, N_FRAMES - 1, 1.0),  # matches movement data range
+            id="video_shorter_than_data",
+        ),
+    ],
+)
+def test_frame_slider_range_w_non_movement_layers(
+    viewer_model, n_frames_video, expected_frame_range
+):
+    """Test the frame slider with a non-movement layer of different lengths."""
+    # Get a viewer with movement data spanning frame indices 20 to 49.
+    # Full span is 0 to 99.
+    get_viewer_with_trimmed_points(
+        viewer_model,
+        first_frame_w_data=20,
+        last_frame_w_data=49,
+    )
+
+    # Add an Image layer with a mock video
+    viewer_model.add_image(np.zeros((n_frames_video, 8, 8)))
+
+    # Update the frame slider
+    update_frame_slider_range(viewer_model)
+
+    # The viewer range should match the largest span
+    assert viewer_model.dims.range[0] == expected_frame_range
+
+
+def test_frame_slider_range_ignores_row_count(viewer_model, rng):
+    """Test that frame slider is not triggered by row count in layer data."""
+    # A movement layer with data spanning all frames
+    get_viewer_with_trimmed_points(viewer_model, first_frame_w_data=0)
+
+    # Add a layer with 500 points, all of them in frame 0;
+    # the 500 rows in this array should not trigger a frame range update
+    viewer_model.add_points(
+        np.column_stack((np.zeros(500), rng.random((500, 2))))
+    )
+
+    # Trigger frame slider update
+    update_frame_slider_range(viewer_model)
+
+    # The frame range should span the movement data only
+    assert viewer_model.dims.range[0] == RangeTuple(0.0, N_FRAMES - 1, 1.0)
