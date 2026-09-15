@@ -1,0 +1,846 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>movement.napari.layer_wiring &#8212; movement</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=634eab24" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
+
+    <script src="../../../_static/documentation_options.js?v=5e628193"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/movement/napari/layer_wiring';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <script src="../../../_static/js/contributors.js?v=c45a1201"></script>
+    <link rel="canonical" href="https://movement.neuroinformatics.dev/_modules/movement/napari/layer_wiring.html" />
+    <link rel="icon" href="../../../_static/light-logo-niu.png"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+     
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/movement_favicon.svg" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">movement v0.17.1.dev48</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i><span class="visually-hidden">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../user_guide/index.html">
+    User guide
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../community/index.html">
+    Community
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api_index.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../blog/index.html">
+    Blog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/neuroinformatics-unit/movement" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://neuroinformatics.zulipchat.com/#narrow/stream/406001-Movement" title="Zulip (chat)" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-solid fa-comments fa-lg" aria-hidden="true"></i><span class="visually-hidden">Zulip (chat)</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">movement.napari.layer_wiring</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                   <h1>Source code for movement.napari.layer_wiring</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Layer callbacks that must outlive the widget connecting them.</span>
+
+<span class="sd">Put a callback here if it should be active as long as the viewer</span>
+<span class="sd">or a layer exists (rather than sharing lifetime with a widget that</span>
+<span class="sd">can be closed).</span>
+
+<span class="sd">- Typical candidates are callbacks that mutate layer state (data, properties,</span>
+<span class="sd">  symbols, ``editable``): that state is part of the user's work and may be</span>
+<span class="sd">  saved to a file later, so it must survive the widget being closed.</span>
+<span class="sd">- A callback that only refreshes a widget's own UI (a dropdown, a table, a</span>
+<span class="sd">  button) can stay a method on that widget: once the widget is gone there is</span>
+<span class="sd">  nothing left to update, which is fine.</span>
+
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">weakref</span><span class="w"> </span><span class="kn">import</span> <span class="n">WeakSet</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">napari.components.dims</span><span class="w"> </span><span class="kn">import</span> <span class="n">RangeTuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">napari.layers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">Points</span><span class="p">,</span> <span class="n">Shapes</span><span class="p">,</span> <span class="n">Tracks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">napari.layers.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionType</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.napari.layer_styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">EDITED_POINT_SYMBOL</span>
+
+<span class="c1"># Metadata keys stored on the movement Points layer.</span>
+<span class="c1"># - POINTS_LAYER_KEY marks the layer as movement-created.</span>
+<span class="c1"># - POINTS_PROPERTIES_KEY holds the full properties df, incl. the NaN rows</span>
+<span class="c1">#   dropped from the live layer, needed to reconstruct the dataset.</span>
+<span class="c1"># - DATASET_ATTRS_KEY holds the source dataset's attrs (source_software, fps…).</span>
+<span class="c1"># - TRACKS_LAYER_KEY holds a reference to the companion Tracks layer.</span>
+<span class="n">POINTS_LAYER_KEY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"movement_points_layer"</span>
+<span class="n">POINTS_PROPERTIES_KEY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"movement_points_properties"</span>
+<span class="n">DATASET_ATTRS_KEY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"movement_dataset_attrs"</span>
+<span class="n">TRACKS_LAYER_KEY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"movement_tracks_layer"</span>
+
+<span class="c1"># Keep a set of viewers already wired by connect_viewer_callbacks,</span>
+<span class="c1"># so we don't wire them twice. We use a WeakSet so tracking a viewer here</span>
+<span class="c1"># does not prevent it from being garbage-collected when it is no longer used.</span>
+<span class="n">_WIRED_VIEWERS</span><span class="p">:</span> <span class="n">WeakSet</span> <span class="o">=</span> <span class="n">WeakSet</span><span class="p">()</span>
+
+
+<span class="c1"># ---- Callbacks with viewer lifetime --------------------</span>
+<div class="viewcode-block" id="connect_viewer_callbacks">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.connect_viewer_callbacks.html#movement.napari.layer_wiring.connect_viewer_callbacks">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">connect_viewer_callbacks</span><span class="p">(</span><span class="n">viewer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Wire the layer callbacks to a viewer, skipping if already wired.</span>
+
+<span class="sd">    These wirings last as long as the viewer, no matter which widget requested</span>
+<span class="sd">    them.</span>
+<span class="sd">    """</span>
+    <span class="c1"># Check if viewer has been wired by this function</span>
+    <span class="n">viewer</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">viewer</span><span class="p">,</span> <span class="s2">"__wrapped__"</span><span class="p">,</span> <span class="n">viewer</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">viewer</span> <span class="ow">in</span> <span class="n">_WIRED_VIEWERS</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Connect relevant layer callbacks to the viewer.</span>
+    <span class="c1"># Connect frame slider range update to layer events</span>
+    <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="s2">"inserted"</span><span class="p">,</span>
+        <span class="s2">"removed"</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">getattr</span><span class="p">(</span><span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">events</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span>
+            <span class="n">partial</span><span class="p">(</span><span class="n">update_frame_slider_range</span><span class="p">,</span> <span class="n">viewer</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Point drags are only guaranteed to stay within their own frame</span>
+    <span class="c1"># when frame is the sliced (non-displayed) axis in a 2D view. If</span>
+    <span class="c1"># axes are rolled or a 3D view is used in the viewer, disable editing</span>
+    <span class="c1"># rather than risk a drag moving a point onto a different frame.</span>
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">order</span><span class="p">,</span>
+        <span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">events</span><span class="o">.</span><span class="n">ndisplay</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">event</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">partial</span><span class="p">(</span><span class="n">update_points_layers_editable</span><span class="p">,</span> <span class="n">viewer</span><span class="p">))</span>
+
+    <span class="c1"># Update set</span>
+    <span class="n">_WIRED_VIEWERS</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">viewer</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="update_frame_slider_range">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.update_frame_slider_range.html#movement.napari.layer_wiring.update_frame_slider_range">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_frame_slider_range</span><span class="p">(</span><span class="n">viewer</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Check the frame slider range and update it if necessary.</span>
+
+<span class="sd">    This is required because if the data loaded starts or ends</span>
+<span class="sd">    with all NaN values, the frame slider range will not reflect</span>
+<span class="sd">    the full range of frames.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_layer_has_data</span><span class="p">(</span><span class="n">layer</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">Shapes</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">layer</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="c1"># Only update the frame slider range if there are layers</span>
+    <span class="c1"># that are Points, Tracks, Image or Shapes with data</span>
+    <span class="n">list_layers</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">ly</span>
+        <span class="k">for</span> <span class="n">ly</span> <span class="ow">in</span> <span class="n">viewer</span><span class="o">.</span><span class="n">layers</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ly</span><span class="p">,</span> <span class="n">Points</span> <span class="o">|</span> <span class="n">Tracks</span> <span class="o">|</span> <span class="n">Image</span> <span class="o">|</span> <span class="n">Shapes</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">_layer_has_data</span><span class="p">(</span><span class="n">ly</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_layers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># Get the maximum frame index from all candidate layers</span>
+        <span class="n">max_frame_idx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="c1"># For every layer, get max_frame_idx metadata if it exists,</span>
+            <span class="c1"># else deduce it from the data shape</span>
+            <span class="p">[</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="n">ly</span><span class="p">,</span> <span class="s2">"metadata"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">"max_frame_idx"</span><span class="p">,</span> <span class="n">ly</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ly</span><span class="p">,</span> <span class="n">Shapes</span><span class="p">)</span>
+                <span class="c1"># Napari stores shapes layer data as a list of 2D arrays</span>
+                <span class="c1"># instead of a 3D array, so we can't use data.shape here</span>
+                <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ly</span><span class="p">,</span> <span class="s2">"metadata"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">"max_frame_idx"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ly</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">ly</span> <span class="ow">in</span> <span class="n">list_layers</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># If the frame slider range is not set to the full range of frames,</span>
+        <span class="c1"># update it.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span> <span class="o">!=</span> <span class="n">max_frame_idx</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
+        <span class="p">):</span>
+            <span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">RangeTuple</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">max_frame_idx</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span>
+            <span class="p">)</span> <span class="o">+</span> <span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span></div>
+
+
+
+<div class="viewcode-block" id="frame_axis_is_sliced">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.frame_axis_is_sliced.html#movement.napari.layer_wiring.frame_axis_is_sliced">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">frame_axis_is_sliced</span><span class="p">(</span><span class="n">viewer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Determine whether the frame axis is the sliced axis in a 2D view."""</span>
+    <span class="k">return</span> <span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">ndisplay</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">order</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+
+
+<div class="viewcode-block" id="update_points_layers_editable">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.update_points_layers_editable.html#movement.napari.layer_wiring.update_points_layers_editable">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">update_points_layers_editable</span><span class="p">(</span><span class="n">viewer</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Disable point editing while the frame axis isn't sliced.</span>
+
+<span class="sd">    Connected to ``viewer.dims.events.order``/``ndisplay``.</span>
+<span class="sd">    It disables editing on every movement Points layer if</span>
+<span class="sd">    the viewer axes are rolled or switched to 3D; napari greys</span>
+<span class="sd">    out the select/add/delete controls.</span>
+<span class="sd">    """</span>
+    <span class="n">is_editable</span> <span class="o">=</span> <span class="n">frame_axis_is_sliced</span><span class="p">(</span><span class="n">viewer</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">Points</span><span class="p">)</span> <span class="ow">and</span> <span class="n">layer</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">POINTS_LAYER_KEY</span><span class="p">):</span>
+            <span class="n">layer</span><span class="o">.</span><span class="n">editable</span> <span class="o">=</span> <span class="n">is_editable</span></div>
+
+
+
+<span class="c1"># ---- Callbacks with layer lifetime --------------------</span>
+<div class="viewcode-block" id="set_point_symbol_by_edited">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.set_point_symbol_by_edited.html#movement.napari.layer_wiring.set_point_symbol_by_edited">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_point_symbol_by_edited</span><span class="p">(</span><span class="n">layer</span><span class="p">:</span> <span class="n">Points</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Show points flagged as edited with a distinct marker symbol."""</span>
+    <span class="n">edited</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"edited"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">edited</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">edited</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">return</span>
+    <span class="n">symbols</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">symbols</span><span class="p">[</span><span class="n">edited</span><span class="p">]</span> <span class="o">=</span> <span class="n">EDITED_POINT_SYMBOL</span>
+    <span class="n">layer</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">symbols</span></div>
+
+
+
+<div class="viewcode-block" id="on_points_data_changed">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.on_points_data_changed.html#movement.napari.layer_wiring.on_points_data_changed">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">on_points_data_changed</span><span class="p">(</span><span class="n">event</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Keep the corresponding Tracks layer in sync with the Points layer.</span>
+
+<span class="sd">    Connected to ``points_layer.events.data``. Handles two actions:</span>
+
+<span class="sd">    - ``ActionType.CHANGED`` (a point was dragged): sets the</span>
+<span class="sd">      confidence score of moved points to NaN, marks them as</span>
+<span class="sd">      edited, and changes their marker symbol to</span>
+<span class="sd">      ``EDITED_POINT_SYMBOL`` so edited points are visually</span>
+<span class="sd">      distinguishable. The Tracks layer row is updated in place</span>
+<span class="sd">      via `sync_tracks_layer`.</span>
+<span class="sd">    - ``ActionType.REMOVED`` (one or more points were deleted):</span>
+<span class="sd">      removes the corresponding rows from</span>
+<span class="sd">      the Tracks layer via `remove_from_tracks_layer`.</span>
+<span class="sd">    """</span>
+    <span class="n">layer</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">source</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">Points</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="n">ActionType</span><span class="o">.</span><span class="n">CHANGED</span><span class="p">:</span>
+        <span class="n">moved_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">data_indices</span><span class="p">)</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="n">layer</span><span class="o">.</span><span class="n">properties</span>
+        <span class="n">props</span><span class="p">[</span><span class="s2">"confidence"</span><span class="p">]</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="s2">"confidence"</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">props</span><span class="p">[</span><span class="s2">"confidence"</span><span class="p">][</span><span class="n">moved_indices</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">"nan"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">"edited"</span> <span class="ow">in</span> <span class="n">props</span><span class="p">:</span>
+            <span class="n">props</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span> <span class="o">=</span> <span class="n">props</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">props</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">props</span><span class="p">[</span><span class="s2">"confidence"</span><span class="p">]),</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">props</span><span class="p">[</span><span class="s2">"edited"</span><span class="p">][</span><span class="n">moved_indices</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="n">props</span>
+        <span class="n">set_point_symbol_by_edited</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span>
+        <span class="n">sync_tracks_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">moved_indices</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">event</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="n">ActionType</span><span class="o">.</span><span class="n">REMOVED</span><span class="p">:</span>
+        <span class="n">removed_indices</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">data_indices</span><span class="p">)</span>
+        <span class="n">remove_from_tracks_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">removed_indices</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="sync_tracks_layer">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.sync_tracks_layer.html#movement.napari.layer_wiring.sync_tracks_layer">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sync_tracks_layer</span><span class="p">(</span><span class="n">points_layer</span><span class="p">,</span> <span class="n">moved_indices</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Update the corresponding Tracks layer to match an edited point.</span>
+
+<span class="sd">    A moved point's new (frame, y, x) is written to the same row</span>
+<span class="sd">    in the Tracks layer, so the track segment connecting the</span>
+<span class="sd">    previous frame to this one terminates at the dragged position.</span>
+<span class="sd">    """</span>
+    <span class="n">tracks_layer</span> <span class="o">=</span> <span class="n">points_layer</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">TRACKS_LAYER_KEY</span><span class="p">]</span>
+
+    <span class="c1"># Points and Tracks layers are built from the same NaN-filtered</span>
+    <span class="c1"># array in the same row order (see _add_points_layer/</span>
+    <span class="c1"># _add_tracks_layer). The Tracks layer only has an extra</span>
+    <span class="c1"># leading track_id column.</span>
+    <span class="n">tracks_data</span> <span class="o">=</span> <span class="n">tracks_layer</span><span class="o">.</span><span class="n">data</span>
+    <span class="n">tracks_data</span><span class="p">[</span><span class="n">moved_indices</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">points_layer</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">moved_indices</span><span class="p">]</span>
+
+    <span class="n">set_tracks_layer_data</span><span class="p">(</span><span class="n">tracks_layer</span><span class="p">,</span> <span class="n">tracks_data</span><span class="p">,</span> <span class="n">tracks_layer</span><span class="o">.</span><span class="n">properties</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="remove_from_tracks_layer">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.remove_from_tracks_layer.html#movement.napari.layer_wiring.remove_from_tracks_layer">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">remove_from_tracks_layer</span><span class="p">(</span><span class="n">points_layer</span><span class="p">,</span> <span class="n">removed_indices</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Remove the rows corresponding to deleted points.</span>
+
+<span class="sd">    Users edit the Points layer directly, either dragging points</span>
+<span class="sd">    or removing inaccurate predictions. The Tracks layer has no</span>
+<span class="sd">    interactive editing of its own, so it must be kept in sync</span>
+<span class="sd">    with the Points layer instead.</span>
+
+<span class="sd">    ``removed_indices`` are indices in the Points layer which line</span>
+<span class="sd">    up with rows in the Tracks layer, the same way</span>
+<span class="sd">    :func:`sync_tracks_layer` relies on for edits.</span>
+<span class="sd">    """</span>
+    <span class="n">tracks_layer</span> <span class="o">=</span> <span class="n">points_layer</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">TRACKS_LAYER_KEY</span><span class="p">]</span>
+
+    <span class="n">tracks_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">tracks_layer</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">removed_indices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">tracks_properties</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="n">removed_indices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">tracks_layer</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="n">set_tracks_layer_data</span><span class="p">(</span><span class="n">tracks_layer</span><span class="p">,</span> <span class="n">tracks_data</span><span class="p">,</span> <span class="n">tracks_properties</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="set_tracks_layer_data">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.set_tracks_layer_data.html#movement.napari.layer_wiring.set_tracks_layer_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">set_tracks_layer_data</span><span class="p">(</span><span class="n">tracks_layer</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">properties</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Set a Tracks layer's data and properties, preserving color_by.</span>
+
+<span class="sd">    Setting ``.data`` on a napari Tracks layer resets its internal</span>
+<span class="sd">    features to empty, which transiently invalidates ``color_by``</span>
+<span class="sd">    (napari warns and falls back to "track_id") even though we</span>
+<span class="sd">    restore the same properties and colour-by property right</span>
+<span class="sd">    after. Suppress that spurious warning around the sequence.</span>
+<span class="sd">    """</span>
+    <span class="n">color_by</span> <span class="o">=</span> <span class="n">tracks_layer</span><span class="o">.</span><span class="n">color_by</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
+            <span class="s2">"ignore"</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="s2">".*Previous color_by key.*"</span><span class="p">,</span>
+            <span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">tracks_layer</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="n">tracks_layer</span><span class="o">.</span><span class="n">properties</span> <span class="o">=</span> <span class="n">properties</span>
+        <span class="n">tracks_layer</span><span class="o">.</span><span class="n">color_by</span> <span class="o">=</span> <span class="n">color_by</span></div>
+
+</pre></div>
+<div class="section ablog__blog_comments">
+   
+</div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item"><p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+    </p>
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
+    0.21.0.
+    </p></div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><div class="things-in-a-row">
+    <a href="https://neuroinformatics.dev/">
+        <img src="../../../_static/light-logo-niu.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-niu.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.sainsburywellcome.org/web/">
+        <img src="../../../_static/light-logo-swc.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-swc.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit">
+        <img src="../../../_static/light-logo-gatsby.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-gatsby.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+    <a href="https://www.ucl.ac.uk/">
+        <img src="../../../_static/light-logo-ucl.png" alt="Sponsors" class="only-light img-sponsor"/>
+        <img src="../../../_static/dark-logo-ucl.png" alt="Sponsors" class="only-dark img-sponsor"/>
+    </a>
+</div></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

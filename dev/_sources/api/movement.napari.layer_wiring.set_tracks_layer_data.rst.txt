@@ -1,0 +1,9 @@
+set\_tracks\_layer\_data
+========================
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: set_tracks_layer_data
+
+.. minigallery:: movement.napari.layer_wiring.set_tracks_layer_data
+   :add-heading: Examples using ``set_tracks_layer_data``

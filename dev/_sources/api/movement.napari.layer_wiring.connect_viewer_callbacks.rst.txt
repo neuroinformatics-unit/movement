@@ -1,0 +1,9 @@
+connect\_viewer\_callbacks
+==========================
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: connect_viewer_callbacks
+
+.. minigallery:: movement.napari.layer_wiring.connect_viewer_callbacks
+   :add-heading: Examples using ``connect_viewer_callbacks``

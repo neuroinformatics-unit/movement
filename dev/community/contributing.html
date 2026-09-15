@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=b6782251"></script>
+    <script src="../_static/documentation_options.js?v=5e628193"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev47</p>
+    <p class="title logo__title">movement v0.17.1.dev48</p>
   
 </a></div>
     
@@ -1104,12 +1104,52 @@ regions of interest drawn as <code class="docutils literal notranslate"><span cl
 See the next section for more details on this widget’s architecture.</p></li>
 </ul>
 </li>
+<li><p><a class="reference internal" href="../api/movement.napari.layer_wiring.html#module-movement.napari.layer_wiring" title="movement.napari.layer_wiring"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.napari.layer_wiring</span></code></a>: callbacks that operate on <code class="docutils literal notranslate"><span class="pre">napari</span></code>
+layers and the viewer. These callbacks are defined outside the widgets because
+they must remain active for as long as the viewer or the layer exists (rather than
+sharing lifetime with a widget that can be closed). The module also defines
+relevant metadata keys for <code class="docutils literal notranslate"><span class="pre">movement</span></code> layers (e.g. <code class="docutils literal notranslate"><span class="pre">POINTS_LAYER_KEY</span></code>,
+<code class="docutils literal notranslate"><span class="pre">TRACKS_LAYER_KEY</span></code>).</p></li>
 <li><p><a class="reference internal" href="../api/movement.napari.layer_styles.html#module-movement.napari.layer_styles" title="movement.napari.layer_styles"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.napari.layer_styles</span></code></a>: dataclasses that encapsulate visual
 properties for each layer type.</p></li>
 <li><p><a class="reference internal" href="../api/movement.napari.convert.html#module-movement.napari.convert" title="movement.napari.convert"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.napari.convert</span></code></a>: functions for converting <code class="docutils literal notranslate"><span class="pre">movement</span></code>
 datasets into the NumPy arrays and properties DataFrames
 that <code class="docutils literal notranslate"><span class="pre">napari</span></code> layer constructors expect.</p></li>
 </ul>
+<section id="where-should-a-layer-callback-live">
+<h4>Where should a layer callback live?<a class="headerlink" href="#where-should-a-layer-callback-live" title="Link to this heading">#</a></h4>
+<p>The layers created by a widget stay in the viewer even after closing the widget.
+If it makes sense to keep callbacks alive after closing a widget, those
+callbacks should be defined in <a class="reference internal" href="../api/movement.napari.layer_wiring.html#module-movement.napari.layer_wiring" title="movement.napari.layer_wiring"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.napari.layer_wiring</span></code></a>, rather
+than as methods of a widget. A callback connected as a method of a widget is
+only guaranteed to run while that widget is alive</p>
+<p>Use this rule of thumb:</p>
+<ul class="simple">
+<li><p>If the callback <strong>mutates layer or viewer state</strong> (layer data,
+properties, symbols, <code class="docutils literal notranslate"><span class="pre">editable</span></code>, the frame slider range), put it in
+<code class="docutils literal notranslate"><span class="pre">layer_wiring</span></code>. That state is part of the user’s work and may be saved
+to a file later, so it must outlive the widget.</p></li>
+<li><p>If the callback <strong>only refreshes a widget’s own UI</strong> (a dropdown, a
+table, a button), keep it as a method on that widget. Once the widget
+is gone there is nothing left to update.</p></li>
+</ul>
+<p>Callbacks in <code class="docutils literal notranslate"><span class="pre">layer_wiring</span></code> are wired in one of two ways, depending on
+the lifetime they need:</p>
+<ul class="simple">
+<li><p><strong>Viewer lifetime</strong>: <code class="docutils literal notranslate"><span class="pre">connect_viewer_callbacks(viewer)</span></code> is called once
+per viewer (it keeps a <code class="docutils literal notranslate"><span class="pre">WeakSet</span></code> of already-wired viewers, so repeated
+calls are a no-op). It connects callbacks that react to viewer-level
+events, such as layers being inserted or removed, or the displayed
+dimensions changing.</p></li>
+<li><p><strong>Layer lifetime</strong>: connected directly to a layer’s events when the
+layer is created (e.g.
+<code class="docutils literal notranslate"><span class="pre">points_layer.events.data.connect(on_points_data_changed)</span></code> in
+<code class="docutils literal notranslate"><span class="pre">loader_widgets</span></code>), so the callback lives and dies with that layer.</p></li>
+</ul>
+<p>Because these callbacks are not tied to a widget, they can be tested
+against a bare viewer and layers, without instantiating a widget —
+see <code class="docutils literal notranslate"><span class="pre">tests/test_unit/test_napari_plugin/test_layer_wiring.py</span></code>.</p>
+</section>
 <section id="qt-model-view-architecture">
 <h4>Qt Model/View architecture<a class="headerlink" href="#qt-model-view-architecture" title="Link to this heading">#</a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">movement.napari.regions_widget</span></code> follows
@@ -1792,6 +1832,7 @@ verify that the video is correctly linked to the dataset:</p>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#developing-the-cli">Developing the CLI</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#developing-the-napari-plugin">Developing the napari plugin</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#where-should-a-layer-callback-live">Where should a layer callback live?</a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#qt-model-view-architecture">Qt Model/View architecture</a></li>
 </ul>
 </li>

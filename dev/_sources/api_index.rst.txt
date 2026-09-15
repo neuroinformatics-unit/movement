@@ -27,6 +27,7 @@ Information on specific functions, classes, and methods.
     movement.napari.convert
     movement.napari.convert_roi
     movement.napari.layer_styles
+    movement.napari.layer_wiring
     movement.plots
     movement.roi
     movement.sample_data

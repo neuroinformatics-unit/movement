@@ -1,0 +1,9 @@
+on\_points\_data\_changed
+=========================
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: on_points_data_changed
+
+.. minigallery:: movement.napari.layer_wiring.on_points_data_changed
+   :add-heading: Examples using ``on_points_data_changed``

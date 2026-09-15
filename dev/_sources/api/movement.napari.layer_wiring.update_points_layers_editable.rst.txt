@@ -1,0 +1,9 @@
+update\_points\_layers\_editable
+================================
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: update_points_layers_editable
+
+.. minigallery:: movement.napari.layer_wiring.update_points_layers_editable
+   :add-heading: Examples using ``update_points_layers_editable``
