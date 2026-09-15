@@ -11,11 +11,23 @@ import weakref
 
 import numpy as np
 import pytest
+from napari.components import ViewerModel
+from napari.components.dims import RangeTuple
 from napari.layers.base import ActionType
 
-from movement.napari.layer_wiring import connect_viewer_callbacks
+from movement.napari.layer_wiring import (
+    MAX_FRAME_IDX_KEY,
+    connect_viewer_callbacks,
+    update_frame_slider_range,
+)
 from movement.napari.loader_widgets import DataLoader
 from movement.napari.meta_widget import MovementMetaWidget
+
+
+@pytest.fixture
+def viewer_model():
+    """Return a headless napari viewer model (no Qt required)."""
+    return ViewerModel()
 
 
 @pytest.fixture
@@ -220,3 +232,129 @@ def test_connect_viewer_callbacks_twice_does_not_duplicate(
     assert [
         len(emitter.callbacks) for emitter in emitters
     ] == n_callbacks_per_emitter
+
+
+# ---- update_frame_slider_range ------------------------------------------
+# napari derives ``dims.range`` from the world-coordinate union of all layer
+# extents (``LayerList._ranges``), honouring each layer's scale and translate,
+# and it does so before our callback runs. Our only job is to *widen* that
+# range to cover frames hidden by the NaN-trimming of movement's own layers.
+# These tests pin that contract: movement layers get their full frame span
+# back, and layers movement did not create keep the range napari gave them.
+
+
+def add_movement_points(viewer, n_frames=100, first_frame=51, **kwargs):
+    """Add a Points layer mimicking a NaN-trimmed movement layer.
+
+    The layer holds points for ``first_frame..n_frames - 1`` only, as if the
+    leading frames were all-NaN and dropped, but declares the true last frame
+    index in its metadata the way ``DataLoader`` does.
+    """
+    data = np.array(
+        [[t, 10.0, 10.0] for t in range(first_frame, n_frames)],
+    )
+    return viewer.add_points(
+        data, metadata={MAX_FRAME_IDX_KEY: n_frames - 1}, **kwargs
+    )
+
+
+def test_frame_slider_range_covers_nan_trimmed_frames(viewer_model):
+    """A movement layer's dropped leading frames are added back."""
+    add_movement_points(viewer_model)
+    # napari only sees the trimmed extent
+    assert viewer_model.dims.range[0] == RangeTuple(51.0, 99.0, 1.0)
+
+    update_frame_slider_range(viewer_model)
+
+    assert viewer_model.dims.range[0] == RangeTuple(0.0, 99.0, 1.0)
+
+
+@pytest.mark.parametrize(
+    "image_kwargs, expected",
+    [
+        pytest.param(
+            {"scale": (2.0, 1.0, 1.0)},
+            RangeTuple(0.0, 78.0, 2.0),
+            id="scaled",
+        ),
+        pytest.param(
+            {"translate": (1000.0, 0.0, 0.0)},
+            RangeTuple(1000.0, 1039.0, 1.0),
+            id="translated",
+        ),
+        pytest.param({}, RangeTuple(0.0, 39.0, 1.0), id="plain"),
+    ],
+)
+def test_frame_slider_range_untouched_without_movement_layers(
+    viewer_model, image_kwargs, expected
+):
+    """Layers movement did not create keep the range napari computed.
+
+    A scaled or translated layer has a world-coordinate range that does not
+    match its array indices. Overwriting it with raw indices would move the
+    slider off the layer's actual frames.
+    """
+    viewer_model.add_image(np.zeros((40, 8, 8)), **image_kwargs)
+    assert viewer_model.dims.range[0] == expected
+
+    update_frame_slider_range(viewer_model)
+
+    assert viewer_model.dims.range[0] == expected
+
+
+def test_frame_slider_range_widens_without_disturbing_other_layers(
+    viewer_model,
+):
+    """A movement layer is padded; a translated layer keeps its world range."""
+    add_movement_points(viewer_model)
+    viewer_model.add_image(np.zeros((40, 8, 8)), translate=(1000.0, 0.0, 0.0))
+
+    update_frame_slider_range(viewer_model)
+
+    # Start covers the movement layer's dropped frames, stop still reaches
+    # the far end of the translated image.
+    assert viewer_model.dims.range[0] == RangeTuple(0.0, 1039.0, 1.0)
+
+
+def test_frame_slider_range_spans_longest_movement_layer(viewer_model):
+    """With several movement layers, the longest one sets the range."""
+    add_movement_points(viewer_model, n_frames=100)
+    add_movement_points(viewer_model, n_frames=40, first_frame=0)
+
+    update_frame_slider_range(viewer_model)
+
+    assert viewer_model.dims.range[0] == RangeTuple(0.0, 99.0, 1.0)
+
+
+def test_frame_slider_range_repadded_after_point_deletion(viewer_model):
+    """Deleting points must not shrink the range below the true frame span.
+
+    napari recomputes ``dims.range`` from the live extent on every data
+    change, so removing the trailing points would otherwise cut the slider
+    short.
+    """
+    points_layer = add_movement_points(viewer_model)
+    update_frame_slider_range(viewer_model)
+
+    points_layer.data = points_layer.data[:10]
+    assert viewer_model.dims.range[0] == RangeTuple(51.0, 60.0, 1.0)
+
+    update_frame_slider_range(viewer_model)
+
+    assert viewer_model.dims.range[0] == RangeTuple(0.0, 99.0, 1.0)
+
+
+def test_frame_slider_range_ignores_layers_without_frame_metadata(
+    viewer_model,
+):
+    """Movement layers without a frame extent are not candidates.
+
+    The ROI Shapes layers created by the regions widget carry no
+    ``MAX_FRAME_IDX_KEY``: a region polygon has no frame span to contribute.
+    """
+    viewer_model.add_shapes(metadata={"movement_regions_layer": True})
+    before = viewer_model.dims.range[0]
+
+    update_frame_slider_range(viewer_model)
+
+    assert viewer_model.dims.range[0] == before

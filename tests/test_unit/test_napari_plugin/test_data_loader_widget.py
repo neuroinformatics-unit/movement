@@ -735,30 +735,25 @@ def test_dimension_slider_with_deletion(
 
 
 @pytest.mark.parametrize(
-    "layer_type",
-    [
-        Points,
-        Image,
-        Tracks,
-        Shapes,
-    ],
-)
-@pytest.mark.parametrize(
     "input_file, source_software",
     [
         ("VIA_single-crab_MOCA-crab-1.csv", "VIA-tracks"),
         ("DLC_single-wasp.predictions.h5", "DeepLabCut"),
     ],
 )
-def test_dimension_slider_with_layer_types(
-    layer_type,
+def test_dimension_slider_extends_for_a_longer_video(
     input_file,
     source_software,
     sample_layer_data,
     make_napari_viewer_proxy,
 ):
-    """Test the slider update attends to all the expected layer types."""
-    # Create a mock napari viewer
+    """Test the slider covers a video longer than the loaded tracking data.
+
+    The user typically opens the video themselves rather than through
+    movement, so the Image layer carries no movement metadata. napari
+    accounts for its extent when it recomputes ``dims.range``, and
+    ``update_frame_slider_range`` must preserve that.
+    """
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
 
@@ -771,19 +766,59 @@ def test_dimension_slider_with_layer_types(
     # Get number of frames in pose data
     n_frames_data = viewer.layers[0].metadata[MAX_FRAME_IDX_KEY]
 
-    # Load mock data as the relevant layer type
+    # Add a video longer than the tracking data
+    viewer.add_layer(Image(data=sample_layer_data["Image"], name="video"))
+    assert sample_layer_data["n_frames"] > n_frames_data
+
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=sample_layer_data["n_frames"] - 1, step=1.0
+    )
+
+
+@pytest.mark.parametrize("layer_type", [Points, Tracks, Shapes])
+@pytest.mark.parametrize(
+    "input_file, source_software",
+    [
+        ("VIA_single-crab_MOCA-crab-1.csv", "VIA-tracks"),
+        ("DLC_single-wasp.predictions.h5", "DeepLabCut"),
+    ],
+)
+def test_dimension_slider_ignores_row_count_of_unrelated_layers(
+    layer_type,
+    input_file,
+    source_software,
+    sample_layer_data,
+    make_napari_viewer_proxy,
+):
+    """Test a layer's row count is not mistaken for a frame count.
+
+    The sample Points/Tracks/Shapes data has many rows but all of them fall
+    within frames 0-1, so such a layer must not stretch the slider to its
+    number of rows. Only layers movement created declare a frame extent
+    (via ``MAX_FRAME_IDX_KEY``); for anything else the range napari derived
+    from the true layer extent stands.
+    """
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    file_path = pytest.DATA_PATHS.get(input_file)
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+    data_loader_widget.source_software_combo.setCurrentText(source_software)
+    data_loader_widget._on_load_clicked()
+
+    n_frames_data = viewer.layers[0].metadata[MAX_FRAME_IDX_KEY]
+
+    # This layer has more rows than the data has frames, but spans frames 0-1
     mock_layer = layer_type(
         data=sample_layer_data[layer_type.__name__],
         name="mock_layer",
     )
     viewer.add_layer(mock_layer)
-
     assert sample_layer_data["n_frames"] > n_frames_data
 
-    # Check the frame slider is set to the max number of frames of the
-    # mock data
+    # The slider still spans the tracking data, not the mock layer's rows
     assert viewer.dims.range[0] == RangeTuple(
-        start=0.0, stop=sample_layer_data["n_frames"] - 1, step=1.0
+        start=0.0, stop=n_frames_data, step=1.0
     )
 
 
@@ -816,9 +851,9 @@ def test_empty_layer_excluded_from_frame_slider_update(
 ):
     """Test that empty layers don't cause an error in frame slider update.
 
-    Empty Shapes and Points layers are excluded from the candidate layers
-    in _update_frame_slider_range, so max() is never called on an empty
-    sequence.
+    Empty Shapes and Points layers carry no MAX_FRAME_IDX_KEY, so they are
+    not candidates in update_frame_slider_range and cannot contribute an
+    extent of their own.
     """
     viewer = make_napari_viewer_proxy()
     loader = DataLoader(viewer)
