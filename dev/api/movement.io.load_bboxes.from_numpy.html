@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=1200a648"></script>
+    <script src="../_static/documentation_options.js?v=b6782251"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev46</p>
+    <p class="title logo__title">movement v0.17.1.dev47</p>
   
 </a></div>
     
@@ -478,6 +478,13 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html">NWBFileSaveConfig</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save.html">movement.io.save</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save.WriterProtocol.html">WriterProtocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save.get_supported_target_software.html">get_supported_target_software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save.register_writer.html">register_writer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save.save_dataset.html">save_dataset</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save_bboxes.html">movement.io.save_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_bboxes.to_via_tracks_file.html">to_via_tracks_file</a></li>
 </ul>
@@ -487,6 +494,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_style_df.html">to_dlc_style_df</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_lp_file.html">to_lp_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_nwb_file.html">to_nwb_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_nwb_file_object.html">to_nwb_file_object</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">to_sleap_analysis_file</a></li>
 </ul>
 </details></li>
@@ -683,27 +691,27 @@ containing the shape of the bounding boxes. The shape of a bounding
 box is its width (extent along the x-axis of the image) and height
 (extent along the y-axis of the image). It will be converted to a
 <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object named “shape”.</p></li>
-<li><p><strong>confidence_array</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Array of shape (n_frames, n_individuals) containing
+<li><p><strong>confidence_array</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Array of shape (n_frames, n_individuals) containing
 the confidence scores of the bounding boxes. If None (default), the
 confidence scores are set to an array of NaNs. It will be converted
 to a <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object named “confidence”.</p></li>
-<li><p><strong>individual_names</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>] | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – List of individual names for the tracked bounding boxes in the video.
+<li><p><strong>individual_names</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>] | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – List of individual names for the tracked bounding boxes in the video.
 If None (default), bounding boxes are assigned names based on the size
 of the <code class="docutils literal notranslate"><span class="pre">position_array</span></code>. The names will be in the format of
 <code class="docutils literal notranslate"><span class="pre">id_&lt;N&gt;</span></code>, where &lt;N&gt;  is an integer from 0 to
 <code class="docutils literal notranslate"><span class="pre">position_array.shape[-1]-1</span></code> (i.e., “id_0”, “id_1”…).</p></li>
-<li><p><strong>frame_array</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Array of shape (n_frames, 1) containing the frame numbers for which
+<li><p><strong>frame_array</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Array of shape (n_frames, 1) containing the frame numbers for which
 bounding boxes are defined. If None (default), frame numbers will
 be assigned based on the first dimension of the <code class="docutils literal notranslate"><span class="pre">position_array</span></code>,
 starting from 0. If a specific array of frame numbers is provided,
 these need to be integers sorted in increasing order.</p></li>
-<li><p><strong>fps</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – The video sampling rate. If None (default), the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates
+<li><p><strong>fps</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – The video sampling rate. If None (default), the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates
 of the resulting <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset will be in frame numbers. If
 <code class="docutils literal notranslate"><span class="pre">fps</span></code> is provided, the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates  will be in seconds. If
 the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates are in seconds, they will indicate the
 elapsed time from the capture of the first frame (assumed to be frame
 0).</p></li>
-<li><p><strong>source_software</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Name of the software that generated the data. Defaults to None.</p></li>
+<li><p><strong>source_software</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Name of the software that generated the data. Defaults to None.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>

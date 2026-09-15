@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=1200a648"></script>
+    <script src="../../_static/documentation_options.js?v=b6782251"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev46</p>
+    <p class="title logo__title">movement v0.17.1.dev47</p>
   
 </a></div>
     
@@ -497,6 +497,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">DS_TYPE_VALIDATORS</span>
 
 <span class="c1"># URL to the remote data repository on GIN</span>
 <span class="c1"># noinspection PyInterpreter</span>
@@ -816,7 +817,7 @@
 
     <span class="n">file_paths</span> <span class="o">=</span> <span class="n">fetch_dataset_paths</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">with_video</span><span class="o">=</span><span class="n">with_video</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"poses"</span><span class="p">,</span> <span class="s2">"bboxes"</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">DS_TYPE_VALIDATORS</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">file_paths</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">):</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span>
                 <span class="n">file_paths</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>

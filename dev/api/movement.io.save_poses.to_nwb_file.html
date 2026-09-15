@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=1200a648"></script>
+    <script src="../_static/documentation_options.js?v=b6782251"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -64,7 +64,7 @@
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="to_sleap_analysis_file" href="movement.io.save_poses.to_sleap_analysis_file.html" />
+    <link rel="next" title="to_nwb_file_object" href="movement.io.save_poses.to_nwb_file_object.html" />
     <link rel="prev" title="to_lp_file" href="movement.io.save_poses.to_lp_file.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev46</p>
+    <p class="title logo__title">movement v0.17.1.dev47</p>
   
 </a></div>
     
@@ -478,6 +478,13 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html">NWBFileSaveConfig</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save.html">movement.io.save</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save.WriterProtocol.html">WriterProtocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save.get_supported_target_software.html">get_supported_target_software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save.register_writer.html">register_writer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save.save_dataset.html">save_dataset</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save_bboxes.html">movement.io.save_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_bboxes.to_via_tracks_file.html">to_via_tracks_file</a></li>
 </ul>
@@ -487,6 +494,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_style_df.html">to_dlc_style_df</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_lp_file.html">to_lp_file</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">to_nwb_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_nwb_file_object.html">to_nwb_file_object</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">to_sleap_analysis_file</a></li>
 </ul>
 </details></li>
@@ -670,19 +678,26 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.io.save_poses.to_nwb_file">
 <span class="sig-prename descclassname"><span class="pre">movement.io.save_poses.</span></span><span class="sig-name descname"><span class="pre">to_nwb_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/save_poses.html#to_nwb_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.save_poses.to_nwb_file" title="Link to this definition">#</a></dt>
-<dd><p>Save a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to one or more NWBFile objects.</p>
+<dd><p>Convert a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to one or more NWBFile objects.</p>
 <p>The data will be written to <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> object(s)
 in the “behavior” processing module, formatted according to the
 <code class="docutils literal notranslate"><span class="pre">ndx-pose</span></code> NWB extension <a class="footnote-reference brackets" href="#id2" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
 Each individual in the dataset will be written to a separate NWBFile,
 as required by the NWB format.
 Note that the NWBFile(s) are not automatically saved to disk.</p>
+<div class="deprecated">
+<p><span class="versionmodified deprecated">Deprecated since version 0.18.0: </span><code class="docutils literal notranslate"><span class="pre">to_nwb_file</span></code> has been renamed to <a class="reference internal" href="movement.io.save_poses.to_nwb_file_object.html#movement.io.save_poses.to_nwb_file_object" title="movement.io.save_poses.to_nwb_file_object"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_nwb_file_object()</span></code></a>
+and is now deprecated. A future release will repurpose
+<code class="docutils literal notranslate"><span class="pre">to_nwb_file</span></code> as a function that writes NWB file(s) directly
+to disk. Use <a class="reference internal" href="movement.io.save_poses.to_nwb_file_object.html#movement.io.save_poses.to_nwb_file_object" title="movement.io.save_poses.to_nwb_file_object"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_nwb_file_object()</span></code></a> to create NWBFile object(s)
+without writing to disk.</p>
+</div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ds</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a></span>) – <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset containing the data to be converted to
 NWBFile(s).</p></li>
-<li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html#movement.io.nwb.NWBFileSaveConfig" title="movement.io.nwb.NWBFileSaveConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFileSaveConfig</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Configuration object containing keyword arguments to customise the
+<li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html#movement.io.nwb.NWBFileSaveConfig" title="movement.io.nwb.NWBFileSaveConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFileSaveConfig</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Configuration object containing keyword arguments to customise the
 <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a> (s) that will be created
 for each individual.
 If None (default), default values will be used.</p></li>
@@ -694,7 +709,7 @@ will be returned. If the dataset contains multiple individuals,
 a list of NWBFile objects will be returned, one for each individual.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a>]</span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a>]</span></p>
 </dd>
 </dl>
 <p class="rubric">References</p>
@@ -711,7 +726,7 @@ a <code class="docutils literal notranslate"><span class="pre">movement</span></
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_poses</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pynwb</span><span class="w"> </span><span class="kn">import</span> <span class="n">NWBHDF5IO</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span> <span class="o">=</span> <span class="n">fetch_dataset</span><span class="p">(</span><span class="s2">"DLC_two-mice.predictions.csv"</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file_object</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">nwb_files</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="k">with</span> <span class="n">NWBHDF5IO</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2">.nwb"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">io</span><span class="p">:</span>
 <span class="gp">... </span>        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
@@ -728,7 +743,7 @@ object.</p>
 <span class="gp">... </span>    <span class="n">processing_module_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"description"</span><span class="p">:</span> <span class="s2">"processed behav data"</span><span class="p">},</span>
 <span class="gp">... </span>    <span class="n">subject_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="s2">"P90D"</span><span class="p">,</span> <span class="s2">"species"</span><span class="p">:</span> <span class="s2">"Mus musculus"</span><span class="p">},</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file_object</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Create NWBFiles with different <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.file.NWBFile</span></code></a>
@@ -750,7 +765,7 @@ and <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/p
 <span class="gp">... </span>        <span class="s2">"individual2"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"age"</span><span class="p">:</span> <span class="s2">"P91D"</span><span class="p">,</span> <span class="s2">"sex"</span><span class="p">:</span> <span class="s2">"F"</span><span class="p">},</span>
 <span class="gp">... </span>    <span class="p">},</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file_object</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Create NWBFiles with different <code class="docutils literal notranslate"><span class="pre">ndx_pose.PoseEstimationSeries</span></code>
@@ -765,7 +780,7 @@ metadata for different keypoints (e.g. <code class="docutils literal notranslate
 <span class="gp">... </span>        <span class="p">},</span>
 <span class="gp">... </span>    <span class="p">},</span>
 <span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file_object</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition seealso">
@@ -802,11 +817,11 @@ metadata for different keypoints (e.g. <code class="docutils literal notranslate
       </div>
     </a>
     <a class="right-next"
-       href="movement.io.save_poses.to_sleap_analysis_file.html"
+       href="movement.io.save_poses.to_nwb_file_object.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">to_sleap_analysis_file</p>
+        <p class="prev-next-title">to_nwb_file_object</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

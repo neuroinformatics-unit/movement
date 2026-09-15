@@ -502,7 +502,7 @@ Before attaching the labels, let's inspect ``ds``.
       * time        (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688
       * space       (space) <U1 12B 'x' 'y' 'z'
       * keypoint    (keypoint) <U15 3kB 'StartPlatL' 'StepL' ... 'HindpawKneeL'
-      * individual  (individual) <U12 48B 'individual_0'
+      * individual  (individual) <U4 16B 'id_0'
     Data variables:
         position    (time, space, keypoint, individual) float64 502kB -1.403 ... 0.0
         confidence  (time, keypoint, individual) float64 167kB 1.0 1.0 ... 0.0002036
@@ -567,7 +567,7 @@ to select data by gait phase in the next section.
         gait_HR     (time) object 3kB 'unknown' 'unknown' ... 'unknown' 'unknown'
       * space       (space) <U1 12B 'x' 'y' 'z'
       * keypoint    (keypoint) <U15 3kB 'StartPlatL' 'StepL' ... 'HindpawKneeL'
-      * individual  (individual) <U12 48B 'individual_0'
+      * individual  (individual) <U4 16B 'id_0'
     Data variables:
         position    (time, space, keypoint, individual) float64 502kB -1.403 ... 0.0
         confidence  (time, keypoint, individual) float64 167kB 1.0 1.0 ... 0.0002036
@@ -624,7 +624,7 @@ example, to select all timepoints where the front-right paw is in stance:
         gait_HR     (time) object 1kB 'unknown' 'unknown' ... 'stance' 'stance'
       * space       (space) <U1 12B 'x' 'y' 'z'
       * keypoint    (keypoint) <U15 3kB 'StartPlatL' 'StepL' ... 'HindpawKneeL'
-      * individual  (individual) <U12 48B 'individual_0'
+      * individual  (individual) <U4 16B 'id_0'
 
 
 
@@ -730,7 +730,7 @@ also combine any number of boolean masks across limb coordinates using ``&``.
         gait_HR     (time) object 24B 'stance' 'stance' 'stance'
       * space       (space) <U1 12B 'x' 'y' 'z'
       * keypoint    (keypoint) <U15 3kB 'StartPlatL' 'StepL' ... 'HindpawKneeL'
-      * individual  (individual) <U12 48B 'individual_0'
+      * individual  (individual) <U4 16B 'id_0'
     Attributes:
         log:      [\n  {\n    "operation": "filter_by_confidence",\n    "datetime...
 
@@ -867,7 +867,7 @@ only frames where the front-right limb phase was confidently identified
         gait_HR     (time) object 2kB 'unknown' 'unknown' ... 'stance' 'stance'
       * space       (space) <U1 12B 'x' 'y' 'z'
       * keypoint    (keypoint) <U15 3kB 'StartPlatL' 'StepL' ... 'HindpawKneeL'
-      * individual  (individual) <U12 48B 'individual_0'
+      * individual  (individual) <U4 16B 'id_0'
     Attributes:
         log:      [\n  {\n    "operation": "filter_by_confidence",\n    "datetime...
 
@@ -981,7 +981,7 @@ following swing block to form a complete stride.
         stride_FR   (time) float64 2kB 0.0 0.0 0.0 0.0 0.0 ... 5.0 5.0 5.0 5.0 5.0
       * space       (space) <U1 12B 'x' 'y' 'z'
       * keypoint    (keypoint) <U15 3kB 'StartPlatL' 'StepL' ... 'HindpawKneeL'
-      * individual  (individual) <U12 48B 'individual_0'
+      * individual  (individual) <U4 16B 'id_0'
     Data variables:
         position    (time, space, keypoint, individual) float64 240kB -0.5062 ......
         confidence  (time, keypoint, individual) float64 80kB 1.0 1.0 ... 0.945
@@ -1132,7 +1132,7 @@ plot the mean trajectory alongside individual strides.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 0.735 seconds)
+   **Total running time of the script:** (0 minutes 0.601 seconds)
 
 
 .. _sphx_glr_download_examples_advanced_annotate_boris_events.py:

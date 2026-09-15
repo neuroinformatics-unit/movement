@@ -20,6 +20,7 @@ Information on specific functions, classes, and methods.
     movement.io.load_bboxes
     movement.io.load_poses
     movement.io.nwb
+    movement.io.save
     movement.io.save_bboxes
     movement.io.save_poses
     movement.kinematics

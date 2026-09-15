@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=1200a648"></script>
+    <script src="../_static/documentation_options.js?v=b6782251"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev46</p>
+    <p class="title logo__title">movement v0.17.1.dev47</p>
   
 </a></div>
     
@@ -780,7 +780,7 @@ As these methods will return the logged Exception, you can log and raise the Exc
 <p>We aim to adhere to the <a class="reference external" href="https://docs.python.org/3/howto/logging.html#logging-basic-tutorial" title="Python 3.14">When to use logging guide</a> to ensure consistency in our logging practices.
 In general:</p>
 <ul class="simple">
-<li><p>Use <a class="reference external" href="https://docs.python.org/3/library/functions.html#print" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">print()</span></code></a> for simple, non-critical messages that do not need to be logged.</p></li>
+<li><p>Use <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#print" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">print()</span></code></a> for simple, non-critical messages that do not need to be logged.</p></li>
 <li><p>Use <a class="reference external" href="https://docs.python.org/3/library/warnings.html#warnings.warn" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.warn()</span></code></a> for conditions the user can avoid or address within <code class="docutils literal notranslate"><span class="pre">movement</span></code>, e.g. deprecated function calls that are redirected, an invalid <code class="docutils literal notranslate"><span class="pre">fps</span></code> value that is implicitly set to <code class="docutils literal notranslate"><span class="pre">None</span></code>, or data with excessive NaNs that the user may want to address using appropriate <a class="reference internal" href="../api/movement.filtering.html#module-movement.filtering" title="movement.filtering"><code class="xref py py-mod docutils literal notranslate"><span class="pre">filtering</span></code></a> functions.</p></li>
 <li><p>Use <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.warning" title="(in loguru)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.warning()</span></code></a> for unexpected situations <code class="docutils literal notranslate"><span class="pre">movement</span></code> handles automatically (by falling back to a default or making an assumption), where the user cannot directly intervene, e.g. a failed network request that falls back to a cached local file, or missing track information that triggers a single-individual assumption.</p></li>
 <li><p>Use <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.info" title="(in loguru)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.info()</span></code></a> for informational messages about expected behaviours that do not indicate problems, e.g. where default values are assigned to optional parameters.</p></li>
@@ -893,7 +893,7 @@ In the current example, the <code class="docutils literal notranslate"><span cla
 </section>
 <section id="implement-loader-function">
 <h4>Implement loader function<a class="headerlink" href="#implement-loader-function" title="Link to this heading">#</a></h4>
-<p>Once the file validator is defined, the next step is to implement the loader function that reads the validated file and constructs the movement dataset.
+<p>Once the file validator is defined, the next step is to implement the loader function that reads the validated file and constructs the <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset.
 Continuing from the hypothetical “MySoftware” example, the loader function <code class="docutils literal notranslate"><span class="pre">from_mysoftware_file</span></code> would look like this:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@register_loader</span><span class="p">(</span>
     <span class="n">source_software</span><span class="o">=</span><span class="s2">"MySoftware"</span><span class="p">,</span>
@@ -930,6 +930,7 @@ Continuing from the hypothetical “MySoftware” example, the loader function <
 </li>
 <li><p>Return an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> object containing the <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset</span></a>.</p></li>
 </ul>
+<p>Additional format-specific positional and keyword arguments (e.g. <code class="docutils literal notranslate"><span class="pre">fps</span></code>) are also allowed.</p>
 <section id="decorate-the-loader-with-register-loader">
 <h5>Decorate the loader with <code class="docutils literal notranslate"><span class="pre">&#64;register_loader</span></code><a class="headerlink" href="#decorate-the-loader-with-register-loader" title="Link to this heading">#</a></h5>
 <p>The <a class="reference internal" href="../api/movement.io.load.register_loader.html#movement.io.load.register_loader" title="movement.io.load.register_loader"><code class="xref py py-func docutils literal notranslate"><span class="pre">&#64;register_loader()</span></code></a> decorator associates a loader function with a <code class="docutils literal notranslate"><span class="pre">source_software</span></code> name so that users can load files from that software via the unified <a class="reference internal" href="../api/movement.io.load.load_dataset.html#movement.io.load.load_dataset" title="movement.io.load.load_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_dataset()</span></code></a> interface:</p>
@@ -971,19 +972,19 @@ The decorator will select the appropriate validator based on file suffix and the
 </details></section>
 <section id="construct-the-dataset">
 <h5>Construct the dataset<a class="headerlink" href="#construct-the-dataset" title="Link to this heading">#</a></h5>
-<p>After parsing the input file, the loader function should construct the movement dataset using:</p>
+<p>After parsing the input file, the loader function should construct the <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset using:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="../api/movement.io.load_poses.from_numpy.html#movement.io.load_poses.from_numpy" title="movement.io.load_poses.from_numpy"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.load_poses.from_numpy()</span></code></a> for pose tracks.</p></li>
 <li><p><a class="reference internal" href="../api/movement.io.load_bboxes.from_numpy.html#movement.io.load_bboxes.from_numpy" title="movement.io.load_bboxes.from_numpy"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.load_bboxes.from_numpy()</span></code></a> for bounding box tracks.</p></li>
 </ul>
-<p>These helper functions create the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> object from numpy arrays and metadata, ensuring that the dataset conforms to the <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset specification</span></a>.</p>
+<p>These helper functions create the <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></a> object from numpy arrays and metadata, ensuring that the dataset conforms to the <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset specification</span></a>.</p>
 </section>
 </section>
 <section id="update-sourcesoftware-type-alias">
 <h4>Update SourceSoftware type alias<a class="headerlink" href="#update-sourcesoftware-type-alias" title="Link to this heading">#</a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">SourceSoftware</span></code> type alias is defined in <a class="reference internal" href="../api/movement.io.load.html#module-movement.io.load" title="movement.io.load"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load</span></code></a> as a <code class="docutils literal notranslate"><span class="pre">Literal</span></code> containing all supported source software names.
 When adding a new loader, update this type alias to include the new software name to maintain type safety across the codebase:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">SourceSoftware</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span> <span class="n">SourceSoftware</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
     <span class="s2">"DeepLabCut"</span><span class="p">,</span>
     <span class="s2">"SLEAP"</span><span class="p">,</span>
     <span class="o">...</span><span class="p">,</span>
@@ -991,6 +992,84 @@ When adding a new loader, update this type alias to include the new software nam
 <span class="p">]</span>
 </pre></div>
 </div>
+</section>
+</section>
+<section id="implementing-new-writers">
+<h3>Implementing new writers<a class="headerlink" href="#implementing-new-writers" title="Link to this heading">#</a></h3>
+<p>Implementing a new writer to support additional <a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">file formats</span></a> in <code class="docutils literal notranslate"><span class="pre">movement</span></code> involves the following steps:</p>
+<ol class="arabic simple">
+<li><p>Implement the writer function.</p></li>
+<li><p>Update the <code class="docutils literal notranslate"><span class="pre">TargetSoftware</span></code> type alias.</p></li>
+<li><p>Update the <a class="reference internal" href="../user_guide/input_output.html#target-io"><span class="std std-ref">Input/Output</span></a> guide.</p></li>
+</ol>
+<section id="implement-writer-function">
+<h4>Implement writer function<a class="headerlink" href="#implement-writer-function" title="Link to this heading">#</a></h4>
+<p>Using a hypothetical “MySoftware” example that saves pose tracks to a CSV file, a writer <code class="docutils literal notranslate"><span class="pre">to_mysoftware_file</span></code> would look like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@register_writer</span><span class="p">(</span><span class="s2">"MySoftware"</span><span class="p">,</span> <span class="n">ds_type</span><span class="o">=</span><span class="s2">"poses"</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">{</span><span class="s2">".csv"</span><span class="p">})</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_mysoftware_file</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Save a ``movement`` dataset to a MySoftware file."""</span>
+    <span class="c1"># The _format_* function is pseudocode</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_format_as_mysoftware_df</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved poses dataset to </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Writer functions live in <a class="reference internal" href="../api/movement.io.save_poses.html#module-movement.io.save_poses" title="movement.io.save_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_poses</span></code></a> or <a class="reference internal" href="../api/movement.io.save_bboxes.html#module-movement.io.save_bboxes" title="movement.io.save_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_bboxes</span></code></a>, depending on the data type (poses or bounding boxes).</p>
+<p>A writer function must conform to the <a class="reference internal" href="../api/movement.io.save.WriterProtocol.html#movement.io.save.WriterProtocol" title="movement.io.save.WriterProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">WriterProtocol</span></code></a>, which requires the function to:</p>
+<ul class="simple">
+<li><p>Accept <code class="docutils literal notranslate"><span class="pre">ds</span></code>, an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> representing the <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset</span></a>, as its first parameter</p></li>
+<li><p>Accept <code class="docutils literal notranslate"><span class="pre">file</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code> or <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>) to which the dataset should be saved, as its second parameter.</p></li>
+<li><p>Save <code class="docutils literal notranslate"><span class="pre">ds</span></code> directly to <code class="docutils literal notranslate"><span class="pre">file</span></code> on disk.</p></li>
+<li><p>Return <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+<p>Additional format-specific keyword arguments are also allowed.</p>
+<section id="decorate-the-writer-with-register-writer">
+<h5>Decorate the writer with <code class="docutils literal notranslate"><span class="pre">&#64;register_writer</span></code><a class="headerlink" href="#decorate-the-writer-with-register-writer" title="Link to this heading">#</a></h5>
+<p>The <a class="reference internal" href="../api/movement.io.save.register_writer.html#movement.io.save.register_writer" title="movement.io.save.register_writer"><code class="xref py py-func docutils literal notranslate"><span class="pre">&#64;register_writer()</span></code></a> decorator associates a writer function with a <code class="docutils literal notranslate"><span class="pre">target_software</span></code> name so that users can save to that format via the unified <a class="reference internal" href="../api/movement.io.save.save_dataset.html#movement.io.save.save_dataset" title="movement.io.save.save_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_dataset()</span></code></a> interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_dataset</span>
+
+<span class="n">save_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/output.csv"</span><span class="p">,</span> <span class="n">target_software</span><span class="o">=</span><span class="s2">"MySoftware"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>which is equivalent to calling the writer function directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io.save_poses</span><span class="w"> </span><span class="kn">import</span> <span class="n">to_mysoftware_file</span>
+
+<span class="n">to_mysoftware_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/output.csv"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <a class="reference internal" href="../api/movement.io.save.register_writer.html#movement.io.save.register_writer" title="movement.io.save.register_writer"><code class="xref py py-func docutils literal notranslate"><span class="pre">&#64;register_writer()</span></code></a> decorator also validates <code class="docutils literal notranslate"><span class="pre">ds</span></code> and <code class="docutils literal notranslate"><span class="pre">file</span></code> before calling the writer:</p>
+<ul class="simple">
+<li><p>The optional <code class="docutils literal notranslate"><span class="pre">ds_type</span></code> argument (<code class="docutils literal notranslate"><span class="pre">&quot;poses&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;bboxes&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">None</span></code>) tells the decorator which kind of <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset</span></a> the format is compatible with.
+It selects the corresponding <a class="reference internal" href="../api/movement.validators.datasets.html#module-movement.validators.datasets" title="movement.validators.datasets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dataset</span> <span class="pre">validator</span></code></a>, so a clear error is raised if a bounding boxes dataset is passed to a poses-only writer (or vice versa).
+Pass <code class="docutils literal notranslate"><span class="pre">ds_type=None</span></code> (the default) only for formats compatible with any dataset type, such as <code class="docutils literal notranslate"><span class="pre">movement</span></code>’s native netCDF format.
+In that case, the decorator will select the appropriate validator based on the <code class="docutils literal notranslate"><span class="pre">ds_type</span></code> attribute of the dataset (i.e. <code class="docutils literal notranslate"><span class="pre">ds.attrs[&quot;ds_type&quot;]</span></code>).</p></li>
+<li><p>The optional <code class="docutils literal notranslate"><span class="pre">suffixes</span></code> argument (e.g. <code class="docutils literal notranslate"><span class="pre">{&quot;.csv&quot;}</span></code>) tells the decorator which file extensions are valid for the format.
+It is passed to <a class="reference internal" href="../api/movement.validators.files.validate_file_path.html#movement.validators.files.validate_file_path" title="movement.validators.files.validate_file_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">validate_file_path()</span></code></a>, which checks that <code class="docutils literal notranslate"><span class="pre">file</span></code> has one of the specified suffixes (or skips that check if <code class="docutils literal notranslate"><span class="pre">suffixes=None</span></code>, the default), always checks that <code class="docutils literal notranslate"><span class="pre">file</span></code> is writable, and returns <code class="docutils literal notranslate"><span class="pre">file</span></code> as a validated <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>, which is what the writer actually receives.</p></li>
+</ul>
+<details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
+<summary class="sd-summary-title sd-card-header sd-bg-success sd-bg-text-success">
+<span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-light-bulb" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg></span><span class="sd-summary-text">Type checkers and the validated <code class="docutils literal notranslate"><span class="pre">file</span></code> path</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
+<p class="sd-card-text">Because the writer’s signature declares <code class="docutils literal notranslate"><span class="pre">str</span> <span class="pre">|</span> <span class="pre">Path</span></code>, type checkers may not recognise that <code class="docutils literal notranslate"><span class="pre">file</span></code> is already a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> inside the writer body.
+If you call a function that requires a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> and the type checker complains, simply reassign <code class="docutils literal notranslate"><span class="pre">file</span> <span class="pre">=</span> <span class="pre">Path(file)</span></code> — a no-op at runtime that satisfies static typing.</p>
+</div>
+</details></section>
+</section>
+<section id="update-targetsoftware-type-alias">
+<h4>Update TargetSoftware type alias<a class="headerlink" href="#update-targetsoftware-type-alias" title="Link to this heading">#</a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">TargetSoftware</span></code> type alias is defined in <a class="reference internal" href="../api/movement.io.save.html#module-movement.io.save" title="movement.io.save"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save</span></code></a> as a <code class="docutils literal notranslate"><span class="pre">Literal</span></code> containing all supported save target names.
+When adding a new writer, update this type alias to include the new software name to maintain type safety across the codebase:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span> <span class="n">TargetSoftware</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
+    <span class="s2">"movement"</span><span class="p">,</span>
+    <span class="s2">"DeepLabCut"</span><span class="p">,</span>
+    <span class="o">...</span><span class="p">,</span>
+    <span class="s2">"MySoftware"</span><span class="p">,</span>  <span class="c1"># Newly added software</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="update-the-input-output-guide">
+<h4>Update the Input/Output guide<a class="headerlink" href="#update-the-input-output-guide" title="Link to this heading">#</a></h4>
+<p>Finally, update the <a class="reference internal" href="../user_guide/input_output.html#target-io"><span class="std std-ref">Input/Output</span></a> guide  by adding the new format to the <a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">Supported third-party formats</span></a> table and documenting it in the <a class="reference internal" href="../user_guide/input_output.html#target-saving-pose-tracks"><span class="std std-ref">Saving pose tracks</span></a> and/or <a class="reference internal" href="../user_guide/input_output.html#target-saving-bboxes-tracks"><span class="std std-ref">Saving bounding box tracks</span></a> section(s) with usage examples.</p>
 </section>
 </section>
 <section id="developing-the-cli">
@@ -1279,7 +1358,7 @@ Its source files are located in the <code class="docutils literal notranslate"><
 They are written in either <a class="reference external" href="https://myst-parser.readthedocs.io/en/latest/syntax/typography.html#">Markdown</a>
 or <a class="reference external" href="https://docutils.sourceforge.io/rst.html">reStructuredText</a>.
 The <code class="docutils literal notranslate"><span class="pre">index.md</span></code> file corresponds to the homepage of the documentation website.
-Other <code class="docutils literal notranslate"><span class="pre">.md</span></code>  or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files are linked to the homepage via the <code class="docutils literal notranslate"><span class="pre">toctree</span></code> directive.</p>
+Other <code class="docutils literal notranslate"><span class="pre">.md</span></code> or <code class="docutils literal notranslate"><span class="pre">.rst</span></code> files are linked to the homepage via the <code class="docutils literal notranslate"><span class="pre">toctree</span></code> directive.</p>
 <p>We use <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/#">Sphinx</a> and the <a class="reference external" href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
 to build the source files into HTML output.
 This is handled by a GitHub actions workflow (<code class="docutils literal notranslate"><span class="pre">.github/workflows/docs_build_and_deploy.yml</span></code>).
@@ -1700,6 +1779,15 @@ verify that the video is correctly linked to the dataset:</p>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-sourcesoftware-type-alias">Update SourceSoftware type alias</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implementing-new-writers">Implementing new writers</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#implement-writer-function">Implement writer function</a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#decorate-the-writer-with-register-writer">Decorate the writer with <code class="docutils literal notranslate"><span class="pre">@register_writer</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-targetsoftware-type-alias">Update TargetSoftware type alias</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-the-input-output-guide">Update the Input/Output guide</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#developing-the-cli">Developing the CLI</a></li>

@@ -117,7 +117,7 @@ Print the content of one of the datasets.
       * time        (time) float64 56kB 0.0 0.025 0.05 0.075 ... 174.9 174.9 175.0
       * space       (space) <U1 8B 'x' 'y'
       * keypoint    (keypoint) <U7 112B 'pupil-L' 'pupil-R' 'eye-L' 'eye-R'
-      * individual  (individual) <U12 48B 'individual_0'
+      * individual  (individual) <U4 16B 'id_0'
     Data variables:
         position    (time, space, keypoint, individual) float64 448kB 258.8 ... 2...
         confidence  (time, keypoint, individual) float64 224kB 1.0 1.0 ... 1.0 1.0
@@ -686,7 +686,7 @@ option for the ``statistic`` argument, and should be more robust to outliers.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.306 seconds)
+   **Total running time of the script:** (0 minutes 2.816 seconds)
 
 
 .. _sphx_glr_download_examples_mouse_eye_movements.py:

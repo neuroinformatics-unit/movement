@@ -24,6 +24,8 @@
     
     to_nwb_file
     
+    to_nwb_file_object
+    
     to_sleap_analysis_file
     
 

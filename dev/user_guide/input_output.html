@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=1200a648"></script>
+    <script src="../_static/documentation_options.js?v=b6782251"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev46</p>
+    <p class="title logo__title">movement v0.17.1.dev47</p>
   
 </a></div>
     
@@ -524,10 +524,10 @@ between various third-party formats and <code class="docutils literal notranslat
 <span id="target-supported-formats"></span><h2>Supported third-party formats<a class="headerlink" href="#supported-third-party-formats" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">movement</span></code> supports the analysis of trajectories of keypoints (<em>pose tracks</em>) and of bounding box centroids (<em>bounding box tracks</em>),
 which are represented as <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a>
-and can be loaded from and saved to various third-party formats.</p>
+and can be <a class="reference internal" href="#target-loading-any-format"><span class="std std-ref">loaded from</span></a> and <a class="reference internal" href="#target-saving-any-format"><span class="std std-ref">saved to</span></a> various third-party formats.</p>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>To programmatically query the supported source software names and their file suffixes, use <a class="reference internal" href="../api/movement.io.load.get_supported_source_software.html#movement.io.load.get_supported_source_software" title="movement.io.load.get_supported_source_software"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_supported_source_software()</span></code></a>.</p>
+<p>Use <a class="reference internal" href="../api/movement.io.load.get_supported_source_software.html#movement.io.load.get_supported_source_software" title="movement.io.load.get_supported_source_software"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_supported_source_software()</span></code></a> and <a class="reference internal" href="../api/movement.io.save.get_supported_target_software.html#movement.io.save.get_supported_target_software" title="movement.io.save.get_supported_target_software"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_supported_target_software()</span></code></a> to list the software and file suffixes that <code class="docutils literal notranslate"><span class="pre">movement</span></code> supports <strong>loading from</strong> and <strong>saving to</strong>, respectively.</p>
 </div>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
@@ -592,8 +592,8 @@ and can be loaded from and saved to various third-party formats.</p>
 <p>Below, we explain how to load pose and bounding box tracks from these supported formats, as well as how to save pose tracks back to some of them.</p>
 <section id="loading-with-load-dataset">
 <span id="target-loading-any-format"></span><h3>Loading with <code class="docutils literal notranslate"><span class="pre">load_dataset()</span></code><a class="headerlink" href="#loading-with-load-dataset" title="Link to this heading">#</a></h3>
-<p>The <a class="reference internal" href="../api/movement.io.load.load_dataset.html#movement.io.load.load_dataset" title="movement.io.load.load_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_dataset()</span></code></a> function provides a unified, format-agnostic way to load poses or bounding boxes from any of the <a class="reference internal" href="#target-supported-formats"><span class="std std-ref">supported software formats</span></a>.
-This function directly dispatches the loading task to the appropriate specialised function in the <a class="reference internal" href="../api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a> or <a class="reference internal" href="../api/movement.io.load_bboxes.html#module-movement.io.load_bboxes" title="movement.io.load_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_bboxes</span></code></a> module based on the <code class="docutils literal notranslate"><span class="pre">source_software</span></code> parameter.</p>
+<p>The <a class="reference internal" href="../api/movement.io.load.load_dataset.html#movement.io.load.load_dataset" title="movement.io.load.load_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_dataset()</span></code></a> function provides a unified, format-agnostic way to load poses or bounding boxes from any of the <a class="reference internal" href="#target-supported-formats"><span class="std std-ref">supported software formats</span></a>.</p>
+<p>Internally, <a class="reference internal" href="../api/movement.io.load.load_dataset.html#movement.io.load.load_dataset" title="movement.io.load.load_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_dataset()</span></code></a> dispatches to the appropriate specialised function in the <a class="reference internal" href="../api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a> or <a class="reference internal" href="../api/movement.io.load_bboxes.html#module-movement.io.load_bboxes" title="movement.io.load_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_bboxes</span></code></a> module based on the <code class="docutils literal notranslate"><span class="pre">source_software</span></code> parameter.</p>
 <p>To import <a class="reference internal" href="../api/movement.io.load.load_dataset.html#movement.io.load.load_dataset" title="movement.io.load.load_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_dataset()</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
 </pre></div>
@@ -624,10 +624,10 @@ is used, you can set <code class="docutils literal notranslate"><span class="pre
 <span class="p">)</span>
 </pre></div>
 </div>
-<section id="passing-additional-options">
-<h4>Passing additional options<a class="headerlink" href="#passing-additional-options" title="Link to this heading">#</a></h4>
+<section id="passing-additional-loading-options">
+<h4>Passing additional loading options<a class="headerlink" href="#passing-additional-loading-options" title="Link to this heading">#</a></h4>
 <p>Some file formats support additional options.
-These can be passed directly as keyword arguments to <a class="reference internal" href="../api/movement.io.load.load_dataset.html#movement.io.load.load_dataset" title="movement.io.load.load_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_dataset()</span></code></a>, and they will be forwarded to the appropriate loader.</p>
+These can be passed directly as keyword arguments to <a class="reference internal" href="../api/movement.io.load.load_dataset.html#movement.io.load.load_dataset" title="movement.io.load.load_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_dataset()</span></code></a>, and they will be forwarded to the loader.</p>
 <p>For example, to specify the tracked individual’s name when loading pose tracks from an Anipose triangulation .csv file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_dataset</span><span class="p">(</span>
     <span class="s2">"/path/to/file.csv"</span><span class="p">,</span>
@@ -649,8 +649,8 @@ These can be passed directly as keyword arguments to <a class="reference interna
 <section id="loading-with-software-specific-functions">
 <h3>Loading with software-specific functions<a class="headerlink" href="#loading-with-software-specific-functions" title="Link to this heading">#</a></h3>
 <p>For users who want direct access to the underlying loading functions or to construct datasets from NumPy arrays, the dedicated loaders remain available.</p>
-<section id="pose-tracks">
-<span id="target-loading-pose-tracks"></span><h4>Pose tracks<a class="headerlink" href="#pose-tracks" title="Link to this heading">#</a></h4>
+<section id="loading-pose-tracks">
+<span id="target-loading-pose-tracks"></span><h4>Loading pose tracks<a class="headerlink" href="#loading-pose-tracks" title="Link to this heading">#</a></h4>
 <p>The pose tracks loading functionalities are provided by the
 <a class="reference internal" href="../api/movement.io.load_poses.html#module-movement.io.load_poses" title="movement.io.load_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_poses</span></code></a> module, which can be imported as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_poses</span>
@@ -760,8 +760,8 @@ From NumPy</label><div class="sd-tab-content docutils">
 <p>The resulting poses data structure <code class="docutils literal notranslate"><span class="pre">ds</span></code> will include the predicted trajectories for each individual and keypoint, as well as the associated point-wise confidence values reported by the pose estimation software.</p>
 <p>For more information on the poses data structure, see the <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a> page.</p>
 </section>
-<section id="bounding-box-tracks">
-<span id="target-loading-bbox-tracks"></span><h4>Bounding box tracks<a class="headerlink" href="#bounding-box-tracks" title="Link to this heading">#</a></h4>
+<section id="loading-bounding-box-tracks">
+<span id="target-loading-bbox-tracks"></span><h4>Loading bounding box tracks<a class="headerlink" href="#loading-bounding-box-tracks" title="Link to this heading">#</a></h4>
 <p>To load bounding box tracks into a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bounding boxes dataset</span></a>, we need the functions from the
 <a class="reference internal" href="../api/movement.io.load_bboxes.html#module-movement.io.load_bboxes" title="movement.io.load_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.load_bboxes</span></code></a> module, which can be imported as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_bboxes</span>
@@ -803,10 +803,62 @@ both with the same width (40 pixels) and height (30 pixels). These are tracked i
 <p>For more information on the bounding boxes data structure, see the <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement datasets</span></a> page.</p>
 </section>
 </section>
+<section id="saving-with-save-dataset">
+<span id="target-saving-any-format"></span><h3>Saving with <code class="docutils literal notranslate"><span class="pre">save_dataset()</span></code><a class="headerlink" href="#saving-with-save-dataset" title="Link to this heading">#</a></h3>
+<p>The <a class="reference internal" href="../api/movement.io.save.save_dataset.html#movement.io.save.save_dataset" title="movement.io.save.save_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_dataset()</span></code></a> function provides a unified, format-agnostic way to save poses or bounding boxes to any of the <a class="reference internal" href="#target-supported-formats"><span class="std std-ref">supported software formats</span></a>, or to <code class="docutils literal notranslate"><span class="pre">movement</span></code>’s native <a class="reference internal" href="#target-netcdf"><span class="std std-ref">netCDF</span></a> format, which preserves the complete state of your analysis.</p>
+<p>Internally, <a class="reference internal" href="../api/movement.io.save.save_dataset.html#movement.io.save.save_dataset" title="movement.io.save.save_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_dataset()</span></code></a> dispatches to the appropriate specialised function in the <a class="reference internal" href="../api/movement.io.save_poses.html#module-movement.io.save_poses" title="movement.io.save_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_poses</span></code></a> or <a class="reference internal" href="../api/movement.io.save_bboxes.html#module-movement.io.save_bboxes" title="movement.io.save_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_bboxes</span></code></a> module based on the <code class="docutils literal notranslate"><span class="pre">target_software</span></code> parameter.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Before writing, the saving functions validate the dataset to ensure it is a <a class="reference internal" href="../api/movement.validators.datasets.html#module-movement.validators.datasets" title="movement.validators.datasets"><code class="xref py py-mod docutils literal notranslate"><span class="pre">valid</span> <span class="pre">movement</span> <span class="pre">dataset</span></code></a> with the required dimensions and data variables, and that the file path is writable with the appropriate suffix for the chosen format.</p>
+<p>If you prefer to bypass this validation (e.g. for an arbitrary, non-<code class="docutils literal notranslate"><span class="pre">movement</span></code>-specific dataset), you can use <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s native <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/io.html#">I/O methods</a> such as <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.to_netcdf.html#xarray.Dataset.to_netcdf" title="(in xarray v2026.7.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.to_netcdf()</span></code></a>. Note that no <code class="docutils literal notranslate"><span class="pre">movement</span></code>‑specific validation will occur, and such files may not load in the GUI.</p>
+</div>
+<p>To import <a class="reference internal" href="../api/movement.io.save.save_dataset.html#movement.io.save.save_dataset" title="movement.io.save.save_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_dataset()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_dataset</span>
+</pre></div>
+</div>
+<p>By default, if <code class="docutils literal notranslate"><span class="pre">target_software</span></code> is not specified, the dataset is saved in <code class="docutils literal notranslate"><span class="pre">movement</span></code>’s native netCDF (<code class="docutils literal notranslate"><span class="pre">.nc</span></code>) format (equivalent to explicitly passing <code class="docutils literal notranslate"><span class="pre">target_software=&quot;movement&quot;</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/file.nc"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To save to a third-party format instead, set <code class="docutils literal notranslate"><span class="pre">target_software</span></code> explicitly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># poses</span>
+<span class="n">save_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/file.h5"</span><span class="p">,</span> <span class="n">target_software</span><span class="o">=</span><span class="s2">"DeepLabCut"</span><span class="p">)</span>
+
+<span class="c1"># bounding boxes</span>
+<span class="n">save_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/file.csv"</span><span class="p">,</span> <span class="n">target_software</span><span class="o">=</span><span class="s2">"VIA-tracks"</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="passing-additional-saving-options">
+<h4>Passing additional saving options<a class="headerlink" href="#passing-additional-saving-options" title="Link to this heading">#</a></h4>
+<p>Some file formats support additional options.
+These can be passed directly as keyword arguments to <a class="reference internal" href="../api/movement.io.save.save_dataset.html#movement.io.save.save_dataset" title="movement.io.save.save_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_dataset()</span></code></a>, and they will be forwarded to the writer.</p>
+<p>For example, to save a multi-animal dataset as separate single-animal DeepLabCut files:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_dataset</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span>
+    <span class="s2">"/path/to/file.h5"</span><span class="p">,</span>
+    <span class="n">target_software</span><span class="o">=</span><span class="s2">"DeepLabCut"</span><span class="p">,</span>
+    <span class="n">split_individuals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Or to save bounding box tracks to a VIA tracks .csv file, with a custom image file extension for the associated video frames:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_dataset</span><span class="p">(</span>
+    <span class="n">ds</span><span class="p">,</span>
+    <span class="s2">"/path/to/file.csv"</span><span class="p">,</span>
+    <span class="n">target_software</span><span class="o">=</span><span class="s2">"VIA-tracks"</span><span class="p">,</span>
+    <span class="n">image_file_suffix</span><span class="o">=</span><span class="s2">".jpg"</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="saving-with-software-specific-functions">
+<h3>Saving with software-specific functions<a class="headerlink" href="#saving-with-software-specific-functions" title="Link to this heading">#</a></h3>
+<p>For users who want direct access to the underlying saving functions, the dedicated writers remain available.</p>
 <section id="saving-pose-tracks">
-<span id="target-saving-pose-tracks"></span><h3>Saving pose tracks<a class="headerlink" href="#saving-pose-tracks" title="Link to this heading">#</a></h3>
-<p>To export <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement poses datasets</span></a> to any of the supported third-party formats,
-we’ll need functions from the <a class="reference internal" href="../api/movement.io.save_poses.html#module-movement.io.save_poses" title="movement.io.save_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_poses</span></code></a> module:</p>
+<span id="target-saving-pose-tracks"></span><h4>Saving pose tracks<a class="headerlink" href="#saving-pose-tracks" title="Link to this heading">#</a></h4>
+<p>The pose tracks saving functionalities are provided by the
+<a class="reference internal" href="../api/movement.io.save_poses.html#module-movement.io.save_poses" title="movement.io.save_poses"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_poses</span></code></a> module, which can be imported as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_poses</span>
 </pre></div>
 </div>
@@ -857,15 +909,15 @@ DeepLabCut .csv format, the above command is equivalent to:</p>
 <label class="sd-tab-label" for="sd-tab-item-11">
 NWB</label><div class="sd-tab-content docutils">
 <p>To convert a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset to <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> objects:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file_object</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>To allow adding additional data to NWB files before saving, <a class="reference internal" href="../api/movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file" title="movement.io.save_poses.to_nwb_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_nwb_file</span></code></a> does not write to disk directly.
+<p>To allow adding additional data to NWB files before saving, <a class="reference internal" href="../api/movement.io.save_poses.to_nwb_file_object.html#movement.io.save_poses.to_nwb_file_object" title="movement.io.save_poses.to_nwb_file_object"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_nwb_file_object()</span></code></a> does not write to disk directly.
 Instead, it returns a list of <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> objects—one per individual in the dataset—since NWB files are designed to represent data from a single individual.</p>
-<p>The <a class="reference internal" href="../api/movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file" title="movement.io.save_poses.to_nwb_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_nwb_file</span></code></a> function also accepts
+<p>The <a class="reference internal" href="../api/movement.io.save_poses.to_nwb_file_object.html#movement.io.save_poses.to_nwb_file_object" title="movement.io.save_poses.to_nwb_file_object"><code class="xref py py-func docutils literal notranslate"><span class="pre">to_nwb_file_object()</span></code></a> function also accepts
 a <a class="reference internal" href="../api/movement.io.nwb.NWBFileSaveConfig.html#movement.io.nwb.NWBFileSaveConfig" title="movement.io.nwb.NWBFileSaveConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFileSaveConfig</span></code></a> object as its <code class="docutils literal notranslate"><span class="pre">config</span></code> argument
 for customising metadata such as session or subject information in the resulting NWBFiles
-(see <a class="reference internal" href="../api/movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file" title="movement.io.save_poses.to_nwb_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">the</span> <span class="pre">API</span> <span class="pre">reference</span></code></a> for examples).</p>
+(see <a class="reference internal" href="../api/movement.io.save_poses.to_nwb_file_object.html#movement.io.save_poses.to_nwb_file_object" title="movement.io.save_poses.to_nwb_file_object"><code class="xref py py-func docutils literal notranslate"><span class="pre">the</span> <span class="pre">API</span> <span class="pre">reference</span></code></a> for examples).</p>
 <p>These <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> objects can then be saved to disk as .nwb files using <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.html#pynwb.NWBHDF5IO" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pynwb.NWBHDF5IO</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pynwb</span><span class="w"> </span><span class="kn">import</span> <span class="n">NWBHDF5IO</span>
 
@@ -878,7 +930,7 @@ for customising metadata such as session or subject information in the resulting
 </div>
 </section>
 <section id="saving-bounding-box-tracks">
-<span id="target-saving-bboxes-tracks"></span><h3>Saving bounding box tracks<a class="headerlink" href="#saving-bounding-box-tracks" title="Link to this heading">#</a></h3>
+<span id="target-saving-bboxes-tracks"></span><h4>Saving bounding box tracks<a class="headerlink" href="#saving-bounding-box-tracks" title="Link to this heading">#</a></h4>
 <p>We currently support exporting a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bboxes datasets</span></a> as a <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html#">VIA tracks .csv file</a>, so that you can visualise and correct your bounding box tracks with the <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/via.html#">VGG Image Annotator (VIA-2) software</a>. Alternatively, you can save the bounding box tracks to a .csv file with a custom header using the standard Python library <code class="docutils literal notranslate"><span class="pre">csv</span></code>.</p>
 <div class="sd-tab-set docutils">
 <input checked="checked" id="sd-tab-item-12" name="sd-tab-set-3" type="radio">
@@ -933,6 +985,7 @@ Custom .csv file</label><div class="sd-tab-content docutils">
 </div>
 </section>
 </section>
+</section>
 <section id="native-saving-and-loading-with-netcdf">
 <span id="target-netcdf"></span><h2>Native saving and loading with netCDF<a class="headerlink" href="#native-saving-and-loading-with-netcdf" title="Link to this heading">#</a></h2>
 <p>Because <code class="docutils literal notranslate"><span class="pre">movement</span></code> datasets are <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects, we can rely on
@@ -940,15 +993,21 @@ xarray’s built-in <a class="reference external" href="https://docs.xarray.dev/
 <p>netCDF is a binary file format for self-described datasets that originated in the geosciences,
 and netCDF files on disk directly correspond to <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> objects.</p>
 <p>Saving to netCDF is the recommended way to preserve the complete state of your analysis,
-including all variables, coordinates, and attributes.</p>
-<p>To save any xarray dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> to a netCDF file:</p>
+including all variables, coordinates, and attributes.
+The simplest way to save a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset to a netCDF file is via <a class="reference internal" href="../api/movement.io.save.save_dataset.html#movement.io.save.save_dataset" title="movement.io.save.save_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">save_dataset()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_dataset</span>
+
+<span class="n">save_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/my_data.nc"</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you prefer to skip <code class="docutils literal notranslate"><span class="pre">movement</span></code>-specific validation (see <a class="reference internal" href="#target-saving-any-format"><span class="std std-ref">Saving with save_dataset()</span></a> for details), you can also call <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.to_netcdf.html#xarray.Dataset.to_netcdf" title="(in xarray v2026.7.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.Dataset.to_netcdf()</span></code></a> directly:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s2">"/path/to/my_data.nc"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To load the dataset back:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
-<span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s2">"my_data.nc"</span><span class="p">)</span>
+<span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s2">"/path/to/my_data.nc"</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -964,9 +1023,9 @@ before further processing:</p>
 </div>
 </div>
 <p>Similarly, an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="(in xarray v2026.7.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.DataArray</span></code></a> object (e.g. the <code class="docutils literal notranslate"><span class="pre">position</span></code> variable
-of a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset) can be saved to disk using the
-<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_netcdf.html#xarray.DataArray.to_netcdf" title="(in xarray v2026.7.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">to_netcdf()</span></code></a> method, and loaded from disk using the
-<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.open_dataarray.html#xarray.open_dataarray" title="(in xarray v2026.7.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.open_dataarray()</span></code></a> function.
+of a <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset) can be saved to disk using
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.to_netcdf.html#xarray.DataArray.to_netcdf" title="(in xarray v2026.7.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">xarray.DataArray.to_netcdf()</span></code></a>, and loaded from disk using
+<a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.open_dataarray.html#xarray.open_dataarray" title="(in xarray v2026.7.0)"><code class="xref py py-func docutils literal notranslate"><span class="pre">xarray.open_dataarray()</span></code></a>.
 As netCDF files correspond to Dataset objects,
 these functions internally convert the DataArray to a Dataset before saving,
 and then convert back when loading.</p>
@@ -975,9 +1034,9 @@ and then convert back when loading.</p>
 <p>xarray also supports compression and chunking options with netCDF, which can be useful for managing large datasets.
 For more details, see the <a class="reference external" href="https://docs.xarray.dev/en/stable/user-guide/io.html#">xarray documentation on netCDF</a>.</p>
 </div>
-<p>Below is an example of how you may integrate netCDF into you
+<p>Below is an example of how you may integrate netCDF into your
 <code class="docutils literal notranslate"><span class="pre">movement</span></code>-powered workflows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_dataset</span><span class="p">,</span> <span class="n">save_dataset</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.filtering</span><span class="w"> </span><span class="kn">import</span> <span class="n">rolling_filter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.kinematics</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_speed</span>
 
@@ -994,7 +1053,7 @@ For more details, see the <a class="reference external" href="https://docs.xarra
 <span class="c1"># Save the dataset to a netCDF file</span>
 <span class="c1"># This includes the original position and confidence data,</span>
 <span class="c1"># the smoothed position, and the computed speed</span>
-<span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s2">"my_data_processed.nc"</span><span class="p">)</span>
+<span class="n">save_dataset</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"path/to/my_data_processed.nc"</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition tip">
@@ -1021,7 +1080,7 @@ various <a class="reference internal" href="#target-supported-formats"><span cla
 of the software package that was used to generate it.</p>
 <p>To load one of the sample files as a
 <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset</span></a>, use the
-<a class="reference internal" href="../api/movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset" title="movement.sample_data.fetch_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">fetch_dataset</span></code></a> function:</p>
+<a class="reference internal" href="../api/movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset" title="movement.sample_data.fetch_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">fetch_dataset()</span></code></a> function:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">filename</span> <span class="o">=</span> <span class="s2">"SLEAP_three-mice_Aeon_proofread.analysis.h5"</span>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 </pre></div>
@@ -1047,7 +1106,7 @@ the <code class="docutils literal notranslate"><span class="pre">frame_path</spa
 <summary class="sd-summary-title sd-card-header sd-bg-info sd-bg-text-info">
 <span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-info" viewBox="0 0 16 16" aria-hidden="true"><path d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8Zm8-6.5a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13ZM6.5 7.75A.75.75 0 0 1 7.25 7h1a.75.75 0 0 1 .75.75v2.75h.25a.75.75 0 0 1 0 1.5h-2a.75.75 0 0 1 0-1.5h.25v-2h-.25a.75.75 0 0 1-.75-.75ZM8 6a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"></path></svg></span><span class="sd-summary-text">Under the hood</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
 <p class="sd-card-text">When you import the <a class="reference internal" href="../api/movement.sample_data.html#module-movement.sample_data" title="movement.sample_data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sample_data</span></code></a> module with <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">movement</span> <span class="pre">import</span> <span class="pre">sample_data</span></code>,
-<code class="docutils literal notranslate"><span class="pre">movement</span></code> downloads a small metadata file to your local machine with information about the latest sample datasets available. Then, the first time you call the <code class="docutils literal notranslate"><span class="pre">fetch_dataset()</span></code> function, <code class="docutils literal notranslate"><span class="pre">movement</span></code> downloads the requested file to your machine and caches it in the <code class="docutils literal notranslate"><span class="pre">~/.movement/data</span></code> directory. On subsequent calls, the data are directly loaded from this local cache.</p>
+<code class="docutils literal notranslate"><span class="pre">movement</span></code> downloads a small metadata file to your local machine with information about the latest sample datasets available. Then, the first time you call the <a class="reference internal" href="../api/movement.sample_data.fetch_dataset.html#movement.sample_data.fetch_dataset" title="movement.sample_data.fetch_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">fetch_dataset()</span></code></a> function, <code class="docutils literal notranslate"><span class="pre">movement</span></code> downloads the requested file to your machine and caches it in the <code class="docutils literal notranslate"><span class="pre">~/.movement/data</span></code> directory. On subsequent calls, the data are directly loaded from this local cache.</p>
 </div>
 </details></section>
 </section>
@@ -1105,16 +1164,23 @@ the <code class="docutils literal notranslate"><span class="pre">frame_path</spa
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supported-third-party-formats">Supported third-party formats</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-with-load-dataset">Loading with <code class="docutils literal notranslate"><span class="pre">load_dataset()</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#passing-additional-options">Passing additional options</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#passing-additional-loading-options">Passing additional loading options</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-with-software-specific-functions">Loading with software-specific functions</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pose-tracks">Pose tracks</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#bounding-box-tracks">Bounding box tracks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-pose-tracks">Loading pose tracks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-bounding-box-tracks">Loading bounding box tracks</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-pose-tracks">Saving pose tracks</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-bounding-box-tracks">Saving bounding box tracks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-with-save-dataset">Saving with <code class="docutils literal notranslate"><span class="pre">save_dataset()</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#passing-additional-saving-options">Passing additional saving options</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-with-software-specific-functions">Saving with software-specific functions</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-pose-tracks">Saving pose tracks</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-bounding-box-tracks">Saving bounding box tracks</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#native-saving-and-loading-with-netcdf">Native saving and loading with netCDF</a></li>

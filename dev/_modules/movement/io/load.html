@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=1200a648"></script>
+    <script src="../../../_static/documentation_options.js?v=b6782251"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev46</p>
+    <p class="title logo__title">movement v0.17.1.dev47</p>
   
 </a></div>
     
@@ -583,12 +583,13 @@
 <div class="viewcode-block" id="get_supported_source_software">
 <a class="viewcode-back" href="../../../api/movement.io.load.get_supported_source_software.html#movement.io.load.get_supported_source_software">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_supported_source_software</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="n">SourceSoftware</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">"""Return registered source software and supported file suffixes.</span>
+<span class="w">    </span><span class="sd">"""Return the supported source software and file suffixes for loading data.</span>
 
-<span class="sd">    Returns a mapping of each registered source software name to the</span>
-<span class="sd">    set of file suffixes (extensions) it can load. This is useful for</span>
-<span class="sd">    downstream packages that depend on ``movement`` for I/O and want to</span>
-<span class="sd">    programmatically discover supported formats.</span>
+<span class="sd">    Returns a mapping of each registered source software name (i.e. a</span>
+<span class="sd">    format ``movement`` can load data *from*) to the set of file suffixes</span>
+<span class="sd">    it supports for that format. This is useful for downstream packages</span>
+<span class="sd">    that depend on ``movement`` for I/O and want to programmatically</span>
+<span class="sd">    discover supported loading formats.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -596,6 +597,11 @@
 <span class="sd">        Mapping of source software names to sets of supported file</span>
 <span class="sd">        suffixes (e.g. ``{".h5", ".csv"}``). Loaders registered</span>
 <span class="sd">        without file validators will map to an empty set.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    movement.io.save.get_supported_target_software : Return the target</span>
+<span class="sd">        software names and file suffixes supported for *saving* data.</span>
 
 <span class="sd">    """</span>
     <span class="k">return</span> <span class="p">{</span>
@@ -971,7 +977,7 @@
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    The attributes of the resulting dataset will be taken from the first</span>
-<span class="sd">    dataset specified in ``file_path_dict``. This is the default</span>
+<span class="sd">    dataset specified in ``file_dict``. This is the default</span>
 <span class="sd">    behaviour of :func:`xarray.concat` used under the hood.</span>
 
 <span class="sd">    All input views must share identical ``time`` coordinates. If they</span>

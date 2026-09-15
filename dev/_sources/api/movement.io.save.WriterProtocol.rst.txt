@@ -1,0 +1,23 @@
+WriterProtocol
+==============
+
+.. currentmodule:: movement.io.save
+
+.. autoclass:: WriterProtocol
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+
+   
+   
+   
+   
+
+   
+   
+
+.. minigallery:: movement.io.save.WriterProtocol
+   :add-heading: Examples using ``WriterProtocol``

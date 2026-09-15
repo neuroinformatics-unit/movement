@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=1200a648"></script>
+    <script src="../_static/documentation_options.js?v=b6782251"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev46</p>
+    <p class="title logo__title">movement v0.17.1.dev47</p>
   
 </a></div>
     
@@ -478,6 +478,13 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.nwb.NWBFileSaveConfig.html">NWBFileSaveConfig</a></li>
 </ul>
 </details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save.html">movement.io.save</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save.WriterProtocol.html">WriterProtocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save.get_supported_target_software.html">get_supported_target_software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save.register_writer.html">register_writer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save.save_dataset.html">save_dataset</a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.io.save_bboxes.html">movement.io.save_bboxes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_bboxes.to_via_tracks_file.html">to_via_tracks_file</a></li>
 </ul>
@@ -487,6 +494,7 @@
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_dlc_style_df.html">to_dlc_style_df</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_lp_file.html">to_lp_file</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_nwb_file.html">to_nwb_file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_nwb_file_object.html">to_nwb_file_object</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.io.save_poses.to_sleap_analysis_file.html">to_sleap_analysis_file</a></li>
 </ul>
 </details></li>
@@ -670,11 +678,12 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.io.load.get_supported_source_software">
 <span class="sig-prename descclassname"><span class="pre">movement.io.load.</span></span><span class="sig-name descname"><span class="pre">get_supported_source_software</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/io/load.html#get_supported_source_software"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.io.load.get_supported_source_software" title="Link to this definition">#</a></dt>
-<dd><p>Return registered source software and supported file suffixes.</p>
-<p>Returns a mapping of each registered source software name to the
-set of file suffixes (extensions) it can load. This is useful for
-downstream packages that depend on <code class="docutils literal notranslate"><span class="pre">movement</span></code> for I/O and want to
-programmatically discover supported formats.</p>
+<dd><p>Return the supported source software and file suffixes for loading data.</p>
+<p>Returns a mapping of each registered source software name (i.e. a
+format <code class="docutils literal notranslate"><span class="pre">movement</span></code> can load data <em>from</em>) to the set of file suffixes
+it supports for that format. This is useful for downstream packages
+that depend on <code class="docutils literal notranslate"><span class="pre">movement</span></code> for I/O and want to programmatically
+discover supported loading formats.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Mapping of source software names to sets of supported file
@@ -682,9 +691,16 @@ suffixes (e.g. <code class="docutils literal notranslate"><span class="pre">{&qu
 without file validators will map to an empty set.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'DeepLabCut'</span></code>, <code class="docutils literal notranslate"><span class="pre">'SLEAP'</span></code>, <code class="docutils literal notranslate"><span class="pre">'LightningPose'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Anipose'</span></code>, <code class="docutils literal notranslate"><span class="pre">'NWB'</span></code>, <code class="docutils literal notranslate"><span class="pre">'VIA-tracks'</span></code>], <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#set" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]]</span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Literal" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Literal</span></code></a>[<code class="docutils literal notranslate"><span class="pre">'DeepLabCut'</span></code>, <code class="docutils literal notranslate"><span class="pre">'SLEAP'</span></code>, <code class="docutils literal notranslate"><span class="pre">'LightningPose'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Anipose'</span></code>, <code class="docutils literal notranslate"><span class="pre">'NWB'</span></code>, <code class="docutils literal notranslate"><span class="pre">'VIA-tracks'</span></code>], <a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#set" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">set</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]]</span></p>
 </dd>
 </dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="movement.io.save.get_supported_target_software.html#movement.io.save.get_supported_target_software" title="movement.io.save.get_supported_target_software"><code class="xref py py-obj docutils literal notranslate"><span class="pre">movement.io.save.get_supported_target_software</span></code></a></dt><dd><p>Return the target software names and file suffixes supported for <em>saving</em> data.</p>
+</dd>
+</dl>
+</div>
 </dd></dl>
 
 </section>

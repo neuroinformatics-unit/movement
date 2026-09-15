@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=1200a648"></script>
+    <script src="../../../_static/documentation_options.js?v=b6782251"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev46</p>
+    <p class="title logo__title">movement v0.17.1.dev47</p>
   
 </a></div>
     
@@ -489,9 +489,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">movement.io.save</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_writer</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidBboxesInputs</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_file_path</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">_csv</span>
@@ -499,21 +498,22 @@
 
 <div class="viewcode-block" id="to_via_tracks_file">
 <a class="viewcode-back" href="../../../api/movement.io.save_bboxes.to_via_tracks_file.html#movement.io.save_bboxes.to_via_tracks_file">[docs]</a>
+<span class="nd">@register_writer</span><span class="p">(</span><span class="s2">"VIA-tracks"</span><span class="p">,</span> <span class="n">ds_type</span><span class="o">=</span><span class="s2">"bboxes"</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">{</span><span class="s2">".csv"</span><span class="p">})</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">to_via_tracks_file</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
-    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">track_ids_from_trailing_numbers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">frame_n_digits</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">image_file_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">image_file_suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">".png"</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Save a ``movement`` bounding boxes dataset to a VIA tracks .csv file.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    ds</span>
 <span class="sd">        The ``movement`` bounding boxes dataset to export.</span>
-<span class="sd">    file_path</span>
+<span class="sd">    file</span>
 <span class="sd">        Path where the VIA tracks .csv file [1]_ will be saved.</span>
 <span class="sd">    track_ids_from_trailing_numbers</span>
 <span class="sd">        If True, extract track IDs from the numbers at the end of the</span>
@@ -532,11 +532,6 @@
 <span class="sd">    image_file_suffix</span>
 <span class="sd">        Suffix to add to every image filename holding the file extension.</span>
 <span class="sd">        Strings with or without the dot are accepted. Default is '.png'.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    pathlib.Path</span>
-<span class="sd">        Path to the saved file.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -607,11 +602,6 @@
 <span class="sd">    ... )</span>
 
 <span class="sd">    """</span>
-    <span class="c1"># Validate file path and dataset</span>
-    <span class="n">valid_path</span> <span class="o">=</span> <span class="n">validate_file_path</span><span class="p">(</span>
-        <span class="n">file_path</span><span class="p">,</span> <span class="n">permission</span><span class="o">=</span><span class="s2">"w"</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="p">{</span><span class="s2">".csv"</span><span class="p">}</span>
-    <span class="p">)</span>
-    <span class="n">ValidBboxesInputs</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
     <span class="c1"># Check the number of digits required to represent the frame numbers</span>
     <span class="n">frame_n_digits</span> <span class="o">=</span> <span class="n">_check_frame_required_digits</span><span class="p">(</span>
         <span class="n">ds</span><span class="o">=</span><span class="n">ds</span><span class="p">,</span> <span class="n">frame_n_digits</span><span class="o">=</span><span class="n">frame_n_digits</span>
@@ -630,12 +620,11 @@
     <span class="c1"># Write file</span>
     <span class="n">_write_via_tracks_csv</span><span class="p">(</span>
         <span class="n">ds</span><span class="p">,</span>
-        <span class="n">valid_path</span><span class="p">,</span>
+        <span class="n">file</span><span class="p">,</span>
         <span class="n">map_individual_to_track_id</span><span class="p">,</span>
         <span class="n">img_filename_template</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved bounding boxes dataset to </span><span class="si">{</span><span class="n">valid_path</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">valid_path</span></div>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saved bounding boxes dataset to </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span></div>
 
 
 
@@ -825,7 +814,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_write_via_tracks_csv</span><span class="p">(</span>
     <span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span>
-    <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
     <span class="n">map_individual_to_track_id</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
     <span class="n">img_filename_template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -835,7 +824,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    ds</span>
 <span class="sd">        A movement bounding boxes dataset.</span>
-<span class="sd">    file_path</span>
+<span class="sd">    file</span>
 <span class="sd">        Path where the VIA tracks .csv file will be saved.</span>
 <span class="sd">    map_individual_to_track_id</span>
 <span class="sd">        Dictionary mapping individuals' names to track IDs.</span>
@@ -865,7 +854,7 @@
         <span class="n">ds</span><span class="o">.</span><span class="n">shape</span><span class="o">.</span><span class="n">isnull</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
     <span class="p">)</span>  <span class="c1"># (time, individual)</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">csv_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="n">csv_writer</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
 

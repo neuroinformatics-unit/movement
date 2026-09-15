@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=1200a648"></script>
+    <script src="../_static/documentation_options.js?v=b6782251"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev46</p>
+    <p class="title logo__title">movement v0.17.1.dev47</p>
   
 </a></div>
     
@@ -556,7 +556,7 @@ Coordinates:
   * time        (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1
   * space       (space) &lt;U1 8B 'x' 'y'
   * keypoint    (keypoint) &lt;U7 56B 'head' 'stinger'
-  * individual  (individual) &lt;U12 48B 'individual_0'
+  * individual  (individual) &lt;U4 16B 'id_0'
 Data variables:
     position    (time, space, keypoint, individual) float64 35kB 1.086e+03 .....
     confidence  (time, keypoint, individual) float64 17kB 0.05305 ... 0.0
@@ -584,7 +584,7 @@ the dimension of length 1 from the data (the <code class="docutils literal notra
 <span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_filter_and_interpolate_001.png" srcset="../_images/sphx_glr_filter_and_interpolate_001.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f453096e990&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_001.png" srcset="../_images/sphx_glr_filter_and_interpolate_001.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f2d6067d590&gt;
 </pre></div>
 </div>
 <p>We can see that the pose tracks contain some implausible “jumps”, such
@@ -606,7 +606,7 @@ from the data.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_filter_and_interpolate_002.png" srcset="../_images/sphx_glr_filter_and_interpolate_002.png" alt="individual = individual_0" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(array([  61.,   13.,   16.,   10.,   10.,    8.,   21.,   11.,   14.,
+<img src="../_images/sphx_glr_filter_and_interpolate_002.png" srcset="../_images/sphx_glr_filter_and_interpolate_002.png" alt="individual = id_0" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(array([  61.,   13.,   16.,   10.,   10.,    8.,   21.,   11.,   14.,
          11.,   26.,   13.,   28.,   19.,   39.,   44.,   79.,   84.,
         149., 1514.]), array([0.        , 0.04999823, 0.09999646, 0.14999469, 0.19999292,
        0.24999115, 0.29998938, 0.34998761, 0.39998584, 0.44998407,
@@ -621,7 +621,7 @@ they evolve over time.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">"keypoint"</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_filter_and_interpolate_003.png" srcset="../_images/sphx_glr_filter_and_interpolate_003.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f453092afd0&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_003.png" srcset="../_images/sphx_glr_filter_and_interpolate_003.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f2d5f413bb0&gt;
 </pre></div>
 </div>
 <p>Encouragingly, some of the drops in confidence scores do seem to correspond
@@ -654,9 +654,9 @@ with the filtered <code class="docutils literal notranslate"><span class="pre">p
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>No missing points (marked as NaN) in input.
 Missing points (marked as NaN) in output:
 
-keypoint                   head          stinger
+keypoint                 head          stinger
 individual
-individual_0  121/1085 (11.15%)  93/1085 (8.57%)
+id_0        121/1085 (11.15%)  93/1085 (8.57%)
 </pre></div>
 </div>
 <p>We can see that the filtering operation has introduced NaN values in the
@@ -666,7 +666,7 @@ individual_0  121/1085 (11.15%)  93/1085 (8.57%)
 <span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_filter_and_interpolate_004.png" srcset="../_images/sphx_glr_filter_and_interpolate_004.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f453092b950&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_004.png" srcset="../_images/sphx_glr_filter_and_interpolate_004.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f2d5f413a80&gt;
 </pre></div>
 </div>
 <p>Here we can see that gaps (consecutive NaNs) have appeared in the
@@ -694,14 +694,14 @@ spurious data. The <code class="docutils literal notranslate"><span class="pre">
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Missing points (marked as NaN) in input:
 
-keypoint                   head          stinger
-individual
-individual_0  121/1085 (11.15%)  93/1085 (8.57%)
-Missing points (marked as NaN) in output:
-
 keypoint                 head          stinger
 individual
-individual_0  15/1085 (1.38%)  15/1085 (1.38%)
+id_0        121/1085 (11.15%)  93/1085 (8.57%)
+Missing points (marked as NaN) in output:
+
+keypoint               head          stinger
+individual
+id_0        15/1085 (1.38%)  15/1085 (1.38%)
 </pre></div>
 </div>
 <p>We see that most, but not all, NaN values have disappeared, meaning that
@@ -712,7 +712,7 @@ Let’s visualise the interpolated pose tracks.</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-<img src="../_images/sphx_glr_filter_and_interpolate_005.png" srcset="../_images/sphx_glr_filter_and_interpolate_005.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f452a489490&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_005.png" srcset="../_images/sphx_glr_filter_and_interpolate_005.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f2d5c1d6450&gt;
 </pre></div>
 </div>
 <div class="admonition note">
@@ -735,21 +735,21 @@ The order of these operations and the parameters with which they were
 performed are saved in the <code class="docutils literal notranslate"><span class="pre">log</span></code> attribute of the <code class="docutils literal notranslate"><span class="pre">position</span></code> data array.
 This is useful for keeping track of the processing steps that have been
 applied to the data. Let’s inspect the log:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">log</span></a><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">log</span></a><span class="p">)</span>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[
   {
     "operation": "filter_by_confidence",
-    "datetime": "2026-09-09 11:09:19.406127",
-    "confidence": "&lt;xarray.DataArray 'confidence' (time: 1085, keypoint: 2, individual: 1)&gt; Size: 17kB\n0.05305 0.07366 0.03532 0.03293 0.01707 0.01022 ... 0.0 0.0 0.0 0.0 0.0 0.0\nCoordinates:\n  * time        (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1\n  * keypoint    (keypoint) &lt;U7 56B 'head' 'stinger'\n  * individual  (individual) &lt;U12 48B 'individual_0'",
+    "datetime": "2026-09-15 09:46:05.370336",
+    "confidence": "&lt;xarray.DataArray 'confidence' (time: 1085, keypoint: 2, individual: 1)&gt; Size: 17kB\n0.05305 0.07366 0.03532 0.03293 0.01707 0.01022 ... 0.0 0.0 0.0 0.0 0.0 0.0\nCoordinates:\n  * time        (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1\n  * keypoint    (keypoint) &lt;U7 56B 'head' 'stinger'\n  * individual  (individual) &lt;U4 16B 'id_0'",
     "threshold": "0.6",
     "keep_points_with_nan_confidence": "True",
     "print_report": "True"
   },
   {
     "operation": "interpolate_over_time",
-    "datetime": "2026-09-09 11:09:20.348275",
+    "datetime": "2026-09-15 09:46:06.171070",
     "method": "'linear'",
     "max_gap": "40",
     "print_report": "True"
@@ -759,11 +759,11 @@ applied to the data. Let’s inspect the log:</p>
 </div>
 <p>If you want to retrieve a certain parameter from the log, you can use
 <a class="reference external" href="https://docs.python.org/3/library/json.html#json.loads" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">json.loads()</span></code></a> to parse the log string into a list of dictionaries.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">log_entries</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/json.html#json.loads" title="json.loads" class="sphx-glr-backref-module-json sphx-glr-backref-type-py-function"><span class="n">json</span><span class="o">.</span><span class="n">loads</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">log</span></a><span class="p">)</span>  <span class="c1"># A list of dictionaries</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">log_entries</span></a> <span class="o">=</span> <a href="https://docs.python.org/3/library/json.html#json.loads" title="json.loads" class="sphx-glr-backref-module-json sphx-glr-backref-type-py-function"><span class="n">json</span><span class="o">.</span><span class="n">loads</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">log</span></a><span class="p">)</span>  <span class="c1"># A list of dictionaries</span>
 
 <span class="c1"># Print the 'max_gap' parameter from the last log entry</span>
 <span class="nb">print</span><span class="p">(</span>
-    <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">log_entries</span></a><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"max_gap"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># None if "max_gap" is not present</span>
+    <a href="https://docs.python.org/3/builtins/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">log_entries</span></a><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"max_gap"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># None if "max_gap" is not present</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -786,16 +786,16 @@ with the filtered data variables.</p>
 
 <span class="c1"># Create a dictionary mapping data variable names to filtered DataArrays</span>
 <span class="c1"># We disable report printing for brevity</span>
-<a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">update_dict</span></a> <span class="o">=</span> <span class="p">{</span>
+<a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">update_dict</span></a> <span class="o">=</span> <span class="p">{</span>
     <span class="n">var</span><span class="p">:</span> <a href="../api/movement.filtering.filter_by_confidence.html#movement.filtering.filter_by_confidence" title="movement.filtering.filter_by_confidence" class="sphx-glr-backref-module-movement-filtering sphx-glr-backref-type-py-function"><span class="n">filter_by_confidence</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">[</span><span class="n">var</span><span class="p">],</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">confidence</span></a><span class="p">)</span>
     <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"position"</span><span class="p">,</span> <span class="s2">"velocity"</span><span class="p">]</span>
 <span class="p">}</span>
 
 <span class="c1"># Use the dictionary to update the dataset in-place</span>
-<a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="xarray.Dataset.update" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">update</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">update_dict</span></a><span class="p">)</span>
+<a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="xarray.Dataset.update" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">ds</span><span class="o">.</span><span class="n">update</span></a><span class="p">(</span><a href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="builtins.dict" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">update_dict</span></a><span class="p">)</span>
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.686 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.417 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-filter-and-interpolate-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/filter_and_interpolate.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />

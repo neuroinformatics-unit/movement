@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=1200a648"></script>
+    <script src="../../../_static/documentation_options.js?v=b6782251"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev46</p>
+    <p class="title logo__title">movement v0.17.1.dev47</p>
   
 </a></div>
     
@@ -510,9 +510,9 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">NWBFileSaveConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Configuration for saving ``movement poses`` dataset to NWBFile(s).</span>
 
-<span class="sd">    This class is used with :func:`movement.io.save_poses.to_nwb_file`</span>
-<span class="sd">    to add custom metadata to the NWBFile(s) created from a given</span>
-<span class="sd">    ``movement`` dataset.</span>
+<span class="sd">    This class is used with :func:`movement.io.save_poses.to_nwb_file_object`</span>
+<span class="sd">    to add custom metadata to the :class:`~pynwb.file.NWBFile` object(s)</span>
+<span class="sd">    created from a given ``movement`` dataset.</span>
 
 <span class="sd">    References</span>
 <span class="sd">    ----------</span>
@@ -520,9 +520,9 @@
 
 <span class="sd">    See Also</span>
 <span class="sd">    --------</span>
-<span class="sd">    movement.io.save_poses.to_nwb_file</span>
+<span class="sd">    movement.io.save_poses.to_nwb_file_object</span>
 <span class="sd">        Example usage of this class to save a ``movement`` dataset</span>
-<span class="sd">        to an NWB file.</span>
+<span class="sd">        to an :class:`~pynwb.file.NWBFile` object.</span>
 
 <span class="sd">    """</span>
 

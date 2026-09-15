@@ -99,7 +99,7 @@ real-world units.
       * time        (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688
       * space       (space) <U1 8B 'x' 'y'
       * keypoint    (keypoint) <U15 3kB 'StartPlatL' 'StepL' ... 'HindpawKneeL'
-      * individual  (individual) <U12 48B 'individual_0'
+      * individual  (individual) <U4 16B 'id_0'
     Data variables:
         position    (time, space, keypoint, individual) float64 334kB 70.12 ... 1...
         confidence  (time, keypoint, individual) float64 167kB 1.0 1.0 ... 0.005941
@@ -184,7 +184,7 @@ these so we can filter them out of the dataset.
     # Select all keypoints excluding the landmarks, and the single individual.
     ds_mouse = ds.sel(
         keypoint=~ds.keypoint.isin(landmark_keypoints),
-        individual="individual_0",
+        individual="id_0",
     )
 
     print(ds_mouse)
@@ -205,7 +205,7 @@ these so we can filter them out of the dataset.
       * time        (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688
       * space       (space) <U1 8B 'x' 'y'
       * keypoint    (keypoint) <U15 3kB 'Nose' 'EarL' ... 'HindpawKneeL'
-        individual  <U12 48B 'individual_0'
+        individual  <U4 16B 'id_0'
     Data variables:
         position    (time, space, keypoint) float64 288kB 55.6 47.47 ... 201.7 170.1
         confidence  (time, keypoint) float64 144kB 0.02365 0.01434 ... 0.005941
@@ -667,22 +667,22 @@ operations applied in earlier steps.
     [
       {
         "operation": "filter_by_confidence",
-        "datetime": "2026-09-09 11:09:36.447406",
-        "confidence": "<xarray.DataArray 'confidence' (time: 418, keypoint: 43)> Size: 144kB\n0.02365 0.01434 0.01821 0.02692 0.05129 ... 0.004628 0.007376 0.003921 0.005941\nCoordinates:\n  * time        (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688\n  * keypoint    (keypoint) <U15 3kB 'Nose' 'EarL' ... 'HindpawKneeL'\n    individual  <U12 48B 'individual_0'",
+        "datetime": "2026-09-15 09:46:19.230533",
+        "confidence": "<xarray.DataArray 'confidence' (time: 418, keypoint: 43)> Size: 144kB\n0.02365 0.01434 0.01821 0.02692 0.05129 ... 0.004628 0.007376 0.003921 0.005941\nCoordinates:\n  * time        (time) float64 3kB 0.0 0.004049 0.008097 ... 1.68 1.684 1.688\n  * keypoint    (keypoint) <U15 3kB 'Nose' 'EarL' ... 'HindpawKneeL'\n    individual  <U4 16B 'id_0'",
         "threshold": "0.9",
         "keep_points_with_nan_confidence": "True",
         "print_report": "False"
       },
       {
         "operation": "interpolate_over_time",
-        "datetime": "2026-09-09 11:09:36.459858",
+        "datetime": "2026-09-15 09:46:19.241802",
         "method": "'linear'",
         "max_gap": "40",
         "print_report": "False"
       },
       {
         "operation": "rolling_filter",
-        "datetime": "2026-09-09 11:09:36.462929",
+        "datetime": "2026-09-15 09:46:19.244351",
         "window": "6",
         "statistic": "'median'",
         "min_periods": "2",
@@ -690,7 +690,7 @@ operations applied in earlier steps.
       },
       {
         "operation": "scale",
-        "datetime": "2026-09-09 11:09:36.660542",
+        "datetime": "2026-09-15 09:46:19.413472",
         "factor": "np.float64(0.03440766330229682)",
         "space_unit": "'cm'"
       }
@@ -1035,7 +1035,7 @@ possible.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 1.629 seconds)
+   **Total running time of the script:** (0 minutes 1.356 seconds)
 
 
 .. _sphx_glr_download_examples_scale.py:

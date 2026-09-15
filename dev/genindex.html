@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="_static/documentation_options.js?v=1200a648"></script>
+    <script src="_static/documentation_options.js?v=b6782251"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev46</p>
+    <p class="title logo__title">movement v0.17.1.dev47</p>
   
 </a></div>
     
@@ -482,7 +482,11 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.io.load.LoaderProtocol.html#movement.io.load.LoaderProtocol.__call__">__call__() (movement.io.load.LoaderProtocol method)</a>
+
+      <ul>
+        <li><a href="api/movement.io.save.WriterProtocol.html#movement.io.save.WriterProtocol.__call__">(movement.io.save.WriterProtocol method)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -655,8 +659,6 @@
         <li><a href="api/movement.validators.datasets.ValidPosesInputs.html#movement.validators.datasets.ValidPosesInputs.DIM_NAMES">(movement.validators.datasets.ValidPosesInputs attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.roi.BaseRegionOfInterest.html#movement.roi.BaseRegionOfInterest.dimensions">dimensions (movement.roi.BaseRegionOfInterest property)</a>
 
       <ul>
@@ -665,8 +667,16 @@
         <li><a href="api/movement.roi.PolygonOfInterest.html#movement.roi.PolygonOfInterest.dimensions">(movement.roi.PolygonOfInterest property)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.napari.convert.ds_to_napari_layers.html#movement.napari.convert.ds_to_napari_layers">ds_to_napari_layers() (in module movement.napari.convert)</a>
 </li>
+      <li><a href="api/movement.validators.datasets.ValidBboxesInputs.html#movement.validators.datasets.ValidBboxesInputs.ds_type">ds_type (movement.validators.datasets.ValidBboxesInputs attribute)</a>
+
+      <ul>
+        <li><a href="api/movement.validators.datasets.ValidPosesInputs.html#movement.validators.datasets.ValidPosesInputs.ds_type">(movement.validators.datasets.ValidPosesInputs attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -766,6 +776,10 @@
       <li><a href="api/movement.io.load.get_supported_source_software.html#movement.io.load.get_supported_source_software">get_supported_source_software() (in module movement.io.load)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/movement.io.save.get_supported_target_software.html#movement.io.save.get_supported_target_software">get_supported_target_software() (in module movement.io.save)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="H">H</h2>
@@ -863,6 +877,8 @@
 </li>
         <li><a href="api/movement.io.nwb.html#module-movement.io.nwb">movement.io.nwb</a>
 </li>
+        <li><a href="api/movement.io.save.html#module-movement.io.save">movement.io.save</a>
+</li>
         <li><a href="api/movement.io.save_bboxes.html#module-movement.io.save_bboxes">movement.io.save_bboxes</a>
 </li>
         <li><a href="api/movement.io.save_poses.html#module-movement.io.save_poses">movement.io.save_poses</a>
@@ -936,14 +952,21 @@
 </li>
       </ul></li>
       <li>
+    movement.io.save
+
+      <ul>
+        <li><a href="api/movement.io.save.html#module-movement.io.save">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
     movement.io.save_bboxes
 
       <ul>
         <li><a href="api/movement.io.save_bboxes.html#module-movement.io.save_bboxes">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     movement.io.save_poses
 
@@ -1147,9 +1170,11 @@
       </ul></li>
       <li><a href="api/movement.napari.layer_styles.RegionsStyle.html#movement.napari.layer_styles.RegionsStyle">RegionsStyle (class in movement.napari.layer_styles)</a>
 </li>
+      <li><a href="api/movement.io.load.register_loader.html#movement.io.load.register_loader">register_loader() (in module movement.io.load)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/movement.io.load.register_loader.html#movement.io.load.register_loader">register_loader() (in module movement.io.load)</a>
+      <li><a href="api/movement.io.save.register_writer.html#movement.io.save.register_writer">register_writer() (in module movement.io.save)</a>
 </li>
       <li><a href="api/movement.io.load.rename_legacy_dimensions.html#movement.io.load.rename_legacy_dimensions">rename_legacy_dimensions() (in module movement.io.load)</a>
 </li>
@@ -1165,6 +1190,8 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/movement.io.save.save_dataset.html#movement.io.save.save_dataset">save_dataset() (in module movement.io.save)</a>
+</li>
       <li><a href="api/movement.roi.save_rois.html#movement.roi.save_rois">save_rois() (in module movement.roi)</a>
 </li>
       <li><a href="api/movement.filtering.savgol_filter.html#movement.filtering.savgol_filter">savgol_filter() (in module movement.filtering)</a>
@@ -1245,11 +1272,13 @@
 </li>
       <li><a href="api/movement.io.save_poses.to_dlc_style_df.html#movement.io.save_poses.to_dlc_style_df">to_dlc_style_df() (in module movement.io.save_poses)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.io.save_poses.to_lp_file.html#movement.io.save_poses.to_lp_file">to_lp_file() (in module movement.io.save_poses)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.io.save_poses.to_nwb_file.html#movement.io.save_poses.to_nwb_file">to_nwb_file() (in module movement.io.save_poses)</a>
+</li>
+      <li><a href="api/movement.io.save_poses.to_nwb_file_object.html#movement.io.save_poses.to_nwb_file_object">to_nwb_file_object() (in module movement.io.save_poses)</a>
 </li>
       <li><a href="api/movement.io.save_poses.to_sleap_analysis_file.html#movement.io.save_poses.to_sleap_analysis_file">to_sleap_analysis_file() (in module movement.io.save_poses)</a>
 </li>
@@ -1310,6 +1339,10 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/movement.validators.files.ValidVIATracksCSV.html#movement.validators.files.ValidVIATracksCSV.w">w (movement.validators.files.ValidVIATracksCSV attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/movement.io.save.WriterProtocol.html#movement.io.save.WriterProtocol">WriterProtocol (class in movement.io.save)</a>
 </li>
   </ul></td>
 </tr></table>
