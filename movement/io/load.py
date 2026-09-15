@@ -96,12 +96,13 @@ _LOADER_REGISTRY: dict[SourceSoftware, _LoaderEntry] = {}
 
 
 def get_supported_source_software() -> dict[SourceSoftware, set[str]]:
-    """Return registered source software and supported file suffixes.
+    """Return the supported source software and file suffixes for loading data.
 
-    Returns a mapping of each registered source software name to the
-    set of file suffixes (extensions) it can load. This is useful for
-    downstream packages that depend on ``movement`` for I/O and want to
-    programmatically discover supported formats.
+    Returns a mapping of each registered source software name (i.e. a
+    format ``movement`` can load data *from*) to the set of file suffixes
+    it supports for that format. This is useful for downstream packages
+    that depend on ``movement`` for I/O and want to programmatically
+    discover supported loading formats.
 
     Returns
     -------
@@ -109,6 +110,11 @@ def get_supported_source_software() -> dict[SourceSoftware, set[str]]:
         Mapping of source software names to sets of supported file
         suffixes (e.g. ``{".h5", ".csv"}``). Loaders registered
         without file validators will map to an empty set.
+
+    See Also
+    --------
+    movement.io.save.get_supported_target_software : Return the target
+        software names and file suffixes supported for *saving* data.
 
     """
     return {
@@ -472,7 +478,7 @@ def load_multiview_dataset(
     Notes
     -----
     The attributes of the resulting dataset will be taken from the first
-    dataset specified in ``file_path_dict``. This is the default
+    dataset specified in ``file_dict``. This is the default
     behaviour of :func:`xarray.concat` used under the hood.
 
     All input views must share identical ``time`` coordinates. If they

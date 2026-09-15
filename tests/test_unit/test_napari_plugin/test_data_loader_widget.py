@@ -26,7 +26,6 @@ from napari.layers import (
 from napari.layers.base import ActionType
 from napari.settings import get_settings
 from napari.utils.events import EmitterGroup
-from pytest import DATA_PATHS
 from qtpy.QtWidgets import (
     QComboBox,
     QDoubleSpinBox,
@@ -187,10 +186,10 @@ def test_on_source_software_changed_sets_fps_state(
     "file_path",
     [
         str(
-            DATA_PATHS.get("DLC_single-wasp.predictions.h5").parent
+            pytest.DATA_PATHS.get("DLC_single-wasp.predictions.h5").parent
         ),  # valid file path poses
         str(
-            DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv").parent
+            pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv").parent
         ),  # valid file path bboxes
         "",  # empty string, simulate user canceling the dialog
     ],

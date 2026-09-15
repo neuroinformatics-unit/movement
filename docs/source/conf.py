@@ -238,7 +238,7 @@ linkcheck_ignore = [
     "https://www.iso.org/",
     "https://www.ffmpeg.org/",
     "https://gis.stackexchange.com/",
-    "https?://([\w-]+\.)*g-node\.org(/\S*)?",
+    r"https?://([\w-]+\.)*g-node\.org(/\S*)?",
     "https://www.contributor-covenant.org/",
     "https://opensource.org/license/bsd-3-clause/",
     "https://www.sainsburywellcome.org/",

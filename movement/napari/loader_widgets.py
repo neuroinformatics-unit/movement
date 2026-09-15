@@ -32,7 +32,7 @@ from movement.napari.layer_styles import (
     TracksStyle,
 )
 from movement.utils.logging import logger
-from movement.validators.datasets import ValidBboxesInputs, ValidPosesInputs
+from movement.validators.datasets import DS_TYPE_VALIDATORS
 
 # Allowed file suffixes for each supported source software
 SUPPORTED_POSES_FILES = {
@@ -285,21 +285,14 @@ class DataLoader(QWidget):
         ds = rename_legacy_dimensions(ds)
 
         ds_type = ds.attrs.get("ds_type", None)
-        if ds_type not in {"poses", "bboxes"}:
+        if ds_type not in DS_TYPE_VALIDATORS:
             show_error(
                 f"The netCDF file has an unknown 'ds_type' attribute: "
                 f"{ds_type}."
             )
             return None
 
-        # Validate dataset depending on its type
-        validators: dict[
-            str, type[ValidPosesInputs] | type[ValidBboxesInputs]
-        ] = {
-            "poses": ValidPosesInputs,
-            "bboxes": ValidBboxesInputs,
-        }
-        validator = validators[ds_type]
+        validator = DS_TYPE_VALIDATORS[ds_type]
 
         try:
             validator.validate(ds)

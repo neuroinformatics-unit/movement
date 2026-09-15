@@ -81,7 +81,7 @@ landmark_keypoints = [
 # Select all keypoints excluding the landmarks, and the single individual.
 ds_mouse = ds.sel(
     keypoint=~ds.keypoint.isin(landmark_keypoints),
-    individual="individual_0",
+    individual="id_0",
 )
 
 print(ds_mouse)
