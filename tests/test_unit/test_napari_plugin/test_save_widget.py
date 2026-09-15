@@ -133,11 +133,13 @@ def test_save_clicked_cancelled_dialog(make_napari_viewer_proxy, mocker):
         "movement.napari.save_widget.QFileDialog.getSaveFileName",
         return_value=("", None),
     )
-    mock_to_netcdf = mocker.patch.object(xr.Dataset, "to_netcdf")
+    mock_save_dataset = mocker.patch(
+        "movement.napari.save_widget.save_dataset"
+    )
 
     data_saver_widget._on_save_clicked()
 
-    mock_to_netcdf.assert_not_called()
+    mock_save_dataset.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -198,8 +200,9 @@ def test_save_failure_shows_error(
         "movement.napari.save_widget.QFileDialog.getSaveFileName",
         return_value=(str(out_path), None),
     )
-    mocker.patch.object(
-        xr.Dataset, "to_netcdf", side_effect=OSError("disk full")
+    mocker.patch(
+        "movement.napari.save_widget.save_dataset",
+        side_effect=OSError("disk full"),
     )
     mock_show_error = mocker.patch("movement.napari.save_widget.show_error")
 

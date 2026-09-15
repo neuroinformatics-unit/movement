@@ -5,6 +5,7 @@ from napari.utils.notifications import show_error, show_info
 from napari.viewer import Viewer
 from qtpy.QtWidgets import QFileDialog, QFormLayout, QPushButton, QWidget
 
+from movement.io import save_dataset
 from movement.napari.convert import napari_layers_to_ds
 from movement.napari.loader_widgets import (
     DATASET_ATTRS_KEY,
@@ -91,7 +92,7 @@ class DataSaver(QWidget):
                 properties_with_nans=layer.metadata[POINTS_PROPERTIES_KEY],
                 attrs=layer.metadata[DATASET_ATTRS_KEY],
             )
-            ds.to_netcdf(valid_path)
+            save_dataset(ds, valid_path)
         except Exception as e:
             show_error(f"Failed to save dataset to '{file_path}': {e}")
             return
