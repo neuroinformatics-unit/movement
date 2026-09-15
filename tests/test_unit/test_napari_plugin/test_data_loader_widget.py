@@ -35,6 +35,7 @@ from qtpy.QtWidgets import (
 )
 
 from movement.napari.layer_wiring import (
+    MAX_FRAME_IDX_KEY,
     on_points_data_changed,
     set_point_symbol_by_edited,
     update_frame_slider_range,
@@ -768,7 +769,7 @@ def test_dimension_slider_with_layer_types(
     data_loader_widget._on_load_clicked()
 
     # Get number of frames in pose data
-    n_frames_data = viewer.layers[0].metadata["max_frame_idx"]
+    n_frames_data = viewer.layers[0].metadata[MAX_FRAME_IDX_KEY]
 
     # Load mock data as the relevant layer type
     mock_layer = layer_type(

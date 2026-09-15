@@ -30,10 +30,13 @@ from movement.napari.layer_styles import EDITED_POINT_SYMBOL
 #   dropped from the live layer, needed to reconstruct the dataset.
 # - DATASET_ATTRS_KEY holds the source dataset's attrs (source_software, fps…).
 # - TRACKS_LAYER_KEY holds a reference to the companion Tracks layer.
+# - MAX_FRAME_IDX_KEY holds the last frame index of the source data,
+#   including leading/trailing all-NaN frames dropped from the live layer.
 POINTS_LAYER_KEY: str = "movement_points_layer"
 POINTS_PROPERTIES_KEY: str = "movement_points_properties"
 DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
 TRACKS_LAYER_KEY: str = "movement_tracks_layer"
+MAX_FRAME_IDX_KEY: str = "movement_max_frame_idx"
 
 # Keep a set of viewers already wired by connect_viewer_callbacks,
 # so we don't wire them twice. We use a WeakSet so tracking a viewer here
@@ -101,17 +104,17 @@ def update_frame_slider_range(viewer, event=None):
     if len(list_layers) > 0:
         # Get the maximum frame index from all candidate layers
         max_frame_idx = max(
-            # For every layer, get max_frame_idx metadata if it exists,
+            # For every layer, get MAX_FRAME_IDX_KEY metadata if it exists,
             # else deduce it from the data shape
             [
                 getattr(ly, "metadata", {}).get(
-                    "max_frame_idx", ly.data.shape[0] - 1
+                    MAX_FRAME_IDX_KEY, ly.data.shape[0] - 1
                 )
                 if not isinstance(ly, Shapes)
                 # Napari stores shapes layer data as a list of 2D arrays
                 # instead of a 3D array, so we can't use data.shape here
                 else getattr(ly, "metadata", {}).get(
-                    "max_frame_idx", len(ly.data) - 1
+                    MAX_FRAME_IDX_KEY, len(ly.data) - 1
                 )
                 for ly in list_layers
             ]
