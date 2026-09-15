@@ -735,24 +735,93 @@ def test_dimension_slider_with_deletion(
 
 
 @pytest.mark.parametrize(
+    "layer_type",
+    [
+        Points,
+        Tracks,
+        Shapes,
+    ],
+)
+@pytest.mark.parametrize(
     "input_file, source_software",
     [
         ("VIA_single-crab_MOCA-crab-1.csv", "VIA-tracks"),
         ("DLC_single-wasp.predictions.h5", "DeepLabCut"),
     ],
 )
-def test_dimension_slider_extends_for_a_longer_video(
+def test_dimension_slider_with_layer_types(
+    layer_type,
     input_file,
     source_software,
     sample_layer_data,
     make_napari_viewer_proxy,
 ):
-    """Test the slider covers a video longer than the loaded tracking data.
+    """Test the slider update attends to all the expected layer types.
+
+    None of these layer types declare a frame extent of their own (only
+    layers movement created carry ``MAX_FRAME_IDX_KEY``), so the range
+    napari derived from their true extent must stand. The sample data has
+    many more rows than the tracking data has frames, but all of those rows
+    fall within frames 0-1, so a layer's row count must not be mistaken for
+    a frame count and stretch the slider. The ``Image`` case is covered by
+    ``test_dimension_slider_with_a_video_layer``, where the first axis
+    really is time.
+    """
+    # Create a mock napari viewer
+    viewer = make_napari_viewer_proxy()
+    data_loader_widget = DataLoader(viewer)
+
+    # Load a sample dataset as a points layer
+    file_path = pytest.DATA_PATHS.get(input_file)
+    data_loader_widget.file_path_edit.setText(file_path.as_posix())
+    data_loader_widget.source_software_combo.setCurrentText(source_software)
+    data_loader_widget._on_load_clicked()
+
+    # Get number of frames in pose data
+    n_frames_data = viewer.layers[0].metadata[MAX_FRAME_IDX_KEY]
+
+    # Load mock data as the relevant layer type
+    mock_layer = layer_type(
+        data=sample_layer_data[layer_type.__name__],
+        name="mock_layer",
+    )
+    viewer.add_layer(mock_layer)
+
+    assert sample_layer_data["n_frames"] > n_frames_data
+
+    # Check the frame slider still spans the tracking data, rather than
+    # the mock layer's number of rows
+    assert viewer.dims.range[0] == RangeTuple(
+        start=0.0, stop=n_frames_data, step=1.0
+    )
+
+
+@pytest.mark.parametrize(
+    "video_is_longer",
+    [True, False],
+    ids=["longer_video", "shorter_video"],
+)
+@pytest.mark.parametrize(
+    "input_file, source_software",
+    [
+        ("VIA_single-crab_MOCA-crab-1.csv", "VIA-tracks"),
+        ("DLC_single-wasp.predictions.h5", "DeepLabCut"),
+    ],
+)
+def test_dimension_slider_with_a_video_layer(
+    video_is_longer,
+    input_file,
+    source_software,
+    sample_layer_data,
+    make_napari_viewer_proxy,
+):
+    """Test the slider spans both the video and the tracking data.
 
     The user typically opens the video themselves rather than through
-    movement, so the Image layer carries no movement metadata. napari
-    accounts for its extent when it recomputes ``dims.range``, and
-    ``update_frame_slider_range`` must preserve that.
+    movement, so the Image layer carries no movement metadata and napari
+    is what accounts for its extent. Whichever of the two reaches further
+    sets the end of the slider: a longer video extends it beyond the
+    tracked frames, and a shorter one must not cut it short.
     """
     viewer = make_napari_viewer_proxy()
     data_loader_widget = DataLoader(viewer)
@@ -766,57 +835,50 @@ def test_dimension_slider_extends_for_a_longer_video(
     # Get number of frames in pose data
     n_frames_data = viewer.layers[0].metadata[MAX_FRAME_IDX_KEY]
 
-    # Add a video longer than the tracking data
-    viewer.add_layer(Image(data=sample_layer_data["Image"], name="video"))
-    assert sample_layer_data["n_frames"] > n_frames_data
+    if video_is_longer:
+        # sample_layer_data has 2000 frames
+        video_data = sample_layer_data["Image"]
+        expected_stop = sample_layer_data["n_frames"] - 1
+    else:
+        # make a video that is half the pose data
+        video_data = np.zeros((int(n_frames_data) // 2, 8, 8))
+        expected_stop = n_frames_data
+    viewer.add_layer(Image(data=video_data, name="video"))
+
+    # Check the video is on the expected side of the tracking data
+    assert bool(video_data.shape[0] - 1 > n_frames_data) is video_is_longer
 
     assert viewer.dims.range[0] == RangeTuple(
-        start=0.0, stop=sample_layer_data["n_frames"] - 1, step=1.0
+        start=0.0, stop=expected_stop, step=1.0
     )
 
 
-@pytest.mark.parametrize("layer_type", [Points, Tracks, Shapes])
-@pytest.mark.parametrize(
-    "input_file, source_software",
-    [
-        ("VIA_single-crab_MOCA-crab-1.csv", "VIA-tracks"),
-        ("DLC_single-wasp.predictions.h5", "DeepLabCut"),
-    ],
-)
-def test_dimension_slider_ignores_row_count_of_unrelated_layers(
-    layer_type,
-    input_file,
-    source_software,
-    sample_layer_data,
-    make_napari_viewer_proxy,
+def test_dimension_slider_not_cut_short_by_a_shorter_video(
+    valid_poses_path_and_ds_nan_end, loaded_data_loader
 ):
-    """Test a layer's row count is not mistaken for a frame count.
+    """Test a shorter video does not cut a NaN-trimmed slider short.
 
-    The sample Points/Tracks/Shapes data has many rows but all of them fall
-    within frames 0-1, so such a layer must not stretch the slider to its
-    number of rows. Only layers movement created declare a frame extent
-    (via ``MAX_FRAME_IDX_KEY``); for anything else the range napari derived
-    from the true layer extent stands.
+    Unlike the sample datasets above, this one ends with an all-NaN frame,
+    so the live Points extent stops before the last frame. A video covering
+    only the first half cannot make up the difference, leaving napari's
+    recomputed range short of the real frame span. This is the case where
+    ``update_frame_slider_range`` has to widen the range itself rather than
+    inherit a range that is already correct.
     """
-    viewer = make_napari_viewer_proxy()
-    data_loader_widget = DataLoader(viewer)
+    file_path, ds = valid_poses_path_and_ds_nan_end
+    loader = loaded_data_loader(file_path, ds)
+    viewer = loader.viewer
 
-    file_path = pytest.DATA_PATHS.get(input_file)
-    data_loader_widget.file_path_edit.setText(file_path.as_posix())
-    data_loader_widget.source_software_combo.setCurrentText(source_software)
-    data_loader_widget._on_load_clicked()
+    n_frames_data = ds.sizes["time"] - 1
 
-    n_frames_data = viewer.layers[0].metadata[MAX_FRAME_IDX_KEY]
-
-    # This layer has more rows than the data has frames, but spans frames 0-1
-    mock_layer = layer_type(
-        data=sample_layer_data[layer_type.__name__],
-        name="mock_layer",
+    # Add a video covering only the first half of the tracked frames
+    viewer.add_layer(
+        Image(data=np.zeros((n_frames_data // 2, 8, 8)), name="video")
     )
-    viewer.add_layer(mock_layer)
-    assert sample_layer_data["n_frames"] > n_frames_data
 
-    # The slider still spans the tracking data, not the mock layer's rows
+    # Neither the trimmed Points layer nor the video reaches the last frame
+    assert viewer.layers.extent.world[1][0] < n_frames_data
+
     assert viewer.dims.range[0] == RangeTuple(
         start=0.0, stop=n_frames_data, step=1.0
     )
