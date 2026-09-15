@@ -199,7 +199,7 @@ def save_dataset(
     **kwargs
         Additional keyword arguments passed to the format-specific writer
         (e.g. ``split_individuals`` for DeepLabCut, ``config`` for NWB, or any
-        :meth:`xarray.Dataset.to_netcdf` argument for netCDF).
+        :meth:`xarray.Dataset.to_netcdf` argument for movement-netCDF).
 
     Returns
     -------
