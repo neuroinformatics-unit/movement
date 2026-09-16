@@ -7,6 +7,7 @@ import pytest
 from napari.layers.base import ActionType
 
 from movement.io import save_poses
+from movement.napari.layer_wiring import on_points_data_changed
 from movement.napari.loader_widgets import DataLoader
 
 
@@ -221,7 +222,7 @@ def move_point():
         mock_event.source = loader.points_layer
         mock_event.action = ActionType.CHANGED
         mock_event.data_indices = (edit_idx,)
-        loader._on_points_data_changed(mock_event)
+        on_points_data_changed(mock_event)
 
     return _move_point
 
@@ -254,11 +255,17 @@ def remove_point():
 
 @pytest.fixture
 def loaded_data_loader(make_napari_viewer_proxy):
-    """Return a factory of DataLoader widgets with loaded data."""
+    """Return a factory of DataLoader widgets with loaded data.
 
-    def _loaded_data_loader(filepath, ds):
+    By default, a DataLoader object is instantiated from scratch,
+    but it also accepts an existing ``loader`` as an argument
+    (this can be useful e.g. when it is owned by a ``MovementMetaWidget``).
+    """
+
+    def _loaded_data_loader(filepath, ds, loader=None):
         """Return a DataLoader widget with the input data loaded."""
-        loader = DataLoader(make_napari_viewer_proxy())
+        if loader is None:
+            loader = DataLoader(make_napari_viewer_proxy())
         loader.file_path_edit.setText(str(filepath))
         loader.source_software_combo.setCurrentText(
             ds.attrs["source_software"]

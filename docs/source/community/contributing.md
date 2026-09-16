@@ -114,6 +114,7 @@ Now that you have the repository locally, you need to set up a Python environmen
     ```
 
 ### Pull requests
+
 In all cases, please submit code to the main repository via a pull request (PR).
 We recommend, and adhere, to the following conventions:
 
@@ -128,31 +129,34 @@ We recommend, and adhere, to the following conventions:
 - PRs are preferably merged via the ["squash and merge"](github-docs:pull-requests/reference/pull-request-merges) option, to keep a clean commit history on the _main_ branch.
 
 A typical PR workflow would be:
-* Create a new branch, make your changes, and stage them.
-* When you try to commit, the [pre-commit hooks](#formatting-and-pre-commit-hooks) will be triggered.
-* Stage any changes made by the hooks, and commit.
-* You may also run the pre-commit hooks manually, at any time, with `pre-commit run -a`.
-* Make sure to write tests for any new features or bug fixes. See [testing](#testing) below.
-* Don't forget to update the documentation, if necessary. See [contributing documentation](#contributing-documentation) below.
-* Push your changes to your fork on GitHub(`git push origin <branch-name>`).
-* Open a draft pull request from your fork to the upstream `movement` repository, with a meaningful title and a thorough description of the changes.
+
+- Create a new branch, make your changes, and stage them.
+- When you try to commit, the [pre-commit hooks](#formatting-and-pre-commit-hooks) will be triggered.
+- Stage any changes made by the hooks, and commit.
+- You may also run the pre-commit hooks manually, at any time, with `pre-commit run -a`.
+- Make sure to write tests for any new features or bug fixes. See [testing](#testing) below.
+- Don't forget to update the documentation, if necessary. See [contributing documentation](#contributing-documentation) below.
+- Push your changes to your fork on GitHub(`git push origin <branch-name>`).
+- Open a draft pull request from your fork to the upstream `movement` repository, with a meaningful title and a thorough description of the changes.
   :::{note}
   When creating the PR, ensure the base repository is `neuroinformatics-unit/movement` (the `upstream`) and the head repository is your fork. GitHub sometimes defaults to comparing against your own fork. Also make sure to tick the "Allow edits by maintainers" checkbox, so that maintainers can make small fixes directly to your branch.
   :::
-* If all checks (e.g. linting, type checking, testing) run successfully, you may mark the pull request as ready for review.
-* Respond to review comments and implement any requested changes.
-* One of the maintainers will approve the PR and add it to the [merge queue](https://github.blog/changelog/2023-02-08-pull-request-merge-queue-public-beta/).
-* Success 🎉 !! Your PR will be (squash-)merged into the _main_ branch.
+- If all checks (e.g. linting, type checking, testing) run successfully, you may mark the pull request as ready for review.
+- Respond to review comments and implement any requested changes.
+- One of the maintainers will approve the PR and add it to the [merge queue](https://github.blog/changelog/2023-02-08-pull-request-merge-queue-public-beta/).
+- Success 🎉 !! Your PR will be (squash-)merged into the _main_ branch.
 
 (target-dev-guidelines)=
 ## Development guidelines
 
 ### Formatting and pre-commit hooks
+
 Running `pre-commit install` will set up [pre-commit hooks](https://pre-commit.com/) to ensure a consistent formatting style. Currently, these include:
-* [ruff](https://github.com/astral-sh/ruff) does a number of jobs, including code linting and auto-formatting.
-* [mypy](https://mypy.readthedocs.io/en/stable/index.html) as a static type checker.
-* [check-manifest](https://github.com/mgedmin/check-manifest) to ensure that the right files are included in the pip package.
-* [codespell](https://github.com/codespell-project/codespell) to check for common misspellings.
+
+- [ruff](https://github.com/astral-sh/ruff) does a number of jobs, including code linting and auto-formatting.
+- [mypy](https://mypy.readthedocs.io/en/stable/index.html) as a static type checker.
+- [check-manifest](https://github.com/mgedmin/check-manifest) to ensure that the right files are included in the pip package.
+- [codespell](https://github.com/codespell-project/codespell) to check for common misspellings.
 
 These will prevent code from being committed if any of these hooks fail.
 To run all the hooks before committing:
@@ -182,6 +186,7 @@ This pinpoints the problem to a single code line and a specific [ruff rule](http
 Sometimes you may have good reasons to ignore a particular rule for a specific line of code. You can do this by adding an inline comment, e.g. `# noqa: E501`. Replace `E501` with the code of the rule you want to ignore.
 
 ### Docstrings
+
 We adhere to the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style.
 All public functions, classes, and methods must include docstrings, as these enable [automatic generation of the API reference](#updating-the-api-reference).
 
@@ -194,6 +199,7 @@ class MyClass:
 ```
 
 ### Testing
+
 We use [pytest](https://docs.pytest.org/en/latest/) for testing, aiming for ~100% test coverage where feasible. All new features should be accompanied by tests.
 
 Tests are stored in the `tests` directory, structured as follows:
@@ -207,6 +213,7 @@ These datasets are accessible through the `pytest.DATA_PATHS` dictionary, popula
 Avoid including large data files directly in the GitHub repository.
 
 #### Running benchmark tests
+
 Some tests are marked as `benchmark` because we use them with [pytest-benchmark](pytest-benchmark:) to measure the performance of specific code paths.
 These tests are excluded from the default test run to keep the suite fast.
 This applies to any direct `pytest` invocation (command line or IDE).
@@ -264,6 +271,7 @@ High standard deviation in benchmark results often indicates bad isolation or no
 :::
 
 ### Logging
+
 We use the {mod}`loguru<loguru._logger>`-based {class}`MovementLogger<movement.utils.logging.MovementLogger>` for logging.
 The logger is configured to write logs to a rotating log file at the `DEBUG` level and to {obj}`sys.stderr` at the `WARNING` level.
 
@@ -275,6 +283,7 @@ from movement.utils.logging import logger
 Once the logger is imported, you can log messages with the appropriate [severity levels](inv:loguru#levels) using the same syntax as {mod}`loguru<loguru._logger>` (e.g. `logger.debug("Debug message")`, `logger.warning("Warning message")`).
 
 #### Logging and raising exceptions
+
 Both {meth}`logger.error()<movement.utils.logging.MovementLogger.error>` and {meth}`logger.exception()<movement.utils.logging.MovementLogger.exception>` can be used to log [](inv:python#tut-errors), with the difference that the latter will include the traceback in the log message.
 As these methods will return the logged Exception, you can log and raise the Exception in a single line:
 ```python
@@ -283,14 +292,16 @@ raise logger.exception(ValueError("message"))  # with traceback
 ```
 
 #### When to use `print`, `warnings.warn`, `logger.warning` and `logger.info`
+
 We aim to adhere to the [When to use logging guide](inv:python#logging-basic-tutorial) to ensure consistency in our logging practices.
 In general:
-* Use {func}`print` for simple, non-critical messages that do not need to be logged.
-* Use {func}`warnings.warn` for conditions the user can avoid or address within `movement`, e.g. deprecated function calls that are redirected, an invalid `fps` value that is implicitly set to `None`, or data with excessive NaNs that the user may want to address using appropriate {mod}`~movement.filtering` functions.
-* Use {meth}`logger.warning()<loguru._logger.Logger.warning>` for unexpected situations `movement` handles automatically (by falling back to a default or making an assumption), where the user cannot directly intervene, e.g. a failed network request that falls back to a cached local file, or missing track information that triggers a single-individual assumption.
-* Use {meth}`logger.info()<loguru._logger.Logger.info>` for informational messages about expected behaviours that do not indicate problems, e.g. where default values are assigned to optional parameters.
+- Use {func}`print` for simple, non-critical messages that do not need to be logged.
+- Use {func}`warnings.warn` for conditions the user can avoid or address within `movement`, e.g. deprecated function calls that are redirected, an invalid `fps` value that is implicitly set to `None`, or data with excessive NaNs that the user may want to address using appropriate {mod}`~movement.filtering` functions.
+- Use {meth}`logger.warning()<loguru._logger.Logger.warning>` for unexpected situations `movement` handles automatically (by falling back to a default or making an assumption), where the user cannot directly intervene, e.g. a failed network request that falls back to a cached local file, or missing track information that triggers a single-individual assumption.
+- Use {meth}`logger.info()<loguru._logger.Logger.info>` for informational messages about expected behaviours that do not indicate problems, e.g. where default values are assigned to optional parameters.
 
 ### Implementing new loaders
+
 Implementing a new loader to support additional [file formats](target-supported-formats) in `movement` involves the following steps:
 
 1. Create validator classes for the file format (recommended).
@@ -298,15 +309,16 @@ Implementing a new loader to support additional [file formats](target-supported-
 3. Update the `SourceSoftware` type alias.
 
 #### Create file validators
+
 `movement` enforces separation of concerns by decoupling file validation from data loading, so that loaders can focus solely on reading and parsing data, while validation logic is encapsulated in dedicated file validator classes.
 Besides allowing users to get early feedback on file issues, this also makes it easier to reuse validation logic across different loaders that may support the same file format.
 
 All file validators are [`attrs`](attrs:)-based classes and live in {mod}`movement.validators.files`.
-They define the rules an input file must satisfy before it can be loaded, and they conform to the {class}`ValidFile<movement.validators.files.ValidFile>` protocol.
+They define the rules an input file must satisfy before it can be loaded, and they conform to the {class}`~movement.validators.files.ValidFile` protocol.
 At minimum, this requires defining:
 
 - `suffixes`: The expected file extensions for the format.
-- `file`: The path to the file or an {class}`NWBFile<pynwb.file.NWBFile>` object, depending on the loader.
+- `file`: The path to the file or an {class}`~pynwb.file.NWBFile` object, depending on the loader.
 
 Additional attributes can also be defined to store pre-parsed information that the loader may need later.
 
@@ -345,16 +357,18 @@ class ValidMySoftwareCSV:
 ```
 
 ##### Declare expected file suffixes
+
 The `suffixes` class variable restricts the validator to only accept files with the specified extensions.
 If a suffix check is not required, this can be set to an empty set (`set()`).
 In the `ValidMySoftwareCSV` example, only files with a `.csv` extension are accepted.
 
 ##### Normalise input file and apply reusable validators
-An `attrs` {ref}`converter<attrs:converters>` is typically used to normalise input files into {class}`Path<pathlib.Path>` objects, along with one or more validators to ensure the file meets the expected criteria.
 
-In addition to the built-in `attrs` {mod}`validators<attrs.validators>`, `movement` provides several reusable file-specific validators (as callables) in {mod}`movement.validators.files`:
+An `attrs` {ref}`converter<attrs:converters>` is typically used to normalise input files into {class}`~pathlib.Path` objects, along with one or more validators to ensure the file meets the expected criteria.
 
-- `_file_validator`: A composite validator that ensures `file` is a {class}`Path<pathlib.Path>`, is not a directory, is accessible with the required permission, and has one of the expected `suffixes` (if any).
+In addition to the built-in `attrs` {mod}`~attrs.validators`, `movement` provides several reusable file-specific validators (as callables) in {mod}`movement.validators.files`:
+
+- `_file_validator`: A composite validator that ensures `file` is a {class}`~pathlib.Path`, is not a directory, is accessible with the required permission, and has one of the expected `suffixes` (if any).
 - `_hdf5_validator`: Checks that an HDF5 `file` contains the expected dataset(s).
 - `_json_validator`: Checks that a `file` contains valid JSON and optionally validates it against a [JSON Schema](https://json-schema.org/). Schemas are defined as Python dicts in `movement/validators/_json_schemas.py`. Custom validation checks and an optional attribute name for storing the parsed data can also be provided.
 - `_if_instance_of`: Conditionally applies a validator only when `file` is an instance of a given class.
@@ -365,8 +379,8 @@ In the current example, the `_file_validator` is used to ensure that the input `
 :color: success
 :icon: light-bulb
 
-Reusable validators can be combined using either {func}`attrs.validators.and_` or by passing a list of validators to the `validator` parameter of {func}`field()<attrs.field>`.
-The `file` attribute in {class}`ValidDeepLabCutH5<movement.validators.files.ValidDeepLabCutH5>` combines both `_file_validator` and `_hdf5_validator` to ensure the input file is a readable HDF5 file containing the expected dataset `df_with_missing`:
+Reusable validators can be combined using either {func}`attrs.validators.and_` or by passing a list of validators to the `validator` parameter of {func}`~attrs.field`.
+The `file` attribute in {class}`~movement.validators.files.ValidDeepLabCutH5` combines both `_file_validator` and `_hdf5_validator` to ensure the input file is a readable HDF5 file containing the expected dataset `df_with_missing`:
 
 ```python
 @define
@@ -385,6 +399,7 @@ class ValidDeepLabCutH5:
 :::
 
 ##### Implement format-specific validation
+
 Most formats often require custom validation logic beyond basic file checks.
 In the current example, the `_file_contains_expected_header` method uses the `file` attribute's validator method as a decorator (`@file.validator`) to check that the first line of the CSV file matches the expected header row for MySoftware output files.
 
@@ -394,7 +409,8 @@ In the current example, the `_file_contains_expected_header` method uses the `fi
 :::
 
 #### Implement loader function
-Once the file validator is defined, the next step is to implement the loader function that reads the validated file and constructs the movement dataset.
+
+Once the file validator is defined, the next step is to implement the loader function that reads the validated file and constructs the `movement` dataset.
 Continuing from the hypothetical "MySoftware" example, the loader function `from_mysoftware_file` would look like this:
 
 ```python
@@ -424,15 +440,18 @@ def from_mysoftware_file(file: str | Path) -> xr.Dataset:
 
 Loader functions live in {mod}`movement.io.load_poses` or {mod}`movement.io.load_bboxes`, depending on the data type (poses or bounding boxes).
 
-A loader function must conform to the {class}`LoaderProtocol<movement.io.load.LoaderProtocol>`, which requires the loader to:
+A loader function must conform to the {class}`~movement.io.load.LoaderProtocol`, which requires the loader to:
 
 - Accept `file` as its first parameter, which may be:
-    - A `str` or a {class}`Path<pathlib.Path>`.
-    - An {class}`NWBFile<pynwb.file.NWBFile>` object (for NWB-based formats).
-- Return an {class}`xarray.Dataset<xarray.Dataset>` object containing the [movement dataset](target-poses-and-bboxes-dataset).
+    - A `str` or a {class}`~pathlib.Path`.
+    - An {class}`~pynwb.file.NWBFile` object (for NWB-based formats).
+- Return an {class}`xarray.Dataset` object containing the [movement dataset](target-poses-and-bboxes-dataset).
+
+Additional format-specific positional and keyword arguments (e.g. `fps`) are also allowed.
 
 ##### Decorate the loader with `@register_loader`
-The {func}`@register_loader()<movement.io.load.register_loader>` decorator associates a loader function with a `source_software` name so that users can load files from that software via the unified {func}`load_dataset()<movement.io.load.load_dataset>` interface:
+
+The {func}`@register_loader()<movement.io.load.register_loader>` decorator associates a loader function with a `source_software` name so that users can load files from that software via the unified {func}`~movement.io.load.load_dataset` interface:
 ```python
 from movement.io import load_dataset
 
@@ -451,7 +470,7 @@ ds = from_mysoftware_file("path/to/mysoftware_output.csv")
 If a `file_validators` argument is supplied to the {func}`@register_loader()<movement.io.load.register_loader>` decorator, the decorator selects the appropriate validator—based on its declared `suffixes`—and uses it to normalise and validate the input `file` before invoking the loader.
 As a result, the loader receives the validated file object instead of the raw path or handle.
 
-Providing `file_validators` also enables **automatic source software inference**: when users call {func}`load_dataset()<movement.io.load.load_dataset>` with `source_software="auto"` (the default), `movement` probes the registered validators to determine which loader to use.
+Providing `file_validators` also enables **automatic source software inference**: when users call {func}`~movement.io.load.load_dataset` with `source_software="auto"` (the default), `movement` probes the registered validators to determine which loader to use.
 A new loader with validators will therefore be picked up by auto-inference automatically, without any additional changes.
 If no validator is provided, the auto-inference will not be able to detect that file format.
 
@@ -476,25 +495,113 @@ def from_mysoftware_file(file: str | Path) -> xr.Dataset:
 :::
 
 ##### Construct the dataset
-After parsing the input file, the loader function should construct the movement dataset using:
+
+After parsing the input file, the loader function should construct the `movement` dataset using:
 
 - {func}`movement.io.load_poses.from_numpy` for pose tracks.
 - {func}`movement.io.load_bboxes.from_numpy` for bounding box tracks.
 
-These helper functions create the {class}`xarray.Dataset<xarray.Dataset>` object from numpy arrays and metadata, ensuring that the dataset conforms to the [movement dataset specification](target-poses-and-bboxes-dataset).
+These helper functions create the {class}`~xarray.Dataset` object from numpy arrays and metadata, ensuring that the dataset conforms to the [movement dataset specification](target-poses-and-bboxes-dataset).
 
 #### Update SourceSoftware type alias
+
 The `SourceSoftware` type alias is defined in {mod}`movement.io.load` as a `Literal` containing all supported source software names.
 When adding a new loader, update this type alias to include the new software name to maintain type safety across the codebase:
 
 ```python
-SourceSoftware: TypeAlias = Literal[
+type SourceSoftware = Literal[
     "DeepLabCut",
     "SLEAP",
     ...,
     "MySoftware",  # Newly added software
 ]
 ```
+
+### Implementing new writers
+
+Implementing a new writer to support additional [file formats](target-supported-formats) in `movement` involves the following steps:
+
+1. Implement the writer function.
+2. Update the `TargetSoftware` type alias.
+3. Update the [](target-io) guide.
+
+#### Implement writer function
+
+Using a hypothetical "MySoftware" example that saves pose tracks to a CSV file, a writer `to_mysoftware_file` would look like this:
+
+```python
+@register_writer("MySoftware", ds_type="poses", suffixes={".csv"})
+def to_mysoftware_file(ds: xr.Dataset, file: str | Path, **kwargs) -> None:
+    """Save a ``movement`` dataset to a MySoftware file."""
+    # The _format_* function is pseudocode
+    df = _format_as_mysoftware_df(ds)
+    df.to_csv(file)
+    logger.info(f"Saved poses dataset to {file}.")
+```
+
+Writer functions live in {mod}`movement.io.save_poses` or {mod}`movement.io.save_bboxes`, depending on the data type (poses or bounding boxes).
+
+A writer function must conform to the {class}`WriterProtocol<movement.io.save.WriterProtocol>`, which requires the function to:
+
+- Accept `ds`, an {class}`xarray.Dataset` representing the [movement dataset](target-poses-and-bboxes-dataset), as its first parameter
+- Accept `file` (`str` or {class}`Path<pathlib.Path>`) to which the dataset should be saved, as its second parameter.
+- Save `ds` directly to `file` on disk.
+- Return `None`.
+
+Additional format-specific keyword arguments are also allowed.
+
+##### Decorate the writer with `@register_writer`
+
+The {func}`@register_writer()<movement.io.save.register_writer>` decorator associates a writer function with a `target_software` name so that users can save to that format via the unified {func}`~movement.io.save.save_dataset` interface:
+
+```python
+from movement.io import save_dataset
+
+save_dataset(ds, "/path/to/output.csv", target_software="MySoftware")
+```
+
+which is equivalent to calling the writer function directly:
+
+```python
+from movement.io.save_poses import to_mysoftware_file
+
+to_mysoftware_file(ds, "/path/to/output.csv")
+```
+
+The {func}`@register_writer()<movement.io.save.register_writer>` decorator also validates `ds` and `file` before calling the writer:
+
+- The optional `ds_type` argument (`"poses"`, `"bboxes"`, or `None`) tells the decorator which kind of [movement dataset](target-poses-and-bboxes-dataset) the format is compatible with.
+  It selects the corresponding {mod}`dataset validator<movement.validators.datasets>`, so a clear error is raised if a bounding boxes dataset is passed to a poses-only writer (or vice versa).
+  Pass `ds_type=None` (the default) only for formats compatible with any dataset type, such as `movement`'s native netCDF format.
+  In that case, the decorator will select the appropriate validator based on the `ds_type` attribute of the dataset (i.e. `ds.attrs["ds_type"]`).
+- The optional `suffixes` argument (e.g. `{".csv"}`) tells the decorator which file extensions are valid for the format.
+  It is passed to {func}`~movement.validators.files.validate_file_path`, which checks that `file` has one of the specified suffixes (or skips that check if `suffixes=None`, the default), always checks that `file` is writable, and returns `file` as a validated {class}`~pathlib.Path`, which is what the writer actually receives.
+
+::::{dropdown} Type checkers and the validated `file` path
+:color: success
+:icon: light-bulb
+
+Because the writer's signature declares `str | Path`, type checkers may not recognise that `file` is already a {class}`~pathlib.Path` inside the writer body.
+If you call a function that requires a {class}`~pathlib.Path` and the type checker complains, simply reassign `file = Path(file)` — a no-op at runtime that satisfies static typing.
+::::
+
+#### Update TargetSoftware type alias
+
+The `TargetSoftware` type alias is defined in {mod}`movement.io.save` as a `Literal` containing all supported save target names.
+When adding a new writer, update this type alias to include the new software name to maintain type safety across the codebase:
+
+```python
+type TargetSoftware = Literal[
+    "movement",
+    "DeepLabCut",
+    ...,
+    "MySoftware",  # Newly added software
+]
+```
+
+#### Update the Input/Output guide
+
+Finally, update the [](target-io) guide  by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-saving-pose-tracks) and/or [](target-saving-bboxes-tracks) section(s) with usage examples.
 
 ### Developing the CLI
 
@@ -526,11 +633,53 @@ and is structured as follows:
   - `movement.napari.regions_widget`: a Qt table widget for managing named
     regions of interest drawn as `napari` shapes layers.
     See the next section for more details on this widget's architecture.
+- {mod}`movement.napari.layer_wiring`: callbacks that operate on `napari`
+  layers and the viewer. These callbacks are defined outside the widgets because
+  they must remain active for as long as the viewer or the layer exists (rather than
+  sharing lifetime with a widget that can be closed). The module also defines
+  relevant metadata keys for `movement` layers (e.g. `POINTS_LAYER_KEY`,
+  `TRACKS_LAYER_KEY`).
 - {mod}`movement.napari.layer_styles`: dataclasses that encapsulate visual
   properties for each layer type.
 - {mod}`movement.napari.convert`: functions for converting `movement`
   datasets into the NumPy arrays and properties DataFrames
   that `napari` layer constructors expect.
+
+#### Where should a layer callback live?
+
+The layers created by a widget stay in the viewer even after closing the widget.
+If it makes sense to keep callbacks alive after closing a widget, those
+callbacks should be defined in {mod}`movement.napari.layer_wiring`, rather
+than as methods of a widget. A callback connected as a method of a widget is
+only guaranteed to run while that widget is alive
+
+Use this rule of thumb:
+
+- If the callback **mutates layer or viewer state** (layer data,
+  properties, symbols, `editable`, the frame slider range), put it in
+  `layer_wiring`. That state is part of the user's work and may be saved
+  to a file later, so it must outlive the widget.
+- If the callback **only refreshes a widget's own UI** (a dropdown, a
+  table, a button), keep it as a method on that widget. Once the widget
+  is gone there is nothing left to update.
+
+Callbacks in `layer_wiring` are wired in one of two ways, depending on
+the lifetime they need:
+
+- **Viewer lifetime**: `connect_viewer_callbacks(viewer)` is called once
+  per viewer (it keeps a `WeakSet` of already-wired viewers, so repeated
+  calls are a no-op). It connects callbacks that react to viewer-level
+  events, such as layers being inserted or removed, or the displayed
+  dimensions changing.
+- **Layer lifetime**: connected directly to a layer's events when the
+  layer is created (e.g.
+  `points_layer.events.data.connect(on_points_data_changed)` in
+  `loader_widgets`), so the callback lives and dies with that layer.
+
+Because these callbacks are not tied to a widget, they can be tested
+against a bare viewer and layers, without instantiating a widget —
+see `tests/test_unit/test_napari_plugin/test_layer_wiring.py`.
+
 
 #### Qt Model/View architecture
 
@@ -578,20 +727,23 @@ pattern when adding new two-way sync logic.
 :::
 
 ### Continuous integration
+
 All pushes and pull requests will be built by [GitHub actions](github-docs:actions).
 This will usually include linting, testing and deployment.
 
 A GitHub actions workflow (`.github/workflows/test_and_deploy.yml`) has been set up to run (on each push/PR):
-* Linting checks (pre-commit).
-* Testing (only if linting checks pass)
-* Release to PyPI using [trusted publishing](https://docs.pypi.org/trusted-publishers/) (only if a git tag is present and if tests pass).
+
+- Linting checks (pre-commit).
+- Testing (only if linting checks pass)
+- Release to PyPI using [trusted publishing](https://docs.pypi.org/trusted-publishers/) (only if a git tag is present and if tests pass).
 
 ### Versioning
+
 We use [semantic versioning](https://semver.org/), which includes `MAJOR`.`MINOR`.`PATCH` version numbers:
 
-* PATCH = small bugfix
-* MINOR = new feature
-* MAJOR = breaking change
+- PATCH = small bugfix
+- MINOR = new feature
+- MAJOR = breaking change
 
 ::: {note}
 While the project is still in the `v0.x` phase, breaking changes may occur in
@@ -616,22 +768,25 @@ so they can only be carried out by maintainers.
 :::
 
 #### 1. Start a draft release
+
 Go to the [new release page](movement-github:releases/new), which is equivalent to going to
 [Releases](movement-github:releases) and clicking the "Draft a new release" button.
 
 #### 2. Set the tag and title
-* In the "Tag" dropdown, create a new tag following the `vMAJOR.MINOR.PATCH` format (e.g. `v0.10.0`). Don't forget the required `v` prefix.
-* Leave "Target" set to `main`.
-* Use the tag name as the release title.
+
+- In the "Tag" dropdown, create a new tag following the `vMAJOR.MINOR.PATCH` format (e.g. `v0.10.0`). Don't forget the required `v` prefix.
+- Leave "Target" set to `main`.
+- Use the tag name as the release title.
 
 #### 3. Generate release notes
-* Leave "Previous tag" set to "Auto" and click the "Generate release notes" button.
-* Organise the PR list under "What's Changed" into meaningful subsections (`###` headers).
-* Start with the most important updates (e.g. a flagship feature or breaking change).
+
+- Leave "Previous tag" set to "Auto" and click the "Generate release notes" button.
+- Organise the PR list under "What's Changed" into meaningful subsections (`###` headers).
+- Start with the most important updates (e.g. a flagship feature or breaking change).
   You may put those under a _Highlights_ subsection.
-* Other common subsections are:
-    * _Housekeeping_: bot PRs, dependency updates, CI changes
-    * _Documentation_
+- Other common subsections are:
+    - _Housekeeping_: bot PRs, dependency updates, CI changes
+    - _Documentation_
 
 :::{important}
 Acknowledge first-time or external contributors.
@@ -639,34 +794,38 @@ For breaking changes, include code snippets showing the old vs new syntax.
 :::
 
 #### 4. Publish the release
+
 Leave the "Set as the latest release" checkbox ticked (default) and publish.
 Then check the "Actions" tab to ensure both the "Tests" and "Docs" workflows finish successfully.
 
 #### 5. Verify the docs and Binder
+
 Confirm that the new version appears on the [website](target-movement) and that the API reference reflects the latest changes.
 As an extra check, try launching an [example](target-examples) in Binder. The first launch may take a while,
 but Binder caches the environment, so later runs (for any example) are fast.
 
 #### 6. Announce the release
-* Post in the ["Releases" topic on Zulip](movement-releases:)
+
+- Post in the ["Releases" topic on Zulip](movement-releases:)
   with a link to the GitHub release notes. Optionally include a relevant image.
-* You may also link to relevant new pages of the docs, e.g. a new example or the
+- You may also link to relevant new pages of the docs, e.g. a new example or the
   API reference page for a new function.
-* Someone from the team will usually adapt this announcement for social media.
+- Someone from the team will usually adapt this announcement for social media.
 
 #### 7. Release on conda-forge
-* Wait for the `regro-cf-autotick-bot` to open a PR on `movement`'s
+
+- Wait for the `regro-cf-autotick-bot` to open a PR on `movement`'s
   [conda-forge feedstock](https://github.com/conda-forge/movement-feedstock)
   (typically a few hours after the PyPI release).
-* Review the PR diff. In most cases, there are only two changes in `recipes/meta.yaml`:
+- Review the PR diff. In most cases, there are only two changes in `recipes/meta.yaml`:
   the version number and the sha256 hash of the source.
-* Check whether dependencies need to be changed. Inspect the "Full Changelog" linked at
+- Check whether dependencies need to be changed. Inspect the "Full Changelog" linked at
   the bottom of the GitHub release notes and look for any changes to `pyproject.toml`.
-* If no dependencies have changed and CI on the feedstock PR passes, merge the bot's PR
+- If no dependencies have changed and CI on the feedstock PR passes, merge the bot's PR
   to trigger the conda-forge build and release.
-* If dependencies _have_ changed, update the corresponding entries under `requirements` in
+- If dependencies _have_ changed, update the corresponding entries under `requirements` in
   `recipes/meta.yaml`. You can push these edits directly to the bot's PR branch and wait for CI to pass.
-* After merging, wait for CI to pass on the feedstock's `main` branch.
+- After merging, wait for CI to pass on the feedstock's `main` branch.
 
 See the [conda-forge docs on maintaining packages](https://conda-forge.org/docs/maintainer/updating_pkgs/)
 for more information.
@@ -758,13 +917,14 @@ with migration instructions pointing users to the replacement.
 
 (target-contributing-docs)=
 ## Contributing documentation
+
 The documentation is hosted via [GitHub pages](https://pages.github.com/) at
 [movement.neuroinformatics.dev](target-movement).
 Its source files are located in the `docs` folder of this repository.
 They are written in either [Markdown](myst-parser:syntax/typography.html)
 or [reStructuredText](https://docutils.sourceforge.io/rst.html).
 The `index.md` file corresponds to the homepage of the documentation website.
-Other `.md`  or `.rst` files are linked to the homepage via the `toctree` directive.
+Other `.md` or `.rst` files are linked to the homepage via the `toctree` directive.
 
 We use [Sphinx](sphinx-doc:) and the [PyData Sphinx Theme](https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html)
 to build the source files into HTML output.
@@ -774,6 +934,7 @@ The deployment job runs on tag pushes (for PyPI releases) or manual triggers on 
 This keeps the documentation aligned with releases, while allowing manual redeployment when necessary.
 
 ### Editing the documentation
+
 To edit the documentation, ensure you have already set up a [development environment](#creating-a-development-environment).
 
 To build the documentation locally, install the `docs` dependencies by running the following command from the repository root:
@@ -789,6 +950,7 @@ Make sure that the header levels in your `.md` or `.rst` files are incremented
 consistently (H1 > H2 > H3, etc.) without skipping any levels.
 
 #### Adding new pages
+
 If you create a new documentation source file (e.g. `my_new_file.md` or `my_new_file.rst`),
 you will need to add it to the `toctree` directive in `index.md`
 for it to be included in the documentation website:
@@ -802,6 +964,7 @@ my_new_file
 ```
 
 #### Linking to external URLs
+
 If you are adding references to an external URL (e.g. `https://github.com/neuroinformatics-unit/movement/issues/1`) in a `.md` file, you will need to check if a matching URL scheme (e.g. `https://github.com/neuroinformatics-unit/movement/`) is defined in `myst_url_schemes` in `docs/source/conf.py`. If it is, the following `[](scheme:loc)` syntax will be converted to the [full URL](movement-github:issues/1) during the build process:
 ```markdown
 [link text](movement-github:issues/1)
@@ -810,6 +973,7 @@ If you are adding references to an external URL (e.g. `https://github.com/neuroi
 If it is not yet defined and you have multiple external URLs pointing to the same base URL, you will need to [add the URL scheme](myst-parser:syntax/cross-referencing.html#customising-external-url-resolution) to `myst_url_schemes` in `docs/source/conf.py`.
 
 ### Updating the API reference
+
 The [API reference](target-api) is auto-generated by the `docs/make_api.py` script, and the [sphinx-autodoc](sphinx-doc:extensions/autodoc.html) and [sphinx-autosummary](sphinx-doc:extensions/autosummary.html) extensions.
 The script inspects the source tree and generates the `docs/source/api_index.rst` file, which lists the modules to be included in the [API reference](target-api), skipping those listed in `EXCLUDE_MODULES`.
 
@@ -823,6 +987,7 @@ If your PR introduces new modules that should *not* be documented in the [API re
 Likewise, if you want to document a module that exposes its public API via its `__init__.py`, rather than through its submodules individually, make sure to add it to `PACKAGE_MODULES` in `docs/make_api.py`.
 
 ### Updating the examples
+
 We use [sphinx-gallery](sphinx-gallery:)
 to create the [examples](target-examples).
 To add new examples, you will need to create a new `.py` file in `examples/`,
@@ -857,11 +1022,13 @@ Subtitle (one-line summary).
 ```
 
 ### Cross-referencing Python objects
+
 :::{note}
 Docstrings in the `.py` files for the [API reference](target-api) and the [examples](target-examples) are converted into `.rst` files, so these should use reStructuredText syntax.
 :::
 
 #### Internal references
+
 ::::{tab-set}
 :::{tab-item} Markdown
 For referencing `movement` objects in `.md` files, use the `` {role}`target` `` syntax with the appropriate [Python object role](sphinx-doc:domains/python.html#cross-referencing-python-objects).
@@ -882,6 +1049,7 @@ For example, to reference the {mod}`movement.io.load_poses` module, use:
 ::::
 
 #### External references
+
 For referencing external Python objects using [intersphinx](sphinx-doc:extensions/intersphinx.html),
 ensure the mapping between module names and their documentation URLs is defined in [`intersphinx_mapping`](sphinx-doc:extensions/intersphinx.html#confval-intersphinx_mapping) in `docs/source/conf.py`.
 Once the module is included in the mapping, use the same syntax as for [internal references](#internal-references).
@@ -903,6 +1071,7 @@ For example, to reference the {meth}`xarray.Dataset.update` method, use:
 ::::
 
 ### Updating the contributors list
+
 The [contributors list](target-contributors) is automatically updated on the first day of each month by a GitHub actions workflow (`.github/workflows/update_contributors_list.yml`).
 It uses the [Contributors-Readme-Action](https://github.com/marketplace/actions/contribute-list) to generate the list of contributors based on the commits to the repository.
 
@@ -935,6 +1104,7 @@ Next, add a row containing the contributor's image, name, and link to their webs
 ::::
 
 ### Building the documentation locally
+
 We recommend that you build and view the documentation website locally, before you push your proposed changes.
 
 First, ensure your development environment with the required dependencies is active (see [Editing the documentation](#editing-the-documentation) for details on how to create it). Then, navigate to the `docs/` directory:
@@ -991,6 +1161,7 @@ make clean html linkcheck
 :::
 
 ### Previewing the documentation in continuous integration
+
 We use [artifact.ci](https://artifact.ci/) to preview the documentation that is built as part of our GitHub Actions workflow. To do so:
 1. Go to the "Checks" tab in the GitHub PR.
 2. Click on the "Docs" section on the left.
@@ -1005,6 +1176,7 @@ If the limit is reached, previews may temporarily be unavailable until the quota
 
 (target-contributing-sample-data)=
 ## Sample data
+
 We maintain some sample datasets to be used for testing, examples and tutorials on an
 [external data repository](swc-gin:neuroinformatics/movement-sample-data).
 Our hosting platform of choice is called [GIN](gin:), based on the
@@ -1026,6 +1198,7 @@ However, some tools—like [TRex](TRex:)—may split their tracking outputs acro
 In those cases, the dataset is distributed as a ZIP archive containing every relevant file, and is automatically extracted when fetched.
 
 ### Fetching data
+
 To fetch the data from GIN, we use the [pooch](https://www.fatiando.org/pooch/latest/index.html)
 Python package, which can download data from pre-specified URLs and store them
 locally for all subsequent uses. It also provides some nice utilities,
@@ -1043,6 +1216,7 @@ By default, the downloaded files are stored in the `~/.movement/data` folder.
 This can be changed by setting the `DATA_DIR` variable in the `sample_data.py` file.
 
 ### Adding new data
+
 Only core `movement` developers may add new files to the external data repository.
 Make sure to run the following procedure on a UNIX-like system, as we have observed some weird behaviour on Windows (some sha256sums may end up being different).
 To add a new file, you will need to:
@@ -1053,13 +1227,14 @@ To add a new file, you will need to:
 4. Clone the `movement` data repository to your local machine using `gin get neuroinformatics/movement-sample-data`, then run `gin download --content` to download all the files.
 5. Add your new files to the appropriate folders (`poses`, `bboxes`, `videos`, and/or `frames`) following the existing file naming conventions.
 6. Add metadata for your new files to `metadata.yaml` using the [example entry below](target-metadata-yaml) as a template. You can leave all `sha256sum` values as `null` for now.
-7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](swc-gin:neuroinformatics/movement-sample-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with `movement` installed](#creating-a-development-environment).
+7. Update file hashes in `metadata.yaml` by running `python update_hashes.py` from the root of the [movement data repository](swc-gin:neuroinformatics/movement-sample-data). This script computes SHA256 hashes for all data files and updates the corresponding `sha256sum` values in the metadata file. Make sure you're in a [Python environment with movement installed](#creating-a-development-environment).
 8. Commit your changes using `gin commit -m <message> <filename>` for specific files or `gin commit -m <message> .` for all changes.
 9. Upload your committed changes to the GIN repository with `gin upload`. Use `gin download` to pull the latest changes or `gin sync` to synchronise changes bidirectionally.
 10. [Verify](target-verify-sample-data) the new files can be fetched and loaded correctly using the {mod}`movement.sample_data` module.
 
 (target-metadata-yaml)=
 ### `metadata.yaml` example entry
+
 ```yaml
 SLEAP_three-mice_Aeon_proofread.analysis.h5:
   sha256sum: null

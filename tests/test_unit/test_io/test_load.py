@@ -5,7 +5,6 @@ import numpy as np
 import pytest
 import xarray as xr
 from attrs import define, field, validators
-from pytest import DATA_PATHS
 from requests_cache import Path
 
 from movement.io import load
@@ -149,7 +148,7 @@ def test_load_multiview_dataset(dataset_name, source_software):
     """
     view_names = ["view_0", "view_1"]
     file_path_dict = {
-        view: DATA_PATHS.get(dataset_name) for view in view_names
+        view: pytest.DATA_PATHS.get(dataset_name) for view in view_names
     }
     multi_view_ds = load.load_multiview_dataset(
         file_path_dict, source_software=source_software

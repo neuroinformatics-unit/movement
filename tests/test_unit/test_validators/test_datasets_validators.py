@@ -87,6 +87,7 @@ class TestBaseDatasetInputs:
         class StubDatasetInputs(_BaseDatasetInputs):
             """Minimal subclass for testing _BaseDatasetInputs."""
 
+            ds_type = "stub"
             DIM_NAMES = dim_names
             VAR_NAMES = var_names
             _ALLOWED_SPACE_DIM_SIZE = 2  # 2D positions
@@ -323,6 +324,7 @@ class TestBaseDatasetInputs:
         expected_dataset_attrs = {
             "source_software": None,
             "time_unit": expected_time_unit,
+            "ds_type": "stub",
         }
         time_coords, dataset_attrs = data._time_coords_and_attrs()
         if fps is not None:
