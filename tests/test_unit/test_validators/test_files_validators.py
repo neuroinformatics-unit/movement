@@ -576,11 +576,16 @@ _POLYGON_FEATURE = (
 
 
 def test_coco_results_validator_with_annotations(
-    coco_results_file,
-    coco_annotations_file,
+    coco_keypoints_file_person,
+    coco_annotations_file_person,
 ):
     """Test ValidCocoResults with a COCO annotations file."""
-    results = [
+    validated = ValidCocoResults(
+        file=coco_keypoints_file_person,
+        annotations_file=coco_annotations_file_person,
+    )
+
+    assert validated.data == [
         {
             "image_id": 10,
             "category_id": 1,
@@ -588,92 +593,42 @@ def test_coco_results_validator_with_annotations(
             "score": 0.9,
         },
     ]
-
-    categories = [
+    assert validated.categories == [
         {
             "id": 1,
             "name": "person",
             "keypoints": ["nose", "left_eye"],
         },
     ]
-
-    results_file = coco_results_file(results)
-    annotations_file = coco_annotations_file(categories)
-
-    validated = ValidCocoResults(
-        file=results_file,
-        annotations_file=annotations_file,
-    )
-
-    assert validated.data == results
-    assert validated.categories == categories
     assert validated.keypoint_names == ["nose", "left_eye"]
 
 
 @pytest.mark.parametrize(
-    "results, categories, match",
+    "results_fixture, annotations_fixture, match",
     [
         pytest.param(
-            [
-                {
-                    "image_id": 10,
-                    "category_id": 3,
-                    "keypoints": [10, 20, 2, 30, 40, 2],
-                    "score": 0.9,
-                },
-            ],
-            [
-                {
-                    "id": 1,
-                    "name": "person",
-                    "keypoints": ["nose", "left_eye"],
-                },
-            ],
+            "coco_keypoints_file_unknown_category",
+            "coco_annotations_file_person",
             "not present in the annotations file",
             id="unknown-category",
         ),
         pytest.param(
-            [
-                {
-                    "image_id": 10,
-                    "category_id": 1,
-                    "keypoints": [10, 20, 2, 30, 40, 2],
-                    "score": 0.9,
-                },
-                {
-                    "image_id": 10,
-                    "category_id": 2,
-                    "keypoints": [50, 60, 2, 70, 80, 2],
-                    "score": 0.8,
-                },
-            ],
-            [
-                {
-                    "id": 1,
-                    "name": "person",
-                    "keypoints": ["nose", "left_eye"],
-                },
-                {
-                    "id": 2,
-                    "name": "cat",
-                    "keypoints": ["nose", "head"],
-                },
-            ],
+            "coco_keypoints_file_different_skeleton",
+            "coco_annotations_file_different_skeleton",
             "different keypoint skeletons",
             id="different-skeletons",
         ),
     ],
 )
 def test_coco_results_validator_annotations_errors(
-    coco_results_file,
-    coco_annotations_file,
-    results,
-    categories,
+    request,
+    results_fixture,
+    annotations_fixture,
     match,
 ):
     """Test COCO results validation against annotations."""
-    results_file = coco_results_file(results)
-    annotations_file = coco_annotations_file(categories)
+    results_file = request.getfixturevalue(results_fixture)
+    annotations_file = request.getfixturevalue(annotations_fixture)
 
     with pytest.raises(ValueError, match=match):
         ValidCocoResults(
@@ -682,21 +637,21 @@ def test_coco_results_validator_annotations_errors(
         )
 
 
-def test_coco_annotations_validator(coco_annotations_file):
+def test_coco_annotations_validator(coco_annotations_file_person):
     """Test ValidCocoAnnotations with valid annotations."""
-    categories = [
-        {
-            "id": 1,
-            "name": "person",
-            "keypoints": ["nose", "left_eye"],
-        },
-    ]
+    validated = ValidCocoAnnotations(
+        file=coco_annotations_file_person,
+    )
 
-    annotations_file = coco_annotations_file(categories)
-
-    validated = ValidCocoAnnotations(file=annotations_file)
-
-    assert validated.data == {"categories": categories}
+    assert validated.data == {
+        "categories": [
+            {
+                "id": 1,
+                "name": "person",
+                "keypoints": ["nose", "left_eye"],
+            },
+        ]
+    }
 
 
 def _feature_collection(*features: str) -> str:

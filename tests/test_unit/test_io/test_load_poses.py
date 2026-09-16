@@ -278,53 +278,9 @@ def test_load_from_nwb_file(input_type, kwargs, request):
     assert ds_from_file_path.attrs == expected_attrs
 
 
-def test_from_coco_file(coco_results_file):
+def test_from_coco_file(coco_keypoints_file):
     """Test loading COCO keypoint results."""
-    results = [
-        {
-            "image_id": 10,
-            "category_id": 1,
-            "keypoints": [
-                10,
-                20,
-                2,
-                30,
-                40,
-                2,
-            ],
-            "score": 0.9,
-        },
-        {
-            "image_id": 10,
-            "category_id": 2,
-            "keypoints": [
-                50,
-                60,
-                2,
-                70,
-                80,
-                2,
-            ],
-            "score": 0.8,
-        },
-        {
-            "image_id": 20,
-            "category_id": 1,
-            "keypoints": [
-                15,
-                25,
-                2,
-                35,
-                45,
-                2,
-            ],
-            "score": 0.7,
-        },
-    ]
-
-    file = coco_results_file(results)
-
-    ds = load_poses.from_coco_file(file)
+    ds = load_poses.from_coco_file(coco_keypoints_file)
 
     assert ds.sizes["time"] == 2
     assert ds.sizes["individual"] == 2
@@ -371,63 +327,13 @@ def test_from_coco_file(coco_results_file):
 
 
 def test_from_coco_file_category_as_track(
-    coco_results_file,
-    coco_annotations_file,
+    coco_keypoints_file_category_as_track,
+    coco_annotations_file_category_as_track,
 ):
     """Test using COCO categories as individual."""
-    results = [
-        {
-            "image_id": 10,
-            "category_id": 2,
-            "keypoints": [
-                50,
-                60,
-                2,
-                70,
-                80,
-                2,
-            ],
-            "score": 0.8,
-        },
-        {
-            "image_id": 10,
-            "category_id": 1,
-            "keypoints": [
-                10,
-                20,
-                2,
-                30,
-                40,
-                2,
-            ],
-            "score": 0.9,
-        },
-    ]
-
-    categories = [
-        {
-            "id": 1,
-            "name": "person",
-            "keypoints": ["nose", "left_eye"],
-        },
-        {
-            "id": 2,
-            "name": "cat",
-            "keypoints": ["nose", "left_eye"],
-        },
-        {
-            "id": 3,
-            "name": "dog",
-            "keypoints": ["nose", "left_eye"],
-        },
-    ]
-
-    results_file = coco_results_file(results)
-    annotations_file = coco_annotations_file(categories)
-
     ds = load_poses.from_coco_file(
-        results_file,
-        annotations_file=annotations_file,
+        coco_keypoints_file_category_as_track,
+        annotations_file=coco_annotations_file_category_as_track,
         category_as_track=True,
     )
 
@@ -464,94 +370,37 @@ def test_from_coco_file_category_as_track(
 
 
 @pytest.mark.parametrize(
-    "results, annotations, match",
+    "results_fixture, annotations_fixture, match",
     [
         pytest.param(
-            [
-                {
-                    "image_id": 10,
-                    "category_id": 1,
-                    "keypoints": [10, 20, 2, 30, 40, 2],
-                    "score": 0.9,
-                },
-                {
-                    "image_id": 10,
-                    "category_id": 1,
-                    "keypoints": [50, 60, 2, 70, 80, 2],
-                    "score": 0.8,
-                },
-            ],
-            [
-                {
-                    "id": 1,
-                    "name": "person",
-                    "keypoints": ["nose", "left_eye"],
-                },
-            ],
+            "coco_keypoints_file_duplicate_category",
+            "coco_annotations_file_person",
             "multiple detections",
             id="duplicate-category-in-frame",
         ),
         pytest.param(
-            [
-                {
-                    "image_id": 10,
-                    "category_id": 3,
-                    "keypoints": [10, 20, 2, 30, 40, 2],
-                    "score": 0.9,
-                },
-            ],
-            [
-                {
-                    "id": 1,
-                    "name": "person",
-                    "keypoints": ["nose", "left_eye"],
-                },
-            ],
+            "coco_keypoints_file_unknown_category",
+            "coco_annotations_file_person",
             "not present in the annotations file",
             id="unknown-category",
         ),
         pytest.param(
-            [
-                {
-                    "image_id": 10,
-                    "category_id": 1,
-                    "keypoints": [10, 20, 2, 30, 40, 2],
-                    "score": 0.9,
-                },
-                {
-                    "image_id": 10,
-                    "category_id": 2,
-                    "keypoints": [50, 60, 2, 70, 80, 2],
-                    "score": 0.8,
-                },
-            ],
-            [
-                {
-                    "id": 1,
-                    "name": "person",
-                    "keypoints": ["nose", "left_eye"],
-                },
-                {
-                    "id": 2,
-                    "name": "cat",
-                    "keypoints": ["nose", "head"],
-                },
-            ],
+            "coco_keypoints_file_different_skeleton",
+            "coco_annotations_file_different_skeleton",
             "different keypoint skeletons",
             id="different-skeletons",
         ),
     ],
 )
 def test_from_coco_file_errors(
-    coco_results_file,
-    coco_annotations_file,
-    results,
-    annotations,
+    request,
+    results_fixture,
+    annotations_fixture,
     match,
 ):
     """Test errors raised for invalid COCO pose data."""
-    results_file = coco_results_file(results)
-    annotations_file = coco_annotations_file(annotations)
+    results_file = request.getfixturevalue(results_fixture)
+    annotations_file = request.getfixturevalue(annotations_fixture)
 
     with pytest.raises(ValueError, match=match):
         load_poses.from_coco_file(
@@ -563,28 +412,14 @@ def test_from_coco_file_errors(
 
 @pytest.mark.parametrize("category_as_track", [False, True])
 def test_from_coco_file_without_annotations(
-    coco_results_file, category_as_track
+    coco_keypoints_file_without_annotations,
+    category_as_track,
 ):
     """Test loading COCO results without an annotations file."""
-    results = [
-        {
-            "image_id": 20,
-            "category_id": 5,
-            "keypoints": [
-                10,
-                20,
-                2,
-                30,
-                40,
-                2,
-            ],
-            "score": 0.9,
-        },
-    ]
-
-    file = coco_results_file(results)
-
-    ds = load_poses.from_coco_file(file, category_as_track=category_as_track)
+    ds = load_poses.from_coco_file(
+        coco_keypoints_file_without_annotations,
+        category_as_track=category_as_track,
+    )
 
     assert ds.sizes["time"] == 1
     assert ds.sizes["individual"] == 1
