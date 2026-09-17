@@ -31,7 +31,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=634eab24" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=c83e6b79" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=5e628193"></script>
+    <script src="../../../_static/documentation_options.js?v=fa1a058a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev48</p>
+    <p class="title logo__title">movement v0.17.1.dev49</p>
   
 </a></div>
     
@@ -498,7 +498,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">napari.components.dims</span><span class="w"> </span><span class="kn">import</span> <span class="n">RangeTuple</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">napari.layers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span><span class="p">,</span> <span class="n">Points</span><span class="p">,</span> <span class="n">Shapes</span><span class="p">,</span> <span class="n">Tracks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">napari.layers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Points</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">napari.layers.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionType</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.napari.layer_styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">EDITED_POINT_SYMBOL</span>
@@ -509,10 +509,14 @@
 <span class="c1">#   dropped from the live layer, needed to reconstruct the dataset.</span>
 <span class="c1"># - DATASET_ATTRS_KEY holds the source dataset's attrs (source_software, fps…).</span>
 <span class="c1"># - TRACKS_LAYER_KEY holds a reference to the companion Tracks layer.</span>
+<span class="c1"># - MAX_FRAME_IDX_KEY holds the last frame index of the source data,</span>
+<span class="c1">#   including leading/trailing all-NaN frames (which are dropped from the</span>
+<span class="c1">#   napari layer data array).</span>
 <span class="n">POINTS_LAYER_KEY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"movement_points_layer"</span>
 <span class="n">POINTS_PROPERTIES_KEY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"movement_points_properties"</span>
 <span class="n">DATASET_ATTRS_KEY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"movement_dataset_attrs"</span>
 <span class="n">TRACKS_LAYER_KEY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"movement_tracks_layer"</span>
+<span class="n">MAX_FRAME_IDX_KEY</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"movement_max_frame_idx"</span>
 
 <span class="c1"># Keep a set of viewers already wired by connect_viewer_callbacks,</span>
 <span class="c1"># so we don't wire them twice. We use a WeakSet so tracking a viewer here</span>
@@ -562,53 +566,35 @@
 <div class="viewcode-block" id="update_frame_slider_range">
 <a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.update_frame_slider_range.html#movement.napari.layer_wiring.update_frame_slider_range">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">update_frame_slider_range</span><span class="p">(</span><span class="n">viewer</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Check the frame slider range and update it if necessary.</span>
+<span class="w">    </span><span class="sd">"""Widen the frame slider range to cover NaN-trimmed frames.</span>
 
-<span class="sd">    This is required because if the data loaded starts or ends</span>
-<span class="sd">    with all NaN values, the frame slider range will not reflect</span>
-<span class="sd">    the full range of frames.</span>
+<span class="sd">    napari derives ``viewer.dims.range`` from the world-coordinate union of</span>
+<span class="sd">    all layer extents, and it does so before this callback runs. Movement's</span>
+<span class="sd">    layers have their leading/trailing all-NaN rows dropped, so a dataset</span>
+<span class="sd">    that starts or ends with NaNs yields an extent — and therefore a slider</span>
+<span class="sd">    range — narrower than the real frame span.</span>
+
+<span class="sd">    Extend napari's range to cover the true span of every movement layer,</span>
+<span class="sd">    but never replace it: layers movement did not create (a video the user</span>
+<span class="sd">    opened, another plugin's layer) keep the range napari computed for them,</span>
+<span class="sd">    including any scale or translate they carry.</span>
 <span class="sd">    """</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_layer_has_data</span><span class="p">(</span><span class="n">layer</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">Shapes</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">layer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-        <span class="k">return</span> <span class="n">layer</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
-
-    <span class="c1"># Only update the frame slider range if there are layers</span>
-    <span class="c1"># that are Points, Tracks, Image or Shapes with data</span>
-    <span class="n">list_layers</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">ly</span>
+    <span class="n">max_frame_indices</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">ly</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="n">MAX_FRAME_IDX_KEY</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">ly</span> <span class="ow">in</span> <span class="n">viewer</span><span class="o">.</span><span class="n">layers</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ly</span><span class="p">,</span> <span class="n">Points</span> <span class="o">|</span> <span class="n">Tracks</span> <span class="o">|</span> <span class="n">Image</span> <span class="o">|</span> <span class="n">Shapes</span><span class="p">)</span>
-        <span class="ow">and</span> <span class="n">_layer_has_data</span><span class="p">(</span><span class="n">ly</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">MAX_FRAME_IDX_KEY</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ly</span><span class="p">,</span> <span class="s2">"metadata"</span><span class="p">,</span> <span class="p">{})</span>
     <span class="p">]</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_layers</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c1"># Get the maximum frame index from all candidate layers</span>
-        <span class="n">max_frame_idx</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
-            <span class="c1"># For every layer, get max_frame_idx metadata if it exists,</span>
-            <span class="c1"># else deduce it from the data shape</span>
-            <span class="p">[</span>
-                <span class="nb">getattr</span><span class="p">(</span><span class="n">ly</span><span class="p">,</span> <span class="s2">"metadata"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                    <span class="s2">"max_frame_idx"</span><span class="p">,</span> <span class="n">ly</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ly</span><span class="p">,</span> <span class="n">Shapes</span><span class="p">)</span>
-                <span class="c1"># Napari stores shapes layer data as a list of 2D arrays</span>
-                <span class="c1"># instead of a 3D array, so we can't use data.shape here</span>
-                <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ly</span><span class="p">,</span> <span class="s2">"metadata"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                    <span class="s2">"max_frame_idx"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ly</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">ly</span> <span class="ow">in</span> <span class="n">list_layers</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">max_frame_indices</span><span class="p">:</span>
+        <span class="k">return</span>
 
-        <span class="c1"># If the frame slider range is not set to the full range of frames,</span>
-        <span class="c1"># update it.</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">stop</span> <span class="o">!=</span> <span class="n">max_frame_idx</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
-            <span class="nb">int</span><span class="p">(</span><span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">start</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span>
-        <span class="p">):</span>
-            <span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">RangeTuple</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">max_frame_idx</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span>
-            <span class="p">)</span> <span class="o">+</span> <span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span></div>
+    <span class="n">current_range</span> <span class="o">=</span> <span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">current_range</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">stop</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">current_range</span><span class="o">.</span><span class="n">stop</span><span class="p">,</span> <span class="o">*</span><span class="n">max_frame_indices</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">current_range</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">current_range</span><span class="o">.</span><span class="n">stop</span><span class="p">):</span>
+        <span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">RangeTuple</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">current_range</span><span class="o">.</span><span class="n">step</span><span class="p">),</span>
+        <span class="p">)</span> <span class="o">+</span> <span class="n">viewer</span><span class="o">.</span><span class="n">dims</span><span class="o">.</span><span class="n">range</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span></div>
 
 
 

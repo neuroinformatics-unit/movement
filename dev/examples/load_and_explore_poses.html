@@ -32,7 +32,7 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=634eab24" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=c83e6b79" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=5e628193"></script>
+    <script src="../_static/documentation_options.js?v=fa1a058a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev48</p>
+    <p class="title logo__title">movement v0.17.1.dev49</p>
   
 </a></div>
     
@@ -528,39 +528,35 @@ to download the full example code or to run this example in your browser via Bin
 <p>Load and explore an example dataset of pose tracks.</p>
 <section id="imports">
 <h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_poses</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">movement.plots</span><span class="w"> </span><span class="kn">import</span> <a href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory" class="sphx-glr-backref-module-movement-plots sphx-glr-backref-type-py-function"><span class="n">plot_centroid_trajectory</span></a>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="w"> </span><span class="kn">import</span> <span class="n">sample_data</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="nn">.</span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_poses</span><span class="w">
+</span><span class="kn">from</span><span class="w"> </span><span class="nn">movement</span><span class="nn">.</span><span class="nn">plots</span><span class="w"> </span><span class="kn">import</span> <a class="sphx-glr-backref-module-movement-plots sphx-glr-backref-type-py-function reference internal" href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory"><span class="n">plot_centroid_trajectory</span></a><span class="w">
+</span></pre></div></div>
 </section>
 <section id="define-the-file-path">
 <h2>Define the file path<a class="headerlink" href="#define-the-file-path" title="Link to this heading">#</a></h2>
 <p>This should be a file output by one of our supported pose estimation
 frameworks (e.g., DeepLabCut, SLEAP), containing predicted pose tracks.
 For example, the path could be something like:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="c1"># uncomment and edit the following line to point to your own local file</span>
-<span class="c1"># file_path = "/path/to/my/data.h5"</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span class="c1"># uncomment and edit the following line to point to your own local file</span><span class="w">
+</span><span class="c1"># file_path = &quot;/path/to/my/data.h5&quot;</span><span class="w">
+</span></pre></div></div>
 <p>For the sake of this example, we will use the path to one of
 the sample datasets provided with <code class="docutils literal notranslate"><span class="pre">movement</span></code>.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">file_path</span></a> <span class="o">=</span> <a href="../api/movement.sample_data.fetch_dataset_paths.html#movement.sample_data.fetch_dataset_paths" title="movement.sample_data.fetch_dataset_paths" class="sphx-glr-backref-module-movement-sample_data sphx-glr-backref-type-py-function"><span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset_paths</span></a><span class="p">(</span>
-    <span class="s2">"SLEAP_three-mice_Aeon_proofread.analysis.h5"</span>
-<span class="p">)[</span><span class="s2">"poses"</span><span class="p">]</span>
-<span class="nb">print</span><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">file_path</span></a><span class="p">)</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">file_path</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-movement-sample_data sphx-glr-backref-type-py-function reference internal" href="../api/movement.sample_data.fetch_dataset_paths.html#movement.sample_data.fetch_dataset_paths" title="movement.sample_data.fetch_dataset_paths"><span class="n">sample_data</span><span class="o">.</span><span class="n">fetch_dataset_paths</span></a><span class="p">(</span><span class="w">
+</span>    <span class="s2">&quot;</span><span class="s2">SLEAP_three-mice_Aeon_proofread.analysis.h5</span><span class="s2">&quot;</span><span class="w">
+</span><span class="p">)</span><span class="p">[</span><span class="s2">&quot;</span><span class="s2">poses</span><span class="s2">&quot;</span><span class="p">]</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">file_path</span></a><span class="p">)</span><span class="w">
+</span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/.movement/data/poses/SLEAP_three-mice_Aeon_proofread.analysis.h5
 </pre></div>
 </div>
 </section>
 <section id="load-the-data-into-movement">
 <h2>Load the data into movement<a class="headerlink" href="#load-the-data-into-movement" title="Link to this heading">#</a></h2>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a> <span class="o">=</span> <a href="../api/movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file" title="movement.io.load_poses.from_sleap_file" class="sphx-glr-backref-module-movement-io-load_poses sphx-glr-backref-type-py-function"><span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">file_path</span></a><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset" class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span></a><span class="p">)</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset"><span class="n">ds</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-movement-io-load_poses sphx-glr-backref-type-py-function reference internal" href="../api/movement.io.load_poses.from_sleap_file.html#movement.io.load_poses.from_sleap_file" title="movement.io.load_poses.from_sleap_file"><span class="n">load_poses</span><span class="o">.</span><span class="n">from_sleap_file</span></a><span class="p">(</span><a class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath"><span class="n">file_path</span></a><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-xarray-core-dataset sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="xarray.core.dataset.Dataset"><span class="n">ds</span></a><span class="p">)</span><span class="w">
+</span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.Dataset&gt; Size: 27kB
 Dimensions:     (time: 601, space: 2, keypoint: 1, individual: 3)
 Coordinates:
@@ -582,9 +578,8 @@ Attributes:
 <p>The loaded dataset contains two data variables:
 <code class="docutils literal notranslate"><span class="pre">position</span></code> and <code class="docutils literal notranslate"><span class="pre">confidence</span></code>.
 To get the position data:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ds</span><span class="o">.</span><span class="n">position</span></a>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray"><span class="n">position</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray"><span class="n">ds</span><span class="o">.</span><span class="n">position</span></a><span class="w">
+</span></pre></div></div>
 </section>
 <section id="select-and-plot-data-with-xarray">
 <h2>Select and plot data with xarray<a class="headerlink" href="#select-and-plot-data-with-xarray" title="Link to this heading">#</a></h2>
@@ -592,10 +587,9 @@ To get the position data:</p>
 index into <code class="docutils literal notranslate"><span class="pre">xarray</span></code> data arrays and datasets.
 For example, we can get a <code class="docutils literal notranslate"><span class="pre">DataArray</span></code> containing only data
 for a single keypoint of the first individual:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">da</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individual</span><span class="o">=</span><span class="s2">"AEON3B_NTP"</span><span class="p">,</span> <span class="n">keypoint</span><span class="o">=</span><span class="s2">"centroid"</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">da</span></a><span class="p">)</span>
-</pre></div>
-</div>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray"><span class="n">da</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">individual</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">AEON3B_NTP</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">keypoint</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">centroid</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><span class="nb">print</span><span class="p">(</span><a class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray"><span class="n">da</span></a><span class="p">)</span><span class="w">
+</span></pre></div></div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.DataArray 'position' (time: 601, space: 2)&gt; Size: 5kB
 770.3 1.062e+03 773.3 1.062e+03 773.3 ... 618.6 194.6 618.4 194.6 616.4
 Coordinates:
@@ -607,19 +601,17 @@ Coordinates:
 </div>
 <p>We could plot the x, y coordinates of this keypoint over time,
 using <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s built-in plotting methods:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">da</span></a><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">"space"</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
-</pre></div>
-</div>
-<img src="../_images/sphx_glr_load_and_explore_poses_001.png" srcset="../_images/sphx_glr_load_and_explore_poses_001.png" alt="space = x, space = y" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fcfac7f9400&gt;
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray"><span class="n">da</span></a><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">time</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">space</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../_images/sphx_glr_load_and_explore_poses_001.png" srcset="../_images/sphx_glr_load_and_explore_poses_001.png" alt="space = x, space = y" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f8303e767b0&gt;
 </pre></div>
 </div>
 <p>Similarly we could plot the same keypoint’s x, y coordinates
 for all individuals:</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">da</span></a> <span class="o">=</span> <a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel" class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="s2">"centroid"</span><span class="p">)</span>
-<a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">da</span></a><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">"individual"</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
-</pre></div>
-</div>
-<img src="../_images/sphx_glr_load_and_explore_poses_002.png" srcset="../_images/sphx_glr_load_and_explore_poses_002.png" alt="individual = AEON3B_NTP, individual = AEON3B_TP1, individual = AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7fcfac890a50&gt;
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray"><span class="n">da</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.sel.html#xarray.DataArray.sel" title="xarray.DataArray.sel"><span class="n">position</span><span class="o">.</span><span class="n">sel</span></a><span class="p">(</span><span class="n">keypoint</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">centroid</span><span class="s2">&quot;</span><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray"><span class="n">da</span></a><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">time</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">individual</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../_images/sphx_glr_load_and_explore_poses_002.png" srcset="../_images/sphx_glr_load_and_explore_poses_002.png" alt="individual = AEON3B_NTP, individual = AEON3B_TP1, individual = AEON3B_TP2" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f8303de9a90&gt;
 </pre></div>
 </div>
 </section>
@@ -628,12 +620,11 @@ for all individuals:</p>
 <p>We are not limited to <code class="docutils literal notranslate"><span class="pre">xarray</span></code>’s built-in plots.
 The <a class="reference internal" href="../api/movement.plots.html#module-movement.plots" title="movement.plots"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.plots</span></code></a> module provides some additional
 visualisations, like <a class="reference internal" href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory"><code class="xref py py-func docutils literal notranslate"><span class="pre">plot_centroid_trajectory()</span></code></a>.</p>
-<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a> <span class="o">=</span> <span class="s2">"AEON3B_TP1"</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a><span class="p">,</span> <a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a> <span class="o">=</span> <a href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory" class="sphx-glr-backref-module-movement-plots sphx-glr-backref-type-py-function"><span class="n">plot_centroid_trajectory</span></a><span class="p">(</span><a href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray" class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">position</span></a><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><a href="https://docs.python.org/3/builtins/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">mouse_name</span></a><span class="p">)</span>
-<a href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.show.html#matplotlib.figure.Figure.show" title="matplotlib.figure.Figure.show" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">show</span></a><span class="p">()</span>
-</pre></div>
-</div>
-<img src="../_images/sphx_glr_load_and_explore_poses_003.png" srcset="../_images/sphx_glr_load_and_explore_poses_003.png" alt="Trajectory" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.800 seconds)</p>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">mouse_name</span></a> <span class="o">=</span> <span class="s2">&quot;</span><span class="s2">AEON3B_TP1</span><span class="s2">&quot;</span><span class="w">
+</span><a class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure"><span class="n">fig</span></a><span class="p">,</span> <a class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="matplotlib.axes.Axes"><span class="n">ax</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-movement-plots sphx-glr-backref-type-py-function reference internal" href="../api/movement.plots.plot_centroid_trajectory.html#movement.plots.plot_centroid_trajectory" title="movement.plots.plot_centroid_trajectory"><span class="n">plot_centroid_trajectory</span></a><span class="p">(</span><a class="sphx-glr-backref-module-xarray-core-dataarray sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.html#xarray.DataArray" title="xarray.core.dataarray.DataArray"><span class="n">position</span></a><span class="p">,</span> <span class="n">individual</span><span class="o">=</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">mouse_name</span></a><span class="p">)</span><span class="w">
+</span><a class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.figure.Figure.show.html#matplotlib.figure.Figure.show" title="matplotlib.figure.Figure.show"><span class="n">fig</span><span class="o">.</span><span class="n">show</span></a><span class="p">(</span><span class="p">)</span><span class="w">
+</span></pre></div></div>
+<img src="../_images/sphx_glr_load_and_explore_poses_003.png" srcset="../_images/sphx_glr_load_and_explore_poses_003.png" alt="Trajectory" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.634 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-load-and-explore-poses-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/load_and_explore_poses.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />

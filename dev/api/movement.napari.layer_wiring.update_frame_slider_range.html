@@ -32,7 +32,7 @@
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=634eab24" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
-    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=fd6457a4" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css?v=c83e6b79" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=5e628193"></script>
+    <script src="../_static/documentation_options.js?v=fa1a058a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev48</p>
+    <p class="title logo__title">movement v0.17.1.dev49</p>
   
 </a></div>
     
@@ -690,10 +690,16 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.napari.layer_wiring.update_frame_slider_range">
 <span class="sig-prename descclassname"><span class="pre">movement.napari.layer_wiring.</span></span><span class="sig-name descname"><span class="pre">update_frame_slider_range</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">viewer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/napari/layer_wiring.html#update_frame_slider_range"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.napari.layer_wiring.update_frame_slider_range" title="Link to this definition">#</a></dt>
-<dd><p>Check the frame slider range and update it if necessary.</p>
-<p>This is required because if the data loaded starts or ends
-with all NaN values, the frame slider range will not reflect
-the full range of frames.</p>
+<dd><p>Widen the frame slider range to cover NaN-trimmed frames.</p>
+<p>napari derives <code class="docutils literal notranslate"><span class="pre">viewer.dims.range</span></code> from the world-coordinate union of
+all layer extents, and it does so before this callback runs. Movement’s
+layers have their leading/trailing all-NaN rows dropped, so a dataset
+that starts or ends with NaNs yields an extent — and therefore a slider
+range — narrower than the real frame span.</p>
+<p>Extend napari’s range to cover the true span of every movement layer,
+but never replace it: layers movement did not create (a video the user
+opened, another plugin’s layer) keep the range napari computed for them,
+including any scale or translate they carry.</p>
 </dd></dl>
 
 </section>
