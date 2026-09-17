@@ -26,6 +26,7 @@ from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.napari.layer_wiring import (
     DATASET_ATTRS_KEY,
+    MAX_FRAME_IDX_KEY,
     POINTS_LAYER_KEY,
     POINTS_PROPERTIES_KEY,
     TRACKS_LAYER_KEY,
@@ -350,7 +351,7 @@ class DataLoader(QWidget):
             self.data[self.data_not_nan, 1:],
             properties=points_properties.iloc[self.data_not_nan, :],
             metadata={
-                "max_frame_idx": max(self.data[:, 1]),
+                MAX_FRAME_IDX_KEY: max(self.data[:, 1]),
                 POINTS_LAYER_KEY: True,
                 POINTS_PROPERTIES_KEY: self.properties,
                 DATASET_ATTRS_KEY: self.ds_attrs,
@@ -388,7 +389,7 @@ class DataLoader(QWidget):
         self.tracks_layer = self.viewer.add_tracks(
             self.data[self.data_not_nan, :],
             properties=self.properties.iloc[self.data_not_nan, :],
-            metadata={"max_frame_idx": max(self.data[:, 1])},
+            metadata={MAX_FRAME_IDX_KEY: max(self.data[:, 1])},
             **tracks_style.as_kwargs(),
         )
         # Let the Points layer's callback find its companion Tracks layer
@@ -411,7 +412,7 @@ class DataLoader(QWidget):
         self.bboxes_layer = self.viewer.add_shapes(
             self.data_bboxes[self.data_not_nan, :, 1:],
             properties=self.properties.iloc[self.data_not_nan, :],
-            metadata={"max_frame_idx": max(self.data_bboxes[:, 0, 1])},
+            metadata={MAX_FRAME_IDX_KEY: max(self.data_bboxes[:, 0, 1])},
             **bboxes_style.as_kwargs(),
         )
         logger.info("Added tracked dataset as a napari Shapes layer.")
