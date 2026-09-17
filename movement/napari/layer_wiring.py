@@ -39,6 +39,13 @@ DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
 TRACKS_LAYER_KEY: str = "movement_tracks_layer"
 MAX_FRAME_IDX_KEY: str = "movement_max_frame_idx"
 
+# movement layers are always 3D, with axes (frame, y, x) (see
+# movement.napari.convert). napari right-aligns the axes of layers with fewer
+# dimensions than the viewer, so the frame axis is the third viewer dimension
+# from the end, even when a higher-dimensional layer (e.g. a (t, z, y, x)
+# stack) makes the viewer more than 3-dimensional.
+FRAME_AXIS: int = -3
+
 # Keep a set of viewers already wired by connect_viewer_callbacks,
 # so we don't wire them twice. We use a WeakSet so tracking a viewer here
 # does not prevent it from being garbage-collected when it is no longer used.
@@ -103,19 +110,32 @@ def update_frame_slider_range(viewer, event=None):
     if not max_frame_indices:
         return
 
-    current_range = viewer.dims.range[0]
+    current_range = viewer.dims.range[FRAME_AXIS]
     start = min(current_range.start, 0.0)
     stop = max(current_range.stop, *max_frame_indices)
 
     if (start, stop) != (current_range.start, current_range.stop):
-        viewer.dims.range = (
+        viewer.dims.set_range(
+            FRAME_AXIS,
             RangeTuple(start=start, stop=stop, step=current_range.step),
-        ) + viewer.dims.range[1:]
+        )
 
 
 def frame_axis_is_sliced(viewer) -> bool:
-    """Determine whether the frame axis is the sliced axis in a 2D view."""
-    return viewer.dims.ndisplay == 2 and viewer.dims.order[0] == 0
+    """Determine whether the frame axis is the sliced axis in a 2D view.
+
+    An axis in napari is either displayed (drawn on the canvas) or not
+    displayed (driven by a slider). Not displayed axes are also called
+    "sliced" because they are the axes you cut along (e.g. in movement,
+    the time axis is the sliced or not displayed one). Here, we check
+    if the frame axis is the not displayed or sliced one.
+    """
+    # ``viewer.dims.displayed`` holds axis indices >= 0 only, so
+    # ``FRAME_AXIS`` is converted before comparing against it.
+    frame_axis = viewer.dims.ndim + FRAME_AXIS
+    return (
+        viewer.dims.ndisplay == 2 and frame_axis not in viewer.dims.displayed
+    )
 
 
 def update_points_layers_editable(viewer, event=None):
