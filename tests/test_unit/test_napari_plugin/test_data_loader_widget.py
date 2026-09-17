@@ -35,6 +35,7 @@ from qtpy.QtWidgets import (
 )
 
 from movement.napari.layer_wiring import (
+    MAX_FRAME_IDX_KEY,
     on_points_data_changed,
     set_point_symbol_by_edited,
     update_frame_slider_range,
@@ -768,7 +769,7 @@ def test_dimension_slider_with_layer_types(
     data_loader_widget._on_load_clicked()
 
     # Get number of frames in pose data
-    n_frames_data = viewer.layers[0].metadata["max_frame_idx"]
+    n_frames_data = viewer.layers[0].metadata[MAX_FRAME_IDX_KEY]
 
     # Load mock data as the relevant layer type
     mock_layer = layer_type(
@@ -815,9 +816,9 @@ def test_empty_layer_excluded_from_frame_slider_update(
 ):
     """Test that empty layers don't cause an error in frame slider update.
 
-    Empty Shapes and Points layers are excluded from the candidate layers
-    in _update_frame_slider_range, so max() is never called on an empty
-    sequence.
+    Empty Shapes and Points layers carry no MAX_FRAME_IDX_KEY, so they are
+    not candidates in update_frame_slider_range and cannot contribute an
+    extent of their own.
     """
     viewer = make_napari_viewer_proxy()
     loader = DataLoader(viewer)
