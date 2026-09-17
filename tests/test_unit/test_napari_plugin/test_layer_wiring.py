@@ -17,8 +17,10 @@ from napari.layers.base import ActionType
 
 from movement.napari.layer_wiring import (
     MAX_FRAME_IDX_KEY,
+    POINTS_LAYER_KEY,
     connect_viewer_callbacks,
     update_frame_slider_range,
+    update_points_layers_editable,
 )
 from movement.napari.loader_widgets import DataLoader
 from movement.napari.meta_widget import MovementMetaWidget
@@ -373,3 +375,59 @@ def test_frame_slider_range_ignores_row_count(headless_napari_viewer, rng):
     assert headless_napari_viewer.dims.range[0] == RangeTuple(
         0.0, N_FRAMES - 1, 1.0
     )
+
+
+# ---- 4D viewer corner case ----------------------------------------------
+# napari right-aligns the axes of layers with fewer dimensions than the
+# viewer, so a 4D layer (e.g. a (t, z, y, x) stack) pushes the movement
+# frame axis away from index 0. Both the frame slider update and the
+# editability check must follow it.
+
+
+def test_frame_slider_range_with_4d_layer(headless_napari_viewer):
+    """Test the frame slider update when a 4D layer widens the viewer."""
+    # Movement data spanning frame indices 20 to 49; full span is 0 to 99
+    get_viewer_with_trimmed_points(
+        headless_napari_viewer,
+        first_frame_w_data=20,
+        last_frame_w_data=49,
+    )
+
+    # Add a (t, z, y, x) stack, shorter along t than the movement data
+    n_timepoints, n_planes = 10, 5
+    headless_napari_viewer.add_image(np.zeros((n_timepoints, n_planes, 8, 8)))
+    t_range = headless_napari_viewer.dims.range[0]
+
+    # Update the frame slider
+    update_frame_slider_range(headless_napari_viewer)
+
+    # The frame axis (third from last) spans the full movement data...
+    assert headless_napari_viewer.dims.range[-3] == RangeTuple(
+        0.0, N_FRAMES - 1, 1.0
+    )
+    # ...and the stack's own t axis is left untouched
+    assert headless_napari_viewer.dims.range[0] == t_range
+
+
+def test_editable_with_4d_layer(headless_napari_viewer):
+    """Test that editability tracks the frame axis in a 4D viewer."""
+    points_layer = get_viewer_with_trimmed_points(
+        headless_napari_viewer, first_frame_w_data=0
+    )
+    points_layer.metadata[POINTS_LAYER_KEY] = True
+    headless_napari_viewer.add_image(np.zeros((10, 5, 8, 8)))
+    connect_viewer_callbacks(headless_napari_viewer)
+
+    # The frame axis is axis 1 of the 4D viewer, and is sliced by default
+    assert 1 not in headless_napari_viewer.dims.displayed
+    update_points_layers_editable(headless_napari_viewer)
+    assert points_layer.editable
+
+    # Roll the frame axis into the displayed axes: editing is disabled
+    headless_napari_viewer.dims.order = (0, 2, 3, 1)
+    assert 1 in headless_napari_viewer.dims.displayed
+    assert not points_layer.editable
+
+    # Roll it back out of them: editing is enabled again
+    headless_napari_viewer.dims.order = (0, 1, 2, 3)
+    assert points_layer.editable
