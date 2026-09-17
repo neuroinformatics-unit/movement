@@ -25,7 +25,7 @@ from movement.napari.meta_widget import MovementMetaWidget
 
 
 @pytest.fixture
-def viewer_model():
+def headless_napari_viewer():
     """Return a headless napari viewer model.
 
     Faster than make_napari_viewer_proxy because it does not
@@ -289,7 +289,7 @@ def get_viewer_with_trimmed_points(
     ],
 )
 def test_frame_slider_range_covers_nan_trimmed_frames(
-    viewer_model,
+    headless_napari_viewer,
     first_frame_w_data,
     last_frame_w_data,
 ):
@@ -297,21 +297,23 @@ def test_frame_slider_range_covers_nan_trimmed_frames(
     # The layer holds data for first_frame_w_data..last_frame_w_data only,
     # the remaining leading or trailing frames were dropped as all-NaN
     get_viewer_with_trimmed_points(
-        viewer_model,
+        headless_napari_viewer,
         first_frame_w_data,
         last_frame_w_data,
     )
 
     # check napari only sees the trimmed extent
-    assert viewer_model.dims.range[0] == RangeTuple(
+    assert headless_napari_viewer.dims.range[0] == RangeTuple(
         first_frame_w_data, last_frame_w_data, 1.0
     )
 
     # call frame slider update
-    update_frame_slider_range(viewer_model)
+    update_frame_slider_range(headless_napari_viewer)
 
     # check the dropped frames are added back
-    assert viewer_model.dims.range[0] == RangeTuple(0.0, N_FRAMES - 1, 1.0)
+    assert headless_napari_viewer.dims.range[0] == RangeTuple(
+        0.0, N_FRAMES - 1, 1.0
+    )
 
 
 @pytest.mark.parametrize(
@@ -330,40 +332,44 @@ def test_frame_slider_range_covers_nan_trimmed_frames(
     ],
 )
 def test_frame_slider_range_w_non_movement_layers(
-    viewer_model, n_frames_video, expected_frame_range
+    headless_napari_viewer, n_frames_video, expected_frame_range
 ):
     """Test the frame slider with a non-movement layer of different lengths."""
     # Get a viewer with movement data spanning frame indices 20 to 49.
     # Full span is 0 to 99.
     get_viewer_with_trimmed_points(
-        viewer_model,
+        headless_napari_viewer,
         first_frame_w_data=20,
         last_frame_w_data=49,
     )
 
     # Add an Image layer with a mock video
-    viewer_model.add_image(np.zeros((n_frames_video, 8, 8)))
+    headless_napari_viewer.add_image(np.zeros((n_frames_video, 8, 8)))
 
     # Update the frame slider
-    update_frame_slider_range(viewer_model)
+    update_frame_slider_range(headless_napari_viewer)
 
     # The viewer range should match the largest span
-    assert viewer_model.dims.range[0] == expected_frame_range
+    assert headless_napari_viewer.dims.range[0] == expected_frame_range
 
 
-def test_frame_slider_range_ignores_row_count(viewer_model, rng):
+def test_frame_slider_range_ignores_row_count(headless_napari_viewer, rng):
     """Test that frame slider is not triggered by row count in layer data."""
     # A movement layer with data spanning all frames
-    get_viewer_with_trimmed_points(viewer_model, first_frame_w_data=0)
+    get_viewer_with_trimmed_points(
+        headless_napari_viewer, first_frame_w_data=0
+    )
 
     # Add a layer with 500 points, all of them in frame 0;
     # the 500 rows in this array should not trigger a frame range update
-    viewer_model.add_points(
+    headless_napari_viewer.add_points(
         np.column_stack((np.zeros(500), rng.random((500, 2))))
     )
 
     # Trigger frame slider update
-    update_frame_slider_range(viewer_model)
+    update_frame_slider_range(headless_napari_viewer)
 
     # The frame range should span the movement data only
-    assert viewer_model.dims.range[0] == RangeTuple(0.0, N_FRAMES - 1, 1.0)
+    assert headless_napari_viewer.dims.range[0] == RangeTuple(
+        0.0, N_FRAMES - 1, 1.0
+    )

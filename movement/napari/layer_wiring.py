@@ -103,13 +103,13 @@ def update_frame_slider_range(viewer, event=None):
     if not max_frame_indices:
         return
 
-    current = viewer.dims.range[0]
-    start = min(current.start, 0.0)
-    stop = max(current.stop, *max_frame_indices)
+    current_range = viewer.dims.range[0]
+    start = min(current_range.start, 0.0)
+    stop = max(current_range.stop, *max_frame_indices)
 
-    if (start, stop) != (current.start, current.stop):
+    if (start, stop) != (current_range.start, current_range.stop):
         viewer.dims.range = (
-            RangeTuple(start=start, stop=stop, step=current.step),
+            RangeTuple(start=start, stop=stop, step=current_range.step),
         ) + viewer.dims.range[1:]
 
 
