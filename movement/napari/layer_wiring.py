@@ -36,6 +36,7 @@ from movement.napari.layer_styles import EDITED_POINT_SYMBOL
 POINTS_LAYER_KEY: str = "movement_points_layer"
 POINTS_PROPERTIES_KEY: str = "movement_points_properties"
 DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
+CONFIDENCE_DIMS_KEY: str = "movement_confidence_dims"
 TRACKS_LAYER_KEY: str = "movement_tracks_layer"
 MAX_FRAME_IDX_KEY: str = "movement_max_frame_idx"
 

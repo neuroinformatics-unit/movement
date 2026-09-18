@@ -25,6 +25,7 @@ from movement.io.load import load_dataset, rename_legacy_dimensions
 from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.napari.layer_wiring import (
+    CONFIDENCE_DIMS_KEY,
     DATASET_ATTRS_KEY,
     MAX_FRAME_IDX_KEY,
     POINTS_LAYER_KEY,
@@ -236,6 +237,8 @@ class DataLoader(QWidget):
         # Convert to napari arrays
         self.data, self.data_bboxes, self.properties = ds_to_napari_layers(ds)
         self.ds_attrs = ds.attrs
+        self.confidence_dims = tuple(ds.confidence.dims)
+        self.confidence_dims = tuple(ds.confidence.dims)
 
         # Find rows that do not contain NaN values
         self.data_not_nan = ~np.any(np.isnan(self.data), axis=1)
@@ -355,6 +358,7 @@ class DataLoader(QWidget):
                 POINTS_LAYER_KEY: True,
                 POINTS_PROPERTIES_KEY: self.properties,
                 DATASET_ATTRS_KEY: self.ds_attrs,
+                CONFIDENCE_DIMS_KEY: self.confidence_dims,
             },
             **points_style.as_kwargs(),
         )
