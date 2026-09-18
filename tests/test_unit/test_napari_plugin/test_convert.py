@@ -327,6 +327,40 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
         _nan_confidence_at_nan_pos(ds),
     )
 
+def test_individual_wise_confidence_round_trip(
+    valid_poses_dataset_with_individual_wise_confidence,
+):
+    """Test that individual-wise confidence survives a napari round trip."""
+    ds = valid_poses_dataset_with_individual_wise_confidence
+
+    # The input dataset has individual-wise confidence:
+    # (time, individual), rather than point-wise confidence:
+    # (time, keypoint, individual).
+    assert ds.confidence.dims == ("time", "individual")
+
+    napari_tracks, _, properties_with_nan = ds_to_napari_layers(ds)
+
+    # Simulate loader widget filtering of NaN positions.
+    valid_point_mask = ~np.any(np.isnan(napari_tracks[:, 2:4]), axis=1)
+    properties_with_nan["position_is_nan"] = ~valid_point_mask
+
+    # Convert Tracks layer to the Points layer representation expected by
+    # napari_layers_to_ds().
+    napari_points = napari_tracks[valid_point_mask, 1:]
+    properties = properties_with_nan.iloc[valid_point_mask].reset_index(
+        drop=True
+    )
+
+    reconstructed_ds = napari_layers_to_ds(
+    napari_points,
+    properties,
+    properties_with_nan,
+    attrs=ds.attrs,
+    confidence_dims=tuple(ds.confidence.dims),
+)
+
+    assert reconstructed_ds.confidence.dims == ("time", "individual")
+
 
 # NaN scenarios shared by the napari-layer round-trip tests below.
 # Each entry is passed to ``valid_poses_path_and_ds_with_localised_nans``

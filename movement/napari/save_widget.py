@@ -11,6 +11,7 @@ from movement.napari.loader_widgets import (
     DATASET_ATTRS_KEY,
     POINTS_LAYER_KEY,
     POINTS_PROPERTIES_KEY,
+    CONFIDENCE_DIMS_KEY,
 )
 from movement.utils.logging import logger
 from movement.validators.files import validate_file_path
@@ -87,11 +88,12 @@ class DataSaver(QWidget):
                 file_path, permission="w", suffixes={".nc"}
             )
             ds = napari_layers_to_ds(
-                points_as_napari=layer.data,
-                properties=layer.properties,
-                properties_with_nans=layer.metadata[POINTS_PROPERTIES_KEY],
-                attrs=layer.metadata[DATASET_ATTRS_KEY],
-            )
+    points_as_napari=layer.data,
+    properties=layer.properties,
+    properties_with_nans=layer.metadata[POINTS_PROPERTIES_KEY],
+    attrs=layer.metadata[DATASET_ATTRS_KEY],
+    confidence_dims=layer.metadata[CONFIDENCE_DIMS_KEY],
+)
             save_dataset(ds, valid_path)
         except Exception as e:
             show_error(f"Failed to save dataset to '{file_path}': {e}")
