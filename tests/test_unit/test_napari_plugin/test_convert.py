@@ -327,6 +327,7 @@ def test_valid_poses_roundtrip_napari_layer_to_dataset(ds_dataset, request):
         _nan_confidence_at_nan_pos(ds),
     )
 
+
 def test_individual_wise_confidence_round_trip(
     valid_poses_dataset_with_individual_wise_confidence,
 ):
@@ -352,12 +353,12 @@ def test_individual_wise_confidence_round_trip(
     )
 
     reconstructed_ds = napari_layers_to_ds(
-    napari_points,
-    properties,
-    properties_with_nan,
-    attrs=ds.attrs,
-    confidence_dims=tuple(ds.confidence.dims),
-)
+        napari_points,
+        properties,
+        properties_with_nan,
+        attrs=ds.attrs,
+        confidence_dims=tuple(ds.confidence.dims),
+    )
 
     assert reconstructed_ds.confidence.dims == ("time", "individual")
 

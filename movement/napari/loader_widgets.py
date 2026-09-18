@@ -354,12 +354,12 @@ class DataLoader(QWidget):
             self.data[self.data_not_nan, 1:],
             properties=points_properties.iloc[self.data_not_nan, :],
             metadata={
-    MAX_FRAME_IDX_KEY: max(self.data[:, 1]),
-    POINTS_LAYER_KEY: True,
-    POINTS_PROPERTIES_KEY: self.properties,
-    DATASET_ATTRS_KEY: self.ds_attrs,
-    CONFIDENCE_DIMS_KEY: self.confidence_dims,
-},
+                MAX_FRAME_IDX_KEY: max(self.data[:, 1]),
+                POINTS_LAYER_KEY: True,
+                POINTS_PROPERTIES_KEY: self.properties,
+                DATASET_ATTRS_KEY: self.ds_attrs,
+                CONFIDENCE_DIMS_KEY: self.confidence_dims,
+            },
             **points_style.as_kwargs(),
         )
         self.points_layer.events.data.connect(on_points_data_changed)
