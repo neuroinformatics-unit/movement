@@ -33,6 +33,7 @@ Use {func}`~movement.io.load.get_supported_source_software` and {func}`~movement
 | [SLEAP](sleap:)                                                             | SLEAP        | [analysis](sleap-docs:tutorial/exporting-the-results/#analysis-hdf5) .h5 or .slp file                                     | Pose                 | Load & Save          |
 | [LightningPose](lp:)                                                        | LP           | DLC-style .csv file, or corresponding pandas DataFrame                                                                    | Pose                 | Load & Save          |
 | [Anipose](anipose:)                                                         |              | triangulation .csv file, or corresponding pandas DataFrame                                                                | Pose                 | Load                 |
+| [COCO](https://cocodataset.org/) | COCO | COCO keypoint results `.json` file, optionally with a COCO annotations `.json` file | Pose | Load |
 | [VGG Image Annotator](via:)                                                 | VIA          | .csv file for [tracks annotation](via:docs/face_track_annotation.html)                                                    | Bounding box         | Load & Save          |
 | [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB          | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose)                                | Pose                 | Load & Save          |
 | Any                                                                         |              | Numpy arrays                                                                                                              | Pose or Bounding box | Load & Save\*        |
@@ -185,6 +186,34 @@ ds = load_poses.from_anipose_file(
 You can also directly load any pandas DataFrame `df` that's formatted in the Anipose triangulation style:
 ```python
 ds = load_poses.from_anipose_style_df(df, fps=30, individual_name="id_0")
+```
+::::
+
+::::{tab-item} COCO
+To load COCO keypoint results from a JSON file:
+```python
+ds = load_poses.from_coco_file(
+    "/path/to/results.json",
+    fps=30,
+)
+```
+The loader supports COCO keypoint results files and validates their structure before converting the detections into a movement poses dataset.
+
+For COCO results containing multiple detections per frame, the category_as_track argument can be used to interpret the COCO category as the tracking identity:
+```python
+ds = load_poses.from_coco_file(
+    "/path/to/results.json",
+    fps=30,
+    category_as_track=True,
+)
+```
+A COCO annotations file can optionally be provided when loading results:
+```python
+ds = load_poses.from_coco_file(
+    "/path/to/results.json",
+    fps=30,
+    annotations_file="/path/to/annotations.json",
+)
 ```
 ::::
 
