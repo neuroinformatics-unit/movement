@@ -276,3 +276,166 @@ def test_load_from_nwb_file(input_type, kwargs, request):
     if input_type == "nwb_file":
         expected_attrs["source_file"] = nwb_file
     assert ds_from_file_path.attrs == expected_attrs
+
+
+def test_from_coco_file(coco_keypoints_file):
+    """Test loading COCO keypoint results."""
+    ds = load_poses.from_coco_file(coco_keypoints_file)
+
+    assert ds.sizes["time"] == 2
+    assert ds.sizes["individual"] == 2
+    assert ds.sizes["keypoint"] == 2
+
+    np.testing.assert_array_equal(
+        ds.time.values,
+        [10, 20],
+    )
+
+    np.testing.assert_array_equal(
+        ds.position.values[0, :, :, 0],
+        [[10, 30], [20, 40]],
+    )
+
+    np.testing.assert_array_equal(
+        ds.position.values[0, :, :, 1],
+        [[50, 70], [60, 80]],
+    )
+
+    np.testing.assert_array_equal(
+        ds.position.values[1, :, :, 0],
+        [[15, 35], [25, 45]],
+    )
+
+    assert np.isnan(ds.position.values[1, :, :, 1]).all()
+
+    np.testing.assert_allclose(
+        ds.confidence.values[0, 0],
+        0.9,
+    )
+
+    np.testing.assert_allclose(
+        ds.confidence.values[0, 1],
+        0.8,
+    )
+
+    np.testing.assert_allclose(
+        ds.confidence.values[1, 0],
+        0.7,
+    )
+
+    assert np.isnan(ds.confidence.values[1, 1])
+
+
+def test_from_coco_file_category_as_track(
+    coco_keypoints_file_category_as_track,
+    coco_annotations_file_category_as_track,
+):
+    """Test using COCO categories as individual."""
+    ds = load_poses.from_coco_file(
+        coco_keypoints_file_category_as_track,
+        annotations_file=coco_annotations_file_category_as_track,
+        category_as_track=True,
+    )
+
+    assert ds.sizes["time"] == 1
+    assert ds.sizes["individual"] == 3
+    assert ds.sizes["keypoint"] == 2
+
+    assert list(ds.individual.values) == ["person", "cat", "dog"]
+    assert list(ds.keypoint.values) == ["nose", "left_eye"]
+
+    np.testing.assert_array_equal(
+        ds.position.values[0, :, :, 0],
+        [[10, 30], [20, 40]],
+    )
+
+    np.testing.assert_array_equal(
+        ds.position.values[0, :, :, 1],
+        [[50, 70], [60, 80]],
+    )
+
+    assert np.isnan(ds.position.values[0, :, :, 2]).all()
+
+    np.testing.assert_allclose(
+        ds.confidence.values[0, 0],
+        0.9,
+    )
+
+    np.testing.assert_allclose(
+        ds.confidence.values[0, 1],
+        0.8,
+    )
+
+    assert np.isnan(ds.confidence.values[0, 2])
+
+
+@pytest.mark.parametrize(
+    "results_fixture, annotations_fixture, match",
+    [
+        pytest.param(
+            "coco_keypoints_file_duplicate_category",
+            "coco_annotations_file_person",
+            "multiple detections",
+            id="duplicate-category-in-frame",
+        ),
+        pytest.param(
+            "coco_keypoints_file_unknown_category",
+            "coco_annotations_file_person",
+            "not present in the annotations file",
+            id="unknown-category",
+        ),
+        pytest.param(
+            "coco_keypoints_file_different_skeleton",
+            "coco_annotations_file_different_skeleton",
+            "different keypoint skeletons",
+            id="different-skeletons",
+        ),
+    ],
+)
+def test_from_coco_file_errors(
+    request,
+    results_fixture,
+    annotations_fixture,
+    match,
+):
+    """Test errors raised for invalid COCO pose data."""
+    results_file = request.getfixturevalue(results_fixture)
+    annotations_file = request.getfixturevalue(annotations_fixture)
+
+    with pytest.raises(ValueError, match=match):
+        load_poses.from_coco_file(
+            results_file,
+            annotations_file=annotations_file,
+            category_as_track=True,
+        )
+
+
+@pytest.mark.parametrize("category_as_track", [False, True])
+def test_from_coco_file_without_annotations(
+    coco_keypoints_file_without_annotations,
+    category_as_track,
+):
+    """Test loading COCO results without an annotations file."""
+    ds = load_poses.from_coco_file(
+        coco_keypoints_file_without_annotations,
+        category_as_track=category_as_track,
+    )
+
+    assert ds.sizes["time"] == 1
+    assert ds.sizes["individual"] == 1
+    assert ds.sizes["keypoint"] == 2
+
+    np.testing.assert_array_equal(
+        ds.time.values,
+        [20],
+    )
+
+    np.testing.assert_array_equal(
+        ds.position.values[0, :, :, 0],
+        [[10, 30], [20, 40]],
+    )
+
+    np.testing.assert_allclose(
+        ds.confidence.values[0, 0],
+        0.9,
+    )
