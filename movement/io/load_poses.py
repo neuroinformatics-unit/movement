@@ -1,5 +1,6 @@
 """Load pose tracking data from various frameworks into ``movement``."""
 
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Literal, cast
 
@@ -409,13 +410,7 @@ def _get_coco_individual_info(
 
         return len(category_ids), individual_names, individual_index
 
-    detections_per_frame: dict[int, int] = {}
-
-    for result in results:
-        image_id = result["image_id"]
-        detections_per_frame[image_id] = (
-            detections_per_frame.get(image_id, 0) + 1
-        )
+    detections_per_frame = Counter(result["image_id"] for result in results)
 
     n_individuals = max(detections_per_frame.values(), default=1)
 
@@ -491,7 +486,7 @@ def from_coco_file(
         dtype=np.float32,
     )
 
-    next_individual = {frame_id: 0 for frame_id in frame_ids}
+    next_individual: dict[int, int] = defaultdict(int)
 
     for result in results:
         image_id = result["image_id"]
