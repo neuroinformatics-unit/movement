@@ -307,7 +307,6 @@ def loader_with_edited_point(
         new_y=100,
         new_x=200,
     )
-    loader.viewer.layers.selection.active = loader.points_layer
     return loader
 
 
@@ -335,7 +334,6 @@ def loader_with_two_edited_individuals(
             new_y=100,
             new_x=200,
         )
-    loader.viewer.layers.selection.active = loader.points_layer
     return loader
 
 
