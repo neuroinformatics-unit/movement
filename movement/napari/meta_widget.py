@@ -41,13 +41,6 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             widget_title="Load tracked data",
         )
 
-        # Add the Regions widget
-        self.add_widget(
-            RegionsWidget(napari_viewer, parent=self),
-            collapsible=True,
-            widget_title="Define regions of interest",
-        )
-
         # The edit timeline widget is best shown full-width rather
         # than squeezed into this side panel. This collapsible section
         # instead acts as a switch: expanding it docks the widget at
@@ -71,6 +64,13 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             DataSaver(napari_viewer, parent=self),
             collapsible=True,
             widget_title="Save tracked data",
+        )
+
+        # Add the Regions widget
+        self.add_widget(
+            RegionsWidget(napari_viewer, parent=self),
+            collapsible=True,
+            widget_title="Define regions of interest",
         )
 
         loader_collapsible = self.collapsible_widgets[0]

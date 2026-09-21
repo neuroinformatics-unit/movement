@@ -22,15 +22,15 @@ def test_meta_widget_instantiation(make_napari_viewer_proxy):
     assert first_widget.isExpanded()
 
     second_widget = meta_widget.collapsible_widgets[1]
-    assert second_widget._text == "Define regions of interest"
+    assert second_widget._text == "Edit tracked data"
     assert not second_widget.isExpanded()
 
     third_widget = meta_widget.collapsible_widgets[2]
-    assert third_widget._text == "Edit tracked data"
+    assert third_widget._text == "Save tracked data"
     assert not third_widget.isExpanded()
 
     fourth_widget = meta_widget.collapsible_widgets[3]
-    assert fourth_widget._text == "Save tracked data"
+    assert fourth_widget._text == "Define regions of interest"
     assert not fourth_widget.isExpanded()
 
 
@@ -40,7 +40,7 @@ def test_edit_timeline_widget_collapsable_roundtrip(
     """Expand, collapse, then re-expand the "Edit tracked data" section."""
     viewer = make_napari_viewer_proxy()
     meta_widget = MovementMetaWidget(viewer)
-    edit_timeline_collapsible = meta_widget.collapsible_widgets[2]
+    edit_timeline_collapsible = meta_widget.collapsible_widgets[1]
 
     edit_timeline_collapsible.expand(animate=False)
     assert meta_widget.edit_timeline_widget is not None
@@ -69,7 +69,7 @@ def test_closing_edit_timeline_dock_via_its_x_resets_state(
     """
     viewer = make_napari_viewer_proxy()
     meta_widget = MovementMetaWidget(viewer)
-    edit_timeline_collapsible = meta_widget.collapsible_widgets[2]
+    edit_timeline_collapsible = meta_widget.collapsible_widgets[1]
     edit_timeline_collapsible.expand(animate=False)
     assert meta_widget.edit_timeline_widget is not None
 
@@ -86,7 +86,7 @@ def test_show_individuals_checkbox_edit_timeline_widget(
     """The sidebar checkbox controls the docked timeline's lane display."""
     viewer = make_napari_viewer_proxy()
     meta_widget = MovementMetaWidget(viewer)
-    edit_timeline_collapsible = meta_widget.collapsible_widgets[2]
+    edit_timeline_collapsible = meta_widget.collapsible_widgets[1]
     edit_timeline_collapsible.expand(animate=False)
 
     meta_widget.edit_controls.show_individuals_checkbox.setChecked(True)
@@ -198,7 +198,7 @@ def test_expanding_edit_section_autoselects_points_layer(
     """Expanding the section makes a movement Points layer active."""
     viewer = make_napari_viewer_proxy()
     meta_widget = MovementMetaWidget(viewer)
-    edit_timeline_collapsible = meta_widget.collapsible_widgets[2]
+    edit_timeline_collapsible = meta_widget.collapsible_widgets[1]
 
     points_layer = viewer.add_points(
         np.zeros((1, 2)),
@@ -226,7 +226,7 @@ def test_expanding_edit_section_keeps_movement_layer_active(
     """A movement Points layer already active is left selected."""
     viewer = make_napari_viewer_proxy()
     meta_widget = MovementMetaWidget(viewer)
-    edit_timeline_collapsible = meta_widget.collapsible_widgets[2]
+    edit_timeline_collapsible = meta_widget.collapsible_widgets[1]
 
     viewer.add_points(
         np.zeros((1, 2)),
@@ -269,7 +269,7 @@ def test_edit_section_stays_collapsed_on_load(
     """
     viewer = make_napari_viewer_proxy()
     meta_widget = MovementMetaWidget(viewer)
-    edit_timeline_collapsible = meta_widget.collapsible_widgets[2]
+    edit_timeline_collapsible = meta_widget.collapsible_widgets[1]
     if pre_expanded:
         edit_timeline_collapsible.expand(
             animate=False
@@ -311,7 +311,7 @@ def test_editing_points_expands_edit_section(
     )
     viewer = make_napari_viewer_proxy()
     meta_widget = MovementMetaWidget(viewer)
-    edit_timeline_collapsible = meta_widget.collapsible_widgets[2]
+    edit_timeline_collapsible = meta_widget.collapsible_widgets[1]
 
     layer = viewer.add_points(
         np.zeros((1, 2)),
