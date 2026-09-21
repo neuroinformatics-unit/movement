@@ -312,28 +312,39 @@ def test_reconstruct_previously_removed_points_without_a_layer():
     )
 
 
-def test_reconstruct_previously_removed_points_recovers_saved_removals():
-    """A NaN + edited row from a saved session is reconstructed as removed.
+@pytest.mark.parametrize(
+    "times, removed_idx",
+    [
+        pytest.param([0, 1, 2], 1, id="integer_times_fps1"),
+        pytest.param([0.0, 0.5, 1.0], 1, id="subsecond_times_fps2"),
+        pytest.param([0.0, 0.1, 0.2, 0.3], 2, id="subsecond_times_fps10"),
+        pytest.param([0.0, 0.5, 1.0], 2, id="removed_at_last_frame"),
+    ],
+)
+def test_reconstruct_removed_point_maps_time_to_frame_index(
+    times, removed_idx
+):
+    """A saved removal reconstructs at its frame index, not its time.
 
-    A point removed and saved in an earlier session comes back as a NaN
-    row rather than a live one, so it can only be recovered from the
-    full properties table (including NaN rows) stashed in
-    ``POINTS_PROPERTIES_KEY`` at load time -- see
-    ``_reconstruct_previously_removed_points``.
+    The timeline is indexed by integer frame, but a row's ``time`` is in
+    seconds when ``fps`` is set. A point removed and saved from a dataset
+    with ``fps != 1`` must map back to its ordinal frame position.
     """
+    n = len(times)
+    is_removed = [i == removed_idx for i in range(n)]
     properties = pd.DataFrame(
         {
-            "time": [0, 1, 2],
-            "individual": ["id_0", "id_0", "id_0"],
-            "position_is_nan": [False, True, False],
-            "edited": [False, True, False],
+            "time": times,
+            "individual": ["id_0"] * n,
+            "position_is_nan": is_removed,
+            "edited": is_removed,
         }
     )
     layer = Mock(metadata={POINTS_PROPERTIES_KEY: properties})
 
-    result = EditTimelineWidget._reconstruct_previously_removed_points(layer)
+    result = EditWidget._reconstruct_previously_removed_points(layer)
 
-    assert result == [(1, "id_0")]
+    assert result == [(removed_idx, "id_0")]
 
 
 def test_reconstruct_previously_removed_points_without_any_removed_ones():
