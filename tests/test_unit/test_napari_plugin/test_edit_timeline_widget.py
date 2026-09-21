@@ -342,7 +342,7 @@ def test_reconstruct_removed_point_maps_time_to_frame_index(
     )
     layer = Mock(metadata={POINTS_PROPERTIES_KEY: properties})
 
-    result = EditWidget._reconstruct_previously_removed_points(layer)
+    result = EditTimelineWidget._reconstruct_previously_removed_points(layer)
 
     assert result == [(removed_idx, "id_0")]
 
@@ -527,10 +527,10 @@ def test_bar_colours_follow_display_mode_not_edited_data(
     layer.face_color = np.array(
         [known[ind] for ind in layer.properties["individual"]]
     )
-    edit_widget._redraw_bars()
+    edit_timeline_widget._redraw_bars()
 
     # id_0 edited on frame 2; id_1 on frames 2 and 5, so  red once, blue twice.
-    assert sorted(_bar_colors(edit_widget)) == pytest.approx(
+    assert sorted(_bar_colors(edit_timeline_widget)) == pytest.approx(
         sorted([known["id_0"], known["id_1"], known["id_1"]])
     )
 

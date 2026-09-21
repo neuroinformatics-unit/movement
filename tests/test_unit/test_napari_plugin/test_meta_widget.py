@@ -4,7 +4,6 @@ import numpy as np
 import pytest
 from napari.layers.base import ActionType
 
-from movement.napari.loader_widgets import POINTS_LAYER_KEY
 from movement.napari.meta_widget import MovementMetaWidget
 
 
@@ -104,7 +103,7 @@ def test_show_individuals_checkbox_edit_timeline_widget(
     ],
 )
 def test_show_individuals_checkbox_enabled_only_for_multiple(
-    make_napari_viewer_proxy, individuals, expect_enabled
+    make_napari_viewer_proxy, add_movement_points, individuals, expect_enabled
 ):
     """Disable "Display individuals" for single-individual datasets."""
     viewer = make_napari_viewer_proxy()
@@ -113,22 +112,14 @@ def test_show_individuals_checkbox_enabled_only_for_multiple(
 
     assert not checkbox.isEnabled()  # nothing loaded yet
 
-    n = len(individuals)
-    layer = viewer.add_points(
-        np.zeros((n, 2)),
-        properties={
-            "edited": np.array([False] * n),
-            "individual": np.array(individuals),
-        },
-        metadata={POINTS_LAYER_KEY: True},
-    )
+    layer = add_movement_points(viewer, individuals)
     viewer.layers.selection.active = layer
 
     assert checkbox.isEnabled() is expect_enabled
 
 
 def test_show_individuals_enabled_noop_without_a_movement_layer(
-    make_napari_viewer_proxy,
+    make_napari_viewer_proxy, add_movement_points
 ):
     """Selecting a non-movement layer leaves the checkbox state untouched.
 
@@ -141,14 +132,7 @@ def test_show_individuals_enabled_noop_without_a_movement_layer(
     meta_widget = MovementMetaWidget(viewer)
     checkbox = meta_widget.edit_controls.show_individuals_checkbox
 
-    multi = viewer.add_points(
-        np.zeros((2, 2)),
-        properties={
-            "edited": np.array([False, False]),
-            "individual": np.array(["id_0", "id_1"]),
-        },
-        metadata={POINTS_LAYER_KEY: True},
-    )
+    multi = add_movement_points(viewer, ["id_0", "id_1"])
     viewer.layers.selection.active = multi
     assert checkbox.isEnabled()  # sanity: enabled for multi-individual data
 
@@ -160,32 +144,18 @@ def test_show_individuals_enabled_noop_without_a_movement_layer(
 
 
 def test_show_individuals_unchecked_when_switching_to_single(
-    make_napari_viewer_proxy,
+    make_napari_viewer_proxy, add_movement_points
 ):
     """Switching to a single-individual layer clears an active check."""
     viewer = make_napari_viewer_proxy()
     meta_widget = MovementMetaWidget(viewer)
     checkbox = meta_widget.edit_controls.show_individuals_checkbox
 
-    multi = viewer.add_points(
-        np.zeros((2, 2)),
-        properties={
-            "edited": np.array([False, False]),
-            "individual": np.array(["id_0", "id_1"]),
-        },
-        metadata={POINTS_LAYER_KEY: True},
-    )
+    multi = add_movement_points(viewer, ["id_0", "id_1"])
     viewer.layers.selection.active = multi
     checkbox.setChecked(True)
 
-    single = viewer.add_points(
-        np.zeros((1, 2)),
-        properties={
-            "edited": np.array([False]),
-            "individual": np.array(["id_0"]),
-        },
-        metadata={POINTS_LAYER_KEY: True},
-    )
+    single = add_movement_points(viewer)
     viewer.layers.selection.active = single
 
     assert not checkbox.isEnabled()
@@ -193,21 +163,14 @@ def test_show_individuals_unchecked_when_switching_to_single(
 
 
 def test_expanding_edit_section_autoselects_points_layer(
-    make_napari_viewer_proxy,
+    make_napari_viewer_proxy, add_movement_points
 ):
     """Expanding the section makes a movement Points layer active."""
     viewer = make_napari_viewer_proxy()
     meta_widget = MovementMetaWidget(viewer)
     edit_timeline_collapsible = meta_widget.collapsible_widgets[1]
 
-    points_layer = viewer.add_points(
-        np.zeros((1, 2)),
-        properties={
-            "edited": np.array([False]),
-            "individual": np.array(["id_0"]),
-        },
-        metadata={POINTS_LAYER_KEY: True},
-    )
+    points_layer = add_movement_points(viewer)
     # An unrelated layer stealing the active selection.
     other_layer = viewer.add_points(np.zeros((1, 2)))
     viewer.layers.selection.active = other_layer
@@ -221,29 +184,15 @@ def test_expanding_edit_section_autoselects_points_layer(
 
 
 def test_expanding_edit_section_keeps_movement_layer_active(
-    make_napari_viewer_proxy,
+    make_napari_viewer_proxy, add_movement_points
 ):
     """A movement Points layer already active is left selected."""
     viewer = make_napari_viewer_proxy()
     meta_widget = MovementMetaWidget(viewer)
     edit_timeline_collapsible = meta_widget.collapsible_widgets[1]
 
-    viewer.add_points(
-        np.zeros((1, 2)),
-        properties={
-            "edited": np.array([False]),
-            "individual": np.array(["id_0"]),
-        },
-        metadata={POINTS_LAYER_KEY: True},
-    )
-    second_layer = viewer.add_points(
-        np.zeros((1, 2)),
-        properties={
-            "edited": np.array([False]),
-            "individual": np.array(["id_0"]),
-        },
-        metadata={POINTS_LAYER_KEY: True},
-    )
+    add_movement_points(viewer)
+    second_layer = add_movement_points(viewer)
     viewer.layers.selection.active = second_layer
 
     edit_timeline_collapsible.expand(animate=False)
@@ -259,7 +208,7 @@ def test_expanding_edit_section_keeps_movement_layer_active(
     ],
 )
 def test_edit_section_stays_collapsed_on_load(
-    make_napari_viewer_proxy, edited, pre_expanded
+    make_napari_viewer_proxy, add_movement_points, edited, pre_expanded
 ):
     """Loading a layer always collapses the edit timeline section.
 
@@ -279,14 +228,7 @@ def test_edit_section_stays_collapsed_on_load(
             not edit_timeline_collapsible.isExpanded()
         )  # collapsed by default
 
-    viewer.add_points(
-        np.zeros((1, 2)),
-        properties={
-            "edited": np.array([edited]),
-            "individual": np.array(["id_0"]),
-        },
-        metadata={POINTS_LAYER_KEY: True},
-    )
+    add_movement_points(viewer, edited=[edited])
 
     assert not edit_timeline_collapsible.isExpanded()
 
@@ -300,7 +242,11 @@ def test_edit_section_stays_collapsed_on_load(
     ],
 )
 def test_editing_points_expands_edit_section(
-    make_napari_viewer_proxy, mocker, action, expect_expanded
+    make_napari_viewer_proxy,
+    add_movement_points,
+    mocker,
+    action,
+    expect_expanded,
 ):
     """Dragging or removing a point opens the "Edit tracked data" section."""
     # ``_on_points_edited`` defers the expand via ``QTimer.singleShot``;
@@ -313,14 +259,7 @@ def test_editing_points_expands_edit_section(
     meta_widget = MovementMetaWidget(viewer)
     edit_timeline_collapsible = meta_widget.collapsible_widgets[1]
 
-    layer = viewer.add_points(
-        np.zeros((1, 2)),
-        properties={
-            "edited": np.array([False]),
-            "individual": np.array(["id_0"]),
-        },
-        metadata={POINTS_LAYER_KEY: True},
-    )
+    layer = add_movement_points(viewer)
     assert not edit_timeline_collapsible.isExpanded()
 
     layer.events.data(

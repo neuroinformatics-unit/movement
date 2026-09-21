@@ -8,7 +8,7 @@ from napari.layers.base import ActionType
 
 from movement.io import save_poses
 from movement.napari.layer_wiring import on_points_data_changed
-from movement.napari.loader_widgets import DataLoader
+from movement.napari.loader_widgets import POINTS_LAYER_KEY, DataLoader
 
 
 @pytest.fixture
@@ -352,3 +352,28 @@ def click_on_timeline():
         )
 
     return _click_on_timeline
+
+
+@pytest.fixture
+def add_movement_points():
+    """Return a factory that adds a movement Points layer to a viewer.
+
+    The layer has one point per entry in ``individuals`` (all at the
+    origin), with the ``edited`` and ``individual`` properties and the
+    metadata flag that mark it as a movement-loaded layer. Any extra
+    keyword arguments are forwarded to ``viewer.add_points``.
+    """
+
+    def _add(viewer, individuals=("id_0",), edited=None, **kwargs):
+        n = len(individuals)
+        return viewer.add_points(
+            np.zeros((n, 2)),
+            properties={
+                "edited": np.array([False] * n if edited is None else edited),
+                "individual": np.array(list(individuals)),
+            },
+            metadata={POINTS_LAYER_KEY: True},
+            **kwargs,
+        )
+
+    return _add

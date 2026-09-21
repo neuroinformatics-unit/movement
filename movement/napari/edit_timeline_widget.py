@@ -40,7 +40,7 @@ class EditControlsWidget(QWidget):
 
     Placed in :class:`~movement.napari.meta_widget.MovementMetaWidget`'s
     "Edit tracked data" collapsible section, which toggles and configures
-    the (separately docked) :class:`EditWidget` timeline.
+    the (separately docked) :class:`EditTimelineWidget` timeline.
     """
 
     show_individuals_toggled = Signal(bool)
