@@ -2,7 +2,6 @@
 
 from typing import TYPE_CHECKING
 
-from napari.layers import Points
 from napari.layers.base import ActionType
 from napari.viewer import Viewer
 from qt_niu.collapsible_widget import CollapsibleWidgetContainer
@@ -15,7 +14,11 @@ from movement.napari.edit_timeline_widget import (
     EditControlsWidget,
     EditTimelineWidget,
 )
-from movement.napari.loader_widgets import POINTS_LAYER_KEY, DataLoader
+from movement.napari.layer_wiring import (
+    active_movement_points_layer,
+    is_movement_points_layer,
+)
+from movement.napari.loader_widgets import DataLoader
 from movement.napari.regions_widget import RegionsWidget
 from movement.napari.save_widget import DataSaver
 
@@ -82,18 +85,10 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             self._show_individuals_enabled
         )
 
-    @staticmethod
-    def _is_movement_points(layer) -> bool:
-        """Return ``True`` if ``layer`` is a movement-loaded Points layer."""
-        layer = getattr(layer, "__wrapped__", layer)
-        return isinstance(layer, Points) and bool(
-            layer.metadata.get(POINTS_LAYER_KEY)
-        )
-
     def _on_layer_inserted(self, event) -> None:
         """Keep the edit timeline section collapsed until a point is edited."""
         layer = event.value
-        if not self._is_movement_points(layer):
+        if not is_movement_points_layer(layer):
             return  # ignore any layer that is not a movement Points layer
         self._show_individuals_enabled()
         # Open the edit timeline section as soon as a point is edited
@@ -152,9 +147,9 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         Leave the active layer alone if it is already a movement Points
         layer; otherwise select the last one in the layer list.
         """
-        if self._is_movement_points(self._viewer.layers.selection.active):
+        if is_movement_points_layer(self._viewer.layers.selection.active):
             return
-        layer = self._active_movement_points_layer()
+        layer = active_movement_points_layer(self._viewer)
         if layer is not None:
             self._viewer.layers.selection.active = layer
 
@@ -163,16 +158,6 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         if self.edit_timeline_widget is not None:
             self.edit_timeline_widget.set_show_individuals(checked)
 
-    def _active_movement_points_layer(self):
-        """Return the active movement Points layer, or the last one."""
-        active = self._viewer.layers.selection.active
-        if self._is_movement_points(active):
-            return getattr(active, "__wrapped__", active)
-        for layer in reversed(self._viewer.layers):
-            if self._is_movement_points(layer):
-                return getattr(layer, "__wrapped__", layer)
-        return None
-
     def _show_individuals_enabled(self, *_) -> None:
         """Enable "Display individuals" only for multi-individual data.
 
@@ -180,7 +165,7 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         is disabled (and unchecked, falling back to the single-colour
         shared lane).
         """
-        layer = self._active_movement_points_layer()
+        layer = active_movement_points_layer(self._viewer)
         if layer is None:
             return
         individuals = layer.properties.get("individual")

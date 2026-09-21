@@ -5,12 +5,13 @@ syncing it to the current frame via ``viewer.dims.events.current_step``:
 https://gist.github.com/jni/a0ae9793a0ca43868dd7dce7ea21df79
 """
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 from matplotlib.backends.backend_qtagg import (
     FigureCanvasQTAgg as FigureCanvas,
 )
 from matplotlib.figure import Figure
-from napari.layers import Points
 from napari.layers.base import ActionType
 from napari.utils.theme import get_theme
 from napari.viewer import Viewer
@@ -19,9 +20,13 @@ from qtpy.QtWidgets import QCheckBox, QLabel, QVBoxLayout, QWidget
 
 from movement.napari.layer_wiring import (
     MAX_FRAME_IDX_KEY,
-    POINTS_LAYER_KEY,
     POINTS_PROPERTIES_KEY,
+    active_movement_points_layer,
+    is_movement_points_layer,
 )
+
+if TYPE_CHECKING:
+    from napari.layers import Points
 
 # A click never lands exactly on a frame (e.g. 42.3, not 42), so treat
 # any click within this fraction of the visible frame range as a hit.
@@ -133,10 +138,8 @@ class EditTimelineWidget(QWidget):
 
         for layer in self.viewer.layers:
             self._track_layer(layer)
-        # Initialise from an existing movement Points layer directly rather
-        # than from viewer.layers.selection.active: on a headless backend the
-        # active selection may not be the Points layer at construction.
-        self._set_active_layer(self._find_movement_points_layer())
+        # Latch onto an existing movement Points layer
+        self._set_active_layer(active_movement_points_layer(self.viewer))
 
     def _style_axes(self):
         """Set the static appearance of the timeline axes."""
@@ -174,7 +177,7 @@ class EditTimelineWidget(QWidget):
 
     def _track_layer(self, layer):
         """Connect to a movement Points layer's data-change event."""
-        if isinstance(layer, Points) and layer.metadata.get(POINTS_LAYER_KEY):
+        if is_movement_points_layer(layer):
             layer.events.data.connect(self._on_layer_data_changed)
 
     def _on_layer_inserted(self, event):
@@ -198,32 +201,6 @@ class EditTimelineWidget(QWidget):
         """
         self._show_individuals = checked
         self._redraw_bars()
-
-    @staticmethod
-    def _is_movement_points(layer):
-        """Return True for a movement-loaded napari Points layer."""
-        return isinstance(layer, Points) and layer.metadata.get(
-            POINTS_LAYER_KEY
-        )
-
-    def _find_movement_points_layer(self):
-        """Return the active movement Points layer, else the last one.
-
-        Falls back to scanning the layer list so the timeline can latch
-        onto a Points layer even when the active selection is something
-        else (or unset).
-        """
-        active = self.viewer.layers.selection.active
-        # Unwrap napari's PublicOnlyProxy so `is` comparisons against the
-        # raw layers carried by layer events succeed.
-        active = getattr(active, "__wrapped__", active)
-        if self._is_movement_points(active):
-            return active
-        for layer in reversed(self.viewer.layers):
-            layer = getattr(layer, "__wrapped__", layer)
-            if self._is_movement_points(layer):
-                return layer
-        return None
 
     def _set_active_layer(self, layer):
         """Display edited frames for ``layer``, a movement Points layer.
@@ -250,7 +227,7 @@ class EditTimelineWidget(QWidget):
         """
         active = self.viewer.layers.selection.active
         active = getattr(active, "__wrapped__", active)
-        if not self._is_movement_points(active):
+        if not is_movement_points_layer(active):
             return
         self._set_active_layer(active)
 

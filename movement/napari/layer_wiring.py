@@ -45,6 +45,31 @@ MAX_FRAME_IDX_KEY: str = "movement_max_frame_idx"
 _WIRED_VIEWERS: WeakSet = WeakSet()
 
 
+# ---- Layer helpers -------------------------------------
+def is_movement_points_layer(layer) -> bool:
+    """Return ``True`` for a movement-loaded napari Points layer."""
+    layer = getattr(layer, "__wrapped__", layer)
+    return isinstance(layer, Points) and bool(
+        layer.metadata.get(POINTS_LAYER_KEY)
+    )
+
+
+def active_movement_points_layer(viewer):
+    """Return the active movement Points layer, else the last one, else None.
+
+    Prefers napari's active selection, but falls back to scanning the layer
+    list so a Points layer is still found when the active selection is
+    something else or unset.
+    """
+    active = viewer.layers.selection.active
+    if is_movement_points_layer(active):
+        return getattr(active, "__wrapped__", active)
+    for layer in reversed(viewer.layers):
+        if is_movement_points_layer(layer):
+            return getattr(layer, "__wrapped__", layer)
+    return None
+
+
 # ---- Callbacks with viewer lifetime --------------------
 def connect_viewer_callbacks(viewer) -> None:
     """Wire the layer callbacks to a viewer, skipping if already wired.
@@ -128,7 +153,7 @@ def update_points_layers_editable(viewer, event=None):
     """
     is_editable = frame_axis_is_sliced(viewer)
     for layer in viewer.layers:
-        if isinstance(layer, Points) and layer.metadata.get(POINTS_LAYER_KEY):
+        if is_movement_points_layer(layer):
             layer.editable = is_editable
 
 
