@@ -75,14 +75,8 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         loader_collapsible = self.collapsible_widgets[0]
         loader_collapsible.expand()  # expand the loader widget by default
 
-        # A newly loaded dataset keeps the edit timeline section collapsed,
-        # whether or not it contains previously edited points. The
-        # section only opens once a point is actually edited in this
-        # session (see ``_on_points_edited``).
         napari_viewer.layers.events.inserted.connect(self._on_layer_inserted)
 
-        # "Display individuals" is meaningless with a single individual;
-        # keep it disabled until a multi-individual layer is active.
         self.edit_controls.show_individuals_checkbox.setEnabled(False)
         napari_viewer.layers.selection.events.active.connect(
             self._show_individuals_enabled
