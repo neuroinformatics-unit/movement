@@ -17,7 +17,8 @@ from napari.viewer import Viewer
 from qtpy.QtCore import QTimer, Signal
 from qtpy.QtWidgets import QCheckBox, QLabel, QVBoxLayout, QWidget
 
-from movement.napari.loader_widgets import (
+from movement.napari.layer_wiring import (
+    MAX_FRAME_IDX_KEY,
     POINTS_LAYER_KEY,
     POINTS_PROPERTIES_KEY,
 )
@@ -132,7 +133,10 @@ class EditTimelineWidget(QWidget):
 
         for layer in self.viewer.layers:
             self._track_layer(layer)
-        self._on_active_layer_changed()
+        # Initialise from an existing movement Points layer directly rather
+        # than from viewer.layers.selection.active: on a headless backend the
+        # active selection may not be the Points layer at construction.
+        self._set_active_layer(self._find_movement_points_layer())
 
     def _style_axes(self):
         """Set the static appearance of the timeline axes."""
@@ -195,6 +199,48 @@ class EditTimelineWidget(QWidget):
         self._show_individuals = checked
         self._redraw_bars()
 
+    @staticmethod
+    def _is_movement_points(layer):
+        """Return True for a movement-loaded napari Points layer."""
+        return isinstance(layer, Points) and layer.metadata.get(
+            POINTS_LAYER_KEY
+        )
+
+    def _find_movement_points_layer(self):
+        """Return the active movement Points layer, else the last one.
+
+        Falls back to scanning the layer list so the timeline can latch
+        onto a Points layer even when the active selection is something
+        else (or unset).
+        """
+        active = self.viewer.layers.selection.active
+        # Unwrap napari's PublicOnlyProxy so `is` comparisons against the
+        # raw layers carried by layer events succeed.
+        active = getattr(active, "__wrapped__", active)
+        if self._is_movement_points(active):
+            return active
+        for layer in reversed(self.viewer.layers):
+            layer = getattr(layer, "__wrapped__", layer)
+            if self._is_movement_points(layer):
+                return layer
+        return None
+
+    def _set_active_layer(self, layer):
+        """Display edited frames for ``layer``, a movement Points layer.
+
+        A no-op if ``layer`` is None or already the one shown (e.g. after
+        clicking away to the Tracks layer and back).
+        """
+        if layer is None or layer is self.active_layer:
+            return
+        self.active_layer = layer
+        self._max_frame = layer.metadata.get(MAX_FRAME_IDX_KEY, 0)
+        self._removed_points = self._reconstruct_previously_removed_points(
+            layer
+        )
+        self._redraw_bars()
+        self._reset_xlim()
+
     def _on_active_layer_changed(self, event=None):
         """Switch to displaying edited frames for the active Points layer.
 
@@ -202,30 +248,11 @@ class EditTimelineWidget(QWidget):
         leaves the timeline as is, rather than blanking it. A removed
         active layer is handled separately by ``_on_layer_removed``.
         """
-        # viewer.layers.selection.active is accessed through napari's
-        # PublicOnlyProxy (wraps viewer access for plugin widgets), which
-        # returns a fresh proxy wrapping the real layer on every access.
-        # Unwrap it so later `is` comparisons against `event.source`/
-        # `event.value` (always the raw layer, since those events are
-        # emitted from inside the unwrapped layer/LayerList) succeed.
         active = self.viewer.layers.selection.active
         active = getattr(active, "__wrapped__", active)
-        if not (
-            isinstance(active, Points)
-            and active.metadata.get(POINTS_LAYER_KEY)
-        ):
+        if not self._is_movement_points(active):
             return
-        if active is self.active_layer:
-            # Re-selecting the layer already shown (e.g. after clicking
-            # away to the Tracks layer and back), return doing nothing.
-            return
-        self.active_layer = active
-        self._max_frame = self.active_layer.metadata.get("max_frame_idx", 0)
-        self._removed_points = self._reconstruct_previously_removed_points(
-            self.active_layer
-        )
-        self._redraw_bars()
-        self._reset_xlim()
+        self._set_active_layer(active)
 
     @staticmethod
     def _reconstruct_previously_removed_points(layer):
