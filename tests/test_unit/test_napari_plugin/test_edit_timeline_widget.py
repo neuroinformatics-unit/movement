@@ -521,15 +521,17 @@ def test_bar_colours_follow_display_mode_not_edited_data(
 
     edit_timeline_widget.set_show_individuals(True)
     layer = edit_timeline_widget.active_layer
-    palette: dict = {}
-    for ind, color in zip(
-        layer.properties["individual"], layer.face_color, strict=False
-    ):
-        palette.setdefault(ind, tuple(color))
-    # One bar for id_0 (frame 2) and two for id_1 (frames 2 and 5);
-    # sorted so the assertion doesn't depend on bar draw order.
-    assert sorted(_bar_colors(edit_timeline_widget)) == pytest.approx(
-        sorted([palette["id_0"], palette["id_1"], palette["id_1"]])
+    # Paint each individual a known, distinctive colour; then redraw.
+    # Bars must come back as these exact colours
+    known = {"id_0": (1.0, 0.0, 0.0, 1.0), "id_1": (0.0, 0.0, 1.0, 1.0)}
+    layer.face_color = np.array(
+        [known[ind] for ind in layer.properties["individual"]]
+    )
+    edit_widget._redraw_bars()
+
+    # id_0 edited on frame 2; id_1 on frames 2 and 5, so  red once, blue twice.
+    assert sorted(_bar_colors(edit_widget)) == pytest.approx(
+        sorted([known["id_0"], known["id_1"], known["id_1"]])
     )
 
     edit_timeline_widget.set_show_individuals(False)
