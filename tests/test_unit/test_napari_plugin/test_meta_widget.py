@@ -248,7 +248,12 @@ def test_editing_points_expands_edit_section(
     action,
     expect_expanded,
 ):
-    """Dragging or removing a point opens the "Edit tracked data" section."""
+    """Editing a point opens the section, but only while it is collapsed.
+
+    Dragging or removing a point expands the "Edit tracked data" section;
+    a repeat edit must not re-expand an already-open one (which would
+    replay the open animation on every edit).
+    """
     # ``_on_points_edited`` defers the expand via ``QTimer.singleShot``;
     # run the callback synchronously so the test does not pump the loop.
     mocker.patch(
@@ -258,15 +263,22 @@ def test_editing_points_expands_edit_section(
     viewer = make_napari_viewer_proxy()
     meta_widget = MovementMetaWidget(viewer)
     edit_timeline_collapsible = meta_widget.collapsible_widgets[1]
+    # Spy on this collapsible's expand specifically
+    expand = mocker.spy(edit_timeline_collapsible, "expand")
 
     layer = add_movement_points(viewer)
     assert not edit_timeline_collapsible.isExpanded()
 
-    layer.events.data(
-        value=layer.data,
-        action=action,
-        data_indices=(0,),
-        vertex_indices=((),),
-    )
+    def edit():
+        layer.events.data(
+            value=layer.data,
+            action=action,
+            data_indices=(0,),
+            vertex_indices=((),),
+        )
 
+    edit()
     assert edit_timeline_collapsible.isExpanded() is expect_expanded
+
+    edit()  # A repeat edit should not re-expand the collapsible
+    assert expand.call_count == (1 if expect_expanded else 0)

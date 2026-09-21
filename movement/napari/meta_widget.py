@@ -105,7 +105,9 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         the timeline widget reads it, and thus ensures the first edit
         is not missed.
         """
-        if event.action in (ActionType.CHANGED, ActionType.REMOVING):
+        if event.action in (ActionType.CHANGED, ActionType.REMOVING) and (
+            not self._edit_timeline_collapsible.isExpanded()
+        ):
             QTimer.singleShot(0, self._edit_timeline_collapsible.expand)
 
     def _on_edit_timeline_widget_toggled(self, expanded: bool) -> None:
