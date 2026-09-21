@@ -24,7 +24,7 @@ from sphinx.util import rst
 # Single-file modules to exclude from the API index
 EXCLUDE_MODULES = {
     "movement.cli_entrypoint",
-    "movement.napari.edit_widget",
+    "movement.napari.edit_timeline_widget",
     "movement.napari.loader_widgets",
     "movement.napari.regions_widget",
     "movement.napari.save_widget",

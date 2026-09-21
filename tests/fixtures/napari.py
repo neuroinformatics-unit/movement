@@ -320,7 +320,8 @@ def loader_with_two_edited_individuals(
 
     Enough to exercise both the "one bar per frame" (lanes collapsed)
     and "one bar per (frame, individual)" (individuals displayed)
-    behaviours of :class:`~movement.napari.edit_widget.EditWidget`.
+    behaviours of
+    :class:`~movement.napari.edit_timeline_widget.EditTimelineWidget`.
     """
     filepath, ds = valid_poses_path_and_ds
     loader = loaded_data_loader(filepath, ds)
@@ -339,13 +340,15 @@ def loader_with_two_edited_individuals(
 @pytest.fixture
 def click_on_timeline():
     """Return a factory that simulates a click on an
-    :class:`~movement.napari.edit_widget.EditWidget` timeline, at the
-    given x (frame) position. Pass ``dblclick=True`` to simulate a
-    double-click instead (``xdata`` is then unused, matching
+    :class:`~movement.napari.edit_timeline_widget.EditTimelineWidget`
+    timeline, at the given x (frame) position. Pass ``dblclick=True`` to
+    simulate a double-click instead (``xdata`` is then unused, matching
     ``_handle_click``'s own early return for that case).
     """
 
-    def _click_on_timeline(edit_widget, xdata=None, dblclick=False):
-        edit_widget._handle_click(Mock(dblclick=dblclick, xdata=xdata))
+    def _click_on_timeline(edit_timeline_widget, xdata=None, dblclick=False):
+        edit_timeline_widget._handle_click(
+            Mock(dblclick=dblclick, xdata=xdata)
+        )
 
     return _click_on_timeline

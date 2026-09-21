@@ -1,4 +1,4 @@
-"""Test the napari plugin edit widget."""
+"""Test the napari plugin edit timeline widget."""
 
 from unittest.mock import Mock
 
@@ -9,17 +9,17 @@ from matplotlib.colors import to_rgba
 from napari.layers.base import ActionType
 from napari.utils.theme import get_theme
 
-from movement.napari.edit_widget import (
+from movement.napari.edit_timeline_widget import (
     DRAG_THRESHOLD_PIXELS,
     MIN_VISIBLE_FRAMES,
-    EditWidget,
+    EditTimelineWidget,
 )
 from movement.napari.loader_widgets import POINTS_PROPERTIES_KEY
 
 
-def _bar_colors(edit_widget):
+def _bar_colors(edit_timeline_widget):
     """Return the RGBA colour of each drawn bar, as a list of tuples."""
-    return [tuple(bar.get_colors()[0]) for bar in edit_widget._bars]
+    return [tuple(bar.get_colors()[0]) for bar in edit_timeline_widget._bars]
 
 
 @pytest.mark.parametrize(
@@ -40,11 +40,11 @@ def test_click_on_timeline_jumps_only_within_tolerance(
     of the bar as a hit on it, and ignores clicks further away.
     """
     viewer = loader_with_edited_point.viewer
-    edit_widget = EditWidget(viewer)
+    edit_timeline_widget = EditTimelineWidget(viewer)
     edited_frame = 2
 
     viewer.dims.current_step = (0,) + viewer.dims.current_step[1:]
-    click_on_timeline(edit_widget, xdata=edited_frame + click_offset)
+    click_on_timeline(edit_timeline_widget, xdata=edited_frame + click_offset)
 
     expected_frame = edited_frame if expect_jump else 0
     assert viewer.dims.current_step[0] == expected_frame
@@ -52,73 +52,75 @@ def test_click_on_timeline_jumps_only_within_tolerance(
 
 def test_drag_pans_the_timeline(loader_with_edited_point):
     """Dragging the mouse across the timeline pans the visible range."""
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    edit_timeline_widget = EditTimelineWidget(loader_with_edited_point.viewer)
     # Zoom in first: fully zoomed out (the default) there's nowhere to
     # pan to, since the full frame range is already in view.
-    edit_widget._on_scroll(
+    edit_timeline_widget._on_scroll(
         Mock(
-            inaxes=edit_widget.ax,
-            xdata=sum(edit_widget.ax.get_xlim()) / 2,
+            inaxes=edit_timeline_widget.ax,
+            xdata=sum(edit_timeline_widget.ax.get_xlim()) / 2,
             button="up",
         )
     )
-    xmin, xmax = edit_widget.ax.get_xlim()
+    xmin, xmax = edit_timeline_widget.ax.get_xlim()
     cursor = (xmin + xmax) / 2
 
-    edit_widget._on_mouse_press(
-        Mock(inaxes=edit_widget.ax, xdata=cursor, x=100)
+    edit_timeline_widget._on_mouse_press(
+        Mock(inaxes=edit_timeline_widget.ax, xdata=cursor, x=100)
     )
-    edit_widget._on_mouse_motion(Mock(x=50))  # dragged left by 50 pixels
-    edit_widget._on_mouse_release(Mock())
+    edit_timeline_widget._on_mouse_motion(
+        Mock(x=50)
+    )  # dragged left by 50 pixels
+    edit_timeline_widget._on_mouse_release(Mock())
 
-    assert edit_widget.ax.get_xlim() != (xmin, xmax)
+    assert edit_timeline_widget.ax.get_xlim() != (xmin, xmax)
 
 
 def test_mouse_press_outside_axes_starts_no_drag(loader_with_edited_point):
     """A press outside the timeline (or with no xdata) is ignored."""
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    edit_timeline_widget = EditTimelineWidget(loader_with_edited_point.viewer)
 
-    edit_widget._on_mouse_press(Mock(inaxes=None, xdata=1.0, x=100))
+    edit_timeline_widget._on_mouse_press(Mock(inaxes=None, xdata=1.0, x=100))
 
-    assert edit_widget._press_pixel_x is None
+    assert edit_timeline_widget._press_pixel_x is None
 
 
 def test_mouse_motion_without_a_prior_press_is_a_noop(
     loader_with_edited_point,
 ):
     """Mouse motion before any press on the timeline pans nothing."""
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
-    xlim_before = edit_widget.ax.get_xlim()
+    edit_timeline_widget = EditTimelineWidget(loader_with_edited_point.viewer)
+    xlim_before = edit_timeline_widget.ax.get_xlim()
 
-    edit_widget._on_mouse_motion(Mock(x=50))
+    edit_timeline_widget._on_mouse_motion(Mock(x=50))
 
-    assert edit_widget.ax.get_xlim() == xlim_before
+    assert edit_timeline_widget.ax.get_xlim() == xlim_before
 
 
 def test_small_mouse_movement_is_not_treated_as_a_drag(
     loader_with_edited_point,
 ):
     """Movement below the drag threshold does not pan the timeline."""
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
-    cursor = sum(edit_widget.ax.get_xlim()) / 2
-    edit_widget._on_mouse_press(
-        Mock(inaxes=edit_widget.ax, xdata=cursor, x=100)
+    edit_timeline_widget = EditTimelineWidget(loader_with_edited_point.viewer)
+    cursor = sum(edit_timeline_widget.ax.get_xlim()) / 2
+    edit_timeline_widget._on_mouse_press(
+        Mock(inaxes=edit_timeline_widget.ax, xdata=cursor, x=100)
     )
-    xlim_before = edit_widget.ax.get_xlim()
+    xlim_before = edit_timeline_widget.ax.get_xlim()
 
-    edit_widget._on_mouse_motion(Mock(x=100 + DRAG_THRESHOLD_PIXELS))
+    edit_timeline_widget._on_mouse_motion(Mock(x=100 + DRAG_THRESHOLD_PIXELS))
 
-    assert edit_widget.ax.get_xlim() == xlim_before
-    assert edit_widget._dragged is False
+    assert edit_timeline_widget.ax.get_xlim() == xlim_before
+    assert edit_timeline_widget._dragged is False
 
 
 def test_mouse_release_without_a_prior_press_is_a_noop(
     loader_with_edited_point,
 ):
     """Releasing without a preceding press on the timeline does nothing."""
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    edit_timeline_widget = EditTimelineWidget(loader_with_edited_point.viewer)
 
-    edit_widget._on_mouse_release(Mock())  # should not raise
+    edit_timeline_widget._on_mouse_release(Mock())  # should not raise
 
 
 def test_release_without_drag_jumps_to_the_clicked_frame(
@@ -132,19 +134,19 @@ def test_release_without_drag_jumps_to_the_clicked_frame(
     click or a drag?" bookkeeping.
     """
     viewer = loader_with_edited_point.viewer
-    edit_widget = EditWidget(viewer)
+    edit_timeline_widget = EditTimelineWidget(viewer)
     edited_frame = 2
     viewer.dims.current_step = (0,) + viewer.dims.current_step[1:]
 
-    edit_widget._on_mouse_press(
+    edit_timeline_widget._on_mouse_press(
         Mock(
-            inaxes=edit_widget.ax,
+            inaxes=edit_timeline_widget.ax,
             xdata=edited_frame,
             x=100,
             dblclick=False,
         )
     )
-    edit_widget._on_mouse_release(Mock())
+    edit_timeline_widget._on_mouse_release(Mock())
 
     assert viewer.dims.current_step[0] == edited_frame
 
@@ -154,11 +156,11 @@ def test_click_on_timeline_with_no_edited_frames_is_a_noop(
 ):
     """Clicking the timeline when nothing is flagged does nothing."""
     viewer = loader_with_edited_point.viewer
-    edit_widget = EditWidget(viewer)
-    edit_widget._edited_frames = np.array([])
+    edit_timeline_widget = EditTimelineWidget(viewer)
+    edit_timeline_widget._edited_frames = np.array([])
     viewer.dims.current_step = (0,) + viewer.dims.current_step[1:]
 
-    click_on_timeline(edit_widget, xdata=2)
+    click_on_timeline(edit_timeline_widget, xdata=2)
 
     assert viewer.dims.current_step[0] == 0
 
@@ -166,21 +168,21 @@ def test_click_on_timeline_with_no_edited_frames_is_a_noop(
 def test_scroll_up_zooms_in_and_down_zooms_out(loader_with_edited_point):
     """Scrolling up shrinks the visible frame range; down grows it."""
     viewer = loader_with_edited_point.viewer
-    edit_widget = EditWidget(viewer)
-    xmin, xmax = edit_widget.ax.get_xlim()
+    edit_timeline_widget = EditTimelineWidget(viewer)
+    xmin, xmax = edit_timeline_widget.ax.get_xlim()
     cursor = (xmin + xmax) / 2
 
-    edit_widget._on_scroll(
-        Mock(inaxes=edit_widget.ax, xdata=cursor, button="up")
+    edit_timeline_widget._on_scroll(
+        Mock(inaxes=edit_timeline_widget.ax, xdata=cursor, button="up")
     )
-    zoomed_in_xmin, zoomed_in_xmax = edit_widget.ax.get_xlim()
+    zoomed_in_xmin, zoomed_in_xmax = edit_timeline_widget.ax.get_xlim()
     zoomed_in_span = zoomed_in_xmax - zoomed_in_xmin
     assert zoomed_in_span < (xmax - xmin)
 
-    edit_widget._on_scroll(
-        Mock(inaxes=edit_widget.ax, xdata=cursor, button="down")
+    edit_timeline_widget._on_scroll(
+        Mock(inaxes=edit_timeline_widget.ax, xdata=cursor, button="down")
     )
-    zoomed_out_xmin, zoomed_out_xmax = edit_widget.ax.get_xlim()
+    zoomed_out_xmin, zoomed_out_xmax = edit_timeline_widget.ax.get_xlim()
     zoomed_out_span = zoomed_out_xmax - zoomed_out_xmin
     assert zoomed_out_span > zoomed_in_span
 
@@ -204,12 +206,14 @@ def test_scroll_repeatedly_clamps_at_span_limit(
     start instead of exercising the ceiling clamp.
     """
     viewer = loader_with_edited_point.viewer
-    edit_widget = EditWidget(viewer)
-    cursor = sum(edit_widget.ax.get_xlim()) / 2
+    edit_timeline_widget = EditTimelineWidget(viewer)
+    cursor = sum(edit_timeline_widget.ax.get_xlim()) / 2
 
     def scroll(direction):
-        edit_widget._on_scroll(
-            Mock(inaxes=edit_widget.ax, xdata=cursor, button=direction)
+        edit_timeline_widget._on_scroll(
+            Mock(
+                inaxes=edit_timeline_widget.ax, xdata=cursor, button=direction
+            )
         )
 
     for _ in range(3):
@@ -218,11 +222,11 @@ def test_scroll_repeatedly_clamps_at_span_limit(
     for _ in range(50):  # far more scrolls than needed to hit the limit
         scroll(button)
 
-    xmin, xmax = edit_widget.ax.get_xlim()
+    xmin, xmax = edit_timeline_widget.ax.get_xlim()
     expected_span = (
         MIN_VISIBLE_FRAMES
         if button == "up"
-        else max(edit_widget._max_frame, 1)
+        else max(edit_timeline_widget._max_frame, 1)
     )
     assert xmax - xmin == pytest.approx(expected_span)
 
@@ -239,13 +243,13 @@ def test_scroll_outside_axes_or_without_xdata_is_a_noop(
 ):
     """A scroll event outside the timeline, or with no xdata, is ignored."""
     viewer = loader_with_edited_point.viewer
-    edit_widget = EditWidget(viewer)
-    event_kwargs.setdefault("inaxes", edit_widget.ax)
-    before = edit_widget.ax.get_xlim()
+    edit_timeline_widget = EditTimelineWidget(viewer)
+    event_kwargs.setdefault("inaxes", edit_timeline_widget.ax)
+    before = edit_timeline_widget.ax.get_xlim()
 
-    edit_widget._on_scroll(Mock(button="up", **event_kwargs))
+    edit_timeline_widget._on_scroll(Mock(button="up", **event_kwargs))
 
-    assert edit_widget.ax.get_xlim() == before
+    assert edit_timeline_widget.ax.get_xlim() == before
 
 
 def test_double_click_resets_zoomed_view(
@@ -253,18 +257,20 @@ def test_double_click_resets_zoomed_view(
 ):
     """Double-clicking the timeline resets it to the full frame range."""
     viewer = loader_with_edited_point.viewer
-    edit_widget = EditWidget(viewer)
-    full_xlim = edit_widget.ax.get_xlim()
+    edit_timeline_widget = EditTimelineWidget(viewer)
+    full_xlim = edit_timeline_widget.ax.get_xlim()
     cursor = sum(full_xlim) / 2
 
-    edit_widget._on_scroll(
-        Mock(inaxes=edit_widget.ax, xdata=cursor, button="up")
+    edit_timeline_widget._on_scroll(
+        Mock(inaxes=edit_timeline_widget.ax, xdata=cursor, button="up")
     )
-    assert edit_widget.ax.get_xlim() != full_xlim  # sanity: actually zoomed
+    assert (
+        edit_timeline_widget.ax.get_xlim() != full_xlim
+    )  # sanity: actually zoomed
 
-    click_on_timeline(edit_widget, dblclick=True)
+    click_on_timeline(edit_timeline_widget, dblclick=True)
 
-    assert edit_widget.ax.get_xlim() == full_xlim
+    assert edit_timeline_widget.ax.get_xlim() == full_xlim
 
 
 def test_selecting_non_points_layer_keeps_timeline(loader_with_edited_point):
@@ -275,32 +281,35 @@ def test_selecting_non_points_layer_keeps_timeline(loader_with_edited_point):
     instead keep showing the last movement Points layer.
     """
     viewer = loader_with_edited_point.viewer
-    edit_widget = EditWidget(viewer)
-    points_layer = edit_widget.active_layer
-    full_xlim = edit_widget.ax.get_xlim()
+    edit_timeline_widget = EditTimelineWidget(viewer)
+    points_layer = edit_timeline_widget.active_layer
+    full_xlim = edit_timeline_widget.ax.get_xlim()
 
     other_layer = viewer.add_image(np.zeros((4, 4)))
     viewer.layers.selection.active = other_layer
 
-    assert edit_widget.active_layer is points_layer
-    assert edit_widget.ax.get_xlim() == full_xlim
+    assert edit_timeline_widget.active_layer is points_layer
+    assert edit_timeline_widget.ax.get_xlim() == full_xlim
 
 
 def test_reselecting_the_active_layer_is_a_noop(
     loader_with_edited_point, mocker
 ):
     """Re-selecting the layer already shown redraws nothing."""
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
-    redraw = mocker.spy(edit_widget, "_redraw_bars")
+    edit_timeline_widget = EditTimelineWidget(loader_with_edited_point.viewer)
+    redraw = mocker.spy(edit_timeline_widget, "_redraw_bars")
 
-    edit_widget._on_active_layer_changed()  # same active layer as before
+    # same active layer as before
+    edit_timeline_widget._on_active_layer_changed()
 
     redraw.assert_not_called()
 
 
 def test_reconstruct_previously_removed_points_without_a_layer():
     """No layer means nothing to reconstruct."""
-    assert EditWidget._reconstruct_previously_removed_points(None) == []
+    assert (
+        EditTimelineWidget._reconstruct_previously_removed_points(None) == []
+    )
 
 
 def test_reconstruct_previously_removed_points_recovers_saved_removals():
@@ -322,7 +331,7 @@ def test_reconstruct_previously_removed_points_recovers_saved_removals():
     )
     layer = Mock(metadata={POINTS_PROPERTIES_KEY: properties})
 
-    result = EditWidget._reconstruct_previously_removed_points(layer)
+    result = EditTimelineWidget._reconstruct_previously_removed_points(layer)
 
     assert result == [(1, "id_0")]
 
@@ -339,17 +348,19 @@ def test_reconstruct_previously_removed_points_without_any_removed_ones():
     )
     layer = Mock(metadata={POINTS_PROPERTIES_KEY: properties})
 
-    assert EditWidget._reconstruct_previously_removed_points(layer) == []
+    assert (
+        EditTimelineWidget._reconstruct_previously_removed_points(layer) == []
+    )
 
 
 def test_layer_data_changed_ignores_other_layers(
     loader_with_edited_point, mocker
 ):
     """Data changes on a layer other than the active one are ignored."""
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
-    redraw = mocker.spy(edit_widget, "_redraw_bars")
+    edit_timeline_widget = EditTimelineWidget(loader_with_edited_point.viewer)
+    redraw = mocker.spy(edit_timeline_widget, "_redraw_bars")
 
-    edit_widget._on_layer_data_changed(Mock(source=object()))
+    edit_timeline_widget._on_layer_data_changed(Mock(source=object()))
 
     redraw.assert_not_called()
 
@@ -362,15 +373,17 @@ def test_moving_a_point_defers_a_redraw(loader_with_edited_point, mocker):
     this widget reads) runs first; run the callback synchronously here
     so the test does not need to pump the Qt event loop.
     """
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
+    edit_timeline_widget = EditTimelineWidget(loader_with_edited_point.viewer)
     mocker.patch(
-        "movement.napari.edit_widget.QTimer.singleShot",
+        "movement.napari.edit_timeline_widget.QTimer.singleShot",
         side_effect=lambda _ms, cb: cb(),
     )
-    redraw = mocker.spy(edit_widget, "_redraw_bars")
+    redraw = mocker.spy(edit_timeline_widget, "_redraw_bars")
 
-    edit_widget._on_layer_data_changed(
-        Mock(source=edit_widget.active_layer, action=ActionType.CHANGED)
+    edit_timeline_widget._on_layer_data_changed(
+        Mock(
+            source=edit_timeline_widget.active_layer, action=ActionType.CHANGED
+        )
     )
 
     redraw.assert_called_once()
@@ -383,31 +396,31 @@ def test_removing_a_point_captures_it_and_redraws(loader_with_edited_point):
     identity is captured while the data is still intact (``REMOVING``
     fires before the removal actually happens).
     """
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
-    assert edit_widget._removed_points == []
+    edit_timeline_widget = EditTimelineWidget(loader_with_edited_point.viewer)
+    assert edit_timeline_widget._removed_points == []
 
-    edit_widget._on_layer_data_changed(
+    edit_timeline_widget._on_layer_data_changed(
         Mock(
-            source=edit_widget.active_layer,
+            source=edit_timeline_widget.active_layer,
             action=ActionType.REMOVING,
             data_indices=(0,),
         )
     )
 
-    assert len(edit_widget._removed_points) == 1
+    assert len(edit_timeline_widget._removed_points) == 1
 
 
 def test_step_changed_leaves_playhead_alone_without_a_current_step(
     loader_with_edited_point,
 ):
     """No current step (e.g. dims not yet set up) leaves the playhead put."""
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
-    xdata_before = list(edit_widget.playhead.get_xdata())
-    edit_widget.viewer = Mock(dims=Mock(current_step=()))
+    edit_timeline_widget = EditTimelineWidget(loader_with_edited_point.viewer)
+    xdata_before = list(edit_timeline_widget.playhead.get_xdata())
+    edit_timeline_widget.viewer = Mock(dims=Mock(current_step=()))
 
-    edit_widget._on_step_changed()
+    edit_timeline_widget._on_step_changed()
 
-    assert list(edit_widget.playhead.get_xdata()) == xdata_before
+    assert list(edit_timeline_widget.playhead.get_xdata()) == xdata_before
 
 
 def test_playhead_and_bars_follow_the_napari_theme(loader_with_edited_point):
@@ -419,22 +432,26 @@ def test_playhead_and_bars_follow_the_napari_theme(loader_with_edited_point):
     """
     viewer = loader_with_edited_point.viewer
     viewer.theme = "dark"
-    edit_widget = EditWidget(viewer)
+    edit_timeline_widget = EditTimelineWidget(viewer)
 
     dark = get_theme("dark")
-    assert to_rgba(edit_widget.playhead.get_color()) == to_rgba(
+    assert to_rgba(edit_timeline_widget.playhead.get_color()) == to_rgba(
         dark.secondary.as_hex()
     )
-    assert edit_widget._edit_bar_color == dark.current.as_hex()
-    assert _bar_colors(edit_widget) == [to_rgba(dark.current.as_hex())]
+    assert edit_timeline_widget._edit_bar_color == dark.current.as_hex()
+    assert _bar_colors(edit_timeline_widget) == [
+        to_rgba(dark.current.as_hex())
+    ]
 
     viewer.theme = "light"
     light = get_theme("light")
-    assert to_rgba(edit_widget.playhead.get_color()) == to_rgba(
+    assert to_rgba(edit_timeline_widget.playhead.get_color()) == to_rgba(
         light.secondary.as_hex()
     )
-    assert edit_widget._edit_bar_color == light.current.as_hex()
-    assert _bar_colors(edit_widget) == [to_rgba(light.current.as_hex())]
+    assert edit_timeline_widget._edit_bar_color == light.current.as_hex()
+    assert _bar_colors(edit_timeline_widget) == [
+        to_rgba(light.current.as_hex())
+    ]
 
 
 def test_lanes_collapse_by_frame_or_split_by_individual(
@@ -448,25 +465,29 @@ def test_lanes_collapse_by_frame_or_split_by_individual(
     one y-tick per individual, and a divider between each lane pair.
     Toggling back collapses everything again.
     """
-    edit_widget = EditWidget(loader_with_two_edited_individuals.viewer)
-    n_individuals = len(set(edit_widget.active_layer.properties["individual"]))
+    edit_timeline_widget = EditTimelineWidget(
+        loader_with_two_edited_individuals.viewer
+    )
+    n_individuals = len(
+        set(edit_timeline_widget.active_layer.properties["individual"])
+    )
 
     # Edits are on frames {2, 5}; frame 2 is shared by both individuals.
-    assert len(edit_widget._bars) == 2
-    assert list(edit_widget.ax.get_yticks()) == []
-    assert edit_widget._lane_dividers == []
+    assert len(edit_timeline_widget._bars) == 2
+    assert list(edit_timeline_widget.ax.get_yticks()) == []
+    assert edit_timeline_widget._lane_dividers == []
 
-    edit_widget.set_show_individuals(True)
+    edit_timeline_widget.set_show_individuals(True)
 
     # (2, id_0), (2, id_1) and (5, id_1) -> three separate bars.
-    assert len(edit_widget._bars) == 3
-    assert len(edit_widget.ax.get_yticks()) == n_individuals
-    assert len(edit_widget._lane_dividers) == n_individuals - 1
+    assert len(edit_timeline_widget._bars) == 3
+    assert len(edit_timeline_widget.ax.get_yticks()) == n_individuals
+    assert len(edit_timeline_widget._lane_dividers) == n_individuals - 1
 
-    edit_widget.set_show_individuals(False)
+    edit_timeline_widget.set_show_individuals(False)
 
-    assert len(edit_widget._bars) == 2
-    assert edit_widget._lane_dividers == []
+    assert len(edit_timeline_widget._bars) == 2
+    assert edit_timeline_widget._lane_dividers == []
 
 
 def test_bar_colours_follow_display_mode_not_edited_data(
@@ -480,13 +501,15 @@ def test_bar_colours_follow_display_mode_not_edited_data(
     straight from the Points layer. Toggling the option off restores
     the single colour.
     """
-    edit_widget = EditWidget(loader_with_two_edited_individuals.viewer)
-    single = to_rgba(edit_widget._edit_bar_color)
+    edit_timeline_widget = EditTimelineWidget(
+        loader_with_two_edited_individuals.viewer
+    )
+    single = to_rgba(edit_timeline_widget._edit_bar_color)
 
-    assert _bar_colors(edit_widget) == [single, single]
+    assert _bar_colors(edit_timeline_widget) == [single, single]
 
-    edit_widget.set_show_individuals(True)
-    layer = edit_widget.active_layer
+    edit_timeline_widget.set_show_individuals(True)
+    layer = edit_timeline_widget.active_layer
     palette: dict = {}
     for ind, color in zip(
         layer.properties["individual"], layer.face_color, strict=False
@@ -494,22 +517,22 @@ def test_bar_colours_follow_display_mode_not_edited_data(
         palette.setdefault(ind, tuple(color))
     # One bar for id_0 (frame 2) and two for id_1 (frames 2 and 5);
     # sorted so the assertion doesn't depend on bar draw order.
-    assert sorted(_bar_colors(edit_widget)) == pytest.approx(
+    assert sorted(_bar_colors(edit_timeline_widget)) == pytest.approx(
         sorted([palette["id_0"], palette["id_1"], palette["id_1"]])
     )
 
-    edit_widget.set_show_individuals(False)
-    assert _bar_colors(edit_widget) == [single, single]
+    edit_timeline_widget.set_show_individuals(False)
+    assert _bar_colors(edit_timeline_widget) == [single, single]
 
 
 def test_bar_color_lookup_falls_back_without_individual_property(
     loader_with_edited_point,
 ):
     """Falls back to the shared edit colour if there's no individual data."""
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
-    edit_widget._show_individuals = True
-    edit_widget.active_layer = Mock(properties={})
+    edit_timeline_widget = EditTimelineWidget(loader_with_edited_point.viewer)
+    edit_timeline_widget._show_individuals = True
+    edit_timeline_widget.active_layer = Mock(properties={})
 
-    color_of = edit_widget._bar_color_lookup()
+    color_of = edit_timeline_widget._bar_color_lookup()
 
-    assert color_of("id_0") == edit_widget._edit_bar_color
+    assert color_of("id_0") == edit_timeline_widget._edit_bar_color

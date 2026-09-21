@@ -40,7 +40,7 @@ class EditControlsWidget(QWidget):
 
     Placed in :class:`~movement.napari.meta_widget.MovementMetaWidget`'s
     "Edit tracked data" collapsible section, which just toggles whether
-    the (separately docked) :class:`EditWidget` timeline is shown.
+    the (separately docked) :class:`EditTimelineWidget` timeline is shown.
     """
 
     show_individuals_toggled = Signal(bool)
@@ -70,7 +70,7 @@ class EditControlsWidget(QWidget):
         self.setLayout(layout)
 
 
-class EditWidget(QWidget):
+class EditTimelineWidget(QWidget):
     """Dock widget flagging frames with edited points.
 
     Draws a vertical bar for every frame that contains an edited point
