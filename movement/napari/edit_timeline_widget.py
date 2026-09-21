@@ -78,8 +78,8 @@ class EditTimelineWidget(QWidget):
     bars share one lane and are drawn in a single colour (the napari
     theme's ``current`` colour). With :meth:`set_show_individuals` on, bars
     are split into one lane per individual (separated by thin horizontal
-    rules) and coloured per individual using the same colormap
-    (:data:`DEFAULT_COLORMAP`) as the Points/Tracks layers. A playhead
+    rules) and coloured per individual to match the ``face_color`` of
+    that individual's points in the Points layer. A playhead
     line marks the frame currently shown in the viewer. Scroll to zoom
     in/out on the timeline, and click a bar to jump to that frame.
     """
