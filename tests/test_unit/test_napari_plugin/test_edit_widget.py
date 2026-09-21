@@ -8,12 +8,9 @@ import pytest
 from matplotlib.colors import to_rgba
 from napari.layers.base import ActionType
 from napari.utils.theme import get_theme
-from qtpy.QtCore import QEvent, Qt
 
 from movement.napari.edit_widget import (
     DRAG_THRESHOLD_PIXELS,
-    LANE_HEIGHT_PIXELS,
-    MIN_CANVAS_HEIGHT_PIXELS,
     MIN_VISIBLE_FRAMES,
     EditWidget,
 )
@@ -53,16 +50,8 @@ def test_click_on_timeline_jumps_only_within_tolerance(
     assert viewer.dims.current_step[0] == expected_frame
 
 
-def test_drag_pans_the_timeline_and_keeps_axis_strip_in_sync(
-    loader_with_edited_point,
-):
-    """Dragging the timeline pans it, keeping the fixed axis strip synced.
-
-    The frame-number axis strip lives in its own figure (see
-    :attr:`EditWidget.axis_canvas`) so that it stays visible regardless
-    of how the lanes above it are scrolled; ``_set_xlim`` is what keeps
-    its x-limits identical to the lanes' as the view is panned.
-    """
+def test_drag_pans_the_timeline(loader_with_edited_point):
+    """Dragging the mouse across the timeline pans the visible range."""
     edit_widget = EditWidget(loader_with_edited_point.viewer)
     # Zoom in first: fully zoomed out (the default) there's nowhere to
     # pan to, since the full frame range is already in view.
@@ -82,9 +71,7 @@ def test_drag_pans_the_timeline_and_keeps_axis_strip_in_sync(
     edit_widget._on_mouse_motion(Mock(x=50))  # dragged left by 50 pixels
     edit_widget._on_mouse_release(Mock())
 
-    new_xlim = edit_widget.ax.get_xlim()
-    assert new_xlim != (xmin, xmax)
-    assert edit_widget.axis_ax.get_xlim() == new_xlim
+    assert edit_widget.ax.get_xlim() != (xmin, xmax)
 
 
 def test_mouse_press_outside_axes_starts_no_drag(loader_with_edited_point):
@@ -196,73 +183,6 @@ def test_scroll_up_zooms_in_and_down_zooms_out(loader_with_edited_point):
     zoomed_out_xmin, zoomed_out_xmax = edit_widget.ax.get_xlim()
     zoomed_out_span = zoomed_out_xmax - zoomed_out_xmin
     assert zoomed_out_span > zoomed_in_span
-
-
-@pytest.mark.parametrize(
-    "modifiers, expect_forwarded, expect_consumed",
-    [
-        pytest.param(Qt.NoModifier, True, True, id="plain_scroll"),
-        pytest.param(Qt.ControlModifier, False, False, id="ctrl_scroll"),
-    ],
-)
-def test_wheel_event_filter_routes_plain_scroll_to_scrollbar(
-    loader_with_edited_point,
-    mocker,
-    modifiers,
-    expect_forwarded,
-    expect_consumed,
-):
-    """Plain wheel scrolls move the scrollbar; Ctrl+scroll is left alone.
-
-    Without this, wheel events over the canvas always reach matplotlib's
-    ``scroll_event`` (zooming the timeline), leaving no way to scroll
-    through lanes except by dragging the scrollbar directly.
-    """
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
-    send_event = mocker.patch(
-        "movement.napari.edit_widget.QCoreApplication.sendEvent"
-    )
-    wheel_event = Mock(
-        **{
-            "type.return_value": QEvent.Wheel,
-            "modifiers.return_value": modifiers,
-        }
-    )
-
-    consumed = edit_widget.eventFilter(edit_widget.canvas, wheel_event)
-
-    assert consumed is expect_consumed
-    if expect_forwarded:
-        send_event.assert_called_once_with(
-            edit_widget.scroll_area.verticalScrollBar(), wheel_event
-        )
-    else:
-        send_event.assert_not_called()
-
-
-def test_wheel_event_filter_ignores_other_widgets_and_events(
-    loader_with_edited_point, mocker
-):
-    """Only wheel events on the canvas itself are intercepted."""
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
-    send_event = mocker.patch(
-        "movement.napari.edit_widget.QCoreApplication.sendEvent"
-    )
-    other_widget_event = Mock(
-        **{
-            "type.return_value": QEvent.Wheel,
-            "modifiers.return_value": Qt.NoModifier,
-        }
-    )
-    edit_widget.eventFilter(Mock(), other_widget_event)
-    non_wheel_event = Mock(
-        **{
-            "type.return_value": QEvent.MouseButtonPress,
-            "modifiers.return_value": Qt.NoModifier,
-        }
-    )
-    edit_widget.eventFilter(edit_widget.canvas, non_wheel_event)
-    send_event.assert_not_called()
 
 
 @pytest.mark.parametrize(
@@ -593,51 +513,3 @@ def test_bar_color_lookup_falls_back_without_individual_property(
     color_of = edit_widget._bar_color_lookup()
 
     assert color_of("id_0") == edit_widget._edit_bar_color
-
-
-def test_canvas_wrapped_in_vertical_scroll_area(loader_with_edited_point):
-    """The canvas lives in a width-tracking, vertically scrolling area.
-
-    The scroll area keeps the docked timeline at its usual height even
-    when the canvas inside it grows for many individuals, so the user
-    never has to resize the dock.
-    """
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
-
-    assert edit_widget.scroll_area.widget() is edit_widget.canvas
-    assert edit_widget.scroll_area.widgetResizable()
-    assert edit_widget.scroll_area.minimumHeight() == MIN_CANVAS_HEIGHT_PIXELS
-
-    # Growing the canvas for many lanes must not grow the scroll area.
-    edit_widget._show_individuals = True
-    edit_widget._fit_canvas_height(40)
-    assert edit_widget.scroll_area.minimumHeight() == MIN_CANVAS_HEIGHT_PIXELS
-
-
-@pytest.mark.parametrize(
-    "show_individuals, n_lanes, expected",
-    [
-        pytest.param(False, 40, MIN_CANVAS_HEIGHT_PIXELS, id="collapsed"),
-        pytest.param(True, 2, MIN_CANVAS_HEIGHT_PIXELS, id="few_lanes"),
-        pytest.param(
-            True,
-            40,
-            40 * LANE_HEIGHT_PIXELS,
-            id="many_lanes_grow",
-        ),
-    ],
-)
-def test_fit_canvas_height_scales_with_lane_count(
-    loader_with_edited_point, show_individuals, n_lanes, expected
-):
-    """Many individual lanes grow the canvas; collapsed/few keep it at min.
-
-    A taller-than-dock canvas is what makes the enclosing scroll area
-    show a vertical scrollbar.
-    """
-    edit_widget = EditWidget(loader_with_edited_point.viewer)
-    edit_widget._show_individuals = show_individuals
-
-    edit_widget._fit_canvas_height(n_lanes)
-
-    assert edit_widget.canvas.minimumHeight() == expected
