@@ -49,9 +49,9 @@ class EditControlsWidget(QWidget):
         """Initialise the instructions label and display checkbox."""
         super().__init__(parent=parent)
         instructions = QLabel(
-            "Drag a point in the viewer to move it, or select it and "
-            "press Delete/Backspace to remove it. Edited frames are "
-            "flagged on the timeline below."
+            "Use the points layer controls to move or delete keypoints. "
+            "Frames with edited points are flagged as coloured bars on the "
+            "timeline below. Click a bar to jump to an edited frame."
         )
         instructions.setWordWrap(True)
 
