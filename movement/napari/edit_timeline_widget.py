@@ -39,8 +39,8 @@ class EditControlsWidget(QWidget):
     """Sidebar controls for the edited-frames timeline.
 
     Placed in :class:`~movement.napari.meta_widget.MovementMetaWidget`'s
-    "Edit tracked data" collapsible section, which just toggles whether
-    the (separately docked) :class:`EditTimelineWidget` timeline is shown.
+    "Edit tracked data" collapsible section, which toggles and configures
+    the (separately docked) :class:`EditWidget` timeline.
     """
 
     show_individuals_toggled = Signal(bool)
