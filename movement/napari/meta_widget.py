@@ -41,10 +41,9 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
             widget_title="Load tracked data",
         )
 
-        # The edit timeline widget is best shown full-width rather
-        # than squeezed into this side panel. This collapsible section
-        # instead acts as a switch: expanding it docks the widget at
-        # the bottom of the viewer; collapsing it hides it again.
+        # A collapsible "edit controls" widget that can be used
+        # to show/hide and configure the edit timeline docked
+        # to the bottom of the viewer.
         self.edit_controls = EditControlsWidget(parent=self)
         self.edit_controls.show_individuals_toggled.connect(
             self._on_show_individuals_toggled
