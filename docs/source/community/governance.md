@@ -16,22 +16,25 @@ head over to the [](target-people) page.
 
 ### Contributors
 
-If you've opened a pull request, filed an issue, or joined a discussion,
-you're a contributor. No special access is required, and every bit of help counts.
+If you've opened a pull request, filed an issue, or joined a discussion through
+any of our [community channels](target-connect-with-us),
+you're a contributor, and every bit of help counts.
 Our [contributing guide](target-contributing) is the place to start.
-
-Everyone who pitches in—whether through code, documentation, sample data, or discussions
-that help shape the project's direction—is credited on the [People](target-people) page.
-Once your first pull request is merged, a regular job adds you to that page,
-and you'll also get a mention in the [release notes](movement-github:releases)
-for that version of `movement`.
-
-We strongly believe that volunteer contributions directly help us achieve our [mission](target-mission).
+We strongly believe that contributions directly help us achieve our [mission](target-mission).
 The more people get involved, the more robust and versatile `movement` becomes.
-Contributors bring fresh perspectives, ensuring that the software serves a broader and more diverse community of users.
-Beyond technical improvements, contributions help us build trust, foster shared ownership,
+Contributors bring fresh perspectives, ensuring that the software serves a broader
+and more diverse community of users. Beyond technical improvements,
+contributions help us build trust, foster shared ownership,
 make the project more sustainable, and strengthen the wider ecosystem of
 open-source tools for behavioural analysis.
+
+Everyone who contributes to the GitHub repository—whether through code or documentation—gets
+credited on the [](target-people) page. Once your first pull request is merged, a
+scheduled monthly workflow will add you to that page, and you'll also get a mention in
+the [release notes](movement-github:releases) for that version of `movement`.
+Some people contribute in ways that don't involve the repository, e.g. by providing
+sample data. We add those contributors to the [](target-people) page manually, so please
+let us know if you think we've missed you.
 
 ### Trusted contributors
 
