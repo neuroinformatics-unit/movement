@@ -36,26 +36,29 @@ Some people contribute in ways that don't involve the repository, e.g. by provid
 sample data. We add those contributors to the [](target-people) page manually, so please
 let us know if you think we've missed you.
 
-### Trusted contributors
+### Team members
 
-**Trusted contributors** are community members who have shown consistent involvement
-in the project and have demonstrated that they can help maintain `movement` with care.
+Also known as **members** of the `movement` development team,
+these are people who have made thoughtful contributions to the project and
+take on a more active role in its development and maintenance.
 
-**Trusted contributors** are welcome to help with a range of tasks, including:
+**Team members** are welcome to help with a range of tasks, including:
 
 - keeping the issue tracker and pull requests tidy and welcoming;
 - participating in discussions on [Zulip](movement-zulip:) and attending community calls;
 - reviewing pull requests—especially in parts of the codebase they are familiar with.
 
-On GitHub, this role comes with *Write* access. We trust members to use that judiciously:
+On GitHub, this role comes with *Write* access. We trust our **members** to use that judiciously:
 merging straightforward changes, particularly in areas they know well,
-while seeking input from **core developers** for larger or more contentious decisions.
+while seeking input from **maintainers** for larger or more contentious decisions.
 
 There's no expected time commitment and no quota to meet.
-Some people take on this role for a fixed period—for instance while doing an internship with us,
+Joining the team also comes with a promise from us maintainers:
+we will mentor and guide you as you grow into the role.
+Some people take on this role for a fixed period—for instance while doing an
+[internship](https://neuroinformatics.dev/get-involved/gsoc/index.html) with us,
 or while working on `movement` as part of a collaboration.
-
-For some contributors, this role is a stepping stone towards becoming a **core developer**.
+For some contributors, this role is a stepping stone to becoming a **maintainer**.
 For others, it is simply a rewarding place to make a lasting contribution.
 Both are entirely fine—the role is a valued destination in its own right,
 and there is no expectation that you continue beyond it.
