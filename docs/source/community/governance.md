@@ -1,12 +1,16 @@
 (target-governance)=
 # Governance
 
-`movement` is currently led by the [Neuroinformatics Unit](https://neuroinformatics.dev/) (NIU)
-at the [Sainsbury Wellcome Centre](https://www.sainsburywellcome.org/web/),
-but it's very much a community effort, and we're grateful to everyone who helps move
-it forward. The roles below describe the different ways people take part and the
-repository access that comes with each. To see who currently fills them, head over to
-the [People](target-people) page.
+`movement` is currently led by the [Neuroinformatics Unit](https://neuroinformatics.dev/)
+(NIU), a Research Software Engineering team based at the
+[Sainsbury Wellcome Centre](https://www.sainsburywellcome.org/web/) and the
+[Gatsby Computational Neuroscience Unit](https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit).
+That said, `movement` is very much a community effort, and we're grateful to
+everyone who helps move it forward.
+
+The roles below describe the different ways people can take part and the
+repository privileges that comes with each role. To see who currently fills them,
+head over to the [](target-people) page.
 
 ## Roles
 
