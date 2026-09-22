@@ -8,7 +8,7 @@ from napari.layers.base import ActionType
 
 from movement.io import save_poses
 from movement.napari.layer_wiring import on_points_data_changed
-from movement.napari.loader_widgets import DataLoader
+from movement.napari.loader_widgets import POINTS_LAYER_KEY, DataLoader
 
 
 @pytest.fixture
@@ -290,3 +290,90 @@ def loaded_data_loader(make_napari_viewer_proxy):
         return loader
 
     return _loaded_data_loader
+
+
+@pytest.fixture
+def loader_with_edited_point(
+    valid_poses_path_and_ds, loaded_data_loader, move_point
+):
+    """Return a loaded ``DataLoader`` with one point dragged (edited)."""
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+    move_point(
+        loader,
+        frame=2,
+        keypoint="centroid",
+        individual="id_0",
+        new_y=100,
+        new_x=200,
+    )
+    return loader
+
+
+@pytest.fixture
+def loader_with_two_edited_individuals(
+    valid_poses_path_and_ds, loaded_data_loader, move_point
+):
+    """Return a loaded ``DataLoader`` with three edited points across two
+    individuals: ``id_0`` and ``id_1`` both on frame 2 (a shared frame),
+    and ``id_1`` again on frame 5.
+
+    Enough to exercise both the "one bar per frame" (lanes collapsed)
+    and "one bar per (frame, individual)" (individuals displayed)
+    behaviours of
+    :class:`~movement.napari.edit_timeline_widget.EditTimelineWidget`.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+    for individual, frame in (("id_0", 2), ("id_1", 2), ("id_1", 5)):
+        move_point(
+            loader,
+            frame=frame,
+            keypoint="centroid",
+            individual=individual,
+            new_y=100,
+            new_x=200,
+        )
+    return loader
+
+
+@pytest.fixture
+def click_on_timeline():
+    """Return a factory that simulates a click on an
+    :class:`~movement.napari.edit_timeline_widget.EditTimelineWidget`
+    timeline, at the given x (frame) position. Pass ``dblclick=True`` to
+    simulate a double-click instead (``xdata`` is then unused, matching
+    ``_handle_click``'s own early return for that case).
+    """
+
+    def _click_on_timeline(edit_timeline_widget, xdata=None, dblclick=False):
+        edit_timeline_widget._handle_click(
+            Mock(dblclick=dblclick, xdata=xdata)
+        )
+
+    return _click_on_timeline
+
+
+@pytest.fixture
+def add_movement_points():
+    """Return a factory that adds a movement Points layer to a viewer.
+
+    The layer has one point per entry in ``individuals`` (all at the
+    origin), with the ``edited`` and ``individual`` properties and the
+    metadata flag that mark it as a movement-loaded layer. Any extra
+    keyword arguments are forwarded to ``viewer.add_points``.
+    """
+
+    def _add(viewer, individuals=("id_0",), edited=None, **kwargs):
+        n = len(individuals)
+        return viewer.add_points(
+            np.zeros((n, 2)),
+            properties={
+                "edited": np.array([False] * n if edited is None else edited),
+                "individual": np.array(list(individuals)),
+            },
+            metadata={POINTS_LAYER_KEY: True},
+            **kwargs,
+        )
+
+    return _add
