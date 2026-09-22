@@ -1,0 +1,9 @@
+active\_movement\_points\_layer
+===============================
+
+.. currentmodule:: movement.napari.layer_wiring
+
+.. autofunction:: active_movement_points_layer
+
+.. minigallery:: movement.napari.layer_wiring.active_movement_points_layer
+   :add-heading: Examples using ``active_movement_points_layer``

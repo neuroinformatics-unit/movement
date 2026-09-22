@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=fa1a058a"></script>
+    <script src="../_static/documentation_options.js?v=193e62d8"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev49</p>
+    <p class="title logo__title">movement v0.17.1.dev50</p>
   
 </a></div>
     
@@ -538,8 +538,10 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="movement.napari.layer_wiring.html">movement.napari.layer_wiring</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.active_movement_points_layer.html">active_movement_points_layer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.connect_viewer_callbacks.html">connect_viewer_callbacks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.frame_axis_is_sliced.html">frame_axis_is_sliced</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.is_movement_points_layer.html">is_movement_points_layer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.on_points_data_changed.html">on_points_data_changed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.remove_from_tracks_layer.html">remove_from_tracks_layer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.set_point_symbol_by_edited.html">set_point_symbol_by_edited</a></li>
@@ -694,7 +696,7 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>df</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span>) – DataFrame containing the pose tracks and confidence scores. Must
+<li><p><strong>df</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span>) – DataFrame containing the pose tracks and confidence scores. Must
 be formatted as in DeepLabCut output files (see Notes).</p></li>
 <li><p><strong>fps</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – The number of frames per second in the video. If None (default),
 the <code class="docutils literal notranslate"><span class="pre">time</span></code> coordinates will be in frame numbers.</p></li>

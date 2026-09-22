@@ -16,9 +16,13 @@
     :toctree: .
     :nosignatures:
     
+    active_movement_points_layer
+    
     connect_viewer_callbacks
     
     frame_axis_is_sliced
+    
+    is_movement_points_layer
     
     on_points_data_changed
     

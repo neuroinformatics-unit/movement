@@ -44,7 +44,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../_static/documentation_options.js?v=fa1a058a"></script>
+    <script src="../_static/documentation_options.js?v=193e62d8"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -64,7 +64,7 @@
     <link rel="icon" href="../_static/light-logo-niu.png"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="connect_viewer_callbacks" href="movement.napari.layer_wiring.connect_viewer_callbacks.html" />
+    <link rel="next" title="active_movement_points_layer" href="movement.napari.layer_wiring.active_movement_points_layer.html" />
     <link rel="prev" title="TracksStyle" href="movement.napari.layer_styles.TracksStyle.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev49</p>
+    <p class="title logo__title">movement v0.17.1.dev50</p>
   
 </a></div>
     
@@ -538,8 +538,10 @@
 </ul>
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">movement.napari.layer_wiring</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.active_movement_points_layer.html">active_movement_points_layer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.connect_viewer_callbacks.html">connect_viewer_callbacks</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.frame_axis_is_sliced.html">frame_axis_is_sliced</a></li>
+<li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.is_movement_points_layer.html">is_movement_points_layer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.on_points_data_changed.html">on_points_data_changed</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.remove_from_tracks_layer.html">remove_from_tracks_layer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="movement.napari.layer_wiring.set_point_symbol_by_edited.html">set_point_symbol_by_edited</a></li>
@@ -700,11 +702,17 @@ nothing left to update, which is fine.</p></li>
 <p class="rubric">Functions</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="movement.napari.layer_wiring.connect_viewer_callbacks.html#movement.napari.layer_wiring.connect_viewer_callbacks" title="movement.napari.layer_wiring.connect_viewer_callbacks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connect_viewer_callbacks</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.napari.layer_wiring.active_movement_points_layer.html#movement.napari.layer_wiring.active_movement_points_layer" title="movement.napari.layer_wiring.active_movement_points_layer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">active_movement_points_layer</span></code></a></p></td>
+<td><p>Return the active movement Points layer, else the last one, else None.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.napari.layer_wiring.connect_viewer_callbacks.html#movement.napari.layer_wiring.connect_viewer_callbacks" title="movement.napari.layer_wiring.connect_viewer_callbacks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">connect_viewer_callbacks</span></code></a></p></td>
 <td><p>Wire the layer callbacks to a viewer, skipping if already wired.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="movement.napari.layer_wiring.frame_axis_is_sliced.html#movement.napari.layer_wiring.frame_axis_is_sliced" title="movement.napari.layer_wiring.frame_axis_is_sliced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frame_axis_is_sliced</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="movement.napari.layer_wiring.frame_axis_is_sliced.html#movement.napari.layer_wiring.frame_axis_is_sliced" title="movement.napari.layer_wiring.frame_axis_is_sliced"><code class="xref py py-obj docutils literal notranslate"><span class="pre">frame_axis_is_sliced</span></code></a></p></td>
 <td><p>Determine whether the frame axis is the sliced axis in a 2D view.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="movement.napari.layer_wiring.is_movement_points_layer.html#movement.napari.layer_wiring.is_movement_points_layer" title="movement.napari.layer_wiring.is_movement_points_layer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_movement_points_layer</span></code></a></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">True</span></code> for a movement-loaded napari Points layer.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="movement.napari.layer_wiring.on_points_data_changed.html#movement.napari.layer_wiring.on_points_data_changed" title="movement.napari.layer_wiring.on_points_data_changed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">on_points_data_changed</span></code></a></p></td>
 <td><p>Keep the corresponding Tracks layer in sync with the Points layer.</p></td>
@@ -755,11 +763,11 @@ nothing left to update, which is fine.</p></li>
       </div>
     </a>
     <a class="right-next"
-       href="movement.napari.layer_wiring.connect_viewer_callbacks.html"
+       href="movement.napari.layer_wiring.active_movement_points_layer.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">connect_viewer_callbacks</p>
+        <p class="prev-next-title">active_movement_points_layer</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../../_static/documentation_options.js?v=fa1a058a"></script>
+    <script src="../../../_static/documentation_options.js?v=193e62d8"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev49</p>
+    <p class="title logo__title">movement v0.17.1.dev50</p>
   
 </a></div>
     
@@ -524,6 +524,37 @@
 <span class="n">_WIRED_VIEWERS</span><span class="p">:</span> <span class="n">WeakSet</span> <span class="o">=</span> <span class="n">WeakSet</span><span class="p">()</span>
 
 
+<span class="c1"># ---- Layer helpers -------------------------------------</span>
+<div class="viewcode-block" id="is_movement_points_layer">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.is_movement_points_layer.html#movement.napari.layer_wiring.is_movement_points_layer">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_movement_points_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return ``True`` for a movement-loaded napari Points layer."""</span>
+    <span class="n">layer</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s2">"__wrapped__"</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">Points</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span>
+        <span class="n">layer</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">POINTS_LAYER_KEY</span><span class="p">)</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="active_movement_points_layer">
+<a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.active_movement_points_layer.html#movement.napari.layer_wiring.active_movement_points_layer">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">active_movement_points_layer</span><span class="p">(</span><span class="n">viewer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Return the active movement Points layer, else the last one, else None.</span>
+
+<span class="sd">    Prefers napari's active selection, but falls back to scanning the layer</span>
+<span class="sd">    list so a Points layer is still found when the active selection is</span>
+<span class="sd">    something else or unset.</span>
+<span class="sd">    """</span>
+    <span class="n">active</span> <span class="o">=</span> <span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">selection</span><span class="o">.</span><span class="n">active</span>
+    <span class="k">if</span> <span class="n">is_movement_points_layer</span><span class="p">(</span><span class="n">active</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">active</span><span class="p">,</span> <span class="s2">"__wrapped__"</span><span class="p">,</span> <span class="n">active</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_movement_points_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="s2">"__wrapped__"</span><span class="p">,</span> <span class="n">layer</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
 <span class="c1"># ---- Callbacks with viewer lifetime --------------------</span>
 <div class="viewcode-block" id="connect_viewer_callbacks">
 <a class="viewcode-back" href="../../../api/movement.napari.layer_wiring.connect_viewer_callbacks.html#movement.napari.layer_wiring.connect_viewer_callbacks">[docs]</a>
@@ -618,7 +649,7 @@
 <span class="sd">    """</span>
     <span class="n">is_editable</span> <span class="o">=</span> <span class="n">frame_axis_is_sliced</span><span class="p">(</span><span class="n">viewer</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="n">viewer</span><span class="o">.</span><span class="n">layers</span><span class="p">:</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">layer</span><span class="p">,</span> <span class="n">Points</span><span class="p">)</span> <span class="ow">and</span> <span class="n">layer</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">POINTS_LAYER_KEY</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">is_movement_points_layer</span><span class="p">(</span><span class="n">layer</span><span class="p">):</span>
             <span class="n">layer</span><span class="o">.</span><span class="n">editable</span> <span class="o">=</span> <span class="n">is_editable</span></div>
 
 
