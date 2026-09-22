@@ -44,9 +44,9 @@ take on a more active role in its development and maintenance.
 
 **Team members** are welcome to help with a range of tasks, including:
 
-- keeping the issue tracker and pull requests tidy and welcoming;
-- participating in discussions on [Zulip](movement-zulip:) and attending community calls;
-- reviewing pull requests—especially in parts of the codebase they are familiar with.
+- Keeping the issue tracker and pull requests tidy and welcoming.
+- Participating in discussions on [Zulip](movement-zulip:) and attending community calls.
+- Reviewing pull requests—especially in parts of the codebase they are familiar with.
 
 On GitHub, this role comes with *Write* access. We trust our **members** to use that judiciously:
 merging straightforward changes, particularly in areas they know well,
@@ -58,7 +58,7 @@ we will mentor and guide you as you grow into the role.
 Some people take on this role for a fixed period—for instance while doing an
 [internship](https://neuroinformatics.dev/get-involved/gsoc/index.html) with us,
 or while working on `movement` as part of a collaboration.
-For some contributors, this role is a stepping stone to becoming a **maintainer**.
+For some **contributors**, this role is a stepping stone to becoming a **maintainer**.
 For others, it is simply a rewarding place to make a lasting contribution.
 Both are entirely fine—the role is a valued destination in its own right,
 and there is no expectation that you continue beyond it.
@@ -68,22 +68,26 @@ This role is inspired by [napari's Triage team](napari:developers/coredev/triage
 whose thoughtful approach to community maintenance we've adapted to fit `movement`.
 :::
 
-### Core developers
+### Maintainers
 
-**Core developers** are the stewards of `movement`, responsible for the long-term health of the project.
-They hold *Maintain* access on GitHub, which is why you'll sometimes see them called maintainers.
+**Maintainers** are the stewards of `movement`, responsible
+for the project's long-term direction and health.
+The role's name matches the *Maintain* access it comes with on GitHub,
+but you may also see the same group referred to as core developers
+or core team.
 
-Beyond everything a **trusted contributor** can do, **core developers** perform the following tasks:
+Beyond everything a **team member** can do, **maintainers** perform the following tasks:
 
-- manage the repository itself, including merging pull requests and making releases;
-- foster the community by moderating conversations on GitHub and Zulip, organising community calls, and posting on social media;
-- make decisions about the project's scope and roadmap, and prioritise features and bug fixes;
-- publicly represent the project in talks, workshops, and other events.
+- [Make decisions](#decision-making) about the project's scope and roadmap, and prioritise features and bug fixes. Our community actively shapes these decisions, but the **maintainers** have the final say and responsibility.
+- Manage the repository itself, including merging pull requests and making releases.
+- Foster the community by moderating conversations on GitHub and Zulip, organising community calls, and posting on social media;
+- Publicly represent the project in talks, workshops, and other events. That said, we welcome anyone in our community publicising `movement` in their own way, and we provide a list of [](target-resources) to help you do so.
 
 Administrative access to the GitHub repository, the `movement` package on PyPI,
-and our [Zulip chat](movement-zulip:) is reserved for **core developers** only.
-Typically, administrative rights will be held by the head of the NIU
-and at least one other **core developer**, to ensure continuity in case of absence.
+and our [Zulip chat](movement-zulip:) is reserved for **maintainers** only.
+Typically, administrative rights will be held by the
+[head of the NIU](https://neuroinformatics.dev/people.html)
+and at least one other **maintainer**, to ensure continuity in case of absence.
 
 ## Decision-making
 
