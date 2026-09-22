@@ -1,10 +1,11 @@
 import h5py
 import numpy as np
+import pandas as pd
 import pytest
 import xarray as xr
-from pytest import DATA_PATHS
 
-from movement.io import load_poses, save_poses
+from movement.io import load_dataset, load_poses, save_dataset, save_poses
+from movement.kinematics import compute_speed
 
 
 @pytest.fixture(params=["dlc.h5", "dlc.csv"])
@@ -13,10 +14,33 @@ def dlc_output_file(request, tmp_path):
     return tmp_path / request.param
 
 
+@pytest.fixture
+def dataset_with_extra_variable(valid_poses_dataset):
+    """Create a dataset with an additional variable non-essential to the
+    movement dataset structure.
+    """
+    ds = valid_poses_dataset.copy()
+    ds["speed"] = compute_speed(ds["position"])
+    return ds
+
+
+@pytest.fixture
+def dataset_with_datetime_index(valid_poses_dataset):
+    """Create a dataset with a pd.DateTimeIndex as the time coordinate."""
+    ds = valid_poses_dataset.copy()
+    timestamps = pd.date_range(
+        start=pd.Timestamp.now(),
+        periods=ds.sizes["time"],
+        freq=pd.Timedelta(seconds=1),
+    )
+    ds.assign_coords(time=timestamps)
+    return ds
+
+
 @pytest.mark.parametrize(
     "dlc_poses_df", ["valid_dlc_poses_df", "valid_dlc_3d_poses_df"]
 )
-def test_load_and_save_to_dlc_style_df(dlc_poses_df, request):
+def test_load_and_save_dlc_style_df(dlc_poses_df, request):
     """Test that loading pose tracks from a DLC-style DataFrame and
     converting back to a DataFrame returns the same data values.
     """
@@ -63,7 +87,7 @@ def test_to_sleap_analysis_file_returns_same_h5_file_content(
     file) to a SLEAP-style .h5 analysis file returns the same file
     contents.
     """
-    sleap_h5_file_path = DATA_PATHS.get(sleap_h5_file)
+    sleap_h5_file_path = pytest.DATA_PATHS.get(sleap_h5_file)
     ds = load_poses.from_sleap_file(sleap_h5_file_path, fps=fps)
     save_poses.to_sleap_analysis_file(ds, new_h5_file)
 
@@ -95,7 +119,7 @@ def test_to_sleap_analysis_file_source_file(file, new_h5_file):
     to a SLEAP-style .h5 analysis file stores the .slp labels path
     only when the source file is a .slp file.
     """
-    file_path = DATA_PATHS.get(file)
+    file_path = pytest.DATA_PATHS.get(file)
     if file.startswith("DLC"):
         ds = load_poses.from_dlc_file(file_path)
     else:
@@ -109,11 +133,11 @@ def test_to_sleap_analysis_file_source_file(file, new_h5_file):
             assert f["labels_path"][()].decode() == ""
 
 
-def test_save_and_load_to_nwb_file(valid_poses_dataset):
+def test_save_and_load_nwb_file(valid_poses_dataset):
     """Test that saving pose tracks to NWBFile and then loading
     the file back in returns the same Dataset.
     """
-    nwb_files = save_poses.to_nwb_file(valid_poses_dataset)
+    nwb_files = save_poses.to_nwb_file_object(valid_poses_dataset)
     ds_singles = [load_poses.from_nwb_file(nwb_file) for nwb_file in nwb_files]
     ds = xr.merge(ds_singles, join="outer", compat="no_conflicts")
     # Change expected differences to match valid_poses_dataset
@@ -122,3 +146,60 @@ def test_save_and_load_to_nwb_file(valid_poses_dataset):
     ds.attrs["source_file"] = valid_poses_dataset.attrs["source_file"]
     del ds.attrs["fps"]
     xr.testing.assert_allclose(ds, valid_poses_dataset)
+
+
+@pytest.mark.parametrize(
+    "source_software, filename, dataset_fixture",
+    [
+        ("DeepLabCut", "dataset.h5", "valid_poses_dataset"),
+        ("SLEAP", "dataset.h5", "valid_poses_dataset"),
+        ("VIA-tracks", "dataset.csv", "valid_bboxes_dataset"),
+        ("NWB", "dataset.nwb", "valid_poses_dataset"),
+    ],
+)
+def test_save_dataset_and_load_dataset_roundtrip(
+    source_software, filename, dataset_fixture, request, tmp_path
+):
+    """Test that save_dataset followed by load_dataset returns an equivalent
+    dataset across supported formats.
+
+    Note: Because DLC single-individual format omits the "individuals" column,
+    saving a single-individual dataset in DLC format will not preserve the
+    individual ID when reloaded. The DLC case passes here only because the
+    dataset fixture uses the same default ID (`id_0`) that is assigned on load.
+    """
+    # Reduce to single individual for simplicity
+    ds = request.getfixturevalue(dataset_fixture).isel(individual=[0])
+    file_path = tmp_path / filename
+    save_dataset(ds, file_path, target_software=source_software)
+    loaded = load_dataset(file_path, source_software=source_software)
+    xr.testing.assert_allclose(loaded, ds)
+
+
+@pytest.mark.parametrize(
+    "dataset",
+    [
+        "valid_poses_dataset",
+        "valid_poses_dataset_with_nan",
+        "valid_bboxes_dataset",  # time unit is in frames
+        "valid_bboxes_dataset_in_seconds",
+        "valid_bboxes_dataset_with_nan",
+        "dataset_with_extra_variable",
+        "dataset_with_datetime_index",
+    ],
+)
+@pytest.mark.parametrize("engine", ["netcdf4", "scipy", "h5netcdf"])
+def test_save_and_load_netcdf(dataset, engine, tmp_path, request):
+    """Test that saving a movement dataset (via ``save_dataset``) to a
+    NetCDF file and then loading it back returns the same Dataset,
+    including any extra variables.
+
+    NetCDF has no registered ``load_dataset`` loader yet, so we load
+    back with ``xr.load_dataset``. We test across all 3 NetCDF engines
+    supported by xarray.
+    """
+    ds = request.getfixturevalue(dataset)
+    netcdf_file = tmp_path / "test_dataset.nc"
+    save_dataset(ds, netcdf_file, engine=engine)
+    loaded_ds = xr.load_dataset(netcdf_file)
+    xr.testing.assert_identical(loaded_ds, ds)
