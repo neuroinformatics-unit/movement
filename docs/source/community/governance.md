@@ -78,7 +78,7 @@ or core team.
 
 Beyond everything a **team member** can do, **maintainers** perform the following tasks:
 
-- [Make decisions](#decision-making) about the project's scope and roadmap, and prioritise features and bug fixes. Our community actively shapes these decisions, but the **maintainers** have the final say and responsibility.
+- [Make decisions](#decision-making) about the project's scope and roadmap, and prioritise features and bug fixes. Our community actively shapes these decisions, but **maintainers** make the final call.
 - Manage the repository itself, including merging pull requests and making releases.
 - Foster the community by moderating conversations on GitHub and Zulip, organising community calls, and posting on social media;
 - Publicly represent the project in talks, workshops, and other events. That said, we welcome anyone in our community publicising `movement` in their own way, and we provide a list of [](target-resources) to help you do so.
@@ -92,15 +92,16 @@ and at least one other **maintainer**, to ensure continuity in case of absence.
 ## Decision-making
 
 Most day-to-day decisions are made by
-lazy consensus[^consensus] among the **core developers**.
-Approval from one **core developer** is enough to merge most pull requests.
+[lazy consensus](https://community.apache.org/committers/decisionMaking.html#lazy-consensus)
+among the **maintainers**. Approval from one **maintainer** is enough to merge most pull requests.
 We only escalate to the full team for matters that affect the project's
 core architecture, scope, roadmap, or governance.
 
-For these more consequential decisions, we discuss publicly on GitHub, Zulip
-or in community calls, and consult **trusted contributors** and the wider community for input.
-We aim to reach a consensus[^consensus] among **core developers**. In the rare cases we can't,
-the head of the NIU has the final say and responsibility to decide for the project.
+For these more consequential decisions, we discuss publicly on our
+[community channels](target-connect-with-us), and consult all **team members**
+and the wider community for input. We aim to reach a consensus among **core developers**.
+In the rare cases we can't, the [head of the NIU](https://neuroinformatics.dev/people.html)
+has the final say and responsibility to decide for the project.
 
 ## Joining and stepping down
 
