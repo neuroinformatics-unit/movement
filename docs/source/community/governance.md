@@ -132,5 +132,5 @@ to to revoke or downgrade their access rights, depending on the circumstances.
 ## Governance model changes
 
 Governance model changes occur through a GitHub pull request that updates
-this document. The pull request is marked for review by all **maintainer**
+this document. The pull request is marked for review by all **maintainers**
 and is merged as soon as they all approve, or after two weeks if no objections are raised.

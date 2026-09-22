@@ -7,7 +7,7 @@
 [Adam Tyson](https://github.com/adamltyson).
 See [Governance](target-governance) for what the roles below mean and how to take them on.
 
-The currently active **core developers** are:
+The currently active **maintainers** are:
 - [Niko Sirmpilatze](https://github.com/niksirbi)
 - [Chang Huan Lo](https://github.com/lochhh)
 - [Sofía Miñano](https://github.com/sfmig)
