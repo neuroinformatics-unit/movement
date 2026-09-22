@@ -520,7 +520,7 @@ type SourceSoftware = Literal[
 
 #### Update the Input/Output guide
 
-Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-loading-pose-tracks) and/or [](target-loading-bboxes-tracks) section(s) with usage examples.
+Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-loading-pose-tracks) and/or [](target-loading-bbox-tracks) section(s) with usage examples.
 
 ### Implementing new writers
 
