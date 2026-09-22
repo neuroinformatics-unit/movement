@@ -4,7 +4,7 @@
 `movement` is currently led by the [Neuroinformatics Unit](https://neuroinformatics.dev/)
 (NIU), a Research Software Engineering team based at the
 [Sainsbury Wellcome Centre](https://www.sainsburywellcome.org/web/) and the
-[Gatsby Computational Neuroscience Unit](https://www.ucl.ac.uk/gatsby/gatsby-computational-neuroscience-unit).
+[Gatsby Computational Neuroscience Unit](https://www.ucl.ac.uk/life-sciences/gatsby).
 That said, `movement` is very much a community effort, and we're grateful to
 everyone who helps move it forward.
 
