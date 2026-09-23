@@ -954,21 +954,15 @@ class ValidCocoResults:
     """Parsed COCO results data."""
 
     annotations_file: Path | None = field(
-        default=None,
-        converter=converters.optional(Path),
+        default=None, converter=converters.optional(Path)
     )
-    """Optional path to a COCO annotations JSON file."""
+    """Optional path to a COCO keypoint detection annotations JSON file,
+    used to resolve category and keypoint names."""
 
-    categories: list[dict[str, Any]] | None = field(
-        init=False,
-        default=None,
-    )
+    categories: list[dict[str, Any]] | None = field(init=False, default=None)
     """COCO categories from the annotations file, if provided."""
 
-    keypoint_names: list[str] | None = field(
-        init=False,
-        default=None,
-    )
+    keypoint_names: list[str] | None = field(init=False, default=None)
     """Keypoint names from the annotations file, if provided."""
 
     def __attrs_post_init__(self) -> None:
@@ -977,18 +971,11 @@ class ValidCocoResults:
             return
 
         valid_annotations = ValidCocoAnnotations(file=self.annotations_file)
-        annotations = valid_annotations.data
-
-        self.categories = annotations["categories"]
-
-        categories_by_id = {
-            category["id"]: category for category in self.categories
-        }
-
+        self.categories = valid_annotations.categories
+        keypoints_by_category = valid_annotations.keypoints_by_category
         result_category_ids = {result["category_id"] for result in self.data}
 
-        missing_categories = result_category_ids - categories_by_id.keys()
-
+        missing_categories = result_category_ids - keypoints_by_category.keys()
         if missing_categories:
             raise ValueError(
                 "The COCO results reference category IDs that are not "
@@ -997,10 +984,9 @@ class ValidCocoResults:
             )
 
         keypoint_lists = {
-            tuple(categories_by_id[category_id]["keypoints"])
+            keypoints_by_category[category_id]
             for category_id in result_category_ids
         }
-
         if len(keypoint_lists) > 1:
             raise ValueError(
                 "COCO results reference categories with different "
@@ -1009,7 +995,7 @@ class ValidCocoResults:
             )
 
         if keypoint_lists:
-            self.keypoint_names = list(next(iter(keypoint_lists)))
+            self.keypoint_names = list(keypoint_lists.pop())
 
 
 @define
@@ -1017,7 +1003,8 @@ class ValidCocoAnnotations:
     """Class for validating COCO annotations files.
 
     The validator ensures that the file is a valid JSON file and that it
-    contains a dictionary with the required keys for COCO annotations.
+    contains a dictionary with the ``images``, ``annotations`` and
+    ``categories`` lists of a COCO keypoint annotations file.
     """
 
     suffixes: ClassVar[set[str]] = {JSON_SUFFIX}
@@ -1037,6 +1024,20 @@ class ValidCocoAnnotations:
     """Path to the COCO annotations JSON file to validate."""
 
     data: dict[str, Any] = field(init=False)
+    """Parsed COCO annotations data."""
+
+    @property
+    def categories(self) -> list[dict[str, Any]]:
+        """COCO categories from the annotations file."""
+        return self.data["categories"]
+
+    @property
+    def keypoints_by_category(self) -> dict[int, tuple[str, ...]]:
+        """Keypoint names for each category, keyed by category ID."""
+        return {
+            category["id"]: tuple(category["keypoints"])
+            for category in self.categories
+        }
 
 
 def _check_roi_type_matches_geometry(data: Mapping[str, Any]) -> None:
