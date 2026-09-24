@@ -307,6 +307,7 @@ Implementing a new loader to support additional [file formats](target-supported-
 1. Create validator classes for the file format (recommended).
 2. Implement the loader function.
 3. Update the `SourceSoftware` type alias.
+4. Update the [](target-io) guide.
 
 #### Create file validators
 
@@ -517,6 +518,10 @@ type SourceSoftware = Literal[
 ]
 ```
 
+#### Update the Input/Output guide
+
+Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-loading-pose-tracks) and/or [](target-loading-bbox-tracks) section(s) with usage examples.
+
 ### Implementing new writers
 
 Implementing a new writer to support additional [file formats](target-supported-formats) in `movement` involves the following steps:
@@ -601,7 +606,7 @@ type TargetSoftware = Literal[
 
 #### Update the Input/Output guide
 
-Finally, update the [](target-io) guide  by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-saving-pose-tracks) and/or [](target-saving-bboxes-tracks) section(s) with usage examples.
+Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-saving-pose-tracks) and/or [](target-saving-bboxes-tracks) section(s) with usage examples.
 
 ### Developing the CLI
 
