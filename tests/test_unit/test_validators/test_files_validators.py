@@ -593,13 +593,7 @@ def test_coco_results_validator_with_annotations(
             "score": 0.9,
         },
     ]
-    assert validated.categories == [
-        {
-            "id": 1,
-            "name": "person",
-            "keypoints": ["nose", "left_eye"],
-        },
-    ]
+    assert validated.category_names == {1: "person"}
     assert validated.keypoint_names == ["nose", "left_eye"]
 
 

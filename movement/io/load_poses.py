@@ -1,6 +1,5 @@
 """Load pose tracking data from various frameworks into ``movement``."""
 
-from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Literal, cast
 
@@ -380,48 +379,60 @@ def from_dlc_file(file: str | Path, fps: float | None = None) -> xr.Dataset:
     )
 
 
-def _get_coco_individual_info(
-    results: list[dict],
-    categories: list[dict] | None,
-    category_as_track: bool,
-) -> tuple[int, list[str] | None, dict[int, int] | None]:
-    """Get individual information from COCO results."""
-    if category_as_track:
-        if categories is not None:
-            category_ids = sorted(category["id"] for category in categories)
-            categories_by_id = {
-                category["id"]: category for category in categories
-            }
-            individual_names = [
-                categories_by_id[category_id]["name"]
-                for category_id in category_ids
-            ]
-        else:
-            category_ids = sorted(
-                {result["category_id"] for result in results}
+def _coco_individuals_from_categories(
+    frame_idx: np.ndarray,
+    category_ids: np.ndarray,
+    category_names: dict[int, str] | None,
+) -> tuple[np.ndarray, list[str]]:
+    """Use each COCO category as one individual across frames.
+
+    Only categories present in the results become individuals.
+    Returns the individual index of each detection and the individual
+    names, in sorted category ID order.
+    """
+    track_ids = np.unique(category_ids)
+    # Index of each detection's category_id in track_ids
+    individual_idx = np.searchsorted(track_ids, category_ids)
+    # Encode each (frame, individual) slot as a single integer
+    # (its flat index in an n_frames x n_individuals grid) for
+    # checking duplicates (i.e. same individual detected multiple
+    # times in a frame).
+    pairs = frame_idx * len(track_ids) + individual_idx
+    if len(np.unique(pairs)) < len(pairs):
+        raise logger.error(
+            ValueError(
+                "COCO results contain multiple detections of the same "
+                "category_id in the same image_id. Set "
+                "category_as_track=False if categories do not "
+                "identify individuals."
             )
-            individual_names = [
-                str(category_id) for category_id in category_ids
-            ]
+        )
+    individual_names = [
+        category_names[track_id]
+        if category_names is not None
+        else str(track_id)
+        for track_id in track_ids
+    ]
+    return individual_idx, individual_names
 
-        individual_index = {
-            category_id: i for i, category_id in enumerate(category_ids)
-        }
 
-        return len(category_ids), individual_names, individual_index
+def _coco_individuals_by_position(frame_idx: np.ndarray) -> np.ndarray:
+    """Assign COCO detections to individuals by order within each frame.
 
-    detections_per_frame = Counter(result["image_id"] for result in results)
-
-    n_individuals = max(detections_per_frame.values(), default=1)
-
-    if n_individuals > 1:
+    Returns the individual index of each detection: the 1st detection
+    of a frame (in file order) is individual 0, the 2nd is individual 1,
+    etc.
+    """
+    individual_idx = (
+        pd.Series(frame_idx).groupby(frame_idx).cumcount().to_numpy()
+    )
+    if individual_idx.max() > 0:
         logger.warning(
             "COCO results do not contain cross-frame track identities. "
             "Individuals are assigned positionally within each frame, "
             "so identity is not guaranteed to remain stable across frames."
         )
-
-    return n_individuals, None, None
+    return individual_idx
 
 
 @register_loader("COCO", file_validators=[ValidCocoResults])
@@ -457,65 +468,44 @@ def from_coco_file(
     """
     valid_results = cast("ValidCocoResults", file)
     results = valid_results.data
-    categories = valid_results.categories
+    category_names = valid_results.category_names
     keypoint_names = valid_results.keypoint_names
 
-    frame_ids = sorted({result["image_id"] for result in results})
-    frame_index = {frame_id: i for i, frame_id in enumerate(frame_ids)}
+    image_ids = np.array([result["image_id"] for result in results])
+    category_ids = np.array([result["category_id"] for result in results])
+    scores = np.array([result["score"] for result in results], np.float32)
+    # (n_detections, n_keypoints, 3), where 3 is (x, y, visibility)
+    keypoints = np.array(
+        [result["keypoints"] for result in results], np.float32
+    ).reshape(len(results), -1, 3)
 
-    n_frames = len(frame_ids)
-    n_keypoints = len(results[0]["keypoints"]) // 3
-
-    n_individuals, individual_names, individual_index = (
-        _get_coco_individual_info(
-            results,
-            categories,
-            category_as_track,
+    # Locate each detection d in the output arrays by a
+    # (frame_idx[d], individual_idx[d]) slot.
+    # frame_ids: sorted unique image IDs, used as the time axis.
+    # frame_idx: row of each detection in frame_ids, so that
+    # frame_ids[frame_idx[d]] == image_ids[d].
+    frame_ids, frame_idx = np.unique(image_ids, return_inverse=True)
+    if category_as_track:
+        individual_idx, individual_names = _coco_individuals_from_categories(
+            frame_idx, category_ids, category_names
         )
-    )
+        n_individuals = len(individual_names)
+    else:
+        individual_idx = _coco_individuals_by_position(frame_idx)
+        individual_names = None
+        n_individuals = int(individual_idx.max()) + 1
+
+    n_frames, n_keypoints = len(frame_ids), keypoints.shape[1]
 
     position_array = np.full(
-        (n_frames, 2, n_keypoints, n_individuals),
-        np.nan,
-        dtype=np.float32,
+        (n_frames, 2, n_keypoints, n_individuals), np.nan, np.float32
     )
+    position_array[frame_idx, :, :, individual_idx] = keypoints[
+        ..., :2
+    ].transpose(0, 2, 1)  # to (n_detections, 2, n_keypoints)
 
-    confidence_array = np.full(
-        (n_frames, n_individuals),
-        np.nan,
-        dtype=np.float32,
-    )
-
-    next_individual: dict[int, int] = defaultdict(int)
-
-    for result in results:
-        image_id = result["image_id"]
-        category_id = result["category_id"]
-        keypoints = np.asarray(result["keypoints"], dtype=np.float32)
-        score = result["score"]
-
-        frame_idx = frame_index[image_id]
-        keypoints = keypoints.reshape(n_keypoints, 3)
-
-        if category_as_track:
-            assert individual_index is not None
-            individual_idx = individual_index[category_id]
-
-            if not np.all(
-                np.isnan(position_array[frame_idx, :, :, individual_idx])
-            ):
-                raise logger.error(
-                    ValueError(
-                        f"COCO results contain multiple detections for "
-                        f"category_id {category_id} in image_id {image_id}."
-                    )
-                )
-        else:
-            individual_idx = next_individual[image_id]
-            next_individual[image_id] += 1
-
-        position_array[frame_idx, :, :, individual_idx] = keypoints[:, :2].T
-        confidence_array[frame_idx, individual_idx] = score
+    confidence_array = np.full((n_frames, n_individuals), np.nan, np.float32)
+    confidence_array[frame_idx, individual_idx] = scores
 
     frame_array = np.asarray(frame_ids).reshape(-1, 1)
 
@@ -528,11 +518,8 @@ def from_coco_file(
         fps=fps,
         source_software="COCO",
     )
-
     ds.attrs["source_file"] = valid_results.file.as_posix()
-
     logger.info(f"Loaded pose tracks from {valid_results.file}:\n{ds}")
-
     return ds
 
 

@@ -959,8 +959,9 @@ class ValidCocoResults:
     """Optional path to a COCO keypoint detection annotations JSON file,
     used to resolve category and keypoint names."""
 
-    categories: list[dict[str, Any]] | None = field(init=False, default=None)
-    """COCO categories from the annotations file, if provided."""
+    category_names: dict[int, str] | None = field(init=False, default=None)
+    """Category names keyed by category ID from the annotations file,
+    if provided."""
 
     keypoint_names: list[str] | None = field(init=False, default=None)
     """Keypoint names from the annotations file, if provided."""
@@ -970,21 +971,23 @@ class ValidCocoResults:
         if self.annotations_file is None:
             return
 
-        valid_annotations = ValidCocoAnnotations(file=self.annotations_file)
-        self.categories = valid_annotations.categories
-        keypoints_by_category = valid_annotations.keypoints_by_category
+        categories = ValidCocoAnnotations(
+            file=self.annotations_file
+        ).categories
         result_category_ids = {result["category_id"] for result in self.data}
-
-        missing_categories = result_category_ids - keypoints_by_category.keys()
+        missing_categories = result_category_ids - categories.keys()
         if missing_categories:
             raise ValueError(
                 "The COCO results reference category IDs that are not "
                 "present in the annotations file: "
                 f"{sorted(missing_categories)}"
             )
+        self.category_names = {
+            cid: category["name"] for cid, category in categories.items()
+        }
 
         keypoint_lists = {
-            keypoints_by_category[category_id]
+            tuple(categories[category_id]["keypoints"])
             for category_id in result_category_ids
         }
         if len(keypoint_lists) > 1:
@@ -993,7 +996,6 @@ class ValidCocoResults:
                 "keypoint skeletons. movement currently requires a "
                 "single skeleton shared by all individuals."
             )
-
         if keypoint_lists:
             self.keypoint_names = list(keypoint_lists.pop())
 
@@ -1027,16 +1029,10 @@ class ValidCocoAnnotations:
     """Parsed COCO annotations data."""
 
     @property
-    def categories(self) -> list[dict[str, Any]]:
-        """COCO categories from the annotations file."""
-        return self.data["categories"]
-
-    @property
-    def keypoints_by_category(self) -> dict[int, tuple[str, ...]]:
-        """Keypoint names for each category, keyed by category ID."""
+    def categories(self) -> dict[int, dict[str, Any]]:
+        """COCO categories from the annotations file, keyed by ID."""
         return {
-            category["id"]: tuple(category["keypoints"])
-            for category in self.categories
+            category["id"]: category for category in self.data["categories"]
         }
 
 
