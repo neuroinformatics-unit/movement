@@ -48,6 +48,12 @@ You may exchange `pyqt6` for `pyside6` if you prefer a different Qt backend.
 See [napari's installation guide](napari:tutorials/fundamentals/installation.html)
 for more details on available backends.
 
+To enable loading [`aniframe`](https://animovement.dev/aniframe/) `.parquet`
+files, additionally install `pyarrow` and `rdata`:
+```sh
+conda install -c conda-forge movement pyarrow rdata
+```
+
 :::
 
 :::{tab-item} From PyPI using pip
@@ -59,6 +65,12 @@ If you wish to use the GUI, which requires [napari](napari:), run instead:
 ```sh
 pip install "movement[napari]"
 ```
+To enable loading [`aniframe`](https://animovement.dev/aniframe/) `.parquet`
+files, install with the `aniframe` extra:
+```sh
+pip install "movement[aniframe]"
+```
+Extras can be combined, e.g. `pip install "movement[napari,aniframe]"`.
 :::
 
 :::{tab-item} From PyPI using uv
@@ -70,6 +82,12 @@ If you wish to use the GUI, which requires [napari](napari:), run instead:
 ```sh
 uv pip install "movement[napari]"
 ```
+To enable loading [`aniframe`](https://animovement.dev/aniframe/) `.parquet`
+files, install with the `aniframe` extra:
+```sh
+uv pip install "movement[aniframe]"
+```
+Extras can be combined, e.g. `uv pip install "movement[napari,aniframe]"`.
 :::
 
 ::::
