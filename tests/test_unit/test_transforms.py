@@ -92,18 +92,11 @@ def sample_data_3d() -> xr.DataArray:
             id="Halve, add space_unit",
         ),
         pytest.param(
-            {"factor": [0.5, 2]},
+            {"factor": np.array([0.5, 2])[None, :]},
             data_array_with_dims_and_coords(
-                nparray_0_to_23() * [0.5, 2],
+                nparray_0_to_23() * np.array([0.5, 2]),
             ),
             id="x / 2, y * 2",
-        ),
-        pytest.param(
-            {"factor": np.array([0.5, 2]).reshape(1, 2)},
-            data_array_with_dims_and_coords(
-                nparray_0_to_23() * [0.5, 2],
-            ),
-            id="x / 2, y * 2, should squeeze to cast across space",
         ),
     ],
 )
@@ -134,17 +127,12 @@ def test_scale(
     ],
 )
 def test_scale_space_dimension(dims: list[str], data_shape):
-    """Test scaling with transposed data along the correct dimension.
-
-    The scaling factor should be broadcasted along the space axis irrespective
-    of the order of the dimensions in the input data.
-    """
-    factor = [0.5, 2]
+    """Test scaling with factors aligned by xarray dimension broadcasting."""
+    factor = xr.DataArray([0.5, 2], dims=("space",))
     numerical_data = np.arange(np.prod(data_shape)).reshape(data_shape)
     data = xr.DataArray(numerical_data, dims=dims, coords=SPATIAL_COORDS_2D)
     scaled_data = scale(data, factor=factor)
-    broadcast_list = [1 if dim != "space" else len(factor) for dim in dims]
-    expected_output_data = data * np.array(factor).reshape(broadcast_list)
+    expected_output_data = data * factor
 
     assert scaled_data.shape == data.shape
     xr.testing.assert_equal(scaled_data, expected_output_data)
@@ -196,44 +184,54 @@ def test_scale_twice(
 
 
 @pytest.mark.parametrize(
-    "invalid_factor, expected_error_message",
-    [
-        pytest.param(
-            np.zeros((3, 3, 4)),
-            "Factor must be an object that can be converted to a 1D numpy"
-            " array, got 3D",
-            id="3D factor",
-        ),
-        pytest.param(
-            np.zeros(3),
-            "Factor shape (3,) does not match the shape "
-            "of the space dimension (2,)",
-            id="space dimension mismatch",
-        ),
-    ],
-)
-def test_scale_value_error(
-    sample_data_2d: xr.DataArray,
-    invalid_factor: np.ndarray,
-    expected_error_message: str,
-):
-    """Test invalid factors raise correct error type and message."""
-    with pytest.raises(ValueError) as error:
-        scale(sample_data_2d, factor=invalid_factor)
-    assert str(error.value) == expected_error_message
-
-
-@pytest.mark.parametrize(
-    "factor", [2, [1, 2, 0.5]], ids=["uniform scaling", "multi-axis scaling"]
+    "factor",
+    [2, np.array([1, 2, 0.5])[None, :]],
+    ids=["uniform scaling", "multi-axis scaling"],
 )
 def test_scale_3d_space(factor, sample_data_3d: xr.DataArray):
     """Test scaling a DataArray with 3D space."""
     scaled_data = scale(sample_data_3d, factor=factor)
     expected_output = data_array_with_dims_and_coords(
-        nparray_0_to_23().reshape(8, 3) * np.array(factor).reshape(1, -1),
+        nparray_0_to_23().reshape(8, 3) * np.array(factor),
         coords=SPATIAL_COORDS_3D,
     )
     xr.testing.assert_equal(scaled_data, expected_output)
+
+
+def test_scale_numpy_nd_factor():
+    """Scaling with an n-dimensional numpy factor should xarray
+    multiplication.
+    """
+    data = xr.DataArray(
+        np.ones((3, 2)),
+        dims=("time", "space"),
+        coords={"space": ["x", "y"], "time": [1, 2, 3]},
+    )
+
+    factor = np.ones(data.shape) * 2
+
+    scaled_position = data * factor
+    scaled_position_2 = scale(data, factor=factor)
+
+    xr.testing.assert_allclose(scaled_position, scaled_position_2)
+
+
+def test_scale_numpy_factor_reshape_branch():
+    """Test that numpy factors with fewer dimensions are reshaped for
+    broadcasting.
+    """
+    data = xr.DataArray(
+        np.ones((3, 2, 4)),
+        dims=("time", "space", "individuals"),
+        coords={"space": ["x", "y"]},
+    )
+
+    factor = np.array([1, 2, 3])
+
+    scaled = scale(data, factor=factor)
+    expected = data * factor.reshape(3, 1, 1)
+
+    xr.testing.assert_allclose(scaled, expected)
 
 
 @pytest.mark.parametrize(
@@ -270,7 +268,7 @@ def test_scale_log(sample_data_2d: xr.DataArray):
     # scale data twice
     scaled_data = scale(
         scale(sample_data_2d, factor=2, space_unit="elephants"),
-        factor=[1, 2],
+        factor=np.array([1, 2])[None, :],
         space_unit="crabs",
     )
 
@@ -279,7 +277,55 @@ def test_scale_log(sample_data_2d: xr.DataArray):
     log_entries = json.loads(scaled_data.attrs["log"])
     assert len(log_entries) == 2
     verify_log_entry(log_entries[0], "2", "'elephants'")
-    verify_log_entry(log_entries[1], "[1, 2]", "'crabs'")
+    verify_log_entry(log_entries[1], "array([[1, 2]])", "'crabs'")
+
+
+def test_scale_time_dependent_factor():
+    """Scaling with a factor defined over time should broadcast correctly."""
+    time_array = [1.0, 2.0, 3.0]
+    space = ["x", "y"]
+
+    data = xr.DataArray(
+        np.ones((3, 2)),
+        dims=("time", "space"),
+        coords={"space": space, "time": time_array},
+    )
+
+    factor = xr.DataArray(
+        [1.0, 2.0, 3.0],
+        dims=("time",),
+        coords={"time": time_array},
+    )
+
+    scaled = scale(data, factor=factor)
+
+    expected = xr.DataArray(
+        np.array([[1, 1], [2, 2], [3, 3]]),
+        dims=("time", "space"),
+        coords={"space": space, "time": time_array},
+    )
+
+    xr.testing.assert_equal(scaled, expected)
+
+
+@pytest.mark.parametrize(
+    "factor",
+    [
+        2,
+        np.array([[0.5, 2]]),
+        xr.DataArray([0.5, 2], dims=("space",)),
+    ],
+)
+def test_scale_various_factor_types(sample_data_2d, factor):
+    """Test scale with scalar, numpy array, and xarray factors."""
+    scaled = scale(sample_data_2d, factor=factor)
+
+    if not isinstance(factor, xr.DataArray):
+        factor = np.asarray(factor)
+
+    expected = sample_data_2d * factor
+
+    xr.testing.assert_allclose(scaled, expected)
 
 
 @pytest.mark.parametrize(
