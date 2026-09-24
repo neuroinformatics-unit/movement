@@ -442,12 +442,12 @@ def from_coco_file(
     annotations_file: str | Path | None = None,
     category_as_track: bool = False,
 ) -> xr.Dataset:
-    """Create a ``movement`` poses dataset from a COCO results file.
+    """Create a ``movement`` poses dataset from a COCO keypoint results file.
 
     Parameters
     ----------
     file
-        Path to the COCO keypoint results JSON file.
+        Path to the COCO keypoint detection results JSON file.
     fps
         The number of frames per second in the video. If None (default),
         the ``time`` coordinates will be in frame numbers.
@@ -455,15 +455,39 @@ def from_coco_file(
         Optional path to a COCO annotations JSON file. If provided,
         keypoint and individual names are extracted from the categories.
     category_as_track
-        If True, use ``category_id`` as the individual identity.
-        If False (default), detections within each frame are assigned
-        positionally.
+        If True, treat each ``category_id`` as one individual tracked
+        across frames. If False (default), assign individuals by order of
+        detection within each frame (see Notes).
 
     Returns
     -------
     xarray.Dataset
         ``movement`` dataset containing the pose tracks and confidence
         scores.
+
+    Notes
+    -----
+    COCO keypoint results do not contain track identities. By default,
+    the ``i``-th detection of each image (in file order) is assigned to
+    individual ``i`` (named ``id_i``), so an individual does not
+    necessarily correspond to the same animal across frames. Such data
+    may require identity tracking before analyses that rely on
+    consistent identities.
+
+    If categories do identify individuals (e.g. one category per
+    animal), set ``category_as_track=True``. Each category present in
+    the results then becomes one individual, named after the category
+    if ``annotations_file`` is provided, or after its ``category_id``
+    (e.g. ``"3"``) otherwise. Multiple detections of the same
+    category in the same image raise a ``ValueError``.
+
+    In ``movement``, pose data can currently only be loaded if all
+    individuals share the same skeleton. All detections in the results
+    must therefore have the same number of keypoints and, if
+    ``annotations_file`` is provided, all categories present in the
+    results must have the same ``keypoints`` list. Otherwise, a
+    ``ValueError`` is raised. Without an annotations file, keypoints are
+    named ``keypoint_0``, ``keypoint_1``, etc.
 
     """
     valid_results = cast("ValidCocoResults", file)
