@@ -330,7 +330,11 @@ def test_from_coco_file_category_as_track(
     coco_keypoints_file_category_as_track,
     coco_annotations_file_category_as_track,
 ):
-    """Test using COCO categories as individual."""
+    """Test using COCO categories as individuals.
+
+    Categories declared in the annotations but absent from the results
+    are not included as individuals.
+    """
     ds = load_poses.from_coco_file(
         coco_keypoints_file_category_as_track,
         annotations_file=coco_annotations_file_category_as_track,
@@ -338,10 +342,10 @@ def test_from_coco_file_category_as_track(
     )
 
     assert ds.sizes["time"] == 1
-    assert ds.sizes["individual"] == 3
+    assert ds.sizes["individual"] == 2
     assert ds.sizes["keypoint"] == 2
 
-    assert list(ds.individual.values) == ["person", "cat", "dog"]
+    assert list(ds.individual.values) == ["person", "cat"]
     assert list(ds.keypoint.values) == ["nose", "left_eye"]
 
     np.testing.assert_array_equal(
@@ -354,8 +358,6 @@ def test_from_coco_file_category_as_track(
         [[50, 70], [60, 80]],
     )
 
-    assert np.isnan(ds.position.values[0, :, :, 2]).all()
-
     np.testing.assert_allclose(
         ds.confidence.values[0, 0],
         0.9,
@@ -365,8 +367,6 @@ def test_from_coco_file_category_as_track(
         ds.confidence.values[0, 1],
         0.8,
     )
-
-    assert np.isnan(ds.confidence.values[0, 2])
 
 
 @pytest.mark.parametrize(
