@@ -1075,7 +1075,8 @@ For example, to reference the {meth}`xarray.Dataset.update` method, use:
 The [contributors list](target-contributors) is automatically updated on the first day of each month by a GitHub actions workflow (`.github/workflows/update_contributors_list.yml`).
 It uses the [Contributors-Readme-Action](https://github.com/marketplace/actions/contribute-list) to generate the list of contributors based on the commits to the repository.
 
-It is also possible to manually add other contributors who have not contributed code to the repository, but have contributed in other ways (e.g. by providing sample data, or by actively participating in discussions).
+It is also possible to manually add other contributors who have not contributed code to the repository,
+but have contributed in other ways, e.g. by providing sample data.
 The way to add them differs depending on whether they are GitHub users or not.
 
 ::::{tab-set}
