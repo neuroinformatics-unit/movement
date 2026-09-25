@@ -149,6 +149,36 @@ def test_to_via_tracks_file_valid_dataset(
     xr.testing.assert_equal(ds, input_dataset)
 
 
+@pytest.mark.parametrize("fps", [25, 29.97, 30])
+def test_to_via_tracks_file_frame_numbers_from_seconds(fps, tmp_path):
+    """Test that frame numbers are recovered correctly from time in seconds.
+
+    ``time * fps`` is not always an exact integer in floating point
+    (e.g. 29 / 25 * 25 = 28.999...), so the frame numbers must be rounded,
+    not truncated. 130 frames covers at least one such frame for each fps.
+    """
+    n_frames = 130
+    input_dataset = load_bboxes.from_numpy(
+        position_array=np.ones((n_frames, 2, 1)),
+        shape_array=np.ones((n_frames, 2, 1)),
+        individual_names=["id_0"],
+        fps=fps,
+    )
+    output_path = tmp_path / "test_frame_numbers.csv"
+    save_bboxes.to_via_tracks_file(input_dataset, output_path)
+
+    # Check the frame numbers in the image filenames
+    df = pd.read_csv(output_path)
+    frame_numbers = df["filename"].str.extract(r"(\d+)")[0].astype(int)
+    assert frame_numbers.tolist() == list(range(n_frames))
+
+    # Check the exported file can be loaded back with the same time values
+    ds = load_bboxes.from_via_tracks_file(
+        output_path, fps=fps, use_frame_numbers_from_file=True
+    )
+    xr.testing.assert_equal(ds.time, input_dataset.time)
+
+
 @pytest.mark.parametrize(
     "image_file_prefix",
     [None, "test_video"],
