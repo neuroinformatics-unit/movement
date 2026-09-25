@@ -33,7 +33,7 @@ Use {func}`~movement.io.load.get_supported_source_software` and {func}`~movement
 | [SLEAP](sleap:)                                                             | SLEAP        | [analysis](sleap-docs:tutorial/exporting-the-results/#analysis-hdf5) .h5 or .slp file                                     | Pose                 | Load & Save          |
 | [LightningPose](lp:)                                                        | LP           | DLC-style .csv file, or corresponding pandas DataFrame                                                                    | Pose                 | Load & Save          |
 | [Anipose](anipose:)                                                         |              | triangulation .csv file, or corresponding pandas DataFrame                                                                | Pose                 | Load                 |
-| [COCO](https://cocodataset.org/) | COCO | COCO keypoint results `.json` file, optionally with a COCO annotations `.json` file | Pose | Load |
+| [COCO](coco:) | COCO | COCO keypoint detection [results](coco:format-results) `.json` file, optionally with a COCO [annotations](coco:format-data) `.json` file | Pose | Load |
 | [VGG Image Annotator](via:)                                                 | VIA          | .csv file for [tracks annotation](via:docs/face_track_annotation.html)                                                    | Bounding box         | Load & Save          |
 | [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB          | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose)                                | Pose                 | Load & Save          |
 | Any                                                                         |              | Numpy arrays                                                                                                              | Pose or Bounding box | Load & Save\*        |
@@ -190,24 +190,13 @@ ds = load_poses.from_anipose_style_df(df, fps=30, individual_name="id_0")
 ::::
 
 ::::{tab-item} COCO
-To load COCO keypoint results from a JSON file:
+To load [COCO keypoint detection results files](coco:format-results) in .json format:
 ```python
-ds = load_poses.from_coco_file(
-    "/path/to/results.json",
-    fps=30,
-)
+ds = load_poses.from_coco_file("/path/to/results.json", fps=30)
 ```
-The loader supports COCO keypoint results files and validates their structure before converting the detections into a movement poses dataset.
 
-For COCO results containing multiple detections per frame, the category_as_track argument can be used to interpret the COCO category as the tracking identity:
-```python
-ds = load_poses.from_coco_file(
-    "/path/to/results.json",
-    fps=30,
-    category_as_track=True,
-)
-```
-A COCO annotations file can optionally be provided when loading results:
+COCO results files store keypoints as unnamed coordinate lists, so keypoints are assigned default names `keypoint_0`, `keypoint_1`, etc. in the resulting dataset.
+To use the keypoint names defined for each category instead, you can also provide the corresponding [COCO annotations file](coco:format-data) in .json format:
 ```python
 ds = load_poses.from_coco_file(
     "/path/to/results.json",
@@ -215,6 +204,19 @@ ds = load_poses.from_coco_file(
     annotations_file="/path/to/annotations.json",
 )
 ```
+
+For multi-animal data where each COCO category identifies an individual (e.g. one category per animal), set `category_as_track=True` to track each category across frames.
+Individuals are then named after the categories if an annotations file is provided, or after their `category_id` otherwise:
+```python
+ds = load_poses.from_coco_file(
+    "/path/to/results.json", fps=30, category_as_track=True
+)
+```
+
+:::{note}
+COCO keypoint results do not contain track identities, so when there are multiple animals per frame, individuals may not correspond to the same animal across frames.
+See the notes in {func}`~movement.io.load_poses.from_coco_file` for details on ways to handle this.
+:::
 ::::
 
 ::::{tab-item} NWB

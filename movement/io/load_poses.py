@@ -470,16 +470,22 @@ def from_coco_file(
     COCO keypoint results do not contain track identities. By default,
     the ``i``-th detection of each image (in file order) is assigned to
     individual ``i`` (named ``id_i``), so an individual does not
-    necessarily correspond to the same animal across frames. Such data
-    may require identity tracking before analyses that rely on
-    consistent identities.
+    necessarily correspond to the same animal across frames. How to
+    handle this depends on your data:
 
-    If categories do identify individuals (e.g. one category per
-    animal), set ``category_as_track=True``. Each category present in
-    the results then becomes one individual, named after the category
-    if ``annotations_file`` is provided, or after its ``category_id``
-    (e.g. ``"3"``) otherwise. Multiple detections of the same
-    category in the same image raise a ``ValueError``.
+    - **One animal per frame**: no action needed, all detections are
+      assigned to ``id_0``.
+    - **Multiple animals, one category per animal**: set
+      ``category_as_track=True``.
+      Each category present in the results then becomes one individual,
+      named after the category if ``annotations_file`` is provided, or
+      after its ``category_id`` (e.g. ``"3"``) otherwise. Multiple
+      detections of the same category in the same image raise a
+      ``ValueError``.
+    - **Multiple animals sharing a category**: identities are not
+      reliable across frames. Assign them with a tracking tool before
+      analyses that follow individuals over time (e.g. kinematics),
+      and load the tracked output instead of the raw COCO results.
 
     In ``movement``, pose data can currently only be loaded if all
     individuals share the same skeleton. All detections in the results
@@ -487,7 +493,7 @@ def from_coco_file(
     ``annotations_file`` is provided, all categories present in the
     results must have the same ``keypoints`` list. Otherwise, a
     ``ValueError`` is raised. Without an annotations file, keypoints are
-    named ``keypoint_0``, ``keypoint_1``, etc.
+    assigned default names ``keypoint_0``, ``keypoint_1``, etc. in file order.
 
     """
     valid_results = cast("ValidCocoResults", file)
