@@ -1,7 +1,6 @@
 """Load pose tracking data from various frameworks into ``movement``."""
 
 import warnings
-from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Literal, cast
 
