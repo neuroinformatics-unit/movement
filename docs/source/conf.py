@@ -288,6 +288,7 @@ myst_url_schemes = {
     "attrs": "https://www.attrs.org/en/stable/{{path}}#{{fragment}}",
     "pytest-benchmark": "https://pytest-benchmark.readthedocs.io/en/latest/{{path}}#{{fragment}}",
     "qt6": "https://doc.qt.io/qt-6/{{path}}#{{fragment}}",
+    "coco": "https://cocodataset.org/#{{path}}",
 }
 
 intersphinx_mapping = {
