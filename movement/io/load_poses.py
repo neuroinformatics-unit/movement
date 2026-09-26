@@ -1,5 +1,7 @@
 """Load pose tracking data from various frameworks into ``movement``."""
 
+import warnings
+from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Literal, cast
 
@@ -16,7 +18,7 @@ from movement.utils.logging import logger
 from movement.validators.datasets import ValidPosesInputs
 from movement.validators.files import (
     ValidAniposeCSV,
-    ValidCocoResults,
+    ValidCOCOKeypointResults,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
     ValidFile,
@@ -427,18 +429,20 @@ def _coco_individuals_by_position(frame_idx: np.ndarray) -> np.ndarray:
         pd.Series(frame_idx).groupby(frame_idx).cumcount().to_numpy()
     )
     if individual_idx.max() > 0:
-        logger.warning(
+        warnings.warn(
             "COCO results do not contain cross-frame track identities. "
             "Individuals are assigned positionally within each frame, "
-            "so identity is not guaranteed to remain stable across frames."
+            "so identity is not guaranteed to remain stable across frames.",
+            stacklevel=2,
         )
     return individual_idx
 
 
-@register_loader("COCO", file_validators=[ValidCocoResults])
+@register_loader("COCO", file_validators=[ValidCOCOKeypointResults])
 def from_coco_file(
     file: str | Path,
     fps: float | None = None,
+    *,
     annotations_file: str | Path | None = None,
     category_as_track: bool = False,
 ) -> xr.Dataset:
@@ -449,11 +453,9 @@ def from_coco_file(
     file
         Path to the COCO keypoint detection results JSON file.
     fps
-        The number of frames per second in the video. If None (default),
-        the ``time`` coordinates will be in frame numbers.
+        Frames per second. If None, ``time`` coordinates are frame numbers.
     annotations_file
-        Optional path to a COCO annotations JSON file. If provided,
-        keypoint and individual names are extracted from the categories.
+        Optional COCO annotations JSON file for keypoint and individual names.
     category_as_track
         If True, treat each ``category_id`` as one individual tracked
         across frames. If False (default), assign individuals by order of
@@ -462,8 +464,7 @@ def from_coco_file(
     Returns
     -------
     xarray.Dataset
-        ``movement`` dataset containing the pose tracks and confidence
-        scores.
+        ``movement`` pose tracks and confidence scores.
 
     Notes
     -----
@@ -496,7 +497,7 @@ def from_coco_file(
     assigned default names ``keypoint_0``, ``keypoint_1``, etc. in file order.
 
     """
-    valid_results = cast("ValidCocoResults", file)
+    valid_results = cast("ValidCOCOKeypointResults", file)
     results = valid_results.data
     category_names = valid_results.category_names
     keypoint_names = valid_results.keypoint_names

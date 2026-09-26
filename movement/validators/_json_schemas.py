@@ -67,11 +67,14 @@ ROI_COLLECTION_SCHEMA: Mapping[str, Any] = {
     },
 }
 
-COCO_RESULTS_SCHEMA: Mapping[str, Any] = {
+COCO_KEYPOINT_RESULTS_SCHEMA: Mapping[str, Any] = {
     JSON_SCHEMA_KEY: JSON_SCHEMA_URL,
     "title": "COCO Keypoint Results",
-    "description": ("Schema for validating COCO keypoint results JSON files"),
+    "description": (
+        "Schema for validating COCO keypoint detection results JSON files"
+    ),
     "type": "array",
+    "minItems": 1,
     "items": {
         "type": "object",
         "required": [
@@ -89,6 +92,7 @@ COCO_RESULTS_SCHEMA: Mapping[str, Any] = {
             },
             "keypoints": {
                 "type": "array",
+                "minItems": 3,
                 "items": {
                     "type": "number",
                 },
@@ -100,15 +104,57 @@ COCO_RESULTS_SCHEMA: Mapping[str, Any] = {
     },
 }
 
-COCO_ANNOTATIONS_SCHEMA: Mapping[str, Any] = {
+COCO_KEYPOINT_ANNOTATIONS_SCHEMA: Mapping[str, Any] = {
     JSON_SCHEMA_KEY: JSON_SCHEMA_URL,
     "title": "COCO Keypoint Annotations",
     "description": (
-        "Schema for validating COCO keypoint annotations JSON files"
+        "Schema for validating COCO keypoint detection annotations JSON files"
     ),
     "type": "object",
-    "required": ["categories"],
+    "required": ["images", "annotations", "categories"],
     "properties": {
+        "images": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": ["id"],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                    },
+                },
+            },
+        },
+        "annotations": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "image_id",
+                    "category_id",
+                    "keypoints",
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                    },
+                    "image_id": {
+                        "type": "integer",
+                    },
+                    "category_id": {
+                        "type": "integer",
+                    },
+                    "keypoints": {
+                        "type": "array",
+                        "minItems": 3,
+                        "items": {
+                            "type": "number",
+                        },
+                    },
+                },
+            },
+        },
         "categories": {
             "type": "array",
             "items": {

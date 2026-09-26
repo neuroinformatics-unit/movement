@@ -12,8 +12,8 @@ from attrs import define, field
 from movement.validators.files import (
     DEFAULT_FRAME_REGEXP,
     ValidAniposeCSV,
-    ValidCocoAnnotations,
-    ValidCocoResults,
+    ValidCOCOKeypointAnnotations,
+    ValidCOCOKeypointResults,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
     ValidNWBFile,
@@ -576,16 +576,22 @@ _POLYGON_FEATURE = (
 
 
 def test_coco_results_validator_with_annotations(
-    coco_keypoints_file_person,
-    coco_annotations_file_person,
+    coco_keypoint_results_file_category_as_track,
+    coco_keypoint_annotations_file_category_as_track,
 ):
-    """Test ValidCocoResults with a COCO annotations file."""
-    validated = ValidCocoResults(
-        file=coco_keypoints_file_person,
-        annotations_file=coco_annotations_file_person,
+    """Test ValidCOCOKeypointResults with a COCO annotations file."""
+    validated = ValidCOCOKeypointResults(
+        file=coco_keypoint_results_file_category_as_track,
+        annotations_file=coco_keypoint_annotations_file_category_as_track,
     )
 
     assert validated.data == [
+        {
+            "image_id": 10,
+            "category_id": 2,
+            "keypoints": [50, 60, 2, 70, 80, 2],
+            "score": 0.8,
+        },
         {
             "image_id": 10,
             "category_id": 1,
@@ -593,7 +599,13 @@ def test_coco_results_validator_with_annotations(
             "score": 0.9,
         },
     ]
-    assert validated.category_names == {1: "person"}
+
+    assert validated.category_names == {
+        1: "person",
+        2: "cat",
+        3: "dog",
+    }
+
     assert validated.keypoint_names == ["nose", "left_eye"]
 
 
@@ -601,14 +613,14 @@ def test_coco_results_validator_with_annotations(
     "results_fixture, annotations_fixture, match",
     [
         pytest.param(
-            "coco_keypoints_file_unknown_category",
-            "coco_annotations_file_person",
+            "coco_keypoint_results_file_unknown_category",
+            "coco_keypoint_annotations_file_category_as_track",
             "not present in the annotations file",
             id="unknown-category",
         ),
         pytest.param(
-            "coco_keypoints_file_different_skeleton",
-            "coco_annotations_file_different_skeleton",
+            "coco_keypoint_results_file_category_as_track",
+            "coco_keypoint_annotations_file_different_skeleton",
             "different keypoint skeletons",
             id="different-skeletons",
         ),
@@ -620,31 +632,65 @@ def test_coco_results_validator_annotations_errors(
     annotations_fixture,
     match,
 ):
-    """Test COCO results validation against annotations."""
+    """Test ValidCOCOKeypointResults against annotations."""
     results_file = request.getfixturevalue(results_fixture)
     annotations_file = request.getfixturevalue(annotations_fixture)
 
     with pytest.raises(ValueError, match=match):
-        ValidCocoResults(
+        ValidCOCOKeypointResults(
             file=results_file,
             annotations_file=annotations_file,
         )
 
 
-def test_coco_annotations_validator(coco_annotations_file_person):
-    """Test ValidCocoAnnotations with valid annotations."""
-    validated = ValidCocoAnnotations(
-        file=coco_annotations_file_person,
+def test_coco_results_validator_without_annotations(
+    coco_keypoint_results_file_single_detection,
+):
+    """Test ValidCOCOKeypointResults without a COCO annotations file."""
+    validated = ValidCOCOKeypointResults(
+        file=coco_keypoint_results_file_single_detection,
+    )
+
+    assert validated.data == [
+        {
+            "image_id": 10,
+            "category_id": 1,
+            "keypoints": [10, 20, 2, 30, 40, 2],
+            "score": 0.9,
+        },
+    ]
+    assert validated.category_names is None
+    assert validated.keypoint_names is None
+
+
+def test_coco_annotations_validator(
+    coco_keypoint_annotations_file_category_as_track,
+):
+    """Test ValidCOCOKeypointAnnotations with valid annotations."""
+    validated = ValidCOCOKeypointAnnotations(
+        file=coco_keypoint_annotations_file_category_as_track,
     )
 
     assert validated.data == {
+        "images": [],
+        "annotations": [],
         "categories": [
             {
                 "id": 1,
                 "name": "person",
                 "keypoints": ["nose", "left_eye"],
             },
-        ]
+            {
+                "id": 2,
+                "name": "cat",
+                "keypoints": ["nose", "left_eye"],
+            },
+            {
+                "id": 3,
+                "name": "dog",
+                "keypoints": ["nose", "left_eye"],
+            },
+        ],
     }
 
 
