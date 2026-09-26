@@ -144,7 +144,7 @@ def coco_keypoint_results_file_unknown_category(coco_keypoint_results_file):
 
 @pytest.fixture
 def coco_keypoint_results_file_single_detection(coco_keypoint_results_file):
-    """Return COCO keypoint results containing a person."""
+    """Return COCO keypoint results with a single detection."""
     return coco_keypoint_results_file([COCO_KEYPOINT_RESULT_1])
 
 
