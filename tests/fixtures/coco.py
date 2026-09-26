@@ -4,10 +4,24 @@ import json
 
 import pytest
 
+COCO_KEYPOINT_RESULT_1 = {
+    "image_id": 10,
+    "category_id": 1,
+    "keypoints": [10, 20, 2, 30, 40, 2],
+    "score": 0.9,
+}
+
+COCO_KEYPOINT_RESULT_2 = {
+    "image_id": 10,
+    "category_id": 2,
+    "keypoints": [50, 60, 2, 70, 80, 2],
+    "score": 0.8,
+}
+
 
 @pytest.fixture
-def coco_results_file(tmp_path):
-    """Return a function to create a COCO keypoint results file."""
+def coco_keypoint_results_file(tmp_path):
+    """Return a factory that writes a list of COCO results to a JSON file."""
 
     def _coco_results_file(results):
         file_path = tmp_path / "coco_results.json"
@@ -21,14 +35,27 @@ def coco_results_file(tmp_path):
 
 
 @pytest.fixture
-def coco_annotations_file(tmp_path):
-    """Return a function to create a COCO annotations file."""
+def coco_keypoint_annotations_file(tmp_path):
+    """Return a factory that writes a COCO keypoint annotations file with
+    the given images, annotations, and categories to a JSON file.
+    """
 
-    def _coco_annotations_file(categories):
+    def _coco_annotations_file(
+        categories,
+        images=None,
+        annotations=None,
+    ):
         file_path = tmp_path / "coco_annotations.json"
 
         with open(file_path, "w") as f:
-            json.dump({"categories": categories}, f)
+            json.dump(
+                {
+                    "images": [] if images is None else images,
+                    "annotations": [] if annotations is None else annotations,
+                    "categories": categories,
+                },
+                f,
+            )
 
         return file_path
 
@@ -36,53 +63,38 @@ def coco_annotations_file(tmp_path):
 
 
 @pytest.fixture
-def coco_keypoints_file(coco_results_file):
+def coco_keypoint_results_file_valid(coco_keypoint_results_file):
     """Return a valid COCO keypoint results file."""
     results = [
+        COCO_KEYPOINT_RESULT_1,
+        COCO_KEYPOINT_RESULT_2,
         {
-            "image_id": 10,
-            "category_id": 1,
-            "keypoints": [10, 20, 2, 30, 40, 2],
-            "score": 0.9,
-        },
-        {
-            "image_id": 10,
-            "category_id": 2,
-            "keypoints": [50, 60, 2, 70, 80, 2],
-            "score": 0.8,
-        },
-        {
+            **COCO_KEYPOINT_RESULT_1,
             "image_id": 20,
-            "category_id": 1,
             "keypoints": [15, 25, 2, 35, 45, 2],
             "score": 0.7,
         },
     ]
-    return coco_results_file(results)
+    return coco_keypoint_results_file(results)
 
 
 @pytest.fixture
-def coco_keypoints_file_category_as_track(coco_results_file):
-    """Return COCO keypoint results for category-as-track tests."""
+def coco_keypoint_results_file_category_as_track(coco_keypoint_results_file):
+    """Return a COCO keypoint results file with two detections in one
+    frame, listed out of category ID order, so positional and
+    category-as-track assignment give different individual orders.
+    """
     results = [
-        {
-            "image_id": 10,
-            "category_id": 2,
-            "keypoints": [50, 60, 2, 70, 80, 2],
-            "score": 0.8,
-        },
-        {
-            "image_id": 10,
-            "category_id": 1,
-            "keypoints": [10, 20, 2, 30, 40, 2],
-            "score": 0.9,
-        },
+        COCO_KEYPOINT_RESULT_2,
+        COCO_KEYPOINT_RESULT_1,
     ]
-    return coco_results_file(results)
+    return coco_keypoint_results_file(results)
 
 
 @pytest.fixture
-def coco_annotations_file_category_as_track(coco_annotations_file):
+def coco_keypoint_annotations_file_category_as_track(
+    coco_keypoint_annotations_file,
+):
     """Return COCO annotations for category-as-track tests."""
     categories = [
         {
@@ -101,59 +113,45 @@ def coco_annotations_file_category_as_track(coco_annotations_file):
             "keypoints": ["nose", "left_eye"],
         },
     ]
-    return coco_annotations_file(categories)
+    return coco_keypoint_annotations_file(categories)
 
 
 @pytest.fixture
-def coco_keypoints_file_duplicate_category(coco_results_file):
-    """Return COCO results with duplicate category in a frame."""
+def coco_keypoint_results_file_duplicate_category(coco_keypoint_results_file):
+    """Return COCO keypoint results with duplicate category in a frame."""
     results = [
+        COCO_KEYPOINT_RESULT_1,
         {
-            "image_id": 10,
-            "category_id": 1,
-            "keypoints": [10, 20, 2, 30, 40, 2],
-            "score": 0.9,
-        },
-        {
-            "image_id": 10,
-            "category_id": 1,
+            **COCO_KEYPOINT_RESULT_1,
             "keypoints": [50, 60, 2, 70, 80, 2],
             "score": 0.8,
         },
     ]
-    return coco_results_file(results)
+    return coco_keypoint_results_file(results)
 
 
 @pytest.fixture
-def coco_keypoints_file_unknown_category(coco_results_file):
-    """Return COCO results with an unknown category."""
+def coco_keypoint_results_file_unknown_category(coco_keypoint_results_file):
+    """Return COCO keypoint results with an unknown category."""
     results = [
         {
-            "image_id": 10,
-            "category_id": 3,
-            "keypoints": [10, 20, 2, 30, 40, 2],
-            "score": 0.9,
+            **COCO_KEYPOINT_RESULT_1,
+            "category_id": 4,
         },
     ]
-    return coco_results_file(results)
+    return coco_keypoint_results_file(results)
 
 
 @pytest.fixture
-def coco_keypoints_file_person(coco_results_file):
+def coco_keypoint_results_file_single_detection(coco_keypoint_results_file):
     """Return COCO keypoint results containing a person."""
-    results = [
-        {
-            "image_id": 10,
-            "category_id": 1,
-            "keypoints": [10, 20, 2, 30, 40, 2],
-            "score": 0.9,
-        },
-    ]
-    return coco_results_file(results)
+    return coco_keypoint_results_file([COCO_KEYPOINT_RESULT_1])
 
 
 @pytest.fixture
-def coco_annotations_file_person(coco_annotations_file):
+def coco_keypoint_annotations_file_single_detection(
+    coco_keypoint_annotations_file,
+):
     """Return COCO annotations containing a person category."""
     categories = [
         {
@@ -162,32 +160,14 @@ def coco_annotations_file_person(coco_annotations_file):
             "keypoints": ["nose", "left_eye"],
         },
     ]
-    return coco_annotations_file(categories)
+    return coco_keypoint_annotations_file(categories)
 
 
 @pytest.fixture
-def coco_keypoints_file_different_skeleton(coco_results_file):
-    """Return COCO results using two categories."""
-    results = [
-        {
-            "image_id": 10,
-            "category_id": 1,
-            "keypoints": [10, 20, 2, 30, 40, 2],
-            "score": 0.9,
-        },
-        {
-            "image_id": 10,
-            "category_id": 2,
-            "keypoints": [50, 60, 2, 70, 80, 2],
-            "score": 0.8,
-        },
-    ]
-    return coco_results_file(results)
-
-
-@pytest.fixture
-def coco_annotations_file_different_skeleton(coco_annotations_file):
-    """Return COCO annotations with different keypoint skeletons."""
+def coco_keypoint_annotations_file_different_skeleton(
+    coco_keypoint_annotations_file,
+):
+    """Return COCO keypoint annotations with different keypoint skeletons."""
     categories = [
         {
             "id": 1,
@@ -200,18 +180,17 @@ def coco_annotations_file_different_skeleton(coco_annotations_file):
             "keypoints": ["nose", "head"],
         },
     ]
-    return coco_annotations_file(categories)
+    return coco_keypoint_annotations_file(categories)
 
 
 @pytest.fixture
-def coco_keypoints_file_without_annotations(coco_results_file):
+def coco_keypoint_results_file_without_annotations(coco_keypoint_results_file):
     """Return COCO keypoint results without annotations."""
     results = [
         {
+            **COCO_KEYPOINT_RESULT_1,
             "image_id": 20,
             "category_id": 5,
-            "keypoints": [10, 20, 2, 30, 40, 2],
-            "score": 0.9,
         },
     ]
-    return coco_results_file(results)
+    return coco_keypoint_results_file(results)

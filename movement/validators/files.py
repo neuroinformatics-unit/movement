@@ -17,8 +17,8 @@ from pynwb import NWBFile
 
 from movement.utils.logging import logger
 from movement.validators._json_schemas import (
-    COCO_ANNOTATIONS_SCHEMA,
-    COCO_RESULTS_SCHEMA,
+    COCO_KEYPOINT_ANNOTATIONS_SCHEMA,
+    COCO_KEYPOINT_RESULTS_SCHEMA,
     ROI_COLLECTION_SCHEMA,
     ROI_TYPE_TO_GEOMETRY,
 )
@@ -926,26 +926,60 @@ class ValidNWBFile:
     """Path to the NWB file on disk (ending in ".nwb") or an NWBFile object."""
 
 
+def _check_coco_keypoints_length(data: Any) -> None:
+    """Check that all COCO keypoints arrays have the same length.
+
+    The length must be a multiple of 3, corresponding to
+    (x, y, visibility) for each keypoint.
+    """
+    if isinstance(data, dict):
+        data = data["annotations"]
+
+    if not data:
+        return
+
+    keypoint_lengths = {len(item["keypoints"]) for item in data}
+
+    if len(keypoint_lengths) != 1:
+        raise logger.error(
+            ValueError("All COCO keypoints arrays must have the same length.")
+        )
+
+    keypoints_length = next(iter(keypoint_lengths))
+
+    if keypoints_length % 3 != 0:
+        raise logger.error(
+            ValueError(
+                "COCO keypoints arrays must have a length that is a "
+                "multiple of 3 (x, y, visibility for each keypoint)."
+            )
+        )
+
+
 @define
-class ValidCocoResults:
-    """Class for validating COCO results files.
+class ValidCOCOKeypointResults:
+    """Class for validating COCO keypoint detection results files.
 
     The validator ensures that the file is a valid JSON file and that it
     contains a list of dictionaries, each with the required keys for COCO
-    results.
+    keypoint detection results.
     """
 
     suffixes: ClassVar[set[str]] = {JSON_SUFFIX}
     """Expected suffix(es) for the file."""
 
-    schema: ClassVar[Mapping[str, Any]] = COCO_RESULTS_SCHEMA
+    schema: ClassVar[Mapping[str, Any]] = COCO_KEYPOINT_RESULTS_SCHEMA
     """JSON schema for validating the structure of the COCO results file."""
 
     file: Path = field(
         converter=Path,
         validator=validators.and_(
             _file_validator(permission="r", suffixes=suffixes),
-            _json_validator(schema=schema, data_attr="data"),
+            _json_validator(
+                schema=schema,
+                custom_checks=(_check_coco_keypoints_length,),
+                data_attr="data",
+            ),
         ),
     )
     """Path to the COCO results JSON file to validate."""
@@ -971,16 +1005,18 @@ class ValidCocoResults:
         if self.annotations_file is None:
             return
 
-        categories = ValidCocoAnnotations(
+        categories = ValidCOCOKeypointAnnotations(
             file=self.annotations_file
         ).categories
         result_category_ids = {result["category_id"] for result in self.data}
         missing_categories = result_category_ids - categories.keys()
         if missing_categories:
-            raise ValueError(
-                "The COCO results reference category IDs that are not "
-                "present in the annotations file: "
-                f"{sorted(missing_categories)}"
+            raise logger.error(
+                ValueError(
+                    "COCO results reference category IDs that are not "
+                    "present in the annotations file. Missing category IDs: "
+                    f"{missing_categories}"
+                )
             )
         self.category_names = {
             cid: category["name"] for cid, category in categories.items()
@@ -991,18 +1027,20 @@ class ValidCocoResults:
             for category_id in result_category_ids
         }
         if len(keypoint_lists) > 1:
-            raise ValueError(
-                "COCO results reference categories with different "
-                "keypoint skeletons. movement currently requires a "
-                "single skeleton shared by all individuals."
+            raise logger.error(
+                ValueError(
+                    "COCO results reference categories with different "
+                    "keypoint skeletons. movement currently requires a "
+                    "single skeleton shared by all individuals."
+                )
             )
         if keypoint_lists:
             self.keypoint_names = list(keypoint_lists.pop())
 
 
 @define
-class ValidCocoAnnotations:
-    """Class for validating COCO annotations files.
+class ValidCOCOKeypointAnnotations:
+    """Class for validating COCO keypoint annotations files.
 
     The validator ensures that the file is a valid JSON file and that it
     contains a dictionary with the ``images``, ``annotations`` and
@@ -1012,7 +1050,7 @@ class ValidCocoAnnotations:
     suffixes: ClassVar[set[str]] = {JSON_SUFFIX}
     """Expected suffix(es) for the file."""
 
-    schema: ClassVar[Mapping[str, Any]] = COCO_ANNOTATIONS_SCHEMA
+    schema: ClassVar[Mapping[str, Any]] = COCO_KEYPOINT_ANNOTATIONS_SCHEMA
     """JSON schema for validating the structure of the COCO
     annotations file."""
 
@@ -1020,7 +1058,11 @@ class ValidCocoAnnotations:
         converter=Path,
         validator=validators.and_(
             _file_validator(permission="r", suffixes=suffixes),
-            _json_validator(schema=schema, data_attr="data"),
+            _json_validator(
+                schema=schema,
+                custom_checks=(_check_coco_keypoints_length,),
+                data_attr="data",
+            ),
         ),
     )
     """Path to the COCO annotations JSON file to validate."""

@@ -278,164 +278,153 @@ def test_load_from_nwb_file(input_type, kwargs, request):
     assert ds_from_file_path.attrs == expected_attrs
 
 
-def test_from_coco_file(coco_keypoints_file):
+def test_from_coco_file(coco_keypoint_results_file_valid):
     """Test loading COCO keypoint results."""
-    ds = load_poses.from_coco_file(coco_keypoints_file)
+    ds = load_poses.from_coco_file(coco_keypoint_results_file_valid)
 
-    assert ds.sizes["time"] == 2
-    assert ds.sizes["individual"] == 2
-    assert ds.sizes["keypoint"] == 2
-
-    np.testing.assert_array_equal(
-        ds.time.values,
-        [10, 20],
+    expected = xr.Dataset(
+        {
+            "position": (
+                ("time", "space", "keypoint", "individual"),
+                np.array(
+                    [
+                        [
+                            [[10, 50], [30, 70]],
+                            [[20, 60], [40, 80]],
+                        ],
+                        [
+                            [[15, np.nan], [35, np.nan]],
+                            [[25, np.nan], [45, np.nan]],
+                        ],
+                    ],
+                    dtype=np.float32,
+                ),
+            ),
+            "confidence": (
+                ("time", "individual"),
+                np.array(
+                    [
+                        [0.9, 0.8],
+                        [0.7, np.nan],
+                    ],
+                    dtype=np.float32,
+                ),
+            ),
+        },
+        coords={
+            "time": [10, 20],
+            "space": ["x", "y"],
+            "keypoint": ["keypoint_0", "keypoint_1"],
+            "individual": ["id_0", "id_1"],
+        },
     )
 
-    np.testing.assert_array_equal(
-        ds.position.values[0, :, :, 0],
-        [[10, 30], [20, 40]],
-    )
-
-    np.testing.assert_array_equal(
-        ds.position.values[0, :, :, 1],
-        [[50, 70], [60, 80]],
-    )
-
-    np.testing.assert_array_equal(
-        ds.position.values[1, :, :, 0],
-        [[15, 35], [25, 45]],
-    )
-
-    assert np.isnan(ds.position.values[1, :, :, 1]).all()
-
-    np.testing.assert_allclose(
-        ds.confidence.values[0, 0],
-        0.9,
-    )
-
-    np.testing.assert_allclose(
-        ds.confidence.values[0, 1],
-        0.8,
-    )
-
-    np.testing.assert_allclose(
-        ds.confidence.values[1, 0],
-        0.7,
-    )
-
-    assert np.isnan(ds.confidence.values[1, 1])
-
-
-def test_from_coco_file_category_as_track(
-    coco_keypoints_file_category_as_track,
-    coco_annotations_file_category_as_track,
-):
-    """Test using COCO categories as individuals.
-
-    Categories declared in the annotations but absent from the results
-    are not included as individuals.
-    """
-    ds = load_poses.from_coco_file(
-        coco_keypoints_file_category_as_track,
-        annotations_file=coco_annotations_file_category_as_track,
-        category_as_track=True,
-    )
-
-    assert ds.sizes["time"] == 1
-    assert ds.sizes["individual"] == 2
-    assert ds.sizes["keypoint"] == 2
-
-    assert list(ds.individual.values) == ["person", "cat"]
-    assert list(ds.keypoint.values) == ["nose", "left_eye"]
-
-    np.testing.assert_array_equal(
-        ds.position.values[0, :, :, 0],
-        [[10, 30], [20, 40]],
-    )
-
-    np.testing.assert_array_equal(
-        ds.position.values[0, :, :, 1],
-        [[50, 70], [60, 80]],
-    )
-
-    np.testing.assert_allclose(
-        ds.confidence.values[0, 0],
-        0.9,
-    )
-
-    np.testing.assert_allclose(
-        ds.confidence.values[0, 1],
-        0.8,
-    )
+    xr.testing.assert_allclose(ds, expected)
 
 
 @pytest.mark.parametrize(
-    "results_fixture, annotations_fixture, match",
+    "with_annotations, category_as_track, expected_keypoints, "
+    "expected_individuals, expected_position",
     [
         pytest.param(
-            "coco_keypoints_file_duplicate_category",
-            "coco_annotations_file_person",
-            "multiple detections",
-            id="duplicate-category-in-frame",
+            False,
+            False,
+            ["keypoint_0", "keypoint_1"],
+            ["id_0", "id_1"],
+            [
+                [[50, 10], [70, 30]],
+                [[60, 20], [80, 40]],
+            ],
+            id="without-annotations-positional",
         ),
         pytest.param(
-            "coco_keypoints_file_unknown_category",
-            "coco_annotations_file_person",
-            "not present in the annotations file",
-            id="unknown-category",
+            False,
+            True,
+            ["keypoint_0", "keypoint_1"],
+            ["1", "2"],
+            [
+                [[10, 50], [30, 70]],
+                [[20, 60], [40, 80]],
+            ],
+            id="without-annotations-category-as-track",
         ),
         pytest.param(
-            "coco_keypoints_file_different_skeleton",
-            "coco_annotations_file_different_skeleton",
-            "different keypoint skeletons",
-            id="different-skeletons",
+            True,
+            False,
+            ["nose", "left_eye"],
+            ["id_0", "id_1"],
+            [
+                [[50, 10], [70, 30]],
+                [[60, 20], [80, 40]],
+            ],
+            id="with-annotations-positional",
+        ),
+        pytest.param(
+            True,
+            True,
+            ["nose", "left_eye"],
+            ["person", "cat"],
+            [
+                [[10, 50], [30, 70]],
+                [[20, 60], [40, 80]],
+            ],
+            id="with-annotations-category-as-track",
         ),
     ],
 )
-def test_from_coco_file_errors(
-    request,
-    results_fixture,
-    annotations_fixture,
-    match,
-):
-    """Test errors raised for invalid COCO pose data."""
-    results_file = request.getfixturevalue(results_fixture)
-    annotations_file = request.getfixturevalue(annotations_fixture)
-
-    with pytest.raises(ValueError, match=match):
-        load_poses.from_coco_file(
-            results_file,
-            annotations_file=annotations_file,
-            category_as_track=True,
-        )
-
-
-@pytest.mark.parametrize("category_as_track", [False, True])
-def test_from_coco_file_without_annotations(
-    coco_keypoints_file_without_annotations,
+def test_from_coco_file_naming_and_order(
+    coco_keypoint_results_file_category_as_track,
+    coco_keypoint_annotations_file_category_as_track,
+    with_annotations,
     category_as_track,
+    expected_keypoints,
+    expected_individuals,
+    expected_position,
 ):
-    """Test loading COCO results without an annotations file."""
+    """Test keypoint and individual naming and ordering for COCO files."""
+    annotations_file = (
+        coco_keypoint_annotations_file_category_as_track
+        if with_annotations
+        else None
+    )
+
     ds = load_poses.from_coco_file(
-        coco_keypoints_file_without_annotations,
+        coco_keypoint_results_file_category_as_track,
+        annotations_file=annotations_file,
         category_as_track=category_as_track,
     )
 
-    assert ds.sizes["time"] == 1
-    assert ds.sizes["individual"] == 1
-    assert ds.sizes["keypoint"] == 2
+    assert list(ds.keypoint.values) == expected_keypoints
+    assert list(ds.individual.values) == expected_individuals
+
+    np.testing.assert_allclose(
+        ds.position.values[0],
+        np.asarray(expected_position, dtype=np.float32),
+        equal_nan=True,
+    )
+
+
+def test_from_coco_file_fps(coco_keypoint_results_file_valid):
+    """Test that ``fps`` converts image IDs to time in seconds."""
+    ds = load_poses.from_coco_file(
+        coco_keypoint_results_file_valid,
+        fps=10,
+    )
 
     np.testing.assert_array_equal(
         ds.time.values,
-        [20],
+        [1.0, 2.0],
     )
 
-    np.testing.assert_array_equal(
-        ds.position.values[0, :, :, 0],
-        [[10, 30], [20, 40]],
-    )
 
-    np.testing.assert_allclose(
-        ds.confidence.values[0, 0],
-        0.9,
-    )
+def test_from_coco_file_duplicate_category(
+    coco_keypoint_results_file_duplicate_category,
+    coco_keypoint_annotations_file_category_as_track,
+):
+    """Test that duplicate category detections raise an error."""
+    with pytest.raises(ValueError, match="multiple detections"):
+        load_poses.from_coco_file(
+            coco_keypoint_results_file_duplicate_category,
+            annotations_file=coco_keypoint_annotations_file_category_as_track,
+            category_as_track=True,
+        )
