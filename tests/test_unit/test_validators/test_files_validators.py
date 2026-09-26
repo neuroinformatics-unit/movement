@@ -575,6 +575,74 @@ _POLYGON_FEATURE = (
 )
 
 
+@pytest.mark.parametrize(
+    "validator, filename, content, match",
+    [
+        pytest.param(
+            ValidCOCOKeypointResults,
+            "coco_results.txt",
+            [
+                {
+                    "image_id": 10,
+                    "category_id": 1,
+                    "keypoints": [10, 20, 2, 30, 40, 2],
+                    "score": 0.9,
+                }
+            ],
+            "suffix",
+            id="results-wrong-suffix",
+        ),
+        pytest.param(
+            ValidCOCOKeypointResults,
+            "coco_results.json",
+            [],
+            "empty",
+            id="results-empty-list",
+        ),
+        pytest.param(
+            ValidCOCOKeypointResults,
+            "coco_results.json",
+            {"invalid": "schema"},
+            "schema",
+            id="results-schema-mismatch",
+        ),
+        pytest.param(
+            ValidCOCOKeypointAnnotations,
+            "coco_annotations.txt",
+            {
+                "images": [],
+                "annotations": [],
+                "categories": [],
+            },
+            "suffix",
+            id="annotations-wrong-suffix",
+        ),
+        pytest.param(
+            ValidCOCOKeypointAnnotations,
+            "coco_annotations.json",
+            {"invalid": "schema"},
+            "schema",
+            id="annotations-schema-mismatch",
+        ),
+    ],
+)
+def test_coco_validators_invalid_file(
+    tmp_path,
+    validator,
+    filename,
+    content,
+    match,
+):
+    """Test COCO validators reject wrong suffixes and schema mismatches."""
+    file = tmp_path / filename
+
+    with open(file, "w") as f:
+        json.dump(content, f)
+
+    with pytest.raises(ValueError, match=match):
+        validator(file=file)
+
+
 def test_coco_results_validator_with_annotations(
     coco_keypoint_results_file_category_as_track,
     coco_keypoint_annotations_file_category_as_track,
@@ -624,17 +692,40 @@ def test_coco_results_validator_with_annotations(
             "different keypoint skeletons",
             id="different-skeletons",
         ),
+        pytest.param(
+            "coco_keypoint_results_file_keypoints_not_divisible_by_3",
+            None,
+            "multiple of 3",
+            id="keypoints-not-divisible-by-3",
+        ),
+        pytest.param(
+            "coco_keypoint_results_file_different_keypoint_lengths",
+            None,
+            "same length",
+            id="different-keypoint-lengths",
+        ),
+        pytest.param(
+            "coco_keypoint_results_file_category_as_track",
+            "coco_keypoint_annotations_file_different_keypoint_count",
+            "keypoint.*count",
+            id="keypoint-count-does-not-match-annotations",
+        ),
     ],
 )
-def test_coco_results_validator_annotations_errors(
+def test_coco_results_validator_content_errors(
     request,
     results_fixture,
     annotations_fixture,
     match,
 ):
-    """Test ValidCOCOKeypointResults against annotations."""
+    """Test ValidCOCOKeypointResults rejects invalid content."""
     results_file = request.getfixturevalue(results_fixture)
-    annotations_file = request.getfixturevalue(annotations_fixture)
+
+    annotations_file = (
+        request.getfixturevalue(annotations_fixture)
+        if annotations_fixture is not None
+        else None
+    )
 
     with pytest.raises(ValueError, match=match):
         ValidCOCOKeypointResults(
