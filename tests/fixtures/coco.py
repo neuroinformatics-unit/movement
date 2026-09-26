@@ -194,3 +194,52 @@ def coco_keypoint_results_file_without_annotations(coco_keypoint_results_file):
         },
     ]
     return coco_keypoint_results_file(results)
+
+
+@pytest.fixture
+def coco_keypoint_results_file_keypoints_not_divisible_by_3(
+    coco_keypoint_results_file,
+):
+    """Return COCO results with a keypoints list not divisible by 3."""
+    results = [
+        {
+            **COCO_KEYPOINT_RESULT_1,
+            "keypoints": [10, 20, 2, 30],
+        }
+    ]
+    return coco_keypoint_results_file(results)
+
+
+@pytest.fixture
+def coco_keypoint_results_file_different_keypoint_lengths(
+    coco_keypoint_results_file,
+):
+    """Return COCO results with different keypoint list lengths."""
+    results = [
+        COCO_KEYPOINT_RESULT_1,
+        {
+            **COCO_KEYPOINT_RESULT_2,
+            "keypoints": [50, 60, 2],
+        },
+    ]
+    return coco_keypoint_results_file(results)
+
+
+@pytest.fixture
+def coco_keypoint_annotations_file_different_keypoint_count(
+    coco_keypoint_annotations_file,
+):
+    """Return COCO annotations with a different keypoint count."""
+    categories = [
+        {
+            "id": 1,
+            "name": "person",
+            "keypoints": ["nose"],
+        },
+        {
+            "id": 2,
+            "name": "cat",
+            "keypoints": ["nose"],
+        },
+    ]
+    return coco_keypoint_annotations_file(categories)

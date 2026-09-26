@@ -1008,8 +1008,11 @@ class ValidCOCOKeypointResults:
         categories = ValidCOCOKeypointAnnotations(
             file=self.annotations_file
         ).categories
+
         result_category_ids = {result["category_id"] for result in self.data}
+
         missing_categories = result_category_ids - categories.keys()
+
         if missing_categories:
             raise logger.error(
                 ValueError(
@@ -1018,6 +1021,7 @@ class ValidCOCOKeypointResults:
                     f"{missing_categories}"
                 )
             )
+
         self.category_names = {
             cid: category["name"] for cid, category in categories.items()
         }
@@ -1026,6 +1030,7 @@ class ValidCOCOKeypointResults:
             tuple(categories[category_id]["keypoints"])
             for category_id in result_category_ids
         }
+
         if len(keypoint_lists) > 1:
             raise logger.error(
                 ValueError(
@@ -1034,8 +1039,28 @@ class ValidCOCOKeypointResults:
                     "single skeleton shared by all individuals."
                 )
             )
+
         if keypoint_lists:
             self.keypoint_names = list(keypoint_lists.pop())
+
+        annotation_keypoint_counts = {
+            category_id: len(categories[category_id]["keypoints"])
+            for category_id in result_category_ids
+        }
+
+        for result in self.data:
+            result_keypoint_count = len(result["keypoints"]) // 3
+            annotation_keypoint_count = annotation_keypoint_counts[
+                result["category_id"]
+            ]
+
+            if result_keypoint_count != annotation_keypoint_count:
+                raise logger.error(
+                    ValueError(
+                        "COCO results keypoint count does not match "
+                        "the keypoint count in the annotations file."
+                    )
+                )
 
 
 @define
