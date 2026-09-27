@@ -32,7 +32,7 @@ Use {func}`~movement.io.load.get_supported_source_software` and {func}`~movement
 | [DeepLabCut](dlc:)                                                          | DLC          | DLC-style .h5 or .csv file, or corresponding pandas DataFrame                                                             | Pose                 | Load & Save          |
 | [SLEAP](sleap:)                                                             | SLEAP        | [analysis](sleap-docs:tutorial/exporting-the-results/#analysis-hdf5) .h5 or .slp file                                     | Pose                 | Load & Save          |
 | [LightningPose](lp:)                                                        | LP           | DLC-style .csv file, or corresponding pandas DataFrame                                                                    | Pose                 | Load & Save          |
-| [Anipose](anipose:)                                                         |              | triangulation .csv file, or corresponding pandas DataFrame                                                                | Pose                 | Load                 |
+| [Anipose](anipose:)                                                         |              | triangulation .csv file, or corresponding pandas DataFrame                                                                | Pose                 | Load & Save          |
 | [VGG Image Annotator](via:)                                                 | VIA          | .csv file for [tracks annotation](via:docs/face_track_annotation.html)                                                    | Bounding box         | Load & Save          |
 | [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB          | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose)                                | Pose                 | Load & Save          |
 | Any                                                                         |              | Numpy arrays                                                                                                              | Pose or Bounding box | Load & Save\*        |
@@ -390,6 +390,22 @@ DeepLabCut .csv format, the above command is equivalent to:
 ```python
 save_poses.to_dlc_file(ds, "/path/to/file.csv", split_individuals=True)
 ```
+::::
+
+::::{tab-item} Anipose
+To save as an Anipose 3D triangulation file in .csv format:
+
+```python
+save_poses.to_anipose_file(ds, "/path/to/file.csv")
+```
+Datasets with more than one individual are saved to one file per
+individual, with the individual's name appended to the file path
+(e.g. `/path/to/file_id_0.csv`), since the Anipose format only
+supports a single individual per file. Datasets without a `z`
+coordinate are saved with NaN `_z` columns, since Anipose is a 3D
+format. Individual names and `fps` are not stored in the file; pass
+`individual_name` and `fps` when reloading with
+{func}`movement.io.load_poses.from_anipose_file` if needed.
 ::::
 
 ::::{tab-item} NWB
