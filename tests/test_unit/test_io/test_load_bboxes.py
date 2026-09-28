@@ -441,16 +441,22 @@ def test_numpy_arrays_from_valid_via_object(input_data, expected):
     "ignore:.*Setting fps to None.:UserWarning",
 )
 @pytest.mark.parametrize(
-    "via_file_path, frame_array_from_file",
+    "via_file_path, frames_from_file, frames_offset",
     [
         (
             pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-            np.array(range(1, 6)),
+            np.arange(1, 6),
+            np.arange(0, 5),
         ),
         (
             pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
             np.array(list(range(0, 168, 5)) + [167]),
+            np.array(list(range(0, 168, 5)) + [167]),
         ),
+    ],
+    ids=[
+        "first frame 1, consecutive frames",
+        "first frame 0, gaps in frame numbers",
     ],
 )
 @pytest.mark.parametrize(
@@ -466,7 +472,8 @@ def test_numpy_arrays_from_valid_via_object(input_data, expected):
 @pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
 def test_fps_and_time_coords(
     via_file_path,
-    frame_array_from_file,
+    frames_from_file,
+    frames_offset,
     fps,
     expected_fps,
     expected_time_unit,
@@ -489,17 +496,11 @@ def test_fps_and_time_coords(
         assert getattr(ds, "fps", None) == expected_fps
     else:
         assert not hasattr(ds, "fps")
-    # check loading frame numbers from file
-    if use_frame_numbers_from_file:
-        assert_time_coordinates(
-            ds, expected_fps, frame_array=frame_array_from_file
-        )
-    else:
-        assert_time_coordinates(
-            ds,
-            expected_fps,
-            frame_array=frame_array_from_file - frame_array_from_file.min(),
-        )
+    # check time coordinates
+    expected_frames = (
+        frames_from_file if use_frame_numbers_from_file else frames_offset
+    )
+    assert_time_coordinates(ds, expected_fps, frame_array=expected_frames)
 
 
 @pytest.mark.parametrize(
