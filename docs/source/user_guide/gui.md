@@ -341,11 +341,13 @@ created when you [load the tracked dataset](#load-the-tracked-dataset).
 1. Select the points layer in the layer list.
 2. Use the frame slider to go to the frame you want to correct.
 3. In the layer controls panel, activate the select points tool
-   (the arrow icon, or press `S`).
+   (the arrow icon, or press `S` or `3`).
 4. To **move** a keypoint, click on it and drag it to the correct position.
 5. To **remove** one or more keypoints, select them (click, `Shift`+click,
    or drag a selection box around them) and press `Delete` or `Backspace`,
    or click the delete button (the ✕ icon) in the layer controls panel.
+
+![Moving and removing keypoints in napari](../_static/napari_edit_keypoints.gif)
 
 Only the points in the current frame are affected, so you can
 move through the video with the frame slider and correct errors
@@ -366,9 +368,15 @@ When you move or remove a keypoint:
   [tracks layer](#the-tracks-layer) is kept in sync with the points layer,
   so a moved keypoint's trajectory passes through its new position,
   and a removed keypoint disappears from the trajectory.
+
+  ![Tracks layer updating after keypoints are moved and removed](../_static/napari_tracks_update.gif)
+
 - **Moved keypoints are shown as rings.** Edited keypoints change from a
   filled disc to a hollow ring, so you can tell at a glance which
   predictions have been corrected by hand.
+
+  ![Edited keypoints shown as rings](../_static/napari_edited_points_rings.gif)
+
 - **The confidence of moved keypoints is set to `NaN`.** The confidence
   score produced by the pose estimation model no longer describes a
   position that was set by hand, so it is discarded. You can check this by
@@ -396,6 +404,9 @@ You can interact with the timeline as follows:
 | Click and drag | Pan along the timeline (when zoomed in) |
 | Double-click | Reset the view to the full recording |
 
+![Edited frames timeline docked at the bottom of the napari window](../_static/napari_edit_timeline.gif)
+
+
 Zooming in is useful for long recordings, where edits made in
 neighbouring frames would otherwise overlap into a single bar.
 
@@ -404,6 +415,10 @@ checkbox in the `Edit tracked data` menu to split the timeline into
 one row per individual. Each row's bars take the colour of that
 individual's points, so you can see which animals were corrected and when.
 For single-individual datasets, this checkbox is disabled.
+
+![Edited frames timeline split into one row per individual](../_static/napari_edit_timeline_individuals.gif)
+
+
 
 The timeline always shows the edits of the currently selected
 `movement` points layer. If you have loaded several datasets,
