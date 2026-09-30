@@ -363,8 +363,6 @@ def _write_via_tracks_csv(
 
     # Get time values in frames
     if ds.time_unit == "seconds":
-        # Round rather than truncate: time * fps is not always an exact
-        # integer in floating point (e.g. 29 / 25 * 25 = 28.999...).
         time_in_frames = np.rint(ds.time.values * ds.fps).astype(int)
     else:
         time_in_frames = ds.time.values
