@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=8abe6cab"></script>
+    <script src="../_static/documentation_options.js?v=2ec6e8b2"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -143,7 +143,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev52</p>
+    <p class="title logo__title">movement v0.17.1.dev53</p>
   
 </a></div>
     
@@ -794,6 +794,7 @@ In general:</p>
 <li><p>Create validator classes for the file format (recommended).</p></li>
 <li><p>Implement the loader function.</p></li>
 <li><p>Update the <code class="docutils literal notranslate"><span class="pre">SourceSoftware</span></code> type alias.</p></li>
+<li><p>Update the <a class="reference internal" href="../user_guide/input_output.html#target-io"><span class="std std-ref">Input/Output</span></a> guide.</p></li>
 </ol>
 <section id="create-file-validators">
 <h4>Create file validators<a class="headerlink" href="#create-file-validators" title="Link to this heading">#</a></h4>
@@ -993,6 +994,10 @@ When adding a new loader, update this type alias to include the new software nam
 </pre></div>
 </div>
 </section>
+<section id="update-the-input-output-guide">
+<h4>Update the Input/Output guide<a class="headerlink" href="#update-the-input-output-guide" title="Link to this heading">#</a></h4>
+<p>Finally, update the <a class="reference internal" href="../user_guide/input_output.html#target-io"><span class="std std-ref">Input/Output</span></a> guide by adding the new format to the <a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">Supported third-party formats</span></a> table and documenting it in the <a class="reference internal" href="../user_guide/input_output.html#target-loading-pose-tracks"><span class="std std-ref">Loading pose tracks</span></a> and/or <a class="reference internal" href="../user_guide/input_output.html#target-loading-bbox-tracks"><span class="std std-ref">Loading bounding box tracks</span></a> section(s) with usage examples.</p>
+</section>
 </section>
 <section id="implementing-new-writers">
 <h3>Implementing new writers<a class="headerlink" href="#implementing-new-writers" title="Link to this heading">#</a></h3>
@@ -1067,9 +1072,9 @@ When adding a new writer, update this type alias to include the new software nam
 </pre></div>
 </div>
 </section>
-<section id="update-the-input-output-guide">
-<h4>Update the Input/Output guide<a class="headerlink" href="#update-the-input-output-guide" title="Link to this heading">#</a></h4>
-<p>Finally, update the <a class="reference internal" href="../user_guide/input_output.html#target-io"><span class="std std-ref">Input/Output</span></a> guide  by adding the new format to the <a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">Supported third-party formats</span></a> table and documenting it in the <a class="reference internal" href="../user_guide/input_output.html#target-saving-pose-tracks"><span class="std std-ref">Saving pose tracks</span></a> and/or <a class="reference internal" href="../user_guide/input_output.html#target-saving-bboxes-tracks"><span class="std std-ref">Saving bounding box tracks</span></a> section(s) with usage examples.</p>
+<section id="id1">
+<h4>Update the Input/Output guide<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
+<p>Finally, update the <a class="reference internal" href="../user_guide/input_output.html#target-io"><span class="std std-ref">Input/Output</span></a> guide by adding the new format to the <a class="reference internal" href="../user_guide/input_output.html#target-supported-formats"><span class="std std-ref">Supported third-party formats</span></a> table and documenting it in the <a class="reference internal" href="../user_guide/input_output.html#target-saving-pose-tracks"><span class="std std-ref">Saving pose tracks</span></a> and/or <a class="reference internal" href="../user_guide/input_output.html#target-saving-bboxes-tracks"><span class="std std-ref">Saving bounding box tracks</span></a> section(s) with usage examples.</p>
 </section>
 </section>
 <section id="developing-the-cli">
@@ -1820,6 +1825,7 @@ verify that the video is correctly linked to the dataset:</p>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-sourcesoftware-type-alias">Update SourceSoftware type alias</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-the-input-output-guide">Update the Input/Output guide</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implementing-new-writers">Implementing new writers</a><ul class="nav section-nav flex-column">
@@ -1828,7 +1834,7 @@ verify that the video is correctly linked to the dataset:</p>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-targetsoftware-type-alias">Update TargetSoftware type alias</a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#update-the-input-output-guide">Update the Input/Output guide</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Update the Input/Output guide</a></li>
 </ul>
 </li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#developing-the-cli">Developing the CLI</a></li>
