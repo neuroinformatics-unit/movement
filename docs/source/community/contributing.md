@@ -307,6 +307,7 @@ Implementing a new loader to support additional [file formats](target-supported-
 1. Create validator classes for the file format (recommended).
 2. Implement the loader function.
 3. Update the `SourceSoftware` type alias.
+4. Update the [](target-io) guide.
 
 #### Create file validators
 
@@ -517,6 +518,10 @@ type SourceSoftware = Literal[
 ]
 ```
 
+#### Update the Input/Output guide
+
+Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-loading-pose-tracks) and/or [](target-loading-bbox-tracks) section(s) with usage examples.
+
 ### Implementing new writers
 
 Implementing a new writer to support additional [file formats](target-supported-formats) in `movement` involves the following steps:
@@ -601,7 +606,7 @@ type TargetSoftware = Literal[
 
 #### Update the Input/Output guide
 
-Finally, update the [](target-io) guide  by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-saving-pose-tracks) and/or [](target-saving-bboxes-tracks) section(s) with usage examples.
+Finally, update the [](target-io) guide by adding the new format to the [](target-supported-formats) table and documenting it in the [](target-saving-pose-tracks) and/or [](target-saving-bboxes-tracks) section(s) with usage examples.
 
 ### Developing the CLI
 
@@ -633,11 +638,53 @@ and is structured as follows:
   - `movement.napari.regions_widget`: a Qt table widget for managing named
     regions of interest drawn as `napari` shapes layers.
     See the next section for more details on this widget's architecture.
+- {mod}`movement.napari.layer_wiring`: callbacks that operate on `napari`
+  layers and the viewer. These callbacks are defined outside the widgets because
+  they must remain active for as long as the viewer or the layer exists (rather than
+  sharing lifetime with a widget that can be closed). The module also defines
+  relevant metadata keys for `movement` layers (e.g. `POINTS_LAYER_KEY`,
+  `TRACKS_LAYER_KEY`).
 - {mod}`movement.napari.layer_styles`: dataclasses that encapsulate visual
   properties for each layer type.
 - {mod}`movement.napari.convert`: functions for converting `movement`
   datasets into the NumPy arrays and properties DataFrames
   that `napari` layer constructors expect.
+
+#### Where should a layer callback live?
+
+The layers created by a widget stay in the viewer even after closing the widget.
+If it makes sense to keep callbacks alive after closing a widget, those
+callbacks should be defined in {mod}`movement.napari.layer_wiring`, rather
+than as methods of a widget. A callback connected as a method of a widget is
+only guaranteed to run while that widget is alive
+
+Use this rule of thumb:
+
+- If the callback **mutates layer or viewer state** (layer data,
+  properties, symbols, `editable`, the frame slider range), put it in
+  `layer_wiring`. That state is part of the user's work and may be saved
+  to a file later, so it must outlive the widget.
+- If the callback **only refreshes a widget's own UI** (a dropdown, a
+  table, a button), keep it as a method on that widget. Once the widget
+  is gone there is nothing left to update.
+
+Callbacks in `layer_wiring` are wired in one of two ways, depending on
+the lifetime they need:
+
+- **Viewer lifetime**: `connect_viewer_callbacks(viewer)` is called once
+  per viewer (it keeps a `WeakSet` of already-wired viewers, so repeated
+  calls are a no-op). It connects callbacks that react to viewer-level
+  events, such as layers being inserted or removed, or the displayed
+  dimensions changing.
+- **Layer lifetime**: connected directly to a layer's events when the
+  layer is created (e.g.
+  `points_layer.events.data.connect(on_points_data_changed)` in
+  `loader_widgets`), so the callback lives and dies with that layer.
+
+Because these callbacks are not tied to a widget, they can be tested
+against a bare viewer and layers, without instantiating a widget —
+see `tests/test_unit/test_napari_plugin/test_layer_wiring.py`.
+
 
 #### Qt Model/View architecture
 
@@ -1033,7 +1080,8 @@ For example, to reference the {meth}`xarray.Dataset.update` method, use:
 The [contributors list](target-contributors) is automatically updated on the first day of each month by a GitHub actions workflow (`.github/workflows/update_contributors_list.yml`).
 It uses the [Contributors-Readme-Action](https://github.com/marketplace/actions/contribute-list) to generate the list of contributors based on the commits to the repository.
 
-It is also possible to manually add other contributors who have not contributed code to the repository, but have contributed in other ways (e.g. by providing sample data, or by actively participating in discussions).
+It is also possible to manually add other contributors who have not contributed code to the repository,
+but have contributed in other ways, e.g. by providing sample data.
 The way to add them differs depending on whether they are GitHub users or not.
 
 ::::{tab-set}

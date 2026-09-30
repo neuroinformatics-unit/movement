@@ -15,6 +15,7 @@ through our [communication channels](target-connect-with-us) if you have any que
 Meet the team and learn about the project's context, goals, and future plans.
 
 - [People](target-people)
+- [Governance](target-governance)
 - [Mission & Scope](target-mission)
 - [Roadmaps](target-roadmaps)
 - [Related Projects](target-related-projects)
@@ -47,6 +48,7 @@ Learn how to set up your development environment and contribute code or document
 :hidden:
 
 people
+governance
 mission-scope
 roadmaps
 contributing

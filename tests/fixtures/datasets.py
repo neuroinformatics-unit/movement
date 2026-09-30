@@ -129,9 +129,13 @@ def valid_bboxes_dataset_in_seconds(valid_bboxes_dataset):
     """Return a valid bboxes dataset with time in seconds.
 
     The origin of time is assumed to be time = frame 0 = 0 seconds.
-    The time unit is set to "seconds" and the fps is set to 60.
+    The time unit is set to "seconds" and the fps is set to 49, chosen so
+    that ``time * fps`` is not an exact integer for some frames
+    (e.g. 1 / 49 * 49 = 0.999...). This guards against regressions where
+    frame numbers are truncated rather than rounded when converting time
+    in seconds back to frames (e.g. when exporting to VIA-tracks).
     """
-    fps = 60
+    fps = 49
     valid_bboxes_dataset["time"] = valid_bboxes_dataset.time / fps
     valid_bboxes_dataset.attrs["time_unit"] = "seconds"
     valid_bboxes_dataset.attrs["fps"] = fps

@@ -7,7 +7,8 @@ import pytest
 from napari.layers.base import ActionType
 
 from movement.io import save_poses
-from movement.napari.loader_widgets import DataLoader
+from movement.napari.layer_wiring import on_points_data_changed
+from movement.napari.loader_widgets import POINTS_LAYER_KEY, DataLoader
 
 
 @pytest.fixture
@@ -136,16 +137,31 @@ def valid_poses_path_and_ds_nan_end(
 def sample_layer_data(rng):
     """Return a dictionary of sample data for each napari layer type."""
     n_frames = 2000
-    sample_points_data = rng.random((n_frames, 3))
+    # One row per frame, holding the frame index in the layer's time column,
+    # so that every layer type below really spans ``n_frames`` frames. A row
+    # count is not a frame count: layers can hold many rows within a single
+    # frame, so the time column has to be set explicitly.
+    frame_idx = np.arange(n_frames)
+    sample_points_data = np.column_stack(
+        (frame_idx, rng.random((n_frames, 2)))
+    )
     sample_image_data = rng.random((n_frames, 200, 200))
-    sample_tracks_data = np.hstack(
+    sample_tracks_data = np.column_stack(
         (
-            np.tile([1, 2, 3, 4], (1, n_frames // 4)).T,
-            rng.random((n_frames, 3)),
+            np.tile([1, 2, 3, 4], n_frames // 4),
+            frame_idx,
+            rng.random((n_frames, 2)),
         )
     )
     sample_labels_data = rng.integers(0, 2, (200, 200))
-    sample_shapes_data = rng.random((n_frames, 4, 2))  # rectangles
+    # rectangles, with the 4 vertices of each one in the same frame
+    sample_shapes_data = np.concatenate(
+        (
+            np.repeat(frame_idx.reshape(n_frames, 1, 1), 4, axis=1),
+            rng.random((n_frames, 4, 2)),
+        ),
+        axis=2,
+    )
     sample_surface_data = (
         rng.random((4, 2)),  # vertices
         np.array([[0, 1, 2], [1, 2, 3]]),  # faces
@@ -221,7 +237,7 @@ def move_point():
         mock_event.source = loader.points_layer
         mock_event.action = ActionType.CHANGED
         mock_event.data_indices = (edit_idx,)
-        loader._on_points_data_changed(mock_event)
+        on_points_data_changed(mock_event)
 
     return _move_point
 
@@ -254,11 +270,17 @@ def remove_point():
 
 @pytest.fixture
 def loaded_data_loader(make_napari_viewer_proxy):
-    """Return a factory of DataLoader widgets with loaded data."""
+    """Return a factory of DataLoader widgets with loaded data.
 
-    def _loaded_data_loader(filepath, ds):
+    By default, a DataLoader object is instantiated from scratch,
+    but it also accepts an existing ``loader`` as an argument
+    (this can be useful e.g. when it is owned by a ``MovementMetaWidget``).
+    """
+
+    def _loaded_data_loader(filepath, ds, loader=None):
         """Return a DataLoader widget with the input data loaded."""
-        loader = DataLoader(make_napari_viewer_proxy())
+        if loader is None:
+            loader = DataLoader(make_napari_viewer_proxy())
         loader.file_path_edit.setText(str(filepath))
         loader.source_software_combo.setCurrentText(
             ds.attrs["source_software"]
@@ -268,3 +290,90 @@ def loaded_data_loader(make_napari_viewer_proxy):
         return loader
 
     return _loaded_data_loader
+
+
+@pytest.fixture
+def loader_with_edited_point(
+    valid_poses_path_and_ds, loaded_data_loader, move_point
+):
+    """Return a loaded ``DataLoader`` with one point dragged (edited)."""
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+    move_point(
+        loader,
+        frame=2,
+        keypoint="centroid",
+        individual="id_0",
+        new_y=100,
+        new_x=200,
+    )
+    return loader
+
+
+@pytest.fixture
+def loader_with_two_edited_individuals(
+    valid_poses_path_and_ds, loaded_data_loader, move_point
+):
+    """Return a loaded ``DataLoader`` with three edited points across two
+    individuals: ``id_0`` and ``id_1`` both on frame 2 (a shared frame),
+    and ``id_1`` again on frame 5.
+
+    Enough to exercise both the "one bar per frame" (lanes collapsed)
+    and "one bar per (frame, individual)" (individuals displayed)
+    behaviours of
+    :class:`~movement.napari.edit_timeline_widget.EditTimelineWidget`.
+    """
+    filepath, ds = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds)
+    for individual, frame in (("id_0", 2), ("id_1", 2), ("id_1", 5)):
+        move_point(
+            loader,
+            frame=frame,
+            keypoint="centroid",
+            individual=individual,
+            new_y=100,
+            new_x=200,
+        )
+    return loader
+
+
+@pytest.fixture
+def click_on_timeline():
+    """Return a factory that simulates a click on an
+    :class:`~movement.napari.edit_timeline_widget.EditTimelineWidget`
+    timeline, at the given x (frame) position. Pass ``dblclick=True`` to
+    simulate a double-click instead (``xdata`` is then unused, matching
+    ``_handle_click``'s own early return for that case).
+    """
+
+    def _click_on_timeline(edit_timeline_widget, xdata=None, dblclick=False):
+        edit_timeline_widget._handle_click(
+            Mock(dblclick=dblclick, xdata=xdata)
+        )
+
+    return _click_on_timeline
+
+
+@pytest.fixture
+def add_movement_points():
+    """Return a factory that adds a movement Points layer to a viewer.
+
+    The layer has one point per entry in ``individuals`` (all at the
+    origin), with the ``edited`` and ``individual`` properties and the
+    metadata flag that mark it as a movement-loaded layer. Any extra
+    keyword arguments are forwarded to ``viewer.add_points``.
+    """
+
+    def _add(viewer, individuals=("id_0",), edited=None, **kwargs):
+        n = len(individuals)
+        return viewer.add_points(
+            np.zeros((n, 2)),
+            properties={
+                "edited": np.array([False] * n if edited is None else edited),
+                "individual": np.array(list(individuals)),
+            },
+            metadata={POINTS_LAYER_KEY: True},
+            **kwargs,
+        )
+
+    return _add

@@ -93,6 +93,8 @@ always_use_bars_union = True
 
 # Prefix section labels with the document name
 autosectionlabel_prefix_document = True
+# Set the maximum depth for autosectionlabel (default is None, i.e. all)
+autosectionlabel_maxdepth = 3
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
