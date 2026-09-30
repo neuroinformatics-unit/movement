@@ -6,7 +6,8 @@ The `movement` graphical user interface (GUI), powered by our custom plugin for
 motion tracks. Currently, you can use it to
 visualise 2D [movement datasets](target-poses-and-bboxes-dataset)
 as points, tracks, and rectangular bounding boxes (if defined) overlaid on
-video frames, as well as to define regions of interest (RoIs).
+video frames, to manually [correct tracking errors](target-edit-tracked-data),
+and to define regions of interest (RoIs).
 
 The `napari` plugin is shipped with the `movement` package starting from
 version `0.1.0`.  To use it, you need to
@@ -310,6 +311,185 @@ You can use the following keyboard shortcuts to toggle the bounding boxes select
 You can find all the [keyboard shortcuts](napari:guides/preferences.html#shortcuts) in the top menu of the
 `napari` window, under `Preferences > Shortcuts`.
 
+:::
+
+(target-edit-tracked-data)=
+## Edit tracked data
+
+Pose estimation models occasionally produce errors that automated
+{ref}`filtering <sphx_glr_examples_filter_and_interpolate.py>` cannot fully fix, such as keypoints
+jumping to the wrong body part or spurious detections in the background.
+The `movement` GUI lets you correct these errors by hand, directly on
+the video frames, and save the corrected data as a
+[movement dataset](target-poses-and-bboxes-dataset).
+
+Currently, you can:
+
+- **move** keypoints that were placed in the wrong position;
+- **remove** keypoints that should not be there (false positives).
+
+:::{note}
+Manual editing is currently supported for poses datasets only.
+Bounding boxes datasets can be loaded and viewed, but not saved after editing.
+:::
+
+### Move and remove keypoints
+
+Editing happens on the [points layer](napari:howtos/layers/points.html)
+created when you [load the tracked dataset](#load-the-tracked-dataset).
+
+1. Select the points layer in the layer list.
+2. Use the frame slider to go to the frame you want to correct.
+3. In the layer controls panel, activate the select points tool
+   (the arrow icon, or press `S` or `3`).
+4. To **move** a keypoint, click on it and drag it to the correct position.
+5. To **remove** one or more keypoints, select them (click, `Shift`+click,
+   or drag a selection box around them) and press `Delete` or `Backspace`,
+   or click the delete button (the ✕ icon) in the layer controls panel.
+
+![Moving and removing keypoints in napari](../_static/napari_edit_keypoints.gif)
+
+Only the points in the current frame are affected, so you can
+move through the video with the frame slider and correct errors
+frame by frame.
+
+:::{admonition} Editing is only possible when browsing through time
+:class: warning
+
+Points can only be edited while the frame slider controls time,
+which is the default view. If you roll or transpose the viewer dimensions,
+or switch to 3D display, the edit tools in the points layer
+controls panel are greyed out until you return to the default view.
+:::
+
+When you move or remove a keypoint:
+
+- **The trajectories update automatically.** The
+  [tracks layer](#the-tracks-layer) is kept in sync with the points layer,
+  so a moved keypoint's trajectory passes through its new position,
+  and a removed keypoint disappears from the trajectory.
+
+  ![Tracks layer updating after keypoints are moved and removed](../_static/napari_tracks_update.gif)
+
+- **Moved keypoints are shown as rings.** Edited keypoints change from a
+  filled disc to a hollow ring, so you can tell at a glance which
+  predictions have been corrected by hand.
+
+  ![Edited keypoints shown as rings](../_static/napari_edited_points_rings.gif)
+
+- **The confidence of moved keypoints is set to `NaN`.** The confidence
+  score produced by the pose estimation model no longer describes a
+  position that was set by hand, so it is discarded. You can check this by
+  hovering over an edited point to show its tooltip.
+
+### Find edited frames with the timeline
+
+As soon as you edit a keypoint, the `Edit tracked data` menu on the
+right-hand side of the window expands, and an `edited frames` timeline
+is docked at the bottom of the window. You can also show or hide
+the timeline at any time by expanding or collapsing the
+`Edit tracked data` menu.
+
+The timeline spans the whole recording and shows a vertical bar
+for every frame containing at least one moved or removed keypoint.
+A dashed line marks the frame currently shown in the viewer
+and follows the frame slider as you move through the video.
+
+You can interact with the timeline as follows:
+
+| Action | Effect |
+|---|---|
+| Click on a bar | Jump to that edited frame |
+| Scroll up / down | Zoom in / out around the cursor |
+| Click and drag | Pan along the timeline (when zoomed in) |
+| Double-click | Reset the view to the full recording |
+
+![Edited frames timeline docked at the bottom of the napari window](../_static/napari_edit_timeline.gif)
+
+
+Zooming in is useful for long recordings, where edits made in
+neighbouring frames would otherwise overlap into a single bar.
+
+For datasets with multiple individuals, tick the `Display individuals`
+checkbox in the `Edit tracked data` menu to split the timeline into
+one row per individual. Each row's bars take the colour of that
+individual's points, so you can see which animals were corrected and when.
+For single-individual datasets, this checkbox is disabled.
+
+![Edited frames timeline split into one row per individual](../_static/napari_edit_timeline_individuals.gif)
+
+
+
+The timeline always shows the edits of the currently selected
+`movement` points layer. If you have loaded several datasets,
+select a different points layer in the layer list to see its edits.
+
+### Save the edited data
+
+To save your corrections:
+
+1. Select the edited points layer in the layer list.
+2. Expand the `Save tracked data` menu and click `Save`.
+3. Choose a destination file. The data is saved in `movement`'s native
+   [netCDF](target-netcdf) format, and a `.nc` extension is added
+   to the file name if missing.
+
+The `Save` button is only enabled when a `movement` points layer is selected.
+
+The saved file contains a valid
+[movement poses dataset](target-poses-and-bboxes-dataset) with:
+
+- the corrected `position` values; removed keypoints are stored as `NaN`;
+- the `confidence` values, with moved and removed keypoints set to `NaN`;
+- an additional boolean `edited` data variable, with dimensions
+  `(time, keypoint, individual)`, which is `True` for every keypoint
+  that was moved or removed.
+
+The `edited` variable is only added if at least one keypoint was edited.
+Keypoints or individuals that end up with no data in any frame
+(e.g. because all their points were removed) are dropped from the saved
+dataset. Frames are never dropped: a frame whose points were all removed
+is kept, with `NaN` values.
+
+### Resume an editing session
+
+To continue editing later, load the saved file in the GUI as described in
+[Load the tracked dataset](#load-the-tracked-dataset),
+choosing `movement (netCDF)` as the `source software`.
+Your previous edits are restored:
+
+- previously moved keypoints are shown as rings;
+- the timeline is populated with all previously edited frames,
+  including those where keypoints were removed;
+- any new corrections are added to the existing ones, and saving again
+  keeps both.
+
+::: {dropdown} Using edited data in Python
+:color: info
+:icon: info
+
+Because the edited data is saved as a netCDF file, you can open it in Python
+and use the `edited` variable in your analysis, for example
+to count how many keypoints were corrected by hand:
+
+```python
+import xarray as xr
+
+ds = xr.open_dataset("path/to/my_data_edited.nc")
+
+# Total number of edited keypoints
+n_edited = int(ds["edited"].sum())
+
+# Frames containing at least one edited keypoint
+edited_frames = ds["time"].where(
+    ds["edited"].any(dim=["keypoint", "individual"]), drop=True
+)
+```
+
+As usual, you can continue processing the corrected dataset with any
+`movement` function, such as
+{func}`~movement.filtering.interpolate_over_time` to fill in the positions
+of removed keypoints.
 :::
 
 (target-define-rois)=
