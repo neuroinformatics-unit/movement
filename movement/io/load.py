@@ -425,13 +425,14 @@ def load_dataset(
         return ds
 
     if source_software not in _LOADER_REGISTRY:
-        valid_options = ", ".join(sorted(_LOADER_REGISTRY.keys()))
+        supported = ", ".join(_LOADER_REGISTRY)
         raise logger.error(
             ValueError(
-                f"Unsupported source software: '{source_software}'. "
-                f"Supported options are: {valid_options}"
+                f"Unsupported source_software: '{source_software}'. "
+                f"Supported values are: {supported}."
             )
         )
+
     if source_software == "NWB":
         if fps is not None:
             warnings.warn(
