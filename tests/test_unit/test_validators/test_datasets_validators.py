@@ -306,8 +306,13 @@ class TestBaseDatasetInputs:
         [
             (np.arange(5)[:, None], np.arange(5)),
             (np.arange(10, 15)[:, None], np.arange(10, 15)),
+            (np.array([[10]]), np.array([10])),
         ],
-        ids=["zero-based frame numbers", "non-zero-based frame numbers"],
+        ids=[
+            "zero-based frame numbers",
+            "non-zero-based frame numbers",
+            "single frame",
+        ],
     )
     def test_time_coords_and_attrs(
         self, frame_array, fps, expected_time, expected_time_unit
@@ -317,7 +322,7 @@ class TestBaseDatasetInputs:
             dim_names=("time", "space")
         )
         data = stub_dataset_inputs_class(
-            position_array=np.zeros((5, 2)),
+            position_array=np.zeros((len(frame_array), 2)),
             frame_array=frame_array,
             fps=fps,
         )
@@ -330,7 +335,7 @@ class TestBaseDatasetInputs:
         if fps is not None:
             expected_time = expected_time / fps
             expected_dataset_attrs["fps"] = fps
-        np.testing.assert_allclose(time_coords, expected_time)
+        np.testing.assert_allclose(time_coords, expected_time, strict=True)
         assert dataset_attrs == expected_dataset_attrs
 
     @pytest.mark.parametrize(
