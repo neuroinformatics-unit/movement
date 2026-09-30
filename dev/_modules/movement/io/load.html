@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=2ec6e8b2"></script>
+    <script src="../../../_static/documentation_options.js?v=e54f787f"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -140,7 +140,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev53</p>
+    <p class="title logo__title">movement v0.17.1.dev54</p>
   
 </a></div>
     
@@ -920,9 +920,14 @@
         <span class="k">return</span> <span class="n">ds</span>
 
     <span class="k">if</span> <span class="n">source_software</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_LOADER_REGISTRY</span><span class="p">:</span>
+        <span class="n">supported</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_LOADER_REGISTRY</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported source software: </span><span class="si">{</span><span class="n">source_software</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Unsupported source_software: '</span><span class="si">{</span><span class="n">source_software</span><span class="si">}</span><span class="s2">'. "</span>
+                <span class="sa">f</span><span class="s2">"Supported values are: </span><span class="si">{</span><span class="n">supported</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
         <span class="p">)</span>
+
     <span class="k">if</span> <span class="n">source_software</span> <span class="o">==</span> <span class="s2">"NWB"</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">fps</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
