@@ -35,6 +35,7 @@ Use {func}`~movement.io.load.get_supported_source_software` and {func}`~movement
 | [Anipose](anipose:)                                                         |              | triangulation .csv file, or corresponding pandas DataFrame                                                                | Pose                 | Load                 |
 | [VGG Image Annotator](via:)                                                 | VIA          | .csv file for [tracks annotation](via:docs/face_track_annotation.html)                                                    | Bounding box         | Load & Save          |
 | [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB          | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose)                                | Pose                 | Load & Save          |
+| [Pynapple](https://pynapple.org/)                                           |              | .npz file with a pynapple `TsdFrame` structure                                                                           | Pose or Bounding box | Save                 |
 | Any                                                                         |              | Numpy arrays                                                                                                              | Pose or Bounding box | Load & Save\*        |
 
 \*Exporting any `movement` DataArray to a NumPy array is as simple as calling xarray's built-in {meth}`xarray.DataArray.to_numpy` method, so no specialised "Export/Save As" function is needed, see [xarray's documentation](xarray:user-guide/duckarrays.html) for more details.
@@ -282,7 +283,7 @@ For more information on the bounding boxes data structure, see the [movement dat
 
 The {func}`~movement.io.save.save_dataset` function provides a unified, format-agnostic way to save poses or bounding boxes to any of the [supported software formats](target-supported-formats), or to `movement`'s native [netCDF](target-netcdf) format, which preserves the complete state of your analysis.
 
-Internally, {func}`~movement.io.save.save_dataset` dispatches to the appropriate specialised function in the {mod}`movement.io.save_poses` or {mod}`movement.io.save_bboxes` module based on the `target_software` parameter.
+Internally, {func}`~movement.io.save.save_dataset` dispatches to the appropriate specialised function in the {mod}`movement.io.save_poses`, {mod}`movement.io.save_bboxes` or {mod}`movement.io.save_pynapple` module based on the `target_software` parameter.
 
 :::{note}
 Before writing, the saving functions validate the dataset to ensure it is a {mod}`valid movement dataset<movement.validators.datasets>` with the required dimensions and data variables, and that the file path is writable with the appropriate suffix for the chosen format.
@@ -309,6 +310,9 @@ save_dataset(ds, "/path/to/file.h5", target_software="DeepLabCut")
 
 # bounding boxes
 save_dataset(ds, "/path/to/file.csv", target_software="VIA-tracks")
+
+# poses or bounding boxes, as a pynapple-compatible .npz file
+save_dataset(ds, "/path/to/file.npz", target_software="pynapple")
 ```
 
 #### Passing additional saving options
