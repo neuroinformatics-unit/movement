@@ -8,6 +8,7 @@ from qtpy.QtWidgets import QFileDialog, QFormLayout, QPushButton, QWidget
 from movement.io import save_dataset
 from movement.napari.convert import napari_layers_to_ds
 from movement.napari.loader_widgets import (
+    CONFIDENCE_DIMS_KEY,
     DATASET_ATTRS_KEY,
     POINTS_LAYER_KEY,
     POINTS_PROPERTIES_KEY,
@@ -91,6 +92,7 @@ class DataSaver(QWidget):
                 properties=layer.properties,
                 properties_with_nans=layer.metadata[POINTS_PROPERTIES_KEY],
                 attrs=layer.metadata[DATASET_ATTRS_KEY],
+                confidence_dims=layer.metadata[CONFIDENCE_DIMS_KEY],
             )
             save_dataset(ds, valid_path)
         except Exception as e:

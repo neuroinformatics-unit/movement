@@ -163,6 +163,7 @@ def napari_layers_to_ds(
     properties: dict,
     properties_with_nans: pd.DataFrame,
     attrs: dict | None = None,
+    confidence_dims: tuple[str, ...] | None = None,
 ) -> xr.Dataset:
     """Convert napari Points layer data to a ``movement`` dataset.
 
@@ -187,6 +188,11 @@ def napari_layers_to_ds(
         Attributes of the original loaded dataset (e.g.
         ``source_software``, ``fps``, ``time_unit`` and
         ``source_file``).
+    confidence_dims
+        Dimensions of the confidence DataArray in the original dataset,
+        before conversion to napari. If ``("time", "individual")``,
+        the point-wise confidence reconstructed from napari is converted
+        back to individual-wise confidence.
 
     Returns
     -------
@@ -288,6 +294,9 @@ def napari_layers_to_ds(
             )
         )
         confidence_da = live_das["confidence"]
+
+        if confidence_dims == ("time", "individual"):
+            confidence_da = confidence_da.isel(keypoint=0, drop=True)
 
         # Reconstruct the position array from the live napari Points layer
         position_df = position_df.melt(
