@@ -11,7 +11,6 @@ import weakref
 
 import numpy as np
 import pytest
-from napari.components import ViewerModel
 from napari.components.dims import RangeTuple
 from napari.layers.base import ActionType
 
@@ -22,16 +21,6 @@ from movement.napari.layer_wiring import (
 )
 from movement.napari.loader_widgets import DataLoader
 from movement.napari.meta_widget import MovementMetaWidget
-
-
-@pytest.fixture
-def headless_napari_viewer():
-    """Return a headless napari viewer model.
-
-    Faster than make_napari_viewer_proxy because it does not
-    require Qt viewer construction and teardown.
-    """
-    return ViewerModel()
 
 
 @pytest.fixture
