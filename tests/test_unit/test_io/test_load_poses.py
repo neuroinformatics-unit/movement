@@ -428,3 +428,51 @@ def test_from_coco_file_duplicate_category(
             annotations_file=coco_keypoint_annotations_file_category_as_track,
             category_as_track=True,
         )
+
+
+@pytest.mark.parametrize(
+    "results_fixture, category_as_track, expect_warning",
+    [
+        pytest.param(
+            "coco_keypoint_results_file_category_as_track",
+            False,
+            True,
+            id="positional-multiple-detections",
+        ),
+        pytest.param(
+            "coco_keypoint_results_file_category_as_track",
+            True,
+            False,
+            id="category-as-track",
+        ),
+        pytest.param(
+            "coco_keypoint_results_file_single_detection",
+            False,
+            False,
+            id="positional-single-detection",
+        ),
+    ],
+)
+def test_from_coco_file_multiple_detections_warning(
+    request,
+    category_as_track,
+    expect_warning,
+    recwarn,
+    results_fixture,
+):
+    """Test warning when positional assignment has multiple detections."""
+    results_file = request.getfixturevalue(results_fixture)
+
+    load_poses.from_coco_file(
+        results_file,
+        category_as_track=category_as_track,
+    )
+
+    if expect_warning:
+        assert len(recwarn) == 1
+        assert (
+            "COCO results do not contain cross-frame track identities."
+            in str(recwarn[0].message)
+        )
+    else:
+        assert len(recwarn) == 0
