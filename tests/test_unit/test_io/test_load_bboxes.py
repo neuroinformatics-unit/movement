@@ -441,16 +441,22 @@ def test_numpy_arrays_from_valid_via_object(input_data, expected):
     "ignore:.*Setting fps to None.:UserWarning",
 )
 @pytest.mark.parametrize(
-    "via_file_path, frame_array_from_file",
+    "via_file_path, frames_from_file, frames_offset",
     [
         (
             pytest.DATA_PATHS.get("VIA_multiple-crabs_5-frames_labels.csv"),
-            np.array(range(1, 6)),
+            np.arange(1, 6),
+            np.arange(0, 5),
         ),
         (
             pytest.DATA_PATHS.get("VIA_single-crab_MOCA-crab-1.csv"),
             np.array(list(range(0, 168, 5)) + [167]),
+            np.array(list(range(0, 168, 5)) + [167]),
         ),
+    ],
+    ids=[
+        "first frame 1, consecutive frames",
+        "first frame 0, gaps in frame numbers",
     ],
 )
 @pytest.mark.parametrize(
@@ -466,7 +472,8 @@ def test_numpy_arrays_from_valid_via_object(input_data, expected):
 @pytest.mark.parametrize("use_frame_numbers_from_file", [True, False])
 def test_fps_and_time_coords(
     via_file_path,
-    frame_array_from_file,
+    frames_from_file,
+    frames_offset,
     fps,
     expected_fps,
     expected_time_unit,
@@ -489,13 +496,38 @@ def test_fps_and_time_coords(
         assert getattr(ds, "fps", None) == expected_fps
     else:
         assert not hasattr(ds, "fps")
-    # check loading frame numbers from file
-    if use_frame_numbers_from_file:
-        assert_time_coordinates(
-            ds, expected_fps, frame_array=frame_array_from_file
-        )
-    else:
-        assert_time_coordinates(ds, expected_fps, start_frame=0)
+    # check time coordinates
+    expected_frames = (
+        frames_from_file if use_frame_numbers_from_file else frames_offset
+    )
+    assert_time_coordinates(ds, expected_fps, frame_array=expected_frames)
+
+
+@pytest.mark.parametrize(
+    "use_frame_numbers_from_file, expected_frames",
+    [
+        (True, np.array([10, 15, 20])),
+        (False, np.array([0, 5, 10])),
+    ],
+)
+@pytest.mark.parametrize("fps", [None, 30])
+def test_time_coords_with_non_consecutive_frames(
+    via_tracks_csv_factory,
+    use_frame_numbers_from_file,
+    expected_frames,
+    fps,
+):
+    """Test that the gaps between non-consecutive frame numbers are
+    preserved, and that the frame numbers are offset by the first tracked
+    frame if ``use_frame_numbers_from_file`` is False.
+    """
+    file_path = via_tracks_csv_factory("via_non_consecutive_frame_numbers")
+    ds = load_bboxes.from_via_tracks_file(
+        file_path,
+        fps=fps,
+        use_frame_numbers_from_file=use_frame_numbers_from_file,
+    )
+    assert_time_coordinates(ds, fps, frame_array=expected_frames)
 
 
 @pytest.mark.benchmark

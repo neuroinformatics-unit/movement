@@ -512,6 +512,31 @@ def via_track_ids_not_unique_per_frame():
     )
 
 
+@pytest.fixture
+def via_non_consecutive_frame_numbers():
+    """Return the content of a VIA tracks .csv file with a single
+    individual tracked in frames 10, 15 and 20.
+
+    The frame numbers neither start at 0 nor are consecutive.
+    As a result, this fixture allows us to test both the offset applied
+    to the frame numbers and the preservation of the gaps between them.
+    """
+    rows = [
+        (
+            f"04.09.2023-04-Right_RE_test_frame_{frame}.png,"
+            "26542080,"
+            f'"{{""clip"":123, ""frame"":{frame}}}",'
+            "1,"
+            "0,"
+            '"{""name"":""rect"",""x"":526.236,""y"":393.281,'
+            '""width"":46,""height"":38}",'
+            '"{""track"":""71""}"'
+        )
+        for frame in [10, 15, 20]
+    ]
+    return via_tracks_csv_file_valid_header + "\n".join(rows)
+
+
 # ---------------- Anipose file fixtures ----------------------------
 @pytest.fixture
 def anipose_csv_file():
