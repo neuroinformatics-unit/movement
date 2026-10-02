@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:34.244** total execution time for 13 files **from all galleries**:
+**00:24.060** total execution time for 13 files **from all galleries**:
 
 .. container::
 
@@ -33,41 +33,41 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr_examples_smooth.py` (``../../examples/smooth.py``)
-     - 00:14.082
+     - 00:10.022
      - 0.0
    * - :ref:`sphx_glr_examples_load_and_upsample_bboxes.py` (``../../examples/load_and_upsample_bboxes.py``)
-     - 00:03.595
+     - 00:02.663
      - 0.0
    * - :ref:`sphx_glr_examples_mouse_eye_movements.py` (``../../examples/mouse_eye_movements.py``)
-     - 00:03.592
+     - 00:02.487
      - 0.0
    * - :ref:`sphx_glr_examples_compute_kinematics.py` (``../../examples/compute_kinematics.py``)
-     - 00:02.402
+     - 00:01.551
      - 0.0
    * - :ref:`sphx_glr_examples_filter_and_interpolate.py` (``../../examples/filter_and_interpolate.py``)
-     - 00:01.928
+     - 00:01.257
      - 0.0
    * - :ref:`sphx_glr_examples_scale.py` (``../../examples/scale.py``)
-     - 00:01.855
-     - 0.0
-   * - :ref:`sphx_glr_examples_boundary_angles.py` (``../../examples/boundary_angles.py``)
-     - 00:01.489
+     - 00:01.243
      - 0.0
    * - :ref:`sphx_glr_examples_load_freemocap_data.py` (``../../examples/load_freemocap_data.py``)
-     - 00:01.159
+     - 00:01.113
+     - 0.0
+   * - :ref:`sphx_glr_examples_boundary_angles.py` (``../../examples/boundary_angles.py``)
+     - 00:00.986
      - 0.0
    * - :ref:`sphx_glr_examples_advanced_broadcasting_your_own_methods.py` (``../../examples/advanced/broadcasting_your_own_methods.py``)
-     - 00:01.155
+     - 00:00.722
      - 0.0
    * - :ref:`sphx_glr_examples_compute_head_direction.py` (``../../examples/compute_head_direction.py``)
-     - 00:00.926
+     - 00:00.634
      - 0.0
    * - :ref:`sphx_glr_examples_advanced_annotate_boris_events.py` (``../../examples/advanced/annotate_boris_events.py``)
-     - 00:00.893
+     - 00:00.542
      - 0.0
    * - :ref:`sphx_glr_examples_load_and_explore_poses.py` (``../../examples/load_and_explore_poses.py``)
-     - 00:00.809
+     - 00:00.523
      - 0.0
    * - :ref:`sphx_glr_examples_convert_file_formats.py` (``../../examples/convert_file_formats.py``)
-     - 00:00.360
+     - 00:00.317
      - 0.0
