@@ -12,6 +12,8 @@ from attrs import define, field
 from movement.validators.files import (
     DEFAULT_FRAME_REGEXP,
     ValidAniposeCSV,
+    ValidCOCOKeypointAnnotations,
+    ValidCOCOKeypointResults,
     ValidDeepLabCutCSV,
     ValidDeepLabCutH5,
     ValidNWBFile,
@@ -571,6 +573,216 @@ _POLYGON_FEATURE = (
     '{"type": "Feature", "geometry": {"type": "Polygon", '
     '"coordinates": [[[0,0],[1,0],[1,1],[0,0]]]}, "properties": {}}'
 )
+
+
+@pytest.mark.parametrize(
+    "validator, filename, content, match",
+    [
+        pytest.param(
+            ValidCOCOKeypointResults,
+            "coco_results.txt",
+            [
+                {
+                    "image_id": 10,
+                    "category_id": 1,
+                    "keypoints": [10, 20, 2, 30, 40, 2],
+                    "score": 0.9,
+                }
+            ],
+            "suffix",
+            id="results-wrong-suffix",
+        ),
+        pytest.param(
+            ValidCOCOKeypointResults,
+            "coco_results.json",
+            [],
+            "empty",
+            id="results-empty-list",
+        ),
+        pytest.param(
+            ValidCOCOKeypointResults,
+            "coco_results.json",
+            {"invalid": "schema"},
+            "schema",
+            id="results-schema-mismatch",
+        ),
+        pytest.param(
+            ValidCOCOKeypointAnnotations,
+            "coco_annotations.txt",
+            {
+                "images": [],
+                "annotations": [],
+                "categories": [],
+            },
+            "suffix",
+            id="annotations-wrong-suffix",
+        ),
+        pytest.param(
+            ValidCOCOKeypointAnnotations,
+            "coco_annotations.json",
+            {"invalid": "schema"},
+            "schema",
+            id="annotations-schema-mismatch",
+        ),
+    ],
+)
+def test_coco_validators_invalid_file(
+    tmp_path,
+    validator,
+    filename,
+    content,
+    match,
+):
+    """Test COCO validators reject wrong suffixes and schema mismatches."""
+    file = tmp_path / filename
+
+    with open(file, "w") as f:
+        json.dump(content, f)
+
+    with pytest.raises(ValueError, match=match):
+        validator(file=file)
+
+
+def test_coco_results_validator_with_annotations(
+    coco_keypoint_results_file_category_as_track,
+    coco_keypoint_annotations_file_category_as_track,
+):
+    """Test ValidCOCOKeypointResults with a COCO annotations file."""
+    validated = ValidCOCOKeypointResults(
+        file=coco_keypoint_results_file_category_as_track,
+        annotations_file=coco_keypoint_annotations_file_category_as_track,
+    )
+
+    assert validated.data == [
+        {
+            "image_id": 10,
+            "category_id": 2,
+            "keypoints": [50, 60, 2, 70, 80, 2],
+            "score": 0.8,
+        },
+        {
+            "image_id": 10,
+            "category_id": 1,
+            "keypoints": [10, 20, 2, 30, 40, 2],
+            "score": 0.9,
+        },
+    ]
+
+    assert validated.category_names == {
+        1: "person",
+        2: "cat",
+        3: "dog",
+    }
+
+    assert validated.keypoint_names == ["nose", "left_eye"]
+
+
+@pytest.mark.parametrize(
+    "results_fixture, annotations_fixture, match",
+    [
+        pytest.param(
+            "coco_keypoint_results_file_unknown_category",
+            "coco_keypoint_annotations_file_category_as_track",
+            "not present in the annotations file",
+            id="unknown-category",
+        ),
+        pytest.param(
+            "coco_keypoint_results_file_category_as_track",
+            "coco_keypoint_annotations_file_different_skeleton",
+            "different keypoint skeletons",
+            id="different-skeletons",
+        ),
+        pytest.param(
+            "coco_keypoint_results_file_keypoints_not_divisible_by_3",
+            None,
+            "multiple of 3",
+            id="keypoints-not-divisible-by-3",
+        ),
+        pytest.param(
+            "coco_keypoint_results_file_different_keypoint_lengths",
+            None,
+            "same length",
+            id="different-keypoint-lengths",
+        ),
+        pytest.param(
+            "coco_keypoint_results_file_category_as_track",
+            "coco_keypoint_annotations_file_different_keypoint_count",
+            "keypoint.*count",
+            id="keypoint-count-does-not-match-annotations",
+        ),
+    ],
+)
+def test_coco_results_validator_content_errors(
+    request,
+    results_fixture,
+    annotations_fixture,
+    match,
+):
+    """Test ValidCOCOKeypointResults rejects invalid content."""
+    results_file = request.getfixturevalue(results_fixture)
+
+    annotations_file = (
+        request.getfixturevalue(annotations_fixture)
+        if annotations_fixture is not None
+        else None
+    )
+
+    with pytest.raises(ValueError, match=match):
+        ValidCOCOKeypointResults(
+            file=results_file,
+            annotations_file=annotations_file,
+        )
+
+
+def test_coco_results_validator_without_annotations(
+    coco_keypoint_results_file_single_detection,
+):
+    """Test ValidCOCOKeypointResults without a COCO annotations file."""
+    validated = ValidCOCOKeypointResults(
+        file=coco_keypoint_results_file_single_detection,
+    )
+
+    assert validated.data == [
+        {
+            "image_id": 10,
+            "category_id": 1,
+            "keypoints": [10, 20, 2, 30, 40, 2],
+            "score": 0.9,
+        },
+    ]
+    assert validated.category_names is None
+    assert validated.keypoint_names is None
+
+
+def test_coco_annotations_validator(
+    coco_keypoint_annotations_file_category_as_track,
+):
+    """Test ValidCOCOKeypointAnnotations with valid annotations."""
+    validated = ValidCOCOKeypointAnnotations(
+        file=coco_keypoint_annotations_file_category_as_track,
+    )
+
+    assert validated.data == {
+        "images": [],
+        "annotations": [],
+        "categories": [
+            {
+                "id": 1,
+                "name": "person",
+                "keypoints": ["nose", "left_eye"],
+            },
+            {
+                "id": 2,
+                "name": "cat",
+                "keypoints": ["nose", "left_eye"],
+            },
+            {
+                "id": 3,
+                "name": "dog",
+                "keypoints": ["nose", "left_eye"],
+            },
+        ],
+    }
 
 
 def _feature_collection(*features: str) -> str:
