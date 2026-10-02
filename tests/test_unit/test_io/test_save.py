@@ -30,10 +30,11 @@ class TestSaveDataset:
 
     def test_invalid_target_software(self, valid_poses_dataset):
         """Test save_dataset raises an error for invalid target software."""
-        with pytest.raises(ValueError, match="Unsupported target_software"):
+        with pytest.raises(ValueError, match="Unsupported target") as e:
             save.save_dataset(
                 valid_poses_dataset, "some_file", target_software="bogus"
             )
+        assert all(sw in str(e.value) for sw in save._WRITER_REGISTRY)
 
     @pytest.mark.parametrize(
         "target_software, dataset_fixture, mutate_attrs, expected_context",
