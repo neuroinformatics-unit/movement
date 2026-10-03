@@ -1001,7 +1001,6 @@ def test_on_points_data_changed_ignores_tracks_layer(
 @pytest.mark.parametrize(
     "action_type",
     [
-        ActionType.ADDED,
         ActionType.REMOVED,
         ActionType.ADDING,
         ActionType.REMOVING,
@@ -1014,9 +1013,9 @@ def test_on_points_data_changed_ignores_non_move_events(
     """Test that the callback leaves confidence untouched for non-drag events.
 
     Verifies that :meth:`DataLoader._on_points_data_changed` only acts on
-    ``ActionType.CHANGED`` (completed drag) and ignores all other action types,
-    including ``ADDING``, ``ADDED``, ``REMOVING``, ``REMOVED``, and
-    ``CHANGING`` (in-progress drag).
+    completed drags and newly-added points, while ignoring in-progress or
+    deletion events such as ``ADDING``, ``REMOVING``, ``REMOVED``, and
+    ``CHANGING``.
     """
     filepath, ds_loaded = valid_poses_path_and_ds
     loader = loaded_data_loader(filepath, ds_loaded)
@@ -1034,6 +1033,43 @@ def test_on_points_data_changed_ignores_non_move_events(
         loader.points_layer.features["confidence"],
         original_confidence,
     )
+
+
+def test_on_points_data_changed_marks_added_points_as_edited(
+    valid_poses_path_and_ds, loaded_data_loader
+):
+    """Test that adding a missing point is treated as an edit.
+
+    When a user inserts a point in napari (for example, filling a point that
+    was previously missing), it should be flagged as edited and its
+    confidence should be marked as NaN, matching the behavior of a drag.
+    """
+    filepath, ds_loaded = valid_poses_path_and_ds
+    loader = loaded_data_loader(filepath, ds_loaded)
+
+    original_n_points = len(loader.points_layer.properties["confidence"])
+    loader.points_layer.add(
+        np.array([[0, 1.0, 2.0]]),
+        properties={
+            "individual": ["id_0"],
+            "keypoint": ["centroid"],
+            "time": [0],
+            "confidence": [0.9],
+        },
+    )
+
+    mock_event = Mock()
+    mock_event.source = loader.points_layer
+    mock_event.action = ActionType.ADDED
+    mock_event.data_indices = (original_n_points,)
+
+    loader._on_points_data_changed(mock_event)
+
+    edited = loader.points_layer.properties["edited"]
+    confidence = loader.points_layer.properties["confidence"]
+    assert edited[original_n_points]
+    assert np.isnan(confidence[original_n_points])
+    assert loader.points_layer.symbol[original_n_points] == "ring"
 
 
 def test_on_points_data_changed_second_drag_extends_edited(

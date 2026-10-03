@@ -389,29 +389,38 @@ class DataLoader(QWidget):
         layer.symbol = symbols
 
     def _on_points_data_changed(self, event):
-        """Set confidence to NaN and flag as edited for moved points.
+        """Set confidence to NaN and flag as edited for moved or added points.
 
-        Connected to ``points_layer.events.data``. Fires on
-        ``ActionType.CHANGED`` (i.e., when the data array values
-        change) and sets the confidence score of moved (dragged)
-        points to NaN, marks them as edited, and changes their
-        marker symbol to ``EDITED_POINT_SYMBOL`` so edited points are
-        visually distinguishable.
+        Connected to ``points_layer.events.data``. Fires on completed point
+        edits such as drags (``ActionType.CHANGED``) and insertions
+        (``ActionType.ADDED``), and sets the confidence score of the affected
+        point(s) to NaN, marks them as edited, and changes their marker symbol
+        to ``EDITED_POINT_SYMBOL`` so edited points are visually
+        distinguishable.
         """
         layer = event.source
         if not isinstance(layer, Points):
             return
-        if event.action != ActionType.CHANGED:
+        if event.action not in {ActionType.CHANGED, ActionType.ADDED}:
             return
-        moved_indices = list(event.data_indices)
+
+        moved_indices = list(np.atleast_1d(event.data_indices))
+        if not moved_indices:
+            return
+
         props = layer.properties
-        props["confidence"] = props["confidence"].copy()
+        if "confidence" in props:
+            props["confidence"] = np.asarray(props["confidence"]).copy()
+        else:
+            props["confidence"] = np.full(len(layer.data), np.nan)
         props["confidence"][moved_indices] = float("nan")
+
         if "edited" in props:
-            props["edited"] = props["edited"].copy()
+            props["edited"] = np.asarray(props["edited"]).copy()
         else:
             props["edited"] = np.full(len(props["confidence"]), False)
         props["edited"][moved_indices] = True
+
         layer.properties = props
         self._set_point_symbol_by_edited(layer)
 
