@@ -14,7 +14,9 @@ import pytest
 from napari.components import ViewerModel
 from napari.components.dims import RangeTuple
 from napari.layers.base import ActionType
+from qtpy.QtGui import QHideEvent
 
+from movement.napari.edit_timeline_widget import EditTimelineWidget
 from movement.napari.layer_wiring import (
     MAX_FRAME_IDX_KEY,
     connect_viewer_callbacks,
@@ -22,6 +24,16 @@ from movement.napari.layer_wiring import (
 )
 from movement.napari.loader_widgets import DataLoader
 from movement.napari.meta_widget import MovementMetaWidget
+from movement.napari.regions_widget import RegionsWidget
+from movement.napari.save_widget import DataSaver
+
+# Widgets that listen to viewer-level events via ``ViewerEventsMixin``
+WIDGETS_LISTENING_TO_VIEWER = [
+    MovementMetaWidget,
+    EditTimelineWidget,
+    RegionsWidget,
+    DataSaver,
+]
 
 
 @pytest.fixture
@@ -373,3 +385,118 @@ def test_frame_slider_range_ignores_row_count(headless_napari_viewer, rng):
     assert headless_napari_viewer.dims.range[0] == RangeTuple(
         0.0, N_FRAMES - 1, 1.0
     )
+
+
+# ---- Callbacks with widget lifetime (ViewerEventsMixin) ---------------#
+def _is_connected(emitter, bound_method) -> bool:
+    """Return whether ``bound_method`` is among ``emitter``'s callbacks.
+
+    napari stores a bound method as a ``(weakref(instance), name)`` pair.
+    """
+    return (
+        weakref.ref(bound_method.__self__),
+        bound_method.__name__,
+    ) in emitter.callbacks
+
+
+def _connected(widget) -> list[bool]:
+    """Return, per viewer event, whether the widget is listening to it."""
+    return [
+        _is_connected(emitter, callback)
+        for emitter, callback in widget._viewer_event_connections()
+    ]
+
+
+def _n_callbacks(widget) -> list[int]:
+    """Return the number of callbacks on each viewer event of the widget."""
+    return [
+        len(emitter.callbacks)
+        for emitter, _ in widget._viewer_event_connections()
+    ]
+
+
+@pytest.mark.parametrize("widget_class", WIDGETS_LISTENING_TO_VIEWER)
+def test_widget_listens_to_viewer_only_while_visible(
+    make_napari_viewer_proxy, widget_class
+):
+    """Test that hiding a widget disconnects its viewer callbacks.
+
+    Closing a napari dock widget only hides it, so a hidden widget must
+    have dropped its viewer-level callbacks, and must pick them up again
+    (without duplicating them) once it is shown again.
+    """
+    widget = widget_class(make_napari_viewer_proxy())
+    n_callbacks = _n_callbacks(widget)
+
+    assert all(_connected(widget))  # live from construction, before shown
+
+    widget.show()
+    assert all(_connected(widget))
+    assert _n_callbacks(widget) == n_callbacks
+
+    widget.hide()
+    assert not any(_connected(widget))
+
+    widget.show()
+    assert all(_connected(widget))
+    assert _n_callbacks(widget) == n_callbacks
+
+
+@pytest.mark.parametrize("widget_class", WIDGETS_LISTENING_TO_VIEWER)
+def test_reopening_widget_does_not_accumulate_viewer_callbacks(
+    make_napari_viewer_proxy, widget_class
+):
+    """Test that re-creating a widget after hiding it adds no callbacks.
+
+    This mirrors closing the ``movement`` panel via its "X" and reopening
+    it from the Plugins menu: the old widget is only hidden, so without
+    cleanup every reopening would stack another copy of each callback
+    onto the viewer, which would then run multiple times per event.
+    """
+    viewer = make_napari_viewer_proxy()
+    first = widget_class(viewer)
+    first.show()
+    n_callbacks = _n_callbacks(first)
+
+    first.hide()
+    second = widget_class(viewer)
+    second.show()
+
+    assert _n_callbacks(second) == n_callbacks
+    assert all(_connected(second))
+    assert not any(_connected(first))
+
+
+@pytest.mark.parametrize("widget_class", WIDGETS_LISTENING_TO_VIEWER)
+def test_spontaneous_hide_keeps_viewer_callbacks(
+    make_napari_viewer_proxy, widget_class, mocker
+):
+    """Test that minimising the window does not disconnect the widget.
+
+    Qt sends a *spontaneous* hide event when the window system hides
+    the widget (e.g. the main window is minimised); the widget is still
+    considered visible then, so it must keep listening to the viewer.
+    """
+    widget = widget_class(make_napari_viewer_proxy())
+    widget.show()
+    event = QHideEvent()
+    mocker.patch.object(event, "spontaneous", return_value=True)
+
+    widget.hideEvent(event)
+
+    assert all(_connected(widget))
+
+
+@pytest.mark.parametrize("widget_class", [RegionsWidget, DataSaver])
+def test_closing_a_hidden_widget_is_safe(
+    make_napari_viewer_proxy, widget_class
+):
+    """Test that closing an already hidden widget disconnects nothing twice."""
+    widget = widget_class(make_napari_viewer_proxy())
+    widget.show()
+    widget.hide()
+    assert not any(_connected(widget))
+
+    widget.close()  # runs closeEvent, which also disconnects
+
+    assert not any(_connected(widget))

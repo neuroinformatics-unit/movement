@@ -9,12 +9,15 @@ can be closed).
   saved to a file later, so it must survive the widget being closed.
 - A callback that only refreshes a widget's own UI (a dropdown, a table, a
   button) can stay a method on that widget: once the widget is gone there is
-  nothing left to update, which is fine.
+  nothing left to update, which is fine. Such widgets should use
+  :class:`ViewerEventsMixin`, which keeps those callbacks connected only
+  while the widget is visible.
 
 """
 
 import warnings
 from functools import partial
+from typing import TYPE_CHECKING
 from weakref import WeakSet
 
 import numpy as np
@@ -23,6 +26,18 @@ from napari.layers import Points
 from napari.layers.base import ActionType
 
 from movement.napari.layer_styles import EDITED_POINT_SYMBOL
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from napari.utils.events import EventEmitter
+    from qtpy.QtWidgets import QWidget
+
+    # Let type checkers see the Qt methods the mixin relies on. At runtime
+    # it must stay a plain class, so that each widget has a single Qt base.
+    _MixinBase = QWidget
+else:
+    _MixinBase = object
 
 # Metadata keys stored on the movement Points layer.
 # - POINTS_LAYER_KEY marks the layer as movement-created.
@@ -267,3 +282,72 @@ def set_tracks_layer_data(tracks_layer, data, properties):
         tracks_layer.data = data
         tracks_layer.properties = properties
         tracks_layer.color_by = color_by
+
+
+# ---- Callbacks with widget lifetime --------------------
+class ViewerEventsMixin(_MixinBase):
+    """Keep a widget's viewer-level callbacks connected only while visible.
+
+    Closing a napari dock widget via its title-bar "X" hides it rather
+    than destroying it right away, so viewer-level callbacks connected
+    in a widget's constructor keep firing after the widget is gone from
+    view, and pile up on the viewer every time the widget is opened
+    again. This mixin disconnects those callbacks when the widget is
+    hidden and reconnects them when it is shown again, with a flag
+    guarding against duplicate connections.
+
+    Subclasses list the mixin before their Qt base class, return the
+    ``(emitter, callback)`` pairs to manage from
+    :meth:`_viewer_event_connections`, and call
+    :meth:`_connect_viewer_events` from ``__init__`` so the widget is
+    live before it is first shown. Widgets whose state depends on events
+    missed while hidden also override :meth:`_sync_with_viewer`.
+    """
+
+    _viewer_events_connected: bool = False
+
+    def _viewer_event_connections(
+        self,
+    ) -> list[tuple["EventEmitter", "Callable"]]:
+        """Return the ``(emitter, callback)`` pairs this widget listens to."""
+        raise NotImplementedError
+
+    def _sync_with_viewer(self) -> None:
+        """Catch up on viewer changes made while the widget was hidden.
+
+        Called right after reconnecting on show. Does nothing by default.
+        """
+
+    def _connect_viewer_events(self) -> None:
+        """Connect the viewer callbacks, unless already connected."""
+        if self._viewer_events_connected:
+            return
+        for emitter, callback in self._viewer_event_connections():
+            emitter.connect(callback)
+        self._viewer_events_connected = True
+
+    def _disconnect_viewer_events(self) -> None:
+        """Disconnect the viewer callbacks, unless already disconnected."""
+        if not self._viewer_events_connected:
+            return
+        for emitter, callback in self._viewer_event_connections():
+            emitter.disconnect(callback)
+        self._viewer_events_connected = False
+
+    def showEvent(self, event) -> None:
+        """Reconnect to the viewer when the widget is shown again."""
+        if not self._viewer_events_connected:
+            self._connect_viewer_events()
+            self._sync_with_viewer()
+        super().showEvent(event)
+
+    def hideEvent(self, event) -> None:
+        """Disconnect from the viewer when the widget is hidden.
+
+        A spontaneous hide, e.g. when the main window is minimised, is
+        ignored: the widget still counts as visible then and nothing
+        was closed.
+        """
+        if not event.spontaneous():
+            self._disconnect_viewer_events()
+        super().hideEvent(event)

@@ -7,6 +7,7 @@ from qtpy.QtWidgets import QFileDialog, QFormLayout, QPushButton, QWidget
 
 from movement.io import save_dataset
 from movement.napari.convert import napari_layers_to_ds
+from movement.napari.layer_wiring import ViewerEventsMixin
 from movement.napari.loader_widgets import (
     DATASET_ATTRS_KEY,
     POINTS_LAYER_KEY,
@@ -21,7 +22,7 @@ ENABLED_TOOLTIP = (
 )
 
 
-class DataSaver(QWidget):
+class DataSaver(ViewerEventsMixin, QWidget):
     """Widget for saving a tracked data layer to the native file format."""
 
     def __init__(self, napari_viewer: Viewer, parent=None):
@@ -30,9 +31,20 @@ class DataSaver(QWidget):
         self.viewer = napari_viewer
         self.setLayout(QFormLayout())
         self._create_save_button()
-        self.viewer.layers.selection.events.changed.connect(
-            self._on_napari_layer_selection_changed
-        )
+        self._connect_viewer_events()
+        self._update_save_button_state()
+
+    def _viewer_event_connections(self):
+        """Return the viewer events this widget listens to while visible."""
+        return [
+            (
+                self.viewer.layers.selection.events.changed,
+                self._on_napari_layer_selection_changed,
+            ),
+        ]
+
+    def _sync_with_viewer(self):
+        """Refresh the save button for selection changes made while hidden."""
         self._update_save_button_state()
 
     def _create_save_button(self):
@@ -59,9 +71,7 @@ class DataSaver(QWidget):
 
     def closeEvent(self, event):
         """Disconnect signals when the widget is closed."""
-        self.viewer.layers.selection.events.changed.disconnect(
-            self._on_napari_layer_selection_changed
-        )
+        self._disconnect_viewer_events()
         super().closeEvent(event)
 
     def _on_save_clicked(self):
