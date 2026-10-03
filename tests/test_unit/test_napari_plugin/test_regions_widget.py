@@ -1165,3 +1165,20 @@ def test_table_model_header_data_edge_cases(
     widget, _ = regions_widget_with_layer
     header = widget.region_table_model.headerData(0, orientation, role)
     assert header == expected
+
+
+def test_dropdown_catches_up_on_layer_added_while_hidden(
+    make_napari_viewer_proxy,
+):
+    """A re-shown widget lists a region layer added while it was hidden."""
+    viewer = make_napari_viewer_proxy()
+    widget = RegionsWidget(viewer)
+    widget.show()
+    widget.hide()
+
+    add_regions_layer(viewer, name="regions")
+    assert widget.layer_dropdown.currentText() == DROPDOWN_PLACEHOLDER
+
+    widget.show()
+
+    assert widget.layer_dropdown.currentText() == "regions"

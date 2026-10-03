@@ -233,3 +233,29 @@ def test_close_event_disconnects_selection_signal(make_napari_viewer_proxy):
 
     assert not data_saver_widget.save_button.isEnabled()
     assert data_saver_widget.save_button.toolTip() == DISABLED_TOOLTIP
+
+
+def test_save_button_catches_up_on_selection_made_while_hidden(
+    make_napari_viewer_proxy,
+):
+    """A re-shown widget enables the button for a layer selected meanwhile."""
+    viewer = make_napari_viewer_proxy()
+    data_saver_widget = DataSaver(viewer)
+    data_saver_widget.show()
+    data_saver_widget.hide()
+
+    layer = viewer.add_points(
+        name="points",
+        metadata={
+            POINTS_LAYER_KEY: True,
+            POINTS_PROPERTIES_KEY: None,
+            DATASET_ATTRS_KEY: {},
+        },
+    )
+    viewer.layers.selection.active = layer
+    assert not data_saver_widget.save_button.isEnabled()  # not listening
+
+    data_saver_widget.show()
+
+    assert data_saver_widget.save_button.isEnabled()
+    assert data_saver_widget.save_button.toolTip() == ENABLED_TOOLTIP
