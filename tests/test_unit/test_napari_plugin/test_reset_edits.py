@@ -156,3 +156,35 @@ def test_loaded_baseline_roundtrip(valid_poses_dataset, tmp_path, qtbot):
     )
     xr.testing.assert_allclose(restored.position, loaded.position)
     xr.testing.assert_allclose(restored.confidence, loaded.confidence)
+
+
+def test_reset_in_docked_widget(
+    make_napari_viewer_proxy,
+    valid_poses_path_and_ds,
+    loaded_data_loader,
+    qtbot,
+):
+    """Exercise reset buttons through the real viewer and docked timeline."""
+    from movement.napari.loader_widgets import DataLoader
+    from movement.napari.meta_widget import MovementMetaWidget
+
+    viewer = make_napari_viewer_proxy()
+    widget = MovementMetaWidget(viewer)
+    qtbot.addWidget(widget)
+    loader = widget.findChild(DataLoader)
+    path, ds = valid_poses_path_and_ds
+    loaded_data_loader(path, ds, loader=loader)
+    points = loader.points_layer
+    tracks = points.metadata[wiring.TRACKS_LAYER_KEY]
+    original = tracks.data.copy()
+    points.data[0, 1:] += 50
+    points.events.data(action="changed", data_indices=(0,))
+    qtbot.waitUntil(widget.edit_controls.reset_frame_button.isEnabled)
+    assert widget.edit_timeline_widget is not None
+    viewer.dims.set_current_step(0, int(original[0, 1]))
+    widget.edit_controls.reset_frame_button.click()
+    np.testing.assert_array_equal(tracks.data, original)
+    points.remove([0])
+    widget.edit_controls.reset_all_button.click()
+    np.testing.assert_array_equal(tracks.data, original)
+    assert widget.edit_timeline_widget._removed_points == []
