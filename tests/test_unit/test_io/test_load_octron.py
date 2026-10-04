@@ -140,13 +140,16 @@ def test_missing_octron_file(tmp_path):
         load_bboxes.from_octron_file(tmp_path / "missing.csv")
 
 
-@pytest.mark.parametrize("old,new,match", [
-    ("frame_count: 8", "frame_count: unknown", "frame_count"),
-    ("1,2,7,", "1,2,NaN,", "non-negative"),
-    ("0.9", "inf", "infinite"),
-    ("40,60", "90,60", "extents"),
-    ("\n\nframe_counter", "\nnot blank\nframe_counter", "blank line"),
-])
+@pytest.mark.parametrize(
+    "old,new,match",
+    [
+        ("frame_count: 8", "frame_count: unknown", "frame_count"),
+        ("1,2,7,", "1,2,NaN,", "non-negative"),
+        ("0.9", "inf", "infinite"),
+        ("40,60", "90,60", "extents"),
+        ("\n\nframe_counter", "\nnot blank\nframe_counter", "blank line"),
+    ],
+)
 def test_invalid_octron_metadata_and_values(octron_csv, old, new, match):
     """Reject malformed metadata, track IDs and numeric values."""
     path = octron_csv()
@@ -172,5 +175,6 @@ def test_unsorted_octron_rows_and_nan(octron_csv):
     path.write_text("\n".join(lines).replace("0.9", "NaN") + "\n")
     ds = load_dataset(path, "OCTRON")
     assert np.isnan(ds.confidence.sel(time=2, individual="id_7"))
-    np.testing.assert_allclose(ds.position.sel(time=2, individual="id_7"),
-                               [20, 50])
+    np.testing.assert_allclose(
+        ds.position.sel(time=2, individual="id_7"), [20, 50]
+    )
