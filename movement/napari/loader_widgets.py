@@ -30,6 +30,7 @@ from movement.napari.layer_wiring import (
     POINTS_LAYER_KEY,
     POINTS_PROPERTIES_KEY,
     TRACKS_LAYER_KEY,
+    capture_points_baseline,
     connect_viewer_callbacks,
     frame_axis_is_sliced,
     on_points_data_changed,
@@ -212,6 +213,8 @@ class DataLoader(QWidget):
         # and a boxes layer if the dataset is a bounding boxes one
         self._add_points_layer()
         self._add_tracks_layer()
+        if self.data_bboxes is None:
+            capture_points_baseline(self.points_layer)
         if self.data_bboxes is not None:
             self._add_boxes_layer()
 

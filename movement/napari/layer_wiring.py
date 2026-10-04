@@ -38,6 +38,7 @@ POINTS_PROPERTIES_KEY: str = "movement_points_properties"
 DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
 TRACKS_LAYER_KEY: str = "movement_tracks_layer"
 MAX_FRAME_IDX_KEY: str = "movement_max_frame_idx"
+POINTS_BASELINE_KEY: str = "movement_points_baseline"
 
 # Keep a set of viewers already wired by connect_viewer_callbacks,
 # so we don't wire them twice. We use a WeakSet so tracking a viewer here
@@ -186,6 +187,8 @@ def on_points_data_changed(event):
     layer = event.source
     if not isinstance(layer, Points):
         return
+    if getattr(event, "movement_reset", False) is True:
+        return
 
     if event.action == ActionType.CHANGED:
         moved_indices = list(event.data_indices)
@@ -267,3 +270,89 @@ def set_tracks_layer_data(tracks_layer, data, properties):
         tracks_layer.data = data
         tracks_layer.properties = properties
         tracks_layer.color_by = color_by
+
+
+def capture_points_baseline(points_layer: Points) -> None:
+    """Store independent copies of pose data immediately after loading.
+
+    The baseline includes edits saved in the input file. It is owned by the
+    layer, not the loader widget, and is never updated by subsequent edits.
+    """
+    tracks = points_layer.metadata[TRACKS_LAYER_KEY]
+    points_layer.metadata[POINTS_BASELINE_KEY] = {
+        "data": tracks.data.copy(),
+        "points_properties": {
+            key: value.copy() for key, value in points_layer.properties.items()
+        },
+        "tracks_properties": {
+            key: value.copy() for key, value in tracks.properties.items()
+        },
+        "symbol": points_layer.symbol.copy(),
+    }
+
+
+def reset_points_to_baseline(
+    points_layer: Points, frame: int | None = None
+) -> None:
+    """Restore loaded pose points for one frame, or all frames if None.
+
+    Deleted points are restored from the baseline, rather than inferred
+    from surviving edited flags. Other frames retain their current data.
+    Identity swaps and individual edit history are not supported.
+    """
+    baseline = points_layer.metadata[POINTS_BASELINE_KEY]
+    tracks = points_layer.metadata[TRACKS_LAYER_KEY]
+    restore = (
+        baseline["data"][:, 1] == frame
+        if frame is not None
+        else np.ones(len(baseline["data"]), dtype=bool)
+    )
+    keep = (
+        tracks.data[:, 1] != frame
+        if frame is not None
+        else np.zeros(len(tracks.data), dtype=bool)
+    )
+    data = np.concatenate([tracks.data[keep], baseline["data"][restore]])
+    order = np.lexsort((data[:, 1], data[:, 0]))
+    data = data[order]
+
+    def merge_properties(current, original):
+        keys = current.keys() | original.keys()
+        return {
+            key: np.concatenate(
+                [
+                    current.get(key, np.zeros(len(tracks.data), dtype=bool))[
+                        keep
+                    ],
+                    original.get(
+                        key, np.zeros(len(baseline["data"]), dtype=bool)
+                    )[restore],
+                ]
+            )[order]
+            for key in keys
+        }
+
+    properties = merge_properties(
+        points_layer.properties, baseline["points_properties"]
+    )
+    track_properties = merge_properties(
+        tracks.properties, baseline["tracks_properties"]
+    )
+    symbols = np.concatenate(
+        [points_layer.symbol[keep], baseline["symbol"][restore]]
+    )[order]
+    # Avoid interpreting restoration as a user drag or deletion. Notify
+    # observers once, after Points and Tracks are consistent again.
+    with points_layer.events.data.blocker():
+        points_layer.data = data[:, 1:].copy()
+        points_layer.properties = properties
+        points_layer.symbol = symbols
+        points_layer.selected_data = set()
+        set_tracks_layer_data(tracks, data, track_properties)
+    points_layer.events.data(
+        value=points_layer.data,
+        action=ActionType.CHANGED,
+        data_indices=(),
+        movement_reset=True,
+        frame=frame,
+    )
