@@ -450,11 +450,15 @@ def from_coco_file(
     Parameters
     ----------
     file
-        Path to the COCO keypoint detection results JSON file.
+        Path to the COCO keypoint detection
+        `results <https://cocodataset.org/#format-results>`__ JSON file.
     fps
-        Frames per second. If None, ``time`` coordinates are frame numbers.
+        Frames per second. If None (default), ``time`` coordinates are frame
+        numbers.
     annotations_file
-        Optional COCO annotations JSON file for keypoint and individual names.
+        Optional path to a COCO
+        `annotations <https://cocodataset.org/#format-data>`__ JSON file,
+        used for keypoint and individual names (see Notes).
     category_as_track
         If True, treat each ``category_id`` as one individual tracked
         across frames. If False (default), assign individuals by order of
@@ -489,11 +493,13 @@ def from_coco_file(
 
     In ``movement``, pose data can currently only be loaded if all
     individuals share the same skeleton. All detections in the results
-    must therefore have the same number of keypoints and, if
+    must therefore have the same number of keypoints. If
     ``annotations_file`` is provided, all categories present in the
-    results must have the same ``keypoints`` list. Otherwise, a
-    ``ValueError`` is raised. Without an annotations file, keypoints are
-    assigned default names ``keypoint_0``, ``keypoint_1``, etc. in file order.
+    results must also have the same ``keypoints`` list (same names, in
+    the same order), with one name per keypoint in each detection.
+    Otherwise, a ``ValueError`` is raised. Without an annotations file,
+    keypoints are assigned default names ``keypoint_0``, ``keypoint_1``,
+    etc. in file order.
 
     """
     valid_results = cast("ValidCOCOKeypointResults", file)

@@ -958,11 +958,37 @@ def _check_coco_keypoints_length(data: Any) -> None:
 
 @define
 class ValidCOCOKeypointResults:
-    """Class for validating COCO keypoint detection results files.
+    """Class for validating COCO keypoint detection results (.json) files.
 
-    The validator ensures that the file is a valid JSON file and that it
-    contains a list of dictionaries, each with the required keys for COCO
-    keypoint detection results.
+    The validator ensures that the file:
+
+    - is well-formed JSON,
+    - contains a non-empty list of detections, each with the keys
+      required by the COCO
+      `results format <https://cocodataset.org/#format-results>`__, and
+    - contains keypoints arrays of the same length, which must be a
+      multiple of 3 (x, y, visibility for each keypoint).
+
+    COCO results identify categories only by ID and keypoints only by
+    position. An annotations file can be provided to resolve the category
+    and keypoint names. In that case, the validator additionally ensures
+    that all categories referenced in the results:
+
+    - are defined in the annotations file,
+    - share the same keypoint names, in the same order, and
+    - define as many keypoint names as there are keypoints
+      in each detection.
+
+    The parsed results are stored in ``data``. If an annotations file is
+    provided, the category and keypoint names are also stored in
+    ``category_names`` and ``keypoint_names``.
+
+    Raises
+    ------
+    ValueError
+        If the file is not valid JSON, does not match the expected schema,
+        or is inconsistent with the annotations file.
+
     """
 
     suffixes: ClassVar[set[str]] = {JSON_SUFFIX}
@@ -1067,11 +1093,27 @@ class ValidCOCOKeypointResults:
 
 @define
 class ValidCOCOKeypointAnnotations:
-    """Class for validating COCO keypoint annotations files.
+    """Class for validating COCO keypoint annotations (.json) files.
 
-    The validator ensures that the file is a valid JSON file and that it
-    contains a dictionary with the ``images``, ``annotations`` and
-    ``categories`` lists of a COCO keypoint annotations file.
+    The validator ensures that the file:
+
+    - is well-formed JSON,
+    - contains the ``images``, ``annotations`` and ``categories`` lists,
+      each with the keys required by the COCO
+      `annotations format <https://cocodataset.org/#format-data>`__,
+    - defines at least one category, each with a non-empty list of
+      keypoint names, and
+    - contains annotation keypoints arrays of the same length, which must
+      be a multiple of 3 (x, y, visibility for each keypoint).
+
+    The parsed annotations are stored in ``data``, and the categories
+    are accessible by ID via ``categories``.
+
+    Raises
+    ------
+    ValueError
+        If the file is not valid JSON or does not match the expected schema.
+
     """
 
     suffixes: ClassVar[set[str]] = {JSON_SUFFIX}
