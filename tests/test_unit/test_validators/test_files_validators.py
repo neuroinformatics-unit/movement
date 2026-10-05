@@ -612,7 +612,9 @@ _POLYGON_FEATURE = (
             {
                 "images": [],
                 "annotations": [],
-                "categories": [],
+                "categories": [
+                    {"id": 1, "name": "person", "keypoints": ["nose"]}
+                ],
             },
             "suffix",
             id="annotations-wrong-suffix",
