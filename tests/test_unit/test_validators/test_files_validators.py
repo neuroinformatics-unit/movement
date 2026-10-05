@@ -755,26 +755,41 @@ def test_coco_validators_invalid_file(
         validator(file=file)
 
 
-def test_coco_results_validator_with_annotations(
+@pytest.mark.parametrize(
+    "annotations_fixture, expected_category_names, expected_keypoint_names",
+    [
+        pytest.param(
+            "coco_keypoint_annotations_file_valid",
+            {1: "person", 2: "cat", 3: "dog"},
+            ["nose", "left_eye"],
+            id="with-annotations",
+        ),
+        pytest.param(None, None, None, id="without-annotations"),
+    ],
+)
+def test_coco_results_validator(
     coco_keypoint_results_file_categories_out_of_order,
-    coco_keypoint_annotations_file_valid,
+    annotations_fixture,
+    expected_category_names,
+    expected_keypoint_names,
+    request,
 ):
-    """Test ValidCOCOKeypointResults with a COCO annotations file."""
+    """Test ValidCOCOKeypointResults with and without annotations."""
+    annotations_file = (
+        request.getfixturevalue(annotations_fixture)
+        if annotations_fixture
+        else None
+    )
     validated = ValidCOCOKeypointResults(
         file=coco_keypoint_results_file_categories_out_of_order,
-        annotations_file=coco_keypoint_annotations_file_valid,
+        annotations_file=annotations_file,
     )
     assert validated.data == [
         COCO_KEYPOINT_RESULT_2,
         COCO_KEYPOINT_RESULT_1,
     ]
-    assert validated.category_names == {
-        1: "person",
-        2: "cat",
-        3: "dog",
-    }
-
-    assert validated.keypoint_names == ["nose", "left_eye"]
+    assert validated.category_names == expected_category_names
+    assert validated.keypoint_names == expected_keypoint_names
 
 
 _COCO_PERSON_CATEGORY = {
@@ -847,7 +862,7 @@ def test_coco_results_validator_content_errors(
     categories,
     match,
 ):
-    """Test ValidCOCOKeypointResults rejects invalid content."""
+    """Test ValidCOCOKeypointResults rejects invalid results file content."""
     annotations_file = (
         coco_keypoint_annotations_file(categories)
         if categories is not None
@@ -858,18 +873,6 @@ def test_coco_results_validator_content_errors(
             file=coco_keypoint_results_file(results),
             annotations_file=annotations_file,
         )
-
-
-def test_coco_results_validator_without_annotations(
-    coco_keypoint_results_file_single_detection,
-):
-    """Test ValidCOCOKeypointResults without a COCO annotations file."""
-    validated = ValidCOCOKeypointResults(
-        file=coco_keypoint_results_file_single_detection,
-    )
-    assert validated.data == [COCO_KEYPOINT_RESULT_1]
-    assert validated.category_names is None
-    assert validated.keypoint_names is None
 
 
 def test_coco_annotations_validator(
