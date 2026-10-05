@@ -1034,9 +1034,11 @@ class ValidCOCOKeypointResults:
         if len(keypoint_lists) > 1:
             raise logger.error(
                 ValueError(
-                    "COCO results reference categories with different "
-                    "keypoint skeletons. movement currently requires a "
-                    "single skeleton shared by all individuals."
+                    "The annotations file defines different keypoint "
+                    "names for categories referenced in the COCO results. "
+                    "movement currently requires all referenced "
+                    "categories to share the same keypoint names, "
+                    "in the same order."
                 )
             )
 
