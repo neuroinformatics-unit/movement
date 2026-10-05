@@ -629,31 +629,29 @@ def test_coco_validators_invalid_file(
     content,
     match,
 ):
-    """Test COCO validators reject wrong suffixes and schema mismatches."""
+    """Test COCO keypoint annotations and results validators reject wrong
+    suffixes and schema mismatches.
+    """
     file = tmp_path / filename
-
     with open(file, "w") as f:
         json.dump(content, f)
-
     with pytest.raises(ValueError, match=match):
         validator(file=file)
 
 
 def test_coco_results_validator_with_annotations(
-    coco_keypoint_results_file_category_as_track,
-    coco_keypoint_annotations_file_category_as_track,
+    coco_keypoint_results_file_categories_out_of_order,
+    coco_keypoint_annotations_file_valid,
 ):
     """Test ValidCOCOKeypointResults with a COCO annotations file."""
     validated = ValidCOCOKeypointResults(
-        file=coco_keypoint_results_file_category_as_track,
-        annotations_file=coco_keypoint_annotations_file_category_as_track,
+        file=coco_keypoint_results_file_categories_out_of_order,
+        annotations_file=coco_keypoint_annotations_file_valid,
     )
-
     assert validated.data == [
         COCO_KEYPOINT_RESULT_2,
         COCO_KEYPOINT_RESULT_1,
     ]
-
     assert validated.category_names == {
         1: "person",
         2: "cat",
@@ -739,7 +737,6 @@ def test_coco_results_validator_content_errors(
         if categories is not None
         else None
     )
-
     with pytest.raises(ValueError, match=match):
         ValidCOCOKeypointResults(
             file=coco_keypoint_results_file(results),
@@ -754,20 +751,18 @@ def test_coco_results_validator_without_annotations(
     validated = ValidCOCOKeypointResults(
         file=coco_keypoint_results_file_single_detection,
     )
-
     assert validated.data == [COCO_KEYPOINT_RESULT_1]
     assert validated.category_names is None
     assert validated.keypoint_names is None
 
 
 def test_coco_annotations_validator(
-    coco_keypoint_annotations_file_category_as_track,
+    coco_keypoint_annotations_file_valid,
 ):
     """Test ValidCOCOKeypointAnnotations with valid annotations."""
     validated = ValidCOCOKeypointAnnotations(
-        file=coco_keypoint_annotations_file_category_as_track,
+        file=coco_keypoint_annotations_file_valid,
     )
-
     assert validated.data == {
         "images": [],
         "annotations": [],
@@ -806,7 +801,6 @@ def test_coco_annotations_validator_empty_categories(
 ):
     """Test ValidCOCOKeypointAnnotations rejects empty categories."""
     file = coco_keypoint_annotations_file(categories)
-
     with pytest.raises(ValueError, match="schema"):
         ValidCOCOKeypointAnnotations(file=file)
 

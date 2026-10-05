@@ -373,8 +373,8 @@ def test_from_coco_file(coco_keypoint_results_file_valid):
     ],
 )
 def test_from_coco_file_naming_and_order(
-    coco_keypoint_results_file_category_as_track,
-    coco_keypoint_annotations_file_category_as_track,
+    coco_keypoint_results_file_categories_out_of_order,
+    coco_keypoint_annotations_file_valid,
     with_annotations,
     category_as_track,
     expected_keypoints,
@@ -383,13 +383,11 @@ def test_from_coco_file_naming_and_order(
 ):
     """Test keypoint and individual naming and ordering for COCO files."""
     annotations_file = (
-        coco_keypoint_annotations_file_category_as_track
-        if with_annotations
-        else None
+        coco_keypoint_annotations_file_valid if with_annotations else None
     )
 
     ds = load_poses.from_coco_file(
-        coco_keypoint_results_file_category_as_track,
+        coco_keypoint_results_file_categories_out_of_order,
         annotations_file=annotations_file,
         category_as_track=category_as_track,
     )
@@ -419,13 +417,13 @@ def test_from_coco_file_fps(coco_keypoint_results_file_valid):
 
 def test_from_coco_file_duplicate_category(
     coco_keypoint_results_file_duplicate_category,
-    coco_keypoint_annotations_file_category_as_track,
+    coco_keypoint_annotations_file_valid,
 ):
     """Test that duplicate category detections raise an error."""
     with pytest.raises(ValueError, match="multiple detections"):
         load_poses.from_coco_file(
             coco_keypoint_results_file_duplicate_category,
-            annotations_file=coco_keypoint_annotations_file_category_as_track,
+            annotations_file=coco_keypoint_annotations_file_valid,
             category_as_track=True,
         )
 
@@ -434,13 +432,13 @@ def test_from_coco_file_duplicate_category(
     "results_fixture, category_as_track, expect_warning",
     [
         pytest.param(
-            "coco_keypoint_results_file_category_as_track",
+            "coco_keypoint_results_file_categories_out_of_order",
             False,
             True,
             id="positional-multiple-detections",
         ),
         pytest.param(
-            "coco_keypoint_results_file_category_as_track",
+            "coco_keypoint_results_file_categories_out_of_order",
             True,
             False,
             id="category-as-track",

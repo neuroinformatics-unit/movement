@@ -79,7 +79,9 @@ def coco_keypoint_results_file_valid(coco_keypoint_results_file):
 
 
 @pytest.fixture
-def coco_keypoint_results_file_category_as_track(coco_keypoint_results_file):
+def coco_keypoint_results_file_categories_out_of_order(
+    coco_keypoint_results_file,
+):
     """Return a COCO keypoint results file with two detections in one
     frame, listed out of category ID order, so positional and
     category-as-track assignment give different individual orders.
@@ -92,10 +94,12 @@ def coco_keypoint_results_file_category_as_track(coco_keypoint_results_file):
 
 
 @pytest.fixture
-def coco_keypoint_annotations_file_category_as_track(
+def coco_keypoint_annotations_file_valid(
     coco_keypoint_annotations_file,
 ):
-    """Return COCO annotations for category-as-track tests."""
+    """Return valid COCO annotations with three categories sharing
+    the same keypoints.
+    """
     categories = [
         {
             "id": 1,
