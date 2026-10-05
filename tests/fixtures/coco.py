@@ -37,7 +37,7 @@ def coco_keypoint_results_file(tmp_path):
 @pytest.fixture
 def coco_keypoint_annotations_file(tmp_path):
     """Return a factory that writes a COCO keypoint annotations file with
-    the given images, annotations, and categories to a JSON file.
+    the given categories, and optional images and annotations to a JSON file.
     """
 
     def _coco_annotations_file(
@@ -64,7 +64,10 @@ def coco_keypoint_annotations_file(tmp_path):
 
 @pytest.fixture
 def coco_keypoint_results_file_valid(coco_keypoint_results_file):
-    """Return a valid COCO keypoint results file."""
+    """Return a valid COCO keypoint results file with two detections
+    (categories 1 and 2) in image 10 and one detection (category 1)
+    in image 20.
+    """
     results = [
         COCO_KEYPOINT_RESULT_1,
         COCO_KEYPOINT_RESULT_2,
