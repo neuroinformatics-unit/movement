@@ -157,6 +157,7 @@ COCO_KEYPOINT_ANNOTATIONS_SCHEMA: Mapping[str, Any] = {
         },
         "categories": {
             "type": "array",
+            "minItems": 1,
             "items": {
                 "type": "object",
                 "required": ["id", "name", "keypoints"],
@@ -169,6 +170,7 @@ COCO_KEYPOINT_ANNOTATIONS_SCHEMA: Mapping[str, Any] = {
                     },
                     "keypoints": {
                         "type": "array",
+                        "minItems": 1,
                         "items": {
                             "type": "string",
                         },

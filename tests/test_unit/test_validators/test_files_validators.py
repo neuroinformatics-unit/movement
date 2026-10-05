@@ -785,6 +785,26 @@ def test_coco_annotations_validator(
     }
 
 
+@pytest.mark.parametrize(
+    "categories",
+    [
+        pytest.param([], id="empty-categories"),
+        pytest.param(
+            [{"id": 1, "name": "person", "keypoints": []}],
+            id="empty-category-keypoints",
+        ),
+    ],
+)
+def test_coco_annotations_validator_empty_categories(
+    coco_keypoint_annotations_file, categories
+):
+    """Test ValidCOCOKeypointAnnotations rejects empty categories."""
+    file = coco_keypoint_annotations_file(categories)
+
+    with pytest.raises(ValueError, match="schema"):
+        ValidCOCOKeypointAnnotations(file=file)
+
+
 def _feature_collection(*features: str) -> str:
     """Build a GeoJSON FeatureCollection string."""
     joined = ", ".join(features)
