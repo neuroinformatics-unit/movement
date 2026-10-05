@@ -69,8 +69,8 @@ def coco_keypoint_results_file_valid(coco_keypoint_results_file):
         COCO_KEYPOINT_RESULT_1,
         COCO_KEYPOINT_RESULT_2,
         {
-            **COCO_KEYPOINT_RESULT_1,
             "image_id": 20,
+            "category_id": 1,
             "keypoints": [15, 25, 2, 35, 45, 2],
             "score": 0.7,
         },
