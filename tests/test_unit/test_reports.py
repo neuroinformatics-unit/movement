@@ -136,12 +136,22 @@ def test_report_nan_values_scalar_dims(
             does_not_raise({"expected": ["data", "1/3"]}),
         ),  # generic data array with required time dim
         (
+            "simple_data_array_without_nan",
+            lambda: xr.DataArray([1, 2, 3], dims="time"),
+            does_not_raise({"expected": ["No missing points"]}),
+        ),  # reduces to a 0-dimensional nan count, no dims left to drop along
+        (
             "invalid_data_array_with_nan",
             lambda: xr.DataArray([1, np.nan, 3], dims="dim1"),
             pytest.raises(ValueError, match=".*must contain.*time.*"),
         ),  # invalid data array without required time dim
     ],
-    ids=["separate_x_y_dims", "simple_data_array", "missing_time_dim"],
+    ids=[
+        "separate_x_y_dims",
+        "simple_data_array",
+        "simple_data_array_no_nan",
+        "missing_time_dim",
+    ],
 )
 def test_report_nan_values_arbitrary_dims(
     data, fetch_data, expectations, request
