@@ -1,5 +1,7 @@
 """Test suite for the load_poses module."""
 
+import warnings
+
 import numpy as np
 import pytest
 import xarray as xr
@@ -276,3 +278,209 @@ def test_load_from_nwb_file(input_type, kwargs, request):
     if input_type == "nwb_file":
         expected_attrs["source_file"] = nwb_file
     assert ds_from_file_path.attrs == expected_attrs
+
+
+def test_from_coco_file(coco_keypoint_results_file_valid):
+    """Test loading COCO keypoint results."""
+    ds = load_poses.from_coco_file(coco_keypoint_results_file_valid)
+
+    expected = xr.Dataset(
+        {
+            "position": (
+                ("time", "space", "keypoint", "individual"),
+                np.array(
+                    [
+                        [
+                            [[10, 50], [30, 70]],
+                            [[20, 60], [40, 80]],
+                        ],
+                        [
+                            [[15, np.nan], [35, np.nan]],
+                            [[25, np.nan], [45, np.nan]],
+                        ],
+                    ],
+                    dtype=np.float32,
+                ),
+            ),
+            "confidence": (
+                ("time", "individual"),
+                np.array(
+                    [
+                        [0.9, 0.8],
+                        [0.7, np.nan],
+                    ],
+                    dtype=np.float32,
+                ),
+            ),
+        },
+        coords={
+            "time": [0, 10],
+            "space": ["x", "y"],
+            "keypoint": ["keypoint_0", "keypoint_1"],
+            "individual": ["id_0", "id_1"],
+        },
+    )
+
+    xr.testing.assert_allclose(ds, expected)
+
+
+@pytest.mark.parametrize(
+    "with_annotations, category_as_track, expected_keypoints, "
+    "expected_individuals, expected_position",
+    [
+        pytest.param(
+            False,
+            False,
+            ["keypoint_0", "keypoint_1"],
+            ["id_0", "id_1"],
+            [
+                [[50, 10], [70, 30]],
+                [[60, 20], [80, 40]],
+            ],
+            id="without-annotations-positional",
+        ),
+        pytest.param(
+            False,
+            True,
+            ["keypoint_0", "keypoint_1"],
+            ["1", "2"],
+            [
+                [[10, 50], [30, 70]],
+                [[20, 60], [40, 80]],
+            ],
+            id="without-annotations-category-as-track",
+        ),
+        pytest.param(
+            True,
+            False,
+            ["nose", "left_eye"],
+            ["id_0", "id_1"],
+            [
+                [[50, 10], [70, 30]],
+                [[60, 20], [80, 40]],
+            ],
+            id="with-annotations-positional",
+        ),
+        pytest.param(
+            True,
+            True,
+            ["nose", "left_eye"],
+            ["person", "cat"],
+            [
+                [[10, 50], [30, 70]],
+                [[20, 60], [40, 80]],
+            ],
+            id="with-annotations-category-as-track",
+        ),
+    ],
+)
+def test_from_coco_file_naming_and_order(
+    coco_keypoint_results_file_categories_out_of_order,
+    coco_keypoint_annotations_file_valid,
+    with_annotations,
+    category_as_track,
+    expected_keypoints,
+    expected_individuals,
+    expected_position,
+):
+    """Test keypoint and individual naming and ordering for COCO files."""
+    annotations_file = (
+        coco_keypoint_annotations_file_valid if with_annotations else None
+    )
+
+    ds = load_poses.from_coco_file(
+        coco_keypoint_results_file_categories_out_of_order,
+        annotations_file=annotations_file,
+        category_as_track=category_as_track,
+    )
+
+    assert list(ds.keypoint.values) == expected_keypoints
+    assert list(ds.individual.values) == expected_individuals
+
+    np.testing.assert_allclose(
+        ds.position.values[0],
+        np.asarray(expected_position, dtype=np.float32),
+        equal_nan=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "fps, use_frame_numbers_from_file, expected_time",
+    [
+        pytest.param(None, False, [0, 10], id="frames"),
+        pytest.param(None, True, [10, 20], id="frames-from-file"),
+        pytest.param(10, False, [0.0, 1.0], id="seconds"),
+        pytest.param(10, True, [1.0, 2.0], id="seconds-from-file"),
+    ],
+)
+def test_from_coco_file_time(
+    coco_keypoint_results_file_valid,
+    fps,
+    use_frame_numbers_from_file,
+    expected_time,
+):
+    """Test that image IDs are mapped to time coordinates."""
+    ds = load_poses.from_coco_file(
+        coco_keypoint_results_file_valid,
+        fps=fps,
+        use_frame_numbers_from_file=use_frame_numbers_from_file,
+    )
+    np.testing.assert_allclose(ds.time.values, expected_time)
+
+
+def test_from_coco_file_duplicate_category(
+    coco_keypoint_results_file_duplicate_category,
+    coco_keypoint_annotations_file_valid,
+):
+    """Test that duplicate category detections raise an error."""
+    with pytest.raises(ValueError, match="multiple detections"):
+        load_poses.from_coco_file(
+            coco_keypoint_results_file_duplicate_category,
+            annotations_file=coco_keypoint_annotations_file_valid,
+            category_as_track=True,
+        )
+
+
+@pytest.mark.parametrize(
+    "results_fixture, category_as_track, expect_warning",
+    [
+        pytest.param(
+            "coco_keypoint_results_file_categories_out_of_order",
+            False,
+            True,
+            id="positional-multiple-detections",
+        ),
+        pytest.param(
+            "coco_keypoint_results_file_categories_out_of_order",
+            True,
+            False,
+            id="category-as-track",
+        ),
+        pytest.param(
+            "coco_keypoint_results_file_single_detection",
+            False,
+            False,
+            id="positional-single-detection",
+        ),
+    ],
+)
+def test_from_coco_file_multiple_detections_warning(
+    request,
+    category_as_track,
+    expect_warning,
+    results_fixture,
+):
+    """Test warning when positional assignment has multiple detections
+    otherwise no warning should be raised.
+    """
+    results_file = request.getfixturevalue(results_fixture)
+    expected_context = (
+        pytest.warns(UserWarning, match="cross-frame track identities")
+        if expect_warning
+        else warnings.catch_warnings(action="error")
+    )  # Convert unexpected warnings to errors when not expecting a warning
+    with expected_context:
+        load_poses.from_coco_file(
+            results_file,
+            category_as_track=category_as_track,
+        )

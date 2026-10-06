@@ -12,16 +12,19 @@ import jsonschema
 import numpy as np
 import orjson
 import pandas as pd
-from attrs import Attribute, define, field, validators
+from attrs import Attribute, converters, define, field, validators
 from pynwb import NWBFile
 
 from movement.utils.logging import logger
 from movement.validators._json_schemas import (
+    COCO_KEYPOINT_ANNOTATIONS_SCHEMA,
+    COCO_KEYPOINT_RESULTS_SCHEMA,
     ROI_COLLECTION_SCHEMA,
     ROI_TYPE_TO_GEOMETRY,
 )
 
 DEFAULT_FRAME_REGEXP = r"(0\d*)\.\w+$"
+JSON_SUFFIX = ".json"
 
 
 class ValidFile(Protocol):
@@ -211,7 +214,7 @@ def _hdf5_validator(
 
 def _json_validator(
     schema: Mapping[str, Any] | None = None,
-    custom_checks: tuple[Callable[[Mapping[str, Any]], None], ...] = (),
+    custom_checks: tuple[Callable[[Any], None], ...] = (),
     data_attr: str | None = None,
 ) -> Callable[[Any, Any, Path], None]:
     """Return a validator for JSON files.
@@ -923,6 +926,221 @@ class ValidNWBFile:
     """Path to the NWB file on disk (ending in ".nwb") or an NWBFile object."""
 
 
+def _check_coco_categories_keypoints(data: dict[str, Any]) -> None:
+    """Check that all COCO categories share the same keypoint names.
+
+    ``movement`` currently requires all individuals to share the same
+    set of keypoints, so all categories must define the same keypoint
+    names, in the same order.
+    """
+    keypoint_lists = {
+        tuple(category["keypoints"]) for category in data["categories"]
+    }
+    if len(keypoint_lists) > 1:
+        raise logger.error(
+            ValueError(
+                "All categories in the COCO annotations file must share "
+                "the same keypoint names, in the same order. movement "
+                "currently requires all individuals to share the same "
+                "set of keypoints."
+            )
+        )
+
+
+def _check_coco_keypoints_length(data: list[dict[str, Any]]) -> None:
+    """Check that all COCO keypoints arrays have the same length.
+
+    The length must be a multiple of 3, corresponding to
+    (x, y, visibility) for each keypoint.
+    """
+    keypoint_lengths = {len(item["keypoints"]) for item in data}
+
+    if len(keypoint_lengths) != 1:
+        raise logger.error(
+            ValueError("All COCO keypoints arrays must have the same length.")
+        )
+
+    keypoints_length = next(iter(keypoint_lengths))
+
+    if keypoints_length % 3 != 0:
+        raise logger.error(
+            ValueError(
+                "COCO keypoints arrays must have a length that is a "
+                "multiple of 3 (x, y, visibility for each keypoint)."
+            )
+        )
+
+
+@define
+class ValidCOCOKeypointResults:
+    """Class for validating COCO keypoint detection results (.json) files.
+
+    The validator ensures that the file:
+
+    - is well-formed JSON,
+    - contains a non-empty list of detections, each with the keys
+      required by the COCO
+      `results format <https://cocodataset.org/#format-results>`__, and
+    - contains keypoints arrays of the same length, which must be a
+      multiple of 3 (x, y, visibility for each keypoint).
+
+    COCO results identify categories only by ID and keypoints only by
+    position. An annotations file can be provided to resolve the category
+    and keypoint names. In that case, the validator additionally ensures
+    that:
+
+    - all categories referenced in the results are defined in the
+      annotations file, and
+    - the annotations file defines as many keypoint names as there are
+      keypoints in each detection.
+
+    The parsed results are stored in ``data``. If an annotations file is
+    provided, the category and keypoint names are also stored in
+    ``category_names`` and ``keypoint_names``.
+
+    Raises
+    ------
+    ValueError
+        If the file is not valid JSON, does not match the expected schema,
+        or is inconsistent with the annotations file.
+
+    """
+
+    suffixes: ClassVar[set[str]] = {JSON_SUFFIX}
+    """Expected suffix(es) for the file."""
+
+    schema: ClassVar[Mapping[str, Any]] = COCO_KEYPOINT_RESULTS_SCHEMA
+    """JSON schema for validating the structure of the COCO results file."""
+
+    file: Path = field(
+        converter=Path,
+        validator=validators.and_(
+            _file_validator(permission="r", suffixes=suffixes),
+            _json_validator(
+                schema=schema,
+                custom_checks=(_check_coco_keypoints_length,),
+                data_attr="data",
+            ),
+        ),
+    )
+    """Path to the COCO results JSON file to validate."""
+
+    data: list[dict[str, Any]] = field(init=False)
+    """Parsed COCO results data."""
+
+    annotations_file: Path | None = field(
+        default=None, converter=converters.optional(Path)
+    )
+    """Optional path to a COCO keypoint detection annotations JSON file,
+    used to resolve category and keypoint names."""
+
+    category_names: dict[int, str] | None = field(init=False, default=None)
+    """Category names keyed by category ID from the annotations file,
+    if provided."""
+
+    keypoint_names: list[str] | None = field(init=False, default=None)
+    """Keypoint names from the annotations file, if provided."""
+
+    def __attrs_post_init__(self) -> None:
+        """Validate results against the annotations file, if provided."""
+        if self.annotations_file is None:
+            return
+
+        annotations = ValidCOCOKeypointAnnotations(file=self.annotations_file)
+        categories = annotations.categories
+
+        result_category_ids = {result["category_id"] for result in self.data}
+
+        missing_categories = result_category_ids - categories.keys()
+
+        if missing_categories:
+            raise logger.error(
+                ValueError(
+                    "COCO results reference category IDs that are not "
+                    "present in the annotations file. Missing category IDs: "
+                    f"{missing_categories}"
+                )
+            )
+
+        self.category_names = {
+            cid: category["name"] for cid, category in categories.items()
+        }
+
+        self.keypoint_names = annotations.keypoint_names
+
+        # All results have the same keypoint count, so only check first result
+        if len(self.keypoint_names) != len(self.data[0]["keypoints"]) // 3:
+            raise logger.error(
+                ValueError(
+                    "COCO results keypoint count does not match "
+                    "the keypoint count in the annotations file."
+                )
+            )
+
+
+@define
+class ValidCOCOKeypointAnnotations:
+    """Class for validating COCO keypoint annotations (.json) files.
+
+    The validator ensures that the file:
+
+    - is well-formed JSON,
+    - contains the ``images``, ``annotations`` and ``categories`` lists,
+      each with the keys required by the COCO
+      `annotations format <https://cocodataset.org/#format-data>`__,
+    - defines at least one category, each with a non-empty list of
+      keypoint names, and
+    - defines the same keypoint names, in the same order, for all
+      categories, as ``movement`` currently requires all individuals
+      to share the same set of keypoints.
+
+    The parsed annotations are stored in ``data``. The categories are
+    accessible by ID via ``categories``, and the shared keypoint names
+    via ``keypoint_names``.
+
+    Raises
+    ------
+    ValueError
+        If the file is not valid JSON or does not match the expected schema.
+
+    """
+
+    suffixes: ClassVar[set[str]] = {JSON_SUFFIX}
+    """Expected suffix(es) for the file."""
+
+    schema: ClassVar[Mapping[str, Any]] = COCO_KEYPOINT_ANNOTATIONS_SCHEMA
+    """JSON schema for validating the structure of the COCO
+    annotations file."""
+
+    file: Path = field(
+        converter=Path,
+        validator=validators.and_(
+            _file_validator(permission="r", suffixes=suffixes),
+            _json_validator(
+                schema=schema,
+                custom_checks=(_check_coco_categories_keypoints,),
+                data_attr="data",
+            ),
+        ),
+    )
+    """Path to the COCO annotations JSON file to validate."""
+
+    data: dict[str, Any] = field(init=False)
+    """Parsed COCO annotations data."""
+
+    @property
+    def categories(self) -> dict[int, dict[str, Any]]:
+        """COCO categories from the annotations file, keyed by ID."""
+        return {
+            category["id"]: category for category in self.data["categories"]
+        }
+
+    @property
+    def keypoint_names(self) -> list[str]:
+        """Keypoint names shared by all COCO categories."""
+        return self.data["categories"][0]["keypoints"]
+
+
 def _check_roi_type_matches_geometry(data: Mapping[str, Any]) -> None:
     """Ensure ``roi_type`` properties match the GeoJSON geometry types.
 
@@ -979,7 +1197,7 @@ class ValidROICollectionGeoJSON:
 
     """
 
-    suffixes: ClassVar[set[str]] = {".geojson", ".json"}
+    suffixes: ClassVar[set[str]] = {".geojson", JSON_SUFFIX}
     """Expected suffix(es) for the file."""
 
     schema: ClassVar[Mapping[str, Any]] = ROI_COLLECTION_SCHEMA
