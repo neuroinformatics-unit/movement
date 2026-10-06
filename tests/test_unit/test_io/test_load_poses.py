@@ -1,5 +1,7 @@
 """Test suite for the load_poses module."""
 
+import warnings
+
 import numpy as np
 import pytest
 import xarray as xr
@@ -455,22 +457,19 @@ def test_from_coco_file_multiple_detections_warning(
     request,
     category_as_track,
     expect_warning,
-    recwarn,
     results_fixture,
 ):
-    """Test warning when positional assignment has multiple detections."""
+    """Test warning when positional assignment has multiple detections
+    otherwise no warning should be raised.
+    """
     results_file = request.getfixturevalue(results_fixture)
-
-    load_poses.from_coco_file(
-        results_file,
-        category_as_track=category_as_track,
-    )
-
-    if expect_warning:
-        assert len(recwarn) == 1
-        assert (
-            "COCO results do not contain cross-frame track identities."
-            in str(recwarn[0].message)
+    expected_context = (
+        pytest.warns(UserWarning, match="cross-frame track identities")
+        if expect_warning
+        else warnings.catch_warnings(action="error")
+    )  # Convert unexpected warnings to errors when not expecting a warning
+    with expected_context:
+        load_poses.from_coco_file(
+            results_file,
+            category_as_track=category_as_track,
         )
-    else:
-        assert len(recwarn) == 0
