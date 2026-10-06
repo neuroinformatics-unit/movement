@@ -7,10 +7,14 @@
 [Adam Tyson](https://github.com/adamltyson).
 See [Governance](target-governance) for what the roles below mean and how to take them on.
 
-The currently active **maintainers** are:
-- [Niko Sirmpilatze](https://github.com/niksirbi)
-- [Chang Huan Lo](https://github.com/lochhh)
-- [Sofía Miñano](https://github.com/sfmig)
+The currently active `movement` development team consists of:
+
+| Name | Role |
+| --- | --- |
+| [Niko Sirmpilatze](https://github.com/niksirbi) | Maintainer |
+| [Chang Huan Lo](https://github.com/lochhh) | Maintainer |
+| [Sofía Miñano](https://github.com/sfmig) | Maintainer |
+| [Anna Teruel](htttps://github.com/anna-teruel) | Team member |
 
 ## Collaborations
 We are eager to explore collaboration opportunities with research labs and research software engineering teams.
