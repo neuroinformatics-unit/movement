@@ -2,12 +2,12 @@
 # People
 
 ## Leadership
-`movement` is led by the [Neuroinformatics Unit](https://neuroinformatics.dev/) at the
+`movement` is currently led by the [Neuroinformatics Unit](https://neuroinformatics.dev/) at the
 [Sainsbury Wellcome Centre](https://www.sainsburywellcome.org/web/) by [Niko Sirmpilatze](https://github.com/niksirbi) and
 [Adam Tyson](https://github.com/adamltyson).
 See [Governance](target-governance) for what the roles below mean and how to take them on.
 
-The currently active `movement` development team consists of:
+The `movement` development team currently consists of:
 
 | Name | Role |
 | --- | --- |
