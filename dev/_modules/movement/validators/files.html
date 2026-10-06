@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=3aad51d7"></script>
+    <script src="../../../_static/documentation_options.js?v=9ed5d5ce"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -140,7 +140,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev58</p>
+    <p class="title logo__title">movement v0.17.1.dev59</p>
   
 </a></div>
     
@@ -490,16 +490,19 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">orjson</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">define</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">validators</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">attrs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">converters</span><span class="p">,</span> <span class="n">define</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">validators</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pynwb</span><span class="w"> </span><span class="kn">import</span> <span class="n">NWBFile</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators._json_schemas</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">COCO_KEYPOINT_ANNOTATIONS_SCHEMA</span><span class="p">,</span>
+    <span class="n">COCO_KEYPOINT_RESULTS_SCHEMA</span><span class="p">,</span>
     <span class="n">ROI_COLLECTION_SCHEMA</span><span class="p">,</span>
     <span class="n">ROI_TYPE_TO_GEOMETRY</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">DEFAULT_FRAME_REGEXP</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"(0\d*)\.\w+$"</span>
+<span class="n">JSON_SUFFIX</span> <span class="o">=</span> <span class="s2">".json"</span>
 
 
 <div class="viewcode-block" id="ValidFile">
@@ -692,7 +695,7 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_json_validator</span><span class="p">(</span>
     <span class="n">schema</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">custom_checks</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+    <span class="n">custom_checks</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">],</span> <span class="kc">None</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
     <span class="n">data_attr</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Any</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="kc">None</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Return a validator for JSON files.</span>
@@ -1428,6 +1431,227 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_coco_categories_keypoints</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Check that all COCO categories share the same keypoint names.</span>
+
+<span class="sd">    ``movement`` currently requires all individuals to share the same</span>
+<span class="sd">    set of keypoints, so all categories must define the same keypoint</span>
+<span class="sd">    names, in the same order.</span>
+<span class="sd">    """</span>
+    <span class="n">keypoint_lists</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">tuple</span><span class="p">(</span><span class="n">category</span><span class="p">[</span><span class="s2">"keypoints"</span><span class="p">])</span> <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">"categories"</span><span class="p">]</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keypoint_lists</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"All categories in the COCO annotations file must share "</span>
+                <span class="s2">"the same keypoint names, in the same order. movement "</span>
+                <span class="s2">"currently requires all individuals to share the same "</span>
+                <span class="s2">"set of keypoints."</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_coco_keypoints_length</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Check that all COCO keypoints arrays have the same length.</span>
+
+<span class="sd">    The length must be a multiple of 3, corresponding to</span>
+<span class="sd">    (x, y, visibility) for each keypoint.</span>
+<span class="sd">    """</span>
+    <span class="n">keypoint_lengths</span> <span class="o">=</span> <span class="p">{</span><span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">"keypoints"</span><span class="p">])</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">keypoint_lengths</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"All COCO keypoints arrays must have the same length."</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="n">keypoints_length</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">keypoint_lengths</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">keypoints_length</span> <span class="o">%</span> <span class="mi">3</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"COCO keypoints arrays must have a length that is a "</span>
+                <span class="s2">"multiple of 3 (x, y, visibility for each keypoint)."</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="ValidCOCOKeypointResults">
+<a class="viewcode-back" href="../../../api/movement.validators.files.ValidCOCOKeypointResults.html#movement.validators.files.ValidCOCOKeypointResults">[docs]</a>
+<span class="nd">@define</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidCOCOKeypointResults</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Class for validating COCO keypoint detection results (.json) files.</span>
+
+<span class="sd">    The validator ensures that the file:</span>
+
+<span class="sd">    - is well-formed JSON,</span>
+<span class="sd">    - contains a non-empty list of detections, each with the keys</span>
+<span class="sd">      required by the COCO</span>
+<span class="sd">      `results format &lt;https://cocodataset.org/#format-results&gt;`__, and</span>
+<span class="sd">    - contains keypoints arrays of the same length, which must be a</span>
+<span class="sd">      multiple of 3 (x, y, visibility for each keypoint).</span>
+
+<span class="sd">    COCO results identify categories only by ID and keypoints only by</span>
+<span class="sd">    position. An annotations file can be provided to resolve the category</span>
+<span class="sd">    and keypoint names. In that case, the validator additionally ensures</span>
+<span class="sd">    that:</span>
+
+<span class="sd">    - all categories referenced in the results are defined in the</span>
+<span class="sd">      annotations file, and</span>
+<span class="sd">    - the annotations file defines as many keypoint names as there are</span>
+<span class="sd">      keypoints in each detection.</span>
+
+<span class="sd">    The parsed results are stored in ``data``. If an annotations file is</span>
+<span class="sd">    provided, the category and keypoint names are also stored in</span>
+<span class="sd">    ``category_names`` and ``keypoint_names``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the file is not valid JSON, does not match the expected schema,</span>
+<span class="sd">        or is inconsistent with the annotations file.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="n">JSON_SUFFIX</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">"""Expected suffix(es) for the file."""</span>
+
+    <span class="n">schema</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">COCO_KEYPOINT_RESULTS_SCHEMA</span>
+<span class="w">    </span><span class="sd">"""JSON schema for validating the structure of the COCO results file."""</span>
+
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
+            <span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">"r"</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
+            <span class="n">_json_validator</span><span class="p">(</span>
+                <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
+                <span class="n">custom_checks</span><span class="o">=</span><span class="p">(</span><span class="n">_check_coco_keypoints_length</span><span class="p">,),</span>
+                <span class="n">data_attr</span><span class="o">=</span><span class="s2">"data"</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Path to the COCO results JSON file to validate."""</span>
+
+    <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Parsed COCO results data."""</span>
+
+    <span class="n">annotations_file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">converter</span><span class="o">=</span><span class="n">converters</span><span class="o">.</span><span class="n">optional</span><span class="p">(</span><span class="n">Path</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Optional path to a COCO keypoint detection annotations JSON file,</span>
+<span class="sd">    used to resolve category and keypoint names."""</span>
+
+    <span class="n">category_names</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Category names keyed by category ID from the annotations file,</span>
+<span class="sd">    if provided."""</span>
+
+    <span class="n">keypoint_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Keypoint names from the annotations file, if provided."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__attrs_post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Validate results against the annotations file, if provided."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">annotations_file</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">annotations</span> <span class="o">=</span> <span class="n">ValidCOCOKeypointAnnotations</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">annotations_file</span><span class="p">)</span>
+        <span class="n">categories</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">categories</span>
+
+        <span class="n">result_category_ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">result</span><span class="p">[</span><span class="s2">"category_id"</span><span class="p">]</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">}</span>
+
+        <span class="n">missing_categories</span> <span class="o">=</span> <span class="n">result_category_ids</span> <span class="o">-</span> <span class="n">categories</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">missing_categories</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"COCO results reference category IDs that are not "</span>
+                    <span class="s2">"present in the annotations file. Missing category IDs: "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">missing_categories</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">category_names</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">cid</span><span class="p">:</span> <span class="n">category</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="k">for</span> <span class="n">cid</span><span class="p">,</span> <span class="n">category</span> <span class="ow">in</span> <span class="n">categories</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">keypoint_names</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">keypoint_names</span>
+
+        <span class="c1"># All results have the same keypoint count, so only check first result</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keypoint_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"keypoints"</span><span class="p">])</span> <span class="o">//</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"COCO results keypoint count does not match "</span>
+                    <span class="s2">"the keypoint count in the annotations file."</span>
+                <span class="p">)</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ValidCOCOKeypointAnnotations">
+<a class="viewcode-back" href="../../../api/movement.validators.files.ValidCOCOKeypointAnnotations.html#movement.validators.files.ValidCOCOKeypointAnnotations">[docs]</a>
+<span class="nd">@define</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidCOCOKeypointAnnotations</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Class for validating COCO keypoint annotations (.json) files.</span>
+
+<span class="sd">    The validator ensures that the file:</span>
+
+<span class="sd">    - is well-formed JSON,</span>
+<span class="sd">    - contains the ``images``, ``annotations`` and ``categories`` lists,</span>
+<span class="sd">      each with the keys required by the COCO</span>
+<span class="sd">      `annotations format &lt;https://cocodataset.org/#format-data&gt;`__,</span>
+<span class="sd">    - defines at least one category, each with a non-empty list of</span>
+<span class="sd">      keypoint names, and</span>
+<span class="sd">    - defines the same keypoint names, in the same order, for all</span>
+<span class="sd">      categories, as ``movement`` currently requires all individuals</span>
+<span class="sd">      to share the same set of keypoints.</span>
+
+<span class="sd">    The parsed annotations are stored in ``data``. The categories are</span>
+<span class="sd">    accessible by ID via ``categories``, and the shared keypoint names</span>
+<span class="sd">    via ``keypoint_names``.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the file is not valid JSON or does not match the expected schema.</span>
+
+<span class="sd">    """</span>
+
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="n">JSON_SUFFIX</span><span class="p">}</span>
+<span class="w">    </span><span class="sd">"""Expected suffix(es) for the file."""</span>
+
+    <span class="n">schema</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">COCO_KEYPOINT_ANNOTATIONS_SCHEMA</span>
+<span class="w">    </span><span class="sd">"""JSON schema for validating the structure of the COCO</span>
+<span class="sd">    annotations file."""</span>
+
+    <span class="n">file</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">converter</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">validators</span><span class="o">.</span><span class="n">and_</span><span class="p">(</span>
+            <span class="n">_file_validator</span><span class="p">(</span><span class="n">permission</span><span class="o">=</span><span class="s2">"r"</span><span class="p">,</span> <span class="n">suffixes</span><span class="o">=</span><span class="n">suffixes</span><span class="p">),</span>
+            <span class="n">_json_validator</span><span class="p">(</span>
+                <span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">,</span>
+                <span class="n">custom_checks</span><span class="o">=</span><span class="p">(</span><span class="n">_check_coco_categories_keypoints</span><span class="p">,),</span>
+                <span class="n">data_attr</span><span class="o">=</span><span class="s2">"data"</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Path to the COCO annotations JSON file to validate."""</span>
+
+    <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Parsed COCO annotations data."""</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">categories</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">"""COCO categories from the annotations file, keyed by ID."""</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">category</span><span class="p">[</span><span class="s2">"id"</span><span class="p">]:</span> <span class="n">category</span> <span class="k">for</span> <span class="n">category</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">"categories"</span><span class="p">]</span>
+        <span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">keypoint_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Keypoint names shared by all COCO categories."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s2">"categories"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"keypoints"</span><span class="p">]</span></div>
+
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_check_roi_type_matches_geometry</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Ensure ``roi_type`` properties match the GeoJSON geometry types.</span>
 
@@ -1486,7 +1710,7 @@
 
 <span class="sd">    """</span>
 
-    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">".geojson"</span><span class="p">,</span> <span class="s2">".json"</span><span class="p">}</span>
+    <span class="n">suffixes</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">".geojson"</span><span class="p">,</span> <span class="n">JSON_SUFFIX</span><span class="p">}</span>
 <span class="w">    </span><span class="sd">"""Expected suffix(es) for the file."""</span>
 
     <span class="n">schema</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="n">ROI_COLLECTION_SCHEMA</span>

@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=3aad51d7"></script>
+    <script src="../../../_static/documentation_options.js?v=9ed5d5ce"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -140,7 +140,7 @@
     <img src="../../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev58</p>
+    <p class="title logo__title">movement v0.17.1.dev59</p>
   
 </a></div>
     
@@ -478,6 +478,7 @@
                    <h1>Source code for movement.io.load_poses</h1><div class="highlight"><pre>
 <span></span><span class="sd">"""Load pose tracking data from various frameworks into ``movement``."""</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">cast</span>
 
@@ -494,6 +495,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidPosesInputs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">movement.validators.files</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ValidAniposeCSV</span><span class="p">,</span>
+    <span class="n">ValidCOCOKeypointResults</span><span class="p">,</span>
     <span class="n">ValidDeepLabCutCSV</span><span class="p">,</span>
     <span class="n">ValidDeepLabCutH5</span><span class="p">,</span>
     <span class="n">ValidFile</span><span class="p">,</span>
@@ -868,6 +870,241 @@
         <span class="n">source_software</span><span class="o">=</span><span class="s2">"DeepLabCut"</span><span class="p">,</span>
         <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
     <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_coco_individuals_from_categories</span><span class="p">(</span>
+    <span class="n">frame_idx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">category_ids</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">category_names</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""Use each COCO category as one individual across frames.</span>
+
+<span class="sd">    Only categories present in the results become individuals.</span>
+<span class="sd">    Returns the individual index of each detection and the individual</span>
+<span class="sd">    names, in sorted category ID order.</span>
+<span class="sd">    """</span>
+    <span class="n">track_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">category_ids</span><span class="p">)</span>
+    <span class="c1"># Index of each detection's category_id in track_ids</span>
+    <span class="n">individual_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">track_ids</span><span class="p">,</span> <span class="n">category_ids</span><span class="p">)</span>
+    <span class="c1"># Encode each (frame, individual) slot as a single integer</span>
+    <span class="c1"># (its flat index in an n_frames x n_individuals grid) for</span>
+    <span class="c1"># checking duplicates (i.e. same individual detected multiple</span>
+    <span class="c1"># times in a frame).</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="n">frame_idx</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">track_ids</span><span class="p">)</span> <span class="o">+</span> <span class="n">individual_idx</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">pairs</span><span class="p">))</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">pairs</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">"COCO results contain multiple detections of the same "</span>
+                <span class="s2">"category_id in the same image_id. Set "</span>
+                <span class="s2">"category_as_track=False if categories do not "</span>
+                <span class="s2">"identify individuals."</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">individual_names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">category_names</span><span class="p">[</span><span class="n">track_id</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">category_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">track_id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">track_id</span> <span class="ow">in</span> <span class="n">track_ids</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">individual_idx</span><span class="p">,</span> <span class="n">individual_names</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_coco_individuals_by_position</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Assign COCO detections to individuals by order within each frame.</span>
+
+<span class="sd">    Returns the individual index of each detection: the 1st detection</span>
+<span class="sd">    of a frame (in file order) is individual 0, the 2nd is individual 1,</span>
+<span class="sd">    etc.</span>
+<span class="sd">    """</span>
+    <span class="n">individual_idx</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">)</span><span class="o">.</span><span class="n">cumcount</span><span class="p">()</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">individual_idx</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">"COCO results do not contain cross-frame track identities. "</span>
+            <span class="s2">"Individuals are assigned positionally within each frame, "</span>
+            <span class="s2">"so identity is not guaranteed to remain stable across frames."</span><span class="p">,</span>
+            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">individual_idx</span>
+
+
+<div class="viewcode-block" id="from_coco_file">
+<a class="viewcode-back" href="../../../api/movement.io.load_poses.from_coco_file.html#movement.io.load_poses.from_coco_file">[docs]</a>
+<span class="nd">@register_loader</span><span class="p">(</span><span class="s2">"COCO"</span><span class="p">,</span> <span class="n">file_validators</span><span class="o">=</span><span class="p">[</span><span class="n">ValidCOCOKeypointResults</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">from_coco_file</span><span class="p">(</span>
+    <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">fps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">annotations_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">category_as_track</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">use_frame_numbers_from_file</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Create a ``movement`` poses dataset from a COCO keypoint results file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file</span>
+<span class="sd">        Path to the COCO keypoint detection</span>
+<span class="sd">        `results &lt;https://cocodataset.org/#format-results&gt;`__ JSON file.</span>
+<span class="sd">    fps</span>
+<span class="sd">        Frames per second. If None (default), ``time`` coordinates are frame</span>
+<span class="sd">        numbers.</span>
+<span class="sd">    annotations_file</span>
+<span class="sd">        Optional path to a COCO</span>
+<span class="sd">        `annotations &lt;https://cocodataset.org/#format-data&gt;`__ JSON file,</span>
+<span class="sd">        used for keypoint and individual names (see Notes).</span>
+<span class="sd">    category_as_track</span>
+<span class="sd">        If True, treat each ``category_id`` as one individual tracked</span>
+<span class="sd">        across frames. If False (default), assign individuals by order of</span>
+<span class="sd">        detection within each frame (see Notes).</span>
+<span class="sd">    use_frame_numbers_from_file</span>
+<span class="sd">        Frame numbers are taken from the ``image_id`` of each detection.</span>
+<span class="sd">        If False (default), frame numbers are offset so that the lowest</span>
+<span class="sd">        image ID becomes frame 0. If True, frame numbers are kept as the</span>
+<span class="sd">        image IDs in the file. This may be useful if only a subset of the</span>
+<span class="sd">        video's frames were processed, but you want to keep the start of</span>
+<span class="sd">        the video as the time origin. In both cases, the spacing between</span>
+<span class="sd">        images is preserved, so any gaps show up in the ``time``</span>
+<span class="sd">        coordinates. For example, image IDs ``[5, 6, 9]`` in the file</span>
+<span class="sd">        become ``[0, 1, 4]`` by default and remain ``[5, 6, 9]`` if True.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    xarray.Dataset</span>
+<span class="sd">        ``movement`` pose tracks and confidence scores.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    COCO keypoint results do not contain track identities. By default,</span>
+<span class="sd">    the ``i``-th detection of each image (in file order) is assigned to</span>
+<span class="sd">    individual ``i`` (named ``id_i``), so an individual does not</span>
+<span class="sd">    necessarily correspond to the same animal across frames. How to</span>
+<span class="sd">    handle this depends on your data:</span>
+
+<span class="sd">    - **One animal per frame**: no action needed, all detections are</span>
+<span class="sd">      assigned to ``id_0``.</span>
+<span class="sd">    - **Multiple animals, one category per animal**: set</span>
+<span class="sd">      ``category_as_track=True``.</span>
+<span class="sd">      Each category present in the results then becomes one individual,</span>
+<span class="sd">      named after the category if ``annotations_file`` is provided, or</span>
+<span class="sd">      after its ``category_id`` (e.g. ``"3"``) otherwise. Multiple</span>
+<span class="sd">      detections of the same category in the same image raise a</span>
+<span class="sd">      ``ValueError``.</span>
+<span class="sd">    - **Multiple animals sharing a category**: identities are not</span>
+<span class="sd">      reliable across frames. Assign them with a tracking tool before</span>
+<span class="sd">      analyses that follow individuals over time (e.g. kinematics),</span>
+<span class="sd">      and load the tracked output instead of the raw COCO results.</span>
+
+<span class="sd">    In ``movement``, pose data can currently only be loaded if all</span>
+<span class="sd">    individuals share the same set of keypoints. All detections in the</span>
+<span class="sd">    results must therefore have the same number of keypoints. If</span>
+<span class="sd">    ``annotations_file`` is provided, all its categories must also have</span>
+<span class="sd">    the same ``keypoints`` list (same names, in the same order), with</span>
+<span class="sd">    one name per keypoint in each detection.</span>
+<span class="sd">    Otherwise, a ``ValueError`` is raised. Without an annotations file,</span>
+<span class="sd">    keypoints are assigned default names ``keypoint_0``, ``keypoint_1``,</span>
+<span class="sd">    etc. in file order.</span>
+
+<span class="sd">    Each keypoint in COCO results is stored as ``(x, y, v)``, where ``v``</span>
+<span class="sd">    is a visibility flag. As COCO recommends setting ``v=1`` for all</span>
+<span class="sd">    predicted keypoints, ``v`` carries no information in results files</span>
+<span class="sd">    and is discarded. Only ``x`` and ``y`` are loaded as ``position``.</span>
+<span class="sd">    The per-detection ``score`` is loaded as individual-wise</span>
+<span class="sd">    ``confidence``, with dimensions ``(time, individual)``.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Create a dataset from the COCO results file at "path/to/results.json",</span>
+<span class="sd">    with the time coordinates in seconds, and the keypoints named after</span>
+<span class="sd">    the categories in the annotations file at "path/to/annotations.json".</span>
+
+<span class="sd">    &gt;&gt;&gt; from movement.io import load_poses</span>
+<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_coco_file(</span>
+<span class="sd">    ...     "path/to/results.json",</span>
+<span class="sd">    ...     fps=30,</span>
+<span class="sd">    ...     annotations_file="path/to/annotations.json",</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a dataset where each category identifies one individual tracked</span>
+<span class="sd">    across frames, with individuals named after the categories in the</span>
+<span class="sd">    annotations file.</span>
+
+<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_coco_file(</span>
+<span class="sd">    ...     "path/to/results.json",</span>
+<span class="sd">    ...     annotations_file="path/to/annotations.json",</span>
+<span class="sd">    ...     category_as_track=True,</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    Create a dataset using the image IDs as frame numbers, so that</span>
+<span class="sd">    t = 0 seconds corresponds to image ID 0 (e.g. the first frame of the</span>
+<span class="sd">    full video).</span>
+
+<span class="sd">    &gt;&gt;&gt; ds = load_poses.from_coco_file(</span>
+<span class="sd">    ...     "path/to/results.json",</span>
+<span class="sd">    ...     fps=30,</span>
+<span class="sd">    ...     use_frame_numbers_from_file=True,</span>
+<span class="sd">    ... )</span>
+
+<span class="sd">    """</span>
+    <span class="n">valid_results</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"ValidCOCOKeypointResults"</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">valid_results</span><span class="o">.</span><span class="n">data</span>
+    <span class="n">category_names</span> <span class="o">=</span> <span class="n">valid_results</span><span class="o">.</span><span class="n">category_names</span>
+    <span class="n">keypoint_names</span> <span class="o">=</span> <span class="n">valid_results</span><span class="o">.</span><span class="n">keypoint_names</span>
+
+    <span class="n">image_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">result</span><span class="p">[</span><span class="s2">"image_id"</span><span class="p">]</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">])</span>
+    <span class="n">category_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">result</span><span class="p">[</span><span class="s2">"category_id"</span><span class="p">]</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">])</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">result</span><span class="p">[</span><span class="s2">"score"</span><span class="p">]</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="c1"># (n_detections, n_keypoints, 3), where 3 is (x, y, visibility)</span>
+    <span class="n">keypoints</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">result</span><span class="p">[</span><span class="s2">"keypoints"</span><span class="p">]</span> <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="c1"># Locate each detection d in the output arrays by a</span>
+    <span class="c1"># (frame_idx[d], individual_idx[d]) slot.</span>
+    <span class="c1"># frame_ids: sorted unique image IDs, used as the time axis.</span>
+    <span class="c1"># frame_idx: row of each detection in frame_ids, so that</span>
+    <span class="c1"># frame_ids[frame_idx[d]] == image_ids[d].</span>
+    <span class="n">frame_ids</span><span class="p">,</span> <span class="n">frame_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">image_ids</span><span class="p">,</span> <span class="n">return_inverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">category_as_track</span><span class="p">:</span>
+        <span class="n">individual_idx</span><span class="p">,</span> <span class="n">individual_names</span> <span class="o">=</span> <span class="n">_coco_individuals_from_categories</span><span class="p">(</span>
+            <span class="n">frame_idx</span><span class="p">,</span> <span class="n">category_ids</span><span class="p">,</span> <span class="n">category_names</span>
+        <span class="p">)</span>
+        <span class="n">n_individuals</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">individual_names</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">individual_idx</span> <span class="o">=</span> <span class="n">_coco_individuals_by_position</span><span class="p">(</span><span class="n">frame_idx</span><span class="p">)</span>
+        <span class="n">individual_names</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">n_individuals</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">individual_idx</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="n">n_frames</span><span class="p">,</span> <span class="n">n_keypoints</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame_ids</span><span class="p">),</span> <span class="n">keypoints</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">position_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">n_frames</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">n_keypoints</span><span class="p">,</span> <span class="n">n_individuals</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span>
+    <span class="p">)</span>
+    <span class="n">position_array</span><span class="p">[</span><span class="n">frame_idx</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="n">individual_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">keypoints</span><span class="p">[</span>
+        <span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="mi">2</span>
+    <span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># to (n_detections, 2, n_keypoints)</span>
+
+    <span class="n">confidence_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_frames</span><span class="p">,</span> <span class="n">n_individuals</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">confidence_array</span><span class="p">[</span><span class="n">frame_idx</span><span class="p">,</span> <span class="n">individual_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">scores</span>
+
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">from_numpy</span><span class="p">(</span>
+        <span class="n">position_array</span><span class="o">=</span><span class="n">position_array</span><span class="p">,</span>
+        <span class="n">confidence_array</span><span class="o">=</span><span class="n">confidence_array</span><span class="p">,</span>
+        <span class="n">individual_names</span><span class="o">=</span><span class="n">individual_names</span><span class="p">,</span>
+        <span class="n">keypoint_names</span><span class="o">=</span><span class="n">keypoint_names</span><span class="p">,</span>
+        <span class="n">frame_array</span><span class="o">=</span><span class="p">(</span>
+            <span class="n">frame_ids</span>
+            <span class="k">if</span> <span class="n">use_frame_numbers_from_file</span>
+            <span class="k">else</span> <span class="n">frame_ids</span> <span class="o">-</span> <span class="n">frame_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">fps</span><span class="o">=</span><span class="n">fps</span><span class="p">,</span>
+        <span class="n">source_software</span><span class="o">=</span><span class="s2">"COCO"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"source_file"</span><span class="p">]</span> <span class="o">=</span> <span class="n">valid_results</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loaded pose tracks from </span><span class="si">{</span><span class="n">valid_results</span><span class="o">.</span><span class="n">file</span><span class="si">}</span><span class="s2">:</span><span class="se">\n</span><span class="si">{</span><span class="n">ds</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ds</span></div>
 
 
 

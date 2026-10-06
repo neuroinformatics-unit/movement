@@ -20,6 +20,8 @@
     
     from_anipose_style_df
     
+    from_coco_file
+    
     from_dlc_file
     
     from_dlc_style_df

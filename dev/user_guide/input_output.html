@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=3aad51d7"></script>
+    <script src="../_static/documentation_options.js?v=9ed5d5ce"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -143,7 +143,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev58</p>
+    <p class="title logo__title">movement v0.17.1.dev59</p>
   
 </a></div>
     
@@ -562,19 +562,25 @@ and can be <a class="reference internal" href="#target-loading-any-format"><span
 <td><p>Pose</p></td>
 <td><p>Load</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/#">VGG Image Annotator</a></p></td>
+<tr class="row-even"><td><p><a class="reference external" href="https://cocodataset.org/#">COCO</a></p></td>
+<td><p>COCO</p></td>
+<td><p>COCO keypoint detection <a class="reference external" href="https://cocodataset.org/#format-results">results</a> <code class="docutils literal notranslate"><span class="pre">.json</span></code> file, optionally with a COCO <a class="reference external" href="https://cocodataset.org/#format-data">annotations</a> <code class="docutils literal notranslate"><span class="pre">.json</span></code> file</p></td>
+<td><p>Pose</p></td>
+<td><p>Load</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/#">VGG Image Annotator</a></p></td>
 <td><p>VIA</p></td>
 <td><p>.csv file for <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html#">tracks annotation</a></p></td>
 <td><p>Bounding box</p></td>
 <td><p>Load &amp; Save</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference external" href="https://nwb-overview.readthedocs.io/en/latest/">Neurodata Without Borders</a></p></td>
+<tr class="row-even"><td><p><a class="reference external" href="https://nwb-overview.readthedocs.io/en/latest/">Neurodata Without Borders</a></p></td>
 <td><p>NWB</p></td>
 <td><p>.nwb file or NWBFile object with the <a class="reference external" href="https://github.com/rly/ndx-pose">ndx-pose extension</a></p></td>
 <td><p>Pose</p></td>
 <td><p>Load &amp; Save</p></td>
 </tr>
-<tr class="row-even"><td><p>Any</p></td>
+<tr class="row-odd"><td><p>Any</p></td>
 <td><p></p></td>
 <td><p>Numpy arrays</p></td>
 <td><p>Pose or Bounding box</p></td>
@@ -718,6 +724,28 @@ Anipose</label><div class="sd-tab-content docutils">
 </div>
 <input id="sd-tab-item-4" name="sd-tab-set-0" type="radio">
 <label class="sd-tab-label" for="sd-tab-item-4">
+COCO</label><div class="sd-tab-content docutils">
+<p>To load <a class="reference external" href="https://cocodataset.org/#format-results">COCO keypoint detection results files</a> in .json format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_coco_file</span><span class="p">(</span><span class="s2">"/path/to/results.json"</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>COCO results files store keypoints as unnamed coordinate lists, so keypoints are assigned default names <code class="docutils literal notranslate"><span class="pre">keypoint_0</span></code>, <code class="docutils literal notranslate"><span class="pre">keypoint_1</span></code>, etc. in the resulting dataset.
+To use the keypoint names defined for each category instead, you can also provide the corresponding <a class="reference external" href="https://cocodataset.org/#format-data">COCO annotations file</a> in .json format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_coco_file</span><span class="p">(</span>
+    <span class="s2">"/path/to/results.json"</span><span class="p">,</span>
+    <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">annotations_file</span><span class="o">=</span><span class="s2">"/path/to/annotations.json"</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>COCO keypoint results do not contain track identities, so when there are multiple animals per frame, individuals may not correspond to the same animal across frames.
+See <a class="reference internal" href="../api/movement.io.load_poses.from_coco_file.html#movement.io.load_poses.from_coco_file" title="movement.io.load_poses.from_coco_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_coco_file()</span></code></a> for ways to handle this, and for further options such as using image IDs as frame numbers.</p>
+</div>
+</div>
+<input id="sd-tab-item-5" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-5">
 NWB</label><div class="sd-tab-content docutils">
 <p>To load NWB files in .nwb format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_poses</span><span class="o">.</span><span class="n">from_nwb_file</span><span class="p">(</span>
@@ -738,8 +766,8 @@ NWB</label><div class="sd-tab-content docutils">
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-5" name="sd-tab-set-0" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-5">
+<input id="sd-tab-item-6" name="sd-tab-set-0" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-6">
 From NumPy</label><div class="sd-tab-content docutils">
 <p>In the example below, we create random position data for two individuals, <code class="docutils literal notranslate"><span class="pre">Alice</span></code> and <code class="docutils literal notranslate"><span class="pre">Bob</span></code>, with three keypoints each: <code class="docutils literal notranslate"><span class="pre">snout</span></code>, <code class="docutils literal notranslate"><span class="pre">centre</span></code>, and <code class="docutils literal notranslate"><span class="pre">tail_base</span></code>. These keypoints are tracked in 2D space for 100 frames, at 30 fps. The confidence scores are set to 1 for all points.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -768,8 +796,8 @@ From NumPy</label><div class="sd-tab-content docutils">
 </div>
 <p>We currently support loading bounding box tracks in the <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/">VGG Image Annotator (VIA)</a> format only. However, like in the poses datasets, we additionally provide a <a class="reference internal" href="../api/movement.io.load_bboxes.from_numpy.html#movement.io.load_bboxes.from_numpy" title="movement.io.load_bboxes.from_numpy"><code class="xref py py-func docutils literal notranslate"><span class="pre">from_numpy()</span></code></a> function, with which we can build a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bounding boxes dataset</span></a> from a set of NumPy arrays.</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-6" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-6">
+<input checked="checked" id="sd-tab-item-7" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-7">
 VIA tracks .csv file</label><div class="sd-tab-content docutils">
 <p>To load a VIA tracks .csv file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">load_bboxes</span><span class="o">.</span><span class="n">from_via_tracks_file</span><span class="p">(</span><span class="s2">"path/to/file.csv"</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
@@ -780,8 +808,8 @@ VIA tracks .csv file</label><div class="sd-tab-content docutils">
 <p>Note that the x,y coordinates in the input VIA tracks .csv file represent the the top-left corner of each bounding box. Instead the corresponding <code class="docutils literal notranslate"><span class="pre">movement</span></code> dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code> will hold in its <code class="docutils literal notranslate"><span class="pre">position</span></code> array the centroid of each bounding box.</p>
 </div>
 </div>
-<input id="sd-tab-item-7" name="sd-tab-set-1" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-7">
+<input id="sd-tab-item-8" name="sd-tab-set-1" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-8">
 From NumPy</label><div class="sd-tab-content docutils">
 <p>In the example below, we create random position data for two bounding boxes, <code class="docutils literal notranslate"><span class="pre">id_0</span></code> and <code class="docutils literal notranslate"><span class="pre">id_1</span></code>,
 both with the same width (40 pixels) and height (30 pixels). These are tracked in 2D space for 100 frames, which will be numbered in the resulting dataset from 0 to 99. The confidence score for all bounding boxes is set to 0.5.</p>
@@ -863,8 +891,8 @@ These can be passed directly as keyword arguments to <a class="reference interna
 </div>
 <p>Depending on the desired format, use one of the following functions:</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-8" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-8">
+<input checked="checked" id="sd-tab-item-9" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-9">
 DeepLabCut</label><div class="sd-tab-content docutils">
 <p>To save as a DeepLabCut file, in .h5 or .csv format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_dlc_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/file.h5"</span><span class="p">)</span>  <span class="c1"># preferred format</span>
@@ -875,8 +903,8 @@ DeepLabCut</label><div class="sd-tab-content docutils">
 a <code class="docutils literal notranslate"><span class="pre">split_individuals</span></code> boolean argument. If set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, the function will
 save the data as separate single-animal DeepLabCut-style files.</p>
 </div>
-<input id="sd-tab-item-9" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-9">
+<input id="sd-tab-item-10" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-10">
 SLEAP</label><div class="sd-tab-content docutils">
 <p>To save as a SLEAP analysis file in .h5 format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_sleap_analysis_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/file.h5"</span><span class="p">)</span>
@@ -891,8 +919,8 @@ Other attributes and data variables
 each attribute and data variable represents, see the
 <a class="reference external" href="https://docs.sleap.ai/latest/api/info/write_tracking_h5/#sleap.info.write_tracking_h5">SLEAP documentation</a>.</p>
 </div>
-<input id="sd-tab-item-10" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-10">
+<input id="sd-tab-item-11" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-11">
 LightningPose</label><div class="sd-tab-content docutils">
 <p>To save as a LightningPose file in .csv format:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">save_poses</span><span class="o">.</span><span class="n">to_lp_file</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">"/path/to/file.csv"</span><span class="p">)</span>
@@ -904,8 +932,8 @@ DeepLabCut .csv format, the above command is equivalent to:</p>
 </pre></div>
 </div>
 </div>
-<input id="sd-tab-item-11" name="sd-tab-set-2" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-11">
+<input id="sd-tab-item-12" name="sd-tab-set-2" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-12">
 NWB</label><div class="sd-tab-content docutils">
 <p>To convert a <code class="docutils literal notranslate"><span class="pre">movement</span></code> poses dataset to <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> objects:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">nwb_files</span> <span class="o">=</span> <span class="n">save_poses</span><span class="o">.</span><span class="n">to_nwb_file_object</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
@@ -932,8 +960,8 @@ for customising metadata such as session or subject information in the resulting
 <span id="target-saving-bboxes-tracks"></span><h4>Saving bounding box tracks<a class="headerlink" href="#saving-bounding-box-tracks" title="Link to this heading">#</a></h4>
 <p>We currently support exporting a <a class="reference internal" href="movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement bboxes datasets</span></a> as a <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/docs/face_track_annotation.html#">VIA tracks .csv file</a>, so that you can visualise and correct your bounding box tracks with the <a class="reference external" href="https://www.robots.ox.ac.uk/~vgg/software/via/via.html#">VGG Image Annotator (VIA-2) software</a>. Alternatively, you can save the bounding box tracks to a .csv file with a custom header using the standard Python library <code class="docutils literal notranslate"><span class="pre">csv</span></code>.</p>
 <div class="sd-tab-set docutils">
-<input checked="checked" id="sd-tab-item-12" name="sd-tab-set-3" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-12">
+<input checked="checked" id="sd-tab-item-13" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-13">
 VIA tracks .csv file</label><div class="sd-tab-content docutils">
 <p>To export your bounding boxes dataset <code class="docutils literal notranslate"><span class="pre">ds</span></code>, you will need to import the <a class="reference internal" href="../api/movement.io.save_bboxes.html#module-movement.io.save_bboxes" title="movement.io.save_bboxes"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.io.save_bboxes</span></code></a> module:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_bboxes</span>
@@ -945,8 +973,8 @@ VIA tracks .csv file</label><div class="sd-tab-content docutils">
 </div>
 <p>By default the <a class="reference internal" href="../api/movement.io.save_bboxes.to_via_tracks_file.html#movement.io.save_bboxes.to_via_tracks_file" title="movement.io.save_bboxes.to_via_tracks_file"><code class="xref py py-func docutils literal notranslate"><span class="pre">movement.io.save_bboxes.to_via_tracks_file()</span></code></a> function will try to derive the track IDs from the trailing numbers in the individuals’ names, but you can also set <code class="docutils literal notranslate"><span class="pre">track_ids_from_trailing_numbers=False</span></code> to assign the track IDs sequentially (0, 1, 2, …) based on the alphabetically sorted list of individuals.</p>
 </div>
-<input id="sd-tab-item-13" name="sd-tab-set-3" type="radio">
-<label class="sd-tab-label" for="sd-tab-item-13">
+<input id="sd-tab-item-14" name="sd-tab-set-3" type="radio">
+<label class="sd-tab-label" for="sd-tab-item-14">
 Custom .csv file</label><div class="sd-tab-content docutils">
 <p>Below is an example of how you can export a <code class="docutils literal notranslate"><span class="pre">movement</span></code> bounding boxes dataset as a .csv file with a custom header:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># define name for output csv file</span>

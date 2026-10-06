@@ -16,6 +16,10 @@
     
     ValidAniposeCSV
     
+    ValidCOCOKeypointAnnotations
+    
+    ValidCOCOKeypointResults
+    
     ValidDeepLabCutCSV
     
     ValidDeepLabCutH5
