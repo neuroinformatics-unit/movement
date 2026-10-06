@@ -30,6 +30,7 @@ from movement.napari.convert_roi import (
     rois_to_napari_shapes,
 )
 from movement.napari.layer_styles import RegionsStyle, _sample_colormap
+from movement.napari.layer_wiring import ViewerEventsMixin
 from movement.roi.io import load_rois, save_rois
 from movement.utils.logging import logger
 
@@ -48,7 +49,7 @@ REGIONS_COLOR_IDX_KEY: str = "movement_regions_color_idx"
 REGIONS_COLORS: list[tuple] = _sample_colormap(10, "tab10")
 
 
-class RegionsWidget(QWidget):
+class RegionsWidget(ViewerEventsMixin, QWidget):
     """Main widget for defining regions of interest.
 
     This widget provides a user interface for managing regions of interest
@@ -79,7 +80,7 @@ class RegionsWidget(QWidget):
         self._syncing_layer_selection = False
 
         self._setup_regions_ui()
-        self._connect_layer_signals()
+        self._connect_viewer_events()
         self._update_layer_dropdown()
 
     def _setup_regions_ui(self):
@@ -150,16 +151,24 @@ class RegionsWidget(QWidget):
         table_view_layout.addWidget(self.region_table_view)
         return table_view_layout
 
-    def _connect_layer_signals(self):
-        """Connect layer lifecycle signals to widget handlers.
+    def _viewer_event_connections(self):
+        """Return the viewer events this widget listens to while visible.
 
-        Handles layer insertion, removal, and selection changes.
+        These handle layer insertion, removal, and selection changes.
         """
-        self.viewer.layers.events.inserted.connect(self._update_layer_dropdown)
-        self.viewer.layers.events.removed.connect(self._update_layer_dropdown)
-        self.viewer.layers.selection.events.changed.connect(
-            self._on_napari_layer_selection_changed
-        )
+        return [
+            (self.viewer.layers.events.inserted, self._update_layer_dropdown),
+            (self.viewer.layers.events.removed, self._update_layer_dropdown),
+            (
+                self.viewer.layers.selection.events.changed,
+                self._on_napari_layer_selection_changed,
+            ),
+        ]
+
+    def _sync_with_viewer(self):
+        """Refresh the dropdown and table for layers changed while hidden."""
+        self._update_layer_dropdown()
+        self._on_napari_layer_selection_changed()
 
     def _is_region_layer(self, layer) -> bool:
         """Check if a layer is a movement regions layer."""
@@ -479,16 +488,7 @@ class RegionsWidget(QWidget):
             - Viewer-level layer insertion/removal/selection signals
             - Table model connections
         """
-        # Disconnect viewer-level signals
-        self.viewer.layers.events.inserted.disconnect(
-            self._update_layer_dropdown
-        )
-        self.viewer.layers.events.removed.disconnect(
-            self._update_layer_dropdown
-        )
-        self.viewer.layers.selection.events.changed.disconnect(
-            self._on_napari_layer_selection_changed
-        )
+        self._disconnect_viewer_events()
 
         # Clean up table model
         self._clear_region_table_model()

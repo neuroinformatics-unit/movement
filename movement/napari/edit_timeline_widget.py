@@ -21,6 +21,7 @@ from qtpy.QtWidgets import QCheckBox, QLabel, QVBoxLayout, QWidget
 from movement.napari.layer_wiring import (
     MAX_FRAME_IDX_KEY,
     POINTS_PROPERTIES_KEY,
+    ViewerEventsMixin,
     active_movement_points_layer,
     is_movement_points_layer,
 )
@@ -76,7 +77,7 @@ class EditControlsWidget(QWidget):
         self.setLayout(layout)
 
 
-class EditTimelineWidget(QWidget):
+class EditTimelineWidget(ViewerEventsMixin, QWidget):
     """Dock widget flagging frames with edited points.
 
     Draws a vertical bar for every frame that contains an edited point
@@ -117,29 +118,50 @@ class EditTimelineWidget(QWidget):
         self.playhead = self.ax.axvline(
             0, linewidth=2, linestyle="--", zorder=3
         )  # higher order in matplotlib is drawn on top; colour set below
-        self._apply_theme()
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.canvas)
         self.setLayout(layout)
 
-        self.viewer.dims.events.current_step.connect(self._on_step_changed)
-        self.viewer.layers.selection.events.active.connect(
-            self._on_active_layer_changed
-        )
-        self.viewer.layers.events.inserted.connect(self._on_layer_inserted)
-        self.viewer.layers.events.removed.connect(self._on_layer_removed)
-        self.viewer.events.theme.connect(self._apply_theme)
+        self._connect_viewer_events()
         self.canvas.mpl_connect("button_press_event", self._on_mouse_press)
         self.canvas.mpl_connect("motion_notify_event", self._on_mouse_motion)
         self.canvas.mpl_connect("button_release_event", self._on_mouse_release)
         self.canvas.mpl_connect("scroll_event", self._on_scroll)
+        self._sync_with_viewer()
 
+    def _viewer_event_connections(self):
+        """Return the viewer events this widget listens to while visible."""
+        return [
+            (self.viewer.dims.events.current_step, self._on_step_changed),
+            (
+                self.viewer.layers.selection.events.active,
+                self._on_active_layer_changed,
+            ),
+            (self.viewer.layers.events.inserted, self._on_layer_inserted),
+            (self.viewer.layers.events.removed, self._on_layer_removed),
+            (self.viewer.events.theme, self._apply_theme),
+        ]
+
+    def _sync_with_viewer(self) -> None:
+        """Style the plot and latch onto the viewer's movement Points layers.
+
+        Run at construction and again whenever the widget is shown after
+        being hidden, so that layers added, removed or selected (and any
+        theme or frame change) in the meantime are picked up.
+        """
+        self._apply_theme()
         for layer in self.viewer.layers:
             self._track_layer(layer)
+        if self.active_layer is not None and not any(
+            getattr(layer, "__wrapped__", layer) is self.active_layer
+            for layer in self.viewer.layers
+        ):
+            self._forget_active_layer()
         # Latch onto an existing movement Points layer
         self._set_active_layer(active_movement_points_layer(self.viewer))
+        self._on_step_changed()
 
     def _style_axes(self):
         """Set the static appearance of the timeline axes."""
@@ -187,10 +209,14 @@ class EditTimelineWidget(QWidget):
     def _on_layer_removed(self, event):
         """Clear the display if the active layer was removed."""
         if event.value is self.active_layer:
-            self.active_layer = None
-            self._max_frame = 0
-            self._removed_points = []
-            self._redraw_bars()
+            self._forget_active_layer()
+
+    def _forget_active_layer(self):
+        """Drop the active layer and clear the display."""
+        self.active_layer = None
+        self._max_frame = 0
+        self._removed_points = []
+        self._redraw_bars()
 
     def set_show_individuals(self, checked: bool) -> None:
         """Switch between one shared lane and one lane per individual.
