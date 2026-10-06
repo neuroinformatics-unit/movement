@@ -868,10 +868,10 @@ def test_coco_results_validator_content_errors(
         if categories is not None
         else None
     )
+    results_file = coco_keypoint_results_file(results)
     with pytest.raises(ValueError, match=match):
         ValidCOCOKeypointResults(
-            file=coco_keypoint_results_file(results),
-            annotations_file=annotations_file,
+            file=results_file, annotations_file=annotations_file
         )
 
 
