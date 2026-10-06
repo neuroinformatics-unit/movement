@@ -38,7 +38,7 @@ import tempfile
 from pathlib import Path
 
 from movement import sample_data
-from movement.io import load_poses, save_poses
+from movement.io import load_dataset, save_dataset
 
 # %%
 # Load the dataset
@@ -63,8 +63,10 @@ print(file_path)
 # Now let's load this file into a
 # :ref:`movement poses dataset<target-poses-and-bboxes-dataset>`,
 # which we can then modify to our liking.
+# :func:`movement.io.load_dataset` uses ``source_software`` to select
+# the loader and forwards ``fps`` to it.
 
-ds = load_poses.from_sleap_file(file_path, fps=30)
+ds = load_dataset(file_path, source_software="SLEAP", fps=30)
 print(ds, "\n")
 print("Individuals:", ds.coords["individual"].values)
 print("Keypoints:", ds.coords["keypoint"].values)
@@ -165,6 +167,8 @@ print("Keypoints in modified dataset:", ds_reordered.coords["keypoint"].values)
 # ---------------------------
 # Now that we have modified the dataset to our liking,
 # let's save it to a .csv file in the DeepLabCut format.
+# :func:`movement.io.save_dataset` selects the writer using
+# ``target_software`` and forwards format-specific options to it.
 # In this case, we save the file to a temporary
 # directory, and we use the same file name
 # as the original, but ending in ``_dlc.csv``.
@@ -174,7 +178,12 @@ print("Keypoints in modified dataset:", ds_reordered.coords["keypoint"].values)
 target_dir = tempfile.mkdtemp()
 dest_path = Path(target_dir) / f"{file_path.stem}_dlc.csv"
 
-save_poses.to_dlc_file(ds_reordered, dest_path, split_individuals=False)
+save_dataset(
+    ds_reordered,
+    dest_path,
+    target_software="DeepLabCut",
+    split_individuals=False,
+)
 print(f"Saved modified dataset to {dest_path}.")
 
 # %%
@@ -196,18 +205,18 @@ print(f"Saved modified dataset to {dest_path}.")
 # as we might do in a real-world scenario.
 #
 # The following function will convert all files in a folder
-# (that end with a specified suffix) from SLEAP to DeepLabCut format.
+# (that end with a specified suffix) from SLEAP analysis HDF5
+# to DeepLabCut format.
+# Pass the recording frame rate explicitly so all loaded datasets
+# retain time coordinates in seconds, as in the single-file example.
 # Each file will be loaded, modified according to the
 # ``rename_dict``, ``keypoints_to_delete``, and ``ordered_keypoints``
 # we've defined above, and saved to the target directory.
 
 
-data_dir = "/path/to/your/data/"
-target_dir = "/path/to/your/target/data/"
-
-
-def convert_all(data_dir, target_dir, suffix=".slp"):
+def convert_all(data_dir, target_dir, *, fps, suffix=".analysis.h5"):
     source_folder = Path(data_dir)
+    Path(target_dir).mkdir(parents=True, exist_ok=True)
     file_paths = list(source_folder.rglob(f"*{suffix}"))
 
     for file_path in file_paths:
@@ -223,17 +232,30 @@ def convert_all(data_dir, target_dir, suffix=".slp"):
         if file_path.exists():
             print(f"Processing: {file_path}")
             # load the data from SLEAP file
-            ds = load_poses.from_sleap_file(file_path)
+            ds = load_dataset(file_path, source_software="SLEAP", fps=fps)
             # modify the data
             ds_renamed = rename_keypoints(ds, rename_dict)
             ds_deleted = delete_keypoints(ds_renamed, keypoints_to_delete)
             ds_reordered = reorder_keypoints(ds_deleted, ordered_keypoints)
             # save modified data to a DeepLabCut file
-            save_poses.to_dlc_file(
-                ds_reordered, dest_path, split_individuals=False
+            save_dataset(
+                ds_reordered,
+                dest_path,
+                target_software="DeepLabCut",
+                split_individuals=False,
             )
         else:
             raise ValueError(
                 f"File '{file_path}' does not exist. "
                 f"Please check the file path and try again."
             )
+
+
+# %%
+# Try the batch conversion on the sample file only, writing to a new
+# temporary directory. For your own recordings, replace the source and
+# destination directories and omit ``suffix`` to process all analysis files.
+
+convert_all(
+    file_path.parent, tempfile.mkdtemp(), fps=30, suffix=file_path.name
+)
