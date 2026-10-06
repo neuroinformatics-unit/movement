@@ -14,7 +14,7 @@ The currently active `movement` development team consists of:
 | [Niko Sirmpilatze](https://github.com/niksirbi) | Maintainer |
 | [Chang Huan Lo](https://github.com/lochhh) | Maintainer |
 | [Sofía Miñano](https://github.com/sfmig) | Maintainer |
-| [Anna Teruel](htttps://github.com/anna-teruel) | Team member |
+| [Anna Teruel](https://github.com/anna-teruel) | Team member |
 
 ## Collaborations
 We are eager to explore collaboration opportunities with research labs and research software engineering teams.
