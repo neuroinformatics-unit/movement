@@ -205,17 +205,9 @@ ds = load_poses.from_coco_file(
 )
 ```
 
-For multi-animal data where each COCO category identifies an individual (e.g. one category per animal), set `category_as_track=True` to track each category across frames.
-Individuals are then named after the categories if an annotations file is provided, or after their `category_id` otherwise:
-```python
-ds = load_poses.from_coco_file(
-    "/path/to/results.json", fps=30, category_as_track=True
-)
-```
-
 :::{note}
 COCO keypoint results do not contain track identities, so when there are multiple animals per frame, individuals may not correspond to the same animal across frames.
-See the notes in {func}`~movement.io.load_poses.from_coco_file` for details on ways to handle this.
+See {func}`~movement.io.load_poses.from_coco_file` for ways to handle this, and for further options such as using image IDs as frame numbers.
 :::
 ::::
 

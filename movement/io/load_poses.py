@@ -444,6 +444,7 @@ def from_coco_file(
     *,
     annotations_file: str | Path | None = None,
     category_as_track: bool = False,
+    use_frame_numbers_from_file: bool = False,
 ) -> xr.Dataset:
     """Create a ``movement`` poses dataset from a COCO keypoint results file.
 
@@ -463,6 +464,16 @@ def from_coco_file(
         If True, treat each ``category_id`` as one individual tracked
         across frames. If False (default), assign individuals by order of
         detection within each frame (see Notes).
+    use_frame_numbers_from_file
+        Frame numbers are taken from the ``image_id`` of each detection.
+        If False (default), frame numbers are offset so that the lowest
+        image ID becomes frame 0. If True, frame numbers are kept as the
+        image IDs in the file. This may be useful if only a subset of the
+        video's frames were processed, but you want to keep the start of
+        the video as the time origin. In both cases, the spacing between
+        images is preserved, so any gaps show up in the ``time``
+        coordinates. For example, image IDs ``[5, 6, 9]`` in the file
+        become ``[0, 1, 4]`` by default and remain ``[5, 6, 9]`` if True.
 
     Returns
     -------
@@ -508,6 +519,39 @@ def from_coco_file(
     The per-detection ``score`` is loaded as individual-wise
     ``confidence``, with dimensions ``(time, individual)``.
 
+    Examples
+    --------
+    Create a dataset from the COCO results file at "path/to/results.json",
+    with the time coordinates in seconds, and the keypoints named after
+    the categories in the annotations file at "path/to/annotations.json".
+
+    >>> from movement.io import load_poses
+    >>> ds = load_poses.from_coco_file(
+    ...     "path/to/results.json",
+    ...     fps=30,
+    ...     annotations_file="path/to/annotations.json",
+    ... )
+
+    Create a dataset where each category identifies one individual tracked
+    across frames, with individuals named after the categories in the
+    annotations file.
+
+    >>> ds = load_poses.from_coco_file(
+    ...     "path/to/results.json",
+    ...     annotations_file="path/to/annotations.json",
+    ...     category_as_track=True,
+    ... )
+
+    Create a dataset using the image IDs as frame numbers, so that
+    t = 0 seconds corresponds to image ID 0 (e.g. the first frame of the
+    full video).
+
+    >>> ds = load_poses.from_coco_file(
+    ...     "path/to/results.json",
+    ...     fps=30,
+    ...     use_frame_numbers_from_file=True,
+    ... )
+
     """
     valid_results = cast("ValidCOCOKeypointResults", file)
     results = valid_results.data
@@ -550,14 +594,16 @@ def from_coco_file(
     confidence_array = np.full((n_frames, n_individuals), np.nan, np.float32)
     confidence_array[frame_idx, individual_idx] = scores
 
-    frame_array = np.asarray(frame_ids).reshape(-1, 1)
-
     ds = from_numpy(
         position_array=position_array,
         confidence_array=confidence_array,
         individual_names=individual_names,
         keypoint_names=keypoint_names,
-        frame_array=frame_array,
+        frame_array=(
+            frame_ids
+            if use_frame_numbers_from_file
+            else frame_ids - frame_ids[0]
+        ).reshape(-1, 1),
         fps=fps,
         source_software="COCO",
     )

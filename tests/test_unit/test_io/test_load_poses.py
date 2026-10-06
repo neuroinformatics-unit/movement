@@ -314,7 +314,7 @@ def test_from_coco_file(coco_keypoint_results_file_valid):
             ),
         },
         coords={
-            "time": [10, 20],
+            "time": [0, 10],
             "space": ["x", "y"],
             "keypoint": ["keypoint_0", "keypoint_1"],
             "individual": ["id_0", "id_1"],
@@ -404,17 +404,28 @@ def test_from_coco_file_naming_and_order(
     )
 
 
-def test_from_coco_file_fps(coco_keypoint_results_file_valid):
-    """Test that ``fps`` converts image IDs to time in seconds."""
+@pytest.mark.parametrize(
+    "fps, use_frame_numbers_from_file, expected_time",
+    [
+        pytest.param(None, False, [0, 10], id="frames"),
+        pytest.param(None, True, [10, 20], id="frames-from-file"),
+        pytest.param(10, False, [0.0, 1.0], id="seconds"),
+        pytest.param(10, True, [1.0, 2.0], id="seconds-from-file"),
+    ],
+)
+def test_from_coco_file_time(
+    coco_keypoint_results_file_valid,
+    fps,
+    use_frame_numbers_from_file,
+    expected_time,
+):
+    """Test that image IDs are mapped to time coordinates."""
     ds = load_poses.from_coco_file(
         coco_keypoint_results_file_valid,
-        fps=10,
+        fps=fps,
+        use_frame_numbers_from_file=use_frame_numbers_from_file,
     )
-
-    np.testing.assert_array_equal(
-        ds.time.values,
-        [1.0, 2.0],
-    )
+    np.testing.assert_allclose(ds.time.values, expected_time)
 
 
 def test_from_coco_file_duplicate_category(
