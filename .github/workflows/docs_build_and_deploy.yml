@@ -27,13 +27,13 @@ jobs:
       (github.event_name != 'schedule')
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/lint@v3
+      - uses: neuroinformatics-unit/actions/lint@9b53ffe93baaafe5533e1f295a3c069bbc17ba36 # v3.0.1
 
   build_sphinx_docs:
     name: Build Sphinx Docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v6
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
             ~/.movement/*
