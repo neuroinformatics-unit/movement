@@ -809,30 +809,6 @@ _COCO_PERSON_CATEGORY = {
             id="unknown-category",
         ),
         pytest.param(
-            [
-                COCO_KEYPOINT_RESULT_1,
-                {**COCO_KEYPOINT_RESULT_1, "category_id": 2},
-            ],
-            [
-                _COCO_PERSON_CATEGORY,
-                {"id": 2, "name": "cat", "keypoints": ["nose", "head"]},
-            ],
-            "different keypoint names",
-            id="different-keypoint-names",
-        ),
-        pytest.param(
-            [
-                COCO_KEYPOINT_RESULT_1,
-                {**COCO_KEYPOINT_RESULT_1, "category_id": 2},
-            ],
-            [
-                _COCO_PERSON_CATEGORY,
-                {"id": 2, "name": "cat", "keypoints": ["eye", "nose"]},
-            ],
-            "different keypoint names",
-            id="different-keypoint-order",
-        ),
-        pytest.param(
             [{**COCO_KEYPOINT_RESULT_1, "keypoints": [10, 20, 2, 30]}],
             None,
             "multiple of 3",
@@ -906,19 +882,36 @@ def test_coco_annotations_validator(
 
 
 @pytest.mark.parametrize(
-    "categories",
+    "categories, match",
     [
-        pytest.param([], id="empty-categories"),
+        pytest.param([], "schema", id="empty-categories"),
         pytest.param(
-            [{"id": 1, "name": "person", "keypoints": []}],
+            [{**_COCO_PERSON_CATEGORY, "keypoints": []}],
+            "schema",
             id="empty-category-keypoints",
+        ),
+        pytest.param(
+            [
+                _COCO_PERSON_CATEGORY,
+                {"id": 2, "name": "cat", "keypoints": ["nose", "head"]},
+            ],
+            "same keypoint names",
+            id="different-keypoint-names",
+        ),
+        pytest.param(
+            [
+                _COCO_PERSON_CATEGORY,
+                {"id": 2, "name": "cat", "keypoints": ["eye", "nose"]},
+            ],
+            "same keypoint names",
+            id="different-keypoint-order",
         ),
     ],
 )
-def test_coco_annotations_validator_empty_categories(
-    coco_keypoint_annotations_file, categories
+def test_coco_annotations_validator_invalid_categories(
+    coco_keypoint_annotations_file, categories, match
 ):
-    """Test ValidCOCOKeypointAnnotations rejects empty categories."""
+    """Test ValidCOCOKeypointAnnotations rejects invalid categories."""
     file = coco_keypoint_annotations_file(categories)
-    with pytest.raises(ValueError, match="schema"):
+    with pytest.raises(ValueError, match=match):
         ValidCOCOKeypointAnnotations(file=file)

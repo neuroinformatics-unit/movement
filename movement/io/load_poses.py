@@ -492,11 +492,11 @@ def from_coco_file(
       and load the tracked output instead of the raw COCO results.
 
     In ``movement``, pose data can currently only be loaded if all
-    individuals share the same skeleton. All detections in the results
-    must therefore have the same number of keypoints. If
-    ``annotations_file`` is provided, all categories present in the
-    results must also have the same ``keypoints`` list (same names, in
-    the same order), with one name per keypoint in each detection.
+    individuals share the same set of keypoints. All detections in the
+    results must therefore have the same number of keypoints. If
+    ``annotations_file`` is provided, all its categories must also have
+    the same ``keypoints`` list (same names, in the same order), with
+    one name per keypoint in each detection.
     Otherwise, a ``ValueError`` is raised. Without an annotations file,
     keypoints are assigned default names ``keypoint_0``, ``keypoint_1``,
     etc. in file order.
