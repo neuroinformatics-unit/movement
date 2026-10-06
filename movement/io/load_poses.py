@@ -501,6 +501,13 @@ def from_coco_file(
     keypoints are assigned default names ``keypoint_0``, ``keypoint_1``,
     etc. in file order.
 
+    Each keypoint in COCO results is stored as ``(x, y, v)``, where ``v``
+    is a visibility flag. As COCO recommends setting ``v=1`` for all
+    predicted keypoints, ``v`` carries no information in results files
+    and is discarded. Only ``x`` and ``y`` are loaded as ``position``.
+    The per-detection ``score`` is loaded as individual-wise
+    ``confidence``, with dimensions ``(time, individual)``.
+
     """
     valid_results = cast("ValidCOCOKeypointResults", file)
     results = valid_results.data
