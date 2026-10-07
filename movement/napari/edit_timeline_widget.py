@@ -19,14 +19,14 @@ from qtpy.QtCore import QTimer, Signal
 from qtpy.QtWidgets import QCheckBox, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from movement.napari.layer_wiring import (
+    LOADED_TRACKS_DATA_KEY,
     MAX_FRAME_IDX_KEY,
-    POINTS_BASELINE_KEY,
     POINTS_PROPERTIES_KEY,
     TRACKS_LAYER_KEY,
     active_movement_points_layer,
     frame_axis_is_sliced,
     is_movement_points_layer,
-    reset_points_to_baseline,
+    reset_edits,
 )
 
 if TYPE_CHECKING:
@@ -107,14 +107,14 @@ class EditControlsWidget(QWidget):
         layer = active_movement_points_layer(self.viewer)
         if (
             layer is not None
-            and POINTS_BASELINE_KEY in layer.metadata
+            and LOADED_TRACKS_DATA_KEY in layer.metadata
             and layer.metadata.get(TRACKS_LAYER_KEY) in self.viewer.layers
         ):
             return layer
         return None
 
     def _schedule_reset_enabled(self, event=None):
-        """Wait until loading both layers and their baseline has finished."""
+        """Wait until loading both layers has finished."""
         QTimer.singleShot(0, self._update_reset_enabled)
 
     def _update_reset_enabled(self):
@@ -129,13 +129,13 @@ class EditControlsWidget(QWidget):
         """Reset only the current frame, leaving other frames unchanged."""
         layer = self._reset_layer()
         if layer is not None and frame_axis_is_sliced(self.viewer):
-            reset_points_to_baseline(layer, self.viewer.dims.current_step[0])
+            reset_edits(layer, self.viewer.dims.current_step[0])
 
     def _reset_all(self):
         """Reset all frames in the active pose layer."""
         layer = self._reset_layer()
         if layer is not None:
-            reset_points_to_baseline(layer)
+            reset_edits(layer)
 
 
 class EditTimelineWidget(QWidget):

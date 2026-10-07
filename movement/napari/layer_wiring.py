@@ -18,27 +18,32 @@ from functools import partial
 from weakref import WeakSet
 
 import numpy as np
+import pandas as pd
 from napari.components.dims import RangeTuple
 from napari.layers import Points
 from napari.layers.base import ActionType
 
-from movement.napari.layer_styles import EDITED_POINT_SYMBOL
+from movement.napari.layer_styles import EDITED_POINT_SYMBOL, PointsStyle
 
 # Metadata keys stored on the movement Points layer.
 # - POINTS_LAYER_KEY marks the layer as movement-created.
 # - POINTS_PROPERTIES_KEY holds the full properties df, incl. the NaN rows
 #   dropped from the live layer, needed to reconstruct the dataset.
+# - LOADED_TRACKS_DATA_KEY holds the full Tracks array as loaded, incl. the
+#   NaN rows, row-aligned with POINTS_PROPERTIES_KEY. Together they are the
+#   loaded state that edits can be reset to. Poses datasets only.
 # - DATASET_ATTRS_KEY holds the source dataset's attrs (source_software, fps…).
 # - TRACKS_LAYER_KEY holds a reference to the companion Tracks layer.
 # - MAX_FRAME_IDX_KEY holds the last frame index of the source data,
 #   including leading/trailing all-NaN frames (which are dropped from the
 #   napari layer data array).
+# The loaded-state values are never modified after loading.
 POINTS_LAYER_KEY: str = "movement_points_layer"
 POINTS_PROPERTIES_KEY: str = "movement_points_properties"
+LOADED_TRACKS_DATA_KEY: str = "movement_loaded_tracks_data"
 DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
 TRACKS_LAYER_KEY: str = "movement_tracks_layer"
 MAX_FRAME_IDX_KEY: str = "movement_max_frame_idx"
-POINTS_BASELINE_KEY: str = "movement_points_baseline"
 
 # Keep a set of viewers already wired by connect_viewer_callbacks,
 # so we don't wire them twice. We use a WeakSet so tracking a viewer here
@@ -272,74 +277,75 @@ def set_tracks_layer_data(tracks_layer, data, properties):
         tracks_layer.color_by = color_by
 
 
-def capture_points_baseline(points_layer: Points) -> None:
-    """Store independent copies of pose data immediately after loading.
+def points_layer_properties(properties: pd.DataFrame) -> pd.DataFrame:
+    """Drop the internal columns not needed in Points layer properties.
 
-    The baseline includes edits saved in the input file. It is owned by the
-    layer, not the loader widget, and is never updated by subsequent edits.
+    The ``_factorized`` columns are used for Tracks/Shapes colouring and
+    ``position_is_nan`` for reconstructing the dataset on save; neither
+    is needed in the Points layer tooltips.
     """
-    tracks = points_layer.metadata[TRACKS_LAYER_KEY]
-    points_layer.metadata[POINTS_BASELINE_KEY] = {
-        "data": tracks.data.copy(),
-        "points_properties": {
-            key: value.copy() for key, value in points_layer.properties.items()
-        },
-        "tracks_properties": {
-            key: value.copy() for key, value in tracks.properties.items()
-        },
-        "symbol": points_layer.symbol.copy(),
-    }
+    return properties.loc[
+        :,
+        ~properties.columns.str.endswith("_factorized")
+        & (properties.columns != "position_is_nan"),
+    ]
 
 
-def reset_points_to_baseline(
-    points_layer: Points, frame: int | None = None
-) -> None:
+def reset_edits(points_layer: Points, frame: int | None = None) -> None:
     """Restore loaded pose points for one frame, or all frames if None.
 
-    Deleted points are restored from the baseline, rather than inferred
-    from surviving edited flags. Other frames retain their current data.
-    Identity swaps and individual edit history are not supported.
+    The loaded state is read from ``LOADED_TRACKS_DATA_KEY`` (positions)
+    and ``POINTS_PROPERTIES_KEY`` (confidence, ``edited`` flags and
+    which points were present), so it includes edits saved in the input
+    file. Deleted points are restored too. Other frames retain their
+    current data. Identity swaps and individual edit history are not
+    supported.
     """
-    baseline = points_layer.metadata[POINTS_BASELINE_KEY]
+    loaded_data = points_layer.metadata[LOADED_TRACKS_DATA_KEY]
+    loaded_props = points_layer.metadata[POINTS_PROPERTIES_KEY]
     tracks = points_layer.metadata[TRACKS_LAYER_KEY]
-    restore = (
-        baseline["data"][:, 1] == frame
-        if frame is not None
-        else np.ones(len(baseline["data"]), dtype=bool)
-    )
-    keep = (
-        tracks.data[:, 1] != frame
-        if frame is not None
-        else np.zeros(len(tracks.data), dtype=bool)
-    )
-    data = np.concatenate([tracks.data[keep], baseline["data"][restore]])
+    # NaN rows are never shown in the layers, so never restore them
+    restore = ~loaded_props["position_is_nan"].to_numpy()
+    keep = np.zeros(len(tracks.data), dtype=bool)
+    if frame is not None:
+        restore &= loaded_data[:, 1] == frame
+        keep = tracks.data[:, 1] != frame
+    data = np.concatenate([tracks.data[keep], loaded_data[restore]])
     order = np.lexsort((data[:, 1], data[:, 0]))
     data = data[order]
 
-    def merge_properties(current, original):
-        keys = current.keys() | original.keys()
+    def merge_properties(current, loaded: pd.DataFrame):
+        keys = current.keys() | set(loaded.columns)
         return {
             key: np.concatenate(
                 [
-                    current.get(key, np.zeros(len(tracks.data), dtype=bool))[
-                        keep
-                    ],
-                    original.get(
-                        key, np.zeros(len(baseline["data"]), dtype=bool)
-                    )[restore],
+                    np.asarray(
+                        current.get(key, np.zeros(len(tracks.data), bool))
+                    )[keep],
+                    loaded[key].to_numpy()[restore]
+                    if key in loaded
+                    else np.zeros(restore.sum(), bool),
                 ]
             )[order]
             for key in keys
         }
 
     properties = merge_properties(
-        points_layer.properties, baseline["points_properties"]
+        points_layer.properties, points_layer_properties(loaded_props)
     )
-    track_properties = merge_properties(
-        tracks.properties, baseline["tracks_properties"]
+    track_properties = merge_properties(tracks.properties, loaded_props)
+    # Kept points keep their current symbol; restored points are derived
+    # from their loaded edited flag, as on load
+    loaded_edited = (
+        loaded_props["edited"].to_numpy()[restore]
+        if "edited" in loaded_props
+        else np.zeros(restore.sum(), bool)
     )
     symbols = np.concatenate(
-        [points_layer.symbol[keep], baseline["symbol"][restore]]
+        [
+            np.asarray(points_layer.symbol, dtype=object)[keep],
+            np.where(loaded_edited, EDITED_POINT_SYMBOL, PointsStyle.symbol),
+        ]
     )[order]
     # Avoid interpreting restoration as a user drag or deletion. Notify
     # observers once, after Points and Tracks are consistent again.

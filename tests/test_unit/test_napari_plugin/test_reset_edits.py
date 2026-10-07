@@ -1,6 +1,7 @@
 """Reset dragged and deleted pose points to their loaded state."""
 
 import numpy as np
+import pandas as pd
 import pytest
 from napari.components import ViewerModel
 
@@ -9,7 +10,7 @@ from movement.napari import layer_wiring as wiring
 
 @pytest.fixture
 def reset_layers():
-    """Create two tracks with two frames and independent loaded snapshots."""
+    """Create two tracks with two frames and their loaded state."""
     viewer = ViewerModel()
     data = np.array(
         [[0, 0, 1, 2], [0, 1, 3, 4], [1, 0, 5, 6], [1, 1, 7, 8]], dtype=float
@@ -19,15 +20,19 @@ def reset_layers():
         "individual": np.array(["a", "a", "b", "b"]),
         "edited": np.array([True, False, False, False]),
     }
+    loaded_props = pd.DataFrame(props).assign(position_is_nan=False)
     points = viewer.add_points(
         data[:, 1:].copy(),
         properties=props,
-        metadata={wiring.POINTS_LAYER_KEY: True},
+        metadata={
+            wiring.POINTS_LAYER_KEY: True,
+            wiring.POINTS_PROPERTIES_KEY: loaded_props,
+            wiring.LOADED_TRACKS_DATA_KEY: data.copy(),
+        },
     )
     tracks = viewer.add_tracks(data.copy(), properties=props)
     points.metadata[wiring.TRACKS_LAYER_KEY] = tracks
     wiring.set_point_symbol_by_edited(points)
-    wiring.capture_points_baseline(points)
     points.events.data.connect(wiring.on_points_data_changed)
     return points, tracks, data, props, viewer
 
@@ -41,7 +46,7 @@ def test_reset_restores_deleted_points_and_keeps_other_edits(
     points.data[1, 1:] = [100, 200]
     points.events.data(action="changed", data_indices=(1,))
     points.remove([0, 2])
-    wiring.reset_points_to_baseline(points, frame=frame)
+    wiring.reset_edits(points, frame=frame)
     if frame in (None, 0):
         assert len(points.data) == 4
         np.testing.assert_array_equal(tracks.data[[0, 2]], original[[0, 2]])
@@ -55,7 +60,7 @@ def test_reset_restores_deleted_points_and_keeps_other_edits(
         assert points.properties["edited"][1]
         np.testing.assert_array_equal(points.data[1, 1:], [100, 200])
     expected = points.data.copy()
-    wiring.reset_points_to_baseline(points, frame=frame)
+    wiring.reset_edits(points, frame=frame)
     np.testing.assert_array_equal(points.data, expected)
 
 
@@ -64,7 +69,7 @@ def test_reset_all_restores_loaded_properties_and_symbols(reset_layers):
     points, tracks, original, props, viewer = reset_layers
     symbols = points.symbol.copy()
     points.remove([0, 1, 2])
-    wiring.reset_points_to_baseline(points)
+    wiring.reset_edits(points)
     np.testing.assert_array_equal(tracks.data, original)
     for key, values in props.items():
         np.testing.assert_array_equal(points.properties[key], values)
@@ -119,8 +124,8 @@ def test_reset_controls_without_loaded_pose(qtbot):
     assert not controls.reset_all_button.isEnabled()
 
 
-def test_loaded_baseline_roundtrip(valid_poses_dataset, tmp_path, qtbot):
-    """Loading captures a baseline that restores missing data on export."""
+def test_loaded_state_roundtrip(valid_poses_dataset, tmp_path, qtbot):
+    """Loading stores a state that restores missing data on export."""
     import xarray as xr
 
     from movement.napari.convert import napari_layers_to_ds
@@ -137,7 +142,7 @@ def test_loaded_baseline_roundtrip(valid_poses_dataset, tmp_path, qtbot):
     loader.file_path_edit.setText(str(path))
     loader._on_load_clicked()
     points = loader.points_layer
-    assert wiring.POINTS_BASELINE_KEY in points.metadata
+    assert wiring.LOADED_TRACKS_DATA_KEY in points.metadata
     loaded = napari_layers_to_ds(
         points.data,
         points.properties,
@@ -147,7 +152,7 @@ def test_loaded_baseline_roundtrip(valid_poses_dataset, tmp_path, qtbot):
     points.data[0, 1:] += 50
     points.events.data(action="changed", data_indices=(0,))
     points.remove([1])
-    wiring.reset_points_to_baseline(points)
+    wiring.reset_edits(points)
     restored = napari_layers_to_ds(
         points.data,
         points.properties,
