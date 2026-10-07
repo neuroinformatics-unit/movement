@@ -13,7 +13,7 @@ jobs:
   linting:
     runs-on: ubuntu-latest
     steps:
-      - uses: neuroinformatics-unit/actions/lint@9b53ffe93baaafe5533e1f295a3c069bbc17ba36 # v3.0.1
+      - uses: neuroinformatics-unit/actions/lint@v3
 
   test:
     needs: [linting]
@@ -43,7 +43,7 @@ jobs:
             ~/.movement/*
           key: cached-test-data-${{ runner.os }}
           restore-keys: cached-test-data
-      - uses: neuroinformatics-unit/actions/test@9b53ffe93baaafe5533e1f295a3c069bbc17ba36 # v3.0.1
+      - uses: neuroinformatics-unit/actions/test@v3
         with:
           python-version: ${{ matrix.python-version }}
           secret-codecov-token: ${{ secrets.CODECOV_TOKEN }}
@@ -54,7 +54,7 @@ jobs:
     if: github.event_name == 'push' && github.ref_type == 'tag'
     runs-on: ubuntu-latest
     steps:
-    - uses: neuroinformatics-unit/actions/build_sdist_wheels@9b53ffe93baaafe5533e1f295a3c069bbc17ba36 # v3.0.1
+    - uses: neuroinformatics-unit/actions/build_sdist_wheels@v3
 
 
   upload_all:
