@@ -28,11 +28,13 @@ from movement.napari.layer_wiring import (
     DATASET_ATTRS_KEY,
     MAX_FRAME_IDX_KEY,
     POINTS_LAYER_KEY,
+    POINTS_POSITION_KEY,
     POINTS_PROPERTIES_KEY,
     TRACKS_LAYER_KEY,
     connect_viewer_callbacks,
     frame_axis_is_sliced,
     on_points_data_changed,
+    points_layer_properties,
     set_point_symbol_by_edited,
     update_frame_slider_range,
 )
@@ -339,23 +341,20 @@ class DataLoader(QWidget):
             properties_df=self.properties,
         )
 
-        # Filter out columns used internally (for Tracks/Shapes coloring,
-        # or for reconstructing the dataset on save) but not needed in
-        # Points layer tooltips: _factorized columns and position_is_nan.
-        points_properties = self.properties.loc[
-            :,
-            ~self.properties.columns.str.endswith("_factorized")
-            & (self.properties.columns != "position_is_nan"),
-        ]
+        points_properties = points_layer_properties(self.properties)
+        metadata = {
+            MAX_FRAME_IDX_KEY: max(self.data[:, 1]),
+            POINTS_LAYER_KEY: True,
+            POINTS_PROPERTIES_KEY: self.properties,
+            DATASET_ATTRS_KEY: self.ds_attrs,
+        }
+        # Keep the loaded positions so edits can be reset (poses only)
+        if self.data_bboxes is None:
+            metadata[POINTS_POSITION_KEY] = self.data
         self.points_layer = self.viewer.add_points(
             self.data[self.data_not_nan, 1:],
             properties=points_properties.iloc[self.data_not_nan, :],
-            metadata={
-                MAX_FRAME_IDX_KEY: max(self.data[:, 1]),
-                POINTS_LAYER_KEY: True,
-                POINTS_PROPERTIES_KEY: self.properties,
-                DATASET_ATTRS_KEY: self.ds_attrs,
-            },
+            metadata=metadata,
             **points_style.as_kwargs(),
         )
         self.points_layer.events.data.connect(on_points_data_changed)

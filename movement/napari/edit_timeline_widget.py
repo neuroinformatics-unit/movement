@@ -16,13 +16,24 @@ from napari.layers.base import ActionType
 from napari.utils.theme import get_theme
 from napari.viewer import Viewer
 from qtpy.QtCore import QTimer, Signal
-from qtpy.QtWidgets import QCheckBox, QLabel, QVBoxLayout, QWidget
+from qtpy.QtWidgets import (
+    QCheckBox,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from movement.napari.layer_wiring import (
     MAX_FRAME_IDX_KEY,
+    POINTS_POSITION_KEY,
     POINTS_PROPERTIES_KEY,
+    TRACKS_LAYER_KEY,
     active_movement_points_layer,
+    frame_axis_is_sliced,
     is_movement_points_layer,
+    reset_edits,
 )
 
 if TYPE_CHECKING:
@@ -51,9 +62,10 @@ class EditControlsWidget(QWidget):
 
     show_individuals_toggled = Signal(bool)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, napari_viewer=None):
         """Initialise the instructions label and display checkbox."""
         super().__init__(parent=parent)
+        self.viewer = napari_viewer
         instructions = QLabel(
             "Use the points layer controls to move or delete keypoints. "
             "Frames with edited points are flagged as coloured bars on the "
@@ -73,7 +85,74 @@ class EditControlsWidget(QWidget):
         layout = QVBoxLayout()
         layout.addWidget(instructions)
         layout.addWidget(self.show_individuals_checkbox)
+        self.reset_frame_button = QPushButton("Reset current frame")
+        self.reset_all_button = QPushButton("Reset all frames")
+        for button in (self.reset_frame_button, self.reset_all_button):
+            button.setToolTip(
+                "Restore pose points to the file as loaded, including "
+                "any previously saved edits."
+            )
+            layout.addWidget(button)
+        self.reset_frame_button.clicked.connect(self._reset_frame)
+        self.reset_all_button.clicked.connect(self._reset_all)
+        if self.viewer is not None:
+            for event in (
+                self.viewer.layers.events.inserted,
+                self.viewer.layers.events.removed,
+                self.viewer.layers.selection.events.active,
+                self.viewer.dims.events.order,
+                self.viewer.dims.events.ndisplay,
+            ):
+                event.connect(self._schedule_reset_enabled)
+        self._update_reset_enabled()
         self.setLayout(layout)
+
+    def _reset_layer(self):
+        """Find a loaded pose layer with its companion still in the viewer."""
+        if self.viewer is None:
+            return None
+        layer = active_movement_points_layer(self.viewer)
+        if (
+            layer is not None
+            and POINTS_POSITION_KEY in layer.metadata
+            and layer.metadata.get(TRACKS_LAYER_KEY) in self.viewer.layers
+        ):
+            return layer
+        return None
+
+    def _schedule_reset_enabled(self, event=None):
+        """Wait until loading both layers has finished."""
+        QTimer.singleShot(0, self._update_reset_enabled)
+
+    def _update_reset_enabled(self):
+        """Disable restoration when no supported pose layer is loaded."""
+        enabled = self._reset_layer() is not None
+        self.reset_all_button.setEnabled(enabled)
+        self.reset_frame_button.setEnabled(
+            enabled and frame_axis_is_sliced(self.viewer)
+        )
+
+    def _reset_frame(self):
+        """Reset only the current frame, leaving other frames unchanged."""
+        layer = self._reset_layer()
+        if layer is not None and frame_axis_is_sliced(self.viewer):
+            reset_edits(layer, self.viewer.dims.current_step[0])
+
+    def _reset_all(self):
+        """Reset all frames in the active pose layer."""
+        layer = self._reset_layer()
+        if layer is not None:
+            answer = QMessageBox.warning(
+                self,
+                title="Reset all pose edits?",
+                text="Discard all corrections made since this dataset was "
+                "loaded? Previously saved edits will be kept. "
+                "This reset cannot be undone.",
+                buttons=QMessageBox.Reset | QMessageBox.Cancel,
+                defaultButton=QMessageBox.Cancel,
+            )
+            if answer == QMessageBox.Reset:
+                reset_edits(layer)
 
 
 class EditTimelineWidget(QWidget):
@@ -282,6 +361,21 @@ class EditTimelineWidget(QWidget):
         still intact, so that's when we snapshot it.
         """
         if event.source is not self.active_layer:
+            return
+        if getattr(event, "movement_reset", False) is True:
+            frame = event.frame
+            previous = self._reconstruct_previously_removed_points(
+                self.active_layer
+            )
+            if frame is None:
+                self._removed_points = previous
+            else:
+                self._removed_points = [
+                    point
+                    for point in self._removed_points
+                    if point[0] != frame
+                ] + [point for point in previous if point[0] == frame]
+            self._redraw_bars()
             return
         if event.action == ActionType.REMOVING:
             self._capture_removed_points(event)

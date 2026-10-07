@@ -203,6 +203,22 @@ And for a bounding boxes dataset, you will see a view more like the one below:
 Note the additional bounding boxes layer that is loaded for bounding boxes datasets. For both poses and bounding boxes datasets, you can toggle the visibility of any of these layers by clicking on the eye icon.
 
 
+### Reset pose edits
+
+In **Edit tracked data**, use **Reset current frame** to restore dragged or
+deleted pose points in the displayed frame. Edits in other frames are kept.
+Use **Reset all frames** to restore all pose points in the selected dataset.
+
+Both controls restore the dataset as it was loaded into the viewer. Any edits
+already saved in the loaded file are retained, including their edited flags.
+Resetting does not change the file on disk. Save the dataset separately to
+persist the restored state.
+
+Reset is available for pose datasets with their companion tracks layer still
+present. The current frame control is disabled when the time axis is displayed
+as a spatial axis. Bounding boxes and individual edit history are not supported.
+The loaded baseline is held in memory for each pose layer.
+
 ### The points layer
 The points layer shows the data for the current frame.
 
