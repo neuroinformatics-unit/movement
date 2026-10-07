@@ -16,11 +16,18 @@ from napari.layers.base import ActionType
 from napari.utils.theme import get_theme
 from napari.viewer import Viewer
 from qtpy.QtCore import QTimer, Signal
-from qtpy.QtWidgets import QCheckBox, QLabel, QPushButton, QVBoxLayout, QWidget
+from qtpy.QtWidgets import (
+    QCheckBox,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from movement.napari.layer_wiring import (
-    LOADED_TRACKS_DATA_KEY,
     MAX_FRAME_IDX_KEY,
+    POINTS_POSITION_KEY,
     POINTS_PROPERTIES_KEY,
     TRACKS_LAYER_KEY,
     active_movement_points_layer,
@@ -107,7 +114,7 @@ class EditControlsWidget(QWidget):
         layer = active_movement_points_layer(self.viewer)
         if (
             layer is not None
-            and LOADED_TRACKS_DATA_KEY in layer.metadata
+            and POINTS_POSITION_KEY in layer.metadata
             and layer.metadata.get(TRACKS_LAYER_KEY) in self.viewer.layers
         ):
             return layer
@@ -135,7 +142,17 @@ class EditControlsWidget(QWidget):
         """Reset all frames in the active pose layer."""
         layer = self._reset_layer()
         if layer is not None:
-            reset_edits(layer)
+            answer = QMessageBox.warning(
+                self,
+                title="Reset all pose edits?",
+                text="Discard all corrections made since this dataset was "
+                "loaded? Previously saved edits will be kept. "
+                "This reset cannot be undone.",
+                buttons=QMessageBox.Reset | QMessageBox.Cancel,
+                defaultButton=QMessageBox.Cancel,
+            )
+            if answer == QMessageBox.Reset:
+                reset_edits(layer)
 
 
 class EditTimelineWidget(QWidget):

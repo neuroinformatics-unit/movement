@@ -29,7 +29,7 @@ from movement.napari.layer_styles import EDITED_POINT_SYMBOL, PointsStyle
 # - POINTS_LAYER_KEY marks the layer as movement-created.
 # - POINTS_PROPERTIES_KEY holds the full properties df, incl. the NaN rows
 #   dropped from the live layer, needed to reconstruct the dataset.
-# - LOADED_TRACKS_DATA_KEY holds the full Tracks array as loaded, incl. the
+# - POINTS_POSITION_KEY holds the full Tracks array as loaded, incl. the
 #   NaN rows, row-aligned with POINTS_PROPERTIES_KEY. Together they are the
 #   loaded state that edits can be reset to. Poses datasets only.
 # - DATASET_ATTRS_KEY holds the source dataset's attrs (source_software, fps…).
@@ -40,7 +40,7 @@ from movement.napari.layer_styles import EDITED_POINT_SYMBOL, PointsStyle
 # The loaded-state values are never modified after loading.
 POINTS_LAYER_KEY: str = "movement_points_layer"
 POINTS_PROPERTIES_KEY: str = "movement_points_properties"
-LOADED_TRACKS_DATA_KEY: str = "movement_loaded_tracks_data"
+POINTS_POSITION_KEY: str = "movement_points_position"
 DATASET_ATTRS_KEY: str = "movement_dataset_attrs"
 TRACKS_LAYER_KEY: str = "movement_tracks_layer"
 MAX_FRAME_IDX_KEY: str = "movement_max_frame_idx"
@@ -294,14 +294,14 @@ def points_layer_properties(properties: pd.DataFrame) -> pd.DataFrame:
 def reset_edits(points_layer: Points, frame: int | None = None) -> None:
     """Restore loaded pose points for one frame, or all frames if None.
 
-    The loaded state is read from ``LOADED_TRACKS_DATA_KEY`` (positions)
+    The loaded state is read from ``POINTS_POSITION_KEY`` (positions)
     and ``POINTS_PROPERTIES_KEY`` (confidence, ``edited`` flags and
     which points were present), so it includes edits saved in the input
     file. Deleted points are restored too. Other frames retain their
     current data. Identity swaps and individual edit history are not
     supported.
     """
-    loaded_data = points_layer.metadata[LOADED_TRACKS_DATA_KEY]
+    loaded_data = points_layer.metadata[POINTS_POSITION_KEY]
     loaded_props = points_layer.metadata[POINTS_PROPERTIES_KEY]
     tracks = points_layer.metadata[TRACKS_LAYER_KEY]
     # NaN rows are never shown in the layers, so never restore them

@@ -26,9 +26,9 @@ from movement.napari.convert import ds_to_napari_layers
 from movement.napari.layer_styles import BoxesStyle, PointsStyle, TracksStyle
 from movement.napari.layer_wiring import (
     DATASET_ATTRS_KEY,
-    LOADED_TRACKS_DATA_KEY,
     MAX_FRAME_IDX_KEY,
     POINTS_LAYER_KEY,
+    POINTS_POSITION_KEY,
     POINTS_PROPERTIES_KEY,
     TRACKS_LAYER_KEY,
     connect_viewer_callbacks,
@@ -350,7 +350,7 @@ class DataLoader(QWidget):
         }
         # Keep the loaded positions so edits can be reset (poses only)
         if self.data_bboxes is None:
-            metadata[LOADED_TRACKS_DATA_KEY] = self.data
+            metadata[POINTS_POSITION_KEY] = self.data
         self.points_layer = self.viewer.add_points(
             self.data[self.data_not_nan, 1:],
             properties=points_properties.iloc[self.data_not_nan, :],
