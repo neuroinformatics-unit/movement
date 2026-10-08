@@ -11,6 +11,8 @@ from movement.kinematics.kinematics import (
 )
 from movement.kinematics.kinetic_energy import compute_kinetic_energy
 from movement.kinematics.orientation import (
+    compute_angular_time_derivative,
+    compute_angular_velocity,
     compute_forward_vector,
     compute_forward_vector_angle,
     compute_head_direction_vector,
@@ -44,4 +46,6 @@ __all__ = [
     "compute_forward_vector_angle",
     "compute_kinetic_energy",
     "compute_turning_angle",
+    "compute_angular_time_derivative",
+    "compute_angular_velocity",
 ]
