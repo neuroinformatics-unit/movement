@@ -200,11 +200,11 @@ def test_layer_wiring_survives_closing_metawidget(
 
 
 def test_connect_viewer_callbacks_twice_does_not_duplicate(
-    make_napari_viewer_proxy,
+    headless_napari_viewer,
 ):
     """Test that wiring a viewer twice does not duplicate the callbacks."""
     # Wire the viewer callbacks once
-    viewer = make_napari_viewer_proxy()
+    viewer = headless_napari_viewer
     connect_viewer_callbacks(viewer)
 
     # Count callbacks linked to the viewer, for each of the four events
