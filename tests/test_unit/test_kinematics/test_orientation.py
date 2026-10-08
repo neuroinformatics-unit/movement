@@ -578,3 +578,105 @@ def test_angular_time_derivative_invalid_inputs(
         kinematics.compute_angular_time_derivative(
             data, **{"order": 1, **kwargs}
         )
+
+
+@pytest.mark.parametrize(
+    "as_vector", [False, True], ids=["angle_input", "vector_input"]
+)
+@pytest.mark.parametrize(
+    "time_in_frames, expected",
+    [
+        pytest.param(False, 10.0, id="time_in_seconds"),
+        pytest.param(True, 10.0 / 40, id="time_in_frames"),
+    ],
+)
+def test_angular_velocity_window_constant_rotation(
+    as_vector, time_in_frames, expected
+):
+    """A windowed estimate of a constant rotation is exact away from the
+    edges (the first and last ``window // 2`` frames are biased).
+    """
+    window = 7
+    angle = _rotating_angle(time_in_frames=time_in_frames)
+    data = _angle_to_vector(angle) if as_vector else angle
+    result = kinematics.compute_angular_velocity(data, window=window)
+    h = window // 2
+    np.testing.assert_allclose(
+        result.isel(time=slice(h, -h)), expected, atol=1e-6
+    )
+
+
+def test_angular_velocity_window_matches_polyfit():
+    """The windowed estimate equals the slope of a least-squares line
+    over the centred window, and the trailing-window recipe equals the
+    slope over the window ending at each time point.
+    """
+    window, h, i = 7, 3, 100
+    rng = np.random.default_rng(seed=42)
+    angle = _rotating_angle()
+    noisy = angle.copy(
+        data=np.angle(
+            np.exp(1j * (angle.values + rng.normal(0, 0.05, angle.size)))
+        )
+    )
+    t, unwrapped = noisy.time.values, np.unwrap(noisy.values)
+    result = kinematics.compute_angular_velocity(noisy, window=window)
+    centred_win = slice(i - h, i + h + 1)
+    centred = np.polyfit(t[centred_win], unwrapped[centred_win], 1)
+    assert np.isclose(result.values[i], centred[0])
+    trailing_win = slice(i - window + 1, i + 1)
+    trailing = np.polyfit(t[trailing_win], unwrapped[trailing_win], 1)
+    assert np.isclose(result.shift(time=h).values[i], trailing[0])
+    raw = kinematics.compute_angular_velocity(noisy)
+    assert result.std() < raw.std()
+
+
+@pytest.mark.parametrize(
+    "nan_frames",
+    [
+        pytest.param([50, 51, 120], id="interior_gaps"),
+        pytest.param([0, 1, 2, 197, 198, 199], id="leading_trailing"),
+    ],
+)
+def test_window_with_nans(nan_frames):
+    """NaNs (including at the edges) do not raise, and stay local."""
+    angle = _rotating_angle()
+    angle[nan_frames] = np.nan
+    result = kinematics.compute_angular_velocity(angle, window=5)
+    assert result.isnull().sum() <= 5 * len(nan_frames)
+    interior = result.isel(time=slice(5, -5)).dropna("time")
+    np.testing.assert_allclose(interior, 10.0, atol=1e-6)
+
+
+def test_angular_time_derivative_order_2_window():
+    """A windowed order-2 derivative recovers a constant acceleration."""
+    angle = _rotating_angle(angular_velocity=1.0, angular_acceleration=4.0)
+    result = kinematics.compute_angular_time_derivative(
+        angle, order=2, window=9
+    )
+    np.testing.assert_allclose(result.isel(time=slice(5, -5)), 4.0, atol=1e-6)
+
+
+def test_window_preserves_upstream_log():
+    """The internal savgol_filter call does not leak into ``log``."""
+    angle = _rotating_angle()
+    angle.attrs["log"] = '[{"operation": "upstream"}]'
+    result = kinematics.compute_angular_velocity(angle, window=5)
+    assert result.attrs.get("log") == '[{"operation": "upstream"}]'
+
+
+@pytest.mark.parametrize(
+    "data, window",
+    [
+        pytest.param(_rotating_angle(), 1, id="window_too_small"),
+        pytest.param(
+            _rotating_angle().assign_coords(time=np.arange(200) ** 1.1),
+            5,
+            id="non_uniform_time",
+        ),
+    ],
+)
+def test_window_invalid_inputs(data, window):
+    """Invalid windows or non-uniform time raise a ValueError."""
+    with pytest.raises(ValueError):
+        kinematics.compute_angular_velocity(data, window=window)

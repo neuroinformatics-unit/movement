@@ -7,6 +7,7 @@ import numpy as np
 import xarray as xr
 from numpy.typing import ArrayLike
 
+from movement.filtering import savgol_filter
 from movement.kinematics.kinematics import compute_time_derivative
 from movement.utils.logging import logger
 from movement.utils.vector import (
@@ -301,35 +302,39 @@ def compute_angular_time_derivative(
 
     Notes
     -----
-    Naively differentiating angles produces large spurious spikes
-    whenever the angle wraps around from :math:`\pi` to :math:`-\pi`
-    (or vice versa). To avoid this, we compute the
-    :func:`signed angle <movement.utils.vector.compute_signed_angle_2d>`
-    between consecutive orientations. Each increment lies in
-    :math:`(-\pi, \pi]`, so wrap-arounds have no effect, and the
-    cumulative sum of the increments gives a continuous angle. Gaps
-    (NaNs or zero-length vectors) are bridged by the rotation between
-    the last valid frame before the gap and the first valid frame after
-    it.
+    **Wrap-around.** Differentiating angles directly produces spurious
+    spikes wherever they wrap around at :math:`\pm\pi`. Instead, we sum
+    the :func:`signed angles<movement.utils.vector.compute_signed_angle_2d>`
+    between consecutive valid orientations into a continuous angle, and
+    differentiate that. Gaps (NaNs or zero-length vectors) are bridged by
+    the rotation across them. This assumes rotations of less than
+    :math:`\pi` between consecutive valid frames.
 
-    This assumes that the orientation rotates by less than :math:`\pi`
-    between consecutive valid frames. Larger rotations are
-    indistinguishable from smaller rotations in the opposite direction.
-    They typically indicate tracking errors, such as swapped left/right
-    keypoints.
-
-    Positive values correspond to rotations from the positive x-axis
+    **Sign.** Positive values are rotations from the positive x-axis
     towards the positive y-axis. In image coordinates (y pointing down)
-    with a top-down camera, this is a clockwise rotation on screen,
-    i.e. a right turn of the animal.
+    with a top-down camera, this is clockwise on screen, i.e. a right
+    turn.
 
-    To smooth the orientation *before* differentiating, smooth the
-    vectors rather than the angles, for example with
-    :func:`movement.filtering.rolling_filter`. A rolling mean of the
-    vector components is a circular mean, whereas a rolling mean of
-    angles is wrong near :math:`\pm\pi`. Likewise, fill gaps with
-    :func:`movement.filtering.interpolate_over_time` applied to the
-    vectors, not to the angles.
+    **Windowed estimate.** With ``window``, a Savitzky-Golay filter
+    (see :func:`movement.filtering.savgol_filter`) is applied to the
+    continuous angle. For ``order=1``, this is the slope of a
+    least-squares line over the ``window`` frames centred on each time
+    point. It uses every frame in the window, unlike a rolling mean of the
+    raw angular velocity, which roughly takes the difference between the
+    window's end points. The first and last ``window // 2`` values are
+    biased towards zero, and NaNs propagate to every output whose window
+    contains them. For a window *ending* on each time point, shift the
+    result by ``window // 2`` frames. This is exact for an odd
+    ``window``.
+
+    **Preprocessing.** Smooth, interpolate, or resample the orientation
+    as *vectors*, not angles, since angle averages are wrong near
+    :math:`\pm\pi`. For example, a rolling mean of the vector components
+    (:func:`movement.filtering.rolling_filter`) is a circular mean.
+    Resample irregularly sampled data onto a uniform ``time`` grid first,
+    e.g. with :meth:`xarray.DataArray.interp` on the vectors, because
+    ``window`` requires uniform sampling and our filters count windows
+    in frames, not in units of time.
 
     See Also
     --------
@@ -345,7 +350,18 @@ def compute_angular_time_derivative(
         )
     validate_dims_coords(data, {"time": []})
     theta = _unwrap_orientation(data)
-    return compute_time_derivative(theta, order)
+    if window is None:
+        return compute_time_derivative(theta, order)
+    result = savgol_filter(
+        theta,
+        window,
+        polyorder=order,
+        deriv=order,
+        delta=_uniform_time_step(theta),
+        mode="nearest",
+    )
+    result.attrs = theta.attrs.copy()  # drop internal savgol_filter log
+    return result
 
 
 def compute_angular_velocity(
@@ -389,6 +405,31 @@ def compute_angular_velocity(
     --------
     compute_angular_time_derivative : The underlying function used.
 
+    Examples
+    --------
+    >>> from movement.kinematics import (
+    ...     compute_angular_velocity,
+    ...     compute_forward_vector,
+    ... )
+    >>> head_vector = compute_forward_vector(
+    ...     ds.position, "left_ear", "right_ear"
+    ... )
+
+    Unsmoothed angular head velocity:
+
+    >>> ahv = compute_angular_velocity(head_vector)
+
+    Least-squares estimate over a centred window of 7 frames, in degrees:
+
+    >>> ahv = compute_angular_velocity(head_vector, window=7, in_degrees=True)
+
+    Same estimate, but over a trailing window of 7 frames (ending on each
+    time point):
+
+    >>> ahv_trailing = compute_angular_velocity(head_vector, window=7).shift(
+    ...     time=7 // 2
+    ... )
+
     """
     result = compute_angular_time_derivative(data, order=1, window=window)
     if in_degrees:
@@ -415,6 +456,19 @@ def _unwrap_orientation(data: xr.DataArray) -> xr.DataArray:
     filled = vectors.where(valid).ffill(dim="time")
     increments = compute_signed_angle_2d(filled.shift(time=1), filled)
     return increments.fillna(0).cumsum(dim="time").where(valid)
+
+
+def _uniform_time_step(data: xr.DataArray) -> float:
+    """Return the time step, which must be uniform."""
+    steps = np.diff(data["time"].values)
+    if not np.allclose(steps, steps[0]):
+        raise logger.error(
+            ValueError(
+                "A uniformly sampled 'time' coordinate is required "
+                "when 'window' is set."
+            )
+        )
+    return float(steps[0])
 
 
 def _validate_type_data_array(data: xr.DataArray) -> None:
