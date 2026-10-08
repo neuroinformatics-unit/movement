@@ -74,6 +74,38 @@ class TestVector:
         return cart_pol_dataset
 
     @pytest.fixture
+    def cart_pol_dataset_3d_cart(self, cart_pol_dataset):
+        """Return an xarray.Dataset where the Cartesian data are 3D,
+        i.e. ``space`` has a ``z`` coordinate next to ``x`` and ``y``.
+        """
+        cart = cart_pol_dataset.cart
+        z = xr.zeros_like(cart.sel(space="x")).assign_coords(space="z")
+        # build a new Dataset: assigning into the old one would trim ``space``
+        return xr.Dataset(
+            {
+                "cart": xr.concat([cart, z], dim="space"),
+                "pol": cart_pol_dataset.pol,
+            }
+        )
+
+    @pytest.fixture
+    def cart_pol_dataset_extra_pol_coords(self, cart_pol_dataset):
+        """Return an xarray.Dataset where the polar data have a third
+        coordinate in ``space_pol`` next to ``rho`` and ``phi``.
+        """
+        pol = cart_pol_dataset.pol
+        extra = xr.zeros_like(pol.sel(space_pol="rho")).assign_coords(
+            space_pol="theta"
+        )
+        # build a new Dataset: assigning into the old one would trim the dim
+        return xr.Dataset(
+            {
+                "cart": cart_pol_dataset.cart,
+                "pol": xr.concat([pol, extra], dim="space_pol"),
+            }
+        )
+
+    @pytest.fixture
     def cart_pol_dataset_missing_pol_dim(self, cart_pol_dataset):
         """Return an xarray.Dataset with Cartesian and polar coordinates,
         where the required ``space_pol`` dimension is missing.
@@ -99,6 +131,7 @@ class TestVector:
                 "cart_pol_dataset_missing_cart_coords",
                 pytest.raises(ValueError),
             ),
+            ("cart_pol_dataset_3d_cart", pytest.raises(ValueError)),
         ],
     )
     def test_cart2pol(self, ds, expected_exception, request):
@@ -119,6 +152,10 @@ class TestVector:
             ),
             (
                 "cart_pol_dataset_missing_pol_coords",
+                pytest.raises(ValueError),
+            ),
+            (
+                "cart_pol_dataset_extra_pol_coords",
                 pytest.raises(ValueError),
             ),
         ],
