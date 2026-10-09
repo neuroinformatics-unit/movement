@@ -6,7 +6,8 @@ The `movement` graphical user interface (GUI), powered by our custom plugin for
 motion tracks. Currently, you can use it to
 visualise 2D [movement datasets](target-poses-and-bboxes-dataset)
 as points, tracks, and rectangular bounding boxes (if defined) overlaid on
-video frames, as well as to define regions of interest (RoIs).
+video frames, to manually [correct tracking errors](target-edit-tracked-data),
+and to define regions of interest (RoIs).
 
 The `napari` plugin is shipped with the `movement` package starting from
 version `0.1.0`.  To use it, you need to
@@ -119,7 +120,8 @@ Dragging and dropping the image file onto the `napari` window
 (or opening it via the `File` menu) will load the image
 as a single 2D frame without a slider.
 
-## Load the tracked dataset
+(target-load-tracked-data)=
+## Load tracked data
 
 Now you are ready to load some motion tracks over your chosen background layer.
 
@@ -202,7 +204,7 @@ And for a bounding boxes dataset, you will see a view more like the one below:
 
 Note the additional bounding boxes layer that is loaded for bounding boxes datasets. For both poses and bounding boxes datasets, you can toggle the visibility of any of these layers by clicking on the eye icon.
 
-
+(target-points-layer)=
 ### The points layer
 The points layer shows the data for the current frame.
 
@@ -248,7 +250,7 @@ You can find all the [keyboard shortcuts](napari:guides/preferences.html#shortcu
 
 :::
 
-
+(target-tracks-layer)=
 ### The tracks layer
 
 The tracks layer allows us to visualise data before and after the current frame.
@@ -310,6 +312,163 @@ You can use the following keyboard shortcuts to toggle the bounding boxes select
 You can find all the [keyboard shortcuts](napari:guides/preferences.html#shortcuts) in the top menu of the
 `napari` window, under `Preferences > Shortcuts`.
 
+:::
+
+(target-edit-tracked-data)=
+## Edit tracked data
+
+Pose estimation models occasionally produce errors such as mis-localised
+keypoints and false-positive detections in the background, which automated
+post-processing (e.g. {ref}`filtering or interpolation <sphx_glr_examples_filter_and_interpolate.py>`)
+cannot fully resolve.
+The `movement` GUI lets you correct these prediction errors by interactively
+[editing the keypoints](target-edit-types) on the
+[points layer](target-points-layer) created when you
+[load the tracked dataset](target-load-tracked-data).
+
+Editing involves the following parts of the GUI:
+
+- **The viewer**, where you select and edit keypoints on the points layer.
+- **The `Edit tracked data` menu** on the right-hand side of the window,
+  which holds the [editing options](target-edit-types). Expanding or collapsing it shows or
+  hides the edit timeline.
+- **The [edit timeline](target-edit-timeline)** at the bottom of the
+  window, which provides a visual summary of all edited frames and lets
+  you navigate to them.
+- **The `Save tracked data` menu**, which lets you
+  [save your changes](target-save-edits) to a file.
+
+![napari GUI elements involved in editing tracked data](../_static/napari_edit_overview.png)
+
+:::{warning}
+Editing is currently supported for **poses datasets** only.
+While the keypoints in bounding boxes datasets are editable, saving any
+changes is not yet supported and will result in an error.
+:::
+
+### Select keypoints
+
+To start editing:
+
+1. Select the points layer in the layer list.
+2. Use the frame slider to go to the frame you want to correct.
+3. In the layer controls panel, activate the *Select points* tool
+   (the arrowhead icon, or press `S` or `3`).
+
+With the *Select points* tool active, you can select keypoints directly in the
+viewer using one of the following methods:
+
+- Click a keypoint to select it.
+- Hold `Shift` while clicking to select multiple keypoints.
+- Drag a selection box to select a group of keypoints.
+
+<video autoplay loop muted playsinline width="100%" aria-label="Selecting keypoints by clicking, Shift-clicking, and dragging a selection box">
+  <source src="../_static/napari_select_keypoints.mp4" type="video/mp4">
+</video>
+
+:::{note}
+Editing is disabled whenever the frame slider is controlling a non-time
+dimension, e.g. after changing the order of the viewer axes or switching to 3D
+view. Return to the 2D view with time as the leading axis to re-enable editing.
+:::
+
+(target-edit-types)=
+### Edit types
+
+When you edit a keypoint, the `Edit tracked data` menu expands and the
+[edit timeline](target-edit-timeline) appears at the bottom of the window,
+showing a bar for the current frame. The [tracks layer](target-tracks-layer)
+updates automatically to stay in sync with the points layer, so trajectories
+always reflect the current keypoint positions.
+
+#### Move keypoints
+
+To **move** the selected keypoint(s), drag them to the correct position.
+Moved keypoints are shown as rings. Their confidence is set to `NaN`
+(hover over a point to check), because the model's score no longer applies.
+
+<video autoplay loop muted playsinline width="100%" aria-label="Dragging a keypoint to a new position, after which it is shown as a ring">
+  <source src="../_static/napari_move_keypoints.mp4" type="video/mp4">
+</video>
+
+#### Remove keypoints
+
+To **remove** the selected keypoint(s), click the ✕ icon in the layer controls
+panel, or press `Delete`, `Backspace`, or `1`.
+Removed keypoints disappear from the viewer, and their confidence scores are
+set to `NaN`.
+
+<video autoplay loop muted playsinline width="100%" aria-label="Removing selected keypoints, which then disappear from the viewer">
+  <source src="../_static/napari_remove_keypoints.mp4" type="video/mp4">
+</video>
+
+(target-edit-timeline)=
+### Edit timeline
+
+The edit timeline spans all frames of the dataset in the currently selected
+`movement` points layer, and shows a vertical bar for every frame
+containing at least one edited keypoint.
+A dashed line marks the current frame displayed in the viewer and
+moves with the frame slider as you navigate through the frames.
+
+You can interact with the timeline as follows:
+
+| Action | Effect |
+|---|---|
+| Click a bar | Go to the corresponding edited frame |
+| Scroll up / down | Zoom in / out, centred on the cursor (e.g. to distinguish between bars of adjacent frames) |
+| Click and drag | Pan along the timeline (when zoomed in) |
+| Double-click | Reset the view to show all frames |
+
+<video autoplay loop muted playsinline width="100%" aria-label="Clicking a bar, zooming, panning, and resetting the edit timeline">
+  <source src="../_static/napari_edit_timeline.mp4" type="video/mp4">
+</video>
+
+For datasets with multiple individuals, tick the `Display individuals`
+checkbox in the `Edit tracked data` menu to split the timeline into one
+row per individual. Each row's bars match the colour of that individual's
+points, showing which individuals were corrected in which frames.
+The checkbox is disabled for single-individual datasets.
+
+<video autoplay loop muted playsinline width="100%" aria-label="Ticking Display individuals to split the edit timeline into one row per individual">
+  <source src="../_static/napari_edit_timeline_individuals.mp4" type="video/mp4">
+</video>
+
+(target-save-edits)=
+### Save edits
+
+To save your edits to a file:
+
+1. Select the `movement` points layer that contains the edits in the layer list.
+2. Expand the `Save tracked data` menu and click `Save`
+   (enabled only when a `movement` points layer is selected).
+3. In the dialog that opens, choose a location and enter a file name.
+   The data is currently saved in `movement`'s native
+   [netCDF](target-netcdf) format.
+
+The saved file contains a valid
+[movement poses dataset](target-poses-and-bboxes-dataset) with:
+
+- the corrected `position` values; removed keypoints are stored as `NaN`;
+- the `confidence` values, with moved and removed keypoints stored as `NaN`;
+- a boolean `edited` data variable, with dimensions
+  `(time, keypoint, individual)`, storing `True` for every edited keypoint and `False` for all others.
+
+The `edited` variable is included only if at least one keypoint was edited.
+Keypoints or individuals that end up with no data in any frame
+(e.g. because all their points were removed) are dropped from the saved
+dataset. Frames are never dropped: a frame whose points were all removed
+is kept, with `NaN` values.
+
+To resume editing later, [load](target-load-tracked-data) the saved
+`.nc` file in the GUI: all previous edits are restored, so you can pick
+up exactly where you left off.
+
+:::{tip}
+Because the edits are saved in the `edited` variable, you can use them in
+your analysis, for example to report how many keypoints were corrected by
+hand, or to compare results with and without the corrected frames.
+See [](target-netcdf) for how to load the file in Python.
 :::
 
 (target-define-rois)=
