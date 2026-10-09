@@ -416,16 +416,13 @@ You can interact with the timeline as follows:
 
 <!-- TODO: insert GIF showing the 4 timeline interactions; e.g. start with 3 frames already edited (1 that's further away from the other 2 to demo clicking; the other 2 edited frames should be adjacent to demo zooming in, reset -->
 
-![Edited frames timeline docked at the bottom of the napari window](../_static/napari_edit_timeline.gif)
-
 For datasets with multiple individuals, tick the `Display individuals`
 checkbox in the `Edit tracked data` menu to split the timeline into one
 row per individual. Each row's bars match the colour of that individual's
 points, showing which individuals were corrected in which frames.
 The checkbox is disabled for single-individual datasets.
 
-<!-- TODO: trim GIF to show only the action of checking the box and the timeline changes -->
-![Edited frames timeline split into one row per individual](../_static/napari_edit_timeline_individuals.gif)
+<!-- TODO: insert GIF showing only the action of checking the box and the timeline changes -->
 
 (target-save-edits)=
 ### Save edits
