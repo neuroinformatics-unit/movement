@@ -338,7 +338,7 @@ Editing involves the following parts of the GUI:
 - **The `Save tracked data` menu**, which lets you
   [save your changes](target-save-edits) to a file.
 
-<!-- TODO: (optional) insert screenshot of the GUI, highlighting relevant elements, similar to the ones above, napari_bboxes_layers.png -->
+![napari GUI elements involved in editing tracked data](../_static/napari_edit_overview.png)
 
 :::{warning}
 Editing is currently supported for **poses datasets** only.
@@ -362,7 +362,9 @@ viewer using one of the following methods:
 - Hold `Shift` while clicking to select multiple keypoints.
 - Drag a selection box to select a group of keypoints.
 
-<!-- TODO: insert GIF of the 3 selection methods -->
+<video autoplay loop muted playsinline width="100%" aria-label="Selecting keypoints by clicking, Shift-clicking, and dragging a selection box">
+  <source src="../_static/napari_select_keypoints.mp4" type="video/mp4">
+</video>
 
 :::{note}
 Editing is disabled whenever the frame slider is controlling a non-time
@@ -385,7 +387,9 @@ To **move** the selected keypoint(s), drag them to the correct position.
 Moved keypoints are shown as rings. Their confidence is set to `NaN`
 (hover over a point to check), because the model's score no longer applies.
 
-<!-- TODO: insert GIF showing keypoint(s) being dragged, converted to ring(s); hover over to show confidence is NaN; can be entire GUI window to show the timeline changes -->
+<video autoplay loop muted playsinline width="100%" aria-label="Dragging a keypoint to a new position, after which it is shown as a ring">
+  <source src="../_static/napari_move_keypoints.mp4" type="video/mp4">
+</video>
 
 #### Remove keypoints
 
@@ -394,7 +398,9 @@ panel, or press `Delete`, `Backspace`, or `1`.
 Removed keypoints disappear from the viewer, and their confidence scores are
 set to `NaN`.
 
-<!-- TODO: insert GIF showing keypoint(s) being removed; can be entire GUI window to show the timeline changes -->
+<video autoplay loop muted playsinline width="100%" aria-label="Removing selected keypoints, which then disappear from the viewer">
+  <source src="../_static/napari_remove_keypoints.mp4" type="video/mp4">
+</video>
 
 (target-edit-timeline)=
 ### Edit timeline
@@ -414,7 +420,9 @@ You can interact with the timeline as follows:
 | Click and drag | Pan along the timeline (when zoomed in) |
 | Double-click | Reset the view to show all frames |
 
-<!-- TODO: insert GIF showing the 4 timeline interactions; e.g. start with 3 frames already edited (1 that's further away from the other 2 to demo clicking; the other 2 edited frames should be adjacent to demo zooming in, reset -->
+<video autoplay loop muted playsinline width="100%" aria-label="Clicking a bar, zooming, panning, and resetting the edit timeline">
+  <source src="../_static/napari_edit_timeline.mp4" type="video/mp4">
+</video>
 
 For datasets with multiple individuals, tick the `Display individuals`
 checkbox in the `Edit tracked data` menu to split the timeline into one
@@ -422,7 +430,9 @@ row per individual. Each row's bars match the colour of that individual's
 points, showing which individuals were corrected in which frames.
 The checkbox is disabled for single-individual datasets.
 
-<!-- TODO: insert GIF showing only the action of checking the box and the timeline changes -->
+<video autoplay loop muted playsinline width="100%" aria-label="Ticking Display individuals to split the edit timeline into one row per individual">
+  <source src="../_static/napari_edit_timeline_individuals.mp4" type="video/mp4">
+</video>
 
 (target-save-edits)=
 ### Save edits
