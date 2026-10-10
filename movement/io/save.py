@@ -17,6 +17,7 @@ type TargetSoftware = Literal[
     "DeepLabCut",
     "SLEAP",
     "LightningPose",
+    "Anipose",
     "NWB",
     "VIA-tracks",
 ]

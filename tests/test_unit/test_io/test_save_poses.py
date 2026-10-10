@@ -14,6 +14,7 @@ output_files = [
         "to_dlc_file_expected_exception": pytest.raises(FileExistsError),
         "to_sleap_file_expected_exception": pytest.raises(FileExistsError),
         "to_lp_file_expected_exception": pytest.raises(FileExistsError),
+        "to_anipose_file_expected_exception": pytest.raises(FileExistsError),
         # invalid file path
     },
     {
@@ -21,6 +22,7 @@ output_files = [
         "to_dlc_file_expected_exception": pytest.raises(IsADirectoryError),
         "to_sleap_file_expected_exception": pytest.raises(IsADirectoryError),
         "to_lp_file_expected_exception": pytest.raises(IsADirectoryError),
+        "to_anipose_file_expected_exception": pytest.raises(IsADirectoryError),
         # invalid file path
     },
     {
@@ -28,6 +30,7 @@ output_files = [
         "to_dlc_file_expected_exception": pytest.raises(ValueError),
         "to_sleap_file_expected_exception": pytest.raises(ValueError),
         "to_lp_file_expected_exception": pytest.raises(ValueError),
+        "to_anipose_file_expected_exception": pytest.raises(ValueError),
         # invalid file path
     },
     {
@@ -35,14 +38,16 @@ output_files = [
         "to_dlc_file_expected_exception": does_not_raise(),
         "to_sleap_file_expected_exception": pytest.raises(ValueError),
         "to_lp_file_expected_exception": does_not_raise(),
-        # valid file path for dlc and lp, invalid for sleap
+        "to_anipose_file_expected_exception": does_not_raise(),
+        # valid file path for dlc, lp and anipose, invalid for sleap
     },
     {
         "file_fixture": "new_h5_file",
         "to_dlc_file_expected_exception": does_not_raise(),
         "to_sleap_file_expected_exception": does_not_raise(),
         "to_lp_file_expected_exception": pytest.raises(ValueError),
-        # valid file path for dlc and sleap, invalid for lp
+        "to_anipose_file_expected_exception": pytest.raises(ValueError),
+        # valid file path for dlc and sleap, invalid for lp and anipose
     },
 ]
 
@@ -687,3 +692,150 @@ def test_remove_unoccupied_tracks(valid_poses_dataset):
     ds = valid_poses_dataset.reindex(individual=new_individuals)
     ds = save_poses._remove_unoccupied_tracks(ds)
     xr.testing.assert_equal(ds, valid_poses_dataset)
+
+
+def test_to_anipose_file_roundtrip(anipose_csv_file, tmp_path):
+    """Test that saving a dataset loaded from an Anipose file and
+    reloading it preserves the data and metadata.
+    """
+    ds = load_poses.from_anipose_file(anipose_csv_file)
+    file = tmp_path / "anipose_out.csv"
+    save_poses.to_anipose_file(ds, file)
+    reloaded = load_poses.from_anipose_file(file)
+    print("DIAG space L:", list(ds.coords["space"].data))
+    print("DIAG space R:", list(reloaded.coords["space"].data))
+    print("DIAG kp L:", list(ds.coords["keypoint"].data))
+    print("DIAG kp R:", list(reloaded.coords["keypoint"].data))
+    print("DIAG time L:", ds.time.values[:3], "...", ds.time.values[-1])
+    print(
+        "DIAG time R:",
+        reloaded.time.values[:3],
+        "...",
+        reloaded.time.values[-1],
+    )
+    a, b = ds.position.values, reloaded.position.values
+    print("DIAG shape:", a.shape, b.shape)
+    bad = ~np.isclose(a, b, equal_nan=True)
+    print("DIAG n bad position cells:", int(bad.sum()), "of", a.size)
+    if bad.any():
+        for idx in [tuple(x) for x in np.argwhere(bad)[:8]]:
+            print(
+                "DIAG diff",
+                idx,
+                "kp=",
+                ds.keypoint.values[idx[2]],
+                "space=",
+                ds.space.values[idx[1]],
+                "L=",
+                repr(a[idx]),
+                "R=",
+                repr(b[idx]),
+            )
+    ca, cb = ds.confidence.values, reloaded.confidence.values
+    print(
+        "DIAG n bad confidence cells:",
+        int((~np.isclose(ca, cb, equal_nan=True)).sum()),
+    )
+    print("DIAG attrs L:", ds.attrs, "R:", reloaded.attrs)
+    xr.testing.assert_identical(ds, reloaded)
+
+
+def test_to_anipose_style_df_column_layout():
+    """Test that the Anipose-style DataFrame has the expected columns
+    in Anipose triangulation-file order.
+    """
+    ds = load_poses.from_numpy(
+        position_array=np.zeros((5, 3, 2, 1)),
+        confidence_array=np.full((5, 2, 1), 0.9),
+        keypoint_names=["nose", "ear"],
+    )
+    df = save_poses.to_anipose_style_df(ds)
+    expected_columns = [
+        f"{keypoint}_{suffix}"
+        for keypoint in ["nose", "ear"]
+        for suffix in ["x", "y", "z", "error", "ncams", "score"]
+    ]
+    expected_columns += [
+        f"M_{row}{col}" for row in range(3) for col in range(3)
+    ]
+    expected_columns += [f"center_{i}" for i in range(3)]
+    expected_columns += ["fnum"]
+    assert df.columns.tolist() == expected_columns
+    assert len(df) == 5
+    assert df["nose_score"].eq(0.9).all()
+
+
+def test_to_anipose_style_df_2d_dataset_writes_nan_z():
+    """Test that a dataset without a z coordinate is saved with NaN
+    z columns, since Anipose is a 3D format.
+    """
+    ds = load_poses.from_numpy(
+        position_array=np.zeros((5, 2, 2, 1)),
+        confidence_array=np.full((5, 2, 1), 0.5),
+        keypoint_names=["nose", "ear"],
+    )
+    df = save_poses.to_anipose_style_df(ds)
+    assert df["nose_z"].isna().all()
+    assert df["ear_z"].isna().all()
+    assert df["nose_x"].notna().all()
+
+
+def test_to_anipose_style_df_rejects_multi_individual(valid_poses_dataset):
+    """Test that converting a multi-individual dataset to a single
+    Anipose-style DataFrame raises an error.
+    """
+    with pytest.raises(ValueError, match="single individual"):
+        save_poses.to_anipose_style_df(valid_poses_dataset)
+
+
+def test_to_anipose_file_multi_individual(tmp_path):
+    """Test that a multi-individual dataset is saved to one Anipose
+    file per individual, with the individual name appended to the
+    file path, and that each file roundtrips.
+    """
+    ds = load_poses.from_numpy(
+        position_array=np.arange(60, dtype=float).reshape(5, 3, 2, 2),
+        confidence_array=np.full((5, 2, 2), 0.8),
+        individual_names=["mouse1", "mouse2"],
+        keypoint_names=["ear", "nose"],
+        source_software="Anipose",
+    )
+    file = tmp_path / "poses.csv"
+    save_poses.to_anipose_file(ds, file)
+    for individual_name in ["mouse1", "mouse2"]:
+        individual_file = tmp_path / f"poses_{individual_name}.csv"
+        assert individual_file.exists()
+        reloaded = load_poses.from_anipose_file(
+            individual_file, individual_name=individual_name
+        )
+        xr.testing.assert_identical(
+            ds.sel(individual=[individual_name]), reloaded
+        )
+
+
+def test_to_anipose_file_valid_dataset(
+    output_file_params, valid_poses_dataset, request
+):
+    """Test that saving a valid pose dataset to a valid/invalid
+    Anipose-style file returns the appropriate errors.
+    """
+    with output_file_params.get("to_anipose_file_expected_exception"):
+        file_fixture = output_file_params.get("file_fixture")
+        val = request.getfixturevalue(file_fixture)
+        file_path = val.get("file_path") if isinstance(val, dict) else val
+        save_poses.to_anipose_file(valid_poses_dataset, file_path)
+
+
+@pytest.mark.parametrize(
+    "invalid_poses_dataset, expected_exception",
+    invalid_poses_datasets_and_exceptions,
+)
+def test_to_anipose_file_invalid_dataset(
+    invalid_poses_dataset, expected_exception, tmp_path, request
+):
+    """Test that saving an invalid pose dataset to a valid
+    Anipose-style file returns the appropriate errors.
+    """
+    ds = request.getfixturevalue(invalid_poses_dataset)
+    with pytest.raises(expected_exception):
+        save_poses.to_anipose_file(ds, tmp_path / "test.csv")
