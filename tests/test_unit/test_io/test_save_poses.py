@@ -702,6 +702,41 @@ def test_to_anipose_file_roundtrip(anipose_csv_file, tmp_path):
     file = tmp_path / "anipose_out.csv"
     save_poses.to_anipose_file(ds, file)
     reloaded = load_poses.from_anipose_file(file)
+    print("DIAG space L:", list(ds.coords["space"].data))
+    print("DIAG space R:", list(reloaded.coords["space"].data))
+    print("DIAG kp L:", list(ds.coords["keypoint"].data))
+    print("DIAG kp R:", list(reloaded.coords["keypoint"].data))
+    print("DIAG time L:", ds.time.values[:3], "...", ds.time.values[-1])
+    print(
+        "DIAG time R:",
+        reloaded.time.values[:3],
+        "...",
+        reloaded.time.values[-1],
+    )
+    a, b = ds.position.values, reloaded.position.values
+    print("DIAG shape:", a.shape, b.shape)
+    bad = ~np.isclose(a, b, equal_nan=True)
+    print("DIAG n bad position cells:", int(bad.sum()), "of", a.size)
+    if bad.any():
+        for idx in [tuple(x) for x in np.argwhere(bad)[:8]]:
+            print(
+                "DIAG diff",
+                idx,
+                "kp=",
+                ds.keypoint.values[idx[2]],
+                "space=",
+                ds.space.values[idx[1]],
+                "L=",
+                repr(a[idx]),
+                "R=",
+                repr(b[idx]),
+            )
+    ca, cb = ds.confidence.values, reloaded.confidence.values
+    print(
+        "DIAG n bad confidence cells:",
+        int((~np.isclose(ca, cb, equal_nan=True)).sum()),
+    )
+    print("DIAG attrs L:", ds.attrs, "R:", reloaded.attrs)
     xr.testing.assert_identical(ds, reloaded)
 
 
