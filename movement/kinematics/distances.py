@@ -49,12 +49,17 @@ def _cdist(
         Additional keyword arguments to pass to
         :func:`scipy.spatial.distance.cdist`.
 
-
     Returns
     -------
     xarray.DataArray
         An xarray DataArray containing the computed distances between
         each pair of inputs.
+
+    See Also
+    --------
+    scipy.spatial.distance.cdist : The underlying function used.
+    compute_pairwise_distances : Compute pairwise distances between
+        ``individual`` or ``keypoint``
 
     Examples
     --------
@@ -73,12 +78,6 @@ def _cdist(
     >>> pos1 = ds.position.sel(keypoint="key1")
     >>> pos2 = ds.position.sel(keypoint="key2")
     >>> key_dists = _cdist(pos1, pos2, dim="keypoint")
-
-    See Also
-    --------
-    scipy.spatial.distance.cdist : The underlying function used.
-    compute_pairwise_distances : Compute pairwise distances between
-        ``individual`` or ``keypoint``
 
     """
     # The dimension from which ``dim`` labels are obtained
@@ -172,6 +171,10 @@ def compute_pairwise_distances(
         if ``pairs`` is not a dictionary or ``'all'``; or
         if there are no pairs in ``data`` to compute distances for.
 
+    See Also
+    --------
+    scipy.spatial.distance.cdist : The underlying function used.
+
     Examples
     --------
     Compute the Euclidean distance (default) between ``ind1`` and ``ind2``
@@ -261,10 +264,6 @@ def compute_pairwise_distances(
     ... )
     >>> ind_dists.keys()
     dict_keys(['dist_ind1_ind2', 'dist_ind1_ind3', 'dist_ind2_ind3'])
-
-    See Also
-    --------
-    scipy.spatial.distance.cdist : The underlying function used.
 
     """
     if dim not in ["individual", "keypoint"]:

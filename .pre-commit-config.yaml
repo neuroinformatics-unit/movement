@@ -65,6 +65,12 @@ repos:
           - id: codespell
     - repo: local
       hooks:
+          - id: numpydoc-section-order
+            name: check numpydoc section order
+            entry: python tools/check_docstring_sections.py
+            language: python
+            files: ^movement/.*\.py$
+            types: [python]
           - id: no-movement-url
             name: block hardcoded movement URL in docs - use relative refs
             language: pygrep

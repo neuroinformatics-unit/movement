@@ -62,6 +62,11 @@ def compute_path_length(
         with dimensions matching those of the input data,
         except ``time`` and ``space`` are removed.
 
+    See Also
+    --------
+    compute_path_straightness : A related metric that quantifies
+        the straightness of a path.
+
     Notes
     -----
     1. **Handling missing values:**
@@ -88,11 +93,6 @@ def compute_path_length(
        increases the total measured path length. Exercise caution when
        comparing path lengths across datasets with different temporal
        resolutions.
-
-    See Also
-    --------
-    compute_path_straightness : A related metric that quantifies
-        the straightness of a path.
 
     Examples
     --------
@@ -153,6 +153,17 @@ def compute_path_straightness(
         with dimensions matching those of the input data,
         except ``time`` and ``space`` are removed.
 
+    See Also
+    --------
+    compute_path_length : The underlying function used to
+        compute the path length :math:`L`.
+    compute_path_sinuosity :
+        A related turning-angle-based measure of path tortuosity.
+    compute_path_emax :
+        An alternative straightness measure derived from the
+        turning-angle distribution which, unlike the :math:`D/L`
+        ratio, does not depend on the number of steps in the path.
+
     Notes
     -----
     The Euclidean distance :math:`D`, also known as the "straight-line" or
@@ -164,17 +175,6 @@ def compute_path_straightness(
     Note that the total path length (L), and therefore the straightness index,
     is sensitive to the temporal sampling  rate (i.e. frames per second),
     as described in the Notes of :func:`compute_path_length`.
-
-    See Also
-    --------
-    compute_path_length : The underlying function used to
-        compute the path length :math:`L`.
-    compute_path_sinuosity :
-        A related turning-angle-based measure of path tortuosity.
-    compute_path_emax :
-        An alternative straightness measure derived from the
-        turning-angle distribution which, unlike the :math:`D/L`
-        ratio, does not depend on the number of steps in the path.
 
     Examples
     --------
@@ -238,6 +238,14 @@ def compute_turning_angle(
         Turning angles with the same shape as the input ``data``, but
         with the ``space`` dimension dropped.
 
+    See Also
+    --------
+    movement.kinematics.compute_backward_displacement :
+        The underlying function used to compute the displacement vectors.
+    movement.utils.vector.compute_signed_angle_2d :
+        The underlying function used to compute the signed angle
+        between two consecutive displacement vectors.
+
     Notes
     -----
     1. **Time dimension length:** This function uses a ``shift``
@@ -263,14 +271,6 @@ def compute_turning_angle(
        Use :func:`movement.filtering.interpolate_over_time` to fill
        positional gaps before computing turning angles if continuity
        is important.
-
-    See Also
-    --------
-    movement.kinematics.compute_backward_displacement :
-        The underlying function used to compute the displacement vectors.
-    movement.utils.vector.compute_signed_angle_2d :
-        The underlying function used to compute the signed angle
-        between two consecutive displacement vectors.
 
     Examples
     --------
@@ -476,6 +476,13 @@ def compute_directional_change(
         ``time`` unit (e.g. radians/second if ``time`` is in seconds),
         or degrees per ``time`` unit if ``in_degrees`` is ``True``.
 
+    See Also
+    --------
+    compute_turning_angle :
+        The underlying function used to compute turning angles.
+    compute_path_emax :
+        A related path-straightness measure based on turning angles.
+
     Notes
     -----
     **Boundary behaviour:** The first two time steps of the output are
@@ -488,13 +495,6 @@ def compute_directional_change(
        flight path of Batesian intraspecific polymorphic butterfly
        *Papilio polytes*. *Proc. R. Soc. B* 282(1809).
        https://doi.org/10.1098/rspb.2015.0483
-
-    See Also
-    --------
-    compute_turning_angle :
-        The underlying function used to compute turning angles.
-    compute_path_emax :
-        A related path-straightness measure based on turning angles.
 
     Examples
     --------
