@@ -621,8 +621,10 @@ class ValidVIATracksCSV:
         # validation depends on it
         self._frame_regexp_valid(self.frame_regexp)
 
-        # Read csv as a dataframe
-        df = pd.read_csv(value)
+        # Read csv as a dataframe. float_precision="round_trip" selects
+        # pandas' correctly-rounded parser, so parsed bboxes match the
+        # values written to the file exactly.
+        df = pd.read_csv(value, float_precision="round_trip")
 
         # Run all validation steps
         self._file_contains_valid_header(df)
