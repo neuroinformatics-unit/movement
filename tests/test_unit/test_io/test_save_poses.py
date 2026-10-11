@@ -745,6 +745,44 @@ def test_to_anipose_style_df_2d_dataset_writes_nan_z():
     assert df["nose_x"].notna().all()
 
 
+@pytest.mark.parametrize(
+    "valid_poses_dataset",
+    ["single_individual_array"],
+    indirect=True,
+)
+def test_to_anipose_style_df_expands_individual_confidence(
+    valid_poses_dataset_with_individual_wise_confidence,
+    caplog,
+):
+    """Test that individual-wise confidence scores are expanded
+    across all keypoints, with a warning, since Anipose-style files
+    only support keypoint-wise confidence scores.
+    """
+    ds = valid_poses_dataset_with_individual_wise_confidence
+    df = save_poses.to_anipose_style_df(ds)
+    assert "keypoint-wise confidence scores" in caplog.text
+    expected = ds.confidence.values.ravel()
+    for keypoint in ds.coords["keypoint"].data.tolist():
+        np.testing.assert_array_equal(
+            df[f"{keypoint}_score"].to_numpy(), expected
+        )
+
+
+def test_to_anipose_style_df_fnum_from_fps():
+    """Test that frame numbers are derived from time and fps when
+    the dataset has fps set.
+    """
+    ds = load_poses.from_numpy(
+        position_array=np.zeros((5, 3, 2, 1)),
+        confidence_array=np.full((5, 2, 1), 0.9),
+        keypoint_names=["nose", "ear"],
+        fps=30.0,
+    )
+    df = save_poses.to_anipose_style_df(ds)
+    expected = np.rint(ds.time.values * 30.0).astype(int)
+    np.testing.assert_array_equal(df["fnum"].to_numpy(), expected)
+
+
 def test_to_anipose_style_df_rejects_multi_individual(valid_poses_dataset):
     """Test that converting a multi-individual dataset to a single
     Anipose-style DataFrame raises an error.
