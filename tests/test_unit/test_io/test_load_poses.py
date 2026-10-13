@@ -117,6 +117,42 @@ def test_load_from_dlc_style_df(
     helpers.assert_valid_dataset(ds, expected_values)
 
 
+def test_load_from_dlc_style_df_ignores_unsupported_coords(
+    valid_dlc_eks_style_poses_df, valid_dlc_poses_df, helpers, caplog
+):
+    """Test that eks diagnostic coords are ignored with a warning and
+    yield the same dataset as the plain DLC-style DataFrame.
+    """
+    with caplog.at_level("WARNING"):
+        ds_eks = load_poses.from_dlc_style_df(valid_dlc_eks_style_poses_df)
+    assert "x_posterior_var" in caplog.text
+
+    ds_ref = load_poses.from_dlc_style_df(valid_dlc_poses_df)
+    helpers.assert_valid_dataset(
+        ds_eks, {**expected_values_poses, "source_software": "DeepLabCut"}
+    )
+    xr.testing.assert_allclose(ds_eks.position, ds_ref.position)
+    xr.testing.assert_allclose(ds_eks.confidence, ds_ref.confidence)
+
+
+def test_load_from_dlc_3d_style_df_ignores_unsupported_coords(
+    valid_dlc_3d_eks_style_poses_df, valid_dlc_3d_poses_df, helpers, caplog
+):
+    """Test that 3D eks posterior-variance coords are ignored with a
+    warning and yield the same dataset as the plain 3D DataFrame.
+    """
+    with caplog.at_level("WARNING"):
+        ds_eks = load_poses.from_dlc_style_df(valid_dlc_3d_eks_style_poses_df)
+    assert "z_posterior_var" in caplog.text
+
+    ds_ref = load_poses.from_dlc_style_df(valid_dlc_3d_poses_df)
+    helpers.assert_valid_dataset(
+        ds_eks, {**expected_values_poses, "source_software": "DeepLabCut"}
+    )
+    xr.testing.assert_allclose(ds_eks.position, ds_ref.position)
+    xr.testing.assert_allclose(ds_eks.confidence, ds_ref.confidence)
+
+
 def test_load_from_dlc_file_csv_or_h5_file_returns_same():
     """Test that loading pose tracks from DLC .csv and .h5 files
     return the same Dataset.
