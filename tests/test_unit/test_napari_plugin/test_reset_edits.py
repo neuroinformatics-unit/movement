@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from napari.components import ViewerModel
+from napari.layers import Points
 from qtpy.QtWidgets import QMessageBox
 
 from movement.napari import layer_wiring as wiring
@@ -22,7 +23,7 @@ def reset_layers():
         "edited": np.array([True, False, False, False]),
     }
     loaded_props = pd.DataFrame(props).assign(position_is_nan=False)
-    points = viewer.add_points(
+    points = Points(
         data[:, 1:].copy(),
         properties=props,
         metadata={
@@ -31,6 +32,8 @@ def reset_layers():
             wiring.POINTS_POSITION_KEY: data.copy(),
         },
     )
+    wiring.add_edits_reset_event(points)
+    viewer.add_layer(points)
     tracks = viewer.add_tracks(data.copy(), properties=props)
     points.metadata[wiring.TRACKS_LAYER_KEY] = tracks
     wiring.set_point_symbol_by_edited(points)
@@ -82,6 +85,21 @@ def test_reset_skips_missing_loaded_positions(reset_layers, frame):
         points.metadata[wiring.POINTS_POSITION_KEY], loaded_positions
     )
     assert "position_is_nan" not in points.properties
+
+
+@pytest.mark.parametrize("frame", [None, 1])
+def test_reset_emits_edits_reset_event(reset_layers, frame):
+    """Reset notifies via ``edits_reset``, not as a data change."""
+    points = reset_layers[0]
+    data_events, reset_events = [], []
+    points.events.data.connect(data_events.append)
+    # napari clears event.source after emission, so record it here
+    points.events.edits_reset.connect(
+        lambda e: reset_events.append((e.source, e.frame))
+    )
+    wiring.reset_edits(points, frame=frame)
+    assert data_events == []
+    assert reset_events == [(points, frame)]
 
 
 def test_reset_all_restores_loaded_properties_and_symbols(reset_layers):

@@ -258,9 +258,11 @@ class EditTimelineWidget(QWidget):
         self.canvas.draw_idle()
 
     def _track_layer(self, layer):
-        """Connect to a movement Points layer's data-change event."""
+        """Connect to a movement Points layer's data and reset events."""
         if is_movement_points_layer(layer):
             layer.events.data.connect(self._on_layer_data_changed)
+            if hasattr(layer.events, "edits_reset"):
+                layer.events.edits_reset.connect(self._on_edits_reset)
 
     def _on_layer_inserted(self, event):
         """Track newly added movement Points layers."""
@@ -365,26 +367,31 @@ class EditTimelineWidget(QWidget):
         """
         if event.source is not self.active_layer:
             return
-        if getattr(event, "movement_reset", False) is True:
-            frame = event.frame
-            previous = self._reconstruct_previously_removed_points(
-                self.active_layer
-            )
-            if frame is None:
-                self._removed_points = previous
-            else:
-                self._removed_points = [
-                    point
-                    for point in self._removed_points
-                    if point[0] != frame
-                ] + [point for point in previous if point[0] == frame]
-            self._redraw_bars()
-            return
         if event.action == ActionType.REMOVING:
             self._capture_removed_points(event)
             self._redraw_bars()
         elif event.action == ActionType.CHANGED:
             QTimer.singleShot(0, self._redraw_bars)
+
+    def _on_edits_reset(self, event):
+        """Drop the removed-point bars of the reset frame(s).
+
+        Restored points are live rows again, so only the points removed
+        and saved in an earlier session remain flagged as removed.
+        """
+        if event.source is not self.active_layer:
+            return
+        frame = event.frame
+        previous = self._reconstruct_previously_removed_points(
+            self.active_layer
+        )
+        if frame is None:
+            self._removed_points = previous
+        else:
+            self._removed_points = [
+                point for point in self._removed_points if point[0] != frame
+            ] + [point for point in previous if point[0] == frame]
+        self._redraw_bars()
 
     def _capture_removed_points(self, event):
         """Snapshot the identity of points about to be removed."""

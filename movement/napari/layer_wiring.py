@@ -22,6 +22,7 @@ import pandas as pd
 from napari.components.dims import RangeTuple
 from napari.layers import Points
 from napari.layers.base import ActionType
+from napari.utils.events import Event
 
 from movement.napari.layer_styles import EDITED_POINT_SYMBOL, PointsStyle
 
@@ -38,6 +39,11 @@ from movement.napari.layer_styles import EDITED_POINT_SYMBOL, PointsStyle
 #   including leading/trailing all-NaN frames (which are dropped from the
 #   napari layer data array).
 # The loaded-state values are never modified after loading.
+#
+# Poses Points layers also carry an extra ``events.edits_reset`` event
+# (see add_edits_reset_event), emitted by reset_edits once Points and
+# Tracks are consistent again. Its ``frame`` attribute is the reset frame,
+# or None if all frames were reset.
 POINTS_LAYER_KEY: str = "movement_points_layer"
 POINTS_PROPERTIES_KEY: str = "movement_points_properties"
 POINTS_POSITION_KEY: str = "movement_points_position"
@@ -192,8 +198,6 @@ def on_points_data_changed(event):
     layer = event.source
     if not isinstance(layer, Points):
         return
-    if getattr(event, "movement_reset", False) is True:
-        return
 
     if event.action == ActionType.CHANGED:
         moved_indices = list(event.data_indices)
@@ -291,6 +295,15 @@ def points_layer_properties(properties: pd.DataFrame) -> pd.DataFrame:
     ]
 
 
+def add_edits_reset_event(points_layer: Points) -> None:
+    """Register the ``edits_reset`` event emitted by `reset_edits`.
+
+    Must be called before the layer is added to the viewer, so that
+    widgets tracking newly inserted layers can connect to it.
+    """
+    points_layer.events.add(edits_reset=Event)
+
+
 def reset_edits(points_layer: Points, frame: int | None = None) -> None:
     """Restore loaded pose points for one frame, or all frames if None.
 
@@ -348,17 +361,12 @@ def reset_edits(points_layer: Points, frame: int | None = None) -> None:
         ]
     )[order]
     # Avoid interpreting restoration as a user drag or deletion. Notify
-    # observers once, after Points and Tracks are consistent again.
+    # observers once, via a dedicated event, after Points and Tracks are
+    # consistent again.
     with points_layer.events.data.blocker():
         points_layer.data = data[:, 1:].copy()
         points_layer.properties = properties
         points_layer.symbol = symbols
         points_layer.selected_data = set()
         set_tracks_layer_data(tracks, data, track_properties)
-    points_layer.events.data(
-        value=points_layer.data,
-        action=ActionType.CHANGED,
-        data_indices=(),
-        movement_reset=True,
-        frame=frame,
-    )
+    points_layer.events.edits_reset(frame=frame)
