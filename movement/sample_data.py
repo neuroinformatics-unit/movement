@@ -10,6 +10,7 @@ import logging
 import shutil
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Any
 
 import pooch
 import xarray
@@ -23,6 +24,10 @@ from movement.validators.datasets import DS_TYPE_VALIDATORS
 # URL to the remote data repository on GIN
 # noinspection PyInterpreter
 DATA_URL = "https://gin.swc.ucl.ac.uk/neuroinformatics/movement-sample-data/raw/master"
+# Plain HTTP fallback, for networks where GIN is reachable only over HTTP
+# (e.g. the SWC internal network). Downloads are still verified against
+# their SHA256 hashes, except for the metadata file.
+HTTP_DATA_URL = DATA_URL.replace("https://", "http://", 1)
 
 # Save data in ~/.movement/data
 DATA_DIR = Path("~", ".movement", "data").expanduser()
@@ -81,18 +86,28 @@ def _download_metadata_file(file_name: str, data_dir: Path = DATA_DIR) -> Path:
         Path to the downloaded file.
 
     """
-    with _hide_pooch_hash_logs():
-        local_file_path = pooch.retrieve(
-            url=f"{DATA_URL}/{file_name}",
-            known_hash=None,
-            path=data_dir,
-            fname=f"temp_{file_name}",
-            progressbar=False,
-        )
+    for base_url in (DATA_URL, HTTP_DATA_URL):
+        try:
+            with _hide_pooch_hash_logs():
+                local_file_path = pooch.retrieve(
+                    url=f"{base_url}/{file_name}",
+                    known_hash=None,
+                    path=data_dir,
+                    fname=f"temp_{file_name}",
+                    progressbar=False,
+                )
+            break
+        except RequestException:
+            if base_url == HTTP_DATA_URL:
+                raise
+            logger.debug(
+                f"Failed to download {file_name} from {base_url}. "
+                "Retrying over HTTP."
+            )
 
     logger.debug(
         f"Successfully downloaded sample metadata file {file_name} "
-        f"from {DATA_URL} to {data_dir}"
+        f"from {base_url} to {data_dir}"
     )
     return Path(local_file_path)
 
@@ -178,6 +193,39 @@ SAMPLE_DATA = pooch.create(
 )
 
 
+def _fetch_with_http_fallback(file_path: str, **kwargs) -> Any:
+    """Fetch a file from the registry, falling back to HTTP if HTTPS fails.
+
+    If the download over HTTPS raises a ``RequestException``, the base URL of
+    ``SAMPLE_DATA`` is switched to plain HTTP for the rest of the session and
+    the download is retried. Hash mismatches raise a ``ValueError`` and are
+    not retried.
+
+    Parameters
+    ----------
+    file_path
+        Path of the file in the registry, e.g. "poses/file_name.h5".
+    **kwargs
+        Additional keyword arguments passed to ``SAMPLE_DATA.fetch``.
+
+    Returns
+    -------
+    str or list of str
+        Path(s) to the downloaded (and possibly processed) file(s).
+
+    """
+    try:
+        return SAMPLE_DATA.fetch(file_path, **kwargs)
+    except RequestException:
+        if SAMPLE_DATA.base_url == f"{HTTP_DATA_URL}/":
+            raise
+        logger.warning(
+            f"Failed to download {file_path} over HTTPS. Retrying over HTTP."
+        )
+        SAMPLE_DATA.base_url = f"{HTTP_DATA_URL}/"
+        return SAMPLE_DATA.fetch(file_path, **kwargs)
+
+
 def list_datasets() -> list[str]:
     """List available sample datasets.
 
@@ -254,12 +302,16 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
         "frame": None
         if not frame_file_name
         else Path(
-            SAMPLE_DATA.fetch(f"frames/{frame_file_name}", progressbar=True)
+            _fetch_with_http_fallback(
+                f"frames/{frame_file_name}", progressbar=True
+            )
         ),
         "video": None
         if (not video_file_name) or not (with_video)
         else Path(
-            SAMPLE_DATA.fetch(f"videos/{video_file_name}", progressbar=True)
+            _fetch_with_http_fallback(
+                f"videos/{video_file_name}", progressbar=True
+            )
         ),
     }
 
@@ -272,7 +324,9 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
     else:
         # Store the path to a single downloaded file
         paths_dict[data_type] = Path(
-            SAMPLE_DATA.fetch(f"{data_type}/{filename}", progressbar=True)
+            _fetch_with_http_fallback(
+                f"{data_type}/{filename}", progressbar=True
+            )
         )
     return paths_dict
 
@@ -365,7 +419,7 @@ def _fetch_and_unzip(data_type: str, file_name: str | Path) -> Path:
 
     """
     file_path = Path(data_type) / file_name
-    raw_paths = SAMPLE_DATA.fetch(
+    raw_paths = _fetch_with_http_fallback(
         file_path.as_posix(),
         processor=pooch.Unzip(),
         progressbar=True,
