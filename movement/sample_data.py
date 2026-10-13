@@ -25,8 +25,7 @@ from movement.validators.datasets import DS_TYPE_VALIDATORS
 # noinspection PyInterpreter
 DATA_URL = "https://gin.swc.ucl.ac.uk/neuroinformatics/movement-sample-data/raw/master"
 # Plain HTTP fallback, for networks where GIN is reachable only over HTTP
-# (e.g. the SWC internal network). Downloads are still verified against
-# their SHA256 hashes, except for the metadata file.
+# (e.g. the SWC internal network).
 HTTP_DATA_URL = DATA_URL.replace("https://", "http://", 1)
 
 # Save data in ~/.movement/data
