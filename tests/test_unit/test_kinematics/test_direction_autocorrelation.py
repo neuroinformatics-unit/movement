@@ -130,15 +130,15 @@ def test_chunked_track():
 
 @pytest.mark.parametrize("step_length", [0, -1, np.inf, np.nan, True])
 def test_invalid_step_length(step_length):
+    track = position([0, 1, 2])
     with pytest.raises(ValueError, match="step_length"):
-        compute_direction_autocorrelation(
-            position([0, 1, 2]), step_length=step_length
-        )
+        compute_direction_autocorrelation(track, step_length=step_length)
 
 
 @pytest.mark.parametrize("delta_s_max", [0, -1, 1.5, True])
 def test_invalid_delta_s_max(delta_s_max):
+    track = position([0, 1, 2])
     with pytest.raises(ValueError, match="delta_s_max"):
         compute_direction_autocorrelation(
-            position([0, 1, 2]), step_length=1, delta_s_max=delta_s_max
+            track, step_length=1, delta_s_max=delta_s_max
         )
