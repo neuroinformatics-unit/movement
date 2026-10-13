@@ -1,6 +1,7 @@
 """Test suite for the sample_data module."""
 
 import logging
+from contextlib import nullcontext as does_not_raise
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -149,79 +150,68 @@ def test_fetch_metadata(tmp_path, caplog, download_fails, local_exists):
             validate_metadata(metadata)
 
 
-@pytest.mark.parametrize("http_fails", [False, True])
-def test_download_metadata_file_http_fallback(tmp_path, http_fails):
-    """Test that the metadata download is retried over HTTP if HTTPS fails,
-    and that an error is raised if both fail.
-    """
-    tmp_file = tmp_path / "temp_metadata.yaml"
-    side_effect = [
-        RequestException,
-        RequestException if http_fails else tmp_file,
-    ]
-    with patch(
-        "movement.sample_data.pooch.retrieve", side_effect=side_effect
-    ) as mock:
-        if http_fails:
-            with pytest.raises(RequestException):
-                _download_metadata_file("metadata.yaml", data_dir=tmp_path)
-        else:
-            path = _download_metadata_file("metadata.yaml", data_dir=tmp_path)
-            assert path == tmp_file
-    urls = [call.kwargs["url"] for call in mock.call_args_list]
-    assert urls == [
+@pytest.mark.parametrize(
+    "side_effect, expectation",
+    [
+        ([RequestException, "file"], does_not_raise()),
+        (
+            [RequestException, RequestException],
+            pytest.raises(RequestException),
+        ),
+    ],
+    ids=["http_succeeds", "http_fails"],
+)
+def test_download_metadata_file_http_fallback(
+    tmp_path, side_effect, expectation
+):
+    """Test that the metadata download is retried over HTTP if HTTPS fails."""
+    with (
+        patch(
+            "movement.sample_data.pooch.retrieve", side_effect=side_effect
+        ) as mock_retrieve,
+        expectation,
+    ):
+        _download_metadata_file("metadata.yaml", data_dir=tmp_path)
+    assert [c.kwargs["url"] for c in mock_retrieve.call_args_list] == [
         f"{DATA_URL}/metadata.yaml",
         f"{HTTP_DATA_URL}/metadata.yaml",
     ]
 
 
 @pytest.mark.parametrize(
-    "side_effect, expected_base_urls",
+    "start_url, side_effect, expectation, end_url",
     [
-        pytest.param(["file"], [DATA_URL], id="https_succeeds"),
-        pytest.param(
+        (DATA_URL, ["file"], does_not_raise(), DATA_URL),
+        (
+            DATA_URL,
             [RequestException, "file"],
-            [DATA_URL, HTTP_DATA_URL],
-            id="https_fails",
+            does_not_raise(),
+            HTTP_DATA_URL,
         ),
-        pytest.param(
-            [ValueError("hash mismatch")], [DATA_URL], id="hash_mismatch"
+        (DATA_URL, [ValueError], pytest.raises(ValueError), DATA_URL),
+        (
+            HTTP_DATA_URL,
+            [RequestException],
+            pytest.raises(RequestException),
+            HTTP_DATA_URL,
         ),
     ],
+    ids=["https_succeeds", "https_fails", "hash_mismatch", "already_http"],
 )
 def test_fetch_with_http_fallback(
-    monkeypatch, side_effect, expected_base_urls
+    monkeypatch, start_url, side_effect, expectation, end_url
 ):
-    """Test that registry downloads switch to HTTP only on request errors."""
-    monkeypatch.setattr(SAMPLE_DATA, "base_url", f"{DATA_URL}/")
-    base_urls = []
-
-    def mock_fetch(*args, **kwargs):
-        base_urls.append(SAMPLE_DATA.base_url.rstrip("/"))
-        effect = side_effect[len(base_urls) - 1]
-        if isinstance(effect, Exception) or (
-            isinstance(effect, type) and issubclass(effect, Exception)
-        ):
-            raise effect
-        return effect
-
+    """Test that registry downloads switch to HTTP only on request errors,
+    and are not retried once HTTP is already in use.
+    """
+    monkeypatch.setattr(SAMPLE_DATA, "base_url", f"{start_url}/")
+    mock_fetch = MagicMock(side_effect=side_effect)
     monkeypatch.setattr(SAMPLE_DATA, "fetch", mock_fetch)
-    if isinstance(side_effect[-1], ValueError):
-        with pytest.raises(ValueError, match="hash mismatch"):
-            _fetch_with_http_fallback("poses/file.h5")
-    else:
-        assert _fetch_with_http_fallback("poses/file.h5") == "file"
-    assert base_urls == expected_base_urls
-
-
-def test_fetch_with_http_fallback_already_http(monkeypatch):
-    """Test that no further retry happens if HTTP is already in use."""
-    monkeypatch.setattr(SAMPLE_DATA, "base_url", f"{HTTP_DATA_URL}/")
-    mock_fetch = MagicMock(side_effect=RequestException)
-    monkeypatch.setattr(SAMPLE_DATA, "fetch", mock_fetch)
-    with pytest.raises(RequestException):
+    with expectation:
         _fetch_with_http_fallback("poses/file.h5")
-    assert mock_fetch.call_count == 1
+    # each side effect corresponds to exactly one fetch attempt
+    assert mock_fetch.call_count == len(side_effect)
+    assert SAMPLE_DATA.base_url == f"{end_url}/"
 
 
 def test_list_datasets(sample_dataset_names):
