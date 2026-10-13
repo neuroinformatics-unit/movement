@@ -153,13 +153,17 @@ def test_fetch_metadata(tmp_path, caplog, download_fails, local_exists):
 @pytest.mark.parametrize(
     "side_effect, expectation",
     [
-        ([RequestException, "file"], does_not_raise()),
-        (
+        pytest.param(
+            [RequestException, "file"],
+            does_not_raise(),
+            id="http_succeeds",
+        ),
+        pytest.param(
             [RequestException, RequestException],
             pytest.raises(RequestException),
+            id="http_fails",
         ),
     ],
-    ids=["http_succeeds", "http_fails"],
 )
 def test_download_metadata_file_http_fallback(
     tmp_path, side_effect, expectation
@@ -181,22 +185,35 @@ def test_download_metadata_file_http_fallback(
 @pytest.mark.parametrize(
     "start_url, side_effect, expectation, end_url",
     [
-        (DATA_URL, ["file"], does_not_raise(), DATA_URL),
-        (
+        pytest.param(
+            DATA_URL,
+            ["file"],
+            does_not_raise(),
+            DATA_URL,
+            id="https_succeeds",
+        ),
+        pytest.param(
             DATA_URL,
             [RequestException, "file"],
             does_not_raise(),
             HTTP_DATA_URL,
+            id="https_fails",
         ),
-        (DATA_URL, [ValueError], pytest.raises(ValueError), DATA_URL),
-        (
+        pytest.param(
+            DATA_URL,
+            [ValueError],
+            pytest.raises(ValueError),
+            DATA_URL,
+            id="hash_mismatch",
+        ),
+        pytest.param(
             HTTP_DATA_URL,
             [RequestException],
             pytest.raises(RequestException),
             HTTP_DATA_URL,
+            id="already_http",
         ),
     ],
-    ids=["https_succeeds", "https_fails", "hash_mismatch", "already_http"],
 )
 def test_fetch_with_http_fallback(
     monkeypatch, start_url, side_effect, expectation, end_url
