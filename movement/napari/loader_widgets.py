@@ -31,6 +31,7 @@ from movement.napari.layer_wiring import (
     POINTS_POSITION_KEY,
     POINTS_PROPERTIES_KEY,
     TRACKS_LAYER_KEY,
+    add_edits_reset_event,
     connect_viewer_callbacks,
     frame_axis_is_sliced,
     on_points_data_changed,
@@ -351,17 +352,24 @@ class DataLoader(QWidget):
         # Keep the loaded positions so edits can be reset (poses only)
         if self.data_bboxes is None:
             metadata[POINTS_POSITION_KEY] = self.data
-        self.points_layer = self.viewer.add_points(
+        self.points_layer = Points(
             self.data[self.data_not_nan, 1:],
             properties=points_properties.iloc[self.data_not_nan, :],
             metadata=metadata,
             **points_style.as_kwargs(),
         )
+        # Register before adding to the viewer, so widgets tracking
+        # inserted layers can connect to it
+        if self.data_bboxes is None:
+            add_edits_reset_event(self.points_layer)
+        self.viewer.add_layer(self.points_layer)
         self.points_layer.events.data.connect(on_points_data_changed)
-        # Re-pad the frame slider range (if needed) after each point layer edit
-        self.points_layer.events.data.connect(
-            partial(update_frame_slider_range, self.viewer)
-        )
+        # Re-pad the frame slider range (if needed) after each point layer
+        # edit or reset
+        update_range = partial(update_frame_slider_range, self.viewer)
+        self.points_layer.events.data.connect(update_range)
+        if self.data_bboxes is None:
+            self.points_layer.events.edits_reset.connect(update_range)
         self.points_layer.editable = frame_axis_is_sliced(self.viewer)
 
         # If the loaded dataset already has an `edited` property
