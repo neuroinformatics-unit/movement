@@ -105,7 +105,7 @@ def test_reset_controls_and_timeline(reset_layers, qtbot, monkeypatch):
 
     points, tracks, original, props, viewer = reset_layers
     monkeypatch.setattr(
-        QMessageBox, "warning", lambda *a, **kw: QMessageBox.Reset
+        EditControlsWidget, "_confirm_reset_all", lambda self: True
     )
     controls = EditControlsWidget(napari_viewer=viewer)
     timeline = EditTimelineWidget(viewer)
@@ -147,12 +147,19 @@ def test_reset_controls_without_loaded_pose(qtbot):
     assert not controls.reset_all_button.isEnabled()
 
 
-@pytest.mark.parametrize("answer", [QMessageBox.Reset, QMessageBox.Cancel])
+@pytest.mark.parametrize(
+    "button_text, reset_expected",
+    [
+        pytest.param("Reset all frames", True, id="confirm"),
+        pytest.param("Cancel", False, id="cancel"),
+    ],
+)
 def test_reset_all_requires_confirmation(
-    reset_layers, qtbot, monkeypatch, answer
+    reset_layers, qtbot, button_text, reset_expected
 ):
     """Only explicit confirmation restores points; cancel keeps edits."""
-    from unittest.mock import Mock
+    from qtpy.QtCore import QTimer
+    from qtpy.QtWidgets import QApplication
 
     from movement.napari.edit_timeline_widget import EditControlsWidget
 
@@ -161,12 +168,23 @@ def test_reset_all_requires_confirmation(
     qtbot.addWidget(controls)
     points.remove([0])
     edited = tracks.data.copy()
-    warning = Mock(return_value=answer)
-    monkeypatch.setattr(QMessageBox, "warning", warning)
+    shown = {}
+
+    def answer_dialog():
+        box = QApplication.activeModalWidget()
+        assert isinstance(box, QMessageBox)
+        shown["default"] = box.defaultButton().text()
+        (button,) = [
+            b
+            for b in box.buttons()
+            if b.text().replace("&", "") == button_text
+        ]
+        button.click()
+
+    QTimer.singleShot(0, answer_dialog)
     controls.reset_all_button.click()
-    warning.assert_called_once()
-    assert warning.call_args.kwargs["defaultButton"] == QMessageBox.Cancel
-    expected = original if answer == QMessageBox.Reset else edited
+    assert shown["default"].replace("&", "") == "Cancel"
+    expected = original if reset_expected else edited
     np.testing.assert_array_equal(tracks.data, expected)
 
 
@@ -217,11 +235,12 @@ def test_reset_in_docked_widget(
     monkeypatch,
 ):
     """Exercise reset buttons through the real viewer and docked timeline."""
+    from movement.napari.edit_timeline_widget import EditControlsWidget
     from movement.napari.loader_widgets import DataLoader
     from movement.napari.meta_widget import MovementMetaWidget
 
     monkeypatch.setattr(
-        QMessageBox, "warning", lambda *a, **kw: QMessageBox.Reset
+        EditControlsWidget, "_confirm_reset_all", lambda self: True
     )
     viewer = make_napari_viewer_proxy()
     widget = MovementMetaWidget(viewer)

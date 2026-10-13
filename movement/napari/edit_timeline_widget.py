@@ -141,18 +141,24 @@ class EditControlsWidget(QWidget):
     def _reset_all(self):
         """Reset all frames in the active pose layer."""
         layer = self._reset_layer()
-        if layer is not None:
-            answer = QMessageBox.warning(
-                self,
-                title="Reset all pose edits?",
-                text="Discard all corrections made since this dataset was "
-                "loaded? Previously saved edits will be kept. "
-                "This reset cannot be undone.",
-                buttons=QMessageBox.Reset | QMessageBox.Cancel,
-                defaultButton=QMessageBox.Cancel,
-            )
-            if answer == QMessageBox.Reset:
-                reset_edits(layer)
+        if layer is not None and self._confirm_reset_all():
+            reset_edits(layer)
+
+    def _confirm_reset_all(self) -> bool:
+        """Ask the user to confirm discarding all edits."""
+        box = QMessageBox(
+            QMessageBox.Icon.Warning,
+            "Are you sure?",
+            "Discard all corrections made since this dataset was loaded? "
+            "This reset cannot be undone.",
+            parent=self,
+        )
+        reset = box.addButton(
+            "Reset all frames", QMessageBox.ButtonRole.DestructiveRole
+        )
+        box.setDefaultButton(box.addButton(QMessageBox.StandardButton.Cancel))
+        box.exec()
+        return box.clickedButton() is reset
 
 
 class EditTimelineWidget(QWidget):
