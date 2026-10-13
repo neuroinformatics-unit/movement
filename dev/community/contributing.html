@@ -26,8 +26,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=634eab24" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
@@ -38,12 +38,12 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=9ed5d5ce"></script>
+    <script src="../_static/documentation_options.js?v=b46e1214"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -51,7 +51,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'community/contributing';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -66,6 +66,7 @@
     <link rel="next" title="Resources" href="resources.html" />
     <link rel="prev" title="Roadmaps" href="roadmaps.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
   
@@ -143,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev59</p>
+    <p class="title logo__title">movement v0.17.1.dev60</p>
   
 </a></div>
     
@@ -760,7 +761,7 @@ pytest<span class="w"> </span>-m<span class="w"> </span>benchmark<span class="w"
 <section id="logging">
 <h3>Logging<a class="headerlink" href="#logging" title="Link to this heading">#</a></h3>
 <p>We use the <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#module-loguru._logger" title="(in loguru)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">loguru</span></code></a>-based <a class="reference internal" href="../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger" title="movement.utils.logging.MovementLogger"><code class="xref py py-class docutils literal notranslate"><span class="pre">MovementLogger</span></code></a> for logging.
-The logger is configured to write logs to a rotating log file at the <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> level and to <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.stderr" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sys.stderr</span></code></a> at the <code class="docutils literal notranslate"><span class="pre">WARNING</span></code> level.</p>
+The logger is configured to write logs to a rotating log file at the <code class="docutils literal notranslate"><span class="pre">DEBUG</span></code> level and to <a class="reference external" href="https://docs.python.org/3/library/sys.html#sys.stderr" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sys.stderr</span></code></a> at the <code class="docutils literal notranslate"><span class="pre">WARNING</span></code> level.</p>
 <p>To import the logger:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">movement.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
 </pre></div>
@@ -768,7 +769,7 @@ The logger is configured to write logs to a rotating log file at the <code class
 <p>Once the logger is imported, you can log messages with the appropriate <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#levels" title="loguru">severity levels</a> using the same syntax as <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#module-loguru._logger" title="(in loguru)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">loguru</span></code></a> (e.g. <code class="docutils literal notranslate"><span class="pre">logger.debug(&quot;Debug</span> <span class="pre">message&quot;)</span></code>, <code class="docutils literal notranslate"><span class="pre">logger.warning(&quot;Warning</span> <span class="pre">message&quot;)</span></code>).</p>
 <section id="logging-and-raising-exceptions">
 <h4>Logging and raising exceptions<a class="headerlink" href="#logging-and-raising-exceptions" title="Link to this heading">#</a></h4>
-<p>Both <a class="reference internal" href="../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.error" title="movement.utils.logging.MovementLogger.error"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.error()</span></code></a> and <a class="reference internal" href="../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.exception" title="movement.utils.logging.MovementLogger.exception"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.exception()</span></code></a> can be used to log <a class="reference external" href="https://docs.python.org/3/tutorial/errors.html#tut-errors" title="Python 3.14">Errors and Exceptions</a>, with the difference that the latter will include the traceback in the log message.
+<p>Both <a class="reference internal" href="../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.error" title="movement.utils.logging.MovementLogger.error"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.error()</span></code></a> and <a class="reference internal" href="../api/movement.utils.logging.MovementLogger.html#movement.utils.logging.MovementLogger.exception" title="movement.utils.logging.MovementLogger.exception"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.exception()</span></code></a> can be used to log <a class="reference external" href="https://docs.python.org/3/tutorial/errors.html#tut-errors" title="Python 3.15">Errors and Exceptions</a>, with the difference that the latter will include the traceback in the log message.
 As these methods will return the logged Exception, you can log and raise the Exception in a single line:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">"message"</span><span class="p">))</span>
 <span class="k">raise</span> <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">(</span><span class="s2">"message"</span><span class="p">))</span>  <span class="c1"># with traceback</span>
@@ -777,11 +778,11 @@ As these methods will return the logged Exception, you can log and raise the Exc
 </section>
 <section id="when-to-use-print-warnings-warn-logger-warning-and-logger-info">
 <h4>When to use <code class="docutils literal notranslate"><span class="pre">print</span></code>, <code class="docutils literal notranslate"><span class="pre">warnings.warn</span></code>, <code class="docutils literal notranslate"><span class="pre">logger.warning</span></code> and <code class="docutils literal notranslate"><span class="pre">logger.info</span></code><a class="headerlink" href="#when-to-use-print-warnings-warn-logger-warning-and-logger-info" title="Link to this heading">#</a></h4>
-<p>We aim to adhere to the <a class="reference external" href="https://docs.python.org/3/howto/logging.html#logging-basic-tutorial" title="Python 3.14">When to use logging guide</a> to ensure consistency in our logging practices.
+<p>We aim to adhere to the <a class="reference external" href="https://docs.python.org/3/howto/logging.html#logging-basic-tutorial" title="Python 3.15">When to use logging guide</a> to ensure consistency in our logging practices.
 In general:</p>
 <ul class="simple">
-<li><p>Use <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#print" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">print()</span></code></a> for simple, non-critical messages that do not need to be logged.</p></li>
-<li><p>Use <a class="reference external" href="https://docs.python.org/3/library/warnings.html#warnings.warn" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.warn()</span></code></a> for conditions the user can avoid or address within <code class="docutils literal notranslate"><span class="pre">movement</span></code>, e.g. deprecated function calls that are redirected, an invalid <code class="docutils literal notranslate"><span class="pre">fps</span></code> value that is implicitly set to <code class="docutils literal notranslate"><span class="pre">None</span></code>, or data with excessive NaNs that the user may want to address using appropriate <a class="reference internal" href="../api/movement.filtering.html#module-movement.filtering" title="movement.filtering"><code class="xref py py-mod docutils literal notranslate"><span class="pre">filtering</span></code></a> functions.</p></li>
+<li><p>Use <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#print" title="(in Python v3.15)"><code class="xref py py-func docutils literal notranslate"><span class="pre">print()</span></code></a> for simple, non-critical messages that do not need to be logged.</p></li>
+<li><p>Use <a class="reference external" href="https://docs.python.org/3/library/warnings.html#warnings.warn" title="(in Python v3.15)"><code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.warn()</span></code></a> for conditions the user can avoid or address within <code class="docutils literal notranslate"><span class="pre">movement</span></code>, e.g. deprecated function calls that are redirected, an invalid <code class="docutils literal notranslate"><span class="pre">fps</span></code> value that is implicitly set to <code class="docutils literal notranslate"><span class="pre">None</span></code>, or data with excessive NaNs that the user may want to address using appropriate <a class="reference internal" href="../api/movement.filtering.html#module-movement.filtering" title="movement.filtering"><code class="xref py py-mod docutils literal notranslate"><span class="pre">filtering</span></code></a> functions.</p></li>
 <li><p>Use <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.warning" title="(in loguru)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.warning()</span></code></a> for unexpected situations <code class="docutils literal notranslate"><span class="pre">movement</span></code> handles automatically (by falling back to a default or making an assumption), where the user cannot directly intervene, e.g. a failed network request that falls back to a cached local file, or missing track information that triggers a single-individual assumption.</p></li>
 <li><p>Use <a class="reference external" href="https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.info" title="(in loguru)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">logger.info()</span></code></a> for informational messages about expected behaviours that do not indicate problems, e.g. where default values are assigned to optional parameters.</p></li>
 </ul>
@@ -849,10 +850,10 @@ In the <code class="docutils literal notranslate"><span class="pre">ValidMySoftw
 </section>
 <section id="normalise-input-file-and-apply-reusable-validators">
 <h5>Normalise input file and apply reusable validators<a class="headerlink" href="#normalise-input-file-and-apply-reusable-validators" title="Link to this heading">#</a></h5>
-<p>An <code class="docutils literal notranslate"><span class="pre">attrs</span></code> <a class="reference external" href="https://www.attrs.org/en/stable/init.html#converters" title="(in attrs v26.1)"><span class="xref std std-ref">converter</span></a> is typically used to normalise input files into <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> objects, along with one or more validators to ensure the file meets the expected criteria.</p>
+<p>An <code class="docutils literal notranslate"><span class="pre">attrs</span></code> <a class="reference external" href="https://www.attrs.org/en/stable/init.html#converters" title="(in attrs v26.1)"><span class="xref std std-ref">converter</span></a> is typically used to normalise input files into <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> objects, along with one or more validators to ensure the file meets the expected criteria.</p>
 <p>In addition to the built-in <code class="docutils literal notranslate"><span class="pre">attrs</span></code> <a class="reference external" href="https://www.attrs.org/en/stable/api.html#module-attrs.validators" title="(in attrs v26.1)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">validators</span></code></a>, <code class="docutils literal notranslate"><span class="pre">movement</span></code> provides several reusable file-specific validators (as callables) in <a class="reference internal" href="../api/movement.validators.files.html#module-movement.validators.files" title="movement.validators.files"><code class="xref py py-mod docutils literal notranslate"><span class="pre">movement.validators.files</span></code></a>:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">_file_validator</span></code>: A composite validator that ensures <code class="docutils literal notranslate"><span class="pre">file</span></code> is a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>, is not a directory, is accessible with the required permission, and has one of the expected <code class="docutils literal notranslate"><span class="pre">suffixes</span></code> (if any).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_file_validator</span></code>: A composite validator that ensures <code class="docutils literal notranslate"><span class="pre">file</span></code> is a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>, is not a directory, is accessible with the required permission, and has one of the expected <code class="docutils literal notranslate"><span class="pre">suffixes</span></code> (if any).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">_hdf5_validator</span></code>: Checks that an HDF5 <code class="docutils literal notranslate"><span class="pre">file</span></code> contains the expected dataset(s).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">_json_validator</span></code>: Checks that a <code class="docutils literal notranslate"><span class="pre">file</span></code> contains valid JSON and optionally validates it against a <a class="reference external" href="https://json-schema.org/">JSON Schema</a>. Schemas are defined as Python dicts in <code class="docutils literal notranslate"><span class="pre">movement/validators/_json_schemas.py</span></code>. Custom validation checks and an optional attribute name for storing the parsed data can also be provided.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">_if_instance_of</span></code>: Conditionally applies a validator only when <code class="docutils literal notranslate"><span class="pre">file</span></code> is an instance of a given class.</p></li>
@@ -925,7 +926,7 @@ Continuing from the hypothetical “MySoftware” example, the loader function <
 <ul class="simple">
 <li><p>Accept <code class="docutils literal notranslate"><span class="pre">file</span></code> as its first parameter, which may be:</p>
 <ul>
-<li><p>A <code class="docutils literal notranslate"><span class="pre">str</span></code> or a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>.</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">str</span></code> or a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>.</p></li>
 <li><p>An <a class="reference external" href="https://pynwb.readthedocs.io/en/stable/pynwb.file.html#pynwb.file.NWBFile" title="(in PyNWB v4.2.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">NWBFile</span></code></a> object (for NWB-based formats).</p></li>
 </ul>
 </li>
@@ -1023,7 +1024,7 @@ When adding a new loader, update this type alias to include the new software nam
 <p>A writer function must conform to the <a class="reference internal" href="../api/movement.io.save.WriterProtocol.html#movement.io.save.WriterProtocol" title="movement.io.save.WriterProtocol"><code class="xref py py-class docutils literal notranslate"><span class="pre">WriterProtocol</span></code></a>, which requires the function to:</p>
 <ul class="simple">
 <li><p>Accept <code class="docutils literal notranslate"><span class="pre">ds</span></code>, an <a class="reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.html#xarray.Dataset" title="(in xarray v2026.9.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">xarray.Dataset</span></code></a> representing the <a class="reference internal" href="../user_guide/movement_dataset.html#target-poses-and-bboxes-dataset"><span class="std std-ref">movement dataset</span></a>, as its first parameter</p></li>
-<li><p>Accept <code class="docutils literal notranslate"><span class="pre">file</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code> or <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>) to which the dataset should be saved, as its second parameter.</p></li>
+<li><p>Accept <code class="docutils literal notranslate"><span class="pre">file</span></code> (<code class="docutils literal notranslate"><span class="pre">str</span></code> or <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>) to which the dataset should be saved, as its second parameter.</p></li>
 <li><p>Save <code class="docutils literal notranslate"><span class="pre">ds</span></code> directly to <code class="docutils literal notranslate"><span class="pre">file</span></code> on disk.</p></li>
 <li><p>Return <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>
@@ -1049,13 +1050,13 @@ It selects the corresponding <a class="reference internal" href="../api/movement
 Pass <code class="docutils literal notranslate"><span class="pre">ds_type=None</span></code> (the default) only for formats compatible with any dataset type, such as <code class="docutils literal notranslate"><span class="pre">movement</span></code>’s native netCDF format.
 In that case, the decorator will select the appropriate validator based on the <code class="docutils literal notranslate"><span class="pre">ds_type</span></code> attribute of the dataset (i.e. <code class="docutils literal notranslate"><span class="pre">ds.attrs[&quot;ds_type&quot;]</span></code>).</p></li>
 <li><p>The optional <code class="docutils literal notranslate"><span class="pre">suffixes</span></code> argument (e.g. <code class="docutils literal notranslate"><span class="pre">{&quot;.csv&quot;}</span></code>) tells the decorator which file extensions are valid for the format.
-It is passed to <a class="reference internal" href="../api/movement.validators.files.validate_file_path.html#movement.validators.files.validate_file_path" title="movement.validators.files.validate_file_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">validate_file_path()</span></code></a>, which checks that <code class="docutils literal notranslate"><span class="pre">file</span></code> has one of the specified suffixes (or skips that check if <code class="docutils literal notranslate"><span class="pre">suffixes=None</span></code>, the default), always checks that <code class="docutils literal notranslate"><span class="pre">file</span></code> is writable, and returns <code class="docutils literal notranslate"><span class="pre">file</span></code> as a validated <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>, which is what the writer actually receives.</p></li>
+It is passed to <a class="reference internal" href="../api/movement.validators.files.validate_file_path.html#movement.validators.files.validate_file_path" title="movement.validators.files.validate_file_path"><code class="xref py py-func docutils literal notranslate"><span class="pre">validate_file_path()</span></code></a>, which checks that <code class="docutils literal notranslate"><span class="pre">file</span></code> has one of the specified suffixes (or skips that check if <code class="docutils literal notranslate"><span class="pre">suffixes=None</span></code>, the default), always checks that <code class="docutils literal notranslate"><span class="pre">file</span></code> is writable, and returns <code class="docutils literal notranslate"><span class="pre">file</span></code> as a validated <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>, which is what the writer actually receives.</p></li>
 </ul>
 <details class="sd-sphinx-override sd-dropdown sd-card sd-mb-3">
 <summary class="sd-summary-title sd-card-header sd-bg-success sd-bg-text-success">
 <span class="sd-summary-icon"><svg version="1.1" width="1.0em" height="1.0em" class="sd-octicon sd-octicon-light-bulb" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5c-2.363 0-4 1.69-4 3.75 0 .984.424 1.625.984 2.304l.214.253c.223.264.47.556.673.848.284.411.537.896.621 1.49a.75.75 0 0 1-1.484.211c-.04-.282-.163-.547-.37-.847a8.456 8.456 0 0 0-.542-.68c-.084-.1-.173-.205-.268-.32C3.201 7.75 2.5 6.766 2.5 5.25 2.5 2.31 4.863 0 8 0s5.5 2.31 5.5 5.25c0 1.516-.701 2.5-1.328 3.259-.095.115-.184.22-.268.319-.207.245-.383.453-.541.681-.208.3-.33.565-.37.847a.751.751 0 0 1-1.485-.212c.084-.593.337-1.078.621-1.489.203-.292.45-.584.673-.848.075-.088.147-.173.213-.253.561-.679.985-1.32.985-2.304 0-2.06-1.637-3.75-4-3.75ZM5.75 12h4.5a.75.75 0 0 1 0 1.5h-4.5a.75.75 0 0 1 0-1.5ZM6 15.25a.75.75 0 0 1 .75-.75h2.5a.75.75 0 0 1 0 1.5h-2.5a.75.75 0 0 1-.75-.75Z"></path></svg></span><span class="sd-summary-text">Type checkers and the validated <code class="docutils literal notranslate"><span class="pre">file</span></code> path</span><span class="sd-summary-state-marker sd-summary-chevron-right"><svg version="1.1" width="1.5em" height="1.5em" class="sd-octicon sd-octicon-chevron-right" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.72 18.78a.75.75 0 0 1 0-1.06L14.44 12 8.72 6.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018l6.25 6.25a.75.75 0 0 1 0 1.06l-6.25 6.25a.75.75 0 0 1-1.06 0Z"></path></svg></span></summary><div class="sd-summary-content sd-card-body docutils">
-<p class="sd-card-text">Because the writer’s signature declares <code class="docutils literal notranslate"><span class="pre">str</span> <span class="pre">|</span> <span class="pre">Path</span></code>, type checkers may not recognise that <code class="docutils literal notranslate"><span class="pre">file</span></code> is already a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> inside the writer body.
-If you call a function that requires a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> and the type checker complains, simply reassign <code class="docutils literal notranslate"><span class="pre">file</span> <span class="pre">=</span> <span class="pre">Path(file)</span></code> — a no-op at runtime that satisfies static typing.</p>
+<p class="sd-card-text">Because the writer’s signature declares <code class="docutils literal notranslate"><span class="pre">str</span> <span class="pre">|</span> <span class="pre">Path</span></code>, type checkers may not recognise that <code class="docutils literal notranslate"><span class="pre">file</span></code> is already a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> inside the writer body.
+If you call a function that requires a <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> and the type checker complains, simply reassign <code class="docutils literal notranslate"><span class="pre">file</span> <span class="pre">=</span> <span class="pre">Path(file)</span></code> — a no-op at runtime that satisfies static typing.</p>
 </div>
 </details></section>
 </section>
@@ -1342,7 +1343,7 @@ removing it immediately. This gives users time to migrate.</p>
 deprecation appears in the API reference. Replace <code class="docutils literal notranslate"><span class="pre">&lt;version&gt;</span></code> with
 the upcoming release number that will first include this deprecation
 (e.g. <code class="docutils literal notranslate"><span class="pre">0.99.0</span></code>).</p></li>
-<li><p>Add a <a class="reference external" href="https://docs.python.org/3/library/warnings.html#warnings.warn" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.warn()</span></code></a> call right after the docstring, with
+<li><p>Add a <a class="reference external" href="https://docs.python.org/3/library/warnings.html#warnings.warn" title="(in Python v3.15)"><code class="xref py py-func docutils literal notranslate"><span class="pre">warnings.warn()</span></code></a> call right after the docstring, with
 <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code> as the category.</p></li>
 <li><p>The warning message, which also appears under the docstring directive,
 should state which API element is deprecated
@@ -1913,8 +1914,8 @@ verify that the video is correctly linked to the dataset:</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1928,7 +1929,7 @@ verify that the video is correctly linked to the dataset:</p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.22.0.
+    0.23.0.
     </p></div>
       
     </div>

@@ -26,8 +26,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=634eab24" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
@@ -38,12 +38,12 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=9ed5d5ce"></script>
+    <script src="../_static/documentation_options.js?v=b46e1214"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -51,7 +51,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'api/movement.utils.logging.showwarning';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -66,6 +66,7 @@
     <link rel="next" title="movement.utils.reports" href="movement.utils.reports.html" />
     <link rel="prev" title="log_to_attrs" href="movement.utils.logging.log_to_attrs.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
   
@@ -143,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev59</p>
+    <p class="title logo__title">movement v0.17.1.dev60</p>
   
 </a></div>
     
@@ -694,9 +695,9 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="movement.utils.logging.showwarning">
 <span class="sig-prename descclassname"><span class="pre">movement.utils.logging.</span></span><span class="sig-name descname"><span class="pre">showwarning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">category</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lineno</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/movement/utils/logging.html#showwarning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#movement.utils.logging.showwarning" title="Link to this definition">#</a></dt>
-<dd><p>Redirect alerts from the <a class="reference external" href="https://docs.python.org/3/library/warnings.html#module-warnings" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> module to the logger.</p>
-<p>This function replaces <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.captureWarnings" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">logging.captureWarnings()</span></code></a> which redirects
-warnings issued by the <a class="reference external" href="https://docs.python.org/3/library/warnings.html#module-warnings" title="(in Python v3.14)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> module to the logging system.</p>
+<dd><p>Redirect alerts from the <a class="reference external" href="https://docs.python.org/3/library/warnings.html#module-warnings" title="(in Python v3.15)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> module to the logger.</p>
+<p>This function replaces <a class="reference external" href="https://docs.python.org/3/library/logging.html#logging.captureWarnings" title="(in Python v3.15)"><code class="xref py py-func docutils literal notranslate"><span class="pre">logging.captureWarnings()</span></code></a> which redirects
+warnings issued by the <a class="reference external" href="https://docs.python.org/3/library/warnings.html#module-warnings" title="(in Python v3.15)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">warnings</span></code></a> module to the logging system.</p>
 </dd></dl>
 
 </section>
@@ -777,8 +778,8 @@ warnings issued by the <a class="reference external" href="https://docs.python.o
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -792,7 +793,7 @@ warnings issued by the <a class="reference external" href="https://docs.python.o
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.22.0.
+    0.23.0.
     </p></div>
       
     </div>

@@ -26,8 +26,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=634eab24" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
@@ -38,12 +38,12 @@
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=9ed5d5ce"></script>
+    <script src="../_static/documentation_options.js?v=b46e1214"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -51,7 +51,7 @@
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'examples/filter_and_interpolate';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://movement.neuroinformatics.dev/latest/_static/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -66,6 +66,7 @@
     <link rel="next" title="Convert pose tracks between file formats" href="convert_file_formats.html" />
     <link rel="prev" title="Load and explore pose tracks" href="load_and_explore_poses.html" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
   
@@ -143,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev59</p>
+    <p class="title logo__title">movement v0.17.1.dev60</p>
   
 </a></div>
     
@@ -580,7 +581,7 @@ the dimension of length 1 from the data (the <code class="docutils literal notra
 </span>    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">time</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">keypoint</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">space</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../_images/sphx_glr_filter_and_interpolate_001.png" srcset="../_images/sphx_glr_filter_and_interpolate_001.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f9a9aeaefd0&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_001.png" srcset="../_images/sphx_glr_filter_and_interpolate_001.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f1274c59310&gt;
 </pre></div>
 </div>
 <p>We can see that the pose tracks contain some implausible “jumps”, such
@@ -615,7 +616,7 @@ indeed range between 0 and 1, with most values closer to 1. Now let’s see how
 they evolve over time.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.DataArray.squeeze.html#xarray.DataArray.squeeze" title="xarray.DataArray.squeeze"><span class="n">ds</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">squeeze</span></a><span class="p">(</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">time</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">keypoint</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../_images/sphx_glr_filter_and_interpolate_003.png" srcset="../_images/sphx_glr_filter_and_interpolate_003.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f9a9b05c770&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_003.png" srcset="../_images/sphx_glr_filter_and_interpolate_003.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f1274c862c0&gt;
 </pre></div>
 </div>
 <p>Encouragingly, some of the drops in confidence scores do seem to correspond
@@ -658,7 +659,7 @@ id_0        121/1085 (11.15%)  93/1085 (8.57%)
 </span>    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">time</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">keypoint</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">space</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../_images/sphx_glr_filter_and_interpolate_004.png" srcset="../_images/sphx_glr_filter_and_interpolate_004.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f9ae9261e00&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_004.png" srcset="../_images/sphx_glr_filter_and_interpolate_004.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f12c3046190&gt;
 </pre></div>
 </div>
 <p>Here we can see that gaps (consecutive NaNs) have appeared in the
@@ -702,7 +703,7 @@ Let’s visualise the interpolated pose tracks.</p>
 </span>    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">time</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">row</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">keypoint</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;</span><span class="s2">space</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">2.5</span><span class="w">
 </span><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<img src="../_images/sphx_glr_filter_and_interpolate_005.png" srcset="../_images/sphx_glr_filter_and_interpolate_005.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f9a9b0f0950&gt;
+<img src="../_images/sphx_glr_filter_and_interpolate_005.png" srcset="../_images/sphx_glr_filter_and_interpolate_005.png" alt="keypoint = head, keypoint = stinger" class = "sphx-glr-single-img"/><div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;xarray.plot.facetgrid.FacetGrid object at 0x7f1270843890&gt;
 </pre></div>
 </div>
 <div class="admonition note">
@@ -730,7 +731,7 @@ applied to the data. Let’s inspect the log:</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[
   {
     "operation": "filter_by_confidence",
-    "datetime": "2026-10-06 15:25:27.192067",
+    "datetime": "2026-10-13 10:51:03.709502",
     "confidence": "&lt;xarray.DataArray 'confidence' (time: 1085, keypoint: 2, individual: 1)&gt; Size: 17kB\n0.05305 0.07366 0.03532 0.03293 0.01707 0.01022 ... 0.0 0.0 0.0 0.0 0.0 0.0\nCoordinates:\n  * time        (time) float64 9kB 0.0 0.025 0.05 0.075 ... 27.05 27.07 27.1\n  * keypoint    (keypoint) &lt;U7 56B 'head' 'stinger'\n  * individual  (individual) &lt;U4 16B 'id_0'",
     "threshold": "0.6",
     "keep_points_with_nan_confidence": "True",
@@ -738,7 +739,7 @@ applied to the data. Let’s inspect the log:</p>
   },
   {
     "operation": "interpolate_over_time",
-    "datetime": "2026-10-06 15:25:27.804435",
+    "datetime": "2026-10-13 10:51:04.722301",
     "method": "'linear'",
     "max_gap": "40",
     "print_report": "True"
@@ -747,7 +748,7 @@ applied to the data. Let’s inspect the log:</p>
 </pre></div>
 </div>
 <p>If you want to retrieve a certain parameter from the log, you can use
-<a class="reference external" href="https://docs.python.org/3/library/json.html#json.loads" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">json.loads()</span></code></a> to parse the log string into a list of dictionaries.</p>
+<a class="reference external" href="https://docs.python.org/3/library/json.html#json.loads" title="(in Python v3.15)"><code class="xref py py-func docutils literal notranslate"><span class="pre">json.loads()</span></code></a> to parse the log string into a list of dictionaries.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="list"><span class="n">log_entries</span></a> <span class="o">=</span> <a class="sphx-glr-backref-module-json sphx-glr-backref-type-py-function reference external" href="https://docs.python.org/3/library/json.html#json.loads" title="json.loads"><span class="n">json</span><span class="o">.</span><span class="n">loads</span></a><span class="p">(</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="str"><span class="n">ds</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">log</span></a><span class="p">)</span>  <span class="c1"># A list of dictionaries</span><span class="w">
 </span><span class="w">
 </span><span class="c1"># Print the 'max_gap' parameter from the last log entry</span><span class="w">
@@ -782,7 +783,7 @@ with the filtered data variables.</p>
 </span><span class="c1"># Use the dictionary to update the dataset in-place</span><span class="w">
 </span><a class="sphx-glr-backref-module-xarray sphx-glr-backref-type-py-method reference external" href="https://docs.xarray.dev/en/stable/generated/xarray.Dataset.update.html#xarray.Dataset.update" title="xarray.Dataset.update"><span class="n">ds</span><span class="o">.</span><span class="n">update</span></a><span class="p">(</span><a class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="dict"><span class="n">update_dict</span></a><span class="p">)</span><span class="w">
 </span></pre></div></div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.096 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 1.840 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-examples-filter-and-interpolate-py">
 <div class="binder-badge docutils container">
 <a class="reference external image-reference" href="https://mybinder.org/v2/gh/neuroinformatics-unit/movement/main?filepath=notebooks/examples/filter_and_interpolate.ipynb"><img alt="Launch binder" src="../_images/binder_badge_logo1.svg" style="width: 150px;" />
@@ -885,8 +886,8 @@ with the filtered data variables.</p>
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -900,7 +901,7 @@ with the filtered data variables.</p>
     <p class="theme-version">
     Built with the
     <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a>
-    0.22.0.
+    0.23.0.
     </p></div>
       
     </div>
