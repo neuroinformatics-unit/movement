@@ -62,7 +62,7 @@ class EditControlsWidget(QWidget):
 
     show_individuals_toggled = Signal(bool)
 
-    def __init__(self, parent=None, napari_viewer=None):
+    def __init__(self, napari_viewer: Viewer, parent=None):
         """Initialise the instructions label and display checkbox."""
         super().__init__(parent=parent)
         self.viewer = napari_viewer
@@ -95,22 +95,19 @@ class EditControlsWidget(QWidget):
             layout.addWidget(button)
         self.reset_frame_button.clicked.connect(self._reset_frame)
         self.reset_all_button.clicked.connect(self._reset_all)
-        if self.viewer is not None:
-            for event in (
-                self.viewer.layers.events.inserted,
-                self.viewer.layers.events.removed,
-                self.viewer.layers.selection.events.active,
-                self.viewer.dims.events.order,
-                self.viewer.dims.events.ndisplay,
-            ):
-                event.connect(self._schedule_reset_enabled)
+        for event in (
+            self.viewer.layers.events.inserted,
+            self.viewer.layers.events.removed,
+            self.viewer.layers.selection.events.active,
+            self.viewer.dims.events.order,
+            self.viewer.dims.events.ndisplay,
+        ):
+            event.connect(self._schedule_reset_enabled)
         self._update_reset_enabled()
         self.setLayout(layout)
 
     def _reset_layer(self):
         """Find a loaded pose layer with its companion still in the viewer."""
-        if self.viewer is None:
-            return None
         layer = active_movement_points_layer(self.viewer)
         if (
             layer is not None
