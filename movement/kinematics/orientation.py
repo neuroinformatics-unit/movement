@@ -96,6 +96,15 @@ def compute_forward_vector(
         raise logger.error(
             ValueError("The left and right keypoints may not be identical.")
         )
+    # Validate camera view
+    if camera_view not in ("top_down", "bottom_up"):
+        raise logger.error(
+            ValueError(
+                "Invalid camera_view "
+                f"'{camera_view}'. Must be one of "
+                "('top_down', 'bottom_up')."
+            )
+        )
     # Define right-to-left vector
     right_to_left_vector = data.sel(
         keypoint=left_keypoint, drop=True
