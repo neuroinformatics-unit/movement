@@ -206,43 +206,51 @@ def test_reset_all_requires_confirmation(
     np.testing.assert_array_equal(tracks.data, expected)
 
 
-def test_loaded_state_roundtrip(valid_poses_dataset, tmp_path, qtbot):
-    """Loading stores a state that restores missing data on export."""
+def test_loaded_state_roundtrip(
+    valid_poses_path_and_ds_with_localised_nans,
+    loaded_data_loader,
+    move_point,
+    remove_point,
+):
+    """Resetting all edits restores the loaded state on export,
+    including originally missing points.
+    """
     import xarray as xr
 
     from movement.napari.convert import napari_layers_to_ds
-    from movement.napari.loader_widgets import DataLoader
 
-    ds = valid_poses_dataset.copy(deep=True)
-    ds.position.values.flat[0:2] = np.nan
-    path = tmp_path / "loaded.nc"
-    ds.to_netcdf(path)
-    viewer = ViewerModel()
-    loader = DataLoader(viewer)
-    qtbot.addWidget(loader)
-    loader.source_software_combo.setCurrentText("movement (netCDF)")
-    loader.file_path_edit.setText(str(path))
-    loader._on_load_clicked()
+    missing = {"time": "start", "keypoint": "centroid", "individual": "id_0"}
+    path, ds = valid_poses_path_and_ds_with_localised_nans(missing)
+    loader = loaded_data_loader(path, ds)
     points = loader.points_layer
-    assert wiring.POINTS_POSITION_KEY in points.metadata
-    loaded = napari_layers_to_ds(
-        points.data,
-        points.properties,
-        points.metadata[wiring.POINTS_PROPERTIES_KEY],
-        ds.attrs,
+
+    def to_ds():
+        return napari_layers_to_ds(
+            points.data,
+            points.properties,
+            points.metadata[wiring.POINTS_PROPERTIES_KEY],
+            points.metadata[wiring.DATASET_ATTRS_KEY],
+        )
+
+    loaded = to_ds()
+    move_point(
+        loader,
+        frame=1,
+        keypoint="centroid",
+        individual="id_0",
+        new_y=100,
+        new_x=200,
     )
-    points.data[0, 1:] += 50
-    points.events.data(action="changed", data_indices=(0,))
-    points.remove([1])
+    remove_point(loader, frame=2, keypoint="left", individual="id_1")
     wiring.reset_edits(points)
-    restored = napari_layers_to_ds(
-        points.data,
-        points.properties,
-        points.metadata[wiring.POINTS_PROPERTIES_KEY],
-        ds.attrs,
-    )
+    restored = to_ds()
     xr.testing.assert_allclose(restored.position, loaded.position)
     xr.testing.assert_allclose(restored.confidence, loaded.confidence)
+    assert (
+        restored.position.sel(time=0, keypoint="centroid", individual="id_0")
+        .isnull()
+        .all()
+    )
 
 
 def test_reset_in_docked_widget(
