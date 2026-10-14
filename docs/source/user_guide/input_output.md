@@ -33,6 +33,7 @@ Use {func}`~movement.io.load.get_supported_source_software` and {func}`~movement
 | [SLEAP](sleap:)                                                             | SLEAP        | [analysis](sleap-docs:tutorial/exporting-the-results/#analysis-hdf5) .h5 or .slp file                                     | Pose                 | Load & Save          |
 | [LightningPose](lp:)                                                        | LP           | DLC-style .csv file, or corresponding pandas DataFrame                                                                    | Pose                 | Load & Save          |
 | [Anipose](anipose:)                                                         |              | triangulation .csv file, or corresponding pandas DataFrame                                                                | Pose                 | Load                 |
+| [OCTRON](https://octron-tracking.github.io/OCTRON-docs/) | OCTRON | Per-track prediction .csv files | Bounding box | Load |
 | [COCO](coco:) | COCO | COCO keypoint detection [results](coco:format-results) `.json` file, optionally with a COCO [annotations](coco:format-data) `.json` file | Pose | Load |
 | [VGG Image Annotator](via:)                                                 | VIA          | .csv file for [tracks annotation](via:docs/face_track_annotation.html)                                                    | Bounding box         | Load & Save          |
 | [Neurodata Without Borders](https://nwb-overview.readthedocs.io/en/latest/) | NWB          | .nwb file or NWBFile object with the [ndx-pose extension](https://github.com/rly/ndx-pose)                                | Pose                 | Load & Save          |
@@ -231,6 +232,33 @@ with pynwb.NWBHDF5IO("path/to/file.nwb", mode="r") as io:
         nwb_file, pose_estimation_key="PoseEstimation"
     )
 ```
+::::
+
+::::{tab-item} OCTRON .csv files
+OCTRON exports one prediction CSV per track, with a metadata header describing the source video.
+Load a single track using the unified interface:
+
+```python
+ds = load_dataset("bird_track_7.csv", source_software="OCTRON", fps=30)
+```
+
+To combine tracks from the same video, explicitly pass the other CSV paths:
+
+```python
+ds = load_dataset(
+    "bird_track_7.csv",
+    source_software="OCTRON",
+    fps=30,
+    additional_files=["bird_track_2.csv"],
+)
+```
+
+The loader checks that video names, dimensions and frame counts agree across files.
+Time uses original zero-based video frame indices, including when OCTRON skipped frames during prediction.
+Missing observations, including frames before a track appears or after it disappears, remain NaN.
+Individual names use OCTRON track IDs (`id_7`, for example), rather than class labels that may be shared by multiple animals.
+The `position` variable contains bounding box centres calculated from the corner coordinates, and `shape` contains widths and heights.
+Segmentation masks, interpolation and identity reassignment are outside this loader's scope.
 ::::
 
 ::::{tab-item} From NumPy
