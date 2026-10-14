@@ -43,7 +43,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=b46e1214"></script>
+    <script src="../_static/documentation_options.js?v=27ee1c67"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -144,7 +144,7 @@
     <img src="../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev60</p>
+    <p class="title logo__title">movement v0.17.1.dev62</p>
   
 </a></div>
     
@@ -1207,6 +1207,20 @@ This will usually include linting, testing and deployment.</p>
 <li><p>Testing (only if linting checks pass)</p></li>
 <li><p>Release to PyPI using <a class="reference external" href="https://docs.pypi.org/trusted-publishers/">trusted publishing</a> (only if a git tag is present and if tests pass).</p></li>
 </ul>
+<p>When adding or updating actions in a workflow, please follow our pinning policy:</p>
+<ul class="simple">
+<li><p><strong>Third-party actions</strong> must be pinned to a full commit SHA, followed by a
+comment with the corresponding version tag, e.g.
+<code class="docutils literal notranslate"><span class="pre">uses:</span> <span class="pre">actions/checkout&#64;3d3c42e5aac5ba805825da76410c181273ba90b1</span> <span class="pre">#</span> <span class="pre">v7.0.1</span></code>.
+This protects our workflows against a compromised or retagged upstream release.</p></li>
+<li><p><strong>Our own shared actions</strong> from
+<a class="reference external" href="https://github.com/neuroinformatics-unit/actions">neuroinformatics-unit/actions</a>
+are pinned to their major version tag, e.g.
+<code class="docutils literal notranslate"><span class="pre">uses:</span> <span class="pre">neuroinformatics-unit/actions/test&#64;v3</span></code>. They are maintained by the
+same team, and they pin their own third-party dependencies internally.</p></li>
+</ul>
+<p><a class="reference external" href="https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/secure-your-dependencies/auto-update-actions#">Dependabot</a> keeps the pinned SHAs
+(and their version comments) up to date via monthly PRs.</p>
 </section>
 <section id="versioning">
 <h3>Versioning<a class="headerlink" href="#versioning" title="Link to this heading">#</a></h3>

@@ -42,7 +42,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=b46e1214"></script>
+    <script src="../../_static/documentation_options.js?v=27ee1c67"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/sg-tags.js?v=d80f6fa4"></script>
@@ -141,7 +141,7 @@
     <img src="../../_static/movement_favicon.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">movement v0.17.1.dev60</p>
+    <p class="title logo__title">movement v0.17.1.dev62</p>
   
 </a></div>
     
@@ -489,6 +489,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pooch</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span>
@@ -502,6 +503,9 @@
 <span class="c1"># URL to the remote data repository on GIN</span>
 <span class="c1"># noinspection PyInterpreter</span>
 <span class="n">DATA_URL</span> <span class="o">=</span> <span class="s2">"https://gin.swc.ucl.ac.uk/neuroinformatics/movement-sample-data/raw/master"</span>
+<span class="c1"># Plain HTTP fallback, for networks where GIN is reachable only over HTTP</span>
+<span class="c1"># (e.g. the SWC internal network).</span>
+<span class="n">HTTP_DATA_URL</span> <span class="o">=</span> <span class="n">DATA_URL</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"https://"</span><span class="p">,</span> <span class="s2">"http://"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <span class="c1"># Save data in ~/.movement/data</span>
 <span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"~"</span><span class="p">,</span> <span class="s2">".movement"</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
@@ -560,18 +564,28 @@
 <span class="sd">        Path to the downloaded file.</span>
 
 <span class="sd">    """</span>
-    <span class="k">with</span> <span class="n">_hide_pooch_hash_logs</span><span class="p">():</span>
-        <span class="n">local_file_path</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
-            <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">DATA_URL</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-            <span class="n">known_hash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">path</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span>
-            <span class="n">fname</span><span class="o">=</span><span class="sa">f</span><span class="s2">"temp_</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
-            <span class="n">progressbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">base_url</span> <span class="ow">in</span> <span class="p">(</span><span class="n">DATA_URL</span><span class="p">,</span> <span class="n">HTTP_DATA_URL</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">_hide_pooch_hash_logs</span><span class="p">():</span>
+                <span class="n">local_file_path</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">retrieve</span><span class="p">(</span>
+                    <span class="n">url</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="n">known_hash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">path</span><span class="o">=</span><span class="n">data_dir</span><span class="p">,</span>
+                    <span class="n">fname</span><span class="o">=</span><span class="sa">f</span><span class="s2">"temp_</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="n">progressbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">break</span>
+        <span class="k">except</span> <span class="n">RequestException</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">base_url</span> <span class="o">==</span> <span class="n">HTTP_DATA_URL</span><span class="p">:</span>
+                <span class="k">raise</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Failed to download </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="s2">"Retrying over HTTP."</span>
+            <span class="p">)</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">"Successfully downloaded sample metadata file </span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2"> "</span>
-        <span class="sa">f</span><span class="s2">"from </span><span class="si">{</span><span class="n">DATA_URL</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">data_dir</span><span class="si">}</span><span class="s2">"</span>
+        <span class="sa">f</span><span class="s2">"from </span><span class="si">{</span><span class="n">base_url</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">data_dir</span><span class="si">}</span><span class="s2">"</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">local_file_path</span><span class="p">)</span>
 
@@ -657,6 +671,39 @@
 <span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_fetch_with_http_fallback</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Fetch a file from the registry, falling back to HTTP if HTTPS fails.</span>
+
+<span class="sd">    If the download over HTTPS raises a ``RequestException``, the base URL of</span>
+<span class="sd">    ``SAMPLE_DATA`` is switched to plain HTTP for the rest of the session and</span>
+<span class="sd">    the download is retried. Hash mismatches raise a ``ValueError`` and are</span>
+<span class="sd">    not retried.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path</span>
+<span class="sd">        Path of the file in the registry, e.g. "poses/file_name.h5".</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to ``SAMPLE_DATA.fetch``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str or list of str</span>
+<span class="sd">        Path(s) to the downloaded (and possibly processed) file(s).</span>
+
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">RequestException</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">base_url</span> <span class="o">==</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">HTTP_DATA_URL</span><span class="si">}</span><span class="s2">/"</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Failed to download </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> over HTTPS. Retrying over HTTP."</span>
+        <span class="p">)</span>
+        <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">base_url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">HTTP_DATA_URL</span><span class="si">}</span><span class="s2">/"</span>
+        <span class="k">return</span> <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="list_datasets">
 <a class="viewcode-back" href="../../api/movement.sample_data.list_datasets.html#movement.sample_data.list_datasets">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">list_datasets</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -738,12 +785,16 @@
         <span class="s2">"frame"</span><span class="p">:</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">frame_file_name</span>
         <span class="k">else</span> <span class="n">Path</span><span class="p">(</span>
-            <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">"frames/</span><span class="si">{</span><span class="n">frame_file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">_fetch_with_http_fallback</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"frames/</span><span class="si">{</span><span class="n">frame_file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
         <span class="p">),</span>
         <span class="s2">"video"</span><span class="p">:</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">video_file_name</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="p">(</span><span class="n">with_video</span><span class="p">)</span>
         <span class="k">else</span> <span class="n">Path</span><span class="p">(</span>
-            <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">"videos/</span><span class="si">{</span><span class="n">video_file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">_fetch_with_http_fallback</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"videos/</span><span class="si">{</span><span class="n">video_file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
         <span class="p">),</span>
     <span class="p">}</span>
 
@@ -756,7 +807,9 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Store the path to a single downloaded file</span>
         <span class="n">paths_dict</span><span class="p">[</span><span class="n">data_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
-            <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">_fetch_with_http_fallback</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">data_type</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">paths_dict</span></div>
 
@@ -853,7 +906,7 @@
 
 <span class="sd">    """</span>
     <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_type</span><span class="p">)</span> <span class="o">/</span> <span class="n">file_name</span>
-    <span class="n">raw_paths</span> <span class="o">=</span> <span class="n">SAMPLE_DATA</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span>
+    <span class="n">raw_paths</span> <span class="o">=</span> <span class="n">_fetch_with_http_fallback</span><span class="p">(</span>
         <span class="n">file_path</span><span class="o">.</span><span class="n">as_posix</span><span class="p">(),</span>
         <span class="n">processor</span><span class="o">=</span><span class="n">pooch</span><span class="o">.</span><span class="n">Unzip</span><span class="p">(),</span>
         <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
