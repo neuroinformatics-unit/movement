@@ -384,8 +384,9 @@ always reflect the current keypoint positions.
 #### Move keypoints
 
 To **move** the selected keypoint(s), drag them to the correct position.
-Moved keypoints are shown as rings. Their confidence is set to `NaN`
-(hover over a point to check), because the model's score no longer applies.
+Moved keypoints are shown as rings. Their confidence is set to `NaN`, because the model's score no longer applies.
+
+Once a keypoint is moved, a boolean `edited` property is added to all points in the layer: it is `True` for moved keypoints and `False` for all others. Hover over a point to check: a moved keypoint's tooltip shows `edited: True`.
 
 <video autoplay loop muted playsinline width="100%" aria-label="Dragging a keypoint to a new position, after which it is shown as a ring">
   <source src="../_static/napari_move_keypoints.mp4" type="video/mp4">
