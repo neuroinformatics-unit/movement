@@ -19,6 +19,7 @@ type TargetSoftware = Literal[
     "LightningPose",
     "NWB",
     "VIA-tracks",
+    "pynapple",
 ]
 
 P = ParamSpec("P")

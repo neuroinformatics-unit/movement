@@ -84,6 +84,7 @@ dev = [
   "types-shapely",
   "types-jsonschema",
   "movement[napari]",
+  "pynapple",
 ]
 docs = [
   "movement[napari]",
