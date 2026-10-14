@@ -831,6 +831,7 @@ def _df_from_dlc_csv(valid_file: ValidDeepLabCutCSV) -> pd.DataFrame:
     df = pd.read_csv(
         valid_file.file,
         header=list(range(len(level_names))),
+        float_precision="round_trip",
     )
     df = df.set_index(df.columns[0])
     df.index.name = None
@@ -939,7 +940,10 @@ def from_anipose_file(
 
     """
     valid_file = cast("ValidFile", file)
-    anipose_df = pd.read_csv(valid_file.file)
+    # float_precision="round_trip" selects pandas' correctly-rounded
+    # parser. The default fast parser can be off by ~1 ULP, which makes
+    # an exact save -> load round-trip fail.
+    anipose_df = pd.read_csv(valid_file.file, float_precision="round_trip")
     return from_anipose_style_df(
         anipose_df, fps=fps, individual_name=individual_name
     )
