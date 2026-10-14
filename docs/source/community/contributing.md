@@ -189,6 +189,9 @@ Sometimes you may have good reasons to ignore a particular rule for a specific l
 
 We adhere to the [numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) style.
 All public functions, classes, and methods must include docstrings, as these enable [automatic generation of the API reference](#updating-the-api-reference).
+Follow the section order in numpydoc's style guide. For example, `See Also`
+comes before `Notes`, `References`, and `Examples`. A pre-commit hook checks
+this order in Python files under `movement/`.
 
 To document module‑level variables or class attributes, place a string literal immediately after the definition—a convention recognised by [sphinx-autodoc](sphinx-doc:extensions/autodoc.html#doc-comments-and-docstrings); see also [PEP 257](https://peps.python.org/pep-0257/#what-is-a-docstring):
 

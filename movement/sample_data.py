@@ -262,6 +262,10 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
         the file is either not available or not requested
         (if ``with_video=False``).
 
+    See Also
+    --------
+    fetch_dataset
+
     Examples
     --------
     Fetch a sample dataset and get the paths to the file containing the
@@ -280,10 +284,6 @@ def fetch_dataset_paths(filename: str, with_video: bool = False) -> dict:
 
     >>> paths = fetch_dataset_paths("VIA_multiple-crabs_5-frames_labels.csv")
     >>> bboxes_path = paths["bboxes"]
-
-    See Also
-    --------
-    fetch_dataset
 
     """
     available_data_files = list_datasets()
@@ -356,6 +356,10 @@ def fetch_dataset(
     ds : xarray.Dataset
         Data contained in the fetched sample file.
 
+    See Also
+    --------
+    fetch_dataset_paths
+
     Examples
     --------
     Fetch a sample dataset and get the paths to the associated frame and video
@@ -367,10 +371,6 @@ def fetch_dataset(
     )
     >>> frame_path = ds.frame_path
     >>> video_path = ds.video_path
-
-    See Also
-    --------
-    fetch_dataset_paths
 
     """
     # If the filename start with "TRex", raise an NotImplementedError

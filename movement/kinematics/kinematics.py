@@ -174,6 +174,10 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
         An xarray DataArray containing velocity vectors in Cartesian
         coordinates.
 
+    See Also
+    --------
+    compute_time_derivative : The underlying function used.
+
     Notes
     -----
     For the ``position`` array of a ``poses`` dataset, the ``velocity`` array
@@ -182,10 +186,6 @@ def compute_velocity(data: xr.DataArray) -> xr.DataArray:
     For the ``position`` array of a ``bboxes`` dataset, the ``velocity`` array
     will hold the velocity vectors for the centroid of every individual
     bounding box.
-
-    See Also
-    --------
-    compute_time_derivative : The underlying function used.
 
     """
     # validate only presence of Cartesian space dimension
@@ -215,6 +215,10 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
         An xarray DataArray containing acceleration vectors in Cartesian
         coordinates.
 
+    See Also
+    --------
+    compute_time_derivative : The underlying function used.
+
     Notes
     -----
     For the ``position`` array of a ``poses`` dataset, the ``acceleration``
@@ -224,10 +228,6 @@ def compute_acceleration(data: xr.DataArray) -> xr.DataArray:
     For the ``position`` array of a ``bboxes`` dataset, the ``acceleration``
     array will hold the acceleration vectors for the centroid of every
     individual bounding box.
-
-    See Also
-    --------
-    compute_time_derivative : The underlying function used.
 
     """
     # validate only presence of Cartesian space dimension
