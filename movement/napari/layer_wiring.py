@@ -281,7 +281,7 @@ def set_tracks_layer_data(tracks_layer, data, properties):
         tracks_layer.color_by = color_by
 
 
-def points_layer_properties(properties: pd.DataFrame) -> pd.DataFrame:
+def drop_internal_properties(properties: pd.DataFrame) -> pd.DataFrame:
     """Drop the internal columns not needed in Points layer properties.
 
     The ``_factorized`` columns are used for Tracks/Shapes colouring and
@@ -305,14 +305,12 @@ def add_edits_reset_event(points_layer: Points) -> None:
 
 
 def reset_edits(points_layer: Points, frame: int | None = None) -> None:
-    """Restore loaded pose points for one frame, or all frames if None.
+    """Restore loaded points for one frame, or all frames if None.
 
     The loaded state is read from ``POINTS_POSITION_KEY`` (positions)
     and ``POINTS_PROPERTIES_KEY`` (confidence, ``edited`` flags and
     which points were present), so it includes edits saved in the input
-    file. Deleted points are restored too. Other frames retain their
-    current data. Identity swaps and individual edit history are not
-    supported.
+    file. Deleted points are restored too.
     """
     loaded_data = points_layer.metadata[POINTS_POSITION_KEY]
     loaded_props = points_layer.metadata[POINTS_PROPERTIES_KEY]
@@ -344,7 +342,7 @@ def reset_edits(points_layer: Points, frame: int | None = None) -> None:
         }
 
     properties = merge_properties(
-        points_layer.properties, points_layer_properties(loaded_props)
+        points_layer.properties, drop_internal_properties(loaded_props)
     )
     track_properties = merge_properties(tracks.properties, loaded_props)
     # Kept points keep their current symbol; restored points are derived

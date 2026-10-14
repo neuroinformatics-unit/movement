@@ -3,15 +3,24 @@
 import numpy as np
 import pandas as pd
 import pytest
+import xarray as xr
 from napari.components import ViewerModel
 from napari.layers import Points
-from qtpy.QtWidgets import QMessageBox
+from qtpy.QtCore import QTimer
+from qtpy.QtWidgets import QApplication, QMessageBox
 
 from movement.napari import layer_wiring as wiring
+from movement.napari.convert import napari_layers_to_ds
+from movement.napari.edit_timeline_widget import (
+    EditControlsWidget,
+    EditTimelineWidget,
+)
+from movement.napari.loader_widgets import DataLoader
+from movement.napari.meta_widget import MovementMetaWidget
 
 
 @pytest.fixture
-def reset_layers():
+def loaded_poses_layers():
     """Create two tracks with two frames and their loaded state."""
     viewer = ViewerModel()
     data = np.array(
@@ -41,37 +50,52 @@ def reset_layers():
     return points, tracks, data, props, viewer
 
 
-@pytest.mark.parametrize("frame", [None, 0, 1])
+@pytest.mark.parametrize(
+    "frame, expected_tracks, expected_edited",
+    [
+        pytest.param(
+            None,
+            [[0, 0, 1, 2], [0, 1, 3, 4], [1, 0, 5, 6], [1, 1, 7, 8]],
+            [True, False, False, False],
+            id="all-frames",
+        ),
+        pytest.param(
+            0,
+            [[0, 0, 1, 2], [0, 1, 100, 200], [1, 0, 5, 6], [1, 1, 7, 8]],
+            [True, True, False, False],
+            id="first-frame",
+        ),
+        pytest.param(
+            1,
+            [[0, 1, 3, 4], [1, 1, 7, 8]],
+            [False, False],
+            id="second-frame",
+        ),
+    ],
+)
 def test_reset_restores_deleted_points_and_keeps_other_edits(
-    reset_layers, frame
+    loaded_poses_layers, frame, expected_tracks, expected_edited
 ):
     """Restore the selected frame without undoing another frame's edits."""
-    points, tracks, original, props, viewer = reset_layers
+    points, tracks, original, props, viewer = loaded_poses_layers
     points.data[1, 1:] = [100, 200]
     points.events.data(action="changed", data_indices=(1,))
     points.remove([0, 2])
     wiring.reset_edits(points, frame=frame)
-    if frame in (None, 0):
-        assert len(points.data) == 4
-        np.testing.assert_array_equal(tracks.data[[0, 2]], original[[0, 2]])
-    else:
-        assert len(points.data) == 2
-    if frame in (None, 1):
-        np.testing.assert_array_equal(
-            points.data[points.data[:, 0] == 1], original[[1, 3], 1:]
-        )
-    else:
-        assert points.properties["edited"][1]
-        np.testing.assert_array_equal(points.data[1, 1:], [100, 200])
+    np.testing.assert_array_equal(tracks.data, expected_tracks)
+    np.testing.assert_array_equal(
+        points.data, np.asarray(expected_tracks)[:, 1:]
+    )
+    np.testing.assert_array_equal(points.properties["edited"], expected_edited)
     expected = points.data.copy()
     wiring.reset_edits(points, frame=frame)
     np.testing.assert_array_equal(points.data, expected)
 
 
 @pytest.mark.parametrize("frame", [None, 2])
-def test_reset_skips_missing_loaded_positions(reset_layers, frame):
+def test_reset_skips_missing_loaded_positions(loaded_poses_layers, frame):
     """An originally missing point must stay absent after reset."""
-    points, tracks, original, props, viewer = reset_layers
+    points, tracks, original, props, viewer = loaded_poses_layers
     loaded_props = points.metadata[wiring.POINTS_PROPERTIES_KEY]
     points.metadata[wiring.POINTS_PROPERTIES_KEY] = pd.concat(
         [loaded_props, loaded_props.iloc[[-1]].assign(position_is_nan=True)],
@@ -88,9 +112,9 @@ def test_reset_skips_missing_loaded_positions(reset_layers, frame):
 
 
 @pytest.mark.parametrize("frame", [None, 1])
-def test_reset_emits_edits_reset_event(reset_layers, frame):
+def test_reset_emits_edits_reset_event(loaded_poses_layers, frame):
     """Reset notifies via ``edits_reset``, not as a data change."""
-    points = reset_layers[0]
+    points = loaded_poses_layers[0]
     data_events, reset_events = [], []
     points.events.data.connect(data_events.append)
     # napari clears event.source after emission, so record it here
@@ -102,9 +126,9 @@ def test_reset_emits_edits_reset_event(reset_layers, frame):
     assert reset_events == [(points, frame)]
 
 
-def test_reset_all_restores_loaded_properties_and_symbols(reset_layers):
+def test_reset_all_restores_loaded_properties_and_symbols(loaded_poses_layers):
     """Keep edits that were already in the loaded file, including styling."""
-    points, tracks, original, props, viewer = reset_layers
+    points, tracks, original, props, viewer = loaded_poses_layers
     symbols = points.symbol.copy()
     points.remove([0, 1, 2])
     wiring.reset_edits(points)
@@ -114,14 +138,9 @@ def test_reset_all_restores_loaded_properties_and_symbols(reset_layers):
     np.testing.assert_array_equal(points.symbol, symbols)
 
 
-def test_reset_controls_and_timeline(reset_layers, qtbot, monkeypatch):
+def test_reset_controls_and_timeline(loaded_poses_layers, qtbot, monkeypatch):
     """Buttons restore points and refresh timeline flags without OpenGL."""
-    from movement.napari.edit_timeline_widget import (
-        EditControlsWidget,
-        EditTimelineWidget,
-    )
-
-    points, tracks, original, props, viewer = reset_layers
+    points, tracks, original, props, viewer = loaded_poses_layers
     monkeypatch.setattr(
         EditControlsWidget, "_confirm_reset_all", lambda self: True
     )
@@ -153,8 +172,6 @@ def test_reset_controls_and_timeline(reset_layers, qtbot, monkeypatch):
 
 def test_reset_controls_without_loaded_pose(qtbot):
     """Reset is unavailable for unrelated points or an empty viewer."""
-    from movement.napari.edit_timeline_widget import EditControlsWidget
-
     viewer = ViewerModel()
     controls = EditControlsWidget(napari_viewer=viewer)
     qtbot.addWidget(controls)
@@ -173,15 +190,10 @@ def test_reset_controls_without_loaded_pose(qtbot):
     ],
 )
 def test_reset_all_requires_confirmation(
-    reset_layers, qtbot, button_text, reset_expected
+    loaded_poses_layers, qtbot, button_text, reset_expected
 ):
     """Only explicit confirmation restores points; cancel keeps edits."""
-    from qtpy.QtCore import QTimer
-    from qtpy.QtWidgets import QApplication
-
-    from movement.napari.edit_timeline_widget import EditControlsWidget
-
-    points, tracks, original, props, viewer = reset_layers
+    points, tracks, original, props, viewer = loaded_poses_layers
     controls = EditControlsWidget(napari_viewer=viewer)
     qtbot.addWidget(controls)
     points.remove([0])
@@ -215,10 +227,6 @@ def test_loaded_state_roundtrip(
     """Resetting all edits restores the loaded state on export,
     including originally missing points.
     """
-    import xarray as xr
-
-    from movement.napari.convert import napari_layers_to_ds
-
     missing = {"time": "start", "keypoint": "centroid", "individual": "id_0"}
     path, ds = valid_poses_path_and_ds_with_localised_nans(missing)
     loader = loaded_data_loader(path, ds)
@@ -261,10 +269,6 @@ def test_reset_in_docked_widget(
     monkeypatch,
 ):
     """Exercise reset buttons through the real viewer and docked timeline."""
-    from movement.napari.edit_timeline_widget import EditControlsWidget
-    from movement.napari.loader_widgets import DataLoader
-    from movement.napari.meta_widget import MovementMetaWidget
-
     monkeypatch.setattr(
         EditControlsWidget, "_confirm_reset_all", lambda self: True
     )

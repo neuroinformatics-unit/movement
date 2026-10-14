@@ -87,14 +87,18 @@ class EditControlsWidget(QWidget):
         layout.addWidget(self.show_individuals_checkbox)
         self.reset_frame_button = QPushButton("Reset current frame")
         self.reset_all_button = QPushButton("Reset all frames")
+        self.reset_frame_button.setToolTip(
+            "Restore edited points in the current frame to how "
+            "they were when the dataset was loaded."
+        )
+        self.reset_all_button.setToolTip(
+            "Restore edited points in all frames to how "
+            "they were when the dataset was loaded."
+        )
         for button in (self.reset_frame_button, self.reset_all_button):
-            button.setToolTip(
-                "Restore pose points to the file as loaded, including "
-                "any previously saved edits."
-            )
             layout.addWidget(button)
-        self.reset_frame_button.clicked.connect(self._reset_frame)
-        self.reset_all_button.clicked.connect(self._reset_all)
+        self.reset_frame_button.clicked.connect(self._on_reset_frame_clicked)
+        self.reset_all_button.clicked.connect(self._on_reset_all_clicked)
         for event in (
             self.viewer.layers.events.inserted,
             self.viewer.layers.events.removed,
@@ -106,7 +110,7 @@ class EditControlsWidget(QWidget):
         self._update_reset_enabled()
         self.setLayout(layout)
 
-    def _reset_layer(self):
+    def _resettable_layer(self):
         """Find a loaded pose layer with its companion still in the viewer."""
         layer = active_movement_points_layer(self.viewer)
         if (
@@ -123,21 +127,21 @@ class EditControlsWidget(QWidget):
 
     def _update_reset_enabled(self):
         """Disable restoration when no supported pose layer is loaded."""
-        enabled = self._reset_layer() is not None
+        enabled = self._resettable_layer() is not None
         self.reset_all_button.setEnabled(enabled)
         self.reset_frame_button.setEnabled(
             enabled and frame_axis_is_sliced(self.viewer)
         )
 
-    def _reset_frame(self):
+    def _on_reset_frame_clicked(self):
         """Reset only the current frame, leaving other frames unchanged."""
-        layer = self._reset_layer()
+        layer = self._resettable_layer()
         if layer is not None and frame_axis_is_sliced(self.viewer):
             reset_edits(layer, self.viewer.dims.current_step[0])
 
-    def _reset_all(self):
+    def _on_reset_all_clicked(self):
         """Reset all frames in the active pose layer."""
-        layer = self._reset_layer()
+        layer = self._resettable_layer()
         if layer is not None and self._confirm_reset_all():
             reset_edits(layer)
 

@@ -33,9 +33,9 @@ from movement.napari.layer_wiring import (
     TRACKS_LAYER_KEY,
     add_edits_reset_event,
     connect_viewer_callbacks,
+    drop_internal_properties,
     frame_axis_is_sliced,
     on_points_data_changed,
-    points_layer_properties,
     set_point_symbol_by_edited,
     update_frame_slider_range,
 )
@@ -342,7 +342,7 @@ class DataLoader(QWidget):
             properties_df=self.properties,
         )
 
-        points_properties = points_layer_properties(self.properties)
+        points_properties = drop_internal_properties(self.properties)
         metadata = {
             MAX_FRAME_IDX_KEY: max(self.data[:, 1]),
             POINTS_LAYER_KEY: True,
