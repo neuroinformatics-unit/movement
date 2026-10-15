@@ -669,6 +669,10 @@ def test_window_preserves_upstream_log():
     "data, window",
     [
         pytest.param(_rotating_angle(), 1, id="window_too_small"),
+        pytest.param(_rotating_angle(), 0, id="window_zero"),
+        pytest.param(_rotating_angle(), -3, id="window_negative"),
+        pytest.param(_rotating_angle(), 4, id="window_even"),
+        pytest.param(_rotating_angle(), 5.0, id="window_float"),
         pytest.param(
             _rotating_angle().assign_coords(time=np.arange(200) ** 1.1),
             5,

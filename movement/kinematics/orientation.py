@@ -348,6 +348,15 @@ def compute_angular_time_derivative(
         raise logger.error(
             ValueError(f"Order must be a positive integer, but got {order}.")
         )
+    if window is not None and not (
+        isinstance(window, int) and window > order and window % 2 == 1
+    ):
+        raise logger.error(
+            ValueError(
+                f"Window must be an odd integer greater than the order "
+                f"({order}), but got {window}."
+            )
+        )
     validate_dims_coords(data, {"time": []})
     theta = _unwrap_orientation(data)
     if window is None:
