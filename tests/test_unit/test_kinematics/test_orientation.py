@@ -593,8 +593,8 @@ def test_angular_time_derivative_invalid_inputs(
 def test_angular_velocity_window_constant_rotation(
     as_vector, time_in_frames, expected
 ):
-    """A windowed estimate of a constant rotation is exact away from the
-    edges (the first and last ``window // 2`` frames are biased).
+    """A windowed estimate of a constant rotation is exact, except for
+    the first and last ``window // 2`` frames, which are NaN.
     """
     window = 7
     angle = _rotating_angle(time_in_frames=time_in_frames)
@@ -604,6 +604,8 @@ def test_angular_velocity_window_constant_rotation(
     np.testing.assert_allclose(
         result.isel(time=slice(h, -h)), expected, atol=1e-6
     )
+    assert result.isel(time=slice(None, h)).isnull().all()
+    assert result.isel(time=slice(-h, None)).isnull().all()
 
 
 def test_angular_velocity_window_matches_polyfit():
@@ -657,12 +659,52 @@ def test_angular_time_derivative_order_2_window():
     np.testing.assert_allclose(result.isel(time=slice(5, -5)), 4.0, atol=1e-6)
 
 
-def test_window_preserves_upstream_log():
-    """The internal savgol_filter call does not leak into ``log``."""
+@pytest.mark.parametrize("in_degrees", [False, True], ids=["rad", "deg"])
+@pytest.mark.parametrize("window", [None, 5], ids=["raw", "window"])
+def test_output_name_and_attrs(window, in_degrees):
+    """Every path drops the input's attrs, like ``compute_velocity``,
+    and names the output after the computed quantity.
+    """
     angle = _rotating_angle()
     angle.attrs["log"] = '[{"operation": "upstream"}]'
-    result = kinematics.compute_angular_velocity(angle, window=5)
-    assert result.attrs.get("log") == '[{"operation": "upstream"}]'
+    velocity = kinematics.compute_angular_velocity(
+        angle, window=window, in_degrees=in_degrees
+    )
+    derivative = kinematics.compute_angular_time_derivative(
+        angle, order=1, window=window
+    )
+    assert velocity.name == "angular_velocity"
+    assert derivative.name == "angular_time_derivative"
+    assert velocity.attrs == derivative.attrs == {}
+
+
+def test_raw_irregular_time():
+    """Without ``window``, irregular time steps are handled exactly."""
+    time = np.cumsum(np.random.default_rng(seed=0).uniform(0.5, 1.5, 50))
+    angle = xr.DataArray(
+        np.angle(np.exp(0.4j * time)), dims="time", coords={"time": time}
+    )
+    result = kinematics.compute_angular_velocity(angle)
+    np.testing.assert_allclose(result, 0.4, atol=1e-9)
+
+
+@pytest.mark.parametrize("window", [None, 7], ids=["raw", "window"])
+def test_keypoint_swap_stays_local(window):
+    """A one-frame 180-degree flip (e.g. a left/right ear swap) during a
+    turn does not turn into a spurious full revolution.
+    """
+    angle = _rotating_angle(angular_velocity=0.1, fps=1, n_frames=40)
+    vector = _angle_to_vector(angle)
+    vector[10] = -vector[10]
+    result = kinematics.compute_angular_velocity(vector, window=window)
+    if window is None:
+        # Neighbours of the flip are corrupted, the flipped frame is not
+        np.testing.assert_allclose(result[10], 0.1, atol=1e-9)
+    else:
+        # Frames whose window contains the flip off-centre stay close
+        np.testing.assert_allclose(result[[9, 11]], 0.1, atol=0.2)
+    unaffected = result.drop_isel(time=range(7, 14)).dropna("time")
+    np.testing.assert_allclose(unaffected, 0.1, atol=1e-9)
 
 
 @pytest.mark.parametrize(

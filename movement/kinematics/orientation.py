@@ -6,12 +6,11 @@ from typing import Literal, cast
 import numpy as np
 import xarray as xr
 from numpy.typing import ArrayLike
+from scipy.signal import savgol_coeffs
 
-from movement.filtering import savgol_filter
 from movement.kinematics.kinematics import compute_time_derivative
 from movement.utils.logging import logger
 from movement.utils.vector import (
-    compute_norm,
     compute_signed_angle_2d,
     convert_to_unit,
 )
@@ -269,10 +268,9 @@ def compute_angular_time_derivative(
     r"""Compute the time-derivative of a 2D orientation.
 
     The orientation may be given either as 2D vectors or as angles in
-    radians. It is first converted into a continuous (unwrapped) angle,
-    which avoids the spurious jumps that occur when angles wrap around
-    at :math:`\pm\pi` (see Notes). The unwrapped angle is then
-    differentiated with respect to ``time``.
+    radians. Its rate of change is estimated from the signed angles
+    between nearby orientations, which avoids the spurious jumps that
+    occur when angles wrap around at :math:`\pm\pi` (see Notes).
 
     Parameters
     ----------
@@ -286,12 +284,12 @@ def compute_angular_time_derivative(
         The order of the time-derivative. Use 1 for angular velocity and
         2 for angular acceleration. Must be a positive integer.
     window
-        If ``None`` (default), the derivative is computed with
-        second-order accurate central differences, as in
-        :func:`movement.kinematics.compute_time_derivative`. If an
-        integer, the derivative is instead estimated by a least-squares
-        polynomial fit over a centred window of ``window`` frames (see
-        Notes).
+        If ``None`` (default), the derivative is computed with central
+        differences (one-sided at the first and last frames). If an odd
+        integer greater than ``order``, the derivative is instead
+        estimated by a least-squares polynomial fit over a centred
+        window of ``window`` frames (see Notes). This requires a
+        uniformly sampled ``time`` coordinate.
 
     Returns
     -------
@@ -303,29 +301,32 @@ def compute_angular_time_derivative(
     Notes
     -----
     **Wrap-around.** Differentiating angles directly produces spurious
-    spikes wherever they wrap around at :math:`\pm\pi`. Instead, we sum
+    spikes wherever they wrap around at :math:`\pm\pi`. Instead, we use
     the :func:`signed angles<movement.utils.vector.compute_signed_angle_2d>`
-    between consecutive valid orientations into a continuous angle, and
-    differentiate that. Gaps (NaNs or zero-length vectors) are bridged by
-    the rotation across them. This assumes rotations of less than
-    :math:`\pi` between consecutive valid frames.
+    between nearby orientations: for ``order=1`` without ``window``, the
+    angle from the previous to the next frame, divided by the time
+    between them. Higher orders differentiate that result further with
+    :func:`movement.kinematics.compute_time_derivative`. This assumes
+    rotations of less than :math:`\pi` across two frames (or half a
+    ``window``). Undefined orientations (NaNs or zero-length vectors) are
+    treated as NaN.
 
     **Sign.** Positive values are rotations from the positive x-axis
     towards the positive y-axis. In image coordinates (y pointing down)
     with a top-down camera, this is clockwise on screen, i.e. a right
     turn.
 
-    **Windowed estimate.** With ``window``, a Savitzky-Golay filter
-    (see :func:`movement.filtering.savgol_filter`) is applied to the
-    continuous angle. For ``order=1``, this is the slope of a
-    least-squares line over the ``window`` frames centred on each time
-    point. It uses every frame in the window, unlike a rolling mean of the
-    raw angular velocity, which roughly takes the difference between the
-    window's end points. The first and last ``window // 2`` values are
-    biased towards zero, and NaNs propagate to every output whose window
-    contains them. For a window *ending* on each time point, shift the
-    result by ``window // 2`` frames. This is exact for an odd
-    ``window``.
+    **Windowed estimate.** With ``window``, the angles of the
+    orientations in the window, relative to its centre frame, are
+    differentiated with Savitzky-Golay coefficients
+    (:func:`scipy.signal.savgol_coeffs`). For ``order=1``, this is the
+    slope of a least-squares line over the ``window`` frames centred on
+    each time point. It uses every frame in the window, unlike a rolling
+    mean of the raw angular velocity, which roughly takes the difference
+    between the window's end points. The first and last ``window // 2``
+    values are NaN, as are all outputs whose window contains a NaN. For
+    a window *ending* on each time point, shift the result by
+    ``window // 2`` frames.
 
     **Preprocessing.** Smooth, interpolate, or resample the orientation
     as *vectors*, not angles, since angle averages are wrong near
@@ -358,18 +359,37 @@ def compute_angular_time_derivative(
             )
         )
     validate_dims_coords(data, {"time": []})
-    theta = _unwrap_orientation(data)
+    vectors = _to_vectors(data)
     if window is None:
-        return compute_time_derivative(theta, order)
-    result = savgol_filter(
-        theta,
-        window,
-        polyorder=order,
-        deriv=order,
-        delta=_uniform_time_step(theta),
-        mode="nearest",
-    )
-    result.attrs = theta.attrs.copy()  # drop internal savgol_filter log
+        # Edge padding gives one-sided differences at the first/last frame
+        padded = vectors.drop_vars("time").pad(time=1, mode="edge")
+        time = np.pad(vectors["time"].values, 1, mode="edge")
+        angle = compute_signed_angle_2d(
+            padded.isel(time=slice(None, -2)), padded.isel(time=slice(2, None))
+        )
+        result = (angle / (time[2:] - time[:-2])).assign_coords(
+            time=vectors["time"]
+        )
+        if order > 1:
+            result = compute_time_derivative(result, order - 1)
+    else:
+        coeffs = savgol_coeffs(
+            window,
+            order,
+            deriv=order,
+            delta=_uniform_time_step(vectors),
+            use="dot",
+        )
+        # Out-of-range neighbours are NaN, so the edge outputs are NaN
+        neighbours = vectors.rolling(time=window, center=True).construct(
+            "offset"
+        )
+        relative_angle = compute_signed_angle_2d(vectors, neighbours)
+        result = (relative_angle * xr.DataArray(coeffs, dims="offset")).sum(
+            "offset", skipna=False
+        )
+    result.attrs = {}
+    result.name = "angular_time_derivative"
     return result
 
 
@@ -396,9 +416,10 @@ def compute_angular_velocity(
         Otherwise, it is interpreted as angles in radians.
     window
         If ``None`` (default), the unsmoothed angular velocity is
-        computed with central differences. If an integer, it is the
-        slope of a least-squares line fitted to the unwrapped angle over
-        a centred window of ``window`` frames.
+        computed with central differences. If an odd integer greater
+        than 1, it is the slope of a least-squares line fitted to the
+        orientation angle over a centred window of ``window`` frames.
+        This requires a uniformly sampled ``time`` coordinate.
     in_degrees
         If ``True``, the output is in degrees per unit of time.
         Otherwise (default), it is in radians per unit of time.
@@ -447,24 +468,15 @@ def compute_angular_velocity(
     return result
 
 
-def _unwrap_orientation(data: xr.DataArray) -> xr.DataArray:
-    """Convert orientation vectors or angles to a continuous angle.
-
-    The result is in radians, with an arbitrary constant offset, and is
-    NaN wherever the orientation is undefined (NaN or zero-length).
-    """
+def _to_vectors(data: xr.DataArray) -> xr.DataArray:
+    """Return orientation vectors, converting angles to vectors if needed."""
     if "space" in data.dims:
         validate_dims_coords(data, {"space": ["x", "y"]}, exact_coords=True)
-        vectors = data
-    else:
-        vectors = xr.concat(
-            [cast("xr.DataArray", f(data)) for f in (np.cos, np.sin)],
-            dim="space",
-        ).assign_coords(space=["x", "y"])
-    valid = compute_norm(vectors) > 0  # False for NaN and null vectors
-    filled = vectors.where(valid).ffill(dim="time")
-    increments = compute_signed_angle_2d(filled.shift(time=1), filled)
-    return increments.fillna(0).cumsum(dim="time").where(valid)
+        return data
+    return xr.concat(
+        [cast("xr.DataArray", f(data)) for f in (np.cos, np.sin)],
+        dim="space",
+    ).assign_coords(space=["x", "y"])
 
 
 def _uniform_time_step(data: xr.DataArray) -> float:
