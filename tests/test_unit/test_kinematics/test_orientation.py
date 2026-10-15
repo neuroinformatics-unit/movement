@@ -533,6 +533,34 @@ def test_extra_dims_and_dim_order(window):
     )
 
 
+@pytest.mark.parametrize(
+    "as_vector", [False, True], ids=["angle_input", "vector_input"]
+)
+@pytest.mark.parametrize("window", [None, 9], ids=["raw", "window"])
+@pytest.mark.parametrize(
+    "in_degrees, expected",
+    [
+        pytest.param(False, 4.0, id="rad"),
+        pytest.param(True, np.rad2deg(4.0), id="deg"),
+    ],
+)
+def test_angular_acceleration(as_vector, window, in_degrees, expected):
+    """A constant angular acceleration is recovered, away from the
+    edges, and the output is named after the computed quantity.
+    """
+    angle = _rotating_angle(angular_velocity=1.0, angular_acceleration=4.0)
+    data = _angle_to_vector(angle) if as_vector else angle
+    result = kinematics.compute_angular_acceleration(
+        data, window=window, in_degrees=in_degrees
+    )
+    assert result.name == "angular_acceleration"
+    assert result.dims == ("time",)
+    assert result.attrs == {}
+    np.testing.assert_allclose(
+        result.isel(time=slice(5, -5)), expected, atol=1e-4
+    )
+
+
 def test_angular_time_derivative_order_2():
     """Order 2 recovers a constant angular acceleration."""
     angle = _rotating_angle(angular_velocity=1.0, angular_acceleration=4.0)
