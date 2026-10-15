@@ -101,10 +101,12 @@ fig.show()
 # :func:`interpolate_over_time()\
 # <movement.filtering.interpolate_over_time>`.
 #
-# **B. Differentiate over a window.** Passing ``window`` (in frames) fits a
-# straight line to the head angle over that many frames, centred on each
-# time point, and returns its slope. This least-squares estimate uses
-# every frame in the window.
+# **B. Differentiate over a window.** Passing ``window`` (an odd number of
+# frames) fits a straight line to the head angle over that many frames,
+# centred on each time point, and returns its slope. This least-squares
+# estimate uses every frame in the window. It requires uniformly sampled
+# data, and returns NaN wherever the window is incomplete: in the first
+# and last ``window // 2`` frames, and around missing values.
 #
 # **B'. Average the raw angular velocity.** Angular velocity does not wrap,
 # so we can smooth it with any of our filters, e.g. a rolling mean. This
@@ -115,7 +117,7 @@ fig.show()
 # 30 fps, a 50 ms window covers only about 2 frames.
 
 window_hd = max(1, round(0.05 * fps))  # ~50 ms
-window_deriv = round(0.2 * fps) | 1  # ~200 ms, forced to be odd
+window_deriv = round(0.2 * fps) | 1  # ~200 ms, must be odd
 
 ahv_presmoothed = compute_angular_velocity(
     rolling_filter(head_vector, window_hd, statistic="mean")
@@ -141,8 +143,8 @@ fig.show()
 # ---------------------------
 # ``movement`` uses *centred* windows, so smoothing does not shift the
 # signal in time. Some studies instead compute the derivative over a window
-# *ending* on each time point. For an odd ``window``, we get that trailing
-# estimate by shifting the centred one forward by ``window // 2`` frames:
+# *ending* on each time point. We get that trailing estimate by shifting
+# the centred one forward by ``window // 2`` frames:
 
 ahv_trailing = ahv_lsq.shift(time=window_deriv // 2)
 
