@@ -306,7 +306,7 @@ def compute_angular_time_derivative(
     between nearby orientations: for ``order=1`` without ``window``, the
     angle from the previous to the next frame, divided by the time
     between them. Higher orders differentiate that result further with
-    :func:`movement.kinematics.compute_time_derivative`. This assumes
+    :func:`~movement.kinematics.compute_time_derivative`. This assumes
     rotations of less than :math:`\pi` across two frames (or half a
     ``window``). Undefined orientations (NaNs or zero-length vectors) are
     treated as NaN.
@@ -331,18 +331,15 @@ def compute_angular_time_derivative(
     **Preprocessing.** Smooth, interpolate, or resample the orientation
     as *vectors*, not angles, since angle averages are wrong near
     :math:`\pm\pi`. For example, a rolling mean of the vector components
-    (:func:`movement.filtering.rolling_filter`) is a circular mean.
-    Resample irregularly sampled data onto a uniform ``time`` grid first,
-    e.g. with :meth:`xarray.DataArray.interp` on the vectors, because
-    ``window`` requires uniform sampling and our filters count windows
-    in frames, not in units of time.
+    (:func:`~movement.filtering.rolling_filter`) is a circular mean.
+    Windowed estimates require uniform sampling, so make sure to resample
+    irregularly sampled data onto a uniform ``time`` grid first, e.g. with
+    :meth:`xarray.DataArray.interp` on the vectors.
 
     See Also
     --------
     compute_angular_velocity : Wrapper for ``order=1``.
     compute_angular_acceleration : Wrapper for ``order=2``.
-    movement.kinematics.compute_time_derivative :
-        The time-derivative of non-circular data.
 
     """
     _validate_type_data_array(data)
@@ -401,12 +398,9 @@ def compute_angular_velocity(
 ) -> xr.DataArray:
     r"""Compute the angular velocity of a 2D orientation.
 
-    The orientation may be given either as 2D vectors (e.g. the output
-    of :func:`movement.kinematics.compute_forward_vector`) or as angles
-    in radians (e.g. the output of
-    :func:`movement.kinematics.compute_forward_vector_angle`). Angle
-    wrap-around at :math:`\pm\pi` is handled. See
-    :func:`compute_angular_time_derivative` for details.
+    The orientation may be given either as 2D vectors (e.g. the output of
+    :func:`compute_forward_vector`) or as angles in radians
+    (e.g. the output of :func:`compute_forward_vector_angle`).
 
     Parameters
     ----------
@@ -420,7 +414,7 @@ def compute_angular_velocity(
         computed with central differences. If an odd integer greater
         than 1, it is the slope of a least-squares line fitted to the
         orientation angle over a centred window of ``window`` frames.
-        This requires a uniformly sampled ``time`` coordinate.
+        The windowed approach requires a uniformly sampled ``time`` coordinate.
     in_degrees
         If ``True``, the output is in degrees per unit of time.
         Otherwise (default), it is in radians per unit of time.
@@ -435,6 +429,7 @@ def compute_angular_velocity(
     See Also
     --------
     compute_angular_time_derivative : The underlying function used.
+    compute_angular_acceleration : The second time-derivative of orientation.
 
     Examples
     --------
@@ -476,12 +471,9 @@ def compute_angular_acceleration(
 ) -> xr.DataArray:
     r"""Compute the angular acceleration of a 2D orientation.
 
-    The orientation may be given either as 2D vectors (e.g. the output
-    of :func:`movement.kinematics.compute_forward_vector`) or as angles
-    in radians (e.g. the output of
-    :func:`movement.kinematics.compute_forward_vector_angle`). Angle
-    wrap-around at :math:`\pm\pi` is handled. See
-    :func:`compute_angular_time_derivative` for details.
+    The orientation may be given either as 2D vectors (e.g. the output of
+    :func:`compute_forward_vector`) or as angles in radians
+    (e.g. the output of :func:`compute_forward_vector_angle`).
 
     Parameters
     ----------
@@ -511,6 +503,7 @@ def compute_angular_acceleration(
     See Also
     --------
     compute_angular_time_derivative : The underlying function used.
+    compute_angular_velocity : The first time-derivative of orientation.
 
     Examples
     --------
