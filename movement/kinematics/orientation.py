@@ -354,6 +354,7 @@ def compute_angular_time_derivative(
     See Also
     --------
     compute_angular_velocity : Wrapper for ``order=1``.
+    compute_angular_acceleration : Wrapper for ``order=2``.
     movement.kinematics.compute_time_derivative :
         The time-derivative of non-circular data.
 
@@ -479,6 +480,73 @@ def compute_angular_velocity(
     if in_degrees:
         result = cast("xr.DataArray", np.rad2deg(result))
     result.name = "angular_velocity"
+    return result
+
+
+def compute_angular_acceleration(
+    data: xr.DataArray,
+    window: int | None = None,
+    in_degrees: bool = False,
+) -> xr.DataArray:
+    r"""Compute the angular acceleration of a 2D orientation.
+
+    The orientation may be given either as 2D vectors (e.g. the output
+    of :func:`movement.kinematics.compute_forward_vector`) or as angles
+    in radians (e.g. the output of
+    :func:`movement.kinematics.compute_forward_vector_angle`). Angle
+    wrap-around at :math:`\pm\pi` is handled. See
+    :func:`compute_angular_time_derivative` for details.
+
+    Parameters
+    ----------
+    data
+        The input orientation data, containing ``time`` as a dimension.
+        If it contains a ``space`` dimension, it must have exactly the
+        coordinates ``["x", "y"]`` and is interpreted as 2D vectors.
+        Otherwise, it is interpreted as angles in radians.
+    window
+        If ``None`` (default), the unsmoothed angular acceleration is
+        computed by differentiating the central-difference angular
+        velocity. If an odd integer greater than 2, it is the second
+        derivative of a least-squares quadratic fitted to the
+        orientation angle over a centred window of ``window`` frames.
+        This requires a uniformly sampled ``time`` coordinate.
+    in_degrees
+        If ``True``, the output is in degrees per unit of time squared.
+        Otherwise (default), it is in radians per unit of time squared.
+
+    Returns
+    -------
+    xarray.DataArray
+        The angular acceleration, with the dimensions of the input,
+        without ``space``. The unit of time is that of the ``time``
+        coordinate (seconds or frames).
+
+    See Also
+    --------
+    compute_angular_time_derivative : The underlying function used.
+
+    Examples
+    --------
+    >>> from movement.kinematics import (
+    ...     compute_angular_acceleration,
+    ...     compute_forward_vector,
+    ... )
+    >>> head_vector = compute_forward_vector(
+    ...     ds.position, "left_ear", "right_ear"
+    ... )
+
+    Least-squares estimate over a centred window of 9 frames, in degrees:
+
+    >>> aha = compute_angular_acceleration(
+    ...     head_vector, window=9, in_degrees=True
+    ... )
+
+    """
+    result = compute_angular_time_derivative(data, order=2, window=window)
+    if in_degrees:
+        result = cast("xr.DataArray", np.rad2deg(result))
+    result.name = "angular_acceleration"
     return result
 
 
