@@ -402,4 +402,5 @@ ax.set_title("Forward vector angle - head-to-snout angle", pad=25)
 # See also
 # --------
 # To compute how fast the head direction changes over time, see the
-# :ref:`sphx_glr_examples_compute_angular_velocity.py` example.
+# :ref:`sphx_glr_examples_compute_angular_velocity_and_acceleration.py`
+# example.

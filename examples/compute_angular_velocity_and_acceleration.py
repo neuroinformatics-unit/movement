@@ -1,7 +1,8 @@
-"""Compute angular velocity
-===========================
+"""Compute angular velocity and acceleration
+============================================
 
-Compute the angular velocity of the head, and smooth it.
+Compute the angular velocity and acceleration of the head, and smooth
+them.
 """
 
 # %%
@@ -16,6 +17,7 @@ from matplotlib import pyplot as plt
 from movement import sample_data
 from movement.filtering import rolling_filter
 from movement.kinematics import (
+    compute_angular_acceleration,
     compute_angular_velocity,
     compute_forward_vector,
     compute_forward_vector_angle,
@@ -30,7 +32,8 @@ from movement.kinematics import (
 # We recommend reading that one first.
 #
 # Here we focus on how fast an orientation changes over time, i.e. its
-# *angular velocity*. We use the head direction of a mouse as an example,
+# *angular velocity*, and on how fast that changes, i.e. its *angular
+# acceleration*. We use the head direction of a mouse as an example,
 # and compute its angular head velocity (AHV), a quantity commonly
 # related to the activity of head-direction and AHV cells.
 
@@ -149,10 +152,42 @@ fig.show()
 ahv_trailing = ahv_lsq.shift(time=window_deriv // 2)
 
 # %%
-# Angular velocity in degrees
-# ---------------------------
+# Angular acceleration
+# --------------------
+# :func:`compute_angular_acceleration()\
+# <movement.kinematics.compute_angular_acceleration>` takes the same
+# arguments. Differentiating twice amplifies keypoint jitter even more,
+# so the raw estimate is dominated by noise. With ``window``, it instead
+# fits a quadratic to the head angle over the window and returns its
+# second derivative. For this, ``window`` must be odd and greater than 2,
+# and a longer window than for the velocity is usually needed.
+
+window_accel = round(0.3 * fps) | 1  # ~300 ms, must be odd
+aha_lsq = compute_angular_acceleration(head_vector, window=window_accel)
+
+fig, axes = plt.subplots(2, 1, figsize=(8, 5), sharex=True)
+ahv_lsq.sel(time=time_window).plot(ax=axes[0])
+axes[0].set_ylabel("rad/s")
+axes[0].set_title(f"Angular head velocity ({window_deriv}-frame window)")
+axes[0].set_xlabel("")
+aha_lsq.sel(time=time_window).plot(ax=axes[1])
+axes[1].set_ylabel("rad/s²")
+axes[1].set_title(f"Angular head acceleration ({window_accel}-frame window)")
+fig.tight_layout()
+fig.show()
+
+# %%
+# Acceleration peaks where the velocity changes fastest, and crosses zero
+# at the velocity's peaks and troughs.
+
+# %%
+# Results in degrees
+# ------------------
 # Finally, ``in_degrees=True`` returns degrees per second (or per frame,
-# if the ``time`` coordinate is in frames).
+# if the ``time`` coordinate is in frames). The same option of
+# :func:`compute_angular_acceleration()\
+# <movement.kinematics.compute_angular_acceleration>` returns degrees per
+# second squared.
 
 ahv_deg = compute_angular_velocity(
     head_vector, window=window_deriv, in_degrees=True
