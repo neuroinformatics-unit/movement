@@ -12,6 +12,7 @@ from movement.kinematics import (
     compute_path_length,
     compute_path_sinuosity,
     compute_path_straightness,
+    compute_roaming_entropy,
     compute_turning_angle,
 )
 
@@ -302,6 +303,64 @@ def test_path_metrics_across_time_ranges(
 # ─────────────────────────────────────────────
 # Path length tests
 # ─────────────────────────────────────────────
+
+
+def test_roaming_entropy_uniform_and_stationary_paths():
+    """Four equally visited bins have entropy ln(4); one bin has zero."""
+    positions = xr.DataArray(
+        np.array(
+            [
+                [[0, 0], [0, 0]],
+                [[0, 1], [0, 0]],
+                [[1, 0], [0, 0]],
+                [[1, 1], [0, 0]],
+            ],
+            dtype=float,
+        ),
+        dims=("time", "individual", "space"),
+        coords={"individual": ["explorer", "stationary"], "space": ["x", "y"]},
+    )
+    raw = compute_roaming_entropy(positions, bins=2, normalise=False)
+    scaled = compute_roaming_entropy(positions, bins=2)
+
+    assert raw.sel(individual="explorer") == pytest.approx(np.log(4))
+    assert raw.sel(individual="stationary") == pytest.approx(0)
+    assert scaled.sel(individual="explorer") == pytest.approx(1)
+    assert scaled.sel(individual="stationary") == pytest.approx(0)
+    assert scaled.dims == ("individual",)
+    assert scaled.name == "roaming_entropy"
+
+
+def test_roaming_entropy_omits_missing_positions():
+    """Incomplete points are skipped and fully missing tracks return NaN."""
+    positions = xr.DataArray(
+        np.array(
+            [
+                [[0, 0], [np.nan, np.nan]],
+                [[1, 1], [np.nan, np.nan]],
+                [[np.nan, 0], [np.nan, np.nan]],
+            ],
+            dtype=float,
+        ),
+        dims=("time", "individual", "space"),
+        coords={"individual": ["valid", "missing"], "space": ["x", "y"]},
+    )
+    result = compute_roaming_entropy(positions, bins=(2, 2), normalise=False)
+
+    assert result.sel(individual="valid") == pytest.approx(np.log(2))
+    assert np.isnan(result.sel(individual="missing"))
+
+
+@pytest.mark.parametrize("bins", [0, (2, 0), 1.5, (2, 2, 2)])
+def test_roaming_entropy_rejects_invalid_bins(bins):
+    """Bin counts must be a positive integer or a pair of them."""
+    positions = xr.DataArray(
+        np.zeros((2, 2)),
+        dims=("time", "space"),
+        coords={"space": ["x", "y"]},
+    )
+    with pytest.raises(ValueError, match="bins"):
+        compute_roaming_entropy(positions, bins=bins)
 
 
 @pytest.mark.parametrize("time_slice, expected_exception", time_range_cases)

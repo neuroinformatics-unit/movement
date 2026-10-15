@@ -24,9 +24,101 @@ import xarray as xr
 
 from movement.kinematics.kinematics import compute_backward_displacement
 from movement.utils.logging import logger
+from movement.utils.occupancy import occupancy_bin_edges
 from movement.utils.reports import report_nan_values
 from movement.utils.vector import compute_norm, compute_signed_angle_2d
 from movement.validators.arrays import validate_dims_coords
+
+
+def compute_roaming_entropy(
+    data: xr.DataArray,
+    bins: int | tuple[int, int] = 30,
+    normalise: bool = True,
+) -> xr.DataArray:
+    r"""Compute the entropy of a path's 2D spatial occupancy.
+
+    Each valid position contributes one count to a 2D histogram. Bin edges
+    span all valid positions in ``data`` and are shared across tracks, so
+    individuals and keypoints are evaluated against the same spatial grid.
+    Missing positions are omitted. A path with no valid positions returns NaN.
+
+    Parameters
+    ----------
+    data
+        Position data with ``time`` and ``space`` dimensions. The ``space``
+        coordinate must contain exactly ``x`` and ``y``.
+    bins
+        Number of bins along each axis, or a pair ``(x_bins, y_bins)``.
+    normalise
+        If True, divide the Shannon entropy by the logarithm of the total
+        number of bins, giving a value between 0 and 1. Defaults to True.
+
+    Returns
+    -------
+    xarray.DataArray
+        Roaming entropy for each track, with ``time`` and ``space`` removed.
+        A stationary path has entropy 0.
+
+    See Also
+    --------
+    movement.plots.plot_occupancy : Plot a 2D occupancy histogram.
+
+    Examples
+    --------
+    Compute one entropy value per individual from a centroid trajectory:
+
+    >>> from movement.kinematics import compute_roaming_entropy
+    >>> entropy = compute_roaming_entropy(
+    ...     ds.position.mean(dim="keypoint"), bins=20
+    ... )
+
+    """
+    validate_dims_coords(
+        data, {"time": [], "space": ["x", "y"]}, exact_coords=True
+    )
+    if isinstance(bins, int):
+        bin_counts = (bins, bins)
+    elif (
+        isinstance(bins, tuple)
+        and len(bins) == 2
+        and all(isinstance(n, int) for n in bins)
+    ):
+        bin_counts = bins
+    else:
+        raise ValueError("bins must be an integer or a pair of integers.")
+    if any(n < 1 for n in bin_counts):
+        raise ValueError("bins must contain positive integers.")
+
+    positions = data.sel(space=["x", "y"])
+    points = positions.transpose(..., "time", "space").values.reshape(-1, 2)
+    edges = occupancy_bin_edges(points[:, 0], points[:, 1], bin_counts)
+
+    def entropy_of_track(track: np.ndarray) -> float:
+        valid_track = track[np.isfinite(track).all(axis=1)]
+        if len(valid_track) == 0:
+            return float("nan")
+        counts, _, _ = np.histogram2d(
+            valid_track[:, 0], valid_track[:, 1], bins=edges
+        )
+        probabilities = counts[counts > 0] / len(valid_track)
+        entropy = -np.sum(probabilities * np.log(probabilities))
+        n_bins = bin_counts[0] * bin_counts[1]
+        return (
+            float(entropy / np.log(n_bins))
+            if normalise and n_bins > 1
+            else float(entropy)
+        )
+
+    result = xr.apply_ufunc(
+        entropy_of_track,
+        positions,
+        input_core_dims=[["time", "space"]],
+        vectorize=True,
+        output_dtypes=[float],
+    )
+    result.name = "roaming_entropy"
+    result.attrs["long_name"] = "Roaming Entropy"
+    return result
 
 
 def compute_path_length(

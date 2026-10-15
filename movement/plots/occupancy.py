@@ -9,9 +9,38 @@ import xarray as xr
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure, SubFigure
 
+from movement.utils.occupancy import occupancy_bin_edges
+
 type HistInfoKeys = Literal["h", "xedges", "yedges"]
 
 DEFAULT_HIST_ARGS = {"alpha": 1.0, "bins": 30, "cmap": "viridis"}
+
+
+def _shared_bin_edges(
+    data: xr.DataArray,
+    x_coord: Hashable,
+    y_coord: Hashable,
+    kwargs: dict[str, Any],
+) -> Any:
+    """Use the same regular occupancy grid as path metrics when possible."""
+    bins = kwargs["bins"]
+    if "range" in kwargs:
+        return bins
+    if isinstance(bins, int):
+        bin_counts = (bins, bins)
+    elif (
+        isinstance(bins, (tuple, list))
+        and len(bins) == 2
+        and all(isinstance(n, int) for n in bins)
+    ):
+        bin_counts = tuple(bins)
+    else:
+        return bins
+    return occupancy_bin_edges(
+        data.sel(space=x_coord).values,
+        data.sel(space=y_coord).values,
+        bin_counts,
+    )
 
 
 def plot_occupancy(
@@ -148,6 +177,7 @@ def plot_occupancy(
     for key, value in DEFAULT_HIST_ARGS.items():
         if key not in kwargs:
             kwargs[key] = value
+    kwargs["bins"] = _shared_bin_edges(data, x_coord, y_coord, kwargs)
     # Now it should just be a case of creating the histogram
     fig = ax.get_figure() if ax is not None else None
     if fig is None:
