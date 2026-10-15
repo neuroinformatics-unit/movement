@@ -1,8 +1,7 @@
 """Compute angular velocity and acceleration
 ============================================
 
-Compute the angular velocity and acceleration of the head, and smooth
-them.
+Compute the angular velocity and acceleration of the head.
 """
 
 # %%
