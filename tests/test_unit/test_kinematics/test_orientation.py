@@ -477,8 +477,6 @@ def test_angular_velocity_constant_rotation(
     """A constant rotation crossing +-pi yields a constant velocity."""
     data = _rotating_vector(scale=3.0, time_in_frames=time_in_frames)
     result = kinematics.compute_angular_velocity(data, in_degrees=in_degrees)
-    assert result.name == "angular_velocity"
-    assert result.dims == ("time",)
     if in_degrees:
         expected = np.rad2deg(expected)
     np.testing.assert_allclose(result, expected, atol=1e-9)
@@ -546,16 +544,11 @@ def test_extra_dims_and_dim_order(window, dims):
     ],
 )
 def test_angular_acceleration(window, in_degrees, expected):
-    """A constant angular acceleration is recovered, away from the
-    edges, and the output is named after the computed quantity.
-    """
+    """A constant angular acceleration is recovered, away from the edges."""
     data = _rotating_vector(angular_velocity=1.0, angular_acceleration=4.0)
     result = kinematics.compute_angular_acceleration(
         data, window=window, in_degrees=in_degrees
     )
-    assert result.name == "angular_acceleration"
-    assert result.dims == ("time",)
-    assert result.attrs == {}
     np.testing.assert_allclose(
         result.isel(time=slice(5, -5)), expected, atol=1e-4
     )
@@ -682,12 +675,16 @@ def test_output_name_and_attrs(window, in_degrees):
     velocity = kinematics.compute_angular_velocity(
         vector, window=window, in_degrees=in_degrees
     )
+    acceleration = kinematics.compute_angular_acceleration(
+        vector, window=window, in_degrees=in_degrees
+    )
     derivative = kinematics.compute_angular_time_derivative(
         vector, order=1, window=window
     )
     assert velocity.name == "angular_velocity"
+    assert acceleration.name == "angular_acceleration"
     assert derivative.name == "angular_time_derivative"
-    assert velocity.attrs == derivative.attrs == {}
+    assert velocity.attrs == acceleration.attrs == derivative.attrs == {}
 
 
 def test_raw_irregular_time():
