@@ -376,9 +376,9 @@ def compute_angular_time_derivative(
         angle = compute_signed_angle_2d(
             padded.isel(time=slice(None, -2)), padded.isel(time=slice(2, None))
         )
-        result = (angle / (time[2:] - time[:-2])).assign_coords(
-            time=data["time"]
-        )
+        # Divide along "time" by name
+        dt = xr.DataArray(time[2:] - time[:-2], dims="time")
+        result = (angle / dt).assign_coords(time=data["time"])
         # The result is a rate, not an angle, so it doesn't wrap around;
         # higher orders can use the ordinary time derivative.
         if order > 1:
