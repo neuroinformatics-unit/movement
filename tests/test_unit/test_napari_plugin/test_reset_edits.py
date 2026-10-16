@@ -173,6 +173,37 @@ def test_reset_controls_and_timeline(loaded_poses_layers, qtbot, monkeypatch):
     qtbot.waitUntil(lambda: not controls.reset_all_button.isEnabled())
 
 
+def test_reset_inactive_pose_keeps_active_timeline(loaded_poses_layers, qtbot):
+    """Resetting another pose layer does not change the displayed timeline."""
+    points, _, original, props, viewer = loaded_poses_layers
+    timeline = EditTimelineWidget(viewer)
+    qtbot.addWidget(timeline)
+    other = Points(
+        original[:, 1:].copy(),
+        properties={key: values.copy() for key, values in props.items()},
+        metadata={
+            wiring.POINTS_LAYER_KEY: True,
+            wiring.POINTS_PROPERTIES_KEY: points.metadata[
+                wiring.POINTS_PROPERTIES_KEY
+            ].copy(),
+            wiring.POINTS_POSITION_KEY: original.copy(),
+            wiring.MAX_FRAME_IDX_KEY: 1,
+        },
+    )
+    wiring.add_edits_reset_event(other)
+    viewer.add_layer(other)
+    viewer.layers.selection.active = other
+    other.remove([3])
+    assert timeline.active_layer is other
+    removed_points = timeline._removed_points.copy()
+    assert removed_points == [(1, "b")]
+
+    wiring.reset_edits(points)
+
+    assert timeline.active_layer is other
+    assert timeline._removed_points == removed_points
+
+
 def test_reset_controls_without_loaded_pose(qtbot):
     """Reset is unavailable for unrelated points or an empty viewer."""
     viewer = ViewerModel()
