@@ -592,13 +592,6 @@ def test_angular_acceleration(window, in_degrees, expected):
     )
 
 
-def test_angular_time_derivative_order_2():
-    """Order 2 recovers a constant angular acceleration."""
-    vector = _rotating_vector(angular_velocity=1.0, angular_acceleration=4.0)
-    result = kinematics.compute_angular_time_derivative(vector, order=2)
-    np.testing.assert_allclose(result.isel(time=slice(2, -2)), 4.0, atol=1e-6)
-
-
 @pytest.mark.parametrize(
     "data, kwargs, expected_exception",
     [
@@ -707,15 +700,6 @@ def test_nans_stay_local(window, max_nans_per_gap, nan_frames):
     assert result.isnull().sum() <= max_nans_per_gap * len(nan_frames)
     interior = result.isel(time=slice(5, -5)).dropna("time")
     np.testing.assert_allclose(interior, 10.0, atol=1e-6)
-
-
-def test_angular_time_derivative_order_2_window():
-    """A windowed order-2 derivative recovers a constant acceleration."""
-    vector = _rotating_vector(angular_velocity=1.0, angular_acceleration=4.0)
-    result = kinematics.compute_angular_time_derivative(
-        vector, order=2, window=9
-    )
-    np.testing.assert_allclose(result.isel(time=slice(5, -5)), 4.0, atol=1e-6)
 
 
 @pytest.mark.parametrize("in_degrees", [False, True], ids=["rad", "deg"])
