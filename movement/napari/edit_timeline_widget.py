@@ -40,6 +40,11 @@ ZOOM_OUT_FACTOR = 1.25
 # the start of a pan drag (avoids a shaky click being read as a pan).
 DRAG_THRESHOLD_PIXELS = 3
 
+# More labels than this do not fit legibly in the fixed-height timeline dock.
+# Keep the individual lanes and their colour-coded edits, but hide labels and
+# dividers when this limit is exceeded.
+MAX_LANES_WITH_LABELS = 10
+
 
 class EditControlsWidget(QWidget):
     """Sidebar controls for the edited-frames timeline.
@@ -331,26 +336,31 @@ class EditTimelineWidget(QWidget):
         if self._show_individuals:
             n_lanes = len(unique_individuals)
             lane_of = {ind: i for i, ind in enumerate(unique_individuals)}
-            self.ax.set_yticks([(i + 0.5) / n_lanes for i in range(n_lanes)])
-            self.ax.set_yticklabels(unique_individuals, fontsize="small")
-            # Thin horizontal rules separating each individual's lane.
-            for i in range(1, n_lanes):
-                self._lane_dividers.append(
-                    self.ax.axhline(
-                        i / n_lanes,
-                        color=self._foreground,
-                        linewidth=0.5,
-                        alpha=0.3,
-                        zorder=1,
-                    )
+            if n_lanes <= MAX_LANES_WITH_LABELS:
+                self.ax.set_yticks(
+                    [(i + 0.5) / n_lanes for i in range(n_lanes)]
                 )
+                self.ax.set_yticklabels(unique_individuals, fontsize="small")
+                # Thin horizontal rules separating each individual's lane.
+                for i in range(1, n_lanes):
+                    self._lane_dividers.append(
+                        self.ax.axhline(
+                            i / n_lanes,
+                            color=self._foreground,
+                            linewidth=0.5,
+                            alpha=0.3,
+                            zorder=1,
+                        )
+                    )
+            else:
+                self.ax.set_yticks([])
         else:
             # A single shared lane: one bar per edited frame, regardless
             # of how many (or which) individuals were edited on it.
             n_lanes = 1
             lane_of = dict.fromkeys(unique_individuals, 0)
             self.ax.set_yticks([])
-        lane_height = 1.0 / n_lanes
+        lane_height = 1.0 / max(n_lanes, 1)
 
         color_of = self._bar_color_lookup()
 
