@@ -84,6 +84,9 @@ def test_reset_restores_deleted_points_and_keeps_other_edits(
     wiring.reset_edits(points, frame=frame)
     np.testing.assert_array_equal(tracks.data, expected_tracks)
     np.testing.assert_array_equal(
+        tracks.properties["track_id"], np.asarray(expected_tracks)[:, 0]
+    )
+    np.testing.assert_array_equal(
         points.data, np.asarray(expected_tracks)[:, 1:]
     )
     np.testing.assert_array_equal(points.properties["edited"], expected_edited)

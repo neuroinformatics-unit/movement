@@ -330,9 +330,9 @@ def reset_edits(points_layer: Points, frame: int | None = None) -> None:
         return {
             key: np.concatenate(
                 [
-                    np.asarray(
-                        current.get(key, np.zeros(len(tracks.data), bool))
-                    )[keep],
+                    np.asarray(current[key])[keep]
+                    if key in current
+                    else np.zeros(keep.sum(), bool),
                     loaded[key].to_numpy()[restore]
                     if key in loaded
                     else np.zeros(restore.sum(), bool),
@@ -345,6 +345,9 @@ def reset_edits(points_layer: Points, frame: int | None = None) -> None:
         points_layer.properties, drop_internal_properties(loaded_props)
     )
     track_properties = merge_properties(tracks.properties, loaded_props)
+    # napari's auto-generated track_id is absent from the loaded props,
+    # so rebuild it from the merged data instead of zero-filling it
+    track_properties["track_id"] = data[:, 0].astype(int)
     # Kept points keep their current symbol; restored points are derived
     # from their loaded edited flag, as on load
     loaded_edited = (
