@@ -619,7 +619,7 @@ def test_angular_acceleration(window, in_degrees, expected):
 def test_angular_time_derivative_invalid_inputs(
     data, kwargs, expected_exception
 ):
-    """Invalid inputs raise informative errors."""
+    """Invalid inputs raise appropriate errors."""
     with pytest.raises(expected_exception):
         kinematics.compute_angular_time_derivative(
             data, **{"order": 1, **kwargs}
@@ -648,30 +648,50 @@ def test_angular_velocity_window_constant_rotation(time_in_frames, expected):
     assert result.isel(time=slice(-h, None)).isnull().all()
 
 
-def test_angular_velocity_window_matches_polyfit():
+@pytest.fixture
+def noisy_angle():
+    """Return wrapped angles of a rotation crossing +-pi, plus noise."""
+    angle = _rotating_angle()
+    noise = np.random.default_rng(seed=42).normal(0, 0.05, angle.size)
+    return angle.copy(data=np.angle(np.exp(1j * (angle.values + noise))))
+
+
+def test_angular_velocity_window_matches_polyfit(noisy_angle):
     """The windowed estimate equals the slope of a least-squares line
     over the centred window, and the trailing-window recipe equals the
     slope over the window ending at each time point.
     """
-    window, h, i = 7, 3, 100
-    rng = np.random.default_rng(seed=42)
-    angle = _rotating_angle()
-    noisy = angle.copy(
-        data=np.angle(
-            np.exp(1j * (angle.values + rng.normal(0, 0.05, angle.size)))
-        )
+    window = 7
+    half = window // 2
+    i = 100  # any frame far enough from the edges
+
+    # Reference: slope of a straight line fitted to the unwrapped angle
+    t = noisy_angle.time.values
+    unwrapped = np.unwrap(noisy_angle.values)
+
+    def fitted_slope(frames):
+        return np.polyfit(t[frames], unwrapped[frames], deg=1)[0]
+
+    result = kinematics.compute_angular_velocity(
+        _angle_to_vector(noisy_angle), window=window
     )
-    t, unwrapped = noisy.time.values, np.unwrap(noisy.values)
-    noisy_vector = _angle_to_vector(noisy)
-    result = kinematics.compute_angular_velocity(noisy_vector, window=window)
-    centred_win = slice(i - h, i + h + 1)
-    centred = np.polyfit(t[centred_win], unwrapped[centred_win], 1)
-    assert np.isclose(result.values[i], centred[0])
-    trailing_win = slice(i - window + 1, i + 1)
-    trailing = np.polyfit(t[trailing_win], unwrapped[trailing_win], 1)
-    assert np.isclose(result.shift(time=h).values[i], trailing[0])
-    raw = kinematics.compute_angular_velocity(noisy_vector)
-    assert result.std() < raw.std()
+
+    # Centred window: frames i - half, ..., i + half
+    centred_frames = slice(i - half, i + half + 1)
+    assert np.isclose(result.values[i], fitted_slope(centred_frames))
+
+    # Trailing window (as in the example): frames i - window + 1, ..., i
+    trailing = result.shift(time=half)
+    trailing_frames = slice(i - window + 1, i + 1)
+    assert np.isclose(trailing.values[i], fitted_slope(trailing_frames))
+
+
+def test_angular_velocity_window_reduces_noise(noisy_angle):
+    """The windowed estimate is less noisy than the raw one."""
+    vector = _angle_to_vector(noisy_angle)
+    raw = kinematics.compute_angular_velocity(vector)
+    windowed = kinematics.compute_angular_velocity(vector, window=7)
+    assert windowed.std() < raw.std()
 
 
 @pytest.mark.parametrize(
