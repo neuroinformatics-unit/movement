@@ -517,17 +517,24 @@ def test_zero_length_vector_treated_as_nan():
     np.testing.assert_allclose(result.dropna("time"), 10.0, atol=1e-9)
 
 
+@pytest.mark.parametrize(
+    "dims",
+    [
+        pytest.param(("time", "space", "individual"), id="time_first"),
+        pytest.param(("individual", "time", "space"), id="time_middle"),
+        pytest.param(("individual", "space", "time"), id="time_last"),
+    ],
+)
 @pytest.mark.parametrize("window", [None, 5], ids=["raw", "window"])
-def test_extra_dims_and_dim_order(window):
+def test_extra_dims_and_dim_order(window, dims):
     """Each series is handled independently, whatever the dim order."""
     angle = _rotating_angle(angular_velocity=0.5, fps=1)
     angles = xr.concat([angle, -angle], dim="individual").assign_coords(
         individual=["id_0", "id_1"]
     )
-    data = _angle_to_vector(angles)
-    assert data.dims == ("individual", "time", "space")
+    data = _angle_to_vector(angles).transpose(*dims)
     result = kinematics.compute_angular_velocity(data, window=window)
-    assert result.dims == ("individual", "time")
+    assert result.dims == tuple(d for d in dims if d != "space")
     np.testing.assert_allclose(
         result.isel(time=slice(2, -2)).sel(individual="id_1"), -0.5
     )
