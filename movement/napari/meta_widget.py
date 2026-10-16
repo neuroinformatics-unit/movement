@@ -15,6 +15,7 @@ from movement.napari.edit_timeline_widget import (
     EditTimelineWidget,
 )
 from movement.napari.layer_wiring import (
+    ViewerEventsMixin,
     active_movement_points_layer,
     is_movement_points_layer,
 )
@@ -23,7 +24,7 @@ from movement.napari.regions_widget import RegionsWidget
 from movement.napari.save_widget import DataSaver
 
 
-class MovementMetaWidget(CollapsibleWidgetContainer):
+class MovementMetaWidget(ViewerEventsMixin, CollapsibleWidgetContainer):
     """The widget to rule all ``movement`` napari widgets.
 
     This is a container of collapsible widgets, each responsible
@@ -78,12 +79,25 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         loader_collapsible = self.collapsible_widgets[0]
         loader_collapsible.expand()  # expand the loader widget by default
 
-        napari_viewer.layers.events.inserted.connect(self._on_layer_inserted)
-
         self.edit_controls.show_individuals_checkbox.setEnabled(False)
-        napari_viewer.layers.selection.events.active.connect(
-            self._show_individuals_enabled
-        )
+        self._connect_viewer_events()
+
+    def _viewer_event_connections(self):
+        """Return the viewer events this widget listens to while visible."""
+        return [
+            (self._viewer.layers.events.inserted, self._on_layer_inserted),
+            (
+                self._viewer.layers.selection.events.active,
+                self._show_individuals_enabled,
+            ),
+        ]
+
+    def _sync_with_viewer(self) -> None:
+        """Catch up on movement Points layers added while hidden."""
+        for layer in self._viewer.layers:
+            if is_movement_points_layer(layer):
+                layer.events.data.connect(self._on_points_edited)
+        self._show_individuals_enabled()
 
     def _on_layer_inserted(self, event) -> None:
         """Keep the edit timeline section collapsed until a point is edited."""
