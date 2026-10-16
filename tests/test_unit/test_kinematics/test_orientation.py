@@ -484,15 +484,26 @@ def test_angular_velocity_constant_rotation(
     np.testing.assert_allclose(result, expected, atol=1e-9)
 
 
-def test_angular_velocity_sign_convention():
+@pytest.mark.parametrize("window", [None, 3], ids=["raw", "window_3"])
+@pytest.mark.parametrize(
+    "step, expected_sign",
+    [
+        pytest.param(0.1, 1, id="towards_+y"),
+        pytest.param(-0.1, -1, id="towards_-y"),
+    ],
+)
+def test_angular_velocity_sign_convention(step, expected_sign, window):
     """Rotating from +x towards +y (clockwise in image coordinates)
-    gives a positive angular velocity.
+    gives a positive angular velocity, and the reverse a negative one.
     """
     angle = xr.DataArray(
-        [0.0, 0.1, 0.2], dims="time", coords={"time": [0, 1, 2]}
+        np.arange(5) * step, dims="time", coords={"time": np.arange(5)}
     )
-    result = kinematics.compute_angular_velocity(_angle_to_vector(angle))
-    assert (result > 0).all()
+    result = kinematics.compute_angular_velocity(
+        _angle_to_vector(angle), window=window
+    ).dropna("time")
+    assert result.size > 0
+    assert (np.sign(result) == expected_sign).all()
 
 
 def test_angular_velocity_nans_stay_local():
