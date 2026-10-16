@@ -383,6 +383,8 @@ def compute_angular_time_derivative(
         result = (relative_angle * xr.DataArray(coeffs, dims="offset")).sum(
             "offset", skipna=False
         )
+    # Drop attrs for consistency with compute_time_derivative (for now).
+    # See https://github.com/neuroinformatics-unit/movement/issues/1158
     result.attrs = {}
     result.name = "angular_time_derivative"
     return result
