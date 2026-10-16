@@ -47,7 +47,9 @@ class MovementMetaWidget(CollapsibleWidgetContainer):
         # A collapsible "edit controls" widget that can be used
         # to show/hide and configure the edit timeline docked
         # to the bottom of the viewer.
-        self.edit_controls = EditControlsWidget(parent=self)
+        self.edit_controls = EditControlsWidget(
+            parent=self, napari_viewer=napari_viewer
+        )
         self.edit_controls.show_individuals_toggled.connect(
             self._on_show_individuals_toggled
         )
