@@ -368,6 +368,8 @@ def compute_angular_time_derivative(
         result = (angle / (time[2:] - time[:-2])).assign_coords(
             time=vectors["time"]
         )
+        # The result is a rate, not an angle, so it doesn't wrap around;
+        # higher orders can use the ordinary time derivative.
         if order > 1:
             result = compute_time_derivative(result, order - 1)
     else:
